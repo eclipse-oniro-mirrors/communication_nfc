@@ -1,0 +1,50 @@
+# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+
+ROOT = "//foundation/communication/nfc/services/connected_tag"
+
+ohos_shared_library("nfc_connected_tag_service") {
+  include_dirs = [
+    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/interfaces",
+    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/include",
+    "$ROOT/src/hardware/include",
+    "include",
+  ]
+
+  sources = [
+    "src/connected_tag_session_stub.cpp",
+    "src/connected_tag_service_impl.cpp",
+    "src/connected_tag_callback_proxy.cpp",
+  ]
+
+  deps = [
+    "$ROOT/src/hardware:connected_tag_hdi_adapter",
+    "$ROOT/etc/init:etc",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
+    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core"
+  ]
+
+  part_name = "nfc_connected_tag"
+  subsystem_name = "communication"
+}
