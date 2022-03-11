@@ -22,12 +22,14 @@ ohos_shared_library("nfc_connected_tag_service") {
     "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/include",
     "$ROOT/src/hardware/include",
     "include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   ]
 
   sources = [
     "src/connected_tag_session_stub.cpp",
     "src/connected_tag_service_impl.cpp",
     "src/connected_tag_callback_proxy.cpp",
+    "src/permission_tools.cpp",
   ]
 
   deps = [
@@ -42,6 +44,7 @@ ohos_shared_library("nfc_connected_tag_service") {
   external_deps = [
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
+    "access_token:libaccesstoken_sdk",
     "ipc:ipc_core"
   ]
 
