@@ -17,6 +17,7 @@
 #include "connected_tag_hdi_adapter.h"
 #include "ipc_cmd.h"
 #include "log.h"
+#include "permission_tools.h"
 
 namespace OHOS {
 namespace ConnectedTag {
@@ -86,6 +87,10 @@ bool NfcConnectedTagServiceImpl::ServiceInit()
 ErrCode NfcConnectedTagServiceImpl::Init()
 {
     HILOGE("NfcConnectedTagServiceImpl:Init() in!");
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:Init() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     if (NfcHdiAdapter::GetInstance().Init() == 0) {
         return NFC_OPT_SUCCESS;
     }
@@ -94,6 +99,10 @@ ErrCode NfcConnectedTagServiceImpl::Init()
 
 ErrCode NfcConnectedTagServiceImpl::Uninit()
 {
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:Uninit() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     if (NfcHdiAdapter::GetInstance().Uninit() == 0) {
         return NFC_OPT_SUCCESS;
     }
@@ -102,12 +111,20 @@ ErrCode NfcConnectedTagServiceImpl::Uninit()
 
 ErrCode NfcConnectedTagServiceImpl::ReadNdefTag(std::string &response)
 {
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:ReadNdefTag() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     response = NfcHdiAdapter::GetInstance().ReadNdefTag();
     return NFC_OPT_SUCCESS;
 }
 
 ErrCode NfcConnectedTagServiceImpl::WriteNdefTag(std::string data)
 {
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:WriteNdefTag() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     if (NfcHdiAdapter::GetInstance().WriteNdefTag(data) == 0) {
         return NFC_OPT_SUCCESS;
     }
@@ -116,10 +133,18 @@ ErrCode NfcConnectedTagServiceImpl::WriteNdefTag(std::string data)
 
 ErrCode NfcConnectedTagServiceImpl::RegListener(const sptr<IConnectedTagCallBack> &callback)
 {
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:RegListener() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     return NFC_OPT_SUCCESS;
 }
 ErrCode NfcConnectedTagServiceImpl::UnregListener(const sptr<IConnectedTagCallBack> &callback)
 {
+    if (!PermissionTools::IsGranted(OHOS::ConnectedTag::TAG_PERMISSION)) {
+        HILOGE("NfcConnectedTagServiceImpl:UnregListener() IsGranted failed!");
+        return NFC_OPT_FAILED;
+    }
     return NFC_OPT_SUCCESS;
 }
 }  // namespace ConnectedTag
