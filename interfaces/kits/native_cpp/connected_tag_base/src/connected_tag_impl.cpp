@@ -19,7 +19,6 @@
 
 namespace OHOS {
 namespace ConnectedTag {
-
 ConnectedTagImpl::ConnectedTagImpl()
 {
     HILOGI("ConnectedTagImpl() in");

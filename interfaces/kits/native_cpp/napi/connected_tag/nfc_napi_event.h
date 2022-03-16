@@ -26,13 +26,16 @@
 
 namespace OHOS {
 namespace ConnectedTag {
+static std::shared_mutex g_regInfoMutex;
+static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
 class AsyncEventData {
 public:
     napi_env env;
     napi_ref callbackRef;
     napi_value jsEvent;
 
-    explicit AsyncEventData(napi_env e, napi_ref r, napi_value v) {
+    explicit AsyncEventData(napi_env e, napi_ref r, napi_value v)
+    {
         env = e;
         callbackRef = r;
         jsEvent = v;
@@ -60,16 +63,14 @@ public:
     napi_ref m_regHanderRef;
 };
 
-static std::shared_mutex g_regInfoMutex;
-static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
-
 class NapiEvent {
 public:
     bool CheckIsRegister(const std::string& type);
     void EventNotify(AsyncEventData *asyncEvent);
 
     template<typename T>
-    void CheckAndNotify(const std::string& type, const T& obj) {
+    void CheckAndNotify(const std::string& type, const T& obj)
+    {
         std::shared_lock<std::shared_mutex> guard(g_regInfoMutex);
         if (!CheckIsRegister(type)) {
             return;

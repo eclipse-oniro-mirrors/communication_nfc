@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace ConnectedTag {
-class TagSessionStub: public IRemoteStub<ITagSession> {
+class TagSessionStub : public IRemoteStub<ITagSession> {
 public:
     TagSessionStub();
     virtual ~TagSessionStub();
