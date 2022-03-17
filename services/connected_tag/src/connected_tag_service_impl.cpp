@@ -23,7 +23,8 @@ namespace OHOS {
 namespace ConnectedTag {
 std::mutex NfcConnectedTagServiceImpl::g_instanceLock;
 sptr<NfcConnectedTagServiceImpl> NfcConnectedTagServiceImpl::g_instance;
-const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(NfcConnectedTagServiceImpl::GetInstance().GetRefPtr());
+const bool REGISTER_RESULT =
+    SystemAbility::MakeAndRegisterAbility(NfcConnectedTagServiceImpl::GetInstance().GetRefPtr());
 
 sptr<NfcConnectedTagServiceImpl> NfcConnectedTagServiceImpl::GetInstance()
 {
@@ -38,7 +39,8 @@ sptr<NfcConnectedTagServiceImpl> NfcConnectedTagServiceImpl::GetInstance()
 }
 
 NfcConnectedTagServiceImpl::NfcConnectedTagServiceImpl()
-    : SystemAbility(NFC_CONNECTED_TAG_ABILITY_ID, true), mPublishFlag(false), mState(ServiceRunningState::STATE_NOT_START)
+    : SystemAbility(NFC_CONNECTED_TAG_ABILITY_ID, true), mPublishFlag(false),
+    mState(ServiceRunningState::STATE_NOT_START)
 {
 }
 
