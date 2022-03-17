@@ -12,10 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NFC_NAPI_EVENT_H_
 #define NFC_NAPI_EVENT_H_
-
 #include <string>
 #include <set>
 #include <map>
@@ -26,8 +24,6 @@
 
 namespace OHOS {
 namespace ConnectedTag {
-static std::shared_mutex g_regInfoMutex;
-static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
 class AsyncEventData {
 public:
     napi_env env;
@@ -62,6 +58,9 @@ public:
     napi_env m_regEnv;
     napi_ref m_regHanderRef;
 };
+
+static std::shared_mutex g_regInfoMutex;
+static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
 
 class NapiEvent {
 public:
