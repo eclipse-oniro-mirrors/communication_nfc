@@ -18,11 +18,11 @@
 
 namespace OHOS {
 namespace ConnectedTag {
-static sptr<ohos::hardware::nfc::v1_0::IConnectedTagHdi> g_iConnectedTagHdi;
+static sptr<OHOS::HDI::NFC::V1_0::IConnectedTagHdi> g_iConnectedTagHdi;
 NfcHdiAdapter::NfcHdiAdapter()
 {
     HILOGI("NfcHdiAdapter: NfcHdiAdapter called.");
-    sptr<ohos::hardware::nfc::v1_0::IConnectedTagHdi> nfcHdi = ohos::hardware::nfc::v1_0::IConnectedTagHdi::Get();
+    sptr<OHOS::HDI::NFC::V1_0::IConnectedTagHdi> nfcHdi = OHOS::HDI::NFC::V1_0::IConnectedTagHdi::Get();
     if (nfcHdi == nullptr) {
         HILOGE("NfcHdiAdapter: IConnectedTagHdi::Get failed.");
     }
