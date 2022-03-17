@@ -25,7 +25,7 @@ namespace OHOS {
 namespace ConnectedTag {
 class TraceFuncCall final {
 public:
-    TraceFuncCall(std::string funcName);
+    explicit TraceFuncCall(const std::string funcName);
 
     TraceFuncCall() = delete;
 
