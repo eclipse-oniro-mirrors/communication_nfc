@@ -26,4 +26,4 @@ public:
 };
 }  // namespace ConnectedTag
 }  // namespace OHOS
-#endif //NFC_ICONNECTED_TAG_CALLBACK_H
+#endif // NFC_ICONNECTED_TAG_CALLBACK_H

@@ -23,8 +23,7 @@ NfcHdiAdapter::NfcHdiAdapter()
 {
     HILOGI("NfcHdiAdapter: NfcHdiAdapter called.");
     sptr<ohos::hardware::nfc::v1_0::IConnectedTagHdi> nfcHdi = ohos::hardware::nfc::v1_0::IConnectedTagHdi::Get();
-    if (nfcHdi == nullptr)
-    {
+    if (nfcHdi == nullptr) {
         HILOGE("NfcHdiAdapter: IConnectedTagHdi::Get failed.");
     }
     g_iConnectedTagHdi = nfcHdi;

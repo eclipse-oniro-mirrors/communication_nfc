@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace ConnectedTag {
-
 const std::string EVENT_NOTIFY = "notify";
 
 static std::set<std::string> g_supportEventList = {
@@ -103,12 +102,14 @@ public:
     }
 
 public:
-    void OnNotify(int nfcRfState) override {
+    void OnNotify(int nfcRfState) override
+    {
         HILOGI("OnNotify rcvd nfcRfState: %{public}d", nfcRfState);
         CheckAndNotify(EVENT_NOTIFY, nfcRfState);
     }
 
-    OHOS::sptr<OHOS::IRemoteObject> AsObject() override {
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
         return nullptr;
     }
 };
@@ -116,7 +117,8 @@ public:
 sptr<NfcListenerEvent> nfcListenerEvent =
     sptr<NfcListenerEvent>(new (std::nothrow) NfcListenerEvent());
 
-napi_value On(napi_env env, napi_callback_info cbinfo) {
+napi_value On(napi_env env, napi_callback_info cbinfo)
+{
     TRACE_FUNC_CALL;
     size_t requireArgc = 2;
     size_t argc = 2;
@@ -128,8 +130,7 @@ napi_value On(napi_env env, napi_callback_info cbinfo) {
     napi_valuetype handler = napi_undefined;
     napi_typeof(env, argv[1], &handler);
 
-    if (argc != requireArgc || eventName != napi_string || handler != napi_function)
-    {
+    if (argc != requireArgc || eventName != napi_string || handler != napi_function) {
         HILOGE("On args invalid, failed!");
         napi_value result;
         napi_get_boolean(env, false, &result);
@@ -145,7 +146,8 @@ napi_value On(napi_env env, napi_callback_info cbinfo) {
     return result;
 }
 
-napi_value Off(napi_env env, napi_callback_info cbinfo) {
+napi_value Off(napi_env env, napi_callback_info cbinfo)
+{
     TRACE_FUNC_CALL;
     size_t requireArgc = 1;
     size_t requireArgcWithCb = 2;
@@ -228,7 +230,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     RegObj regObj(env, handlerRef);
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
-        g_eventRegisterInfo[type] = std::vector<RegObj>{regObj};
+        g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
     } else {
         iter->second.emplace_back(regObj);
     }
@@ -237,7 +239,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
 void EventRegister::DeleteRegisterObj(std::vector<RegObj>& vecRegObjs, napi_value& handler)
 {
     auto iter = vecRegObjs.begin();
-    for (; iter != vecRegObjs.end();) {
+    for (;iter != vecRegObjs.end();) {
         napi_value handlerTemp = nullptr;
         napi_get_reference_value(iter->m_regEnv, iter->m_regHanderRef, &handlerTemp);
         bool isEqual = false;

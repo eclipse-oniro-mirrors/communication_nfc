@@ -279,12 +279,13 @@ napi_value DoAsyncWork(const napi_env& env, AsyncContext *asyncContext,
     }
 }
 
-bool ParseString(napi_env env, std::string &param, napi_value args) {
+bool ParseString(napi_env env, std::string &param, napi_value args)
+{
     napi_valuetype valuetype;
     napi_typeof(env, args, &valuetype);
 
     HILOGI("param=%{public}d.", valuetype);
-    if(valuetype != napi_string) {
+    if (valuetype != napi_string) {
         HILOGE("Wrong argument type. String expected.");
         return false;
     }
