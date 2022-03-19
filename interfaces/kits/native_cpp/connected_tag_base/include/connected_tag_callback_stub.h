@@ -15,10 +15,10 @@
 #ifndef OHOS_CONNECTED_TAG_CALLBACK_STUB_H
 #define OHOS_CONNECTED_TAG_CALLBACK_STUB_H
 
+#include <shared_mutex>
 #include "iremote_stub.h"
 #include "iremote_object.h"
 #include "iconnected_tag_callback.h"
-#include <shared_mutex>
 #include "error_code.h"
 
 namespace OHOS {

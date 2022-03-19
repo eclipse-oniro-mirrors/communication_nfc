@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "permission_tools.h"
-#include "ipc_skeleton.h"
-#include "accesstoken_kit.h"
 #include <string>
+#include "accesstoken_kit.h"
+#include "ipc_skeleton.h"
+#include "permission_tools.h"
 
 namespace OHOS {
 namespace ConnectedTag {
@@ -26,10 +26,10 @@ bool PermissionTools::IsGranted(std::string permission)
     int result = Security::AccessToken::PermissionState::PERMISSION_GRANTED;
     if (Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken)
         == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-       result =  Security::AccessToken::AccessTokenKit::VerifyNativeToken(callerToken, permission);
+        result =  Security::AccessToken::AccessTokenKit::VerifyNativeToken(callerToken, permission);
     } else if (Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken)
-       == Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
-       result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
+        == Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
+        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
     } else {
     }
     return result == Security::AccessToken::PermissionState::PERMISSION_GRANTED;

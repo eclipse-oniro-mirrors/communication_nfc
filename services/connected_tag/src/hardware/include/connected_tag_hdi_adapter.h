@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_CONNECTED_TAG_HDI_ADAPTER_H
+#define OHOS_CONNECTED_TAG_HDI_ADAPTER_H
+
 #include <stdint.h>
 #include <string>
 namespace OHOS {
@@ -33,3 +36,4 @@ private:
 };
 }  // namespace Nfc_Connected_Tag
 }  // namespace OHOS
+#endif
