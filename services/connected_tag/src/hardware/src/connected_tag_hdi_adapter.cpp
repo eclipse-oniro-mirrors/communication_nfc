@@ -41,8 +41,7 @@ NfcHdiAdapter &NfcHdiAdapter::GetInstance()
 int32_t NfcHdiAdapter::Init()
 {
     HILOGI("NfcHdiAdapter::Init() starts");
-    if (g_iConnectedTagHdi != nullptr)
-    {
+    if (g_iConnectedTagHdi != nullptr) {
         g_iConnectedTagHdi->Init();
     }
     return 0;
@@ -50,8 +49,7 @@ int32_t NfcHdiAdapter::Init()
 int32_t NfcHdiAdapter::Uninit()
 {
     HILOGI("NfcHdiAdapter::Uninit() starts");
-    if (g_iConnectedTagHdi != nullptr)
-    {
+    if (g_iConnectedTagHdi != nullptr) {
         g_iConnectedTagHdi->Uninit();
     }
     return 0;
@@ -60,8 +58,7 @@ std::string NfcHdiAdapter::ReadNdefTag()
 {
     HILOGI("NfcHdiAdapter::ReadNdefTag() starts");
     std::string resp = "";
-    if (g_iConnectedTagHdi != nullptr)
-    {
+    if (g_iConnectedTagHdi != nullptr) {
         resp = g_iConnectedTagHdi->ReadNdefTag();
         HILOGI("NfcHdiAdapter::ReadNdefTag() resp = %{public}s", resp.c_str());
     }
@@ -70,8 +67,7 @@ std::string NfcHdiAdapter::ReadNdefTag()
 int32_t NfcHdiAdapter::WriteNdefTag(std::string data)
 {
     HILOGI("NfcHdiAdapter::WriteNdefTag() starts data = %{public}s", data.c_str());
-    if (g_iConnectedTagHdi != nullptr)
-    {
+    if (g_iConnectedTagHdi != nullptr) {
         g_iConnectedTagHdi->WriteNdefTag(data);
     }
     return 0;

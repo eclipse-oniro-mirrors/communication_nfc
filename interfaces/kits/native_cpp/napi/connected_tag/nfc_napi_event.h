@@ -51,7 +51,8 @@ class RegObj {
 public:
     RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {
     }
-    explicit RegObj(const napi_env& env, const napi_ref& ref) {
+    explicit RegObj(const napi_env& env, const napi_ref& ref)
+    {
         m_regEnv = env;
         m_regHanderRef = ref;
     }

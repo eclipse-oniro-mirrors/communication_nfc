@@ -16,10 +16,11 @@
 #define OHOS_TAG_SESSION_STUB_H
 
 #include <map>
-#include "i_tag_session.h"
-#include "iremote_stub.h"
 #include <stdint.h>
 #include <string>
+#include "i_tag_session.h"
+#include "iremote_stub.h"
+
 
 namespace OHOS {
 namespace ConnectedTag {
