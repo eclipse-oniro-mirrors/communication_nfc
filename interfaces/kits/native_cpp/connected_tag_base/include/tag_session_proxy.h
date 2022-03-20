@@ -14,8 +14,8 @@
  */
 #ifndef OHOS_NFC_TAG_SESSION_PROXY_H
 #define OHOS_NFC_TAG_SESSION_PROXY_H
-#include "i_tag_session.h"
 #include <stdint.h>
+#include "i_tag_session.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
@@ -38,9 +38,9 @@ public:
     ErrCode UnregListener(const sptr<IConnectedTagCallBack> &callback) override;
 
     /**
-    * @Description Handle remote object died event.
-    * @param remoteObject remote object.
-    */
+     * @Description Handle remote object died event.
+     * @param remoteObject remote object.
+     */
     void OnRemoteDied(const wptr<IRemoteObject> &remoteObject) override;
 
 private:
