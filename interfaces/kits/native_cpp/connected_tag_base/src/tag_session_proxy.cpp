@@ -12,8 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdint.h>
-#include <string>
 #include "connected_tag_callback_stub.h"
 #include "ipc_cmd.h"
 #include "log.h"
