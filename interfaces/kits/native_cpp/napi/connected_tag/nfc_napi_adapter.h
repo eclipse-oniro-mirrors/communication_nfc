@@ -28,21 +28,21 @@ class ReadAsyncContext : public AsyncContext {
 public:
     std::string respNdefData;
     ReadAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred){}
+        AsyncContext(env, work, deferred) {}
 
     ReadAsyncContext() = delete;
 
-    virtual ~ReadAsyncContext(){}
+    ~ReadAsyncContext() override {}
 };
 
 class WriteAsyncContext : public AsyncContext {
 public:
     WriteAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred){}
+        AsyncContext(env, work, deferred) {}
 
     WriteAsyncContext() = delete;
 
-    virtual ~WriteAsyncContext(){}
+    ~WriteAsyncContext() override {}
 };
 }  // namespace ConnectedTag
 }  // namespace OHOS

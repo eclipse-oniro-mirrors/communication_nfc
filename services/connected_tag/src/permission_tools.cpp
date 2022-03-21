@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <string>
 #include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 #include "permission_tools.h"
 
 namespace OHOS {
 namespace ConnectedTag {
-
 bool PermissionTools::IsGranted(std::string permission)
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
