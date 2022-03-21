@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-#include "nfc_napi_adapter.h"
+#include <vector>
+#include <functional>
 #include "error_code.h"
 #include "connected_tag_impl.h"
 #include "log.h"
-#include <vector>
-#include <functional>
+#include "nfc_napi_adapter.h"
 
 namespace OHOS {
 namespace ConnectedTag {

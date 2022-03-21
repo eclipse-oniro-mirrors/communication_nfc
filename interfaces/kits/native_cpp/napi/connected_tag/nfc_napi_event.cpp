@@ -158,16 +158,14 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     napi_valuetype eventName = napi_undefined;
     napi_typeof(env, argv[0], &eventName);
 
-    if ((argc != requireArgc && argc != requireArgcWithCb) || eventName != napi_string)
-    {
+    if ((argc != requireArgc && argc != requireArgcWithCb) || eventName != napi_string) {
         HILOGE("On args invalid, failed!");
         napi_value result;
         napi_get_boolean(env, false, &result);
         return result;
     }
 
-    if (argc == requireArgcWithCb)
-    {
+    if (argc == requireArgcWithCb) {
         napi_valuetype handler = napi_undefined;
         napi_typeof(env, argv[1], &handler);
         if (handler != napi_function)

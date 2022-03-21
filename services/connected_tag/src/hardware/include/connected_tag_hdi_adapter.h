@@ -15,7 +15,6 @@
 #ifndef OHOS_CONNECTED_TAG_HDI_ADAPTER_H
 #define OHOS_CONNECTED_TAG_HDI_ADAPTER_H
 
-#include <stdint.h>
 #include <string>
 namespace OHOS {
 namespace ConnectedTag {
