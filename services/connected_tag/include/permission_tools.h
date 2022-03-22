@@ -18,7 +18,6 @@
 #include <string>
 namespace OHOS {
 namespace ConnectedTag {
-
 static const std::string TAG_PERMISSION = "ohos.permission.NFC_TAG";
 class PermissionTools {
 public:

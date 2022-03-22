@@ -168,8 +168,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     if (argc == requireArgcWithCb) {
         napi_valuetype handler = napi_undefined;
         napi_typeof(env, argv[1], &handler);
-        if (handler != napi_function)
-        {
+        if (handler != napi_function) {
             HILOGE("On args invalid napi_function, failed!");
             napi_value result;
             napi_get_boolean(env, false, &result);
