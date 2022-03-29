@@ -84,21 +84,26 @@ napi_value WriteNdefTag(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
 
-    g_writtenNdefData = "";
-    ParseString(env, g_writtenNdefData, argv[0]);
-    HILOGI("WriteNdefTag argc = %{public}d, data=%{public}s, len = %{public}d", argc,
-        g_writtenNdefData.c_str(), g_writtenNdefData.length());
-
     WriteAsyncContext *asyncContext = new WriteAsyncContext(env);
     napi_create_string_latin1(env, "writeNdefTag", NAPI_AUTO_LENGTH, &asyncContext->resourceName);
+
+    std::string inputWrittenNdefData = "";
+    ParseString(env, inputWrittenNdefData, argv[0]);
+    HILOGI("WriteNdefTag argc = %{public}d, data=%{public}s, len = %{public}d", argc,
+        inputWrittenNdefData.c_str(), inputWrittenNdefData.length());
+    asyncContext->writtenNdefData = inputWrittenNdefData;
 
     asyncContext->executeFunc = [&](void* data) -> void {
         WriteAsyncContext *context = static_cast<WriteAsyncContext *>(data);
         TRACE_FUNC_CALL_NAME("connectedTagPtr->WriteNdefTag");
         ConnectedTagImpl connectedTagPtr = OHOS::ConnectedTag::ConnectedTagImpl::GetInstance();
-        HILOGI("WriteNdefTag start ndefData = %{public}s", g_writtenNdefData.c_str());
-        context->errorCode = connectedTagPtr.WriteNdefTag(g_writtenNdefData);
+        HILOGI("WriteNdefTag start ndefData = %{public}s", context->writtenNdefData.c_str());
+        context->errorCode = connectedTagPtr.WriteNdefTag(context->writtenNdefData);
         HILOGI("WriteNdefTag end errorCode = %{public}d", context->errorCode);
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        HILOGI("WriteNdefTag completeFunc in, no return value");
     };
 
     size_t nonCallbackArgNum = 1;

@@ -37,8 +37,12 @@ public:
 
 class WriteAsyncContext : public AsyncContext {
 public:
+    std::string writtenNdefData;
     WriteAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred) {}
+    AsyncContext(env, work, deferred)
+    {
+        writtenNdefData = "";
+    }
 
     WriteAsyncContext() = delete;
 
