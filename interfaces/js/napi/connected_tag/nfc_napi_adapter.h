@@ -27,8 +27,8 @@ napi_value WriteNdefTag(napi_env env, napi_callback_info info);
 class ReadAsyncContext : public AsyncContext {
 public:
     std::string respNdefData;
-    ReadAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-        AsyncContext(env, work, deferred) {}
+    ReadAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
 
     ReadAsyncContext() = delete;
 
@@ -38,11 +38,11 @@ public:
 class WriteAsyncContext : public AsyncContext {
 public:
     std::string writtenNdefData;
-    WriteAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr) :
-    AsyncContext(env, work, deferred)
-    {
-        writtenNdefData = "";
-    }
+    WriteAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred)
+        {
+            writtenNdefData = "";
+        }
 
     WriteAsyncContext() = delete;
 

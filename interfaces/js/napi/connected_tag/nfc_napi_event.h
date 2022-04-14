@@ -60,8 +60,10 @@ public:
     napi_ref m_regHanderRef;
 };
 
-static std::shared_mutex g_regInfoMutex;
-static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
+namespace NFC {
+    std::shared_mutex g_regInfoMutex;
+    std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
+}
 
 class NapiEvent {
 public:
@@ -71,12 +73,12 @@ public:
     template<typename T>
     void CheckAndNotify(const std::string& type, const T& obj)
     {
-        std::shared_lock<std::shared_mutex> guard(g_regInfoMutex);
+        std::shared_lock<std::shared_mutex> guard(NFC::g_regInfoMutex);
         if (!CheckIsRegister(type)) {
             return;
         }
 
-        std::vector<RegObj>& vecObj = g_eventRegisterInfo[type];
+        std::vector<RegObj>& vecObj = NFC::g_eventRegisterInfo[type];
         for (auto& each : vecObj) {
             napi_value result;
             napi_create_int32(each.m_regEnv, obj, &result);
