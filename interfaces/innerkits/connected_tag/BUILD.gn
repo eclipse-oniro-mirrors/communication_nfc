@@ -22,8 +22,8 @@ config("connected_tag_base_config") {
   ]
   include_dirs = [
     "//utils/system/safwk/native/include",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/interfaces",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/include",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag/interfaces",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag/include",
   ]
 }
 

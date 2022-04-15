@@ -51,9 +51,7 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
     HILOGI("Get the event loop, napi_env: %{public}p", asyncEvent->env);
     work->data = asyncEvent;
     uv_queue_work(
-        loop,
-        work,
-        [](uv_work_t* work) {},
+        loop, work, [](uv_work_t* work) {},
         [](uv_work_t* work, int status) {
             AsyncEventData *asyncData = static_cast<AsyncEventData*>(work->data);
             if (asyncData == nullptr) {
@@ -84,13 +82,12 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
             }
             delete work;
             work = nullptr;
-        }
-    );
+        });
 }
 
 bool NapiEvent::CheckIsRegister(const std::string& type)
 {
-    return g_eventRegisterInfo.find(type) != g_eventRegisterInfo.end();
+    return NFC::g_eventRegisterInfo.find(type) != NFC::g_eventRegisterInfo.end();
 }
 
 class NfcListenerEvent : public IConnectedTagCallBack, public NapiEvent {
@@ -215,7 +212,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
         HILOGE("Register type error or not support!");
         return;
     }
-    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
+    std::unique_lock<std::shared_mutex> guard(NFC::g_regInfoMutex);
     if (!isEventRegistered) {
         if (RegisterNfcEvents() != NFC_OPT_SUCCESS) {
             return;
@@ -225,9 +222,9 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
     RegObj regObj(env, handlerRef);
-    auto iter = g_eventRegisterInfo.find(type);
-    if (iter == g_eventRegisterInfo.end()) {
-        g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
+    auto iter = NFC::g_eventRegisterInfo.find(type);
+    if (iter == NFC::g_eventRegisterInfo.end()) {
+        NFC::g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
     } else {
         iter->second.emplace_back(regObj);
     }
@@ -268,9 +265,9 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         return;
     }
 
-    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
-    auto iter = g_eventRegisterInfo.find(type);
-    if (iter == g_eventRegisterInfo.end()) {
+    std::unique_lock<std::shared_mutex> guard(NFC::g_regInfoMutex);
+    auto iter = NFC::g_eventRegisterInfo.find(type);
+    if (iter == NFC::g_eventRegisterInfo.end()) {
         HILOGE("Unregister type not registered!");
         return;
     }
@@ -281,7 +278,7 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         DeleteAllRegisterObj(iter->second);
     }
     if (iter->second.empty()) {
-        g_eventRegisterInfo.erase(iter);
+        NFC::g_eventRegisterInfo.erase(iter);
     }
 }
 }  // namespace ConnectedTag

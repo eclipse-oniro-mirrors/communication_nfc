@@ -54,23 +54,23 @@
 
 static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, NFC_LOG_DOMAIN, NFC_LOG_TAG};
 
-#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+#define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define HILOGF(fmt, ...)                 \
     (void)OHOS::HiviewDFX::HiLog::Fatal( \
-        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define HILOGE(fmt, ...)                 \
     (void)OHOS::HiviewDFX::HiLog::Error( \
-        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define HILOGW(fmt, ...)                \
     (void)OHOS::HiviewDFX::HiLog::Warn( \
-        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define HILOGI(fmt, ...)                \
     (void)OHOS::HiviewDFX::HiLog::Info( \
-        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define HILOGD(fmt, ...)                 \
     (void)OHOS::HiviewDFX::HiLog::Debug( \
-        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 
 #define HILOGF(...)
