@@ -17,15 +17,13 @@ import("//drivers/adapter/uhdf2/uhdf.gni")
 ohos_shared_library("connected_tag_hdi_adapter") {
   include_dirs = [
     "include",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/include",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag/include",
     "//drivers/peripheral/nfc/connected_tag/v1_0/client",
   ]
 
   cflags = [ "-fPIC" ]
 
-  sources = [
-    "src/connected_tag_hdi_adapter.cpp",
-  ]
+  sources = [ "src/connected_tag_hdi_adapter.cpp" ]
 
   deps = [
     "$hdf_uhdf_path/hdi:libhdi",
@@ -38,15 +36,15 @@ ohos_shared_library("connected_tag_hdi_adapter") {
 
   if (is_standard_system) {
     external_deps = [
+      "connected_tag_device_driver:connected_tag_client",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_core",
-      "connected_tag_device_driver:connected_tag_client",
     ]
   } else {
     external_deps = [
+      "connected_tag_device_driver:connected_tag_client",
       "hilog:libhilog",
       "ipc:ipc_core",
-      "connected_tag_device_driver:connected_tag_client",
     ]
   }
 
