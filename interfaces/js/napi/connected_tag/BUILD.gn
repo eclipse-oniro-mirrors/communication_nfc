@@ -20,16 +20,16 @@ ohos_shared_library("connectedtag") {
     "//native_engine",
     "//utils/native/base/include",
     "//utils/system/safwk/native/include",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/include",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base/interfaces",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag/include",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag/interfaces",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
     "//base/notification/ces_standard/frameworks/core/include",
   ]
 
   sources = [
     "nfc_napi_adapter.cpp",
-    "nfc_napi_event.cpp",
     "nfc_napi_entry.cpp",
+    "nfc_napi_event.cpp",
     "nfc_napi_utils.cpp",
   ]
   deps = [
@@ -38,7 +38,7 @@ ohos_shared_library("connectedtag") {
     "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/ace/napi:ace_napi",
-    "//foundation/communication/nfc/interfaces/kits/native_cpp/connected_tag_base:connected_tag_base",
+    "//foundation/communication/nfc/interfaces/innerkits/connected_tag:connected_tag_base",
     "//utils/native/base:utils",
   ]
 
