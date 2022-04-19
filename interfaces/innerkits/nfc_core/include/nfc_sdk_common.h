@@ -20,6 +20,12 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+// the command id defined for IPC, from kits to system ability.
+constexpr int COMMAND_ID = 100;
+constexpr int COMMAND_GET_STATE = COMMAND_ID + 1;
+constexpr int COMMAND_TURN_ON = COMMAND_ID + 2;
+constexpr int COMMAND_TURN_OFF = COMMAND_ID + 3;
+
 enum NfcErrorCode : const int {
     NFC_SUCCESS = 0,
 
@@ -45,6 +51,8 @@ enum NfcErrorCode : const int {
 };
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
+
+enum NfcTask { TASK_TURN_ON, TASK_TURN_OFF, TASK_INITIALIZE };
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

@@ -69,7 +69,7 @@ NfcController &NfcController::GetInstance()
 // Open NFC
 int NfcController::TurnOn()
 {
-    DebugLog("NFCController::ActiveNfc in.");
+    DebugLog("NfcController::TurnOn in.");
     if (nfcControllerService_.expired()) {
         return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
     }
@@ -79,7 +79,7 @@ int NfcController::TurnOn()
 // Close NFC
 int NfcController::TurnOff()
 {
-    DebugLog("NFCController::DeactiveNfc in.");
+    DebugLog("NfcController::TurnOff in.");
     if (nfcControllerService_.expired()) {
         return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
     }

@@ -12,29 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFC_CONTROLLER_PROXY_H
-#define NFC_CONTROLLER_PROXY_H
+#include "nfc_controller_impl.h"
 
-#include "iremote_proxy.h"
-#include "infc_controller_service.h"
-#include "nfc_basic_proxy.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
-class NfcControllerProxy final : public OHOS::IRemoteProxy<INfcControllerService>, public NfcBasicProxy {
-public:
-    explicit NfcControllerProxy(const OHOS::sptr<OHOS::IRemoteObject>& remote)
-        : OHOS::IRemoteProxy<INfcControllerService>(remote), NfcBasicProxy(remote)
-    {
-    }
-    ~NfcControllerProxy() override;
+NfcControllerImpl::NfcControllerImpl(std::weak_ptr<NfcService> nfcService)
+    : NfcControllerStub(), nfcService_(nfcService)
+{
+}
 
-    bool TurnOn() override;
-    bool TurnOff(bool saveState) override;
-    int GetState() override;
+NfcControllerImpl::~NfcControllerImpl()
+{
+}
 
-private:
-};
+int NfcControllerImpl::GetState()
+{
+    return nfcService_.lock()->GetState();
+}
+
+bool NfcControllerImpl::TurnOn()
+{
+    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON, true);
+    return true;
+}
+
+bool NfcControllerImpl::TurnOff(bool saveState)
+{
+    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF, saveState);
+    return true;
+}
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // NFC_CONTROLLER_PROXY_H

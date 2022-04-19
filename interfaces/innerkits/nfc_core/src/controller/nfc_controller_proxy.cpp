@@ -27,7 +27,7 @@ bool NfcControllerProxy::TurnOn()
     bool result = false;
     MessageParcel data;
     MessageOption option(MessageOption::TF_ASYNC);
-    int32_t res = ProcessBoolRes(COMMAND_TURN_ON, data, option, result);
+    int32_t res = ProcessBoolRes(KITS::COMMAND_TURN_ON, data, option, result);
     if (res != ERR_NONE) {
         DebugLog("NfcControllerProxy::TurnOn error.");
         return false;
@@ -42,7 +42,7 @@ bool NfcControllerProxy::TurnOff(bool saveState)
     MessageParcel data;
     data.WriteBool(saveState);
     MessageOption option(MessageOption::TF_ASYNC);
-    int res = ProcessBoolRes(COMMAND_TURN_OFF, data, option, result);
+    int res = ProcessBoolRes(KITS::COMMAND_TURN_OFF, data, option, result);
     if (res != ERR_NONE) {
         DebugLog("NfcControllerProxy::TurnOff error.");
         return false;
@@ -55,7 +55,7 @@ int NfcControllerProxy::GetState()
     int state = NFC::KITS::STATE_OFF;
     MessageParcel data;
     MessageOption option;
-    int res = ProcessIntRes(COMMAND_GET_STATE, data, option, state);
+    int res = ProcessIntRes(KITS::COMMAND_GET_STATE, data, option, state);
     if (res != ERR_NONE) {
         InfoLog("It is failed To Get State with Res(%d).", res);
         return NFC::KITS::STATE_OFF;

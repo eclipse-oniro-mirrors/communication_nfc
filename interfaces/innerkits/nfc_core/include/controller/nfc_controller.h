@@ -21,6 +21,9 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 static const std::string NFC_SERVICE_NAME = "nfc";
+const std::string NFC_EXTRA_STATE = "ohos.nfc.extra.ADAPTER_STATE";
+const std::string COMMON_EVENT_NFC_ACTION_STATE_CHANGED = "usual.event.nfc.action.ADAPTER_STATE_CHANGED";
+
 class NfcController final {
 public:
     /**
