@@ -12,29 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFC_CONTROLLER_PROXY_H
-#define NFC_CONTROLLER_PROXY_H
+#ifndef NFC_CONTROLLER_IMPL_H
+#define NFC_CONTROLLER_IMPL_H
 
-#include "iremote_proxy.h"
-#include "infc_controller_service.h"
-#include "nfc_basic_proxy.h"
+#include "nfc_controller_stub.h"
+#include "nfc_service.h"
 
 namespace OHOS {
 namespace NFC {
-class NfcControllerProxy final : public OHOS::IRemoteProxy<INfcControllerService>, public NfcBasicProxy {
+class NfcService;
+class NfcControllerImpl final : public NfcControllerStub {
 public:
-    explicit NfcControllerProxy(const OHOS::sptr<OHOS::IRemoteObject>& remote)
-        : OHOS::IRemoteProxy<INfcControllerService>(remote), NfcBasicProxy(remote)
-    {
-    }
-    ~NfcControllerProxy() override;
+    NfcControllerImpl(std::weak_ptr<NfcService> nfcService);
+    ~NfcControllerImpl() override;
 
+    int GetState() override;
     bool TurnOn() override;
     bool TurnOff(bool saveState) override;
-    int GetState() override;
 
 private:
+    std::weak_ptr<NfcService> nfcService_;
+    std::mutex mutex_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // NFC_CONTROLLER_PROXY_H
+#endif  // NFC_CONTROLLER_IMPL_H

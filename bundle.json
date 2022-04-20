@@ -82,7 +82,7 @@
         "name": "nfc",
         "subsystem": "communication",
         "syscap": [
-            "SystemCapability.Communication.Nfc.Core"
+            "SystemCapability.Communication.NFC.Core"
         ],
         "features": [],
         "adapted_system_type": [
@@ -95,11 +95,14 @@
                 "hiviewdfx_hilog_native"
             ],
             "third_party": [
+                "libnfc-nci"
             ]
         },
         "build": {
             "sub_component": [
-                "//foundation/communication/nfc/interfaces/innerkits/nfc_core:nfc_inner_kits"
+                "//third_party/nfc-nci/SN100x:libnfc-nci",
+                "//foundation/communication/nfc/interfaces/innerkits/nfc_core:nfc_inner_kits",
+                "//foundation/communication/nfc/services/nfc_core:nfc_service"
             ],
             "inner_kits": [
                 {
