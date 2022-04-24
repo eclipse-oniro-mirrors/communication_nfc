@@ -23,7 +23,7 @@ ohos_shared_library("connectedtag") {
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits/include",
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits/interfaces",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/notification/ces_standard/frameworks/core/include",
+    "//base/notification/common_event_service/frameworks/core/include",
   ]
 
   sources = [
@@ -34,8 +34,8 @@ ohos_shared_library("connectedtag") {
   ]
   deps = [
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
+    "//base/notification/common_event_service/frameworks/core:cesfwk_core",
+    "//base/notification/common_event_service/frameworks/native:cesfwk_innerkits",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/ace/napi:ace_napi",
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits:connected_tag_base",
