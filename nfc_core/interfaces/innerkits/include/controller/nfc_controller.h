@@ -26,6 +26,9 @@ const std::string COMMON_EVENT_NFC_ACTION_STATE_CHANGED = "usual.event.nfc.actio
 
 class NfcController final {
 public:
+    explicit NfcController();
+    ~NfcController();
+
     /**
      * @Description Get an object of nfc controller.
      * @param void
@@ -52,8 +55,6 @@ public:
     int GetNfcState();
 
 private:
-    explicit NfcController();
-    ~NfcController();
 
     static void InitNfcController();
 
