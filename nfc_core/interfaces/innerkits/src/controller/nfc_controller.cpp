@@ -90,7 +90,7 @@ int NfcController::TurnOff()
 int NfcController::GetNfcState()
 {
     if (nfcControllerService_.expired()) {
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        return NfcState::STATE_OFF;
     }
     return nfcControllerService_.lock()->GetState();
 }
