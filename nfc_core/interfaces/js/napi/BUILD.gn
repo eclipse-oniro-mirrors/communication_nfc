@@ -37,7 +37,7 @@ ohos_shared_library("controller") {
     "//base/notification/ces_standard/frameworks/core:cesfwk_core",
     "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//foundation/ace/napi:ace_napi",
+    "//foundation/arkui/napi:ace_napi",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
     "//utils/native/base:utils",
   ]
