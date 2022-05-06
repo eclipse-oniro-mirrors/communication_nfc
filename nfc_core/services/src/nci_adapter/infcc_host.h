@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "itag_host.h"
+
 namespace OHOS {
 namespace NFC {
 namespace NCI {
@@ -27,6 +29,7 @@ public:
     class INfccHostListener {
     public:
         virtual ~INfccHostListener() {}
+        virtual void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) = 0;
     };
 
     virtual ~INfccHost() {}

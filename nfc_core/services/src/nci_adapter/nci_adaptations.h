@@ -15,12 +15,12 @@
 #ifndef NCI_ADAPTATIONS_H
 #define NCI_ADAPTATIONS_H
 
-#include "ilib_nfc_nci.h"
+#include "infc_nci.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class NciAdaptations : public ILibNfcNci {
+class NciAdaptations : public INfcNci {
 public:
     explicit NciAdaptations();
     ~NciAdaptations() override;

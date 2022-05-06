@@ -18,14 +18,14 @@
 #include <memory>
 #include <mutex>
 
-#include "ilib_nfc_nci.h"
+#include "infc_nci.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class NciManager final {
+class NfccNciAdapter final {
 public:
-    static NciManager& GetInstance();
+    static NfccNciAdapter& GetInstance();
     static int GetIsoDepMaxTransceiveLength();
     static void ClearT3tIdentifiersCache();
     static int GetLfT3tMax();
@@ -46,7 +46,7 @@ public:
     void FactoryReset() const;
     void Shutdown() const;
     bool IsTagActive() const;
-    void SetNciAdaptation(std::shared_ptr<ILibNfcNci> nciAdaptation);
+    void SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation);
     void StartRfDiscovery(bool isStart) const;
     bool IsRfEbabled();
 
@@ -56,8 +56,8 @@ private:
     static const int DEFAULT_DISCOVERY_DURATION = 500;
     static const int DISCOVERY_DURATION = 200;
     static const int NFA_SCREEN_POLLING_TAG_MASK = 0x10;
-    NciManager();
-    ~NciManager();
+    NfccNciAdapter();
+    ~NfccNciAdapter();
     tNFA_STATUS StartPolling(tNFA_TECHNOLOGY_MASK techMask) const;
     tNFA_STATUS StopPolling() const;
     static void DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData);
@@ -81,7 +81,7 @@ private:
     static bool isReconnect_;
     static bool isTagActive_;
     static unsigned char curScreenState_;
-    static std::shared_ptr<ILibNfcNci> nciAdaptation_;
+    static std::shared_ptr<INfcNci> nciAdaptation_;
 };
 }  // namespace NCI
 }  // namespace NFC

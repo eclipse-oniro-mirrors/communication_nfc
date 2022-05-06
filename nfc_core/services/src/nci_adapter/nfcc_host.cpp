@@ -16,7 +16,7 @@
 
 #include "infcc_host.h"
 #include "loghelper.h"
-#include "nci_manager.h"
+#include "nfcc_nci_adapter.h"
 
 #ifdef _NFC_SERVICE_HCE_
 #include "hci_manager.h"
@@ -46,44 +46,44 @@ NfccHost::~NfccHost()
 bool NfccHost::Initialize()
 {
     DebugLog("NfccHost::Initialize");
-    return NciManager::GetInstance().Initialize();
+    return NfccNciAdapter::GetInstance().Initialize();
 }
 
 bool NfccHost::Deinitialize()
 {
     DebugLog("NfccHost::Deinitialize");
-    return NciManager::GetInstance().Deinitialize();
+    return NfccNciAdapter::GetInstance().Deinitialize();
 }
 
 void NfccHost::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccHost::EnableDiscovery");
-    NciManager::GetInstance().EnableDiscovery(techMask, enableReaderMode, enableHostRouting, restart);
+    NfccNciAdapter::GetInstance().EnableDiscovery(techMask, enableReaderMode, enableHostRouting, restart);
 }
 
 void NfccHost::DisableDiscovery()
 {
     DebugLog("NfccHost::DisableDiscovery");
-    NciManager::GetInstance().DisableDiscovery();
+    NfccNciAdapter::GetInstance().DisableDiscovery();
 }
 
 bool NfccHost::SendRawFrame(std::string& rawData)
 {
     DebugLog("NfccHost::SendRawFrame");
-    return NciManager::GetInstance().SendRawFrame(rawData);
+    return NfccNciAdapter::GetInstance().SendRawFrame(rawData);
 }
 
 bool NfccHost::SetScreenStatus(unsigned char screenStateMask)
 {
     DebugLog("NfccHost::SetScreenStatus");
-    NciManager::GetInstance().SetScreenStatus(screenStateMask);
+    NfccNciAdapter::GetInstance().SetScreenStatus(screenStateMask);
     return true;
 }
 
 int NfccHost::GetNciVersion()
 {
     DebugLog("NfccHost::GetNciVersion");
-    return NciManager::GetInstance().GetNciVersion();
+    return NfccNciAdapter::GetInstance().GetNciVersion();
 }
 
 bool NfccHost::SetSecureNfc(bool secure)
@@ -98,13 +98,13 @@ bool NfccHost::SetSecureNfc(bool secure)
 int NfccHost::GetIsoDepMaxTransceiveLength()
 {
     DebugLog("NfccHost::GetIsoDepMaxTransceiveLength");
-    return NciManager::GetInstance().GetIsoDepMaxTransceiveLength();
+    return NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength();
 }
 
 int NfccHost::RegisterT3tIdentifier(std::string& t3tIdentifier)
 {
     DebugLog("NfccHost::RegisterT3tIdentifier");
-    return NciManager::GetInstance().RegisterT3tIdentifier(t3tIdentifier);
+    return NfccNciAdapter::GetInstance().RegisterT3tIdentifier(t3tIdentifier);
 }
 
 void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
@@ -113,56 +113,56 @@ void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
     // get handle from mT3tIdentifiers
     if (!t3tIdentifier.empty()) {
         int handle = -1;
-        NciManager::GetInstance().DeregisterT3tIdentifier(handle);
+        NfccNciAdapter::GetInstance().DeregisterT3tIdentifier(handle);
     }
 }
 
 void NfccHost::ClearT3tIdentifiersCache()
 {
     DebugLog("NfccHost::ClearT3tIdentifiersCache");
-    NciManager::GetInstance().ClearT3tIdentifiersCache();
+    NfccNciAdapter::GetInstance().ClearT3tIdentifiersCache();
 }
 
 int NfccHost::GetLfT3tMax()
 {
     DebugLog("NfccHost::GetLfT3tMax");
-    return NciManager::GetInstance().GetLfT3tMax();
+    return NfccNciAdapter::GetInstance().GetLfT3tMax();
 }
 
 int NfccHost::GetLastError()
 {
     DebugLog("NfccHost::GetLastError");
-    return NciManager::GetInstance().GetLastError();
+    return NfccNciAdapter::GetInstance().GetLastError();
 }
 
 void NfccHost::Abort()
 {
     DebugLog("NfccHost::Abort");
-    NciManager::GetInstance().Abort();
+    NfccNciAdapter::GetInstance().Abort();
 }
 
 bool NfccHost::CheckFirmware()
 {
     DebugLog("NfccHost::CheckFirmware");
-    return NciManager::GetInstance().CheckFirmware();
+    return NfccNciAdapter::GetInstance().CheckFirmware();
 }
 
 void NfccHost::Dump(int fd)
 {
     DebugLog("NfccHost::Dump");
-    NciManager::GetInstance().Dump(fd);
+    NfccNciAdapter::GetInstance().Dump(fd);
 }
 
 void NfccHost::FactoryReset()
 {
     DebugLog("NfccHost::FactoryReset");
-    NciManager::GetInstance().FactoryReset();
+    NfccNciAdapter::GetInstance().FactoryReset();
 }
 
 void NfccHost::Shutdown()
 {
     DebugLog("NfccHost::Shutdown");
-    NciManager::GetInstance().Shutdown();
+    NfccNciAdapter::GetInstance().Shutdown();
 }
 
 bool NfccHost::AddAidRouting(std::string& aid, int route, int aidInfo)
@@ -189,13 +189,13 @@ bool NfccHost::CommitRouting()
 {
     DebugLog("NfccHost::CommitRouting");
 #ifdef _NFC_SERVICE_HCE_
-    bool restart = NciManager::GetInstance().IsRfEbabled();
+    bool restart = NfccNciAdapter::GetInstance().IsRfEbabled();
     if (restart) {
-        NciManager::GetInstance().StartRfDiscovery(false);
+        NfccNciAdapter::GetInstance().StartRfDiscovery(false);
     }
     bool commitResult = NciBalCe::GetInstance().CommitRouting();
     if (restart) {
-        NciManager::GetInstance().StartRfDiscovery(true);
+        NfccNciAdapter::GetInstance().StartRfDiscovery(true);
     }
     return commitResult;
 #else
@@ -276,15 +276,15 @@ bool NfccHost::CanMakeReadOnly(int ndefType)
 
 bool NfccHost::GetExtendedLengthApdusSupported()
 {
-    if (NciManager::GetInstance().GetIsoDepMaxTransceiveLength() > ISO_DEP_FRAME_MAX_LEN) {
+    if (NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength() > ISO_DEP_FRAME_MAX_LEN) {
         return true;
     }
     return false;
 }
 
-void NfccHost::SetNciAdaptation(std::shared_ptr<ILibNfcNci> nciAdaptation)
+void NfccHost::SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation)
 {
-    NciManager::GetInstance().SetNciAdaptation(nciAdaptation);
+    NfccNciAdapter::GetInstance().SetNciAdaptation(nciAdaptation);
 #ifdef _NFC_SERVICE_HCE_
     NciBalCe::GetInstance().SetNciAdaptation(nciAdaptation);
     HciManager::GetInstance().SetNciAdaptation(nciAdaptation);
@@ -295,7 +295,7 @@ void NfccHost::RemoteFieldActivated()
 {
     DebugLog("NfccHost::RemoteFieldActivated");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }
@@ -304,7 +304,7 @@ void NfccHost::RemoteFieldDeactivated()
 {
     DebugLog("NfccHost::RemoteFieldDeactivated");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }
@@ -313,7 +313,7 @@ void NfccHost::HostCardEmulationActivated(int technology)
 {
     DebugLog("NfccHost::HostCardEmulationActivated");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }
@@ -322,7 +322,7 @@ void NfccHost::HostCardEmulationDeactivated(int technology)
 {
     DebugLog("NfccHost::HostCardEmulationDeactivated");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }
@@ -331,16 +331,26 @@ void NfccHost::HostCardEmulationDataReceived(int technology, std::string& data)
 {
     DebugLog("NfccHost::HostCardEmulationDataReceived");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
+}
+
+void NfccHost::TagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
+{
+    DebugLog("NfccHost::TagDiscovered");
+    if (nfccHostListener_.expired()) {
+        ErrorLog("Nfcc host listener is null");
+        return;
+    }
+    nfccHostListener_.lock()->OnTagDiscovered(tagHost);
 }
 
 void NfccHost::OffHostTransactionEvent(std::string& aid, std::string& data, std::string& seName)
 {
     DebugLog("NfccHost::OffHostTransactionEvent");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }
@@ -349,7 +359,7 @@ void NfccHost::EeUpdate()
 {
     DebugLog("NfccHost::EeUpdate");
     if (nfccHostListener_.expired()) {
-        ErrorLog("Device host listener is null");
+        ErrorLog("Nfcc host listener is null");
         return;
     }
 }

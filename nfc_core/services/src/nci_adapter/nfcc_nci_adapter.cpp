@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nci_manager.h"
+#include "nfcc_nci_adapter.h"
 
 #include "nfcc_host.h"
 #include "loghelper.h"
 #include "nfc_config.h"
 #include "nci_adaptations.h"
+#include "tag_nci_adapter.h"
 
 #ifdef _NFC_SERVICE_HCE_
 #include "hci_manager.h"
@@ -29,47 +30,47 @@ using namespace OHOS::NFC;
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-bool NciManager::isNfcEnabled_ = false;
-bool NciManager::rfEnabled_ = false;
-bool NciManager::discoveryEnabled_ = false;  // is polling or listening
-bool NciManager::pollingEnabled_ = false;    // is polling for tag
-bool NciManager::isDisabling_ = false;
-bool NciManager::readerModeEnabled_ = false;
-unsigned long NciManager::discoveryDuration_;
-bool NciManager::isReconnect_ = false;
-bool NciManager::isTagActive_ = false;
-unsigned char NciManager::curScreenState_ = NFA_SCREEN_STATE_OFF_LOCKED;
-std::shared_ptr<ILibNfcNci> NciManager::nciAdaptation_ = std::make_shared<NciAdaptations>();
+bool NfccNciAdapter::isNfcEnabled_ = false;
+bool NfccNciAdapter::rfEnabled_ = false;
+bool NfccNciAdapter::discoveryEnabled_ = false;  // is polling or listening
+bool NfccNciAdapter::pollingEnabled_ = false;    // is polling for tag
+bool NfccNciAdapter::isDisabling_ = false;
+bool NfccNciAdapter::readerModeEnabled_ = false;
+unsigned long NfccNciAdapter::discoveryDuration_;
+bool NfccNciAdapter::isReconnect_ = false;
+bool NfccNciAdapter::isTagActive_ = false;
+unsigned char NfccNciAdapter::curScreenState_ = NFA_SCREEN_STATE_OFF_LOCKED;
+std::shared_ptr<INfcNci> NfccNciAdapter::nciAdaptation_ = std::make_shared<NciAdaptations>();
 
-NciManager::NciManager() = default;
+NfccNciAdapter::NfccNciAdapter() = default;
 
-NciManager::~NciManager() = default;
+NfccNciAdapter::~NfccNciAdapter() = default;
 
-NciManager& NciManager::GetInstance()
+NfccNciAdapter& NfccNciAdapter::GetInstance()
 {
-    static NciManager mNciManager;
-    return mNciManager;
+    static NfccNciAdapter nfccNciAdapter;
+    return nfccNciAdapter;
 }
 
-bool NciManager::IsNfcActive()
+bool NfccNciAdapter::IsNfcActive()
 {
     bool isActive = (isNfcEnabled_ && !isDisabling_);
     return isActive;
 }
 
-bool NciManager::IsTagActive() const
+bool NfccNciAdapter::IsTagActive() const
 {
     return isTagActive_;
 }
 
-void NciManager::SetNciAdaptation(std::shared_ptr<ILibNfcNci> nciAdaptation)
+void NfccNciAdapter::SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation)
 {
     nciAdaptation_ = nciAdaptation;
 }
 
-void NciManager::StartRfDiscovery(bool isStart) const
+void NfccNciAdapter::StartRfDiscovery(bool isStart) const
 {
-    DebugLog("NciManager::StartRfDiscovery: isStart= %d", isStart);
+    DebugLog("NfccNciAdapter::StartRfDiscovery: isStart= %d", isStart);
     tNFA_STATUS status;
     if (isStart) {
         status = nciAdaptation_->NfaStartRfDiscovery();
@@ -79,36 +80,36 @@ void NciManager::StartRfDiscovery(bool isStart) const
     if (status == NFA_STATUS_OK) {
         rfEnabled_ = isStart;
     } else {
-        DebugLog("NciManager::StartRfDiscovery: Failed to start/stop RF discovery; error=0x%X", status);
+        DebugLog("NfccNciAdapter::StartRfDiscovery: Failed to start/stop RF discovery; error=0x%X", status);
     }
 }
 
-tNFA_STATUS NciManager::StartPolling(tNFA_TECHNOLOGY_MASK techMask) const
+tNFA_STATUS NfccNciAdapter::StartPolling(tNFA_TECHNOLOGY_MASK techMask) const
 {
-    DebugLog("NciManager::StartPolling, techMask = 0x%02X", techMask);
+    DebugLog("NfccNciAdapter::StartPolling, techMask = 0x%02X", techMask);
     tNFA_STATUS status = nciAdaptation_->NfaEnablePolling(techMask);
     if (status == NFA_STATUS_OK) {
         DebugLog("StartPolling: wait for enable event");
         pollingEnabled_ = true;
     } else {
-        DebugLog("NciManager::StartPolling: fail enable polling; error = 0x%X", status);
+        DebugLog("NfccNciAdapter::StartPolling: fail enable polling; error = 0x%X", status);
     }
     return status;
 }
 
-tNFA_STATUS NciManager::StopPolling() const
+tNFA_STATUS NfccNciAdapter::StopPolling() const
 {
-    DebugLog("NciManager::StopPolling");
+    DebugLog("NfccNciAdapter::StopPolling");
     tNFA_STATUS status = nciAdaptation_->NfaDisablePolling();
     if (status == NFA_STATUS_OK) {
         pollingEnabled_ = false;
     } else {
-        DebugLog("NciManager::StopPolling: fail disable polling; error = 0x%X", status);
+        DebugLog("NfccNciAdapter::StopPolling: fail disable polling; error = 0x%X", status);
     }
     return status;
 }
 
-void NciManager::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
+void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     if (isDisabling_) {
         return;
@@ -123,13 +124,16 @@ void NciManager::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
         isTagActive_ = true;
         /* Is polling and is not ee direct rf */
         if (isReconnect_) {
-            DebugLog("sIsReconnect, %d", isReconnect_);
+            DebugLog("isReconnect, %d", isReconnect_);
+            TagNciAdapter::GetInstance().HandleActivatedResult();
             return;
         }
+        TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
+        TagNciAdapter::GetInstance().BuildTagInfo(eventData);
     }
 }
 
-void NciManager::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
+void NfccNciAdapter::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     if (eventData->deactivated.type == NFA_DEACTIVATE_TYPE_SLEEP) {
         DebugLog("Enter sleep mode");
@@ -140,7 +144,7 @@ void NciManager::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
     isReconnect_ = false;
 }
 
-void NciManager::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
+void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     static tNFA_STATUS status = eventData->disc_result.status;
     DebugLog("DoNfaDiscResultEvt: status = 0x%X", status);
@@ -149,7 +153,7 @@ void NciManager::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
     }
 }
 
-void NciManager::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
+void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     static tNFA_STATUS curStatus = NFA_STATUS_FAILED;
     if (eventData->status != curStatus) {
@@ -159,7 +163,7 @@ void NciManager::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
     return;
 }
 
-void NciManager::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData)
+void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData)
 {
     switch (connEvent) {
         /* whether polling successfully started */
@@ -227,14 +231,10 @@ void NciManager::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* ev
             break;
         }
         case NFA_NDEF_DETECT_EVT: {
-            DebugLog(
-                "NfaConnectionCallback: NFA_NDEF_DETECT_EVT: status = 0x%X, protocol = 0x%X, max_size = %u, cur_size "
-                "= %u, flags = 0x%X",
-                eventData->ndef_detect.status,
-                eventData->ndef_detect.protocol,
-                static_cast<unsigned int>(eventData->ndef_detect.max_size),
-                static_cast<unsigned int>(eventData->ndef_detect.cur_size),
-                eventData->ndef_detect.flags);
+            DebugLog("NfaConnectionCallback: NFA_NDEF_DETECT_EVT: status = 0x%X, protocol = 0x%X,"
+                " max_size = %u, cur_size = %u, flags = 0x%X", eventData->ndef_detect.status,
+                eventData->ndef_detect.protocol, static_cast<unsigned int>(eventData->ndef_detect.max_size),
+                static_cast<unsigned int>(eventData->ndef_detect.cur_size), eventData->ndef_detect.flags);
             break;
         }
         default: {
@@ -244,19 +244,19 @@ void NciManager::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* ev
     }
 }
 
-void NciManager::DoNfaDmEnableEvt(tNFA_DM_CBACK_DATA* eventData)
+void NfccNciAdapter::DoNfaDmEnableEvt(tNFA_DM_CBACK_DATA* eventData)
 {
     isNfcEnabled_ = (eventData->status == NFA_STATUS_OK);
     isDisabling_ = false;
 }
 
-void NciManager::DoNfaDmDisableEvt(tNFA_DM_CBACK_DATA* eventData)
+void NfccNciAdapter::DoNfaDmDisableEvt(tNFA_DM_CBACK_DATA* eventData)
 {
     isNfcEnabled_ = false;
     isDisabling_ = false;
 }
 
-void NciManager::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
+void NfccNciAdapter::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
 {
     if (eventData->rf_field.status == NFA_STATUS_OK) {
         if (eventData->rf_field.rf_field_status == NFA_DM_RF_FIELD_ON) {
@@ -267,7 +267,7 @@ void NciManager::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
     }
 }
 
-void NciManager::DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData)
+void NfccNciAdapter::DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData)
 {
     discoveryEnabled_ = false;
     pollingEnabled_ = false;
@@ -281,7 +281,7 @@ void NciManager::DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData)
     }
 }
 
-void NciManager::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData)
+void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData)
 {
     DebugLog("NfaDeviceManagementCallback: event= %u", dmEvent);
 
@@ -330,13 +330,13 @@ void NciManager::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA
     }
 }
 
-bool NciManager::Initialize()
+bool NfccNciAdapter::Initialize()
 {
-    DebugLog("NciManager::Initialize");
+    DebugLog("NfccNciAdapter::Initialize");
     tNFA_STATUS status;
     std::lock_guard<std::mutex> lock(mutex_);
     if (isNfcEnabled_) {
-        DebugLog("NciManager::Initialize: already enabled");
+        DebugLog("NfccNciAdapter::Initialize: already enabled");
         return isNfcEnabled_;
     }
 
@@ -359,25 +359,25 @@ bool NciManager::Initialize()
 #endif
             discoveryDuration_ = DEFAULT_DISCOVERY_DURATION;
             nciAdaptation_->NfaSetRfDiscoveryDuration((uint16_t)discoveryDuration_);
-            DebugLog("NciManager::Initialize: nfc enabled = %x", isNfcEnabled_);
+            DebugLog("NfccNciAdapter::Initialize: nfc enabled = %x", isNfcEnabled_);
             return isNfcEnabled_;
         }
     }
-    ErrorLog("NciManager::Initialize: fail nfa enable; error = 0x%X", status);
+    ErrorLog("NfccNciAdapter::Initialize: fail nfa enable; error = 0x%X", status);
     if (isNfcEnabled_) {
         /* ungraceful */
         status = nciAdaptation_->NfaDisable(false);
     }
     nciAdaptation_->NfcAdaptationFinalize();
-    DebugLog("NciManager::Initialize: nfc enabled = %x", isNfcEnabled_);
+    DebugLog("NfccNciAdapter::Initialize: nfc enabled = %x", isNfcEnabled_);
     return isNfcEnabled_;
 }
 
-bool NciManager::Deinitialize()
+bool NfccNciAdapter::Deinitialize()
 {
-    DebugLog("NciManager::Deinitialize");
+    DebugLog("NfccNciAdapter::Deinitialize");
     if (!IsNfcActive()) {
-        DebugLog("NciManager::Deinitialize: Nfc not initialized");
+        DebugLog("NfccNciAdapter::Deinitialize: Nfc not initialized");
         return NFA_STATUS_OK;
     }
 
@@ -398,9 +398,9 @@ bool NciManager::Deinitialize()
         /* graceful */
         status = nciAdaptation_->NfaDisable(true);
         if (status == NFA_STATUS_OK) {
-            DebugLog("NciManager::Deinitialize: wait for completion");
+            DebugLog("NfccNciAdapter::Deinitialize: wait for completion");
         } else {
-            DebugLog("NciManager::Deinitialize: fail disable; error = 0x%X", status);
+            DebugLog("NfccNciAdapter::Deinitialize: fail disable; error = 0x%X", status);
         }
     }
     isNfcEnabled_ = false;
@@ -409,21 +409,21 @@ bool NciManager::Deinitialize()
     pollingEnabled_ = false;
 
     nciAdaptation_->NfcAdaptationFinalize();
-    DebugLog("NciManager::Deinitialize: exit");
+    DebugLog("NfccNciAdapter::Deinitialize: exit");
     return (status == NFA_STATUS_OK);
 }
 
-void NciManager::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
+void NfccNciAdapter::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
-    DebugLog("NciManager::EnableDiscovery");
+    DebugLog("NfccNciAdapter::EnableDiscovery");
     std::lock_guard<std::mutex> lock(mutex_);
     if (!IsNfcActive()) {
-        ErrorLog("NciManager::EnableDiscovery: Nfc not initialized.");
+        ErrorLog("NfccNciAdapter::EnableDiscovery: Nfc not initialized.");
         return;
     }
 
     if (discoveryEnabled_ && !restart) {
-        DebugLog("NciManager::EnableDiscovery: already discovering");
+        DebugLog("NfccNciAdapter::EnableDiscovery: already discovering");
         return;
     }
 
@@ -462,19 +462,19 @@ void NciManager::EnableDiscovery(int techMask, bool enableReaderMode, bool enabl
     StartRfDiscovery(true);
     discoveryEnabled_ = true;
     isReconnect_ = false;
-    DebugLog("NciManager::EnableDiscovery: exit");
+    DebugLog("NfccNciAdapter::EnableDiscovery: exit");
 }
 
-void NciManager::DisableDiscovery()
+void NfccNciAdapter::DisableDiscovery()
 {
-    DebugLog("NciManager::DisableDiscovery");
+    DebugLog("NfccNciAdapter::DisableDiscovery");
     std::lock_guard<std::mutex> lock(mutex_);
     if (!IsNfcActive()) {
-        ErrorLog("NciManager::DisableDiscovery: Nfc not initialized.");
+        ErrorLog("NfccNciAdapter::DisableDiscovery: Nfc not initialized.");
         return;
     }
     if (!discoveryEnabled_) {
-        DebugLog("NciManager::DisableDiscovery: already disabled");
+        DebugLog("NfccNciAdapter::DisableDiscovery: already disabled");
         return;
     }
     // Stop RF Discovery.
@@ -484,20 +484,20 @@ void NciManager::DisableDiscovery()
     }
     discoveryEnabled_ = false;
     readerModeEnabled_ = false;
-    DebugLog("NciManager::DisableDiscovery: exit");
+    DebugLog("NfccNciAdapter::DisableDiscovery: exit");
 }
 
-bool NciManager::SendRawFrame(std::string& rawData)
+bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
-    DebugLog("NciManager::SendRawFrame");
+    DebugLog("NfccNciAdapter::SendRawFrame");
     std::lock_guard<std::mutex> lock(mutex_);
     nciAdaptation_->NfaSendRawFrame((uint8_t*)rawData.c_str(), (uint16_t)rawData.length(), 0);
     return true;
 }
 
-void NciManager::SetScreenStatus(unsigned char screenStateMask) const
+void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
 {
-    DebugLog("NciManager::SetScreenStatus");
+    DebugLog("NfccNciAdapter::SetScreenStatus");
     unsigned char screenState = screenStateMask & NFA_SCREEN_STATE_MASK;
     if (curScreenState_ == screenState) {
         DebugLog("Screen state not changed");
@@ -549,59 +549,59 @@ void NciManager::SetScreenStatus(unsigned char screenStateMask) const
     return;
 }
 
-int NciManager::GetNciVersion() const
+int NfccNciAdapter::GetNciVersion() const
 {
-    DebugLog("NciManager::GetNciVersion");
+    DebugLog("NfccNciAdapter::GetNciVersion");
     unsigned char version = nciAdaptation_->NfcGetNciVersion();
     return version;
 }
 
-int NciManager::GetIsoDepMaxTransceiveLength()
+int NfccNciAdapter::GetIsoDepMaxTransceiveLength()
 {
-    DebugLog("NciManager::GetIsoDepMaxTransceiveLength");
+    DebugLog("NfccNciAdapter::GetIsoDepMaxTransceiveLength");
     return NfcConfig::getUnsigned(NAME_ISO_DEP_MAX_TRANSCEIVE, ISO_DEP_FRAME_MAX_LEN);
 }
 
-bool NciManager::RegisterT3tIdentifier(const std::string& t3tIdentifier) const
+bool NfccNciAdapter::RegisterT3tIdentifier(const std::string& t3tIdentifier) const
 {
-    DebugLog("NciManager::RegisterT3tIdentifier");
+    DebugLog("NfccNciAdapter::RegisterT3tIdentifier");
     if (t3tIdentifier.empty()) {
     }
     return false;
 }
 
-void NciManager::DeregisterT3tIdentifier(int handle) const
+void NfccNciAdapter::DeregisterT3tIdentifier(int handle) const
 {
-    DebugLog("NciManager::DeregisterT3tIdentifier");
+    DebugLog("NfccNciAdapter::DeregisterT3tIdentifier");
     if (handle < 0) {
     }
 }
 
-void NciManager::ClearT3tIdentifiersCache()
+void NfccNciAdapter::ClearT3tIdentifiersCache()
 {
-    DebugLog("NciManager::ClearT3tIdentifiersCache");
+    DebugLog("NfccNciAdapter::ClearT3tIdentifiersCache");
 }
 
-int NciManager::GetLfT3tMax()
+int NfccNciAdapter::GetLfT3tMax()
 {
-    DebugLog("NciManager::GetLfT3tMax");
+    DebugLog("NfccNciAdapter::GetLfT3tMax");
     return 0;
 }
 
-int NciManager::GetLastError()
+int NfccNciAdapter::GetLastError()
 {
-    DebugLog("NciManager::GetLastError");
+    DebugLog("NfccNciAdapter::GetLastError");
     return 0;
 }
 
-void NciManager::Abort()
+void NfccNciAdapter::Abort()
 {
-    DebugLog("NciManager::Abort");
+    DebugLog("NfccNciAdapter::Abort");
 }
 
-bool NciManager::CheckFirmware()
+bool NfccNciAdapter::CheckFirmware()
 {
-    DebugLog("NciManager::CheckFirmware");
+    DebugLog("NfccNciAdapter::CheckFirmware");
     std::lock_guard<std::mutex> lock(mutex_);
     nciAdaptation_->NfcAdaptationInitialize();
     nciAdaptation_->NfcAdaptationDownloadFirmware();
@@ -609,25 +609,25 @@ bool NciManager::CheckFirmware()
     return true;
 }
 
-void NciManager::Dump(int fd) const
+void NfccNciAdapter::Dump(int fd) const
 {
-    DebugLog("NciManager::Dump, fd=%d", fd);
+    DebugLog("NfccNciAdapter::Dump, fd=%d", fd);
     nciAdaptation_->NfcAdaptationDump(fd);
 }
 
-void NciManager::FactoryReset() const
+void NfccNciAdapter::FactoryReset() const
 {
-    DebugLog("NciManager::FactoryReset");
+    DebugLog("NfccNciAdapter::FactoryReset");
     nciAdaptation_->NfcAdaptationFactoryReset();
 }
 
-void NciManager::Shutdown() const
+void NfccNciAdapter::Shutdown() const
 {
-    DebugLog("NciManager::Shutdown");
+    DebugLog("NfccNciAdapter::Shutdown");
     nciAdaptation_->NfcAdaptationDeviceShutdown();
 }
 
-bool NciManager::IsRfEbabled()
+bool NfccNciAdapter::IsRfEbabled()
 {
     return rfEnabled_;
 }

@@ -20,6 +20,7 @@
 
 #include "infc_service.h"
 #include "infcc_host.h"
+#include "itag_host.h"
 #include "nfc_controller_impl.h"
 #include "nfc_sdk_common.h"
 
@@ -39,8 +40,11 @@ public:
 
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
+    void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
 
 private:
+    std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
+
     bool IsNfcEnabled() override;
     std::weak_ptr<NCI::INfccHost> GetNfccHost() override
     {
@@ -70,6 +74,7 @@ private:
     // NCI
     std::shared_ptr<NCI::INfccHost> nfccHost_ {};
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_;
+    std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current nfc state.
     int state_;
 
@@ -81,6 +86,7 @@ private:
 
     friend class NfcWatchDog;
     friend class NfcControllerImpl;
+    friend class TAG::TagDispatcher;
     friend class NfcSaManager;
 };
 }  // namespace NFC

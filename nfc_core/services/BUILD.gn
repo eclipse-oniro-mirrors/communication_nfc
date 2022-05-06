@@ -25,6 +25,7 @@ config("nfc_config") {
     "include",
     "src/controller",
     "src/nci_adapter",
+    "src/tags",
     "src/utils",
     "//third_party/nfc-nci/SN100x/src/gki/common/",
     "//third_party/nfc-nci/SN100x/src/gki/ulinux/",
@@ -40,12 +41,18 @@ ohos_shared_library("nfc_service") {
     "src/controller/nfc_controller_impl.cpp",
     "src/controller/nfc_controller_stub.cpp",
     "src/nci_adapter/nci_adaptations.cpp",
-    "src/nci_adapter/nci_manager.cpp",
     "src/nci_adapter/nfcc_host.cpp",
+    "src/nci_adapter/nfcc_nci_adapter.cpp",
+    "src/nci_adapter/tag_host.cpp",
+    "src/nci_adapter/tag_nci_adapter.cpp",
     "src/nfc_sa_manager.cpp",
     "src/nfc_service.cpp",
+    "src/tags/tag_dispatcher.cpp",
+    "src/tags/tag_session.cpp",
+    "src/tags/tag_session_stub.cpp",
     "src/utils/nfc_watch_dog.cpp",
     "src/utils/permission_tools.cpp",
+    "src/utils/synchronize_event.cpp",
   ]
 
   public_configs = [ ":nfc_config" ]
