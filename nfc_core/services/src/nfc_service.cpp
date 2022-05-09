@@ -27,6 +27,16 @@ namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
 int NfcService::nciVersion_ = 0x02;
 
+std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
+{
+    return tagDispatcher_;
+}
+
+void NfcService::OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
+{
+    InfoLog("NfcService::OnTagDiscovered");
+}
+
 int NfcService::GetState()
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -203,6 +213,9 @@ bool NfcService::Initialize()
         nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
     }
 
+    // inner message handler, used by other modules as initialization parameters
+    tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
+
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
@@ -214,6 +227,7 @@ bool NfcService::Initialize()
 NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
     : nfccHost_(std::move(nfccHost)),
     nfcControllerImpl_(nullptr),
+    tagDispatcher_(nullptr),
     state_(KITS::STATE_OFF)
 {
 }

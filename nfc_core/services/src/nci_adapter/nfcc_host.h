@@ -18,8 +18,9 @@
 #include <memory>
 #include <string>
 
-#include "ilib_nfc_nci.h"
+#include "infc_nci.h"
 #include "infcc_host.h"
+#include "itag_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -65,12 +66,13 @@ public:
     int GetDefaultIsoDepRouteDestination() override;
     bool CanMakeReadOnly(int ndefType) override;
     bool GetExtendedLengthApdusSupported() override;
-    void SetNciAdaptation(std::shared_ptr<ILibNfcNci> nciAdaptation);
+    void SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation);
     static void RemoteFieldActivated();
     static void RemoteFieldDeactivated();
     static void HostCardEmulationActivated(int technology);
     static void HostCardEmulationDeactivated(int technology);
     static void HostCardEmulationDataReceived(int technology, std::string& data);
+    static void TagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost);
     static void OffHostTransactionEvent(std::string& aid, std::string& data, std::string& seName);
     static void EeUpdate();
     bool ClearAidTable() override;

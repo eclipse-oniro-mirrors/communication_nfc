@@ -26,6 +26,22 @@ constexpr int COMMAND_GET_STATE = COMMAND_ID + 1;
 constexpr int COMMAND_TURN_ON = COMMAND_ID + 2;
 constexpr int COMMAND_TURN_OFF = COMMAND_ID + 3;
 
+constexpr int TAG_SESSION_START_ID = 200;
+constexpr int COMMAND_CONNECT = TAG_SESSION_START_ID + 1;
+constexpr int COMMAND_RECONNECT = TAG_SESSION_START_ID + 2;
+constexpr int COMMAND_DISCONNECT = TAG_SESSION_START_ID + 3;
+constexpr int COMMAND_GET_TECHLIST = TAG_SESSION_START_ID + 4;
+constexpr int COMMAND_IS_PRESENT = TAG_SESSION_START_ID + 5;
+constexpr int COMMAND_IS_NDEF = TAG_SESSION_START_ID + 6;
+constexpr int COMMAND_SEND_RAW_FRAME = TAG_SESSION_START_ID + 7;
+constexpr int COMMAND_NDEF_READ = TAG_SESSION_START_ID + 8;
+constexpr int COMMAND_NDEF_WRITE = TAG_SESSION_START_ID + 9;
+constexpr int COMMAND_NDEF_MAKE_READ_ONLY = TAG_SESSION_START_ID + 10;
+constexpr int COMMAND_FORMAT_NDEF = TAG_SESSION_START_ID + 11;
+constexpr int COMMAND_CAN_MAKE_READ_ONLY = TAG_SESSION_START_ID + 12;
+constexpr int COMMAND_GET_MAX_TRANSCEIVE_LENGTH = TAG_SESSION_START_ID + 13;
+constexpr int COMMAND_IS_SUPPORTED_APDUS_EXTENDED = TAG_SESSION_START_ID + 14;
+
 enum NfcErrorCode : const int {
     NFC_SUCCESS = 0,
 
@@ -53,6 +69,33 @@ enum NfcErrorCode : const int {
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
 
 enum NfcTask { TASK_TURN_ON, TASK_TURN_OFF, TASK_INITIALIZE };
+
+enum class TagTechnology {
+    NFC_INVALID_TECH = 0,
+    NFC_A_TECH = 1,
+    NFC_B_TECH = 2,
+    NFC_ISODEP_TECH = 3,
+    NFC_F_TECH = 4,
+    NFC_V_TECH = 5,
+    NFC_NDEF_TECH = 6,
+    NFC_MIFARE_CLASSIC_TECH = 8,
+    NFC_MIFARE_ULTRALIGHT_TECH = 9,
+    NFC_ISO15693_TECH = 10,
+    NFC_FELICA_TECH = 11,
+    NFC_NDEF_FORMATABLE_TECH = 12
+};
+
+class NfcSdkCommon final {
+public:
+    static const int SHIFT_SIZE = 8;
+    static const int SHIFT_TIME = 4;
+
+public:
+    static bool IsLittleEndian();
+    static std::string UnsignedCharArrayToString(const unsigned char* charArray, int length);
+    static std::string IntToString(int num, bool bLittleEndian = true);
+    static int StringToInt(std::string src, bool bLittleEndian = true);
+};
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

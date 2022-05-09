@@ -12,24 +12,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef I_NFC_SERVICE_H
-#define I_NFC_SERVICE_H
-
-#include "infcc_host.h"
-#include "tag_dispatcher.h"
+#ifndef SYNCHRONIZE_EVENT_H
+#define SYNCHRONIZE_EVENT_H
+#include <pthread.h>
 
 namespace OHOS {
 namespace NFC {
-class INfcService {
+class SynchronizeEvent {
 public:
-    virtual ~INfcService() {}
+    SynchronizeEvent();
+    ~SynchronizeEvent();
 
-    virtual bool IsNfcEnabled() = 0;
-    virtual std::weak_ptr<NFC::NCI::INfccHost> GetNfccHost() = 0;
-    virtual std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() = 0;
+    void Start();
+    void End();
+    void Wait();
+    bool Wait(long ms);
+    void NotifyOne();
 
 private:
+    pthread_mutex_t lock_;
+    pthread_cond_t cond_;
+};
+
+class SynchronizeGuard {
+public:
+    explicit SynchronizeGuard(SynchronizeEvent& event) : syncEvent_(event)
+    {
+        event.Start();
+    };
+
+    ~SynchronizeGuard()
+    {
+        syncEvent_.End();
+    };
+
+private:
+    SynchronizeEvent& syncEvent_;
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // I_NFC_SERVICE_H
+#endif  // SYNCHRONIZE_EVENT_H

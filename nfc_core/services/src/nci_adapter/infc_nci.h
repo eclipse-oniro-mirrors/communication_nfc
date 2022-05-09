@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef I_LIB_NFC_NCI_H
-#define I_LIB_NFC_NCI_H
+#ifndef I_NFC_NCI_H
+#define I_NFC_NCI_H
 
 #include "ndef_utils.h"
 #include "nfa_api.h"
@@ -26,9 +26,9 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class ILibNfcNci {
+class INfcNci {
 public:
-    virtual ~ILibNfcNci() {}
+    virtual ~INfcNci() {}
     virtual void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) = 0;
     virtual tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) = 0;
     virtual tNFA_STATUS NfaDisable(bool graceful) = 0;
@@ -108,4 +108,4 @@ public:
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS
-#endif /* I_LIB_NFC_NCI_H */
+#endif /* I_NFC_NCI_H */
