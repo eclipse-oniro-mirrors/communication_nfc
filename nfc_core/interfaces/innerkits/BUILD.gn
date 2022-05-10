@@ -41,11 +41,6 @@ ohos_shared_library("nfc_inner_kits") {
     "src/tags/basic_tag_session.cpp",
     "src/tags/iso15693_tag.cpp",
     "src/tags/isodep_tag.cpp",
-    "src/tags/mifare_classic_tag.cpp",
-    "src/tags/mifare_ultralight_tag.cpp",
-    "src/tags/ndef_formatable_tag.cpp",
-    "src/tags/ndef_message.cpp",
-    "src/tags/ndef_tag.cpp",
     "src/tags/nfca_tag.cpp",
     "src/tags/nfcb_tag.cpp",
     "src/tags/tag_session_proxy.cpp",
@@ -56,15 +51,14 @@ ohos_shared_library("nfc_inner_kits") {
 
   public_configs = [ ":nfc_inner_kits_public_config" ]
 
-  deps = [
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//utils/native/base:utils",
-  ]
+  deps = []
 
   external_deps = [
+    "ability_base:want",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   part_name = "nfc"

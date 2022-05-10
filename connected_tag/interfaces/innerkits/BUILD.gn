@@ -40,14 +40,13 @@ ohos_shared_library("connected_tag_base") {
     "src/tag_session_proxy.cpp",
   ]
 
-  deps = [
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//utils/native/base:utils",
-  ]
+  deps = []
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   subsystem_name = "communication"

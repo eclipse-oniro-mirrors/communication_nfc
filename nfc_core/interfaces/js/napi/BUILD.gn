@@ -32,20 +32,17 @@ ohos_shared_library("controller") {
     "nfc_napi_controller_adapter.cpp",
   ]
 
-  deps = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
-    "//base/notification/ces_standard/frameworks/core:cesfwk_core",
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//foundation/arkui/napi:ace_napi",
-    "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits" ]
 
   external_deps = [
+    "ability_base:want",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   relative_install_dir = "module/nfc"
