@@ -35,10 +35,6 @@ ohos_shared_library("nfc_connected_tag_service") {
   deps = [
     "$ROOT/etc/init:etc",
     "$ROOT/src/hardware:connected_tag_hdi_adapter",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -46,6 +42,9 @@ ohos_shared_library("nfc_connected_tag_service") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   part_name = "nfc_connected_tag"

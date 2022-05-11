@@ -58,20 +58,21 @@ ohos_shared_library("nfc_service") {
   public_configs = [ ":nfc_config" ]
 
   deps = [
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
-    "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//third_party/nfc-nci/SN100x:nfc-nci",
     "//third_party/nfc-nci/SN100x/utils:nfcutils",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "utils_base:utils",
   ]
 
   part_name = "nfc"
