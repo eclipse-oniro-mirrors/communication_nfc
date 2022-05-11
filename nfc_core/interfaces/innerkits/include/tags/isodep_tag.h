@@ -44,6 +44,7 @@ public:
      * @return HiLayerResponse bytes
      */
     std::string GetHiLayerResponse() const;
+    bool IsExtendedApduSupported() const;
 
 private:
     std::string historicalBytes_ {};

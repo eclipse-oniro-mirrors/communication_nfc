@@ -32,7 +32,6 @@ public:
     std::string GetTagUid();
     std::string SendCommand(std::string& data, bool raw, int& response);
     int GetMaxSendCommandLength() const;
-    bool IsSupportedApduExtended() const;
 
 protected:
     OHOS::sptr<TAG::ITagSession> GetRemoteTagSession() const;

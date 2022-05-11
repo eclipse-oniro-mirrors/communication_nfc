@@ -112,18 +112,6 @@ int BasicTagSession::GetMaxSendCommandLength() const
     return tagSession->GetMaxTransceiveLength(static_cast<int>(tagTechnology_));
 }
 
-bool BasicTagSession::IsSupportedApduExtended() const
-{
-    if (tagInfo_.expired()) {
-        return false;
-    }
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
-    if (!tagSession) {
-        return false;
-    }
-    return tagSession->IsSupportedApdusExtended();
-}
-
 OHOS::sptr<TAG::ITagSession> BasicTagSession::GetRemoteTagSession() const
 {
     DebugLog("BasicTagSession::GetRemoteTagSession in.");

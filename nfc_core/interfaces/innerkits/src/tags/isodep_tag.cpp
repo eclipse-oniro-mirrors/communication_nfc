@@ -56,6 +56,15 @@ std::string IsoDepTag::GetHiLayerResponse() const
 {
     return hiLayerResponse_;
 }
+
+bool IsoDepTag::IsExtendedApduSupported() const
+{
+    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    if (!tagSession) {
+        return false;
+    }
+    return tagSession->IsSupportedApdusExtended();
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
