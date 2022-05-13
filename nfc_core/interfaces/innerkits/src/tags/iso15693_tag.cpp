@@ -19,13 +19,13 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_ISO15693_TECH)
+Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_V_TECH)
 {
     if (tag.expired()) {
         DebugLog("Iso15693Tag::Iso15693Tag tag invalid ");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_ISO15693_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_V_TECH);
     if (!extraData.IsEmpty()) {
         DebugLog("Iso15693Tag::Iso15693Tag extra data invalid");
         return;
@@ -42,7 +42,7 @@ Iso15693Tag::~Iso15693Tag()
 
 std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_ISO15693_TECH)) {
+    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
         return std::shared_ptr<Iso15693Tag>();
     }
 

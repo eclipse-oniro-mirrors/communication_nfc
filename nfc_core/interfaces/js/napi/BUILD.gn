@@ -24,7 +24,7 @@ ohos_shared_library("controller") {
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include/controller",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-    "//base/notification/ces_standard/frameworks/core/include",
+    "//base/notification/common_event_service/frameworks/core/include",
   ]
 
   sources = [

@@ -233,11 +233,11 @@ std::vector<int> TagHost::GetTechList()
                 break;
 
             case TARGET_TYPE_FELICA:
-                technology = KITS::TagTechnology::NFC_FELICA_TECH;
+                technology = KITS::TagTechnology::NFC_F_TECH;
                 break;
 
             case TARGET_TYPE_V:
-                technology = KITS::TagTechnology::NFC_ISO15693_TECH;
+                technology = KITS::TagTechnology::NFC_V_TECH;
                 break;
 
             case TARGET_TYPE_NDEF:
