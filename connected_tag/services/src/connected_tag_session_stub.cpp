@@ -37,6 +37,9 @@ void ConnectedTagSessionStub::InitHandleMap()
 int ConnectedTagSessionStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
                                              MessageParcel &reply, MessageOption &option)
 {
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        return NFC_OPT_FAILED;
+    }
     int exception = data.ReadInt32();
     if (exception) {
         return NFC_OPT_FAILED;

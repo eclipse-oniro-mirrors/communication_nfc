@@ -43,6 +43,9 @@ ErrCode TagSessionProxy::Init()
     MessageOption option;
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return NFC_OPT_FAILED;
+    }
     data.WriteInt32(NFC_OPT_SUCCESS);
 
     int error = Remote()->SendRequest(NFC_SVR_CMD_INIT, data, reply, option);

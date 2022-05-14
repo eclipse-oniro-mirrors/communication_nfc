@@ -26,7 +26,7 @@ namespace NFC {
 namespace KITS {
 class TagInfo final : public Parcelable {
 public:
-    const int MAX_TAG_TECH_NUM = 10;
+    static const int MAX_TAG_TECH_NUM = 10;
     static const int SEND_COMMAND_HEAD_LEN_2 = 2;
     static const int SEND_COMMAND_MAX_LEN = 256;
 
@@ -63,7 +63,7 @@ public:
     std::vector<int> GetTagTechList() const;
 
     bool Marshalling(Parcel& parcel) const override;
-    static TagInfo* Unmarshalling(Parcel& parcel);
+    static std::shared_ptr<TagInfo> Unmarshalling(Parcel& parcel);
 
     std::string GetStringExtrasData(AppExecFwk::PacMap& extraData, const std::string& extrasName);
     int GetIntExtrasData(AppExecFwk::PacMap extrasData, const std::string& extrasName);

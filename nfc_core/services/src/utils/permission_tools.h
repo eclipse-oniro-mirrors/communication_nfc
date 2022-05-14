@@ -19,8 +19,14 @@
 
 namespace OHOS {
 namespace NFC {
-// NFC ADMIN permission - only for system apps
+// the app need requst the permission for open/close nfc operations.
 const std::string SYS_PERM = "ohos.permission.MANAGE_SECURE_SETTINGS";
+
+// the app need requst the permission for tag operations.
+const std::string TAG_PERM = "ohos.permission.NFC_TAG";
+
+// the app need requst the permission for card emulation operations.
+const std::string CARD_EMU_PERM = "ohos.permission.NFC_CARD_EMULATION";
 
 class PermissionTools {
 public:

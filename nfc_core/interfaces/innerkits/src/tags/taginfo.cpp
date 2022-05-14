@@ -126,33 +126,49 @@ int TagInfo::GetTagRfDiscId() const
 
 bool TagInfo::Marshalling(Parcel& parcel) const
 {
-    DebugLog("TagInfo::Marshalling");
-    if (remoteTagSession_) {
-        DebugLog("TagInfo::remoteTagSession_ is exist.");
-    } else {
-        DebugLog("TagInfo::remoteTagSession_ is unexist.");
+    if (remoteTagSession_ == nullptr) {
+        WarnLog("TagInfo::Marshalling remoteTagSession_ is null.");
+        return false;
+    }
+    if (tagTechList_.size() > MAX_TAG_TECH_NUM) {
+        WarnLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
+        return false;
     }
     parcel.WriteInt32(tagRfDiscId_);
     parcel.WriteString(tagUid_);
+    parcel.WriteInt32(tagTechList_.size());
     parcel.WriteInt32Vector(tagTechList_);
-
     parcel.WriteObject<IRemoteObject>(remoteTagSession_->AsObject());
-    parcel.WriteParcelable(tagTechExtrasData_.get());
+    if (tagTechList_.size() > 0 && tagTechExtrasData_ != nullptr) {
+        parcel.WriteParcelable(tagTechExtrasData_.get());
+    }
     return true;
 }
 
-TagInfo* TagInfo::Unmarshalling(Parcel& parcel)
+std::shared_ptr<TagInfo> TagInfo::Unmarshalling(Parcel& parcel)
 {
-    DebugLog("TagInfo::Unmarshalling in");
     int tagRfDiscId = parcel.ReadInt32();
     std::string tagUid = parcel.ReadString();
+    int size = parcel.ReadInt32();
+    if (size > MAX_TAG_TECH_NUM) {
+        WarnLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
+        return nullptr;
+    }
     std::vector<int> tagTechList;
     parcel.ReadInt32Vector(&tagTechList);
     sptr<IRemoteObject> tagService = parcel.ReadObject<IRemoteObject>();
+    if (tagService == nullptr) {
+        WarnLog("TagInfo::Unmarshalling tagService is null.");
+        return nullptr;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(tagService);
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData(parcel.ReadParcelable<AppExecFwk::PacMap>());
-
-    TagInfo* tag = new TagInfo(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    if (tagTechList.size() > 0 && tagTechExtrasData == nullptr) {
+        WarnLog("TagInfo::Unmarshalling tagTechExtrasData is null.");
+        return nullptr;
+    }
+    std::shared_ptr<TagInfo> tag = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData,
+        tagUid, tagRfDiscId, tagSession);
     return tag;
 }
 }  // namespace KITS
