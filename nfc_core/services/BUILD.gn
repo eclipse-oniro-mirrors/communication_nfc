@@ -58,6 +58,7 @@ ohos_shared_library("nfc_service") {
   public_configs = [ ":nfc_config" ]
 
   deps = [
+    "etc/init:etc",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
     "//third_party/nfc-nci/SN100x:nfc-nci",
     "//third_party/nfc-nci/SN100x/utils:nfcutils",
