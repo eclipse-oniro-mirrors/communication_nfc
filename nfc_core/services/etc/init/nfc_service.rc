@@ -12,7 +12,7 @@
 # limitations under the License.
 
 on post-fs-data
-    mkdir /data/nfc_core
+    mkdir /data/nfc
     start nfc_service
 
 service nfc_service /system/bin/sa_main /system/profile/nfc_service.xml
