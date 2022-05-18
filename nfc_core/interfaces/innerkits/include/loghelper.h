@@ -15,48 +15,67 @@
 #ifndef LOG_HELPER_H
 #define LOG_HELPER_H
 
-#include <cstdio>
-#include <ctime>
-
-#define GET_TIME()                                                \
-    do {                                                          \
-        struct timespec xTime;                                    \
-        clock_gettime(CLOCK_REALTIME, &xTime);                    \
-        printf("%lld%06ld ", xTime.tv_sec, xTime.tv_nsec / 1000); \
-    } while (0)
 #ifdef DEBUG
-#define InfoLog(format, ...)                                                   \
-    do {                                                                       \
-        GET_TIME();                                                            \
-        printf(__FILE__ "(%05d) INFO: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
-#define DebugLog(format, ...)                                                   \
-    do {                                                                        \
-        GET_TIME();                                                             \
-        printf(__FILE__ "(%05d) DEBUG: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
-#define WarnLog(format, ...)                                                   \
-    do {                                                                       \
-        GET_TIME();                                                            \
-        printf(__FILE__ "(%05d) WARN: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
-#define ErrorLog(format, ...)                                                   \
-    do {                                                                        \
-        GET_TIME();                                                             \
-        printf(__FILE__ "(%05d) ERROR: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
-#else
-#define InfoLog(format, ...)                                                   \
-    do {                                                                       \
-        GET_TIME();                                                            \
-        printf(__FILE__ "(%05d) INFO: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
-#define DebugLog(format, ...)
-#define WarnLog(format, ...)
-#define ErrorLog(format, ...)                                                   \
-    do {                                                                        \
-        GET_TIME();                                                             \
-        printf(__FILE__ "(%05d) ERROR: " format "\n", __LINE__, ##__VA_ARGS__); \
-    } while (0)
+#include "hilog/log.h"
+
+#ifdef FatalLog
+#undef FatalLog
 #endif
+
+#ifdef ErrorLog
+#undef ErrorLog
+#endif
+
+#ifdef WarnLog
+#undef WarnLog
+#endif
+
+#ifdef InfoLog
+#undef InfoLog
+#endif
+
+#ifdef DebugLog
+#undef DebugLog
+#endif
+
+#ifndef NFC_LOG_DOMAIN
+#define NFC_LOG_DOMAIN 0xD006000
+#endif
+
+#ifndef NFC_LOG_TAG
+#define NFC_LOG_TAG "Nfc_Core"
+#endif
+
+#ifdef LOG_LABEL
+#undef LOG_LABEL
+#endif
+
+static constexpr OHOS::HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, NFC_LOG_DOMAIN, NFC_LOG_TAG};
+
+#define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#define FatalLog(fmt, ...)               \
+    (void)OHOS::HiviewDFX::HiLog::Fatal( \
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define ErrorLog(fmt, ...)               \
+    (void)OHOS::HiviewDFX::HiLog::Error( \
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define WarnLog(fmt, ...)                \
+    (void)OHOS::HiviewDFX::HiLog::Warn(  \
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define InfoLog(fmt, ...)                \
+    (void)OHOS::HiviewDFX::HiLog::Info(  \
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define DebugLog(fmt, ...)               \
+    (void)OHOS::HiviewDFX::HiLog::Debug( \
+        LOG_LABEL, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+
+#define FatalLog(...)
+#define ErrorLog(...)
+#define WarnLog(...)
+#define InfoLog(...)
+#define DebugLog(...)
+#endif  // DEBUG
+
 #endif // LOG_HELPER_H
