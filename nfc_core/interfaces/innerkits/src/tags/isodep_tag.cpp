@@ -41,7 +41,7 @@ std::shared_ptr<IsoDepTag> IsoDepTag::GetTag(std::weak_ptr<TagInfo> tag)
     DebugLog("IsoDepTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_ISODEP_TECH)) {
         DebugLog("IsoDepTag::GetTag err");
-        return std::shared_ptr<IsoDepTag>();
+        return nullptr;
     }
 
     return std::make_shared<IsoDepTag>(tag);

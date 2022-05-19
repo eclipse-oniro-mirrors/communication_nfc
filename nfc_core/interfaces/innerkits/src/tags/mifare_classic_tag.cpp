@@ -94,7 +94,7 @@ void MifareClassicTag::SetSakSize(int sak)
 std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
-        return std::shared_ptr<MifareClassicTag>();
+        return nullptr;
     }
 
     return std::make_shared<MifareClassicTag>(tag);

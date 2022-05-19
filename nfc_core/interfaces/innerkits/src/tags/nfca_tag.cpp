@@ -41,7 +41,7 @@ std::shared_ptr<NfcATag> NfcATag::GetTag(std::weak_ptr<TagInfo> tag)
     DebugLog("NfcATag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH)) {
         DebugLog("NfcATag::GetTag err");
-        return std::shared_ptr<NfcATag>();
+        return nullptr;
     }
 
     return std::make_shared<NfcATag>(tag);

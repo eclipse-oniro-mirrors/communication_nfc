@@ -43,7 +43,7 @@ Iso15693Tag::~Iso15693Tag()
 std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
-        return std::shared_ptr<Iso15693Tag>();
+        return nullptr;
     }
 
     return std::make_shared<Iso15693Tag>(tag);

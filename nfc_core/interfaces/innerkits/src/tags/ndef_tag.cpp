@@ -42,14 +42,9 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 
 std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    DebugLog("NdefTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
-        DebugLog("NdefTag::GetTag tech len.%d", tag.lock()->GetTagTechList().size());
-        for (size_t i = 0; i < tag.lock()->GetTagTechList().size(); i++) {
-            DebugLog("NdefTag::GetTag index.%d(tech.%d)", i, tag.lock()->GetTagTechList().at(i));
-        }
-
-        return std::shared_ptr<NdefTag>();
+        DebugLog("NdefTag::GetTag error");
+        return nullptr;
     }
 
     return std::make_shared<NdefTag>(tag);

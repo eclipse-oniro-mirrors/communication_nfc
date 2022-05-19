@@ -69,6 +69,9 @@ ErrCode TagSessionProxy::Uninit()
     MessageOption option;
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return NFC_OPT_FAILED;
+    }
     data.WriteInt32(NFC_OPT_SUCCESS);
 
     int error = Remote()->SendRequest(NFC_SVR_CMD_UNINIT, data, reply, option);
@@ -92,6 +95,9 @@ ErrCode TagSessionProxy::ReadNdefTag(std::string &response)
     MessageOption option;
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return NFC_OPT_FAILED;
+    }
     data.WriteInt32(NFC_OPT_SUCCESS);
 
     int error = Remote()->SendRequest(NFC_SVR_CMD_READ_NDEF_TAG, data, reply, option);
@@ -116,6 +122,9 @@ ErrCode TagSessionProxy::WriteNdefTag(std::string tagData)
     MessageOption option;
     MessageParcel data;
     MessageParcel reply;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return NFC_OPT_FAILED;
+    }
     data.WriteInt32(NFC_OPT_SUCCESS);
     data.WriteString(tagData);
     HILOGE("TagSessionProxy WriteNdefTag tagData is %{public}s", tagData.c_str());
