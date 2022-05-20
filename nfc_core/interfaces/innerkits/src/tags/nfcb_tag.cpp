@@ -41,7 +41,7 @@ std::shared_ptr<NfcBTag> NfcBTag::GetTag(std::weak_ptr<TagInfo> tag)
     DebugLog("NfcBTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_B_TECH)) {
         DebugLog("NfcBTag::GetTag err");
-        return std::shared_ptr<NfcBTag>();
+        return nullptr;
     }
 
     return std::make_shared<NfcBTag>(tag);

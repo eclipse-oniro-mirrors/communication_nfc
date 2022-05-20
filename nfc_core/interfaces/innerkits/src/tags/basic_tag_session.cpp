@@ -119,7 +119,6 @@ OHOS::sptr<TAG::ITagSession> BasicTagSession::GetRemoteTagSession() const
         DebugLog("[BasicTagSession::GetRemoteTagSession] tag is null.");
         return OHOS::sptr<TAG::ITagSession>();
     }
-
     return tagInfo_.lock()->GetRemoteTagSession();
 }
 

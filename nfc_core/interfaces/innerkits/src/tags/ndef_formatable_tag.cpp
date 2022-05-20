@@ -26,7 +26,7 @@ NdefFormatableTag::NdefFormatableTag(std::weak_ptr<TagInfo> tag)
 std::shared_ptr<NdefFormatableTag> NdefFormatableTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH)) {
-        return std::shared_ptr<NdefFormatableTag>();
+        return nullptr;
     }
 
     return std::make_shared<NdefFormatableTag>(tag);
