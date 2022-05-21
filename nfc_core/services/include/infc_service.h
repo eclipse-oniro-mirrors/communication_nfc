@@ -20,6 +20,32 @@
 
 namespace OHOS {
 namespace NFC {
+enum class NfcCommonEvent {
+    // tags found
+    MSG_TAG_FOUND = 0,
+    MSG_TAG_DEBOUNCE,
+
+    // screen changed
+    MSG_SCREEN_CHANGED,
+
+    // package updated
+    MSG_PACKAGE_UPDATED,
+
+    // card emulation
+    MSG_ROUTE_AID,
+};
+
+enum class ScreenState {
+    SCREEN_STATE_UNKNOWN = 0x00,
+    SCREEN_STATE_OFF_UNLOCKED = 0x01,
+    SCREEN_STATE_OFF_LOCKED = 0x02,
+    SCREEN_STATE_ON_LOCKED = 0x04,
+    SCREEN_STATE_ON_UNLOCKED = 0x08,
+    // Polling mask
+    SCREEN_POLLING_TAG_MASK = 0x10,
+    SCREEN_POLLING_READER_MASK = 0x40
+};
+
 class INfcService {
 public:
     virtual ~INfcService() {}

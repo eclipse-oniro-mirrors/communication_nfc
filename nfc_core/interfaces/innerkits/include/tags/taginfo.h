@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef TAG_H
-#define TAG_H
+#ifndef TAG_INFO_H
+#define TAG_INFO_H
 
 #include "itag_session.h"
 #include "nfc_basic_proxy.h"
@@ -92,4 +92,4 @@ private:
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // TAG_H
+#endif  // TAG_INFO_H

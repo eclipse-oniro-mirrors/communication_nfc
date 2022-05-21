@@ -29,7 +29,7 @@ NfcControllerImpl::~NfcControllerImpl()
 
 int NfcControllerImpl::GetState()
 {
-    return nfcService_.lock()->GetState();
+    return nfcService_.lock()->GetNfcState();
 }
 
 bool NfcControllerImpl::TurnOn()

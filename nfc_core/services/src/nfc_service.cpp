@@ -14,6 +14,7 @@
  */
 #include "nfc_service.h"
 
+#include "common_event_handler.h"
 #include "common_event_manager.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
@@ -35,12 +36,7 @@ std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
 void NfcService::OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
 {
     InfoLog("NfcService::OnTagDiscovered");
-}
-
-int NfcService::GetState()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    return state_;
+    eventHandler_->SendEvent<NCI::ITagHost>(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagHost);
 }
 
 bool NfcService::IsNfcTaskReady(std::future<int>& future) const
@@ -56,17 +52,17 @@ bool NfcService::IsNfcTaskReady(std::future<int>& future) const
 void NfcService::ExecuteTask(KITS::NfcTask param, bool saveState)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (state_ == KITS::STATE_TURNING_OFF || state_ == KITS::STATE_TURNING_ON) {
-        ErrorLog("Processing EnableDisable task %d from bad state %d", param, state_);
+    if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
+        ErrorLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
         return;
     }
 
     // Check the current state
-    if (param == KITS::TASK_TURN_ON && state_ == KITS::STATE_ON) {
+    if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
         DebugLog("NFC Turn On");
         return;
     }
-    if (param == KITS::TASK_TURN_OFF && state_ == KITS::STATE_OFF) {
+    if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
         DebugLog("NFC Turn Off");
         return;
     }
@@ -97,7 +93,7 @@ void NfcService::SaveNfcOnSetting(bool on)
 
 void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
 {
-    DebugLog("Enable Disable Nfc. Params %d", params);
+    DebugLog("Nfc task thread params %{public}d", params);
     switch (params) {
         case KITS::TASK_TURN_ON:
             DoTurnOn();
@@ -125,14 +121,14 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
 
 bool NfcService::DoTurnOn()
 {
-    DebugLog("do turn on NFC. Current State %d", state_);
+    DebugLog("Nfc do turn on: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_ON);
 
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nfccHost_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
     if (!nfccHost_->Initialize()) {
-        WarnLog("Error do turn on NFC");
+        ErrorLog("Nfc do turn on err");
         UpdateNfcState(KITS::STATE_OFF);
         // Routing Wake Lock release
         nfcWatchDog.Cancel();
@@ -142,7 +138,7 @@ bool NfcService::DoTurnOn()
     nfcWatchDog.Cancel();
 
     nciVersion_ = nfccHost_->GetNciVersion();
-    DebugLog("NCI_Version: %d", nciVersion_);
+    DebugLog("Get nci version: ver %{public}d", nciVersion_);
 
     UpdateNfcState(KITS::STATE_ON);
     return true;
@@ -154,7 +150,7 @@ bool NfcService::DoTurnOn()
  */
 bool NfcService::DoTurnOff()
 {
-    DebugLog("do turn off NFC %d", state_);
+    DebugLog("Nfc do turn off: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_OFF);
 
     /* Sometimes mNfccHost.deinitialize() hangs, use a watch-dog.
@@ -165,7 +161,7 @@ bool NfcService::DoTurnOff()
     nfcWatchDog.Run();
 
     bool result = nfccHost_->Deinitialize();
-    DebugLog("nfccHost.deinitialize() = %d", result);
+    DebugLog("NfccHost deinitialize result %{public}d", result);
 
     nfcWatchDog.Cancel();
     UpdateNfcState(KITS::STATE_OFF);
@@ -174,13 +170,13 @@ bool NfcService::DoTurnOff()
 
 void NfcService::UpdateNfcState(int newState)
 {
-    DebugLog("UpdateNfcState Old State %d and New State %d", state_, newState);
+    DebugLog("Update nfc state: oldState %{public}d, newState %{public}d", nfcState_, newState);
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (newState == state_) {
+        if (newState == nfcState_) {
             return;
         }
-        state_ = newState;
+        nfcState_ = newState;
     }
 
     // noitfy the common event for nfc state changed.
@@ -192,10 +188,27 @@ void NfcService::UpdateNfcState(int newState)
     EventFwk::CommonEventManager::PublishCommonEvent(data);
 }
 
+int NfcService::GetNfcState()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return nfcState_;
+}
+
 bool NfcService::IsNfcEnabled()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    return (state_ == KITS::STATE_ON);
+    return (nfcState_ == KITS::STATE_ON);
+}
+
+void NfcService::HandleScreenChanged(int screenState)
+{
+    screenState_ = screenState;
+    DebugLog("Screen changed screenState %{public}d", screenState_);
+}
+
+void NfcService::HandlePackageUpdated()
+{
+    DebugLog("HandlePackageUpdated, unimplimentation...");
 }
 
 std::weak_ptr<NfcService> NfcService::GetInstance() const
@@ -206,7 +219,7 @@ std::weak_ptr<NfcService> NfcService::GetInstance() const
 bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
-    InfoLog("Nfc Service Initialize.");
+    InfoLog("Nfc service initialize.");
     if (nfccHost_) {
         nfccHost_->SetNfccHostListener(nfcService_);
     } else {
@@ -214,11 +227,15 @@ bool NfcService::Initialize()
     }
 
     // inner message handler, used by other modules as initialization parameters
+    std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("common event handler");
+    eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
 
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
+    eventHandler_->Intialize(tagDispatcher_);
+    runner->Run();
     // NFC ROOT
     ExecuteTask(KITS::TASK_INITIALIZE);
     return true;
@@ -227,14 +244,14 @@ bool NfcService::Initialize()
 NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
     : nfccHost_(std::move(nfccHost)),
     nfcControllerImpl_(nullptr),
+    eventHandler_(nullptr),
     tagDispatcher_(nullptr),
-    state_(KITS::STATE_OFF)
+    nfcState_(KITS::STATE_OFF)
 {
 }
 
 NfcService::~NfcService()
 {
-    InfoLog("NfcService Destructor");
     nfcControllerImpl_ = nullptr;
     if (task_ && task_->joinable()) {
         task_->join();

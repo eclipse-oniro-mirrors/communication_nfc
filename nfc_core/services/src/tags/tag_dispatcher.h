@@ -31,6 +31,9 @@ public:
     ~TagDispatcher();
     TagDispatcher(const TagDispatcher&) = delete;
     TagDispatcher& operator=(const TagDispatcher&) = delete;
+
+    int HandleTagFound(std::shared_ptr<NCI::ITagHost> tag);
+    void HandleTagDebounce();
     std::weak_ptr<NCI::ITagHost> FindTagHost(int rfDiscId);
 
 protected:
