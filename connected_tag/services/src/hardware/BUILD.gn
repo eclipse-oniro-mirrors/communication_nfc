@@ -19,6 +19,7 @@ ohos_shared_library("connected_tag_hdi_adapter") {
     "include",
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits/include",
     "//drivers/peripheral/nfc/connected_tag/v1_0/client",
+    "//third_party/bounds_checking_function/include",
   ]
 
   cflags = [ "-fPIC" ]
@@ -31,7 +32,7 @@ ohos_shared_library("connected_tag_hdi_adapter") {
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
     "//utils/native/base:utils",
-    "//utils/native/base:utilsecurec_shared",
+    "//third_party/bounds_checking_function:libsec_shared",
   ]
 
   if (is_standard_system) {
