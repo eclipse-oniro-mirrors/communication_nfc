@@ -22,6 +22,25 @@ using TagHostMapIter = std::map<int, std::shared_ptr<NFC::NCI::ITagHost>>::itera
 namespace NFC {
 namespace TAG {
 /**
+ * @brief tag found handle.
+ * @param tag the discovered tag host
+ * @return the Dispatched result
+ */
+int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
+{
+    DebugLog("HandleTagFound, unimplimentation...");
+    return 0;
+}
+
+/**
+ * @brief Reset the ignore tag parameters
+ */
+void TagDispatcher::HandleTagDebounce()
+{
+    DebugLog("HandleTagDebounce, unimplimentation...");
+}
+
+/**
  * @brief Find the TagHost by the rfDiscId
  * @param key the rfDiscId
  * @return the TagHost

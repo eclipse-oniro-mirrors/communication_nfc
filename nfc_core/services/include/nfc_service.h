@@ -26,6 +26,7 @@
 
 namespace OHOS {
 namespace NFC {
+class CommonEventHandler;
 class NfcControllerImpl;
 const int NCI_VERSION_2_0 = 0x20;
 
@@ -42,6 +43,12 @@ public:
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
 
+protected:
+    // screen changed
+    void HandleScreenChanged(int screenState);
+    // package updated
+    void HandlePackageUpdated();
+
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
 
@@ -55,12 +62,12 @@ private:
     void ExecuteTask(KITS::NfcTask param, bool saveState = false);
     void SaveNfcOnSetting(bool on);
     // Nfc State
-    int GetState();
+    int GetNfcState();
+    void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
-    void UpdateNfcState(int newState);
 
 private:
     // ms wait for initialization, included firmware download.
@@ -73,10 +80,13 @@ private:
     std::weak_ptr<NfcService> nfcService_ {};
     // NCI
     std::shared_ptr<NCI::INfccHost> nfccHost_ {};
+
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_;
+    std::shared_ptr<CommonEventHandler> eventHandler_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
-    // save current nfc state.
-    int state_;
+    // save current state.
+    int nfcState_;
+    int screenState_;
 
     // lock
     std::mutex mutex_ {};
@@ -88,6 +98,7 @@ private:
     friend class NfcControllerImpl;
     friend class TAG::TagDispatcher;
     friend class NfcSaManager;
+    friend class CommonEventHandler;
 };
 }  // namespace NFC
 }  // namespace OHOS
