@@ -31,8 +31,8 @@ ohos_shared_library("connected_tag_hdi_adapter") {
     "$hdf_uhdf_path/host:libhdf_host",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//utils/native/base:utils",
     "//third_party/bounds_checking_function:libsec_shared",
+    "//utils/native/base:utils",
   ]
 
   if (is_standard_system) {
