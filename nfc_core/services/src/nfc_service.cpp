@@ -104,12 +104,8 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
         case KITS::TASK_INITIALIZE: {
             bool initialized = false;
             nfccHost_->FactoryReset();
-            initialized = nfccHost_->CheckFirmware();
-            if (initialized) {
-#if _SYSTEM_PROPERTIES_
-                SystemProperties.set("nfc.initialized", "true");
-#endif
-            }
+            initialized = DoTurnOn();
+            DebugLog("initialized = %{public}d", initialized);
             break;
         }
         default:

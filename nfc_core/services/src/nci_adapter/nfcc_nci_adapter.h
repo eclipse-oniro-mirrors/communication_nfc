@@ -19,6 +19,7 @@
 #include <mutex>
 
 #include "infc_nci.h"
+#include "synchronize_event.h"
 
 namespace OHOS {
 namespace NFC {
@@ -71,6 +72,8 @@ private:
     static void DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData);
     static void NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData);
     std::mutex mutex_ {};
+    static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
+    static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;
     static bool isNfcEnabled_;
     static bool rfEnabled_;
     static bool discoveryEnabled_;  // is polling or listening
