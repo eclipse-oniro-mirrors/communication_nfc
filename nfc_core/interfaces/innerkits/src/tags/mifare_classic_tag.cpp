@@ -32,7 +32,7 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
-    if (!extraData.IsEmpty()) {
+    if (extraData.IsEmpty()) {
         DebugLog("MifareClassicTag::MifareClassicTag extra data invalid");
         return;
     }
