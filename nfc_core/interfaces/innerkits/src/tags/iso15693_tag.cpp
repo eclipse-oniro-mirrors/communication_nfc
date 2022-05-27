@@ -26,7 +26,7 @@ Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_V_TECH);
-    if (!extraData.IsEmpty()) {
+    if (extraData.IsEmpty()) {
         DebugLog("Iso15693Tag::Iso15693Tag extra data invalid");
         return;
     }

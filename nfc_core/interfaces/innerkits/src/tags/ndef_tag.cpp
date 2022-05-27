@@ -27,7 +27,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_NDEF_TECH);
-    if (!extraData.IsEmpty()) {
+    if (extraData.IsEmpty()) {
         DebugLog("NdefTag::NdefTag extra data invalid");
         return;
     }
