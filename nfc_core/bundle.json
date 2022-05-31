@@ -60,6 +60,7 @@
                 "//foundation/communication/nfc/nfc_core/sa_profile:nfc_profile",
                 "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
                 "//foundation/communication/nfc/nfc_core/interfaces/js/napi:controller",
+                "//foundation/communication/nfc/nfc_core/interfaces/js/napi/tag:tag",
                 "//foundation/communication/nfc/nfc_core/services:nfc_service"
             ],
             "inner_kits": [
