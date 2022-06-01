@@ -15,7 +15,11 @@
 #ifndef NFC_CONTROLLER_H
 #define NFC_CONTROLLER_H
 
+#include "nfc_controller_callback_stub.h"
 #include "nfc_controller_proxy.h"
+#include "nfc_sdk_common.h"
+#include "infc_controller_callback.h"
+#include "infc_controller_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -53,6 +57,9 @@ public:
      * @return nfc state.
      */
     int GetNfcState();
+
+    NfcErrorCode RegListener(const sptr<INfcControllerCallback> &callback, const std::string& type);
+    NfcErrorCode UnRegListener(const std::string& type);
 
 private:
 

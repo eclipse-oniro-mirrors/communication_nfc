@@ -15,9 +15,13 @@
 #ifndef NFC_CONTROLLER_PROXY_H
 #define NFC_CONTROLLER_PROXY_H
 
-#include "iremote_proxy.h"
-#include "infc_controller_service.h"
+
 #include "nfc_basic_proxy.h"
+#include "nfc_sdk_common.h"
+#include "infc_controller_callback.h"
+#include "infc_controller_service.h"
+#include "iremote_proxy.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace NFC {
@@ -32,6 +36,9 @@ public:
     bool TurnOn() override;
     bool TurnOff(bool saveState) override;
     int GetState() override;
+    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type) override;
+    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) override;
 
 private:
 };

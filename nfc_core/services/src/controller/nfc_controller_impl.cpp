@@ -15,6 +15,7 @@
 #include "nfc_controller_impl.h"
 
 #include "nfc_sdk_common.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -42,6 +43,35 @@ bool NfcControllerImpl::TurnOff(bool saveState)
 {
     nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF, saveState);
     return true;
+}
+
+KITS::NfcErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    const std::string& type, Security::AccessToken::AccessTokenID callerToken)
+{
+    DebugLog("RegisterCallBack NfcControllerImpl");
+    if (!nfcService_.lock()->SetRegisterCallBack(callback, type, callerToken)) {
+        return KITS::NFC_SUCCESS;
+    }
+    return KITS::NFC_FAILED;
+}
+
+KITS::NfcErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
+    Security::AccessToken::AccessTokenID callerToken)
+{
+    DebugLog("UnRegisterCallBack NfcControllerImpl");
+    if (!nfcService_.lock()->RemoveRegisterCallBack(type, callerToken)) {
+        return KITS::NFC_SUCCESS;
+    }
+    return KITS::NFC_FAILED;
+}
+
+KITS::NfcErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
+{
+    DebugLog("UnRegisterAllCallBack NfcControllerImpl");
+    if (!nfcService_.lock()->RemoveAllRegisterCallBack(callerToken)) {
+        return KITS::NFC_SUCCESS;
+    }
+    return KITS::NFC_FAILED;
 }
 }  // namespace NFC
 }  // namespace OHOS

@@ -17,6 +17,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "nfc_napi_controller_adapter.h"
+#include "nfc_napi_controller_event.h"
 
 namespace OHOS {
 namespace NFC {
@@ -31,6 +32,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("openNfc", OpenNfc),
         DECLARE_NAPI_FUNCTION("closeNfc", CloseNfc),
         DECLARE_NAPI_FUNCTION("getNfcState", GetNfcState),
+        DECLARE_NAPI_FUNCTION("on", On),
+        DECLARE_NAPI_FUNCTION("off", Off),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

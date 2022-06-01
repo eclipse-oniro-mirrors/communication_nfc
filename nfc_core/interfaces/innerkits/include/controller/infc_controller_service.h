@@ -15,6 +15,8 @@
 #ifndef I_NFC_CONTROLLER_SERVICE_H
 #define I_NFC_CONTROLLER_SERVICE_H
 
+#include "nfc_sdk_common.h"
+#include "infc_controller_callback.h"
 #include "iremote_broker.h"
 
 namespace OHOS {
@@ -40,6 +42,10 @@ public:
      * @return true - turn off; the other
      */
     virtual bool TurnOff(bool saveState) = 0;
+
+    virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type) = 0;
+    virtual KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) = 0;
 
 private:
 };

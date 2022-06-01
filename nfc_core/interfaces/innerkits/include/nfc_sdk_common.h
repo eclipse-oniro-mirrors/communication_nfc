@@ -25,6 +25,9 @@ constexpr int COMMAND_ID = 100;
 constexpr int COMMAND_GET_STATE = COMMAND_ID + 1;
 constexpr int COMMAND_TURN_ON = COMMAND_ID + 2;
 constexpr int COMMAND_TURN_OFF = COMMAND_ID + 3;
+constexpr int COMMAND_ON_NOTIFY = COMMAND_ID + 4;
+constexpr int COMMAND_REGISTER_CALLBACK = COMMAND_ID + 5;
+constexpr int COMMAND_UNREGISTER_CALLBACK = COMMAND_ID + 6;
 
 constexpr int TAG_SESSION_START_ID = 200;
 constexpr int COMMAND_CONNECT = TAG_SESSION_START_ID + 1;
@@ -44,6 +47,7 @@ constexpr int COMMAND_IS_SUPPORTED_APDUS_EXTENDED = TAG_SESSION_START_ID + 14;
 
 enum NfcErrorCode : const int {
     NFC_SUCCESS = 0,
+    NFC_FAILED,
 
     // SDK ERROR CODE
     NFC_SDK_ERROR_NOT_INITIALIZED = 0x00000100,

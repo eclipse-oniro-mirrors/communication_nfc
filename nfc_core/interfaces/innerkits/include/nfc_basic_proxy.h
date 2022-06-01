@@ -29,6 +29,11 @@ public:
     int ProcessIntRes(int cmd, OHOS::MessageParcel& data, OHOS::MessageOption& option, int& result);
     int ProcessBoolRes(int cmd, OHOS::MessageParcel& data, OHOS::MessageOption& option, bool& result);
     int ProcessCommand(int cmd, OHOS::MessageParcel& data, OHOS::MessageOption& option);
+    int ProcessCallBackCommand(int cmd,
+            OHOS::MessageParcel& data,
+            OHOS::MessageParcel& reply,
+            OHOS::MessageOption& option);
+
 private:
     OHOS::sptr<OHOS::IRemoteObject> remoteObj_ {};
 };

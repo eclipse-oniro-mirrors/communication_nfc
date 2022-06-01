@@ -14,9 +14,11 @@
  */
 #include "nfc_controller.h"
 
-#include "iservice_registry.h"
 #include "loghelper.h"
+#include "nfc_controller_callback_stub.h"
 #include "nfc_sdk_common.h"
+#include "infc_controller_callback.h"
+#include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -93,6 +95,21 @@ int NfcController::GetNfcState()
         return NfcState::STATE_OFF;
     }
     return nfcControllerService_.lock()->GetState();
+}
+
+// register NFC state change callback
+NfcErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callback,
+    const std::string& type)
+{
+    DebugLog("NfcController::RegListener");
+    return nfcControllerService_.lock()->RegisterCallBack(callback, type);
+}
+
+// unregister NFC state change
+NfcErrorCode NfcController::UnRegListener(const std::string& type)
+{
+    DebugLog("NfcController::UnRegListener");
+    return nfcControllerService_.lock()->UnRegisterCallBack(type);
 }
 }  // namespace KITS
 }  // namespace NFC
