@@ -15,12 +15,16 @@
 #include "nfc_controller_proxy.h"
 
 #include "loghelper.h"
+#include "nfc_controller_callback_stub.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
 const std::string NFC_INTERFACE_TOKEN = "ohos.nfc.INfcController";
+static NfcControllerCallBackStub* g_nfcControllerCallbackStub = new NfcControllerCallBackStub;
+
 NfcControllerProxy ::~NfcControllerProxy() {}
+
 bool NfcControllerProxy::TurnOn()
 {
     DebugLog("NfcControllerProxy::TurnOn in.");
@@ -28,10 +32,12 @@ bool NfcControllerProxy::TurnOn()
     MessageParcel data;
     MessageOption option(MessageOption::TF_ASYNC);
     int32_t res = ProcessBoolRes(KITS::COMMAND_TURN_ON, data, option, result);
+    DebugLog("NfcControllerProxy::TurnOn res=%{public}d", res);
     if (res != ERR_NONE) {
         DebugLog("NfcControllerProxy::TurnOn error.");
         return false;
     }
+    DebugLog("NfcControllerProxy::TurnOn result=%{public}d", result);
     return result;
 }
 
@@ -61,6 +67,69 @@ int NfcControllerProxy::GetState()
         return NFC::KITS::STATE_OFF;
     }
     return state;
+}
+
+KITS::NfcErrorCode NfcControllerProxy::RegisterCallBack(
+    const sptr<INfcControllerCallback> &callback,
+    const std::string& type)
+{
+    DebugLog("RegisterCallBack start!");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    g_nfcControllerCallbackStub->RegisterCallBack(callback);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
+    if (!data.WriteString(type)) {
+        DebugLog("Write type error");
+        return KITS::NFC_FAILED;
+    }
+    data.WriteInt32(0);
+    if (!data.WriteRemoteObject(g_nfcControllerCallbackStub->AsObject())) {
+        DebugLog("RegisterCallBack WriteRemoteObject failed!");
+        return KITS::NFC_FAILED;
+    }
+
+    int error = ProcessCallBackCommand(KITS::COMMAND_REGISTER_CALLBACK, data, reply, option);
+    if (error != ERR_NONE) {
+        InfoLog("RegisterCallBack failed, error code is %{public}d", error);
+        return KITS::NFC_FAILED;
+    }
+    int exception = reply.ReadInt32();
+    if (exception) {
+        return KITS::NFC_FAILED;
+    }
+    return KITS::NFC_SUCCESS;
+}
+
+KITS::NfcErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& type)
+{
+    DebugLog("UnRegisterCallBack start!");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
+    if (!data.WriteString(type)) {
+        DebugLog("Write type error");
+        return KITS::NFC_FAILED;
+    }
+    data.WriteInt32(0);
+    int error = ProcessCallBackCommand(KITS::COMMAND_UNREGISTER_CALLBACK, data, reply, option);
+    if (error != ERR_NONE) {
+        InfoLog("RegisterCallBack failed, error code is %{public}d", error);
+        return KITS::NFC_FAILED;
+    }
+    int exception = reply.ReadInt32();
+    if (exception) {
+        return KITS::NFC_FAILED;
+    }
+    return KITS::NFC_SUCCESS;
 }
 }  // namespace NFC
 }  // namespace OHOS

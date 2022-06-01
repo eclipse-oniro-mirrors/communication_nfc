@@ -35,6 +35,7 @@ config("nfc_inner_kits_public_config") {
 ohos_shared_library("nfc_inner_kits") {
   sources = [
     "src/controller/nfc_controller.cpp",
+    "src/controller/nfc_controller_callback_stub.cpp",
     "src/controller/nfc_controller_proxy.cpp",
     "src/nfc_basic_proxy.cpp",
     "src/nfc_sdk_common.cpp",

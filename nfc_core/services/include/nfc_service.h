@@ -23,11 +23,19 @@
 #include "itag_host.h"
 #include "nfc_controller_impl.h"
 #include "nfc_sdk_common.h"
+#include "infc_controller_callback.h"
+#include "access_token.h"
 
 namespace OHOS {
 namespace NFC {
 class CommonEventHandler;
 class NfcControllerImpl;
+class NfcStateRegistryRecord {
+public:
+    std::string type_ = "";
+    Security::AccessToken::AccessTokenID callerToken_ = 0;
+    sptr<INfcControllerCallback> nfcStateChangeCallback_ = nullptr;
+};
 const int NCI_VERSION_2_0 = 0x20;
 
 class NfcService final : public NCI::INfccHost::INfccHostListener,
@@ -68,6 +76,10 @@ private:
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
+    int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type, Security::AccessToken::AccessTokenID callerToken);
+    int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
+    int RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID callerToken);
 
 private:
     // ms wait for initialization, included firmware download.
@@ -88,6 +100,7 @@ private:
     int nfcState_;
     int screenState_;
 
+    std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock
     std::mutex mutex_ {};
     std::future<int> future_ {};
