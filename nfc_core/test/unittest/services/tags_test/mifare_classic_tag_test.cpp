@@ -104,7 +104,7 @@ HWTEST_F(MifareClassicTagTest, GetTag002, TestSize.Level1)
 HWTEST_F(MifareClassicTagTest, GetMifareTagType001, TestSize.Level1)
 {
     std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
-    MifareClassicTag::EmMifareTagType mifareTagType = mifareClassic->GetMifareTagType();
+    size_t mifareTagType = mifareClassic->GetMifareTagType();
     ASSERT_TRUE(mifareTagType == MifareClassicTag::TYPE_CLASSIC);
 }
 /**
