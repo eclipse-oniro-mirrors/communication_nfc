@@ -76,7 +76,7 @@
                 }
             ],
             "test": [
-                "//foundation/communication/nfc/nfc_core/test/services:unittest"
+                "//foundation/communication/nfc/nfc_core/test:test_nfc_service"
             ]
         },
         "hisysevent_config": [
