@@ -15,7 +15,9 @@
 #ifndef NFC_CONTROLLER_IMPL_H
 #define NFC_CONTROLLER_IMPL_H
 
+#include "infc_controller_callback.h"
 #include "nfc_controller_stub.h"
+#include "nfc_sdk_common.h"
 #include "nfc_service.h"
 
 namespace OHOS {
@@ -29,7 +31,11 @@ public:
     int GetState() override;
     bool TurnOn() override;
     bool TurnOff(bool saveState) override;
-
+    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type, Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type,
+        Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::NfcErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
 private:
     std::weak_ptr<NfcService> nfcService_;
     std::mutex mutex_ {};

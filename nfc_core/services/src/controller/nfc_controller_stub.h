@@ -15,9 +15,13 @@
 #ifndef NFC_CONTROLLER_STUB_H
 #define NFC_CONTROLLER_STUB_H
 
+#include "infc_controller_callback.h"
 #include "infc_controller_service.h"
 #include "iremote_stub.h"
+#include "nfc_controller_callback_proxy.h"
+#include "nfc_sdk_common.h"
 #include "message_parcel.h"
+#include "access_token.h"
 
 namespace OHOS {
 namespace NFC {
@@ -26,17 +30,32 @@ public:
     int OnRemoteRequest(uint32_t code,                /* [in] */
                         OHOS::MessageParcel& data,    /* [in] */
                         OHOS::MessageParcel& reply,   /* [out] */
-                        OHOS::MessageOption& option); /* [in] */
+                        OHOS::MessageOption& option) override; /* [in] */
 
     NfcControllerStub() {}
     virtual ~NfcControllerStub() {}
+    virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type, Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::NfcErrorCode UnRegisterCallBack(const std::string& type,
+        Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::NfcErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) = 0;
+    void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
 
 private:
     int HandleGetState(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleTurnOn(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleTurnOff(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
 
 private:
+    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+        const std::string& type) override;
+    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) override;
+
+private:
+    sptr<INfcControllerCallback> callback_;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace NFC
 }  // namespace OHOS

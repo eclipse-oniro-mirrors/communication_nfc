@@ -33,12 +33,15 @@ config("nfc_config") {
     "//third_party/nfc-nci/SN100x/src/nfa/include",
     "//third_party/nfc-nci/SN100x/src/nfc/include",
     "//third_party/nfc-nci/SN100x/utils/include",
+    "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include",
   ]
 }
 
 ohos_shared_library("nfc_service") {
   sources = [
     "src/common_event_handler.cpp",
+    "src/controller/nfc_controller_callback_proxy.cpp",
+    "src/controller/nfc_controller_death_recipient.cpp",
     "src/controller/nfc_controller_impl.cpp",
     "src/controller/nfc_controller_stub.cpp",
     "src/nci_adapter/nci_adaptations.cpp",

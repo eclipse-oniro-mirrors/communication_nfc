@@ -24,7 +24,7 @@ int NfcBasicProxy::ProcessIntRes(int cmd, MessageParcel& data, MessageOption& op
     int res = remoteObj_->SendRequest(cmd, data, reply, option);
     if (res == ERR_NONE) {
         result = reply.ReadInt32();
-        InfoLog("It is successful To send request(%d) with Res(%d).", cmd, res);
+        InfoLog("It is successful To send request %{public}d with Res %{public}d.", cmd, res);
     } else {
         InfoLog("It is failed To send request(%d) with Res(%d).", cmd, res);
     }
@@ -47,6 +47,12 @@ int NfcBasicProxy::ProcessBoolRes(int cmd, MessageParcel& data, MessageOption& o
 int NfcBasicProxy::ProcessCommand(int cmd, MessageParcel& data, MessageOption& option)
 {
     MessageParcel reply;
+    return remoteObj_->SendRequest(cmd, data, reply, option);
+}
+
+int NfcBasicProxy::ProcessCallBackCommand(int cmd, MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    InfoLog("ProcessCommand To send request %{public}d", cmd);
     return remoteObj_->SendRequest(cmd, data, reply, option);
 }
 }  // namespace NFC
