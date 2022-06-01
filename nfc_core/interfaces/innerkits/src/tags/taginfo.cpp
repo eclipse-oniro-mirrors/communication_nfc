@@ -95,9 +95,9 @@ std::string TagInfo::GetStringExtrasData(AppExecFwk::PacMap& extrasData, const s
     return extrasData.GetStringValue(extrasName);
 }
 
-int TagInfo::GetIntExtrasData(AppExecFwk::PacMap extrasData, const std::string& extrasName)
+int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName)
 {
-    if (extrasData.IsEmpty()) {
+    if (extrasData.IsEmpty() || extrasName.empty()) {
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 

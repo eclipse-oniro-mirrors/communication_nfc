@@ -66,7 +66,7 @@ public:
     static std::shared_ptr<TagInfo> Unmarshalling(Parcel& parcel);
 
     std::string GetStringExtrasData(AppExecFwk::PacMap& extraData, const std::string& extrasName);
-    int GetIntExtrasData(AppExecFwk::PacMap extrasData, const std::string& extrasName);
+    int GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     std::weak_ptr<AppExecFwk::PacMap> GetTagExtrasData() const;
     AppExecFwk::PacMap GetTechExtrasData(KITS::TagTechnology tech);
     bool IsTechSupported(KITS::TagTechnology tech);

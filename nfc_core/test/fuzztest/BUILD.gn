@@ -13,10 +13,7 @@
 
 import("//build/test.gni")
 
-group("test_nfc_service") {
+group("fuzztest") {
   testonly = true
-  deps = [
-    "fuzztest:fuzztest",
-    "unittest:unittest",
-  ]
+  deps = [ "tags_test/taginfo:taginfo_fuzztest" ]
 }
