@@ -16,6 +16,7 @@
 #include "nfc_napi_tag_context.h"
 
 #include <map>
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
