@@ -14,7 +14,7 @@
  */
 
 #include "nfc_napi_tag_sesstion.h"
-
+#include "loghelper.h"
 #include "nfc_napi_tag_context.h"
 #include "nfc_napi_utils.h"
 

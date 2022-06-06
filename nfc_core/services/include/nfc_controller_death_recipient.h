@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFC_CONTROL_DEATH_RECIPIENT_H
-#define NFC_CONTROL_DEATH_RECIPIENT_H
+#ifndef NFC_CONTROLLER_DEATH_RECIPIENT_H
+#define NFC_CONTROLLER_DEATH_RECIPIENT_H
 
 #include <unistd.h>
 #include <ipc_object_stub.h>
@@ -36,4 +36,4 @@ private:
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // NFC_CONTROL_DEATH_RECIPIENT_H
+#endif  // NFC_CONTROLLER_DEATH_RECIPIENT_H

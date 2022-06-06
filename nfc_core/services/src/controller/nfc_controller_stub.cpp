@@ -16,7 +16,7 @@
 #include "ipc_skeleton.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
-#include "nfc_control_death_recipient.h"
+#include "nfc_controller_death_recipient.h"
 #include "permission_tools.h"
 
 namespace OHOS {
