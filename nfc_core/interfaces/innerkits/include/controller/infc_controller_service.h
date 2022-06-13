@@ -42,6 +42,11 @@ public:
      * @return true - turn off; the other
      */
     virtual bool TurnOff(bool saveState) = 0;
+     /**
+     * @brief NFC enable
+     * @return true - NFC enabled; the other
+     */
+    virtual bool IsNfcOpen() = 0;
 
     virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) = 0;
