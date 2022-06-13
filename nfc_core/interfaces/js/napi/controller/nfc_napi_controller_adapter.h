@@ -28,6 +28,8 @@ namespace KITS {
 napi_value OpenNfc(napi_env env, napi_callback_info info);
 napi_value CloseNfc(napi_env env, napi_callback_info info);
 napi_value GetNfcState(napi_env env, napi_callback_info info);
+napi_value IsNfcAvailable(napi_env env, napi_callback_info info);
+napi_value IsNfcOpen(napi_env env, napi_callback_info info);
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

@@ -57,6 +57,18 @@ public:
      * @return nfc state.
      */
     int GetNfcState();
+    /**
+     * @Checks whether a device supports NFC.
+     * @param void
+     * @return If the device supports NFC return 1; otherwise return 0.
+     */
+    int IsNfcAvailable();
+    /**
+     * @Checks whether NFC is enabled.
+     * @param void
+     * @return If NFC is enabled return 1; otherwise return 0.
+     */
+    int IsNfcOpen();
 
     NfcErrorCode RegListener(const sptr<INfcControllerCallback> &callback, const std::string& type);
     NfcErrorCode UnRegListener(const std::string& type);

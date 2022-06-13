@@ -30,8 +30,12 @@ napi_value OpenNfc(napi_env env, napi_callback_info info)
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int ret = nfcCtrl.TurnOn();
     InfoLog("nfc_napi_controller_adapter::OpenNfc ret = %{pubilic}d", ret);
+    bool success = false;
+    if (ret && (ret != KITS::NFC_SDK_ERROR_NOT_INITIALIZED)) {
+        success = true;
+    }
     napi_value result;
-    napi_get_boolean(env, ret == NfcErrorCode::NFC_SUCCESS, &result);
+    napi_get_boolean(env, success, &result);
     return result;
 }
 
@@ -41,8 +45,12 @@ napi_value CloseNfc(napi_env env, napi_callback_info info)
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int ret = nfcCtrl.TurnOff();
     InfoLog("nfc_napi_controller_adapter::CloseNfc ret = %{pubilic}d", ret);
+    bool success = false;
+    if (ret && (ret != KITS::NFC_SDK_ERROR_NOT_INITIALIZED)) {
+        success = true;
+    }
     napi_value result;
-    napi_get_boolean(env, ret == NfcErrorCode::NFC_SUCCESS, &result);
+    napi_get_boolean(env, success, &result);
     return result;
 }
 
@@ -53,6 +61,34 @@ napi_value GetNfcState(napi_env env, napi_callback_info info)
     int ret = nfcCtrl.GetNfcState();
     napi_value result;
     napi_create_int32(env, ret, &result);
+    return result;
+}
+
+napi_value IsNfcAvailable(napi_env env, napi_callback_info info)
+{
+    DebugLog("nfc_napi_controller_adapter::IsNfcAvailable");
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    int ret = nfcCtrl.IsNfcAvailable();
+    bool success = false;
+    if (ret && (ret != KITS::NFC_SDK_ERROR_NOT_INITIALIZED)) {
+        success = true;
+    }
+    napi_value result;
+    napi_get_boolean(env, success, &result);
+    return result;
+}
+
+napi_value IsNfcOpen(napi_env env, napi_callback_info info)
+{
+    DebugLog("nfc_napi_controller_adapter::IsNfcOpen");
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    int ret = nfcCtrl.IsNfcOpen();
+    bool success = false;
+    if (ret && (ret != KITS::NFC_SDK_ERROR_NOT_INITIALIZED)) {
+        success = true;
+    }
+    napi_value result;
+    napi_get_boolean(env, success, &result);
     return result;
 }
 }  // namespace KITS

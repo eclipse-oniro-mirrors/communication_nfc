@@ -27,6 +27,9 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
                                        MessageOption& option) /* [in] */
 {
     InfoLog("OnRemoteRequest occur, code is %{public}d", code);
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        return KITS::NFC_FAILED;
+    }
     switch (code) {
         case KITS::COMMAND_GET_STATE:
             return HandleGetState(data, reply);
@@ -34,6 +37,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleTurnOn(data, reply);
         case KITS::COMMAND_TURN_OFF:
             return HandleTurnOff(data, reply);
+        case KITS::COMMAND_NFC_ENABLE:
+            return HandleNfcOpen(data, reply);
         case KITS::COMMAND_REGISTER_CALLBACK:
             return HandleRegisterCallBack(data, reply);
         case KITS::COMMAND_UNREGISTER_CALLBACK:
@@ -71,12 +76,22 @@ int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
     return ERR_NONE;
 }
 
+int NfcControllerStub::HandleNfcOpen(MessageParcel& data, MessageParcel& reply)
+{
+    DebugLog("NfcControllerStub::HandleNfcOpen");
+    int exception = data.ReadInt32();
+    if (exception) {
+        return KITS::NFC_FAILED;
+    }
+    bool result = IsNfcOpen();
+    DebugLog("NfcControllerStub::result =%{public}d", result);
+    reply.WriteInt32(result);
+    return ERR_NONE;
+}
+
 int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel &reply)
 {
     InfoLog("datasize %{public}zu", data.GetRawDataSize());
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NFC_FAILED;
-    }
     std::string type = data.ReadString();
     int exception = data.ReadInt32();
     if (exception) {
@@ -132,9 +147,6 @@ void NfcControllerStub::RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remot
 int NfcControllerStub::HandleUnRegisterCallBack(MessageParcel &data, MessageParcel &reply)
 {
     InfoLog("OnUnRegisterCallBack");
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NFC_FAILED;
-    }
     std::string type = data.ReadString();
     int exception = data.ReadInt32();
     if (exception) {
