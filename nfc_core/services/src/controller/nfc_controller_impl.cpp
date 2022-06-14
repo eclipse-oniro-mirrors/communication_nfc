@@ -45,6 +45,11 @@ bool NfcControllerImpl::TurnOff(bool saveState)
     return true;
 }
 
+bool NfcControllerImpl::IsNfcOpen()
+{
+    return nfcService_.lock()->IsNfcEnabled();
+}
+
 KITS::NfcErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
     const std::string& type, Security::AccessToken::AccessTokenID callerToken)
 {

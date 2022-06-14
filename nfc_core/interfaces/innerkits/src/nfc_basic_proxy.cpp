@@ -36,8 +36,9 @@ int NfcBasicProxy::ProcessBoolRes(int cmd, MessageParcel& data, MessageOption& o
     MessageParcel reply;
     int32_t res = remoteObj_->SendRequest(cmd, data, reply, option);
     if (res == ERR_NONE) {
-        result = reply.ReadBool();
-        InfoLog("It is successful To send request(%d) with Res(%d).", cmd, res);
+        result = reply.ReadInt32();
+        InfoLog("It is successful To send request(%{public}d) with Res(%{public}d) result(%{public}d).",
+            cmd, res, result);
     } else {
         InfoLog("It is failed To send request(%d) with Res(%d).", cmd, res);
     }

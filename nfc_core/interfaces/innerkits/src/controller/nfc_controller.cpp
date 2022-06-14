@@ -97,6 +97,23 @@ int NfcController::GetNfcState()
     return nfcControllerService_.lock()->GetState();
 }
 
+// check whether NFC is supported
+int NfcController::IsNfcAvailable()
+{
+    DebugLog("NfcController::IsNfcAvailable");
+    return true;
+}
+
+// check whether NFC is enabled
+int NfcController::IsNfcOpen()
+{
+    if (nfcControllerService_.expired()) {
+        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+    }
+    DebugLog("NfcController::IsNfcOpen");
+    return nfcControllerService_.lock()->IsNfcOpen();
+}
+
 // register NFC state change callback
 NfcErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callback,
     const std::string& type)

@@ -30,7 +30,11 @@ bool NfcControllerProxy::TurnOn()
     DebugLog("NfcControllerProxy::TurnOn in.");
     bool result = false;
     MessageParcel data;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
     int32_t res = ProcessBoolRes(KITS::COMMAND_TURN_ON, data, option, result);
     DebugLog("NfcControllerProxy::TurnOn res=%{public}d", res);
     if (res != ERR_NONE) {
@@ -46,8 +50,12 @@ bool NfcControllerProxy::TurnOff(bool saveState)
     DebugLog("NfcControllerProxy::TurnOff in.");
     bool result = false;
     MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
     data.WriteBool(saveState);
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
     int res = ProcessBoolRes(KITS::COMMAND_TURN_OFF, data, option, result);
     if (res != ERR_NONE) {
         DebugLog("NfcControllerProxy::TurnOff error.");
@@ -61,12 +69,36 @@ int NfcControllerProxy::GetState()
     int state = NFC::KITS::STATE_OFF;
     MessageParcel data;
     MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
     int res = ProcessIntRes(KITS::COMMAND_GET_STATE, data, option, state);
     if (res != ERR_NONE) {
         InfoLog("It is failed To Get State with Res(%d).", res);
         return NFC::KITS::STATE_OFF;
     }
     return state;
+}
+
+bool NfcControllerProxy::IsNfcOpen()
+{
+    DebugLog("NfcControllerProxy::IsNfcOpen.");
+    bool result = true;
+    MessageParcel data;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        DebugLog("Write interface token error");
+        return KITS::NFC_FAILED;
+    }
+    data.WriteInt32(0);
+    int res = ProcessBoolRes(KITS::COMMAND_NFC_ENABLE, data, option, result);
+    if (res != ERR_NONE) {
+        DebugLog("NfcControllerProxy::IsNfcOpen error.");
+        return false;
+    }
+    DebugLog("NfcControllerProxy::IsNfcOpen result=%{public}d", result);
+    return result;
 }
 
 KITS::NfcErrorCode NfcControllerProxy::RegisterCallBack(

@@ -266,6 +266,7 @@ int NfcService::GetNfcState()
 bool NfcService::IsNfcEnabled()
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    DebugLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
 }
 
