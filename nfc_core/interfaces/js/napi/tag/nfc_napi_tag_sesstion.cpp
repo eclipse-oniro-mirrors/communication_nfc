@@ -14,9 +14,8 @@
  */
 
 #include "nfc_napi_tag_sesstion.h"
+
 #include "loghelper.h"
-#include "nfc_napi_tag_context.h"
-#include "nfc_napi_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,17 +29,18 @@ napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     bool isConnected = false;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNfcATag *objectInfo = nullptr;
+    NapiNfcTagSession *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        DebugLog("ConnectTag find objectInfo failed!");
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+
+    BasicTagSession *nfcTagPtr = objectInfo->tagSession.get();
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("ConnectTag find objectInfo failed!");
         return nullptr;
     } else {
         napi_value ret = nullptr;
-        isConnected = nfcATagPtr->Connect();
+        isConnected = nfcTagPtr->Connect();
         napi_get_boolean(env, isConnected, &result);
         return ret;
     }
@@ -54,16 +54,17 @@ napi_value NapiNfcTagSession::Reset(napi_env env, napi_callback_info info)
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNfcATag *objectInfo = nullptr;
+    NapiNfcTagSession *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        DebugLog("Reset find objectInfo failed!");
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+
+    BasicTagSession *nfcTagPtr = objectInfo->tagSession.get();
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("Reset find objectInfo failed!");
         return nullptr;
     } else {
-        int err = nfcATagPtr->Close();
+        int err = nfcTagPtr->Close();
         if (err != NfcErrorCode::NFC_SUCCESS) {
             InfoLog("Reset failed!");
         } else {
@@ -82,16 +83,17 @@ napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
     bool connectTag = false;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNfcATag *objectInfo = nullptr;
+    NapiNfcTagSession *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        DebugLog("IsTagConnected find objectInfo failed!");
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+
+    BasicTagSession *nfcTagPtr = objectInfo->tagSession.get();
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("IsTagConnected find objectInfo failed!");
         return nullptr;
     } else {
-        connectTag = nfcATagPtr->IsConnected();
+        connectTag = nfcTagPtr->IsConnected();
         napi_get_boolean(env, connectTag, &result);
         return result;
     }
@@ -105,16 +107,17 @@ napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info 
     napi_value result = nullptr;
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNfcATag *objectInfo = nullptr;
+    NapiNfcTagSession *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        DebugLog("GetMaxSendLength find objectInfo failed!");
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+
+    BasicTagSession *nfcTagPtr = objectInfo->tagSession.get();
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("GetMaxSendLength find objectInfo failed!");
         return nullptr;
     } else {
-        int maxsendlen = nfcATagPtr->GetMaxSendCommandLength();
+        int maxsendlen = nfcTagPtr->GetMaxSendCommandLength();
         napi_create_int32(env, maxsendlen, &result);
         return result;
     }

@@ -26,9 +26,11 @@ ohos_shared_library("tag") {
 
   sources = [
     "nfc_napi_tag.cpp",
-    "nfc_napi_tag_context.cpp",
+    "nfc_napi_tag_isodep.cpp",
     "nfc_napi_tag_sesstion.cpp",
     "nfc_napi_taga.cpp",
+    "nfc_napi_tagb.cpp",
+    "nfc_napi_tagv.cpp",
     "nfc_napi_utils.cpp",
   ]
 

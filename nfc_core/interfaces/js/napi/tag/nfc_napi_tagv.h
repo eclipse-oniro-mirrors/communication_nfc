@@ -13,31 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef NFC_NAPI_TAG_H_
-#define NFC_NAPI_TAG_H_
+#ifndef NFC_NAPI_TAGV_H_
+#define NFC_NAPI_TAGV_H_
 
+#include "iso15693_tag.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "nfc_napi_tag_sesstion.h"
-#include "nfc_napi_taga.h"
-#include "nfc_napi_tagb.h"
-#include "nfc_napi_tagv.h"
-#include "nfc_napi_tag_isodep.h"
 #include "nfc_napi_utils.h"
-#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-napi_value RegisternfcATagObject(napi_env env, napi_value exports);
-napi_value RegisternfcBTagObject(napi_env env, napi_value exports);
-napi_value RegisternfcVTagObject(napi_env env, napi_value exports);
-napi_value RegisterIsoDepTagObject(napi_env env, napi_value exports);
-napi_value GetNfcATag(napi_env env, napi_callback_info info);
-napi_value GetNfcBTag(napi_env env, napi_callback_info info);
-napi_value GetNfcVTag(napi_env env, napi_callback_info info);
-napi_value GetIsoDepTag(napi_env env, napi_callback_info info);
-napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
+struct NapiNfcVTag : public NapiNfcTagSession {
+    static napi_value GetResponseFlags(napi_env env, napi_callback_info info);
+    static napi_value GetDsfId(napi_env env, napi_callback_info info);
+};
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
