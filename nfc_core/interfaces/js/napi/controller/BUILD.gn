@@ -33,9 +33,7 @@ ohos_shared_library("controller") {
     "nfc_napi_controller_event.cpp",
   ]
 
-  deps = [
-    "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
-  ]
+  deps = [ "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits" ]
 
   external_deps = [
     "ability_base:want",
