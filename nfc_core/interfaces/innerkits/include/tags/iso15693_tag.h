@@ -88,7 +88,7 @@ public:
      * @param blockNum num of block to write
      * @param data block data to write
      * @param data data of multiple blocks to write
-     * @param dataLen total data lenght to write
+     * @param dataLen total data length to write
      * @return Errorcode of write. if return 0, means successful.
      */
     int WriteMultipleBlock(int flag, int blockIndex, int blockNum, const std::string& data);
