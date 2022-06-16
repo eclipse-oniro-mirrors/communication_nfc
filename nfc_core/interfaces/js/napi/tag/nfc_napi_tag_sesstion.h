@@ -16,7 +16,10 @@
 #ifndef NFC_NAPI_TAG_SESSTION_H_
 #define NFC_NAPI_TAG_SESSTION_H_
 
+#include <memory>
+#include "basic_tag_session.h"
 #include "napi/native_node_api.h"
+#include "nfc_napi_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,6 +33,7 @@ struct NapiNfcTagSession {
     static napi_value GetSendDataTimeout(napi_env env, napi_callback_info info);
     static napi_value SendData(napi_env env, napi_callback_info info);
     static napi_value GetMaxSendLength(napi_env env, napi_callback_info info);
+    std::shared_ptr<BasicTagSession> tagSession = nullptr;
 };
 } // namespace KITS
 } // namespace NFC

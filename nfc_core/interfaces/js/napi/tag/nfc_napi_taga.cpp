@@ -14,10 +14,8 @@
  */
 
 #include "nfc_napi_taga.h"
+
 #include "loghelper.h"
-#include "nfc_napi_tag.h"
-#include "nfc_napi_tag_context.h"
-#include "nfc_napi_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -31,15 +29,17 @@ napi_value NapiNfcATag::GetSak(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcATag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     InfoLog("getSak objInfo %{public}p", objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        InfoLog("GetSak find objectInfo failed!");
+    // transfer
+    NfcATag *nfcTagPtr = (NfcATag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("GetSak find objectInfo failed!");
         return nullptr;
     } else {
-        int sak = nfcATagPtr->GetSak();
+        int sak = nfcTagPtr->GetSak();
+        InfoLog("sak %{public}d", sak);
         napi_value result = nullptr;
         napi_create_int32(env, sak, &result);
         return result;
@@ -55,18 +55,18 @@ napi_value NapiNfcATag::GetAtqa(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcATag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     InfoLog("getAtqa %{public}p", objectInfo);
-    NfcNapiTagContext instance = NfcNapiTagContext::GetInstance();
-    std::shared_ptr<NfcATag> nfcATagPtr = instance.Find(objectInfo);
-    if (nfcATagPtr == nullptr) {
-        DebugLog("GetAtqa find objectInfo failed!");
+    NfcATag *nfcTagPtr = (NfcATag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcTagPtr == nullptr) {
+        ErrorLog("GetAtqa find objectInfo failed!");
         return nullptr;
     } else {
         napi_value ret = nullptr;
-        napi_create_array(env, &ret);
-        std::string atqa = nfcATagPtr->GetAtqa();
-        napi_create_string_utf8(env, "atqa", NAPI_AUTO_LENGTH, &ret);
+        std::string atqa = nfcTagPtr->GetAtqa();
+        InfoLog("atqa %{public}s", atqa.c_str());
+        napi_create_string_utf8(env, atqa.c_str(), NAPI_AUTO_LENGTH, &ret);
         return ret;
     }
 }

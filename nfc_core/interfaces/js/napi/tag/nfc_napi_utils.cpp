@@ -22,6 +22,13 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+napi_value UndefinedNapiValue(const napi_env &env)
+{
+    napi_value result;
+    napi_get_undefined(env, &result);
+    return result;
+}
+
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
 {
     bool isTypedArray = false;
@@ -49,6 +56,18 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     if (retCode != 0) {
         return {};
     }
+    return result;
+}
+
+napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
+{
+    napi_value result = nullptr;
+    napi_value message = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, msg.c_str(), msg.length(), &message));
+    napi_value codeValue = nullptr;
+    std::string errCode = std::to_string(errorCode);
+    NAPI_CALL(env, napi_create_string_utf8(env, errCode.c_str(), errCode.length(), &codeValue));
+    NAPI_CALL(env, napi_create_error(env, codeValue, message, &result));
     return result;
 }
 
@@ -105,6 +124,7 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
     }
     return defValue;
 }
+
 std::string UnwrapStringFromJS(napi_env env, napi_value arg)
 {
     constexpr size_t MAX_TEXT_LENGTH = 1024;
@@ -117,6 +137,169 @@ std::string UnwrapStringFromJS(napi_env env, napi_value arg)
     } else {
         return "";
     }
+}
+
+void ConvertStringVectorToJS(napi_env env, napi_value result, std::vector<std::string>& stringVector)
+{
+    DebugLog("ConvertStringVectorToJS called");
+    size_t idx = 0;
+
+    if (stringVector.empty()) {
+        return;
+    }
+    DebugLog("ConvertStringVectorToJS size is %{public}zu", stringVector.size());
+    for (auto& str : stringVector) {
+        napi_value obj = nullptr;
+        napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
+void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int>& intVector)
+{
+    DebugLog("ConvertIntVectorToJS called");
+    size_t idx = 0;
+
+    if (intVector.empty()) {
+        return;
+    }
+    DebugLog("ConvertIntVectorToJS size is %{public}zu", intVector.size());
+    for (auto& num : intVector) {
+        napi_value obj = nullptr;
+        napi_create_int32(env, num, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
+bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType)
+{
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, value, &valueType), false);
+    return valueType == targetType;
+}
+
+bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes)
+{
+    if (parameters == nullptr) {
+        return false;
+    }
+    int i = 0;
+    for (auto beg = valueTypes.begin(); beg != valueTypes.end(); ++beg) {
+        if (!MatchValueType(env, parameters[i], *beg)) {
+            return false;
+        }
+        ++i;
+    }
+    return true;
+}
+
+napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::string &workName,
+    napi_async_execute_callback execute, napi_async_complete_callback complete)
+{
+    DebugLog("NfcUtil HandleAsyncWork workName = %{public}s", workName.c_str());
+    std::unique_ptr<BaseContext> context(baseContext);
+    if (context == nullptr) {
+        std::string errorCode = std::to_string(napi_invalid_arg);
+        std::string errorMessage = "error at baseContext is nullptr";
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+    }
+    napi_value result = nullptr;
+    if (context->callbackRef == nullptr) {
+        NAPI_CALL(env, napi_create_promise(env, &context->deferred, &result));
+    } else {
+        NAPI_CALL(env, napi_get_undefined(env, &result));
+    }
+    napi_value resource = CreateUndefined(env);
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, workName.data(), NAPI_AUTO_LENGTH, &resourceName));
+    NAPI_CALL(env,
+        napi_create_async_work(env, resource, resourceName, execute, complete, (void *)context.get(), &context->work));
+    napi_status queueWorkStatus = napi_queue_async_work(env, context->work);
+    if (queueWorkStatus == napi_ok) {
+        context.release();
+        DebugLog("NapiUtil HandleAsyncWork napi_queue_async_work ok");
+    } else {
+        std::string errorCode = std::to_string(queueWorkStatus);
+        std::string errorMessage = "error at napi_queue_async_work";
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+    }
+    DebugLog("NfcUtil HandleAsyncWork end");
+    return result;
+}
+
+void Handle1ValueCallback(napi_env env, BaseContext *baseContext, napi_value callbackValue)
+{
+    DebugLog("Handle1ValueCallback start");
+    if (baseContext == nullptr) {
+        DebugLog("Handle1ValueCallback serious error baseContext nullptr");
+        std::string errorCode = std::to_string(napi_invalid_arg);
+        std::string errorMessage = "error at baseContext is nullptr";
+        NAPI_CALL_RETURN_VOID(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+    }
+    if (baseContext->callbackRef != nullptr) {
+        DebugLog("Handle1ValueCallback start normal callback");
+        napi_value recv = CreateUndefined(env);
+        napi_value callbackFunc = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, baseContext->callbackRef, &callbackFunc));
+        napi_value callbackValues[] = {callbackValue};
+        napi_value result = nullptr;
+        NAPI_CALL_RETURN_VOID(
+            env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
+        DebugLog("Handle1ValueCallback normal callback end");
+    } else if (baseContext->deferred != nullptr) {
+        DebugLog("Handle1ValueCallback start promise callback");
+        if (baseContext->resolved) {
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
+            DebugLog("Handle1ValueCallback napi_resolve_deferred end");
+        } else {
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, callbackValue));
+            DebugLog("Handle1ValueCallback napi_reject_deferred end");
+        }
+        DebugLog("Handle1ValueCallback promise callback end");
+    }
+    napi_delete_async_work(env, baseContext->work);
+    delete baseContext;
+    baseContext = nullptr;
+    DebugLog("Handle1ValueCallback end");
+}
+
+void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value callbackValue)
+{
+    DebugLog("Handle2ValueCallback start");
+    if (baseContext == nullptr) {
+        DebugLog("Handle2ValueCallback serious error baseContext nullptr");
+        std::string errorCode = std::to_string(napi_invalid_arg);
+        std::string errorMessage = "error at baseContext is nullptr";
+        NAPI_CALL_RETURN_VOID(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        return;
+    }
+    if (baseContext->callbackRef != nullptr) {
+        DebugLog("Handle2ValueCallback start normal callback");
+        napi_value recv = CreateUndefined(env);
+        napi_value callbackFunc = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, baseContext->callbackRef, &callbackFunc));
+        napi_value callbackValues[] = {nullptr, nullptr};
+        callbackValues[0] = baseContext->resolved ? CreateUndefined(env) : callbackValue;
+        callbackValues[1] = baseContext->resolved ? callbackValue : CreateUndefined(env);
+        napi_value result = nullptr;
+        NAPI_CALL_RETURN_VOID(
+            env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
+        DebugLog("Handle2ValueCallback normal callback end");
+    } else if (baseContext->deferred != nullptr) {
+        if (baseContext->resolved) {
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
+        } else {
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, callbackValue));
+        }
+    }
+    napi_delete_async_work(env, baseContext->work);
+    delete baseContext;
+    baseContext = nullptr;
+    DebugLog("Handle2ValueCallback end");
 }
 } // namespace KITS
 } // namespace NFC
