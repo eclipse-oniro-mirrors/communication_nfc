@@ -59,7 +59,7 @@ public:
      */
     EmNfcForumType GetNdefTagType() const;
     /**
-     * @Description Get the mode of the Ndef tag in bytes.(readonly, read/write, unkown)
+     * @Description Get the mode of the Ndef tag in bytes.(readonly, read/write, unknown)
      * @param void
      * @return mode of Ndef tag.
      */
