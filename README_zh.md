@@ -12,7 +12,7 @@
 
 近距离无线通信技术\(Near Field Communication，NFC\) ，是一种非接触式识别和互联技术，可以在移动设备、消费类电子产品、PC和智能设备间进行近距离无线通信。
 
-OpenHarmony中NFC服务提供有源标签读写业务能力。
+OpenHarmony中NFC服务提供有源标签读写能力。
 
 ## 系统架构<a name="section342962219551"></a>
 
@@ -36,13 +36,13 @@ OpenHarmony中NFC服务提供有源标签读写业务能力。
 │           └── connected_tag_base    # NFC有源标签SDK实现
 │           └── napi                  # native api
 │               └── connected_tag     # NFC有源标签native api
-└── sa_profile           # 服务属性声明
-│   └── connected_tag    # NFC有源标签服务属性声明
-└── services             # 子系统服务代码
-    └── connected_tag    # NFC有源标签服务
-        ├── etc       # 系统服务配置
-        ├── include   # 头文件
-        └── src       # 源文件
+└── sa_profile                        # 服务属性声明
+│   └── connected_tag                 # NFC有源标签服务属性声明
+└── services                          # 子系统服务代码
+    └── connected_tag                 # NFC有源标签服务
+        ├── etc                       # 系统服务配置
+        ├── include                   # 头文件
+        └── src                       # 源文件
 ```
 
 ## 约束<a name="section119744591305"></a>
