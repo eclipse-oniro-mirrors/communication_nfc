@@ -44,6 +44,12 @@ public:
      * @return HiLayerResponse bytes
      */
     std::string GetHiLayerResponse() const;
+
+    /**
+     * @Description is supported for 3 bytes length APUDs to send, the max length is 65535 bytes.
+     * @param void
+     * @return true supported for max APUDs, otherwise unsupported.
+     */
     bool IsExtendedApduSupported() const;
 
 private:

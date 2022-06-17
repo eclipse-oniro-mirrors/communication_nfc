@@ -353,6 +353,27 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
     DebugLog("DoTargetTypeV::DSF_ID: %d", poll.at(1));
 }
 
+void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
+{
+    std::string poll = tagPollBytes_[index];
+    if (poll.empty()) {
+        DebugLog("DoTargetTypeF poll empty");
+        return;
+    }
+
+    if (poll.length() < SENSF_RES_LENGTH) {
+        DebugLog("DoTargetTypeF no ppm, poll.len: %d", poll.length());
+        return;
+    }
+    pacMap.PutStringValue(KITS::TagInfo::NFCF_PMM, poll.substr(0, SENSF_RES_LENGTH)); // 8 bytes for ppm
+
+    if (poll.length() < F_POLL_LENGTH) {
+        DebugLog("DoTargetTypeF no sc, poll.len: %d", poll.length());
+        return;
+    }
+    pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, poll.substr(SENSF_RES_LENGTH, 2)); // 2 bytes for sc
+}
+
 AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 {
     AppExecFwk::PacMap pacMap;
@@ -388,7 +409,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
         }
 
         case TARGET_TYPE_FELICA: {
-            DebugLog("ParseTechExtras:: unhandle TARGET_TYPE_FELICA");
+            DoTargetTypeF(pacMap, index);
             break;
         }
         default:

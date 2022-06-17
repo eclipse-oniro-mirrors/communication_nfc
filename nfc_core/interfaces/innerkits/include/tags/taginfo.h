@@ -50,6 +50,9 @@ public:
     // Iso15693
     static constexpr const auto RESPONSE_FLAGS = "ResponseFlags";
     static constexpr const auto DSF_ID = "DsfId";
+    // NfcF, Feilica
+    static constexpr const auto NFCF_SC = "SystemCode";
+    static constexpr const auto NFCF_PMM = "Pmm";
 
 public:
     TagInfo(std::vector<int> tagTechList,
@@ -65,7 +68,7 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<TagInfo> Unmarshalling(Parcel& parcel);
 
-    std::string GetStringExtrasData(AppExecFwk::PacMap& extraData, const std::string& extrasName);
+    std::string GetStringExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     int GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     std::weak_ptr<AppExecFwk::PacMap> GetTagExtrasData() const;
     AppExecFwk::PacMap GetTechExtrasData(KITS::TagTechnology tech);

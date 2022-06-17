@@ -67,6 +67,10 @@ public:
     static const auto TARGET_TYPE_MIFARE_UL = 9;
     static const auto TARGET_TYPE_KOVIO_BARCODE = 10;
 
+    // NfcF, Felica
+    static const int SENSF_RES_LENGTH = 8;
+    static const int F_POLL_LENGTH = 10;
+
 public:
     TagHost(const std::vector<int>& tagTechList,
             const std::vector<int>& tagRfDiscIdList,
@@ -115,6 +119,7 @@ private:
     void DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index);
     void DoTargetTypeIso144434(AppExecFwk::PacMap &pacMap, int index);
     void DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index);
+    void DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index);
 
     static OHOS::NFC::SynchronizeEvent filedCheckWatchDog_;
     std::mutex mutex_ {};

@@ -44,6 +44,17 @@ std::string NfcSdkCommon::UnsignedCharArrayToString(const unsigned char* charArr
     return result;
 }
 
+void NfcSdkCommon::StringToUnsignedCharArray(std::string &src, std::vector<unsigned char> &dst)
+{
+    if (src.empty()) {
+        return;
+    }
+    int len = src.length();
+    for (int i = 0; i < len; i++) {
+        dst.push_back((unsigned char) src[i]);
+    }
+}
+
 std::string NfcSdkCommon::IntToString(int num, bool bLittleEndian)
 {
     std::stringstream ss;
