@@ -23,6 +23,8 @@
 #include "nfc_napi_tagb.h"
 #include "nfc_napi_tagv.h"
 #include "nfc_napi_tag_isodep.h"
+#include "nfc_napi_tag_mifare_classic.h"
+#include "nfc_napi_tag_mifare_ul.h"
 #include "nfc_napi_utils.h"
 #include "taginfo.h"
 
@@ -33,10 +35,14 @@ napi_value RegisternfcATagObject(napi_env env, napi_value exports);
 napi_value RegisternfcBTagObject(napi_env env, napi_value exports);
 napi_value RegisternfcVTagObject(napi_env env, napi_value exports);
 napi_value RegisterIsoDepTagObject(napi_env env, napi_value exports);
+napi_value RegisterMifareClassicTagObject(napi_env env, napi_value exports);
+napi_value RegisterMifareUltralightTagObject(napi_env env, napi_value exports);
 napi_value GetNfcATag(napi_env env, napi_callback_info info);
 napi_value GetNfcBTag(napi_env env, napi_callback_info info);
 napi_value GetNfcVTag(napi_env env, napi_callback_info info);
 napi_value GetIsoDepTag(napi_env env, napi_callback_info info);
+napi_value GetMifareClassicTag(napi_env env, napi_callback_info info);
+napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info);
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
 } // namespace KITS
 } // namespace NFC

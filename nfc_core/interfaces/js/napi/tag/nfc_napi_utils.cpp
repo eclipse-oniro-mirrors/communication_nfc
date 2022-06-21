@@ -22,6 +22,83 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+bool ParseString(napi_env env, std::string &param, napi_value args)
+{
+    napi_valuetype valuetype;
+    napi_typeof(env, args, &valuetype);
+
+    DebugLog("param=%{public}d.", valuetype);
+    if (valuetype != napi_string) {
+        DebugLog("Wrong argument type. String expected.");
+        return false;
+    }
+    size_t size = 0;
+
+    if (napi_get_value_string_utf8(env, args, nullptr, 0, &size) != napi_ok) {
+        DebugLog("can not get string size");
+        param = "";
+        return false;
+    }
+    param.reserve(size + 1);
+    param.resize(size);
+    if (napi_get_value_string_utf8(env, args, param.data(), (size + 1), &size) != napi_ok) {
+        DebugLog("can not get string value");
+        param = "";
+        return false;
+    }
+    return true;
+}
+bool ParseInt32(napi_env env, int32_t &param, napi_value args)
+{
+    napi_valuetype valuetype;
+    napi_typeof(env, args, &valuetype);
+
+    DebugLog("param=%{public}d.", valuetype);
+    if (valuetype != napi_number) {
+        DebugLog("Wrong argument type. Int32 expected.");
+        return false;
+    }
+    napi_get_value_int32(env, args, &param);
+    return true;
+}
+
+bool ParseBool(napi_env env, bool &param, napi_value args)
+{
+    napi_valuetype valuetype;
+    napi_typeof(env, args, &valuetype);
+
+    DebugLog("param=%{public}d.", valuetype);
+    if (valuetype != napi_boolean) {
+        DebugLog("Wrong argument type. bool expected.");
+        return false;
+    }
+    napi_get_value_bool(env, args, &param);
+    return true;
+}
+
+bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args)
+{
+    napi_status status;
+    napi_valuetype valuetype;
+    napi_typeof(env, args, &valuetype);
+
+    DebugLog("param=%{public}d.", valuetype);
+    if (valuetype != napi_object) {
+        DebugLog("Wrong argument type. object expected.");
+        return false;
+    }
+
+    status = napi_get_arraybuffer_info(env, args, (void **)data, &size);
+    if (status != napi_ok) {
+        DebugLog("can not get arraybuffer, error is %{public}d", status);
+        (*data)[0] = -1;
+        return false;
+    }
+    DebugLog("arraybuffer size is %{public}zu", size);
+    DebugLog("arraybuffer is %{public}d", (*data)[0]);
+    return true;
+}
+
 napi_value UndefinedNapiValue(const napi_env &env)
 {
     napi_value result;
@@ -300,6 +377,22 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
     delete baseContext;
     baseContext = nullptr;
     DebugLog("Handle2ValueCallback end");
+}
+
+void DefineEnumClassByName(
+    napi_env env, napi_value exports, std::string_view enumName, size_t arrSize, const napi_property_descriptor *desc)
+{
+    auto construct = [](napi_env env, napi_callback_info info) -> napi_value { return nullptr; };
+    napi_value result = nullptr;
+    napi_status status =
+        napi_define_class(env, enumName.data(), NAPI_AUTO_LENGTH, construct, nullptr, arrSize, desc, &result);
+    if (status != napi_ok) {
+        ErrorLog("DefineEnumClassByName napi_define_class failed ret = %d", status);
+    }
+    status = napi_set_named_property(env, exports, enumName.data(), result);
+    if (status != napi_ok) {
+        DebugLog("DefineEnumClassByName napi_set_named_property failed ret = %d", status);
+    }
 }
 } // namespace KITS
 } // namespace NFC
