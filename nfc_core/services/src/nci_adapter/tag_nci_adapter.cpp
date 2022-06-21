@@ -703,11 +703,15 @@ std::string TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated) const
             nfcRfTechParams.param.pb.sensb_res + SENSB_RES_POLL_POS, length);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_F || discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE ||
                discType == NCI_DISCOVERY_TYPE_LISTEN_F || discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
-        unsigned char cTechPoll[10];
+        unsigned char cTechPoll[F_POLL_LENGTH];
         unsigned char* sensfRes = nfcRfTechParams.param.pf.sensf_res;
+
+        // save the pmm value.
         for (int i = 0; i < SENSF_RES_LENGTH; i++) {
             cTechPoll[i] = static_cast<unsigned char>(sensfRes[i + SENSF_RES_LENGTH]);
         }
+
+        // save the system code.
         if (activated.params.t3t.num_system_codes > 0) {
             unsigned short* pSystemCodes = activated.params.t3t.p_system_codes;
             cTechPoll[POS_NFCF_STSTEM_CODE_HIGH] = static_cast<unsigned char>(*pSystemCodes >> SYSTEM_CODE_SHIFT);

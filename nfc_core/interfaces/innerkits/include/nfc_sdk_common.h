@@ -16,6 +16,7 @@
 #define NFC_SDK_COMMON_H
 
 #include <string>
+#include <vector>
 
 namespace OHOS {
 namespace NFC {
@@ -96,6 +97,7 @@ public:
 public:
     static bool IsLittleEndian();
     static std::string UnsignedCharArrayToString(const unsigned char* charArray, int length);
+    static void StringToUnsignedCharArray(std::string &src, std::vector<unsigned char> &dst);
     static std::string IntToString(int num, bool bLittleEndian = true);
     static int StringToInt(std::string src, bool bLittleEndian = true);
 };
