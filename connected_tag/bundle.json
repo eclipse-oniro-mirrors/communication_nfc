@@ -35,7 +35,7 @@
         "destPath": "foundation/communication/nfc/connected_tag"
     },
     "component": {
-        "name": "nfc_connected_tag",
+        "name": "connected_tag",
         "subsystem": "communication",
         "syscap": [
             "SystemCapability.Communication.ConnectedTag"
