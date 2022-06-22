@@ -19,7 +19,6 @@
 #include <chrono>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -100,67 +99,6 @@ public:
     AsyncContext() = delete;
 
     virtual ~AsyncContext() {}
-};
-
-class ReadAsyncContext : public AsyncContext {
-public:
-    std::string respNdefData;
-    ReadAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
-        : AsyncContext(env, work, deferred) {}
-
-    ReadAsyncContext() = delete;
-
-    ~ReadAsyncContext() override {}
-};
-
-enum class JS_CALLBACK_ARGV {
-    CALLBACK_ARGV_INDEX_0 = 0,
-    CALLBACK_ARGV_INDEX_1,
-    CALLBACK_ARGV_CNT,
-};
-
-enum class JS_ARGV_NUM {
-    ARGV_NUM_0 = 0,
-    ARGV_NUM_1 = 1,
-    ARGV_NUM_2 = 2,
-    ARGV_NUM_3 = 3,
-    ARGV_NUM_4 = 4,
-    ARGV_NUM_5 = 5,
-};
-
-enum class JS_ARGV_INDEX {
-    ARGV_INDEX_0 = 0,
-    ARGV_INDEX_1,
-    ARGV_INDEX_2,
-    ARGV_INDEX_3,
-    ARGV_INDEX_4,
-};
-
-struct NfcAsyncContext {
-    napi_async_work work = nullptr;
-    napi_deferred deferred = nullptr;
-    napi_ref callbackRef = nullptr;
-    int32_t result;
-    int32_t uid = 0;
-    bool flag = false;
-};
-
-enum NapiError : int32_t {
-    ERROR_NONE = 0,
-    ERROR_DEFAULT = -1,
-    ERROR_SERVICE_UNAVAILABLE = -2,
-    ERROR_PARAMETER_VALUE_INVALID = -3,
-    ERROR_PARAMETER_COUNTS_INVALID = -4,
-    ERROR_PARAMETER_TYPE_INVALID = -5,
-    ERROR_NATIVE_API_EXECUTE_FAIL = -6,
-};
-
-struct BaseContext {
-    napi_async_work work = nullptr;
-    napi_deferred deferred = nullptr;
-    napi_ref callbackRef = nullptr;
-    bool resolved = false;
-    int32_t errorCode = ERROR_DEFAULT;
 };
 
 template<typename T, typename D>
