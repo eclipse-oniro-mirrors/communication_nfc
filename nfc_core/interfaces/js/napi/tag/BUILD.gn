@@ -32,6 +32,7 @@ ohos_shared_library("tag") {
     "nfc_napi_tag_sesstion.cpp",
     "nfc_napi_taga.cpp",
     "nfc_napi_tagb.cpp",
+    "nfc_napi_tagf.cpp",
     "nfc_napi_tagv.cpp",
     "nfc_napi_utils.cpp",
   ]
