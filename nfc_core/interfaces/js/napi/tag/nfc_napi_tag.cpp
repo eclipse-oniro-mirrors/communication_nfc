@@ -22,6 +22,7 @@ namespace NFC {
 namespace KITS {
 napi_value nfcATagObject;
 napi_value nfcBTagObject;
+napi_value nfcFTagObject;
 napi_value nfcVTagObject; // iso15693
 napi_value isoDepTagObject;
 napi_value mifareClassicTagObject;
@@ -303,6 +304,19 @@ napi_value RegisternfcBTagObject(napi_env env, napi_value exports)
     return exports;
 }
 
+napi_value RegisternfcFTagObject(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("getSystemCode", NapiNfcFTag::GetSystemCode),
+        DECLARE_NAPI_FUNCTION("getPmm", NapiNfcFTag::GetPmm),
+    };
+    // define JS class NfcBTag, JS_Constructor is the callback function
+    NAPI_CALL(env,
+        napi_define_class(env, "NfcFTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcFTag, NfcFTag>, nullptr,
+            sizeof(desc) / sizeof(desc[0]), desc, &nfcFTagObject));
+    return exports;
+}
+
 napi_value RegisternfcVTagObject(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -409,6 +423,18 @@ napi_value GetNfcBTag(napi_env env, napi_callback_info info)
     return result;
 }
 
+napi_value GetNfcFTag(napi_env env, napi_callback_info info)
+{
+    InfoLog("nfcFag GetNfcFTag begin");
+    std::size_t argc = 1;
+    napi_value argv[] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    napi_value result = nullptr;
+    // new instance of JS object NfcBTag,
+    NAPI_CALL(env, napi_new_instance(env, nfcFTagObject, argc, argv, &result));
+    return result;
+}
+
 napi_value GetNfcVTag(napi_env env, napi_callback_info info)
 {
     InfoLog("nfcTag GetNfcVTag begin");
@@ -464,6 +490,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
     RegisternfcATagObject(env, exports);
     // register NfcBtag object
     RegisternfcBTagObject(env, exports);
+    // register NfcFtag object
+    RegisternfcFTagObject(env, exports);
     // register NfcVtag object
     RegisternfcVTagObject(env, exports);
     // register IsoDeptag object
@@ -476,6 +504,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getNfcATag", GetNfcATag),
         DECLARE_NAPI_FUNCTION("getNfcBTag", GetNfcBTag),
+        DECLARE_NAPI_FUNCTION("getNfcFTag", GetNfcFTag),
         DECLARE_NAPI_FUNCTION("getNfcVTag", GetNfcVTag),
         DECLARE_NAPI_FUNCTION("getIsoDepTag", GetIsoDepTag),
         DECLARE_NAPI_FUNCTION("getMifareClassicTag", GetMifareClassicTag),
