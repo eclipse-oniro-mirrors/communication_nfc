@@ -167,6 +167,7 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
 std::string UnwrapStringFromJS(napi_env env, napi_value param);
 void ConvertStringVectorToJS(napi_env env, napi_value result, std::vector<std::string> &stringVector);
 void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int> &intVector);
+void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector);
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
 napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

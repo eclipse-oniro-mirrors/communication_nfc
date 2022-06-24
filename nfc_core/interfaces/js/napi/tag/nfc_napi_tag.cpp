@@ -310,7 +310,7 @@ napi_value RegisternfcFTagObject(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getSystemCode", NapiNfcFTag::GetSystemCode),
         DECLARE_NAPI_FUNCTION("getPmm", NapiNfcFTag::GetPmm),
     };
-    // define JS class NfcBTag, JS_Constructor is the callback function
+    // define JS class NfcFTag, JS_Constructor is the callback function
     NAPI_CALL(env,
         napi_define_class(env, "NfcFTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcFTag, NfcFTag>, nullptr,
             sizeof(desc) / sizeof(desc[0]), desc, &nfcFTagObject));

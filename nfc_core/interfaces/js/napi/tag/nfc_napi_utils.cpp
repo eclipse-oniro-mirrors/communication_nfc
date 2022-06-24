@@ -250,6 +250,23 @@ void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int>& int
     }
 }
 
+void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector)
+{
+    DebugLog("ConvertUsignedCharVectorToJS called");
+    size_t idx = 0;
+
+    if (unsignedCharVector.empty()) {
+        return;
+    }
+    DebugLog("ConvertUsignedCharVectorToJS size is %{public}zu", unsignedCharVector.size());
+    for (auto& num : unsignedCharVector) {
+        napi_value obj = nullptr;
+        napi_create_int32(env, num, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
 bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType)
 {
     napi_valuetype valueType = napi_undefined;
