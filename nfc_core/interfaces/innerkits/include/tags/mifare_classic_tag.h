@@ -85,7 +85,7 @@ public:
      * @param sectorIndex Index of sector to authenticate
      * @param key key(6-byte) to authenticate
      * @param bIsKeyA KeyA flag. true means KeyA, otherwise KeyB
-     * @return Result of authenticattion. if return ture, means successful.
+     * @return Result of authenticattion. if return true, means successful.
      */
     bool AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA);
     /**
