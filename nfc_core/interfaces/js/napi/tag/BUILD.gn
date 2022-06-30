@@ -25,10 +25,13 @@ ohos_shared_library("tag") {
   ]
 
   sources = [
+    "nfc_napi_ndef_message.cpp",
     "nfc_napi_tag.cpp",
     "nfc_napi_tag_isodep.cpp",
     "nfc_napi_tag_mifare_classic.cpp",
     "nfc_napi_tag_mifare_ul.cpp",
+    "nfc_napi_tag_ndef.cpp",
+    "nfc_napi_tag_ndef_formatable.cpp",
     "nfc_napi_tag_sesstion.cpp",
     "nfc_napi_taga.cpp",
     "nfc_napi_tagb.cpp",

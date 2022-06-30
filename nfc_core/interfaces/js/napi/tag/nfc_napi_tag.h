@@ -26,6 +26,8 @@
 #include "nfc_napi_tag_isodep.h"
 #include "nfc_napi_tag_mifare_classic.h"
 #include "nfc_napi_tag_mifare_ul.h"
+#include "nfc_napi_tag_ndef.h"
+#include "nfc_napi_tag_ndef_formatable.h"
 #include "nfc_napi_utils.h"
 #include "taginfo.h"
 
@@ -37,15 +39,19 @@ napi_value RegisternfcBTagObject(napi_env env, napi_value exports);
 napi_value RegisternfcFTagObject(napi_env env, napi_value exports);
 napi_value RegisternfcVTagObject(napi_env env, napi_value exports);
 napi_value RegisterIsoDepTagObject(napi_env env, napi_value exports);
+napi_value RegisterNdefTagObject(napi_env env, napi_value exports);
 napi_value RegisterMifareClassicTagObject(napi_env env, napi_value exports);
 napi_value RegisterMifareUltralightTagObject(napi_env env, napi_value exports);
+napi_value RegisterNdefFormatableTagObject(napi_env env, napi_value exports);
 napi_value GetNfcATag(napi_env env, napi_callback_info info);
 napi_value GetNfcBTag(napi_env env, napi_callback_info info);
 napi_value GetNfcFTag(napi_env env, napi_callback_info info);
 napi_value GetNfcVTag(napi_env env, napi_callback_info info);
 napi_value GetIsoDepTag(napi_env env, napi_callback_info info);
+napi_value GetNdefTag(napi_env env, napi_callback_info info);
 napi_value GetMifareClassicTag(napi_env env, napi_callback_info info);
 napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info);
+napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info);
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
 } // namespace KITS
 } // namespace NFC

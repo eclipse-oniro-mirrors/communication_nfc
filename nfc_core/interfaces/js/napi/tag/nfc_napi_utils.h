@@ -19,6 +19,7 @@
 #include <chrono>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "ndef_message.h"
 
 namespace OHOS {
 namespace NFC {
@@ -168,6 +169,9 @@ std::string UnwrapStringFromJS(napi_env env, napi_value param);
 void ConvertStringVectorToJS(napi_env env, napi_value result, std::vector<std::string> &stringVector);
 void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int> &intVector);
 void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector);
+void ConvertNdefRecordVectorToJS(napi_env env, napi_value result,
+                                 std::vector<std::shared_ptr<NdefRecord>> &ndefRecords);
+void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<NdefRecord> &ndefRecord);
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
 napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
