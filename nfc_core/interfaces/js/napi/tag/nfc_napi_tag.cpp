@@ -25,8 +25,10 @@ napi_value nfcBTagObject;
 napi_value nfcFTagObject;
 napi_value nfcVTagObject; // iso15693
 napi_value isoDepTagObject;
+napi_value ndefTagObject;
 napi_value mifareClassicTagObject;
 napi_value mifareUltralightTagObject;
+napi_value ndefFormatableTagObject;
 
 napi_value ParseIntArray(napi_env env, napi_value obj, std::vector<int> &typeArray)
 {
@@ -236,6 +238,26 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     return thisVar;
 }
 
+napi_status InitNfcForumType(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "NFC_FORUM_TYPE_1 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "NFC_FORUM_TYPE_2 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "NFC_FORUM_TYPE_3 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "NFC_FORUM_TYPE_4 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4))),
+        DECLARE_NAPI_STATIC_PROPERTY(
+            "MIFARE_CLASSIC  ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::MIFARE_CLASSIC))),
+    };
+
+    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
+    DefineEnumClassByName(env, exports, "NfcForumType ", arrSize, desc);
+    return napi_define_properties(env, exports, arrSize, desc);
+}
+
 napi_status InitMifareClassicType(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -306,9 +328,14 @@ napi_value RegisternfcBTagObject(napi_env env, napi_value exports)
 
 napi_value RegisternfcFTagObject(napi_env env, napi_value exports)
 {
+    InfoLog("Register nfcFTag Object begin");
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getSystemCode", NapiNfcFTag::GetSystemCode),
         DECLARE_NAPI_FUNCTION("getPmm", NapiNfcFTag::GetPmm),
+        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
+        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
+        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
+        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
     };
     // define JS class NfcFTag, JS_Constructor is the callback function
     NAPI_CALL(env,
@@ -352,6 +379,32 @@ napi_value RegisterIsoDepTagObject(napi_env env, napi_value exports)
     return exports;
 }
 
+napi_value RegisterNdefTagObject(napi_env env, napi_value exports)
+{
+    // register NdefMessage object
+    NapiNdefTag::RegisterNdefMessageObject(env, exports);
+    
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("createNdefMessage", NapiNdefTag::CreateNdefMessage),
+        DECLARE_NAPI_FUNCTION("getNdefTagType", NapiNdefTag::GetNdefTagType),
+        DECLARE_NAPI_FUNCTION("getNdefMessage", NapiNdefTag::GetNdefMessage),
+        DECLARE_NAPI_FUNCTION("isNdefWritable", NapiNdefTag::IsNdefWritable),
+        DECLARE_NAPI_FUNCTION("readNdef", NapiNdefTag::ReadNdef),
+        DECLARE_NAPI_FUNCTION("writeNdef", NapiNdefTag::WriteNdef),
+        DECLARE_NAPI_FUNCTION("canSetReadOnly", NapiNdefTag::CanSetReadOnly),
+        DECLARE_NAPI_FUNCTION("setReadOnly", NapiNdefTag::SetReadOnly),
+        DECLARE_NAPI_FUNCTION("getNdefTagTypeString", NapiNdefTag::GetNdefTagTypeString),
+    };
+
+    NAPI_CALL(env, InitNfcForumType(env, exports));
+
+    // define JS class NdefTag, JS_Constructor is the callback function
+    NAPI_CALL(env,
+        napi_define_class(env, "NdefTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNdefTag, NdefTag>, nullptr,
+            sizeof(desc) / sizeof(desc[0]), desc, &ndefTagObject));
+    return exports;
+}
+
 napi_value RegisterMifareClassicTagObject(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -369,6 +422,9 @@ napi_value RegisterMifareClassicTagObject(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isEmulatedTag", NapiMifareClassicTag::IsEmulatedTag),
         DECLARE_NAPI_FUNCTION("getBlockIndex", NapiMifareClassicTag::GetBlockIndex),
         DECLARE_NAPI_FUNCTION("getSectorIndex", NapiMifareClassicTag::GetSectorIndex),
+        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
+        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
+        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
     };
 
     NAPI_CALL(env, InitMifareClassicType(env, exports));
@@ -387,6 +443,9 @@ napi_value RegisterMifareUltralightTagObject(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("readMultiplePages", NapiMifareUltralightTag::ReadMultiplePages),
         DECLARE_NAPI_FUNCTION("writeSinglePages", NapiMifareUltralightTag::WriteSinglePages),
         DECLARE_NAPI_FUNCTION("getType", NapiMifareUltralightTag::GetType),
+        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
+        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
+        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
     };
 
     NAPI_CALL(env, InitMifareUltralightType(env, exports));
@@ -396,6 +455,26 @@ napi_value RegisterMifareUltralightTagObject(napi_env env, napi_value exports)
         napi_define_class(env, "MifareUltralightTag", NAPI_AUTO_LENGTH,
             JS_Constructor<NapiMifareUltralightTag, MifareUltralightTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
             desc, &mifareUltralightTagObject));
+    return exports;
+}
+
+napi_value RegisterNdefFormatableTagObject(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("format", NapiNdefFormatableTag::Format),
+        DECLARE_NAPI_FUNCTION("formatReadOnly", NapiNdefFormatableTag::FormatReadOnly),
+        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
+        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
+        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
+    };
+
+    NAPI_CALL(env, InitMifareUltralightType(env, exports));
+
+    // define JS class NdefFormatableTag , JS_Constructor is the callback function
+    NAPI_CALL(env,
+        napi_define_class(env, "NdefFormatableTag ", NAPI_AUTO_LENGTH,
+            JS_Constructor<NapiNdefFormatableTag, NdefFormatableTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
+            desc, &ndefFormatableTagObject));
     return exports;
 }
 
@@ -430,7 +509,7 @@ napi_value GetNfcFTag(napi_env env, napi_callback_info info)
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value result = nullptr;
-    // new instance of JS object NfcBTag,
+    // new instance of JS object NfcFTag,
     NAPI_CALL(env, napi_new_instance(env, nfcFTagObject, argc, argv, &result));
     return result;
 }
@@ -459,6 +538,18 @@ napi_value GetIsoDepTag(napi_env env, napi_callback_info info)
     return result;
 }
 
+napi_value GetNdefTag(napi_env env, napi_callback_info info)
+{
+    InfoLog("nfcTag GetNdefTag begin");
+    std::size_t argc = 1;
+    napi_value argv[] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    napi_value result = nullptr;
+    // new instance of JS object NdefTag
+    NAPI_CALL(env, napi_new_instance(env, ndefTagObject, argc, argv, &result));
+    return result;
+}
+
 napi_value GetMifareClassicTag(napi_env env, napi_callback_info info)
 {
     InfoLog("nfcTag GetMifareClassicTag begin");
@@ -466,7 +557,7 @@ napi_value GetMifareClassicTag(napi_env env, napi_callback_info info)
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value result = nullptr;
-    // new instance of JS object IsoDepTag
+    // new instance of JS object MifareClassicTag
     NAPI_CALL(env, napi_new_instance(env, mifareClassicTagObject, argc, argv, &result));
     return result;
 }
@@ -478,8 +569,20 @@ napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info)
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value result = nullptr;
-    // new instance of JS object IsoDepTag
+    // new instance of JS object MifareUltralightTag
     NAPI_CALL(env, napi_new_instance(env, mifareUltralightTagObject, argc, argv, &result));
+    return result;
+}
+
+napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info)
+{
+    InfoLog("nfcTag GetNdefFormatableTag begin");
+    std::size_t argc = 1;
+    napi_value argv[] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    napi_value result = nullptr;
+    // new instance of JS object NdefFormatableTag
+    NAPI_CALL(env, napi_new_instance(env, ndefFormatableTagObject, argc, argv, &result));
     return result;
 }
 
@@ -496,10 +599,14 @@ static napi_value InitJs(napi_env env, napi_value exports)
     RegisternfcVTagObject(env, exports);
     // register IsoDeptag object
     RegisterIsoDepTagObject(env, exports);
+    // register NedfTag object
+    RegisterNdefTagObject(env, exports);
     // register MifareClassictag object
     RegisterMifareClassicTagObject(env, exports);
     // register MifareUltralightTag object
     RegisterMifareUltralightTagObject(env, exports);
+    // register NdefFormatableTag object
+    RegisterNdefFormatableTagObject(env, exports);
 
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getNfcATag", GetNfcATag),
@@ -507,8 +614,10 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getNfcFTag", GetNfcFTag),
         DECLARE_NAPI_FUNCTION("getNfcVTag", GetNfcVTag),
         DECLARE_NAPI_FUNCTION("getIsoDepTag", GetIsoDepTag),
+        DECLARE_NAPI_FUNCTION("getNdefTag", GetNdefTag),
         DECLARE_NAPI_FUNCTION("getMifareClassicTag", GetMifareClassicTag),
         DECLARE_NAPI_FUNCTION("getMifareUltralightTag", GetMifareUltralightTag),
+        DECLARE_NAPI_FUNCTION("getNdefFormatableTag", GetNdefFormatableTag),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

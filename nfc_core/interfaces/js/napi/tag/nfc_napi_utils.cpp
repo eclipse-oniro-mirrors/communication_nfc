@@ -267,6 +267,52 @@ void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<u
     }
 }
 
+void ConvertNdefRecordVectorToJS(napi_env env, napi_value result, std::vector<std::shared_ptr<NdefRecord>> &ndefRecords)
+{
+    DebugLog("ConvertNdefRecordVectorToJS called");
+    size_t idx = 0;
+
+    if (ndefRecords.empty()) {
+        DebugLog("ConvertNdefRecordVectorToJS ndefRecords is empty.");
+        return;
+    }
+    DebugLog("ConvertNdefRecordVectorToJS size is %{public}zu", ndefRecords.size());
+    for (auto& ndefRecord : ndefRecords) {
+        napi_value obj = nullptr;
+        napi_create_object(env, &obj);
+        ConvertNdefRecordToJS(env, obj, ndefRecord);
+        napi_set_element(env, result, idx, obj);
+        idx++;
+    }
+}
+
+void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<NdefRecord> &ndefRecord)
+{
+    DebugLog("ConvertNdefRecordToJS called");
+
+    ndefRecord = std::make_shared<NdefRecord>();
+
+    napi_value tnf;
+    napi_create_int32(env, ndefRecord->tnf_, &tnf);
+    napi_set_named_property(env, result, "tnf", tnf);
+    DebugLog("ConvertNdefRecordToJS tnf is %{public}d", ndefRecord->tnf_);
+
+    napi_value rtdType;
+    napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
+    napi_set_named_property(env, result, "rtdType", rtdType);
+    DebugLog("ConvertGattServiceToJS rtdType is %{public}s", ndefRecord->payload_.c_str());
+
+    napi_value id;
+    napi_create_string_utf8(env, ndefRecord->id_.c_str(), NAPI_AUTO_LENGTH, &id);
+    napi_set_named_property(env, result, "id", id);
+    DebugLog("ConvertGattServiceToJS id is %{public}s", ndefRecord->id_.c_str());
+
+    napi_value payload;
+    napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &payload);
+    napi_set_named_property(env, result, "payload", payload);
+    DebugLog("ConvertGattServiceToJS payload is %{public}s", ndefRecord->payload_.c_str());
+}
+
 bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType)
 {
     napi_valuetype valueType = napi_undefined;
