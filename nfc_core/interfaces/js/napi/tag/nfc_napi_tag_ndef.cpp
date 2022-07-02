@@ -50,7 +50,7 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
             ErrorLog("Wrong tnf argument type. Number expected.");
             return params;
         }
-        napi_get_value_uint32(env, result, &param->tnf_);
+        napi_get_value_uint32(env, result, (uint32_t *)&param->tnf_);
 
         napi_get_named_property(env, ndefRecord, "rtdType", &result);
         napi_typeof(env, result, &valueType);
