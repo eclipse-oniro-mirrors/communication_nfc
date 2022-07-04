@@ -51,12 +51,12 @@
                 "hiviewdfx_hilog_native"
             ],
             "third_party": [
-                "libnfc-nci"
+                "nfc-nci"
             ]
         },
         "build": {
             "sub_component": [
-                "//third_party/nfc-nci/SN100x:libnfc-nci",
+                "//third_party/libnfc-nci/SN100x:nfc-nci",
                 "//foundation/communication/nfc/nfc_core/sa_profile:nfc_profile",
                 "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
                 "//foundation/communication/nfc/nfc_core/interfaces/js/napi/controller:controller",
