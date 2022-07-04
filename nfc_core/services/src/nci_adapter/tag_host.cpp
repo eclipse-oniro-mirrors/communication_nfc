@@ -475,13 +475,15 @@ void TagHost::AddNdefTech()
     bool foundFormat = false;
     int formatHandle = 0;
     int formatLibNfcType = 0;
+    int targetTypeNdef = TARGET_TYPE_NDEF;
+    int targetTypeNdefFormatable = TARGET_TYPE_NDEF_FORMATABLE;
     int index = tagTechList_.size();
     for (int i = 0; i < index; i++) {
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
             DebugLog("Add ndef tag info, index: %d", index);
-            tagTechList_.push_back(TARGET_TYPE_NDEF);
+            tagTechList_.push_back(targetTypeNdef);
             tagRfDiscIdList_.push_back(tagRfDiscIdList_[i]);
             tagActivatedProtocols_.push_back(tagActivatedProtocols_[i]);
 
@@ -507,7 +509,7 @@ void TagHost::AddNdefTech()
     }
     if (foundFormat) {
         DebugLog("Add ndef formatable tag info, index: %d", index);
-        tagTechList_.push_back(TARGET_TYPE_NDEF_FORMATABLE);
+        tagTechList_.push_back(targetTypeNdefFormatable);
         tagRfDiscIdList_.push_back(formatHandle);
         tagActivatedProtocols_.push_back(formatLibNfcType);
     }
