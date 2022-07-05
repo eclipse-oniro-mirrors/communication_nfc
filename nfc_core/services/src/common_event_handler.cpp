@@ -94,7 +94,14 @@ void CommonEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::
         ErrorLog("action is empty");
         return;
     }
-
+    if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
+        (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
+        AppDataParser::GetInstance().PackageAddAndChangeEvent(data);
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+        AppDataParser::GetInstance().PackageRemoveEvent(data);
+    } else {
+        DebugLog("not need event.");
+    }
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) == 0) {

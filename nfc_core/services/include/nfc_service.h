@@ -46,7 +46,6 @@ public:
     ~NfcService() override;
     NfcService& operator=(const NfcService&) = delete;
     NfcService(const NfcService&) = delete;
-
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;

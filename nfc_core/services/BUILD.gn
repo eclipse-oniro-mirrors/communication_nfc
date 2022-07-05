@@ -27,18 +27,19 @@ config("nfc_config") {
     "src/nci_adapter",
     "src/tags",
     "src/utils",
-    "//third_party/libnfc-nci/SN100x/src/gki/common/",
-    "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
-    "//third_party/libnfc-nci/SN100x/src/include",
-    "//third_party/libnfc-nci/SN100x/src/nfa/include",
-    "//third_party/libnfc-nci/SN100x/src/nfc/include",
-    "//third_party/libnfc-nci/SN100x/utils/include",
+    "//third_party/nfc-nci/SN100x/src/gki/common/",
+    "//third_party/nfc-nci/SN100x/src/gki/ulinux/",
+    "//third_party/nfc-nci/SN100x/src/include",
+    "//third_party/nfc-nci/SN100x/src/nfa/include",
+    "//third_party/nfc-nci/SN100x/src/nfc/include",
+    "//third_party/nfc-nci/SN100x/utils/include",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include",
   ]
 }
 
 ohos_shared_library("nfc_service") {
   sources = [
+    "src/app_data_parser.cpp",
     "src/common_event_handler.cpp",
     "src/controller/nfc_controller_callback_proxy.cpp",
     "src/controller/nfc_controller_death_recipient.cpp",
@@ -64,13 +65,15 @@ ohos_shared_library("nfc_service") {
   deps = [
     "etc/init:etc",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
-    "//third_party/libnfc-nci/SN100x:nfc-nci",
-    "//third_party/libnfc-nci/SN100x/utils:nfcutils",
+    "//third_party/nfc-nci/SN100x:nfc-nci",
+    "//third_party/nfc-nci/SN100x/utils:nfcutils",
   ]
 
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
