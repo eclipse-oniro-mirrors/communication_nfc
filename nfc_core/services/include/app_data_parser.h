@@ -63,6 +63,8 @@ public:
     void PackageAddAndChangeEvent(const EventFwk::CommonEventData &data);
     void PackageRemoveEvent(const EventFwk::CommonEventData &data);
     bool UpdateTechListAndAidList();
+    bool DeleteAppTechList(std::string bundlename);
+    bool DeleteHostApduService(std::string bundlename);
 private:
     void ModifyAppTechList(AppExecFwk::AbilityInfo &abilityInfo);
     void ModifyHostApduService(AppExecFwk::AbilityInfo &abilityInfo);

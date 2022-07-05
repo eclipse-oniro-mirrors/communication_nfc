@@ -94,6 +94,7 @@ void CommonEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::
         ErrorLog("action is empty");
         return;
     }
+    
     if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
         (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
         AppDataParser::GetInstance().PackageAddAndChangeEvent(data);

@@ -28,6 +28,7 @@ namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
 int NfcService::nciVersion_ = 0x02;
+
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
 {
     return tagDispatcher_;
@@ -299,6 +300,7 @@ bool NfcService::Initialize()
     if (!(AppDataParser::GetInstance().UpdateTechListAndAidList())) {
         InfoLog("Update TechList and AidList failed.");
     }
+    
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("common event handler");
     eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
