@@ -217,7 +217,7 @@ bool AppDataParser::UpdateTechList()
 
 bool AppDataParser::UpdateAidList()
 {
-    DebugLog("Update TechList and AidList");
+    DebugLog("Update AidList");
     bundleMgrProxy_ = GetBundleMgrProxy();
     if (!bundleMgrProxy_) {
         DebugLog("bundleMgrProxy_ is nullptr.");
