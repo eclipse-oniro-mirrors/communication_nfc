@@ -94,20 +94,13 @@ void CommonEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::
         ErrorLog("action is empty");
         return;
     }
-    
-    if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
-        (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
-        AppDataParser::GetInstance().PackageAddAndChangeEvent(data);
-    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        AppDataParser::GetInstance().PackageRemoveEvent(data);
-    } else {
-        DebugLog("not need event.");
-    }
+    const std::shared_ptr<EventFwk::CommonEventData> mdata =
+        std::make_shared<EventFwk::CommonEventData> (data);
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) == 0) {
         eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_PACKAGE_UPDATED),
-            static_cast<int64_t>(0), static_cast<int64_t>(0));
+            mdata, static_cast<int64_t>(0));
     }
 }
 
@@ -187,7 +180,7 @@ void CommonEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
             break;
         }
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
-            nfcService_.lock()->HandlePackageUpdated();
+            nfcService_.lock()->HandlePackageUpdated(event->GetSharedObject<EventFwk::CommonEventData>());
             break;
         }
         default:

@@ -60,9 +60,10 @@ public:
 
     static AppDataParser& GetInstance();
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-    void PackageAddAndChangeEvent(const EventFwk::CommonEventData &data);
-    void PackageRemoveEvent(const EventFwk::CommonEventData &data);
-    bool UpdateTechListAndAidList();
+    void PackageAddAndChangeEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    void PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool UpdateTechList();
+    bool UpdateAidList();
     bool DeleteAppTechList(std::string bundlename);
     bool DeleteHostApduService(std::string bundlename);
 private:

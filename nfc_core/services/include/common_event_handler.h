@@ -15,7 +15,6 @@
 #ifndef COMMON_EVENT_HANDLER_H
 #define COMMON_EVENT_HANDLER_H
 
-#include "app_data_parser.h"
 #include "common_event_manager.h"
 #include "event_handler.h"
 #include "infcc_host.h"

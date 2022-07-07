@@ -18,6 +18,7 @@
 #include <future>
 #include <mutex>
 
+#include "common_event_manager.h"
 #include "infc_service.h"
 #include "infcc_host.h"
 #include "itag_host.h"
@@ -54,7 +55,7 @@ protected:
     // screen changed
     void HandleScreenChanged(int screenState);
     // package updated
-    void HandlePackageUpdated();
+    void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
