@@ -18,6 +18,7 @@
 #include <future>
 #include <mutex>
 
+#include "common_event_manager.h"
 #include "infc_service.h"
 #include "infcc_host.h"
 #include "itag_host.h"
@@ -46,7 +47,6 @@ public:
     ~NfcService() override;
     NfcService& operator=(const NfcService&) = delete;
     NfcService(const NfcService&) = delete;
-
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
@@ -55,7 +55,7 @@ protected:
     // screen changed
     void HandleScreenChanged(int screenState);
     // package updated
-    void HandlePackageUpdated();
+    void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;

@@ -14,8 +14,8 @@
  */
 #include "nfc_service.h"
 
+#include "app_data_parser.h"
 #include "common_event_handler.h"
-#include "common_event_manager.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
@@ -276,9 +276,22 @@ void NfcService::HandleScreenChanged(int screenState)
     DebugLog("Screen changed screenState %{public}d", screenState_);
 }
 
-void NfcService::HandlePackageUpdated()
+void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    DebugLog("HandlePackageUpdated, unimplimentation...");
+    DebugLog("HandlePackageUpdated ...");
+    std::string action = data->GetWant().GetAction();
+    if (action.empty()) {
+        ErrorLog("action is empty");
+        return;
+    }
+    if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
+        (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
+        AppDataParser::GetInstance().PackageAddAndChangeEvent(data);
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+        AppDataParser::GetInstance().PackageRemoveEvent(data);
+    } else {
+        DebugLog("not need event.");
+    }
 }
 
 std::weak_ptr<NfcService> NfcService::GetInstance() const
@@ -295,12 +308,17 @@ bool NfcService::Initialize()
     } else {
         nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
     }
-
+    if (!(AppDataParser::GetInstance().UpdateTechList())) {
+        InfoLog("Update TechList failed.");
+    }
+    if (!(AppDataParser::GetInstance().UpdateAidList())) {
+        InfoLog("Update AidList failed.");
+    }
+    
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("common event handler");
     eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
-
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 

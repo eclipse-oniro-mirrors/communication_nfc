@@ -48,7 +48,8 @@
         "deps": {
             "components": [
                 "ipc",
-                "hiviewdfx_hilog_native"
+                "hiviewdfx_hilog_native",
+                "bundle_framework"
             ],
             "third_party": [
                 "nfc-nci"
