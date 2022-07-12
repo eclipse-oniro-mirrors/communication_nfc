@@ -23,6 +23,9 @@ namespace OHOS {
 namespace NFC {
 const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
+const std::string APP_TECH = "tag-tech";
+const std::string PAY_AID = "payment-aid";
+const std::string OTHER_AID = "other-aid";
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser appDataParser_;
 
@@ -42,20 +45,20 @@ AppDataParser& AppDataParser::GetInstance()
 void AppDataParser::PackageAddAndChangeEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     InfoLog("Package add and change event");
-    std::string bundlename = data->GetWant().GetElement().GetBundleName();
-    DebugLog("PackageAddAndChangeEvent bundlename:%{public}s", bundlename.c_str());
-    if (appDataParser_.QueryAbilityInfosByAction(bundlename, ACTION_TAG_FOUND)) {
+    std::string bundleName = data->GetWant().GetElement().GetBundleName();
+    DebugLog("PackageAddAndChangeEvent bundlename:%{public}s", bundleName.c_str());
+    if (appDataParser_.QueryAbilityInfosByAction(bundleName, ACTION_TAG_FOUND)) {
         InfoLog("Add tag app is ok");
         return;
     }
-    if (QueryAbilityInfosByAction(bundlename, ACTION_HOST_APDU_SERVICE)) {
+    if (QueryAbilityInfosByAction(bundleName, ACTION_HOST_APDU_SERVICE)) {
         InfoLog("Add hce app is ok");
         return;
     }
     InfoLog("Query AbilityInfo failed.");
 }
 
-bool AppDataParser::QueryAbilityInfosByAction(const std::string bundlename, const std::string action)
+bool AppDataParser::QueryAbilityInfosByAction(const std::string bundleName, const std::string action)
 {
     if (!bundleMgrProxy_) {
         DebugLog("bundleMgrProxy_ is nullptr.");
@@ -74,15 +77,15 @@ bool AppDataParser::QueryAbilityInfosByAction(const std::string bundlename, cons
         return false;
     }
     for (auto& abilityInfo : abilityInfos) {
-        if ((bundlename.compare(abilityInfo.bundleName) == 0) &&
+        if ((bundleName.compare(abilityInfo.bundleName) == 0) &&
             (action.compare(ACTION_TAG_FOUND) == 0)) {
             appDataParser_.ModifyAppTechList(abilityInfo);
-            DeleteHostApduService(bundlename);
+            DeleteHostApduService(bundleName);
             return true;
-        } else if ((bundlename.compare(abilityInfo.bundleName) == 0) &&
+        } else if ((bundleName.compare(abilityInfo.bundleName) == 0) &&
             (action.compare(ACTION_HOST_APDU_SERVICE) == 0)) {
             appDataParser_.ModifyHostApduService(abilityInfo);
-            DeleteAppTechList(bundlename);
+            DeleteAppTechList(bundleName);
             return true;
         }
     }
@@ -123,52 +126,52 @@ bool AppDataParser::QueryAbilityInfosByAction(const std::string action)
 
 void AppDataParser::ModifyAppTechList(AppExecFwk::AbilityInfo &abilityInfo)
 {
-    std::vector<std::string> valuelist;
+    std::vector<std::string> valueList;
     for (auto& data : abilityInfo.metaData.customizeData) {
-        if (data.name == "tech") {
-            valuelist.emplace_back(data.value);
+        if (data.name == APP_TECH) {
+            valueList.emplace_back(data.value);
         }
     }
-    AppTechList apptechlist;
-    apptechlist.abilityinfo = abilityInfo;
-    apptechlist.tech = valuelist;
-    appDataParser_.g_appTechList.insert(make_pair(abilityInfo.bundleName, apptechlist));
+    AppTechList appTechList;
+    appTechList.abilityInfo = abilityInfo;
+    appTechList.tech = valueList;
+    appDataParser_.g_appTechList.insert(make_pair(abilityInfo.bundleName, appTechList));
     DebugLog("Finish modify APP tech list.");
 }
 
 void AppDataParser::ModifyHostApduService(AppExecFwk::AbilityInfo &abilityInfo)
 {
-    std::vector<AppDataParser::CustomDataAid> customDataAidlist;
-    AppDataParser::CustomDataAid customdataAid;
+    std::vector<AppDataParser::CustomDataAid> customDataAidList;
+    AppDataParser::CustomDataAid customDataAid;
     for (auto& data : abilityInfo.metaData.customizeData) {
-        if ((data.name == "paymentAid") || (data.name == "otherAid")) {
-            customdataAid.name = data.name;
-            customdataAid.value = data.value;
-            customDataAidlist.emplace_back(customdataAid);
+        if ((data.name == PAY_AID) || (data.name == OTHER_AID)) {
+            customDataAid.name = data.name;
+            customDataAid.value = data.value;
+            customDataAidList.emplace_back(customDataAid);
         }
     }
-    HostApduAid hostapduadi;
-    hostapduadi.abilityinfo = abilityInfo;
-    hostapduadi.customdataaid = customDataAidlist;
-    appDataParser_.g_hostApduService.insert(make_pair(abilityInfo.bundleName, hostapduadi));
+    HostApduAid hostApduAid;
+    hostApduAid.abilityInfo = abilityInfo;
+    hostApduAid.customDataAid = customDataAidList;
+    appDataParser_.g_hostApduService.insert(make_pair(abilityInfo.bundleName, hostApduAid));
     DebugLog("Finish modify host apdu service.");
 }
 
 void AppDataParser::PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     InfoLog("NfcService::ProcessPackageRemoveEvent");
-    std::string bundlename = data->GetWant().GetElement().GetBundleName();
-    DebugLog("bundlename is:%{public}s", bundlename.c_str());
-    if (bundlename.empty()) {
-        DebugLog("Can not get bundlename.");
+    std::string bundleName = data->GetWant().GetElement().GetBundleName();
+    DebugLog("bundleName is:%{public}s", bundleName.c_str());
+    if (bundleName.empty()) {
+        DebugLog("Can not get bundleName.");
         return;
     }
     if ((!g_appTechList.empty()) || (!g_hostApduService.empty())) {
-        if (DeleteAppTechList(bundlename)) {
+        if (DeleteAppTechList(bundleName)) {
             DebugLog("DeleteAppTechList success.");
             return;
         }
-        if (DeleteHostApduService(bundlename)) {
+        if (DeleteHostApduService(bundleName)) {
             DebugLog("DeleteHostApduService success.");
             return;
         }
@@ -176,22 +179,22 @@ void AppDataParser::PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData
     DebugLog("Not need remove any record");
 }
 
-bool AppDataParser::DeleteAppTechList(std::string bundlename)
+bool AppDataParser::DeleteAppTechList(std::string bundleName)
 {
-    auto appiter = appDataParser_.g_appTechList.find(bundlename);
-    if (appiter != appDataParser_.g_appTechList.end()) {
-        appDataParser_.g_appTechList.erase(appiter);
+    auto appIter = appDataParser_.g_appTechList.find(bundleName);
+    if (appIter != appDataParser_.g_appTechList.end()) {
+        appDataParser_.g_appTechList.erase(appIter);
         DebugLog("Delete APP tech from app tech list.");
         return true;
     }
     return false;
 }
 
-bool AppDataParser::DeleteHostApduService(std::string bundlename)
+bool AppDataParser::DeleteHostApduService(std::string bundleName)
 {
-    auto apduiter = appDataParser_.g_hostApduService.find(bundlename);
-    if (apduiter != appDataParser_.g_hostApduService.end()) {
-        appDataParser_.g_hostApduService.erase(apduiter);
+    auto apduIter = appDataParser_.g_hostApduService.find(bundleName);
+    if (apduIter != appDataParser_.g_hostApduService.end()) {
+        appDataParser_.g_hostApduService.erase(apduIter);
         DebugLog("Delete AID from host apdu service.");
         return true;
     }

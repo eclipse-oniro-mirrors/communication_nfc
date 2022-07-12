@@ -46,13 +46,13 @@ public:
     };
 
     struct AppTechList {
-        OHOS::AppExecFwk::AbilityInfo abilityinfo;
+        OHOS::AppExecFwk::AbilityInfo abilityInfo;
         std::vector<std::string> tech;
     };
 
     struct HostApduAid {
-        OHOS::AppExecFwk::AbilityInfo abilityinfo;
-        std::vector<AppDataParser::CustomDataAid> customdataaid;
+        OHOS::AppExecFwk::AbilityInfo abilityInfo;
+        std::vector<AppDataParser::CustomDataAid> customDataAid;
     };
 
     std::map<std::string, AppDataParser::AppTechList> g_appTechList;
@@ -64,12 +64,12 @@ public:
     void PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     bool UpdateTechList();
     bool UpdateAidList();
-    bool DeleteAppTechList(std::string bundlename);
-    bool DeleteHostApduService(std::string bundlename);
+    bool DeleteAppTechList(std::string bundleName);
+    bool DeleteHostApduService(std::string bundleName);
 private:
     void ModifyAppTechList(AppExecFwk::AbilityInfo &abilityInfo);
     void ModifyHostApduService(AppExecFwk::AbilityInfo &abilityInfo);
-    bool QueryAbilityInfosByAction(const std::string bundlename, const std::string action);
+    bool QueryAbilityInfosByAction(const std::string bundleName, const std::string action);
     bool QueryAbilityInfosByAction(const std::string action);
 };
 }  // namespace NFC
