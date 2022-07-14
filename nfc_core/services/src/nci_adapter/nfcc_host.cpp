@@ -55,7 +55,7 @@ bool NfccHost::Deinitialize()
     return NfccNciAdapter::GetInstance().Deinitialize();
 }
 
-void NfccHost::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
+void NfccHost::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccHost::EnableDiscovery");
     NfccNciAdapter::GetInstance().EnableDiscovery(techMask, enableReaderMode, enableHostRouting, restart);

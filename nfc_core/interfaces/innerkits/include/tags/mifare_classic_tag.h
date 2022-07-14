@@ -93,40 +93,40 @@ public:
      * @param blockIndex index of block to read
      * @return the block data
      */
-    std::string ReadSingleBlock(int blockIndex);
+    std::string ReadSingleBlock(uint32_t blockIndex);
     /**
      * @Description Write a block
      * @param blockIndex index of block to write
      * @param data block data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteSingleBlock(int blockIndex, const std::string& data);
+    int WriteSingleBlock(uint32_t blockIndex, const std::string& data);
     /**
      * @Description Increment a value block
      * @param blockIndex index of block to increment
      * @param value value to increment, none-negative
      * @return Errorcode of increment. if return 0, means successful.
      */
-    int IncrementBlock(int blockIndex, int value);
+    int IncrementBlock(uint32_t blockIndex, int value);
     /**
      * @Description Decrement a value block
      * @param blockIndex index of block to decrement
      * @param value value to increment, none-negative
      * @return Errorcode of decrement. if return 0, means successful.
      */
-    int DecrementBlock(int blockIndex, int value);
+    int DecrementBlock(uint32_t blockIndex, int value);
     /**
      * @Description Copy from the value of register to the value block
      * @param blockIndex index of value block to copy to
      * @return Errorcode of operation. if return 0, means successful.
      */
-    int TransferToBlock(int blockIndex);
+    int TransferToBlock(uint32_t blockIndex);
     /**
      * @Description Copy from the value block to the register
      * @param blockIndex index of value block to copy from
      * @return Errorcode of operation. if return 0, means successful.
      */
-    int RestoreFromBlock(int blockIndex);
+    int RestoreFromBlock(uint32_t blockIndex);
     /**
      * @Description Get the number of sectors in mifareclassic tag
      * @param void

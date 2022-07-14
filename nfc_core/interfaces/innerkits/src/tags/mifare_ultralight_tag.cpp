@@ -60,7 +60,7 @@ std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<T
     return std::make_shared<MifareUltralightTag>(tag);
 }
 
-std::string MifareUltralightTag::ReadMultiplePages(int pageIndex)
+std::string MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex)
 {
     InfoLog("MifareUltralightTag::ReadMultiplePages in.");
     if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) && IsConnected()) {
@@ -76,7 +76,7 @@ std::string MifareUltralightTag::ReadMultiplePages(int pageIndex)
     return "";
 }
 
-int MifareUltralightTag::WriteSinglePages(int pageIndex, const std::string& data)
+int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string& data)
 {
     InfoLog("MifareUltralightTag::WriteSinglePages in.");
     if (!IsConnected()) {
