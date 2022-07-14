@@ -38,7 +38,7 @@ bool NfcSdkCommon::IsLittleEndian()
 std::string NfcSdkCommon::UnsignedCharArrayToString(const unsigned char* charArray, int length)
 {
     std::string result = "";
-    for (int i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         result += charArray[i];
     }
     return result;
@@ -49,13 +49,13 @@ void NfcSdkCommon::StringToUnsignedCharArray(std::string &src, std::vector<unsig
     if (src.empty()) {
         return;
     }
-    int len = src.length();
-    for (int i = 0; i < len; i++) {
+    uint32_t len = src.length();
+    for (uint32_t i = 0; i < len; i++) {
         dst.push_back((unsigned char) src[i]);
     }
 }
 
-std::string NfcSdkCommon::IntToString(int num, bool bLittleEndian)
+std::string NfcSdkCommon::IntToString(uint32_t num, bool bLittleEndian)
 {
     std::stringstream ss;
     if (bLittleEndian) {
@@ -71,16 +71,16 @@ std::string NfcSdkCommon::IntToString(int num, bool bLittleEndian)
     return ss.str();
 }
 
-int NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
+uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
 {
-    int value = 0;
+    uint32_t value = 0;
     if (bLittleEndian) {
         for (size_t i = SHIFT_TIME; i > 0; i--) {
-            value += (int)(src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE);
+            value += (uint32_t)(src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE);
         }
     } else {
         for (size_t i = 0; i < SHIFT_TIME; i++) {
-            value += (int)(src.at(i)) << (i * SHIFT_SIZE);
+            value += (uint32_t)(src.at(i)) << (i * SHIFT_SIZE);
         }
     }
     return value;
