@@ -172,7 +172,7 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
     bool isExist = false;
     NfcStateRegistryRecord record;
     InfoLog("RecordsSize=%{public}d,isExist=%{public}d,type=%{public}s,callerToken=%{public}d",
-        stateRecords_.size(), isExist, type.c_str(), callerToken);
+        (int)stateRecords_.size(), isExist, type.c_str(), callerToken);
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         record = stateRecords_[i];
         InfoLog("record.type_=%{public}s,record.callerToken=%{public}d",
@@ -246,11 +246,11 @@ void NfcService::UpdateNfcState(int newState)
     data.SetWant(want);
     EventFwk::CommonEventManager::PublishCommonEvent(data);
     std::lock_guard<std::mutex> lock(mutex_);
-    DebugLog("stateRecords_.size[%{public}d]", stateRecords_.size());
+    DebugLog("stateRecords_.size[%{public}d]", (int)stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         NfcStateRegistryRecord record = stateRecords_[i];
         DebugLog("stateRecords_[%{public}d]:type_=%{public}s,callerToken=%{public}d",
-            i, record.type_.c_str(), record.callerToken_);
+            (int)i, record.type_.c_str(), record.callerToken_);
         if (record.nfcStateChangeCallback_ != nullptr) {
             record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
         }

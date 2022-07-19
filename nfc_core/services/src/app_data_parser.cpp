@@ -214,7 +214,7 @@ bool AppDataParser::UpdateTechList()
         return false;
     }
     DebugLog("TechList update finish,tech list length=%{public}d",
-        appDataParser_.g_appTechList.size());
+        (int)appDataParser_.g_appTechList.size());
     return true;
 }
 
@@ -231,7 +231,7 @@ bool AppDataParser::UpdateAidList()
         return false;
     }
     DebugLog("Host apdu aid servcie update finish,aid list length=%{public}d",
-        appDataParser_.g_hostApduService.size());
+        (int)appDataParser_.g_hostApduService.size());
     return true;
 }
 

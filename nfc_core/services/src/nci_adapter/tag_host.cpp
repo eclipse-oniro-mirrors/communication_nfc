@@ -302,7 +302,7 @@ void TagHost::DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) {
-        DebugLog("DoTargetTypeIso144433b poll.len: %d", poll.length());
+        DebugLog("DoTargetTypeIso144433b poll.len: %d", (int)poll.length());
         return;
     }
 
@@ -343,7 +343,7 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < NCI_POLL_LENGTH_MIN) {
-        DebugLog("DoTargetTypeV poll.len: %d", poll.length());
+        DebugLog("DoTargetTypeV poll.len: %d", (int)poll.length());
         return;
     }
 
@@ -362,13 +362,13 @@ void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < SENSF_RES_LENGTH) {
-        DebugLog("DoTargetTypeF no ppm, poll.len: %d", poll.length());
+        DebugLog("DoTargetTypeF no ppm, poll.len: %d", (int)poll.length());
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_PMM, poll.substr(0, SENSF_RES_LENGTH)); // 8 bytes for ppm
 
     if (poll.length() < F_POLL_LENGTH) {
-        DebugLog("DoTargetTypeF no sc, poll.len: %d", poll.length());
+        DebugLog("DoTargetTypeF no sc, poll.len: %d", (int)poll.length());
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, poll.substr(SENSF_RES_LENGTH, 2)); // 2 bytes for sc
@@ -421,7 +421,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 
 std::weak_ptr<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
 {
-    DebugLog("TagHost::GetTechExtrasData, tech len.%d", tagTechList_.size());
+    DebugLog("TagHost::GetTechExtrasData, tech len.%d", (int)tagTechList_.size());
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
         if (tagTechList_[i] == TARGET_TYPE_NDEF || tagTechList_[i] == TARGET_TYPE_NDEF_FORMATABLE) {
             continue;
