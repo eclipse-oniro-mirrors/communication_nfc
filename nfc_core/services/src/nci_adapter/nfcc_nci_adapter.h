@@ -35,7 +35,7 @@ public:
     static bool IsNfcActive();
     bool Initialize();
     bool Deinitialize();
-    void EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart);
+    void EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart);
     void DisableDiscovery();
     bool SendRawFrame(std::string& rawData);
     void SetScreenStatus(unsigned char screenStateMask) const;
