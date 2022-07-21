@@ -78,7 +78,7 @@ public:
      * @param blockNum num of block to read
      * @return multiple block data
      */
-    std::string ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, int blockNum);
+    std::string ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum);
     /**
      * @Description Write multiple blocks
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -91,7 +91,7 @@ public:
      * @param dataLen total data length to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, int blockNum, const std::string& data);
+    int WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& data);
     /**
      * @Description Get DsfId bytes of the tag.
      * @param void
