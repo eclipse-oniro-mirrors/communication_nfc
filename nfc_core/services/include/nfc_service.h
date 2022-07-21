@@ -98,7 +98,7 @@ private:
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current state.
     int nfcState_;
-    int screenState_;
+    int screenState_ {};
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock

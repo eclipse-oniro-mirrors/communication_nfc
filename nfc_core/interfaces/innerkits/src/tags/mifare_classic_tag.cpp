@@ -131,7 +131,7 @@ bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& ke
     return (response == TAG::ResResult::ResponseResult::RESULT_SUCCESS);
 }
 
-std::string MifareClassicTag::ReadSingleBlock(int blockIndex)
+std::string MifareClassicTag::ReadSingleBlock(uint32_t blockIndex)
 {
     InfoLog("MifareClassicTag::ReadSingleBlock in");
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || !IsConnected()) {
@@ -146,7 +146,7 @@ std::string MifareClassicTag::ReadSingleBlock(int blockIndex)
     return SendCommand(sendCommand, false, response);
 }
 
-int MifareClassicTag::WriteSingleBlock(int blockIndex, const std::string& data)
+int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& data)
 {
     InfoLog("MifareClassicTag::WriteSingleBlock in");
     if (!IsConnected()) {
@@ -167,7 +167,7 @@ int MifareClassicTag::WriteSingleBlock(int blockIndex, const std::string& data)
     return response;
 }
 
-int MifareClassicTag::IncrementBlock(int blockIndex, int value)
+int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
 {
     InfoLog("MifareClassicTag::IncrementBlock in");
     if (!IsConnected()) {
@@ -188,7 +188,7 @@ int MifareClassicTag::IncrementBlock(int blockIndex, int value)
     return response;
 }
 
-int MifareClassicTag::DecrementBlock(int blockIndex, int value)
+int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
 {
     InfoLog("MifareClassicTag::DecrementBlock in");
     if (!IsConnected()) {
@@ -209,7 +209,7 @@ int MifareClassicTag::DecrementBlock(int blockIndex, int value)
     return response;
 }
 
-int MifareClassicTag::TransferToBlock(int blockIndex)
+int MifareClassicTag::TransferToBlock(uint32_t blockIndex)
 {
     InfoLog("MifareClassicTag::TransferToBlock in");
     if (!IsConnected()) {
@@ -228,7 +228,7 @@ int MifareClassicTag::TransferToBlock(int blockIndex)
     return response;
 }
 
-int MifareClassicTag::RestoreFromBlock(int blockIndex)
+int MifareClassicTag::RestoreFromBlock(uint32_t blockIndex)
 {
     InfoLog("MifareClassicTag::RestoreFromBlock in");
     if (!IsConnected()) {

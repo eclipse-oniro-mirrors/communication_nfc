@@ -98,8 +98,8 @@ public:
     static bool IsLittleEndian();
     static std::string UnsignedCharArrayToString(const unsigned char* charArray, int length);
     static void StringToUnsignedCharArray(std::string &src, std::vector<unsigned char> &dst);
-    static std::string IntToString(int num, bool bLittleEndian = true);
-    static int StringToInt(std::string src, bool bLittleEndian = true);
+    static std::string IntToString(uint32_t num, bool bLittleEndian = true);
+    static uint32_t StringToInt(std::string src, bool bLittleEndian = true);
 };
 }  // namespace KITS
 }  // namespace NFC

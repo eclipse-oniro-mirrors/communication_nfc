@@ -37,7 +37,7 @@ public:
     void SetNfccHostListener(std::weak_ptr<INfccHostListener> listener) override;
     bool Initialize() override;
     bool Deinitialize() override;
-    void EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart) override;
+    void EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart) override;
     void DisableDiscovery() override;
     bool SendRawFrame(std::string& rawData) override;
     bool SetScreenStatus(unsigned char screenStateMask) override;

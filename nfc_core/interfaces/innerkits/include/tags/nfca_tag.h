@@ -46,7 +46,7 @@ public:
     std::string GetAtqa() const;
 
 private:
-    int sak_;
+    int sak_ {};
     std::string atqa_ {};
 };
 }  // namespace KITS

@@ -464,7 +464,7 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     uint8_t buffer[maxBufferSize] = {0};
     uint32_t curDataSize = 0;
     NFC::SynchronizeGuard guard(writeNdefEvent_);
-    int length = ndefMessage.length();
+    uint32_t length = ndefMessage.length();
     unsigned char data[length];
     for (int i = 0; i < length; i++) {
         data[i] = ndefMessage.at(i);
@@ -570,7 +570,7 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
     return isNdefCapable_;
 }
 
-void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize, int flag, int maxSize)
+void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize, uint32_t flag, int maxSize)
 {
     DebugLog("TagNciAdapter::HandleNdefCheckResult");
     auto uFlag = static_cast<unsigned char>(flag & 0xFF);
