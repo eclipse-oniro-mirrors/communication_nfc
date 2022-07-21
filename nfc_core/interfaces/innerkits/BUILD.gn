@@ -62,10 +62,10 @@ ohos_shared_library("nfc_inner_kits") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   part_name = "nfc"
