@@ -854,7 +854,7 @@ void TagNciAdapter::ResetTag()
 void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
 {
     tNFC_RESULT_DEVT& discoveryNtf = eventData->disc_result.discovery_ntf;
-    DebugLog("TagNciAdapter::HandleDiscResult, discId: %d, protocol: %d",
+    DebugLog("TagNciAdapter::HandleDiscResult, discId: %{public}d, protocol: %{public}d",
         discoveryNtf.rf_disc_id, discoveryNtf.protocol);
 
     tagDiscIdListOfDiscResult_.push_back(discoveryNtf.rf_disc_id);
@@ -872,24 +872,27 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
     }
 
     if (index >= MAX_NUM_TECHNOLOGY) {
-        DebugLog("Only find nfc-dep technology");
+        DebugLog("Has technology NFA_PROTOCOL_NFC_DEP only, don't handle it.");
         return;
     }
-    tNFA_INTF_TYPE rfInterface;
-    if (tagProtocolsOfDiscResult_[index] == NFA_PROTOCOL_ISO_DEP) {
+
+    // get the rf interface based on the found technology.
+    tNFA_INTF_TYPE rfInterface = NFA_INTERFACE_FRAME;
+    int foundTech = tagProtocolsOfDiscResult_[index];
+    if (foundTech == NFA_PROTOCOL_ISO_DEP) {
         rfInterface = NFA_INTERFACE_ISO_DEP;
-    } else if (tagProtocolsOfDiscResult_[index] == NFC_PROTOCOL_MIFARE) {
+    } else if (foundTech == NFC_PROTOCOL_MIFARE) {
         rfInterface = NFA_INTERFACE_MIFARE;
-    } else {
-        rfInterface = NFA_INTERFACE_FRAME;
     }
+
+    // select the rf interface.
     rfDiscoveryMutex_.lock();
     tNFA_STATUS status = nciAdaptations_->NfaSelect(
-        (uint8_t)tagDiscIdListOfDiscResult_[index], (tNFA_NFC_PROTOCOL)tagProtocolsOfDiscResult_[index], rfInterface);
+        (uint8_t)tagDiscIdListOfDiscResult_[index], (tNFA_NFC_PROTOCOL)foundTech, rfInterface);
     if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::HandleDiscResult: select fail; error = 0x%X", status);
+        ErrorLog("TagNciAdapter::HandleDiscResult: NfaSelect error = 0x%{public}X", status);
     }
-    connectedProtocol_ = tagProtocolsOfDiscResult_[index];
+    connectedProtocol_ = foundTech;
     connectedTagDiscId_ = tagDiscIdListOfDiscResult_[index];
     rfDiscoveryMutex_.unlock();
 }

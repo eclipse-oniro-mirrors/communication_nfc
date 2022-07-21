@@ -76,6 +76,8 @@ private:
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
+
+    // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);

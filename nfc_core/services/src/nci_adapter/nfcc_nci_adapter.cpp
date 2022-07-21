@@ -499,6 +499,29 @@ bool NfccNciAdapter::SendRawFrame(std::string& rawData)
     return true;
 }
 
+uint8_t NfccNciAdapter::GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask)
+{
+    // discocery parameters for SCREEN OFF_LOCKED or OFF_UNLOCKED
+    if (screenState == NFA_SCREEN_STATE_OFF_LOCKED || screenState == NFA_SCREEN_STATE_OFF_UNLOCKED) {
+        return (NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
+    }
+
+    // discocery parameters for SCREEN ON_LOCKED
+    if (screenState == NFA_SCREEN_STATE_ON_LOCKED) {
+        return (screenStateMask & NFA_SCREEN_POLLING_TAG_MASK)
+                ? (NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK)
+                : (NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
+    }
+
+    // discocery parameters for SCREEN ON_UNLOCKED
+    if (screenState == NFA_SCREEN_STATE_ON_UNLOCKED) {
+        return (NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
+    }
+
+    // default discocery parameters
+    return (NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
+}
+
 void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
 {
     DebugLog("NfccNciAdapter::SetScreenStatus");
@@ -512,40 +535,29 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
         return;
     }
 
-    // NCI_VERSION_2_0
+    // set power state for screen state.
     tNFA_STATUS status;
     if (curScreenState_ == NFA_SCREEN_STATE_OFF_LOCKED || curScreenState_ == NFA_SCREEN_STATE_OFF_UNLOCKED ||
         curScreenState_ == NFA_SCREEN_STATE_ON_LOCKED || curScreenState_ == NFA_SCREEN_STATE_UNKNOWN) {
         status = nciAdaptation_->NfcSetPowerSubStateForScreenState(screenState);
         if (status != NFA_STATUS_OK) {
-            DebugLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
+            ErrorLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
             return;
         }
     }
 
-    uint8_t discovryParam = NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK;
-    if (screenState == NFA_SCREEN_STATE_OFF_LOCKED || screenState == NFA_SCREEN_STATE_OFF_UNLOCKED) {
-        discovryParam = NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK;
-    }
-    if (screenState == NFA_SCREEN_STATE_ON_LOCKED) {
-        discovryParam = (screenStateMask & NFA_SCREEN_POLLING_TAG_MASK)
-                            ? (NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK)
-                            : (NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
-    }
-    if (screenState == NFA_SCREEN_STATE_ON_UNLOCKED) {
-        discovryParam = NCI_POLLING_DH_ENABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK;
-    }
+    uint8_t discParam = GetDiscovryParam(curScreenState_, screenStateMask);
     status = nciAdaptation_->NfcSetConfig(NCI_PARAM_ID_CON_DISCOVERY_PARAM,
-        NCI_PARAM_LEN_CON_DISCOVERY_PARAM, &discovryParam);
+        NCI_PARAM_LEN_CON_DISCOVERY_PARAM, &discParam);
     if (status != NFA_STATUS_OK) {
-        DebugLog("NFA_SetConfig fail, error=0x%{public}X", status);
+        ErrorLog("NFA_SetConfig fail, error=0x%{public}X", status);
         return;
     }
 
     if (curScreenState_ == NFA_SCREEN_STATE_ON_UNLOCKED) {
         status = nciAdaptation_->NfcSetPowerSubStateForScreenState(screenState);
         if (status != NFA_STATUS_OK) {
-            DebugLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
+            ErrorLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
             return;
         }
     }

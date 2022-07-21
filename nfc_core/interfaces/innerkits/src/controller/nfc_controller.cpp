@@ -123,9 +123,9 @@ NfcErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &call
 }
 
 // unregister NFC state change
-NfcErrorCode NfcController::UnRegListener(const std::string& type)
+NfcErrorCode NfcController::UnregListener(const std::string& type)
 {
-    DebugLog("NfcController::UnRegListener");
+    DebugLog("NfcController::UnregListener");
     return nfcControllerService_.lock()->UnRegisterCallBack(type);
 }
 }  // namespace KITS
