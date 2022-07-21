@@ -478,7 +478,7 @@ void TagHost::AddNdefTech()
     int targetTypeNdef = TARGET_TYPE_NDEF;
     int targetTypeNdefFormatable = TARGET_TYPE_NDEF_FORMATABLE;
     uint32_t index = tagTechList_.size();
-    for (int i = 0; i < index; i++) {
+    for (uint32_t i = 0; i < index; i++) {
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {

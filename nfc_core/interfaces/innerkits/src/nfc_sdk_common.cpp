@@ -35,7 +35,7 @@ bool NfcSdkCommon::IsLittleEndian()
     return false;
 }
 
-std::string NfcSdkCommon::UnsignedCharArrayToString(const unsigned char* charArray, int length)
+std::string NfcSdkCommon::UnsignedCharArrayToString(const unsigned char* charArray, uint32_t length)
 {
     std::string result = "";
     for (uint32_t i = 0; i < length; i++) {

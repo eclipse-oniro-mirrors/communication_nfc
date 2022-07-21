@@ -102,7 +102,7 @@ private:
     static std::string receivedData_;
 
     // tag technology and protocols discovery.
-    static const int MAX_NUM_TECHNOLOGY = 10;
+    static const uint32_t MAX_NUM_TECHNOLOGY = 10;
     static std::shared_ptr<INfcNci> nciAdaptations_;
     int technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY] {};
     std::vector<int> tagTechList_ {};           // tag type
