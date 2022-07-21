@@ -134,7 +134,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
         }
         case NFA_NDEF_DATA_EVT: {
             DebugLog("NdefCallback: NFA_NDEF_DATA_EVT; data_len = %u", eventData->ndef_data.len);
-            int ndefDataLen = eventData->ndef_data.len;
+            uint32_t ndefDataLen = eventData->ndef_data.len;
             readNdefData = KITS::NfcSdkCommon::UnsignedCharArrayToString(
                 eventData->ndef_data.p_data, ndefDataLen);
             break;
@@ -466,7 +466,7 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     NFC::SynchronizeGuard guard(writeNdefEvent_);
     uint32_t length = ndefMessage.length();
     unsigned char data[length];
-    for (int i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         data[i] = ndefMessage.at(i);
     }
     if (lastNdefCheckedStatus_ == NFA_STATUS_FAILED) {
@@ -863,7 +863,7 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         return;
     }
 
-    int index = -1;
+    uint32_t index = MAX_NUM_TECHNOLOGY;
     for (std::size_t i = 0; i < tagProtocolsOfDiscResult_.size(); i++) {
         if (tagProtocolsOfDiscResult_[i] != NFA_PROTOCOL_NFC_DEP) {
             index = i;
@@ -871,7 +871,7 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         }
     }
 
-    if (index == -1) {
+    if (index >= MAX_NUM_TECHNOLOGY) {
         DebugLog("Only find nfc-dep technology");
         return;
     }

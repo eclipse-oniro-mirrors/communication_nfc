@@ -111,7 +111,7 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
     return response;
 }
 
-std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, int blockNum)
+std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum)
 {
     InfoLog("Iso15693Tag::ReadMultipleBlock in flag= %d blockIndex= %d blockNum=%d", flag, blockIndex, blockNum);
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
@@ -134,7 +134,7 @@ std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, i
     return SendCommand(sendCommand, false, response);
 }
 
-int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, int blockNum, const std::string& data)
+int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& data)
 {
     InfoLog("Iso15693Tag::WriteMultipleBlock in");
     if (!IsConnected()) {
