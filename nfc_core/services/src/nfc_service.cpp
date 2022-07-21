@@ -140,19 +140,12 @@ bool NfcService::DoTurnOn()
     return true;
 }
 
-/**
- * Disable all NFC adapter functions.
- * Does not toggle preferences.
- */
 bool NfcService::DoTurnOff()
 {
     DebugLog("Nfc do turn off: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_OFF);
 
-    /* Sometimes mNfccHost.deinitialize() hangs, use a watch-dog.
-     * Implemented with a new thread (instead of a Handler or AsyncTask),
-     * because the UI Thread and AsyncTask thread-pools can also get hung
-     * when the NFC controller stops responding */
+    /* WatchDog to monitor for Deinitialize failed */
     NfcWatchDog nfcWatchDog("DoTurnOff", WAIT_MS_SET_ROUTE, nfccHost_);
     nfcWatchDog.Run();
 
@@ -319,6 +312,7 @@ bool NfcService::Initialize()
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("common event handler");
     eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
+
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
