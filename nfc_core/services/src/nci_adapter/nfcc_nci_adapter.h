@@ -71,6 +71,8 @@ private:
     static void DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData);
     static void DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData);
     static void NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData);
+    static uint8_t GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask);
+
     std::mutex mutex_ {};
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;

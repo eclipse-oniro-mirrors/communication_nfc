@@ -214,7 +214,7 @@ NfcErrorCode EventRegister::RegisterNfcStateChangedEvents(const std::string& typ
 NfcErrorCode EventRegister::UnRegisterNfcEvents(const std::string& type)
 {
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    NfcErrorCode ret = nfcCtrl.UnRegListener(type);
+    NfcErrorCode ret = nfcCtrl.UnregListener(type);
     if (ret != KITS::NFC_SUCCESS) {
         DebugLog("UnRegisterNfcEvents nfcListenerEvent failed!");
         return ret;
