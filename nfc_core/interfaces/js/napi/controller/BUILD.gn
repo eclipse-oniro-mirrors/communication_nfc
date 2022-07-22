@@ -42,7 +42,7 @@ ohos_shared_library("controller") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 
