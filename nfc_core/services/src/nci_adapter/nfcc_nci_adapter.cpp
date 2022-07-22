@@ -439,8 +439,7 @@ void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, b
         StartRfDiscovery(false);
     }
 
-    tNFA_TECHNOLOGY_MASK technologyMask = DEFAULT_TECH_MASK;
-
+    tNFA_TECHNOLOGY_MASK technologyMask = techMask & DEFAULT_TECH_MASK;
     if (technologyMask != 0) {
         StopPolling();
         StartPolling(technologyMask);
