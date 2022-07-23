@@ -64,22 +64,30 @@ public:
      */
     int IsNfcAvailable();
     /**
-     * @Checks whether NFC is enabled.
+     * @Description Checks whether NFC is enabled.
      * @param void
      * @return If NFC is enabled return 1; otherwise return 0.
      */
     int IsNfcOpen();
-
+    /**
+     * @Description Registers the callback for nfc state changed notification.
+     * @param callback the callback to be registered.
+     * @param type the type for this callback, it's "nfcStateChange"
+     * @return The status code for register operation.
+     */
     NfcErrorCode RegListener(const sptr<INfcControllerCallback> &callback, const std::string& type);
-    NfcErrorCode UnRegListener(const std::string& type);
+    /**
+     * @Description Unregisters the callback for nfc state changed notification.
+     * @param type the type for this callback, it's "nfcStateChange"
+     * @return The status code for unregister operation.
+     */
+    NfcErrorCode UnregListener(const std::string& type);
 
 private:
-
     static void InitNfcController();
 
 private:
     static bool initialized_;
-
     static std::shared_ptr<NfcControllerProxy> nfcControllerProxy_;
     static std::weak_ptr<OHOS::NFC::INfcControllerService> nfcControllerService_;
     static std::mutex mutex_;
