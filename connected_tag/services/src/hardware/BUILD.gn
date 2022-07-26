@@ -32,17 +32,18 @@ ohos_shared_library("connected_tag_hdi_adapter") {
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
     "//third_party/bounds_checking_function:libsec_shared",
-    "//utils/native/base:utils",
   ]
 
   if (is_standard_system) {
     external_deps = [
+      "c_utils:utils",
       "connected_tag_device_driver:connected_tag_client",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_core",
     ]
   } else {
     external_deps = [
+      "c_utils:utils",
       "connected_tag_device_driver:connected_tag_client",
       "hilog:libhilog",
       "ipc:ipc_core",

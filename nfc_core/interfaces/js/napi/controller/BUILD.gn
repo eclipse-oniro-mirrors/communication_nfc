@@ -20,7 +20,7 @@ ohos_shared_library("controller") {
   include_dirs = [
     "//third_party/node/src",
     "//native_engine",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include",
     "//foundation/communication/nfc/nfc_core/interfaces/innerkits/include/controller",
@@ -37,13 +37,13 @@ ohos_shared_library("controller") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/nfc"
