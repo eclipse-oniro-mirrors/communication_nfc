@@ -76,6 +76,8 @@ private:
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
+
+    // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
@@ -98,7 +100,7 @@ private:
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current state.
     int nfcState_;
-    int screenState_;
+    int screenState_ {};
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock

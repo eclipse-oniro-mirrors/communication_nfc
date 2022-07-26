@@ -37,8 +37,8 @@ ohos_fuzztest("GetStringExtrasDataFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 

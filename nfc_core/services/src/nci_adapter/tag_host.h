@@ -132,7 +132,7 @@ private:
     std::vector<std::string> tagPollBytes_;
     std::vector<std::string> tagActivatedBytes_;
     int connectedTagDiscId_;
-    int connectedTechIndex_;
+    uint32_t connectedTechIndex_;
     volatile bool isTagFieldOn_;
     volatile bool isFieldChecking_;
     volatile bool isPauseFieldChecking_;

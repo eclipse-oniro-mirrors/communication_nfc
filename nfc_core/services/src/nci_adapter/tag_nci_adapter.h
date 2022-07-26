@@ -37,7 +37,7 @@ public:
     static void HandleReadComplete(unsigned char status);
     static void HandleWriteComplete(unsigned char status);
     static void HandleFormatComplete(unsigned char status);
-    static void HandleNdefCheckResult(unsigned char status, int currentSize, int flag, int maxSize);
+    static void HandleNdefCheckResult(unsigned char status, int currentSize, uint32_t flag, int maxSize);
     static void HandleActivatedResult();
     static void HandleDeactivatedResult();
     static void HandleFieldCheckResult(unsigned char status);
@@ -102,7 +102,7 @@ private:
     static std::string receivedData_;
 
     // tag technology and protocols discovery.
-    static const int MAX_NUM_TECHNOLOGY = 10;
+    static const uint32_t MAX_NUM_TECHNOLOGY = 10;
     static std::shared_ptr<INfcNci> nciAdaptations_;
     int technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY] {};
     std::vector<int> tagTechList_ {};           // tag type

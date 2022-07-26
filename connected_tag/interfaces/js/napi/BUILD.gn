@@ -18,7 +18,7 @@ ohos_shared_library("connectedtag") {
   include_dirs = [
     "//third_party/node/src",
     "//native_engine",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits/include",
     "//foundation/communication/nfc/connected_tag/interfaces/innerkits/interfaces",
@@ -36,12 +36,12 @@ ohos_shared_library("connectedtag") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module"

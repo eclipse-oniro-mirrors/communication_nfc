@@ -178,7 +178,7 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
         return;
     }
     std::string payload = record.lock()->payload_;
-    int tnf = record.lock()->tnf_;
+    uint32_t tnf = record.lock()->tnf_;
     std::string id = record.lock()->id_;
     std::string rtdType = record.lock()->tagRtdType_;
     bool sr = payload.size() < SHORT_RECORD_SIZE;
@@ -237,7 +237,7 @@ void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFoun
     if (layout.sr) {
         layout.payloadLength = data.at(parsedDataIndex++) & 0xFF;
     } else {
-        if (static_cast<int>(data.size()) < parsedDataIndex + int(sizeof(int))) {
+        if (static_cast<uint32_t>(data.size()) < parsedDataIndex + int(sizeof(int))) {
             layout.payloadLength = 0;
         } else {
             std::string lenString = data.substr(parsedDataIndex, sizeof(int));
@@ -271,7 +271,7 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
 {
     if (layout.typeLength <= 0) {
         return "";
-    } else if (static_cast<int>(data.size()) < parsedDataIndex + layout.typeLength) {
+    } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.typeLength) {
         ErrorLog("data len.%d index.%d rtdtype len.%d error",
                  static_cast<int>(data.size()),
                  parsedDataIndex,
@@ -287,7 +287,7 @@ std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& 
 {
     if (layout.idLength <= 0) {
         return "";
-    } else if (static_cast<int>(data.size()) < parsedDataIndex + layout.idLength) {
+    } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.idLength) {
         ErrorLog("data len.%d index.%d id len.%d error",
                  static_cast<int>(data.size()),
                  parsedDataIndex,

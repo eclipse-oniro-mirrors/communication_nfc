@@ -49,7 +49,7 @@ public:
      * @param blockIndex index of block to read
      * @return the block data
      */
-    std::string ReadSingleBlock(int flag, int blockIndex);
+    std::string ReadSingleBlock(uint32_t flag, uint32_t blockIndex);
     /**
      * @Description Write a block
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -59,7 +59,7 @@ public:
      * @param data block data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteSingleBlock(int flag, int blockIndex, const std::string& data);
+    int WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std::string& data);
     /**
      * @Description Lock a block. A locked block can only be read, not written.
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -68,7 +68,7 @@ public:
      * @param blockIndex index of block to lock
      * @return Errorcode of lock. if return 0, means successful.
      */
-    int LockSingleBlock(int flag, int blockIndex);
+    int LockSingleBlock(uint32_t flag, uint32_t blockIndex);
     /**
      * @Description Read multiple blocks
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -78,7 +78,7 @@ public:
      * @param blockNum num of block to read
      * @return multiple block data
      */
-    std::string ReadMultipleBlock(int flag, int blockIndex, int blockNum);
+    std::string ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum);
     /**
      * @Description Write multiple blocks
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -91,7 +91,7 @@ public:
      * @param dataLen total data length to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteMultipleBlock(int flag, int blockIndex, int blockNum, const std::string& data);
+    int WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& data);
     /**
      * @Description Get DsfId bytes of the tag.
      * @param void

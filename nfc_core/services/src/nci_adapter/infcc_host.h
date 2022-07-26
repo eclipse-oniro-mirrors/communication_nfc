@@ -51,7 +51,7 @@ public:
      * @param enableHostRouting if enable host routing
      * @param restart if need restart
      */
-    virtual void EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart) = 0;
+    virtual void EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart) = 0;
     /**
      * @brief Stop polling and listening
      */

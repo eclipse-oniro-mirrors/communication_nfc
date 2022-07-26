@@ -134,7 +134,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
         }
         case NFA_NDEF_DATA_EVT: {
             DebugLog("NdefCallback: NFA_NDEF_DATA_EVT; data_len = %u", eventData->ndef_data.len);
-            int ndefDataLen = eventData->ndef_data.len;
+            uint32_t ndefDataLen = eventData->ndef_data.len;
             readNdefData = KITS::NfcSdkCommon::UnsignedCharArrayToString(
                 eventData->ndef_data.p_data, ndefDataLen);
             break;
@@ -464,9 +464,9 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     uint8_t buffer[maxBufferSize] = {0};
     uint32_t curDataSize = 0;
     NFC::SynchronizeGuard guard(writeNdefEvent_);
-    int length = ndefMessage.length();
+    uint32_t length = ndefMessage.length();
     unsigned char data[length];
-    for (int i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         data[i] = ndefMessage.at(i);
     }
     if (lastNdefCheckedStatus_ == NFA_STATUS_FAILED) {
@@ -570,7 +570,7 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
     return isNdefCapable_;
 }
 
-void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize, int flag, int maxSize)
+void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize, uint32_t flag, int maxSize)
 {
     DebugLog("TagNciAdapter::HandleNdefCheckResult");
     auto uFlag = static_cast<unsigned char>(flag & 0xFF);
@@ -854,7 +854,7 @@ void TagNciAdapter::ResetTag()
 void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
 {
     tNFC_RESULT_DEVT& discoveryNtf = eventData->disc_result.discovery_ntf;
-    DebugLog("TagNciAdapter::HandleDiscResult, discId: %d, protocol: %d",
+    DebugLog("TagNciAdapter::HandleDiscResult, discId: %{public}d, protocol: %{public}d",
         discoveryNtf.rf_disc_id, discoveryNtf.protocol);
 
     tagDiscIdListOfDiscResult_.push_back(discoveryNtf.rf_disc_id);
@@ -863,7 +863,7 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         return;
     }
 
-    int index = -1;
+    uint32_t index = MAX_NUM_TECHNOLOGY;
     for (std::size_t i = 0; i < tagProtocolsOfDiscResult_.size(); i++) {
         if (tagProtocolsOfDiscResult_[i] != NFA_PROTOCOL_NFC_DEP) {
             index = i;
@@ -871,25 +871,28 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         }
     }
 
-    if (index == -1) {
-        DebugLog("Only find nfc-dep technology");
+    if (index >= MAX_NUM_TECHNOLOGY) {
+        DebugLog("Has technology NFA_PROTOCOL_NFC_DEP only, don't handle it.");
         return;
     }
-    tNFA_INTF_TYPE rfInterface;
-    if (tagProtocolsOfDiscResult_[index] == NFA_PROTOCOL_ISO_DEP) {
+
+    // get the rf interface based on the found technology.
+    tNFA_INTF_TYPE rfInterface = NFA_INTERFACE_FRAME;
+    int foundTech = tagProtocolsOfDiscResult_[index];
+    if (foundTech == NFA_PROTOCOL_ISO_DEP) {
         rfInterface = NFA_INTERFACE_ISO_DEP;
-    } else if (tagProtocolsOfDiscResult_[index] == NFC_PROTOCOL_MIFARE) {
+    } else if (foundTech == NFC_PROTOCOL_MIFARE) {
         rfInterface = NFA_INTERFACE_MIFARE;
-    } else {
-        rfInterface = NFA_INTERFACE_FRAME;
     }
+
+    // select the rf interface.
     rfDiscoveryMutex_.lock();
     tNFA_STATUS status = nciAdaptations_->NfaSelect(
-        (uint8_t)tagDiscIdListOfDiscResult_[index], (tNFA_NFC_PROTOCOL)tagProtocolsOfDiscResult_[index], rfInterface);
+        (uint8_t)tagDiscIdListOfDiscResult_[index], (tNFA_NFC_PROTOCOL)foundTech, rfInterface);
     if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::HandleDiscResult: select fail; error = 0x%X", status);
+        ErrorLog("TagNciAdapter::HandleDiscResult: NfaSelect error = 0x%{public}X", status);
     }
-    connectedProtocol_ = tagProtocolsOfDiscResult_[index];
+    connectedProtocol_ = foundTech;
     connectedTagDiscId_ = tagDiscIdListOfDiscResult_[index];
     rfDiscoveryMutex_.unlock();
 }

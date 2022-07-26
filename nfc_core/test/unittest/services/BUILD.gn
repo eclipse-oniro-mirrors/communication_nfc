@@ -35,12 +35,12 @@ unit_test_deps = [
 
 unit_test_external_deps = [
   "ability_base:want",
+  "c_utils:utils",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
   "samgr:samgr_proxy",
-  "utils_base:utils",
 ]
 
 ohos_unittest("controller_test") {
