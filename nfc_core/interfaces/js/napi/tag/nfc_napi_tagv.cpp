@@ -22,24 +22,24 @@ namespace NFC {
 namespace KITS {
 napi_value NapiNfcVTag::GetResponseFlags(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNfcVTag GetResponseFlags called");
+    DebugLog("GetNfcVTag GetResponseFlags called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcVTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getResponseFlags objInfo %{public}p", objectInfo);
+    DebugLog("getResponseFlags objInfo %{public}p", objectInfo);
     // transfer
-    Iso15693Tag *nfcVTagPtr = (Iso15693Tag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcVTagPtr == nullptr) {
         ErrorLog("GetResponseFlags find objectInfo failed!");
         return nullptr;
     } else {
         int respFlags = static_cast<int>(nfcVTagPtr->GetRespFlags());
-        InfoLog("respFlags %{public}d", respFlags);
+        DebugLog("respFlags %{public}d", respFlags);
         napi_value result = nullptr;
         napi_create_int32(env, respFlags, &result);
         return result;
@@ -48,24 +48,24 @@ napi_value NapiNfcVTag::GetResponseFlags(napi_env env, napi_callback_info info)
 
 napi_value NapiNfcVTag::GetDsfId(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNfcVTag GetDsfId called");
+    DebugLog("GetNfcVTag GetDsfId called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcVTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getDsfId objInfo %{public}p", objectInfo);
+    DebugLog("getDsfId objInfo %{public}p", objectInfo);
     // transfer
-    Iso15693Tag *nfcVTagPtr = (Iso15693Tag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcVTagPtr == nullptr) {
         ErrorLog("GetDsfId find objectInfo failed!");
         return nullptr;
     } else {
         int dsfId = static_cast<int>(nfcVTagPtr->GetDsfId());
-        InfoLog("dsfId %{public}d", dsfId);
+        DebugLog("dsfId %{public}d", dsfId);
         napi_value result = nullptr;
         napi_create_int32(env, dsfId, &result);
         return result;

@@ -42,25 +42,25 @@ static bool MatchFormatParameters(napi_env env, const napi_value parameters[], s
 
 static void NativeFormat(napi_env env, void *data)
 {
-    InfoLog("NativeFormat called");
+    DebugLog("NativeFormat called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
-    InfoLog("NativeFormat objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeFormat objInfo %{public}p", context->objectInfo);
 
     NdefFormatableTag *ndefFormatableTagPtr =
-        (NdefFormatableTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (ndefFormatableTagPtr == nullptr) {
         ErrorLog("NativeFormat find objectInfo failed!");
         context->value = true;
     } else {
         context->value = ndefFormatableTagPtr->Format(context->msg);
-        InfoLog("Format %{public}d", context->value);
+        DebugLog("Format %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void FormatCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("FormatCallback called");
+    DebugLog("FormatCallback called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -77,7 +77,7 @@ static void FormatCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefFormatableTag Format called");
+    DebugLog("GetNdefFormatableTag Format called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -86,9 +86,9 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("WriteNdef objInfo %{public}p", objectInfoCb);
+    DebugLog("WriteNdef objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchFormatParameters(env, params, paramsCount), "Format type mismatch");
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
@@ -132,25 +132,25 @@ static bool MatchFormatReadOnlyParameters(napi_env env, const napi_value paramet
 
 static void NativeFormatReadOnly(napi_env env, void *data)
 {
-    InfoLog("NativeFormatReadOnly called");
+    DebugLog("NativeFormatReadOnly called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
-    InfoLog("NativeFormatReadOnly objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeFormatReadOnly objInfo %{public}p", context->objectInfo);
 
     NdefFormatableTag *ndefFormatableTagPtr =
-        (NdefFormatableTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (ndefFormatableTagPtr == nullptr) {
         ErrorLog("NativeFormatReadOnly find objectInfo failed!");
         context->value = true;
     } else {
         context->value = ndefFormatableTagPtr->FormatReadOnly(context->msg);
-        InfoLog("FormatReadOnly %{public}d", context->value);
+        DebugLog("FormatReadOnly %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void FormatReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("FormatReadOnlyCallback called");
+    DebugLog("FormatReadOnlyCallback called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -167,7 +167,7 @@ static void FormatReadOnlyCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefFormatableTag FormatReadOnly called");
+    DebugLog("GetNdefFormatableTag FormatReadOnly called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -176,9 +176,9 @@ napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_inf
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("FormatReadOnly objInfo %{public}p", objectInfoCb);
+    DebugLog("FormatReadOnly objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchFormatReadOnlyParameters(env, params, paramsCount), "FormatReadOnly type mismatch");
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();

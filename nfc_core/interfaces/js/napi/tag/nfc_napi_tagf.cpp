@@ -23,18 +23,18 @@ namespace NFC {
 namespace KITS {
 napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNfcFTag GetSystemCode called");
+    DebugLog("GetNfcFTag GetSystemCode called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSystemCode objInfo %{public}p", objectInfo);
+    DebugLog("getSystemCode objInfo %{public}p", objectInfo);
     // transfer
-    NfcFTag *nfcFTagPtr = (NfcFTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcFTagPtr == nullptr) {
         ErrorLog("GetSystemCode find objectInfo failed!");
         return nullptr;
@@ -48,18 +48,18 @@ napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
 
 napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNfcFTag GetPmm called");
+    DebugLog("GetNfcFTag GetPmm called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getGetPmm objInfo %{public}p", objectInfo);
+    DebugLog("getGetPmm objInfo %{public}p", objectInfo);
     // transfer
-    NfcFTag *nfcFTagPtr = (NfcFTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcFTagPtr == nullptr) {
         ErrorLog("GetPmm find objectInfo failed!");
         return nullptr;

@@ -25,7 +25,7 @@ napi_value ndefMessageObject;
 
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
 {
-    InfoLog("ParseNdefRecords called");
+    DebugLog("ParseNdefRecords called");
     uint32_t length = 0;
     napi_get_array_length(env, args, &length);
 
@@ -50,7 +50,7 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
             ErrorLog("Wrong tnf argument type. Number expected.");
             return params;
         }
-        napi_get_value_uint32(env, result, (uint32_t *)&param->tnf_);
+        napi_get_value_uint32(env, result, &param->tnf_);
 
         napi_get_named_property(env, ndefRecord, "rtdType", &result);
         napi_typeof(env, result, &valueType);
@@ -83,7 +83,7 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
 
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    InfoLog("ndef JS_Constructor in");
+    DebugLog("ndef JS_Constructor in");
     std::shared_ptr<NdefMessage> ndefMessage;
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
@@ -105,12 +105,12 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     // parse  parameter from JS
     if (valueType == napi_string) {
         std::string data = GetStringFromValue(env, argv[ARGV_INDEX_0]);
-        InfoLog("ndfe message parse data = %{public}s", data.c_str());
+        DebugLog("ndfe message parse data = %{public}s", data.c_str());
         napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(data);
     } else if (isArray) {
         std::vector<std::shared_ptr<NdefRecord>> ndefRecords ;
         ndefRecords = ParseNdefRecords(env, argv[ARGV_INDEX_0]);
-        InfoLog("NdefRecords Array parsed.");
+        DebugLog("NdefRecords Array parsed.");
         napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
     } else {
         ErrorLog("invalid data type!");
@@ -150,7 +150,7 @@ napi_value NapiNdefTag::RegisterNdefMessageObject(napi_env env, napi_value expor
 
 napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 {
-    InfoLog("Ndef CreateNdefMessage begin");
+    DebugLog("Ndef CreateNdefMessage begin");
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -162,25 +162,25 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 
 napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
 {
-    InfoLog("Ndef GetType called");
+    DebugLog("Ndef GetType called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNdefTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getType objInfo %{public}p", objectInfo);
+    DebugLog("getType objInfo %{public}p", objectInfo);
 
     // transfer
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
         return nullptr;
     } else {
         NdefTag::EmNfcForumType nfcForumType = nfcNdefTagPtr->GetNdefTagType();
-        InfoLog("nfcForumType %{public}d", nfcForumType);
+        DebugLog("nfcForumType %{public}d", nfcForumType);
         napi_value result = nullptr;
         napi_create_int32(env, nfcForumType, &result);
         return result;
@@ -189,7 +189,7 @@ napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
 
 napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
 {
-    InfoLog("Ndef GetNdefMessage called");
+    DebugLog("Ndef GetNdefMessage called");
     napi_value thisVar = nullptr;
     napi_value ndefMessage = nullptr;
     NapiNdefMessage *ndpiNdefMessage = new NapiNdefMessage();
@@ -198,12 +198,12 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNdefTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getType objInfo %{public}p", objectInfo);
+    DebugLog("getType objInfo %{public}p", objectInfo);
 
     // transfer
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
         return nullptr;
@@ -237,24 +237,24 @@ static bool MatchIsNdefWritableParameters(napi_env env, const napi_value paramet
 
 static void NativeIsNdefWritable(napi_env env, void *data)
 {
-    InfoLog("NativeIsNdefWritable called");
+    DebugLog("NativeIsNdefWritable called");
     auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
-    InfoLog("NativeIsNdefWritable objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeIsNdefWritable objInfo %{public}p", context->objectInfo);
 
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("NativeIsNdefWritable find objectInfo failed!");
         context->value = true;
     } else {
         context->value = nfcNdefTagPtr->IsNdefWritable();
-        InfoLog("IsNdefWritable %{public}d", context->value);
+        DebugLog("IsNdefWritable %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void IsNdefWritableCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("IsNdefWritableCallback called");
+    DebugLog("IsNdefWritableCallback called");
     auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -274,7 +274,7 @@ static void IsNdefWritableCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefTag::IsNdefWritable(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag IsNdefWritable called");
+    DebugLog("GetNdefTag IsNdefWritable called");
     size_t paramsCount = ARGV_NUM_1;
     napi_value params[ARGV_NUM_1] = {0};
     void *data = nullptr;
@@ -283,9 +283,9 @@ napi_value NapiNdefTag::IsNdefWritable(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("IsNdefWritable objInfo %{public}p", objectInfoCb);
+    DebugLog("IsNdefWritable objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchIsNdefWritableParameters(env, params, paramsCount), "IsNdefWritable type mismatch");
     auto context = std::make_unique<NdefContext<bool, NapiNdefTag>>().release();
@@ -317,11 +317,11 @@ static bool MatchReadNdefParameters(napi_env env, const napi_value parameters[],
 
 static void NativeReadNdef(napi_env env, void *data)
 {
-    InfoLog("NativeReadNdef called");
+    DebugLog("NativeReadNdef called");
     auto context = static_cast<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag> *>(data);
-    InfoLog("NativeReadNdef objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeReadNdef objInfo %{public}p", context->objectInfo);
 
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("NativeReadNdef find objectInfo failed!");
     } else {
@@ -332,7 +332,7 @@ static void NativeReadNdef(napi_env env, void *data)
 
 static void ReadNdefCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("ReadNdefCallback called");
+    DebugLog("ReadNdefCallback called");
     NapiNdefMessage *ndpiNdefMessage = new NapiNdefMessage();
     auto context = static_cast<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
@@ -363,7 +363,7 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefTag::ReadNdef(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag ReadNdef called");
+    DebugLog("GetNdefTag ReadNdef called");
     size_t paramsCount = ARGV_NUM_1;
     napi_value params[ARGV_NUM_1] = {0};
     void *data = nullptr;
@@ -372,9 +372,9 @@ napi_value NapiNdefTag::ReadNdef(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("ReadNdef objInfo %{public}p", objectInfoCb);
+    DebugLog("ReadNdef objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchReadNdefParameters(env, params, paramsCount), "ReadNdef type mismatch");
     auto context = std::make_unique<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag>>().release();
@@ -413,24 +413,24 @@ static bool MatchWriteNdefParameters(napi_env env, const napi_value parameters[]
 
 static void NativeWriteNdef(napi_env env, void *data)
 {
-    InfoLog("NativeWriteNdef called");
+    DebugLog("NativeWriteNdef called");
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
-    InfoLog("NativeWriteNdef objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeWriteNdef objInfo %{public}p", context->objectInfo);
 
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("NativeWriteNdef find objectInfo failed!");
         context->value = true;
     } else {
         context->value = nfcNdefTagPtr->WriteNdef(context->msg);
-        InfoLog("WriteNdef %{public}d", context->value);
+        DebugLog("WriteNdef %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void WriteNdefCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("SetReadOnlyCallback called");
+    DebugLog("SetReadOnlyCallback called");
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -447,7 +447,7 @@ static void WriteNdefCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefTag::WriteNdef(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag WriteNdef called");
+    DebugLog("GetNdefTag WriteNdef called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -456,9 +456,9 @@ napi_value NapiNdefTag::WriteNdef(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("WriteNdef objInfo %{public}p", objectInfoCb);
+    DebugLog("WriteNdef objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchWriteNdefParameters(env, params, paramsCount), "WriteNdef type mismatch");
     auto context = std::make_unique<NdefContext<int, NapiNdefTag>>().release();
@@ -495,24 +495,24 @@ static bool MatchCanSetReadOnlyParameters(napi_env env, const napi_value paramet
 
 static void NativeCanSetReadOnly(napi_env env, void *data)
 {
-    InfoLog("NativeCanSetReadOnly called");
+    DebugLog("NativeCanSetReadOnly called");
     auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
-    InfoLog("NativeCanSetReadOnly objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeCanSetReadOnly objInfo %{public}p", context->objectInfo);
 
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("NativeCanSetReadOnly find objectInfo failed!");
         context->value = true;
     } else {
         context->value = nfcNdefTagPtr->IsEnableReadOnly();
-        InfoLog("CanSetReadOnly %{public}d", context->value);
+        DebugLog("CanSetReadOnly %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void CanSetReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("CanSetReadOnlyCallback called");
+    DebugLog("CanSetReadOnlyCallback called");
     auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -532,7 +532,7 @@ static void CanSetReadOnlyCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefTag::CanSetReadOnly(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag CanSetReadOnly called");
+    DebugLog("GetNdefTag CanSetReadOnly called");
     size_t paramsCount = ARGV_NUM_1;
     napi_value params[ARGV_NUM_1] = {0};
     void *data = nullptr;
@@ -541,9 +541,9 @@ napi_value NapiNdefTag::CanSetReadOnly(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("CanSetReadOnly objInfo %{public}p", objectInfoCb);
+    DebugLog("CanSetReadOnly objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchCanSetReadOnlyParameters(env, params, paramsCount), "CanSetReadOnly type mismatch");
     auto context = std::make_unique<NdefContext<bool, NapiNdefTag>>().release();
@@ -575,24 +575,24 @@ static bool MatchSetReadOnlyParameters(napi_env env, const napi_value parameters
 
 static void NativeSetReadOnly(napi_env env, void *data)
 {
-    InfoLog("NativeSetReadOnly called");
+    DebugLog("NativeSetReadOnly called");
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
-    InfoLog("NativeSetReadOnly objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeSetReadOnly objInfo %{public}p", context->objectInfo);
 
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("NativeSetReadOnly find objectInfo failed!");
         context->value = true;
     } else {
         context->value = nfcNdefTagPtr->EnableReadOnly();
-        InfoLog("SetReadOnly %{public}d", context->value);
+        DebugLog("SetReadOnly %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void SetReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("SetReadOnlyCallback called");
+    DebugLog("SetReadOnlyCallback called");
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -609,7 +609,7 @@ static void SetReadOnlyCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNdefTag::SetReadOnly(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag SetReadOnly called");
+    DebugLog("GetNdefTag SetReadOnly called");
     size_t paramsCount = ARGV_NUM_1;
     napi_value params[ARGV_NUM_1] = {0};
     void *data = nullptr;
@@ -618,9 +618,9 @@ napi_value NapiNdefTag::SetReadOnly(napi_env env, napi_callback_info info)
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("SetReadOnly objInfo %{public}p", objectInfoCb);
+    DebugLog("SetReadOnly objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchSetReadOnlyParameters(env, params, paramsCount), "SetReadOnly type mismatch");
     auto context = std::make_unique<NdefContext<int, NapiNdefTag>>().release();
@@ -641,7 +641,7 @@ napi_value NapiNdefTag::SetReadOnly(napi_env env, napi_callback_info info)
 
 napi_value NapiNdefTag::GetNdefTagTypeString(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetNdefTag GetNdefTagTypeString called");
+    DebugLog("GetNdefTag GetNdefTagTypeString called");
     napi_value thisVar = nullptr;
     size_t expectedArgsCount = ARGV_NUM_1;
     size_t argc = expectedArgsCount;
@@ -657,15 +657,15 @@ napi_value NapiNdefTag::GetNdefTagTypeString(napi_env env, napi_callback_info in
 
     NapiNdefTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getNdefTagTypeString objInfo %{public}p", objectInfo);
+    DebugLog("getNdefTagTypeString objInfo %{public}p", objectInfo);
 
     int type;
     ParseInt32(env, type, argv[ARGV_INDEX_0]);
 
     // transfer
-    NdefTag *nfcNdefTagPtr = (NdefTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("GetNdefTagTypeString find objectInfo failed!");
         return nullptr;
@@ -673,7 +673,7 @@ napi_value NapiNdefTag::GetNdefTagTypeString(napi_env env, napi_callback_info in
         napi_value ret = nullptr;
         std::string ndefTagType =
             nfcNdefTagPtr->GetNdefTagTypeString(static_cast<NdefTag::EmNfcForumType>(type));
-        InfoLog("ndefTagType %{public}s", ndefTagType.c_str());
+        DebugLog("ndefTagType %{public}s", ndefTagType.c_str());
         napi_create_string_utf8(env, ndefTagType.c_str(), NAPI_AUTO_LENGTH, &ret);
         return ret;
     }

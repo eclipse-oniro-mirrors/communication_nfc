@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,14 +35,14 @@ bool ParseString(napi_env env, std::string &param, napi_value args)
     size_t size = 0;
 
     if (napi_get_value_string_utf8(env, args, nullptr, 0, &size) != napi_ok) {
-        DebugLog("can not get string size");
+        ErrorLog("can not get string size");
         param = "";
         return false;
     }
     param.reserve(size + 1);
     param.resize(size);
     if (napi_get_value_string_utf8(env, args, param.data(), (size + 1), &size) != napi_ok) {
-        DebugLog("can not get string value");
+        ErrorLog("can not get string value");
         param = "";
         return false;
     }
@@ -55,7 +55,7 @@ bool ParseInt32(napi_env env, int32_t &param, napi_value args)
 
     DebugLog("param=%{public}d.", valuetype);
     if (valuetype != napi_number) {
-        DebugLog("Wrong argument type. Int32 expected.");
+        ErrorLog("Wrong argument type. Int32 expected.");
         return false;
     }
     napi_get_value_int32(env, args, &param);
@@ -69,7 +69,7 @@ bool ParseBool(napi_env env, bool &param, napi_value args)
 
     DebugLog("param=%{public}d.", valuetype);
     if (valuetype != napi_boolean) {
-        DebugLog("Wrong argument type. bool expected.");
+        ErrorLog("Wrong argument type. bool expected.");
         return false;
     }
     napi_get_value_bool(env, args, &param);
@@ -84,18 +84,17 @@ bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value arg
 
     DebugLog("param=%{public}d.", valuetype);
     if (valuetype != napi_object) {
-        DebugLog("Wrong argument type. object expected.");
+        ErrorLog("Wrong argument type. object expected.");
         return false;
     }
 
     status = napi_get_arraybuffer_info(env, args, (void **)data, &size);
     if (status != napi_ok) {
-        DebugLog("can not get arraybuffer, error is %{public}d", status);
-        (*data)[0] = -1;
+        ErrorLog("can not get arraybuffer, error is %{public}d", status);
+        (*data)[0] = ERROR_DEFAULT;
         return false;
     }
-    DebugLog("arraybuffer size is %{public}zu", size);
-    DebugLog("arraybuffer is %{public}d", (*data)[0]);
+    DebugLog("arraybuffer size is %{public}zu,buffer is %{public}d", size, (*data)[0]);
     return true;
 }
 
@@ -111,7 +110,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     bool isTypedArray = false;
     napi_status status = napi_is_typedarray(env, jsValue, &isTypedArray);
     if (status != napi_ok || !isTypedArray) {
-        DebugLog("%{public}s called, napi_is_typedarray error", __func__);
+        ErrorLog("%{public}s called, napi_is_typedarray error", __func__);
         return {};
     }
 
@@ -121,7 +120,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     size_t offset = 0;
     NAPI_CALL_BASE(env, napi_get_typedarray_info(env, jsValue, &type, &length, nullptr, &buffer, &offset), {});
     if (type != napi_uint8_array) {
-        DebugLog("%{public}s called, napi_uint8_array is null", __func__);
+        ErrorLog("%{public}s called, napi_uint8_array is null", __func__);
         return {};
     }
     std::string *data = nullptr;
@@ -295,7 +294,7 @@ void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<Ndef
     napi_value tnf;
     napi_create_int32(env, ndefRecord->tnf_, &tnf);
     napi_set_named_property(env, result, "tnf", tnf);
-    DebugLog("ConvertNdefRecordToJS tnf is %{public}d", (int)ndefRecord->tnf_);
+    DebugLog("ConvertNdefRecordToJS tnf is %{public}d", ndefRecord->tnf_);
 
     napi_value rtdType;
     napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
@@ -373,7 +372,6 @@ void Handle1ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
 {
     DebugLog("Handle1ValueCallback start");
     if (baseContext == nullptr) {
-        DebugLog("Handle1ValueCallback serious error baseContext nullptr");
         std::string errorCode = std::to_string(napi_invalid_arg);
         std::string errorMessage = "error at baseContext is nullptr";
         NAPI_CALL_RETURN_VOID(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
@@ -388,22 +386,17 @@ void Handle1ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
         NAPI_CALL_RETURN_VOID(
             env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
-        DebugLog("Handle1ValueCallback normal callback end");
     } else if (baseContext->deferred != nullptr) {
         DebugLog("Handle1ValueCallback start promise callback");
         if (baseContext->resolved) {
             NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
-            DebugLog("Handle1ValueCallback napi_resolve_deferred end");
         } else {
             NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, callbackValue));
-            DebugLog("Handle1ValueCallback napi_reject_deferred end");
         }
-        DebugLog("Handle1ValueCallback promise callback end");
     }
     napi_delete_async_work(env, baseContext->work);
     delete baseContext;
     baseContext = nullptr;
-    DebugLog("Handle1ValueCallback end");
 }
 
 void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value callbackValue)
@@ -428,7 +421,6 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
         NAPI_CALL_RETURN_VOID(
             env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
-        DebugLog("Handle2ValueCallback normal callback end");
     } else if (baseContext->deferred != nullptr) {
         if (baseContext->resolved) {
             NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
@@ -439,7 +431,6 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
     napi_delete_async_work(env, baseContext->work);
     delete baseContext;
     baseContext = nullptr;
-    DebugLog("Handle2ValueCallback end");
 }
 
 void DefineEnumClassByName(
@@ -454,7 +445,7 @@ void DefineEnumClassByName(
     }
     status = napi_set_named_property(env, exports, enumName.data(), result);
     if (status != napi_ok) {
-        DebugLog("DefineEnumClassByName napi_set_named_property failed ret = %d", status);
+        ErrorLog("DefineEnumClassByName napi_set_named_property failed ret = %d", status);
     }
 }
 } // namespace KITS

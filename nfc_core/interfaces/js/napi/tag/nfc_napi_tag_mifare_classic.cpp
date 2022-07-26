@@ -24,19 +24,19 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetSectorCount called");
+    DebugLog("GetSectorCount called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return nullptr;
@@ -51,7 +51,7 @@ napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info
 
 napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetBlockCountInSector called");
+    DebugLog("GetBlockCountInSector called");
     napi_value thisVar = nullptr;
     size_t expectedArgsCount = ARGV_NUM_1;
     size_t argc = expectedArgsCount;
@@ -67,15 +67,15 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
 
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     int32_t sectorIndex;
     ParseInt32(env, sectorIndex, argv[ARGV_INDEX_0]);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return nullptr;
@@ -89,19 +89,19 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
 
 napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
 {
-    InfoLog("Mifare Classic GetType called");
+    DebugLog("Mifare Classic GetType called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getType objInfo %{public}p", objectInfo);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
         return nullptr;
@@ -117,7 +117,7 @@ napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
 
 napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetTagSize called");
+    DebugLog("GetTagSize called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
@@ -126,12 +126,12 @@ napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return result;
@@ -145,7 +145,7 @@ napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info inf
 
 napi_value NapiMifareClassicTag::IsEmulatedTag(napi_env env, napi_callback_info info)
 {
-    InfoLog("IsEmulatedTag called");
+    DebugLog("IsEmulatedTag called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
@@ -154,12 +154,12 @@ napi_value NapiMifareClassicTag::IsEmulatedTag(napi_env env, napi_callback_info 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return result;
@@ -173,7 +173,7 @@ napi_value NapiMifareClassicTag::IsEmulatedTag(napi_env env, napi_callback_info 
 
 napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetBlockCountInSector called");
+    DebugLog("GetBlockCountInSector called");
     napi_value thisVar = nullptr;
     size_t expectedArgsCount = ARGV_NUM_1;
     size_t argc = expectedArgsCount;
@@ -189,15 +189,15 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
 
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     int32_t sectorIndex;
     ParseInt32(env, sectorIndex, argv[ARGV_INDEX_0]);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return nullptr;
@@ -211,7 +211,7 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
 
 napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetSectorIndex called");
+    DebugLog("GetSectorIndex called");
     napi_value thisVar = nullptr;
     size_t expectedArgsCount = ARGV_NUM_1;
     size_t argc = expectedArgsCount;
@@ -227,20 +227,20 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
 
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getSectorCount objInfo %{public}p", objectInfo);
 
     int32_t blockIndex;
     ParseInt32(env, blockIndex, argv[ARGV_INDEX_0]);
 
     // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr = (MifareClassicTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
         return nullptr;
     }
-    //    int sectorIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(blockIndex); //no cpp fun
+    // int sectorIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(blockIndex); // no cpp func
     int sectorIndex = 4;
     DebugLog("sectorIndex%{public}d", blockIndex);
 
@@ -273,12 +273,12 @@ static bool MatchAuthenticateSectorParameters(napi_env env, const napi_value par
 
 static void NativeAuthenticateSector(napi_env env, void *data)
 {
-    InfoLog("NativeAuthenticateSector called");
+    DebugLog("NativeAuthenticateSector called");
     auto context = static_cast<MifareClassicContext<bool, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeAuthenticateSector objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeAuthenticateSector objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeAuthenticateSector find objectInfo failed!");
         context->value = true;
@@ -290,7 +290,7 @@ static void NativeAuthenticateSector(napi_env env, void *data)
 
 static void AuthenticateSectorCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("AuthenticateSectorCallback called");
+    DebugLog("AuthenticateSectorCallback called");
     auto context = static_cast<MifareClassicContext<bool, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -310,7 +310,7 @@ static void AuthenticateSectorCallback(napi_env env, napi_status status, void *d
 
 napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_info info)
 {
-    InfoLog("AuthenticateSector called");
+    DebugLog("AuthenticateSector called");
     size_t paramsCount = ARGV_NUM_4;
     napi_value params[ARGV_NUM_4] = {0};
     void *data = nullptr;
@@ -319,9 +319,8 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("AuthenticateSector objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchAuthenticateSectorParameters(env, params, paramsCount), "AuthenticateSector type mismatch");
     auto context = std::make_unique<MifareClassicContext<bool, NapiMifareClassicTag>>().release();
@@ -333,10 +332,10 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->sectorIndex);
-    InfoLog("AuthenticateSector sectorIndex = %{public}d", context->sectorIndex);
+    DebugLog("AuthenticateSector sectorIndex = %{public}d", context->sectorIndex);
 
     napi_get_value_bool(env, params[ARGV_INDEX_2], &context->bIsKeyA);
-    InfoLog("AuthenticateSector bIsKeyA = %{public}d", context->bIsKeyA);
+    DebugLog("AuthenticateSector bIsKeyA = %{public}d", context->bIsKeyA);
 
     if (paramsCount == ARGV_NUM_4) {
         napi_create_reference(env, params[ARGV_INDEX_3], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -368,25 +367,23 @@ static bool MatchReadSingleBlockParameters(napi_env env, const napi_value parame
 
 static void NativeReadSingleBlock(napi_env env, void *data)
 {
-    InfoLog("NativeReadSingleBlock called");
+    DebugLog("NativeReadSingleBlock called");
     auto context = static_cast<MifareClassicContext<std::string, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeReadSingleBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeReadSingleBlock find objectInfo failed!");
         context->value = "";
     } else {
         context->value = nfcMifareClassicTagPtr->ReadSingleBlock(context->blockIndex);
-        InfoLog("ReadSingleBlock context value = %{public}s", context->value.c_str());
+        DebugLog("ReadSingleBlock context value = %{public}s", context->value.c_str());
     }
     context->resolved = true;
 }
 
 static void ReadSingleBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("ReadSingleBlockCallback called");
     auto context = static_cast<MifareClassicContext<std::string, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -404,7 +401,6 @@ static void ReadSingleBlockCallback(napi_env env, napi_status status, void *data
 
 napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("ReadSingleBlock called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -413,9 +409,8 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("ReadSingleBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchReadSingleBlockParameters(env, params, paramsCount), "ReadSingleBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<std::string, NapiMifareClassicTag>>().release();
@@ -427,7 +422,6 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("ReadSingleBlock sectorIndex = %{public}d", context->blockIndex);
 
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -459,24 +453,21 @@ static bool MatchWriteSingleBlockParameters(napi_env env, const napi_value param
 
 static void NativeWriteSingleBlock(napi_env env, void *data)
 {
-    InfoLog("NativeWriteSingleBlock called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeWriteSingleBlock objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeWriteSingleBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeWriteSingleBlock find objectInfo failed!");
     } else {
         context->value = nfcMifareClassicTagPtr->WriteSingleBlock(context->blockIndex, context->data);
-        InfoLog("WriteSingleBlock context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void WriteSingleBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("ReadSingleBlockCallback called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -494,7 +485,6 @@ static void WriteSingleBlockCallback(napi_env env, napi_status status, void *dat
 
 napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("WriteSingleBlock called");
     size_t paramsCount = ARGV_NUM_3;
     napi_value params[ARGV_NUM_3] = {0};
     void *data = nullptr;
@@ -503,9 +493,8 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("WriteSingleBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchWriteSingleBlockParameters(env, params, paramsCount), "WriteSingleBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -517,10 +506,10 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("WriteSingleBlock blockIndex = %{public}d", context->blockIndex);
+    DebugLog("WriteSingleBlock blockIndex = %{public}d", context->blockIndex);
 
     context->data = GetStringFromValue(env, params[ARGV_INDEX_1]);
-    InfoLog("WriteSingleBlock data = %{public}s", context->data.c_str());
+    DebugLog("WriteSingleBlock data = %{public}s", context->data.c_str());
 
     if (paramsCount == ARGV_NUM_3) {
         napi_create_reference(env, params[ARGV_INDEX_2], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -552,24 +541,23 @@ static bool MatchIncrementBlockParameters(napi_env env, const napi_value paramet
 
 static void NativeIncrementBlock(napi_env env, void *data)
 {
-    InfoLog("NativeIncrementBlock called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeIncrementBlock objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeIncrementBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeIncrementBlock find objectInfo failed!");
     } else {
         context->value = nfcMifareClassicTagPtr->IncrementBlock(context->blockIndex, context->incrementValue);
-        InfoLog("IncrementBlock context value = %{public}d", context->value);
+        DebugLog("IncrementBlock context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void IncrementBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("IncrementBlockCallback called");
+    DebugLog("IncrementBlockCallback called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -587,7 +575,6 @@ static void IncrementBlockCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("IncrementBlock called");
     size_t paramsCount = ARGV_NUM_3;
     napi_value params[ARGV_NUM_3] = {0};
     void *data = nullptr;
@@ -596,9 +583,8 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("WriteSingleBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchIncrementBlockParameters(env, params, paramsCount), "WriteSingleBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -610,10 +596,10 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("IncrementBlock blockIndex = %{public}d", context->blockIndex);
+    DebugLog("IncrementBlock blockIndex = %{public}d", context->blockIndex);
 
     napi_get_value_int32(env, params[ARGV_INDEX_1], &context->incrementValue);
-    InfoLog("IncrementBlock data = %{public}d", context->incrementValue);
+    DebugLog("IncrementBlock data = %{public}d", context->incrementValue);
 
     if (paramsCount == ARGV_NUM_3) {
         napi_create_reference(env, params[ARGV_INDEX_2], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -644,24 +630,22 @@ static bool MatchDecrementBlockParameters(napi_env env, const napi_value paramet
 
 static void NativeDecrementBlock(napi_env env, void *data)
 {
-    InfoLog("NativeDecrementBlock called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeDecrementBlock objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeDecrementBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeDecrementBlock find objectInfo failed!");
     } else {
         context->value = nfcMifareClassicTagPtr->DecrementBlock(context->blockIndex, context->decrementValue);
-        InfoLog("DecrementBlock context value = %{public}d", context->value);
+        DebugLog("DecrementBlock context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void DecrementBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("DecrementBlockCallback called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -679,7 +663,6 @@ static void DecrementBlockCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("DecrementBlock called");
     size_t paramsCount = ARGV_NUM_3;
     napi_value params[ARGV_NUM_3] = {0};
     void *data = nullptr;
@@ -688,9 +671,8 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("DecrementBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchDecrementBlockParameters(env, params, paramsCount), "DecrementBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -702,10 +684,10 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("DecrementBlock blockIndex = %{public}d", context->blockIndex);
+    DebugLog("DecrementBlock blockIndex = %{public}d", context->blockIndex);
 
     napi_get_value_int32(env, params[ARGV_INDEX_1], &context->decrementValue);
-    InfoLog("DecrementBlock data = %{public}d", context->decrementValue);
+    DebugLog("DecrementBlock data = %{public}d", context->decrementValue);
 
     if (paramsCount == ARGV_NUM_3) {
         napi_create_reference(env, params[ARGV_INDEX_2], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -736,24 +718,22 @@ static bool MatchTransferToBlockParameters(napi_env env, const napi_value parame
 
 static void NativeTransferToBlock(napi_env env, void *data)
 {
-    InfoLog("NativeTransferToBlock called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeTransferToBlock objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeTransferToBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeTransferToBlock find objectInfo failed!");
     } else {
         context->value = nfcMifareClassicTagPtr->TransferToBlock(context->blockIndex);
-        InfoLog("TransferToBlock context value = %{public}d", context->value);
+        DebugLog("TransferToBlock context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void TransferToBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("TransferToBlockCallback called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -771,7 +751,6 @@ static void TransferToBlockCallback(napi_env env, napi_status status, void *data
 
 napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("TransferToBlock called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -780,9 +759,8 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("TransferToBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchTransferToBlockParameters(env, params, paramsCount), "TransferToBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -794,7 +772,7 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("TransferToBlock blockIndex = %{public}d", context->blockIndex);
+    DebugLog("TransferToBlock blockIndex = %{public}d", context->blockIndex);
 
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
@@ -826,24 +804,22 @@ static bool MatchRestoreFromBlockParameters(napi_env env, const napi_value param
 
 static void NativeRestoreFromBlock(napi_env env, void *data)
 {
-    InfoLog("NativeRestoreFromBlock called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    InfoLog("NativeRestoreFromBlock objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeRestoreFromBlock objInfo %{public}p", context->objectInfo);
 
     MifareClassicTag *nfcMifareClassicTagPtr =
-        (MifareClassicTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+        static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("NativeRestoreFromBlock find objectInfo failed!");
     } else {
         context->value = nfcMifareClassicTagPtr->RestoreFromBlock(context->blockIndex);
-        InfoLog("RestoreFromBlock context value = %{public}d", context->value);
+        DebugLog("RestoreFromBlock context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
 
 static void RestoreFromBlockCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("RestoreFromBlockCallback called");
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -861,7 +837,6 @@ static void RestoreFromBlockCallback(napi_env env, napi_status status, void *dat
 
 napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_info info)
 {
-    InfoLog("RestoreFromBlock called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -870,9 +845,8 @@ napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_in
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("RestoreFromBlock objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchRestoreFromBlockParameters(env, params, paramsCount), "RestoreFromBlock type mismatch");
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -884,7 +858,7 @@ napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_in
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
-    InfoLog("RestoreFromBlock blockIndex = %{public}d", context->blockIndex);
+    DebugLog("RestoreFromBlock blockIndex = %{public}d", context->blockIndex);
 
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
