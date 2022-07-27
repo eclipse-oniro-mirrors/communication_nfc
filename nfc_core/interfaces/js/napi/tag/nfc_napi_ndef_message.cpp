@@ -22,18 +22,17 @@ namespace NFC {
 namespace KITS {
 napi_value NapiNdefMessage::GetNdefRecords(napi_env env, napi_callback_info info)
 {
-    InfoLog("NdefMessage GetNdefRecords called");
+    DebugLog("NdefMessage GetNdefRecords called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNdefMessage *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getNdefRecords objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("GetNdefRecords find objectInfo failed!");
         return nullptr;
@@ -47,7 +46,7 @@ napi_value NapiNdefMessage::GetNdefRecords(napi_env env, napi_callback_info info
 
 napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
 {
-    InfoLog("NdefMessage MakeUriRecord called");
+    DebugLog("NdefMessage MakeUriRecord called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
@@ -55,14 +54,13 @@ napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
     NapiNdefMessage *objectInfo = nullptr;
 
     std::string uri = GetStringFromValue(env, argv[ARGV_INDEX_0]);
-    InfoLog("MakeUriRecord uri = %{public}s", uri.c_str());
+    DebugLog("MakeUriRecord uri = %{public}s", uri.c_str());
 
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("MakeUriRecord objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("MakeUriRecord find objectInfo failed!");
         return nullptr;
@@ -76,7 +74,7 @@ napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
 
 napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info)
 {
-    InfoLog("MakeTextRecord called");
+    DebugLog("MakeTextRecord called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_2;
     napi_value argv[ARGV_NUM_2] = {0};
@@ -85,14 +83,13 @@ napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info
 
     std::string text = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string locale = GetStringFromValue(env, argv[ARGV_INDEX_1]);
-    InfoLog("MakeTextRecord text = %{public}s, locale = = %{public}s", text.c_str(), locale.c_str());
+    DebugLog("MakeTextRecord text = %{public}s, locale = = %{public}s", text.c_str(), locale.c_str());
 
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("MakeTextRecord objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("MakeTextRecord find objectInfo failed!");
         return nullptr;
@@ -106,7 +103,7 @@ napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info
 
 napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info)
 {
-    InfoLog("MakeMimeRecord MakeUriRecord called");
+    DebugLog("MakeMimeRecord MakeUriRecord called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_2;
     napi_value argv[ARGV_NUM_2] = {0};
@@ -115,14 +112,14 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
 
     std::string mimeType = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string mimeData = GetStringFromValue(env, argv[ARGV_INDEX_1]);
-    InfoLog("MakeMimeRecord mimeType = %{public}s, mimeData = = %{public}s", mimeType.c_str(), mimeData.c_str());
+    DebugLog("MakeMimeRecord mimeType = %{public}s, mimeData = = %{public}s", mimeType.c_str(), mimeData.c_str());
 
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("MakeMimeRecord objInfo %{public}p", objectInfo);
+    DebugLog("MakeMimeRecord objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("MakeMimeRecord find objectInfo failed!");
         return nullptr;
@@ -136,7 +133,7 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
 
 napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info info)
 {
-    InfoLog("MakeExternalRecord MakeUriRecord called");
+    DebugLog("MakeExternalRecord MakeUriRecord called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_3;
     napi_value argv[ARGV_NUM_3] = {0};
@@ -146,15 +143,15 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
     std::string domainName = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string serviceName = GetStringFromValue(env, argv[ARGV_INDEX_1]);
     std::string externalData = GetStringFromValue(env, argv[ARGV_INDEX_2]);
-    InfoLog("MakeExternalRecord domainName = %{public}s, serviceName  = %{public}s, externalData  = %{public}s",
-            domainName.c_str(), serviceName.c_str(), externalData.c_str());
+    DebugLog("MakeExternalRecord domainName = %{public}s, serviceName  = %{public}s, externalData  = %{public}s",
+             domainName.c_str(), serviceName.c_str(), externalData.c_str());
 
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("MakeExternalRecord objInfo %{public}p", objectInfo);
+    DebugLog("MakeExternalRecord objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("MakeExternalRecord find objectInfo failed!");
         return nullptr;
@@ -169,7 +166,7 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
 
 napi_value NapiNdefMessage::MessageToString(napi_env env, napi_callback_info info)
 {
-    InfoLog("MessageToString MakeUriRecord called");
+    DebugLog("MessageToString MakeUriRecord called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
@@ -181,19 +178,18 @@ napi_value NapiNdefMessage::MessageToString(napi_env env, napi_callback_info inf
     NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
 
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("MessageToString objInfo %{public}p", objectInfo);
+    DebugLog("MessageToString objInfo %{public}p", objectInfo);
     // transfer
-    NdefMessage *ndefMessagePtr = (NdefMessage *)(static_cast<void *>(objectInfo));
+    NdefMessage *ndefMessagePtr = static_cast<NdefMessage *>(static_cast<void *>(objectInfo));
     if (ndefMessagePtr == nullptr) {
         ErrorLog("MessageToString find objectInfo failed!");
         return nullptr;
-    NAPI_ASSERT(env, status == napi_ok, "failed to get ndefMessage");
     } else {
         std::string buffer = ndefMessagePtr->MessageToString(ndefMessage);
         napi_value result = nullptr;
-        InfoLog("buffer %{public}s", buffer.c_str());
+        ErrorLog("buffer %{public}s", buffer.c_str());
         napi_create_string_utf8(env, buffer.c_str(), NAPI_AUTO_LENGTH, &result);
         return result;
     }

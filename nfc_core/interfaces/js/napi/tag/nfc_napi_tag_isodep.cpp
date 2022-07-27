@@ -24,25 +24,25 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetIsoDepTag GetHistoricalBytes called");
+    DebugLog("GetIsoDepTag GetHistoricalBytes called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getHistoricalBytes objInfo %{public}p", objectInfo);
+    DebugLog("getHistoricalBytes objInfo %{public}p", objectInfo);
     // transfer
-    IsoDepTag *nfcIsoDepTagPtr = (IsoDepTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHistoricalBytes find objectInfo failed!");
         return nullptr;
     } else {
         napi_value ret = nullptr;
         std::string historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
-        InfoLog("HistoricalBytes %{public}s", historicalBytes.c_str());
+        DebugLog("HistoricalBytes %{public}s", historicalBytes.c_str());
         napi_create_string_utf8(env, historicalBytes.c_str(), NAPI_AUTO_LENGTH, &ret);
         return ret;
     }
@@ -50,26 +50,26 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
 
 napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetIsoDepTag GetHiLayerResponse called");
+    DebugLog("GetIsoDepTag GetHiLayerResponse called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfo);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("getHiLayerResponse objInfo %{public}p", objectInfo);
+    DebugLog("getHiLayerResponse objInfo %{public}p", objectInfo);
 
     // transfer
-    IsoDepTag *nfcIsoDepTagPtr = (IsoDepTag *)(static_cast<void *>(objectInfo->tagSession.get()));
+    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHiLayerResponse find objectInfo failed!");
         return nullptr;
     } else {
         napi_value ret = nullptr;
         std::string hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
-        InfoLog("HiLayerResponse %{public}s", hiLayerResponse.c_str());
+        DebugLog("HiLayerResponse %{public}s", hiLayerResponse.c_str());
         napi_create_string_utf8(env, hiLayerResponse.c_str(), NAPI_AUTO_LENGTH, &ret);
         return ret;
     }
@@ -88,13 +88,13 @@ static bool MatchIsExtendedApduSupportedParameters(napi_env env, const napi_valu
 
 static void NativeIsExtendedApduSupported(napi_env env, void *data)
 {
-    InfoLog("NativeIsExtendedApduSupported called");
+    DebugLog("NativeIsExtendedApduSupported called");
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
-    InfoLog("NativeIsExtendedApduSupported objInfo %{public}p", context->objectInfo);
+    DebugLog("NativeIsExtendedApduSupported objInfo %{public}p", context->objectInfo);
 
-    IsoDepTag *nfcIsoDepTagPtr = (IsoDepTag *)(static_cast<void *>(context->objectInfo->tagSession.get()));
+    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcIsoDepTagPtr == nullptr) {
-        ErrorLog("NativeIsExtendedApduSupported find objectInfo failed!");
+        DebugLog("NativeIsExtendedApduSupported find objectInfo failed!");
         context->value = true;
     } else {
         context->value = nfcIsoDepTagPtr->IsExtendedApduSupported();
@@ -104,7 +104,7 @@ static void NativeIsExtendedApduSupported(napi_env env, void *data)
 
 static void IsExtendedApduSupportedCallback(napi_env env, napi_status status, void *data)
 {
-    InfoLog("IsExtendedApduSupportedCallback called");
+    DebugLog("IsExtendedApduSupportedCallback called");
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
@@ -125,7 +125,7 @@ static void IsExtendedApduSupportedCallback(napi_env env, napi_status status, vo
 
 napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_info info)
 {
-    InfoLog("GetIsoDepTag IsExtendedApduSupported called");
+    DebugLog("GetIsoDepTag IsExtendedApduSupported called");
     size_t paramsCount = 1;
     napi_value params[1] = {0};
     void *data = nullptr;
@@ -134,9 +134,9 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
 
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, (void **)&objectInfoCb);
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    InfoLog("IsExtendedApduSupported objInfo %{public}p", objectInfoCb);
+    DebugLog("IsExtendedApduSupported objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchIsExtendedApduSupportedParameters(env, params, paramsCount),
         "IsExtendedApduSupported type mismatch");
