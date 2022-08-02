@@ -20,6 +20,20 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+const std::string DUMP_LINE = "---------------------------";
+const std::string DUMP_END = "\n";
+
+TagSession::TagSession(std::shared_ptr<INfcService> service)
+    : nfcService_(service)
+{
+    nfccHost_ = service->GetNfccHost();
+    tagDispatcher_ = service->GetTagDispatcher();
+}
+
+TagSession::~TagSession()
+{
+}
+
 /**
  * @brief To connect the tagRfDiscId by technology.
  * @param tagRfDiscId the rf disc id of tag
@@ -310,14 +324,33 @@ bool TagSession::IsSupportedApdusExtended()
     return nfccHost_.lock()->GetExtendedLengthApdusSupported();
 }
 
-TagSession::TagSession(std::shared_ptr<INfcService> service)
-    : nfcService_(service)
+int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
-    nfccHost_ = service->GetNfccHost();
-    tagDispatcher_ = service->GetTagDispatcher();
+    std::string info = GetDumpInfo();
+    int ret = dprintf(fd, "%s\n", info.c_str());
+    if (ret < 0) {
+        ErrorLog("TagSession Dump ret = %{public}d", ret);
+        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+    }
+    return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
 }
-
-TagSession::~TagSession() {}
+std::string TagSession::GetDumpInfo()
+{
+    std::string info;
+    return info.append(DUMP_LINE)
+        .append(" TAG DUMP ")
+        .append(DUMP_LINE)
+        .append(DUMP_END)
+        .append("NFC_STATE          : ")
+        .append(std::to_string(nfcService_.lock()->GetNfcState()))
+        .append(DUMP_END)
+        .append("SCREEN_STATE       : ")
+        .append(std::to_string(nfcService_.lock()->GetScreenState()))
+        .append(DUMP_END)
+        .append("NCI_VERSION        : ")
+        .append(std::to_string(nfcService_.lock()->GetNciVersion()))
+        .append(DUMP_END);
+}
 }  // namespace TAG
 }  // namespace NFC
 }  // namespace OHOS
