@@ -51,6 +51,9 @@ public:
     virtual ~INfcService() {}
 
     virtual bool IsNfcEnabled() = 0;
+    virtual int GetNfcState() = 0;
+    virtual int GetScreenState() = 0;
+    virtual int GetNciVersion() = 0;
     virtual std::weak_ptr<NFC::NCI::INfccHost> GetNfccHost() = 0;
     virtual std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() = 0;
 

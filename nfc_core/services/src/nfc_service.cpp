@@ -256,6 +256,17 @@ int NfcService::GetNfcState()
     return nfcState_;
 }
 
+int NfcService::GetScreenState()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return screenState_;
+}
+
+int NfcService::GetNciVersion()
+{
+    return NCI_VERSION_2_0;
+}
+
 bool NfcService::IsNfcEnabled()
 {
     std::lock_guard<std::mutex> lock(mutex_);

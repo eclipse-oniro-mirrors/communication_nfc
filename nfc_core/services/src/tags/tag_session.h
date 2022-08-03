@@ -120,7 +120,9 @@ public:
      */
     bool IsSupportedApdusExtended() override;
 
+    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:
+    std::string GetDumpInfo();
     std::weak_ptr<NFC::INfcService> nfcService_ {};
     std::weak_ptr<NCI::INfccHost> nfccHost_ {};
     std::weak_ptr<TagDispatcher> tagDispatcher_ {};

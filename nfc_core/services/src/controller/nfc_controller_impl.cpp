@@ -19,6 +19,9 @@
 
 namespace OHOS {
 namespace NFC {
+const std::string DUMP_LINE = "---------------------------";
+const std::string DUMP_END = "\n";
+
 NfcControllerImpl::NfcControllerImpl(std::weak_ptr<NfcService> nfcService)
     : NfcControllerStub(), nfcService_(nfcService)
 {
@@ -77,6 +80,35 @@ KITS::NfcErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToke
         return KITS::NFC_SUCCESS;
     }
     return KITS::NFC_FAILED;
+}
+
+int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
+{
+    std::string info = GetDumpInfo();
+    int ret = dprintf(fd, "%s\n", info.c_str());
+    if (ret < 0) {
+        ErrorLog("NfcControllerImpl Dump ret = %{public}d", ret);
+        return KITS::NFC_FAILED;
+    }
+    return KITS::NFC_SUCCESS;
+}
+
+std::string NfcControllerImpl::GetDumpInfo()
+{
+    std::string info;
+    return info.append(DUMP_LINE)
+        .append(" NFC DUMP ")
+        .append(DUMP_LINE)
+        .append(DUMP_END)
+        .append("NFC_STATE          : ")
+        .append(std::to_string(nfcService_.lock()->GetNfcState()))
+        .append(DUMP_END)
+        .append("SCREEN_STATE       : ")
+        .append(std::to_string(nfcService_.lock()->GetScreenState()))
+        .append(DUMP_END)
+        .append("NCI_VERSION        : ")
+        .append(std::to_string(nfcService_.lock()->GetNciVersion()))
+        .append(DUMP_END);
 }
 }  // namespace NFC
 }  // namespace OHOS

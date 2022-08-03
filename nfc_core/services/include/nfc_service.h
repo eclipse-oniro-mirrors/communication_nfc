@@ -61,6 +61,9 @@ private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
 
     bool IsNfcEnabled() override;
+    int GetNfcState() override;
+    int GetScreenState() override;
+    int GetNciVersion() override;
     std::weak_ptr<NCI::INfccHost> GetNfccHost() override
     {
         return nfccHost_;
@@ -69,8 +72,6 @@ private:
     bool IsNfcTaskReady(std::future<int>& future) const;
     void ExecuteTask(KITS::NfcTask param, bool saveState = false);
     void SaveNfcOnSetting(bool on);
-    // Nfc State
-    int GetNfcState();
     void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
