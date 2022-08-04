@@ -37,7 +37,6 @@ public:
     Security::AccessToken::AccessTokenID callerToken_ = 0;
     sptr<INfcControllerCallback> nfcStateChangeCallback_ = nullptr;
 };
-const int NCI_VERSION_2_0 = 0x20;
 
 class NfcService final : public NCI::INfccHost::INfccHostListener,
     public INfcService,
@@ -70,13 +69,13 @@ private:
     }
 
     bool IsNfcTaskReady(std::future<int>& future) const;
-    void ExecuteTask(KITS::NfcTask param, bool saveState = false);
-    void SaveNfcOnSetting(bool on);
+    void ExecuteTask(KITS::NfcTask param);
     void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
+    void DoInitialize();
 
     // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
@@ -89,7 +88,7 @@ private:
     static constexpr const int WAIT_MS_INIT = 90 * 1000;
     // ms wait for setting the routing table.
     static constexpr const int WAIT_MS_SET_ROUTE = 10 * 1000;
-    static int nciVersion_;
+    int nciVersion_ = 0;
 
     // service
     std::weak_ptr<NfcService> nfcService_ {};

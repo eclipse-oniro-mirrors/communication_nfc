@@ -22,11 +22,11 @@
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
 #include "want.h"
+#include "utils/preferences/nfc_pref_impl.h"
 
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
-int NfcService::nciVersion_ = 0x02;
 
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
 {
@@ -49,32 +49,28 @@ bool NfcService::IsNfcTaskReady(std::future<int>& future) const
     return true;
 }
 
-void NfcService::ExecuteTask(KITS::NfcTask param, bool saveState)
+void NfcService::ExecuteTask(KITS::NfcTask param)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
-        ErrorLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
+        WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
         return;
     }
 
     // Check the current state
     if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
-        DebugLog("NFC Turn On");
+        WarnLog("NFC Turn On, already On");
         return;
     }
     if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
-        DebugLog("NFC Turn Off");
+        WarnLog("NFC Turn Off, already Off");
         return;
-    }
-
-    if (saveState) {
-        SaveNfcOnSetting(param == KITS::TASK_TURN_ON);
     }
 
     std::promise<int> promise;
     if (rootTask_) {
         if (!IsNfcTaskReady(future_)) {
-            // working
+            WarnLog("ExecuteTask, IsNfcTaskReady is false.");
             return;
         }
         if (task_ && task_->joinable()) {
@@ -87,13 +83,9 @@ void NfcService::ExecuteTask(KITS::NfcTask param, bool saveState)
     }
 }
 
-void NfcService::SaveNfcOnSetting(bool on)
-{
-}
-
 void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
 {
-    DebugLog("Nfc task thread params %{public}d", params);
+    InfoLog("Nfc task thread params %{public}d", params);
     switch (params) {
         case KITS::TASK_TURN_ON:
             DoTurnOn();
@@ -102,10 +94,7 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
             DoTurnOff();
             break;
         case KITS::TASK_INITIALIZE: {
-            bool initialized = false;
-            nfccHost_->FactoryReset();
-            initialized = DoTurnOn();
-            DebugLog("initialized = %{public}d", initialized);
+            DoInitialize();
             break;
         }
         default:
@@ -117,7 +106,7 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
 
 bool NfcService::DoTurnOn()
 {
-    DebugLog("Nfc do turn on: current state %{public}d", nfcState_);
+    InfoLog("Nfc do turn on: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_ON);
 
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nfccHost_);
@@ -134,7 +123,7 @@ bool NfcService::DoTurnOn()
     nfcWatchDog.Cancel();
 
     nciVersion_ = nfccHost_->GetNciVersion();
-    DebugLog("Get nci version: ver %{public}d", nciVersion_);
+    InfoLog("Get nci version: ver %{public}d", nciVersion_);
 
     UpdateNfcState(KITS::STATE_ON);
     return true;
@@ -142,7 +131,7 @@ bool NfcService::DoTurnOn()
 
 bool NfcService::DoTurnOff()
 {
-    DebugLog("Nfc do turn off: current state %{public}d", nfcState_);
+    InfoLog("Nfc do turn off: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_OFF);
 
     /* WatchDog to monitor for Deinitialize failed */
@@ -150,11 +139,22 @@ bool NfcService::DoTurnOff()
     nfcWatchDog.Run();
 
     bool result = nfccHost_->Deinitialize();
-    DebugLog("NfccHost deinitialize result %{public}d", result);
+    InfoLog("NfccHost deinitialize result %{public}d", result);
 
     nfcWatchDog.Cancel();
     UpdateNfcState(KITS::STATE_OFF);
     return result;
+}
+
+void NfcService::DoInitialize()
+{
+    DebugLog("DoInitialize start FactoryReset");
+    nfccHost_->FactoryReset();
+
+    int lastState = NfcPrefImpl::GetInstance().GetInt(PREF_KEY_STATE);
+    if (lastState == KITS::STATE_ON) {
+        DoTurnON();
+    }
 }
 
 int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
@@ -230,6 +230,7 @@ void NfcService::UpdateNfcState(int newState)
         }
         nfcState_ = newState;
     }
+    NfcPrefImpl::GetInstance().SetInt(PREF_KEY_STATE, newState);
 
     // noitfy the common event for nfc state changed.
     AAFwk::Want want;
@@ -238,6 +239,8 @@ void NfcService::UpdateNfcState(int newState)
     EventFwk::CommonEventData data;
     data.SetWant(want);
     EventFwk::CommonEventManager::PublishCommonEvent(data);
+
+    // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);
     DebugLog("stateRecords_.size[%{public}d]", (int)stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
@@ -245,6 +248,7 @@ void NfcService::UpdateNfcState(int newState)
         DebugLog("stateRecords_[%{public}d]:type_=%{public}s,callerToken=%{public}d",
             (int)i, record.type_.c_str(), record.callerToken_);
         if (record.nfcStateChangeCallback_ != nullptr) {
+            InfoLog("UpdateNfcState, OnNfcStateChanged = %{public}d", newState);
             record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
         }
     }
@@ -264,7 +268,7 @@ int NfcService::GetScreenState()
 
 int NfcService::GetNciVersion()
 {
-    return NCI_VERSION_2_0;
+    return nciVersion_;
 }
 
 bool NfcService::IsNfcEnabled()
@@ -313,10 +317,10 @@ bool NfcService::Initialize()
         nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
     }
     if (!(AppDataParser::GetInstance().UpdateTechList())) {
-        InfoLog("Update TechList failed.");
+        WarnLog("Update TechList failed.");
     }
     if (!(AppDataParser::GetInstance().UpdateAidList())) {
-        InfoLog("Update AidList failed.");
+        WarnLog("Update AidList failed.");
     }
     
     // inner message handler, used by other modules as initialization parameters

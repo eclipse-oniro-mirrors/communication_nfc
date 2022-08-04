@@ -26,8 +26,9 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
                                        MessageParcel& reply,  /* [out] */
                                        MessageOption& option) /* [in] */
 {
-    InfoLog("OnRemoteRequest occur, code is %{public}d", code);
+    InfoLog("NfcControllerStub OnRemoteRequest occur, code is %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ErrorLog("NfcControllerStub OnRemoteRequest GetDescriptor failed");
         return KITS::NFC_FAILED;
     }
     switch (code) {
@@ -37,12 +38,12 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleTurnOn(data, reply);
         case KITS::COMMAND_TURN_OFF:
             return HandleTurnOff(data, reply);
-        case KITS::COMMAND_NFC_ENABLE:
-            return HandleNfcOpen(data, reply);
         case KITS::COMMAND_REGISTER_CALLBACK:
             return HandleRegisterCallBack(data, reply);
         case KITS::COMMAND_UNREGISTER_CALLBACK:
             return HandleUnRegisterCallBack(data, reply);
+        case KITS::COMMAND_IS_NFC_OPEN:
+            return HandleIsNfcOpen(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -57,7 +58,9 @@ int NfcControllerStub::HandleGetState(MessageParcel& data, MessageParcel& reply)
 
 int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 {
-    DebugLog("NfcControllerStub::HandleTurnOn");
+    if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
+        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+    }
     bool result = TurnOn();
     reply.WriteInt32(result);
     return ERR_NONE;
@@ -68,17 +71,14 @@ int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-
-    bool saveState = data.ReadBool();
-
-    saveState = TurnOff(saveState);
-    reply.WriteInt32(saveState);
+    bool result = TurnOff();
+    reply.WriteInt32(result);
     return ERR_NONE;
 }
 
-int NfcControllerStub::HandleNfcOpen(MessageParcel& data, MessageParcel& reply)
+int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply)
 {
-    DebugLog("NfcControllerStub::HandleNfcOpen");
+    DebugLog("NfcControllerStub::HandleIsNfcOpen");
     int exception = data.ReadInt32();
     if (exception) {
         return KITS::NFC_FAILED;

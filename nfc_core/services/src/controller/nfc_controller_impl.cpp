@@ -38,13 +38,13 @@ int NfcControllerImpl::GetState()
 
 bool NfcControllerImpl::TurnOn()
 {
-    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON, true);
+    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
     return true;
 }
 
-bool NfcControllerImpl::TurnOff(bool saveState)
+bool NfcControllerImpl::TurnOff()
 {
-    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF, saveState);
+    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
     return true;
 }
 
