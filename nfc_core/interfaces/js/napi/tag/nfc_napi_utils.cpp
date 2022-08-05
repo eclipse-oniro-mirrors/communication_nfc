@@ -294,7 +294,7 @@ void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<Ndef
     napi_value tnf;
     napi_create_int32(env, ndefRecord->tnf_, &tnf);
     napi_set_named_property(env, result, "tnf", tnf);
-    DebugLog("ConvertNdefRecordToJS tnf is %{public}d", ndefRecord->tnf_);
+    DebugLog("ConvertNdefRecordToJS tnf is %{public}zu", ndefRecord->tnf_);
 
     napi_value rtdType;
     napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
