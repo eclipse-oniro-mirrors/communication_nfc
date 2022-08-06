@@ -38,10 +38,9 @@ public:
     virtual bool TurnOn() = 0;
     /**
      * @brief Turn Off NFC
-     * @param saveState If to save the NFC state
      * @return true - turn off; the other
      */
-    virtual bool TurnOff(bool saveState) = 0;
+    virtual bool TurnOff() = 0;
      /**
      * @brief NFC enable
      * @return true - NFC enabled; the other

@@ -29,7 +29,7 @@ constexpr int COMMAND_TURN_OFF = COMMAND_ID + 3;
 constexpr int COMMAND_ON_NOTIFY = COMMAND_ID + 4;
 constexpr int COMMAND_REGISTER_CALLBACK = COMMAND_ID + 5;
 constexpr int COMMAND_UNREGISTER_CALLBACK = COMMAND_ID + 6;
-constexpr int COMMAND_NFC_ENABLE = COMMAND_ID + 7;
+constexpr int COMMAND_IS_NFC_OPEN = COMMAND_ID + 7;
 
 constexpr int TAG_SESSION_START_ID = 200;
 constexpr int COMMAND_CONNECT = TAG_SESSION_START_ID + 1;
@@ -74,7 +74,7 @@ enum NfcErrorCode : const int {
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
 
-enum NfcTask { TASK_TURN_ON, TASK_TURN_OFF, TASK_INITIALIZE };
+enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE };
 
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,

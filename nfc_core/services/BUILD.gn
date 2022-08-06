@@ -57,6 +57,7 @@ ohos_shared_library("nfc_service") {
     "src/tags/tag_session_stub.cpp",
     "src/utils/nfc_watch_dog.cpp",
     "src/utils/permission_tools.cpp",
+    "src/utils/preferences/nfc_pref_impl.cpp",
     "src/utils/synchronize_event.cpp",
   ]
 
@@ -80,6 +81,7 @@ ohos_shared_library("nfc_service") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "preferences:native_preferences",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
