@@ -99,7 +99,7 @@ bool TagHost::Connect(int technology)
         break;
     }
     ResumeFieldChecking();
-    DebugLog("TagHost::Connect exit, result = %d", result);
+    DebugLog("TagHost::Connect exit, result = %{public}d", result);
     return result;
 }
 
@@ -115,7 +115,7 @@ bool TagHost::Disconnect()
         NFC::SynchronizeGuard guard(filedCheckWatchDog_);
         filedCheckWatchDog_.NotifyOne();
     }
-    DebugLog("TagHost::Disconnect exit, result = %d", result);
+    DebugLog("TagHost::Disconnect exit, result = %{public}d", result);
     return result;
 }
 
@@ -130,7 +130,7 @@ bool TagHost::Reconnect()
     bool result = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[connectedTechIndex_],
         tagActivatedProtocols_[connectedTechIndex_], tagTechList_[connectedTechIndex_], false);
     ResumeFieldChecking();
-    DebugLog("TagHost::Reconnect exit, result = %d", result);
+    DebugLog("TagHost::Reconnect exit, result = %{public}d", result);
     return result;
 }
 
@@ -141,7 +141,7 @@ int TagHost::Transceive(std::string& request, std::string& response)
     std::lock_guard<std::mutex> lock(mutex_);
     int status = TagNciAdapter::GetInstance().Transceive(request, response);
     ResumeFieldChecking();
-    DebugLog("TagHost::Transceive exit, result = %d", status);
+    DebugLog("TagHost::Transceive exit, result = %{public}d", status);
     return status;
 }
 
@@ -157,7 +157,7 @@ bool TagHost::FieldOnCheckingThread()
 
 bool TagHost::IsTagFieldOn()
 {
-    DebugLog("TagHost::IsTagFieldOn, result = %d", isTagFieldOn_);
+    DebugLog("TagHost::IsTagFieldOn, result = %{public}d", isTagFieldOn_);
     return isTagFieldOn_;
 }
 
@@ -192,7 +192,7 @@ void TagHost::FiledCheckingThread(TagHost::TagDisconnectedCallBack callback, int
     isTagFieldOn_ = false;
     TagNciAdapter::GetInstance().Disconnect();
     if (callback != nullptr && isFieldChecking_ && tagRfDiscIdList_.size() > 0) {
-        DebugLog("FiledCheckingThread::Disconnect callback %d", tagRfDiscIdList_[0]);
+        DebugLog("FiledCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
         callback(tagRfDiscIdList_[0]);
     }
     DebugLog("FiledCheckingThread::End Filed Checking");
@@ -287,10 +287,10 @@ void TagHost::DoTargetTypeIso144433a(AppExecFwk::PacMap &pacMap, int index)
     if (!(act.empty())) {
         int sak = (act.at(0) & (0xff));
         pacMap.PutLongValue(KITS::TagInfo::SAK, sak);
-        DebugLog("DoTargetTypeIso144433a SAK: %d", sak);
+        DebugLog("DoTargetTypeIso144433a SAK: %{public}d", sak);
     }
     pacMap.PutStringValue(KITS::TagInfo::ATQA, poll);
-    DebugLog("DoTargetTypeIso144433a ATQA: %s", poll.c_str());
+    DebugLog("DoTargetTypeIso144433a ATQA: %{public}s", poll.c_str());
 }
 
 void TagHost::DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index)
@@ -302,17 +302,17 @@ void TagHost::DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) {
-        DebugLog("DoTargetTypeIso144433b poll.len: %d", (int)poll.length());
+        DebugLog("DoTargetTypeIso144433b poll.len: %{public}d", (int)poll.length());
         return;
     }
 
     std::string appData = poll.substr(0, NCI_APP_DATA_LENGTH);
     pacMap.PutStringValue(KITS::TagInfo::APP_DATA, appData);
-    DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B APP_DATA: %s", appData.c_str());
+    DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B APP_DATA: %{public}s", appData.c_str());
 
     std::string protoInfo = poll.substr(NCI_APP_DATA_LENGTH, NCI_PROTOCOL_INFO_LENGTH);
     pacMap.PutStringValue(KITS::TagInfo::PROTOCOL_INFO, protoInfo);
-    DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B PROTOCOL_INFO: %s", protoInfo.c_str());
+    DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B PROTOCOL_INFO: %{public}s", protoInfo.c_str());
 }
 
 void TagHost::DoTargetTypeIso144434(AppExecFwk::PacMap &pacMap, int index)
@@ -327,10 +327,10 @@ void TagHost::DoTargetTypeIso144434(AppExecFwk::PacMap &pacMap, int index)
     }
     if (hasNfcA) {
         pacMap.PutStringValue(KITS::TagInfo::HISTORICAL_BYTES, act);
-        DebugLog("DoTargetTypeIso144434::HISTORICAL_BYTES: %s", act.c_str());
+        DebugLog("DoTargetTypeIso144434::HISTORICAL_BYTES: %{public}s", act.c_str());
     } else {
         pacMap.PutStringValue(KITS::TagInfo::HILAYER_RESPONSE, act);
-        DebugLog("DoTargetTypeIso144434::HILAYER_RESPONSE: %s", act.c_str());
+        DebugLog("DoTargetTypeIso144434::HILAYER_RESPONSE: %{public}s", act.c_str());
     }
 }
 
@@ -343,14 +343,14 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < NCI_POLL_LENGTH_MIN) {
-        DebugLog("DoTargetTypeV poll.len: %d", (int)poll.length());
+        DebugLog("DoTargetTypeV poll.len: %{public}d", (int)poll.length());
         return;
     }
 
     pacMap.PutLongValue(KITS::TagInfo::RESPONSE_FLAGS, poll.at(0));
-    DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %d", poll.at(0));
+    DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %{public}d", poll.at(0));
     pacMap.PutLongValue(KITS::TagInfo::DSF_ID, poll.at(1));
-    DebugLog("DoTargetTypeV::DSF_ID: %d", poll.at(1));
+    DebugLog("DoTargetTypeV::DSF_ID: %{public}d", poll.at(1));
 }
 
 void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
@@ -362,13 +362,13 @@ void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
     }
 
     if (poll.length() < SENSF_RES_LENGTH) {
-        DebugLog("DoTargetTypeF no ppm, poll.len: %d", (int)poll.length());
+        DebugLog("DoTargetTypeF no ppm, poll.len: %{public}d", (int)poll.length());
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_PMM, poll.substr(0, SENSF_RES_LENGTH)); // 8 bytes for ppm
 
     if (poll.length() < F_POLL_LENGTH) {
-        DebugLog("DoTargetTypeF no sc, poll.len: %d", (int)poll.length());
+        DebugLog("DoTargetTypeF no sc, poll.len: %{public}d", (int)poll.length());
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, poll.substr(SENSF_RES_LENGTH, 2)); // 2 bytes for sc
@@ -378,7 +378,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 {
     AppExecFwk::PacMap pacMap;
     int targetType = tagTechList_[index];
-    DebugLog("ParseTechExtras::targetType: %d", targetType);
+    DebugLog("ParseTechExtras::targetType: %{public}d", targetType);
     switch (targetType) {
         case TARGET_TYPE_MIFARE_CLASSIC:
         case TARGET_TYPE_ISO14443_3A: {
@@ -404,7 +404,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
         case TARGET_TYPE_MIFARE_UL: {
             bool isUlC = IsUltralightC();
             pacMap.PutLongValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
-            DebugLog("ParseTechExtras::TARGET_TYPE_MIFARE_UL MIFARE_ULTRALIGHT_C_TYPE: %d", isUlC);
+            DebugLog("ParseTechExtras::TARGET_TYPE_MIFARE_UL MIFARE_ULTRALIGHT_C_TYPE: %{public}d", isUlC);
             break;
         }
 
@@ -413,7 +413,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
             break;
         }
         default:
-            DebugLog("ParseTechExtras::unhandle for : %d", targetType);
+            DebugLog("ParseTechExtras::unhandle for : %{public}d", targetType);
             break;
     }
     return pacMap;
@@ -421,7 +421,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 
 std::weak_ptr<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
 {
-    DebugLog("TagHost::GetTechExtrasData, tech len.%d", (int)tagTechList_.size());
+    DebugLog("TagHost::GetTechExtrasData, tech len.%{public}d", (int)tagTechList_.size());
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
         if (tagTechList_[i] == TARGET_TYPE_NDEF || tagTechList_[i] == TARGET_TYPE_NDEF_FORMATABLE) {
             continue;
@@ -482,7 +482,7 @@ void TagHost::AddNdefTech()
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
-            DebugLog("Add ndef tag info, index: %d", index);
+            DebugLog("Add ndef tag info, index: %{public}d", index);
             tagTechList_.push_back(targetTypeNdef);
             tagRfDiscIdList_.push_back(tagRfDiscIdList_[i]);
             tagActivatedProtocols_.push_back(tagActivatedProtocols_[i]);
@@ -492,10 +492,11 @@ void TagHost::AddNdefTech()
             TagNciAdapter::GetInstance().ReadNdef(ndefMsg);
             pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
             pacMap.PutLongValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
-            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %d", GetNdefType(tagActivatedProtocols_[i]));
+            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE:
+                    %{public}d", GetNdefType(tagActivatedProtocols_[i]));
             pacMap.PutLongValue("NDEF_TAG_LENGTH", ndefInfo[0]);
             pacMap.PutLongValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]);
-            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %d", ndefInfo[1]);
+            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
             techExtras_->PutPacMap(KITS::TagInfo::TECH_EXTRA_DATA_PREFIX + std::to_string(index), pacMap);
 
             foundFormat = false;
@@ -508,7 +509,7 @@ void TagHost::AddNdefTech()
         }
     }
     if (foundFormat) {
-        DebugLog("Add ndef formatable tag info, index: %d", index);
+        DebugLog("Add ndef formatable tag info, index: %{public}d", index);
         tagTechList_.push_back(targetTypeNdefFormatable);
         tagRfDiscIdList_.push_back(formatHandle);
         tagActivatedProtocols_.push_back(formatLibNfcType);
@@ -542,7 +543,7 @@ bool TagHost::WriteNdef(std::string& data)
     std::lock_guard<std::mutex> lock(mutex_);
     bool result = TagNciAdapter::GetInstance().WriteNdef(data);
     ResumeFieldChecking();
-    DebugLog("TagHost::WriteNdef exit, result = %d", result);
+    DebugLog("TagHost::WriteNdef exit, result = %{public}d", result);
     return result;
 }
 
@@ -557,7 +558,7 @@ bool TagHost::FormatNdef(const std::string& key)
     std::lock_guard<std::mutex> lock(mutex_);
     bool result = TagNciAdapter::GetInstance().FormatNdef();
     ResumeFieldChecking();
-    DebugLog("TagHost::FormatNdef exit, result = %d", result);
+    DebugLog("TagHost::FormatNdef exit, result = %{public}d", result);
     return result;
 }
 
@@ -565,7 +566,7 @@ bool TagHost::IsNdefFormatable()
 {
     DebugLog("TagHost::IsNdefFormatable");
     bool result = TagNciAdapter::GetInstance().IsNdefFormatable();
-    DebugLog("TagHost::IsNdefFormatable exit, result = %d", result);
+    DebugLog("TagHost::IsNdefFormatable exit, result = %{public}d", result);
     return result;
 }
 

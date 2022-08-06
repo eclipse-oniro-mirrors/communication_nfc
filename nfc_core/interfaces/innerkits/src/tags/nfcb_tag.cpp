@@ -33,7 +33,8 @@ NfcBTag::NfcBTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 
     appData_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::APP_DATA);
     protocolInfo_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::PROTOCOL_INFO);
-    DebugLog("NfcBTag::NfcBTag appData_(%s) protocolInfo_(%s)", appData_.c_str(), protocolInfo_.c_str());
+    DebugLog("NfcBTag::NfcBTag appData_(%{public}s) protocolInfo_(%{public}s)",
+        appData_.c_str(), protocolInfo_.c_str());
 }
 
 std::shared_ptr<NfcBTag> NfcBTag::GetTag(std::weak_ptr<TagInfo> tag)

@@ -85,7 +85,7 @@ KITS::NfcErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToke
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     std::string info = GetDumpInfo();
-    int ret = dprintf(fd, "%s\n", info.c_str());
+    int ret = dprintf(fd, "%{public}s\n", info.c_str());
     if (ret < 0) {
         ErrorLog("NfcControllerImpl Dump ret = %{public}d", ret);
         return KITS::NFC_FAILED;

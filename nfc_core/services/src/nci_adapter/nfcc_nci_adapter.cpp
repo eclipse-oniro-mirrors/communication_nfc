@@ -305,8 +305,8 @@ void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_
         }
 
         case NFA_DM_RF_FIELD_EVT: {
-            DebugLog("NfaDeviceManagementCallback: NFA_DM_RF_FIELD_EVT; status = 0x%X; field status = %{public}u",
-                     eventData->rf_field.status, eventData->rf_field.rf_field_status);
+            DebugLog("NfaDeviceManagementCallback: NFA_DM_RF_FIELD_EVT; status = 0x%{public}X;
+                field status = %{public}u", eventData->rf_field.status, eventData->rf_field.rf_field_status);
             DoNfaDmRfFieldEvt(eventData);
             break;
         }

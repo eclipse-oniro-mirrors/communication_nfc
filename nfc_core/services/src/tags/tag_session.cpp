@@ -175,7 +175,7 @@ bool TagSession::IsNdef(int tagRfDiscId)
  */
 std::unique_ptr<ResResult> TagSession::SendRawFrame(int tagRfDiscId, std::string data, bool raw)
 {
-    DebugLog("Send Raw(%d) Frame", raw);
+    DebugLog("Send Raw(%{public}d) Frame", raw);
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         return nullptr;
@@ -327,7 +327,7 @@ bool TagSession::IsSupportedApdusExtended()
 int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     std::string info = GetDumpInfo();
-    int ret = dprintf(fd, "%s\n", info.c_str());
+    int ret = dprintf(fd, "%{public}s\n", info.c_str());
     if (ret < 0) {
         ErrorLog("TagSession Dump ret = %{public}d", ret);
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;

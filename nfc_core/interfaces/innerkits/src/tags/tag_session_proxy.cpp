@@ -72,7 +72,7 @@ std::vector<int> TagSessionProxy::GetTechList(int tagRfDiscId)
     data.WriteInt32(tagRfDiscId);
     int res = Remote()->SendRequest(KITS::COMMAND_GET_TECHLIST, data, reply, option);
     if (res != ERR_NONE) {
-        InfoLog("It is failed To Get Tech List with Res(%d).", res);
+        InfoLog("It is failed To Get Tech List with Res(%{public}d).", res);
         return std::vector<int>();
     }
     std::vector<int32_t> result {};
@@ -118,19 +118,19 @@ std::unique_ptr<ResResult> TagSessionProxy::SendRawFrame(int tagRfDiscId, std::s
     data.WriteBool(raw);
     int res = Remote()->SendRequest(KITS::COMMAND_SEND_RAW_FRAME, data, reply, option);
     if (res != ERR_NONE) {
-        InfoLog("It is failed To Send Raw Frame with Res(%d).", res);
+        InfoLog("It is failed To Send Raw Frame with Res(%{public}d).", res);
         return std::unique_ptr<ResResult>();
     }
     sptr<ResResult> result = reply.ReadStrongParcelable<ResResult>();
     int res1 = reply.ReadInt32();
     if (res1 != ERR_NONE) {
-        InfoLog("It is failed To Send Raw Frame with Res1(%d).", res1);
+        InfoLog("It is failed To Send Raw Frame with Res1(%{public}d).", res1);
         return std::unique_ptr<ResResult>();
     }
     std::unique_ptr<ResResult> resResult = std::make_unique<ResResult>();
     resResult->SetResult(result->GetResult());
     resResult->SetResData(result->GetResData());
-    DebugLog("TagSessionProxy::SendRawFrame result.%d", result->GetResult());
+    DebugLog("TagSessionProxy::SendRawFrame result.%{public}d", result->GetResult());
     return resResult;
 }
 
@@ -145,7 +145,7 @@ std::string TagSessionProxy::NdefRead(int tagRfDiscId)
     data.WriteInt32(tagRfDiscId);
     int res = Remote()->SendRequest(KITS::COMMAND_NDEF_READ, data, reply, option);
     if (res != ERR_NONE) {
-        InfoLog("It is failed To Ndef Read with Res(%d).", res);
+        InfoLog("It is failed To Ndef Read with Res(%{public}d).", res);
         return std::string();
     }
     return reply.ReadString();

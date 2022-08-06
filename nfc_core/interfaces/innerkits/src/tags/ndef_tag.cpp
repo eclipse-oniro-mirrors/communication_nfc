@@ -36,7 +36,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
     ndefTagMode_ = (EmNdefTagMode)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_MODE);
     ndefMsg_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NDEF_MSG);
 
-    DebugLog("NdefTag::NdefTag nfcForumType_(%d) ndefTagMode_(%d) ndefMsg_(%s)",
+    DebugLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) ndefMsg_(%{public}s)",
              nfcForumType_, ndefTagMode_, ndefMsg_.c_str());
 }
 
@@ -91,7 +91,7 @@ std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
         default:
             break;
     }
-    DebugLog("[NdefTag::GetNdefTagTypeString] typeString=%d.", emNfcForumType);
+    DebugLog("[NdefTag::GetNdefTagTypeString] typeString=%{public}d.", emNfcForumType);
     return typeString;
 }
 

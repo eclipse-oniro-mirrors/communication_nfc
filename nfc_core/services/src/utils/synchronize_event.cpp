@@ -44,7 +44,7 @@ void SynchronizeEvent::Start()
 {
     int res = pthread_mutex_lock(&lock_);
     if (res != 0) {
-        DebugLog("SynchronizeEvent::start: fail lock; error=0x%X", res);
+        DebugLog("SynchronizeEvent::start: fail lock; error=0x%{public}X", res);
     }
 }
 
@@ -52,7 +52,7 @@ void SynchronizeEvent::End()
 {
     int res = pthread_mutex_unlock(&lock_);
     if (res != 0) {
-        DebugLog("SynchronizeEvent::end: fail unlock; error=0x%X", res);
+        DebugLog("SynchronizeEvent::end: fail unlock; error=0x%{public}X", res);
     }
 }
 
@@ -60,7 +60,7 @@ void SynchronizeEvent::Wait()
 {
     int const res = pthread_cond_wait(&cond_, &lock_);
     if (res) {
-        DebugLog("CondVar::wait: fail wait; error=0x%X", res);
+        DebugLog("CondVar::wait: fail wait; error=0x%{public}X", res);
     }
 }
 
@@ -84,7 +84,7 @@ bool SynchronizeEvent::Wait(long ms)
 
     int waitResult = pthread_cond_timedwait(&cond_, &lock_, &absoluteTime);
     if ((waitResult != 0) && (waitResult != ETIMEDOUT)) {
-        DebugLog("SynchronizeEvent::wait: fail timed wait; error=0x%X", waitResult);
+        DebugLog("SynchronizeEvent::wait: fail timed wait; error=0x%{public}X", waitResult);
     }
     retVal = (waitResult == 0);  // waited successfully
     return retVal;
@@ -94,7 +94,7 @@ void SynchronizeEvent::NotifyOne()
 {
     int const res = pthread_cond_signal(&cond_);
     if (res) {
-        DebugLog("SynchronizeEvent::notifyOne: fail signal; error=0x%X", res);
+        DebugLog("SynchronizeEvent::notifyOne: fail signal; error=0x%{public}X", res);
     }
 }
 }  // namespace NFC
