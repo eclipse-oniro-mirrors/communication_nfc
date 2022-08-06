@@ -153,7 +153,7 @@ void NfcService::DoInitialize()
 
     int lastState = NfcPrefImpl::GetInstance().GetInt(PREF_KEY_STATE);
     if (lastState == KITS::STATE_ON) {
-        DoTurnON();
+        DoTurnOn();
     }
 }
 
