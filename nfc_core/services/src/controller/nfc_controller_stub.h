@@ -45,7 +45,7 @@ private:
     int HandleGetState(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleTurnOn(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleTurnOff(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
-    int HandleNfcOpen(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleIsNfcOpen(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
 

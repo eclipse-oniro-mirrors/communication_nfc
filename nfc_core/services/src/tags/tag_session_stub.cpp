@@ -27,6 +27,12 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
                                     MessageOption& option) /* [in] */
 {
     DebugLog("OnRemoteRequest occur, code is %{public}d", code);
+    DebugLog("TagSessionStub OnRemoteRequest occur, code is %d", code);
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        ErrorLog("TagSessionStub OnRemoteRequest GetDescriptor failed");
+        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+    }
+
     switch (code) {
         case KITS::COMMAND_CONNECT:
             return HandleConnect(data, reply);
@@ -65,9 +71,6 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
 
     int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
@@ -81,9 +84,6 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
 
     int tagRfDiscId = data.ReadInt32();
     int ec = Reconnect(tagRfDiscId);
@@ -96,9 +96,6 @@ int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
 
     int tagRfDiscId = data.ReadInt32();
     Disconnect(tagRfDiscId);
@@ -108,9 +105,6 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
-    }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -124,9 +118,6 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
     int tagRfDiscId = data.ReadInt32();
     bool res = IsNdef(tagRfDiscId);
 
@@ -138,10 +129,6 @@ int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
-
     int tagRfDiscId = data.ReadInt32();
     bool res = IsNdef(tagRfDiscId);
 
@@ -152,9 +139,6 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
-    }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -170,9 +154,6 @@ int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
 
     int tagRfDiscId = data.ReadInt32();
     std::string readData = NdefRead(tagRfDiscId);
@@ -183,9 +164,6 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
-    }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -200,9 +178,6 @@ int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& r
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
 
     int tagRfDiscId = data.ReadInt32();
     reply.WriteInt32(NdefMakeReadOnly(tagRfDiscId));
@@ -212,9 +187,6 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
-    }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -227,9 +199,6 @@ int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& re
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
     int tech = data.ReadInt32();
     reply.WriteBool(CanMakeReadOnly(tech));
     return ERR_NONE;
@@ -239,9 +208,6 @@ int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessagePar
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
-    }
     int tech = data.ReadInt32();
     reply.WriteInt32(GetMaxTransceiveLength(tech));
     return ERR_NONE;
@@ -250,9 +216,6 @@ int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageP
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
-    }
-    if (data.ReadInterfaceToken() != GetDescriptor()) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
     reply.WriteBool(IsSupportedApdusExtended());
     return ERR_NONE;

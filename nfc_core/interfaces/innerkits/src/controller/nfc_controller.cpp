@@ -85,7 +85,7 @@ int NfcController::TurnOff()
     if (nfcControllerService_.expired()) {
         return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
     }
-    return nfcControllerService_.lock()->TurnOff(true);
+    return nfcControllerService_.lock()->TurnOff();
 }
 
 // get NFC state

@@ -45,7 +45,7 @@ bool NfcControllerProxy::TurnOn()
     return result;
 }
 
-bool NfcControllerProxy::TurnOff(bool saveState)
+bool NfcControllerProxy::TurnOff()
 {
     DebugLog("NfcControllerProxy::TurnOff in.");
     bool result = false;
@@ -54,7 +54,6 @@ bool NfcControllerProxy::TurnOff(bool saveState)
         DebugLog("Write interface token error");
         return KITS::NFC_FAILED;
     }
-    data.WriteBool(saveState);
     MessageOption option;
     int res = ProcessBoolRes(KITS::COMMAND_TURN_OFF, data, option, result);
     if (res != ERR_NONE) {
@@ -92,7 +91,7 @@ bool NfcControllerProxy::IsNfcOpen()
         return KITS::NFC_FAILED;
     }
     data.WriteInt32(0);
-    int res = ProcessBoolRes(KITS::COMMAND_NFC_ENABLE, data, option, result);
+    int res = ProcessBoolRes(KITS::COMMAND_IS_NFC_OPEN, data, option, result);
     if (res != ERR_NONE) {
         DebugLog("NfcControllerProxy::IsNfcOpen error.");
         return false;
