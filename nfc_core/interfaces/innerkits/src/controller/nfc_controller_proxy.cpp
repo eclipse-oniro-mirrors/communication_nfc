@@ -75,7 +75,7 @@ int NfcControllerProxy::GetState()
     }
     int res = ProcessIntRes(KITS::COMMAND_GET_STATE, data, option, state);
     if (res != ERR_NONE) {
-        InfoLog("It is failed To Get State with Res(%d).", res);
+        InfoLog("It is failed To Get State with Res(%{public}d).", res);
         return NFC::KITS::STATE_OFF;
     }
     return state;

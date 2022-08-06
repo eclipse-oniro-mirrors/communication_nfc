@@ -51,10 +51,10 @@ std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
 
 std::string Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex)
 {
-    InfoLog("Iso15693Tag::ReadSingleBlock in flag= %d blockIndex= %d", flag, blockIndex);
+    InfoLog("Iso15693Tag::ReadSingleBlock in flag= %{public}d blockIndex= %{public}d", flag, blockIndex);
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         !IsConnected()) {
-        DebugLog("[Iso15693Tag::ReadSingleBlock] flag= %d blockIndex= %d err", flag, blockIndex);
+        DebugLog("[Iso15693Tag::ReadSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return "";
     }
 
@@ -75,7 +75,7 @@ int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std:
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::WriteSingleBlock] flag= %d blockIndex= %d err", flag, blockIndex);
+        DebugLog("[Iso15693Tag::WriteSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -97,7 +97,7 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::LockSingleBlock] flag= %d blockIndex= %d err", flag, blockIndex);
+        DebugLog("[Iso15693Tag::LockSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -113,12 +113,13 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
 
 std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum)
 {
-    InfoLog("Iso15693Tag::ReadMultipleBlock in flag= %d blockIndex= %d blockNum=%d", flag, blockIndex, blockNum);
+    InfoLog("Iso15693Tag::ReadMultipleBlock in flag= %{public}d blockIndex= %{public}d blockNum=%{public}d",
+        flag, blockIndex, blockNum);
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         (blockNum < 0 || blockNum >= ISO15693_MAX_BLOCK_INDEX) || !IsConnected()) {
         DebugLog(
-            "[Iso15693Tag::ReadMultipleBlock] flag= %d blockIndex= %d "
-            "blockNum=%d err",
+            "[Iso15693Tag::ReadMultipleBlock] flag= %{public}d blockIndex= %{public}d "
+            "blockNum=%{public}d err",
             flag,
             blockIndex,
             blockNum);
@@ -143,7 +144,7 @@ int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         (blockNum <= 0 || blockNum > ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::WriteMultipleBlock] flag=%d blockIndex= %d err", flag, blockIndex);
+        DebugLog("[Iso15693Tag::WriteMultipleBlock] flag=%{public}d blockIndex= %{public}d err", flag, blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 

@@ -97,7 +97,7 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriStr
         if (!uriString.compare(0, gUriPrefix[i].size(), gUriPrefix[i])) {
             payLoad += (i & 0xFF);
             uri = uriString.substr(gUriPrefix[i].size());
-            DebugLog("prefer index .%d", (int)i);
+            DebugLog("prefer index .%{public}d", (int)i);
             break;
         }
     }
@@ -272,7 +272,7 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
     if (layout.typeLength <= 0) {
         return "";
     } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.typeLength) {
-        ErrorLog("data len.%d index.%d rtdtype len.%d error",
+        ErrorLog("data len.%{public}d index.%{public}d rtdtype len.%{public}d error",
                  static_cast<int>(data.size()),
                  parsedDataIndex,
                  layout.typeLength);
@@ -288,7 +288,7 @@ std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& 
     if (layout.idLength <= 0) {
         return "";
     } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.idLength) {
-        ErrorLog("data len.%d index.%d id len.%d error",
+        ErrorLog("data len.%{public}d index.%{public}d id len.%{public}d error",
                  static_cast<int>(data.size()),
                  parsedDataIndex,
                  layout.idLength);
@@ -303,7 +303,7 @@ std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::str
 {
     if (layout.payloadLength > 0) {
         if (static_cast<uint32_t>(data.size()) < (parsedDataIndex + layout.payloadLength)) {
-            ErrorLog("data len.%d index.%d payload len.%d error",
+            ErrorLog("data len.%{public}d index.%{public}d payload len.%{public}d error",
                 static_cast<int>(data.size()), parsedDataIndex, layout.payloadLength);
             return "";
         }

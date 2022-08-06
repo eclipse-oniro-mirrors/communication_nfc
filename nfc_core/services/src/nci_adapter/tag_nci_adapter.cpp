@@ -126,7 +126,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
     DebugLog("TagNciAdapter::NdefCallback");
     switch (event) {
         case NFA_NDEF_REGISTER_EVT: {
-            DebugLog("NdefCallback: NFA_NDEF_REGISTER_EVT; status=0x%X; handle=0x%X",
+            DebugLog("NdefCallback: NFA_NDEF_REGISTER_EVT; status=0x%{public}X; handle=0x%{public}X",
                      eventData->ndef_reg.status,
                      eventData->ndef_reg.ndef_type_handle);
             ndefTypeHandle_ = eventData->ndef_reg.ndef_type_handle;
@@ -140,7 +140,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
             break;
         }
         default: {
-            DebugLog("%s: Unknown event %u", "NdefCallback", event);
+            DebugLog("%{public}s: Unknown event %u", "NdefCallback", event);
             break;
         }
     }
@@ -155,7 +155,8 @@ void TagNciAdapter::RegisterNdefHandler()
 
 tNFA_STATUS TagNciAdapter::Connect(int discId, int protocol, int tech)
 {
-    DebugLog("TagNciAdapter::Connect: discId: %d, protocol: %d, tech: %d", discId, protocol, tech);
+    DebugLog("TagNciAdapter::Connect: discId: %{public}d, protocol: %{public}d, tech: %{public}d",
+        discId, protocol, tech);
     if (!IsTagActive()) {
         return NFA_STATUS_BUSY;
     }
@@ -164,7 +165,7 @@ tNFA_STATUS TagNciAdapter::Connect(int discId, int protocol, int tech)
     rfDiscoveryMutex_.lock();
     tNFA_STATUS status = nciAdaptations_->NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol, rfInterface);
     if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::Connect: select fail; error = 0x%X", status);
+        ErrorLog("TagNciAdapter::Connect: select fail; error = 0x%{public}X", status);
         rfDiscoveryMutex_.unlock();
         return status;
     }
@@ -172,7 +173,7 @@ tNFA_STATUS TagNciAdapter::Connect(int discId, int protocol, int tech)
         ErrorLog("TagNciAdapter::Connect: Time out when select");
         status = nciAdaptations_->NfaDeactivate(false);
         if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Connect: deactivate failed, error = 0x%X", status);
+            ErrorLog("TagNciAdapter::Connect: deactivate failed, error = 0x%{public}X", status);
         }
         rfDiscoveryMutex_.unlock();
         return NFA_STATUS_TIMEOUT;  // time out
@@ -190,7 +191,7 @@ bool TagNciAdapter::Disconnect()
     rfDiscoveryMutex_.lock();
     tNFA_STATUS status = nciAdaptations_->NfaDeactivate(false);
     if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::Disconnect: deactivate failed; error = 0x%X", status);
+        ErrorLog("TagNciAdapter::Disconnect: deactivate failed; error = 0x%{public}X", status);
     }
     connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     connectedTagDiscId_ = -1;
@@ -203,7 +204,8 @@ bool TagNciAdapter::Disconnect()
 
 bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 {
-    DebugLog("TagNciAdapter::Reconnect: discId: %d, protocol: %d, tech: %d, restart: %d",
+    DebugLog("TagNciAdapter::Reconnect: discId: %{public}d,
+        protocol: %{public}d, tech: %{public}d, restart: %{public}d",
         discId, protocol, tech, restart);
     if (!IsTagActive()) {
         return false;
@@ -226,7 +228,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         tNFA_INTF_TYPE rfInterface = GetRfInterface(protocol);
         tNFA_STATUS status = nciAdaptations_->NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol, rfInterface);
         if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Reconnect: select failed, error=0x%X", status);
+            ErrorLog("TagNciAdapter::Reconnect: select failed, error=0x%{public}X", status);
             rfDiscoveryMutex_.unlock();
             return false;
         }
@@ -234,7 +236,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
             ErrorLog("TagNciAdapter::Reconnect: Time out when select");
             status = nciAdaptations_->NfaDeactivate(false);
             if (status != NFA_STATUS_OK) {
-                ErrorLog("TagNciAdapter::Reconnect: deactivate failed, error=0x%X", status);
+                ErrorLog("TagNciAdapter::Reconnect: deactivate failed, error=0x%{public}X", status);
             }
             rfDiscoveryMutex_.unlock();
             return false;
@@ -266,7 +268,7 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
         status = nciAdaptations_->NfaSendRawFrame(
             (uint8_t*)request.c_str(), (uint16_t)request.size(), NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
         if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Transceive: fail send; error=%d", status);
+            ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
             break;
         }
         int transceiveTimeout = GetTimeout(connectedTargetType_);
@@ -516,7 +518,7 @@ bool TagNciAdapter::FormatNdef()
             status = NFA_STATUS_FAILED;
         }
     } else {
-        ErrorLog("Format Ndef error, status= %d", status);
+        ErrorLog("Format Ndef error, status= %{public}d", status);
     }
     return (status == NFA_STATUS_OK);
 }
@@ -548,7 +550,7 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
 
     status = nciAdaptations_->NfaRwDetectNdef();
     if (status != NFA_STATUS_OK) {
-        ErrorLog("NFA_RwDetectNDef failed, status: %d", status);
+        ErrorLog("NFA_RwDetectNDef failed, status: %{public}d", status);
         rfDiscoveryMutex_.unlock();
         return false;
     }
@@ -696,7 +698,7 @@ std::string TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated) const
         if (length > NFC_NFCID0_MAX_LEN) {
             length = length - NFC_NFCID0_MAX_LEN;
         } else {
-            WarnLog("sensb_res_len %d error", length);
+            WarnLog("sensb_res_len %{public}d error", length);
             length = 0;
         }
         techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToString(
@@ -826,7 +828,8 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
     tagPollBytes_.push_back(tagPollBytes);
     tagActivatedBytes_.push_back(tagActivatedBytes);
 
-    DebugLog("TagDiscover: discId: %d, protocol: %d, tech: %d", tagRfDiscId, tagNtfProtocol, tagTech);
+    DebugLog("TagDiscover: discId: %{public}d, protocol: %{public}d, tech: %{public}d",
+        tagRfDiscId, tagNtfProtocol, tagTech);
     std::unique_ptr<NCI::ITagHost> tagHost = std::make_unique<NCI::TagHost>(tagTechList_,
         tagRfDiscIdList_, tagActivatedProtocols_, tagUid, tagPollBytes_, tagActivatedBytes_);
     NfccHost::TagDiscovered(std::move(tagHost));

@@ -26,7 +26,7 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
                                     MessageParcel& reply,  /* [out] */
                                     MessageOption& option) /* [in] */
 {
-    DebugLog("OnRemoteRequest occur, code is %d", code);
+    DebugLog("OnRemoteRequest occur, code is %{public}d", code);
     switch (code) {
         case KITS::COMMAND_CONNECT:
             return HandleConnect(data, reply);

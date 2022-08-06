@@ -32,12 +32,12 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         DebugLog("MifareUltralightTag::MifareUltralightTag extra data invalid");
         return;
     }
-    InfoLog("MifareUltralightTag::MifareUltralightTag sak.%d tagid.%d",
+    InfoLog("MifareUltralightTag::MifareUltralightTag sak.%{public}d tagid.%{public}d",
             tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK),
             tag.lock()->GetTagUid().at(0));
     if ((tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK) == 0x00) &&
         tag.lock()->GetTagUid().at(0) == NXP_MANUFACTURER_ID) {
-        InfoLog("MifareUltralightTag::MifareUltralightTag Ctype.%d",
+        InfoLog("MifareUltralightTag::MifareUltralightTag Ctype.%{public}d",
                 tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE));
         if (tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
             type_ = EmMifareUltralightType::TYPE_ULTRALIGHT_C;
@@ -51,7 +51,7 @@ MifareUltralightTag::~MifareUltralightTag() {}
 
 std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    InfoLog("MifareUltralightTag::GetTag in tech len.%d ", (int)tag.lock()->GetTagTechList().size());
+    InfoLog("MifareUltralightTag::GetTag in tech len.%{public}d ", (int)tag.lock()->GetTagTechList().size());
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
         InfoLog("MifareUltralightTag::GetTag tag invalid");
         return nullptr;
@@ -71,7 +71,7 @@ std::string MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex)
         int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
         return SendCommand(sendCommand, false, response);
     } else {
-        DebugLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%d err!", pageIndex);
+        DebugLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%{public}d err!", pageIndex);
     }
     return "";
 }

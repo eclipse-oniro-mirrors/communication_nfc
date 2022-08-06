@@ -32,7 +32,7 @@ IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::Ta
     }
     historicalBytes_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::HISTORICAL_BYTES);
     hiLayerResponse_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::HILAYER_RESPONSE);
-    DebugLog("IsoDepTag::IsoDepTag historicalBytes_(%s) hiLayerResponse_(%s)",
+    DebugLog("IsoDepTag::IsoDepTag historicalBytes_(%{public}s) hiLayerResponse_(%{public}s)",
         historicalBytes_.c_str(), hiLayerResponse_.c_str());
 }
 

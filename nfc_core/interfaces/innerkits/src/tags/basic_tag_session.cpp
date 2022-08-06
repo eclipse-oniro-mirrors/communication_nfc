@@ -36,7 +36,7 @@ int BasicTagSession::Connect()
     }
     int tagRfDiscId = GetTagRfDiscId();
     int res = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
-    DebugLog("connect tag.%d tech.%d res.%d. ", tagRfDiscId, tagTechnology_, res);
+    DebugLog("connect tag.%{public}d tech.%{public}d res.%{public}d. ", tagRfDiscId, tagTechnology_, res);
     if (res == NfcErrorCode::NFC_SUCCESS) {
         isConnected_ = true;
         SetConnectedTagTech(tagTechnology_);
@@ -95,7 +95,7 @@ std::string BasicTagSession::SendCommand(std::string& data, bool raw, int& respo
         if (res->GetResult() == TAG::ResResult::ResponseResult::RESULT_SUCCESS) {
             result = res->GetResData();
         }
-        DebugLog("[BasicTagSession::SendCommand] result.%d", response);
+        DebugLog("[BasicTagSession::SendCommand] result.%{public}d", response);
     }
     return result;
 }

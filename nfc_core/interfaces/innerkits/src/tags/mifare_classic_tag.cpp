@@ -39,7 +39,8 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     int sak = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     std::string atqa = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
 
-    DebugLog("MifareClassicTag::MifareClassicTag sak.%d atqa.(%d)%s", sak, (int)atqa.size(), atqa.c_str());
+    DebugLog("MifareClassicTag::MifareClassicTag sak.%{public}d atqa.(%{public}d)%{public}s",
+        sak, (int)atqa.size(), atqa.c_str());
     for (size_t i = 0; i < atqa.size(); i++) {
         printf("%02x ", atqa.at(i));
     }
@@ -104,8 +105,8 @@ bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& ke
 {
     if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT) || !IsConnected() || key.empty()) {
         ErrorLog(
-            "[MifareClassicTag::AuthenticateSector] param err! sectorIndex.%d "
-            "keyLen.%d",
+            "[MifareClassicTag::AuthenticateSector] param err! sectorIndex.%{public}d "
+            "keyLen.%{public}d",
             sectorIndex,
             (int)key.size());
         return false;
@@ -135,7 +136,7 @@ std::string MifareClassicTag::ReadSingleBlock(uint32_t blockIndex)
 {
     InfoLog("MifareClassicTag::ReadSingleBlock in");
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || !IsConnected()) {
-        DebugLog("[MifareClassicTag::ReadSingleBlock] blockIndex= %d err", blockIndex);
+        DebugLog("[MifareClassicTag::ReadSingleBlock] blockIndex= %{public}d err", blockIndex);
         return "";
     }
 
@@ -154,7 +155,8 @@ int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& d
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || (data.size() != MC_BLOCK_SIZE)) {
-        DebugLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %d dataLen= %d err", blockIndex, (int)data.size());
+        DebugLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %{public}d dataLen= %{public}d err",
+            blockIndex, (int)data.size());
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -175,7 +177,7 @@ int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || value < 0) {
-        DebugLog("[MifareClassicTag::IncrementBlock] blockIndex= %d value=%d err", blockIndex, value);
+        DebugLog("[MifareClassicTag::IncrementBlock] blockIndex= %{public}d value=%{public}d err", blockIndex, value);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -196,7 +198,7 @@ int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX || value < 0) {
-        DebugLog("[MifareClassicTag::DecrementBlock] blockIndex= %d value=%d err", blockIndex, value);
+        DebugLog("[MifareClassicTag::DecrementBlock] blockIndex= %{public}d value=%{public}d err", blockIndex, value);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -217,7 +219,7 @@ int MifareClassicTag::TransferToBlock(uint32_t blockIndex)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
-        DebugLog("[MifareClassicTag::TransferToBlock] blockIndex= %d err", blockIndex);
+        DebugLog("[MifareClassicTag::TransferToBlock] blockIndex= %{public}d err", blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_TRANSFER, char(blockIndex & 0xFF)};
@@ -236,7 +238,7 @@ int MifareClassicTag::RestoreFromBlock(uint32_t blockIndex)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
-        DebugLog("[MifareClassicTag::RestoreFromBlock] blockIndex= %d err", blockIndex);
+        DebugLog("[MifareClassicTag::RestoreFromBlock] blockIndex= %{public}d err", blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_RESTORE, char(blockIndex & 0xFF)};

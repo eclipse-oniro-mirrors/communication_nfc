@@ -33,7 +33,7 @@ NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 
     sak_ = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     atqa_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
-    DebugLog("NfcATag::NfcATag sak_(%d) atqa_(%s)", sak_, atqa_.c_str());
+    DebugLog("NfcATag::NfcATag sak_(%{public}d) atqa_(%{public}s)", sak_, atqa_.c_str());
 }
 
 std::shared_ptr<NfcATag> NfcATag::GetTag(std::weak_ptr<TagInfo> tag)

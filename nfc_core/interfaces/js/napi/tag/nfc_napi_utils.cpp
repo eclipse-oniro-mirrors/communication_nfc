@@ -441,11 +441,11 @@ void DefineEnumClassByName(
     napi_status status =
         napi_define_class(env, enumName.data(), NAPI_AUTO_LENGTH, construct, nullptr, arrSize, desc, &result);
     if (status != napi_ok) {
-        ErrorLog("DefineEnumClassByName napi_define_class failed ret = %d", status);
+        ErrorLog("DefineEnumClassByName napi_define_class failed ret = %{public}d", status);
     }
     status = napi_set_named_property(env, exports, enumName.data(), result);
     if (status != napi_ok) {
-        ErrorLog("DefineEnumClassByName napi_set_named_property failed ret = %d", status);
+        ErrorLog("DefineEnumClassByName napi_set_named_property failed ret = %{public}d", status);
     }
 }
 } // namespace KITS

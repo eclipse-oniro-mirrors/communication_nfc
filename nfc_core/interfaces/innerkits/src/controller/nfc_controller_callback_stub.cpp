@@ -53,7 +53,7 @@ int NfcControllerCallBackStub::OnRemoteRequest(
     }
     int exception = data.ReadInt32();
     if (exception) {
-        InfoLog("ConnectedTagCallBackStub::OnRemoteRequest, got exception: (%d))", exception);
+        InfoLog("ConnectedTagCallBackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
         return KITS::NFC_FAILED;
     }
     int ret = KITS::NFC_FAILED;
