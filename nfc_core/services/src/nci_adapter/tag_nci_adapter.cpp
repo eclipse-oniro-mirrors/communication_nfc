@@ -204,9 +204,8 @@ bool TagNciAdapter::Disconnect()
 
 bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 {
-    DebugLog("TagNciAdapter::Reconnect: discId: %{public}d,
-        protocol: %{public}d, tech: %{public}d, restart: %{public}d",
-        discId, protocol, tech, restart);
+    DebugLog("TagNciAdapter::Reconnect: discId: %{public}d, protocol: %{public}d, tech: %{public}d, restart: "
+        "%{public}d", discId, protocol, tech, restart);
     if (!IsTagActive()) {
         return false;
     }

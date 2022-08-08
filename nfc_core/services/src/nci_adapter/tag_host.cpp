@@ -492,8 +492,8 @@ void TagHost::AddNdefTech()
             TagNciAdapter::GetInstance().ReadNdef(ndefMsg);
             pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
             pacMap.PutLongValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
-            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE:
-                    %{public}d", GetNdefType(tagActivatedProtocols_[i]));
+            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
+                GetNdefType(tagActivatedProtocols_[i]));
             pacMap.PutLongValue("NDEF_TAG_LENGTH", ndefInfo[0]);
             pacMap.PutLongValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]);
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
