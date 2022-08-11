@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
-ohos_shared_library("tag") {
+ohos_shared_library("nfc_napi_tag") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
