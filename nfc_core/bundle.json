@@ -60,8 +60,8 @@
                 "//third_party/libnfc-nci/SN100x:nfc-nci",
                 "//foundation/communication/nfc/nfc_core/sa_profile:nfc_profile",
                 "//foundation/communication/nfc/nfc_core/interfaces/innerkits:nfc_inner_kits",
-                "//foundation/communication/nfc/nfc_core/interfaces/js/napi/controller:controller",
-                "//foundation/communication/nfc/nfc_core/interfaces/js/napi/tag:tag",
+                "//foundation/communication/nfc/nfc_core/interfaces/js/napi/controller:nfc_napi_controller",
+                "//foundation/communication/nfc/nfc_core/interfaces/js/napi/tag:nfc_napi_tag",
                 "//foundation/communication/nfc/nfc_core/services:nfc_service"
             ],
             "inner_kits": [

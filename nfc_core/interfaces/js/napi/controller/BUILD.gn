@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
-ohos_shared_library("controller") {
+ohos_shared_library("nfc_napi_controller") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
