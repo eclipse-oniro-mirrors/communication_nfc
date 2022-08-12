@@ -39,7 +39,7 @@
 #endif
 
 #ifndef NFC_LOG_DOMAIN
-#define NFC_LOG_DOMAIN 0xD006000
+#define NFC_LOG_DOMAIN 0xD000301
 #endif
 
 #ifndef NFC_LOG_TAG
