@@ -55,6 +55,7 @@ ohos_shared_library("nfc_service") {
     "src/tags/tag_dispatcher.cpp",
     "src/tags/tag_session.cpp",
     "src/tags/tag_session_stub.cpp",
+    "src/utils/nfc_chip_type_parser.cpp",
     "src/utils/nfc_watch_dog.cpp",
     "src/utils/permission_tools.cpp",
     "src/utils/preferences/nfc_pref_impl.cpp",
