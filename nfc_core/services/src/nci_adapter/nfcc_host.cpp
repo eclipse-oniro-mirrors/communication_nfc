@@ -17,6 +17,7 @@
 #include "infcc_host.h"
 #include "loghelper.h"
 #include "nfcc_nci_adapter.h"
+#include "nfc_chip_type_parser.h"
 
 #ifdef _NFC_SERVICE_HCE_
 #include "hci_manager.h"
@@ -46,24 +47,40 @@ NfccHost::~NfccHost()
 bool NfccHost::Initialize()
 {
     DebugLog("NfccHost::Initialize");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::Initialize(): unsupported chip type");
+        return true;
+    }
     return NfccNciAdapter::GetInstance().Initialize();
 }
 
 bool NfccHost::Deinitialize()
 {
     DebugLog("NfccHost::Deinitialize");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::Deinitialize(): unsupported chip type");
+        return true;
+    }
     return NfccNciAdapter::GetInstance().Deinitialize();
 }
 
 void NfccHost::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccHost::EnableDiscovery");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::EnableDiscovery(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().EnableDiscovery(techMask, enableReaderMode, enableHostRouting, restart);
 }
 
 void NfccHost::DisableDiscovery()
 {
     DebugLog("NfccHost::DisableDiscovery");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::DisableDiscovery(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().DisableDiscovery();
 }
 
@@ -83,6 +100,10 @@ bool NfccHost::SetScreenStatus(unsigned char screenStateMask)
 int NfccHost::GetNciVersion()
 {
     DebugLog("NfccHost::GetNciVersion");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::GetNciVersion(): unsupported chip type");
+        return 0;
+    }
     return NfccNciAdapter::GetInstance().GetNciVersion();
 }
 

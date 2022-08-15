@@ -38,6 +38,6 @@ private:
     int errCode_;
     std::string fileName_;
 };
-} // Hce
+} // NFC
 } // OHOS
 #endif // NFC_PREF_IMPL_H
