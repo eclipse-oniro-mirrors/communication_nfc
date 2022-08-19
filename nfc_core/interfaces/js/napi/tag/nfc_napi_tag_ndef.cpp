@@ -650,9 +650,18 @@ napi_value NapiNdefTag::GetNdefTagTypeString(napi_env env, napi_callback_info in
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
+    // check parameter number
     if (argc != expectedArgsCount) {
-        ErrorLog("Requires 1 argument.");
+        ErrorLog("NapiNdefTag::GetNdefTagTypeString, Requires 1 argument.");
         return result;
+    }
+    // check parameter data type
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARGV_INDEX_0], &valueType));
+
+    if (valueType != napi_number) {
+        ErrorLog("NapiNdefTag::GetNdefTagTypeString, Invalid data type!");
+        return nullptr;
     }
 
     NapiNdefTag *objectInfo = nullptr;
