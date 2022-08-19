@@ -60,9 +60,16 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
+    // check parameter number
     if (argc != expectedArgsCount) {
-        ErrorLog("Requires 1 argument.");
+        ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Requires 1 argument.");
         return result;
+    }
+    // check parameter data type
+    napi_valuetype valueType = napi_undefined;
+    if (valueType != napi_number) {
+        ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Invalid data type!");
+        return nullptr;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -182,9 +189,16 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
+    // check parameter number
     if (argc != expectedArgsCount) {
-        ErrorLog("Requires 1 argument.");
+        ErrorLog("NapiMifareClassicTag::GetBlockIndex, Requires 1 argument.");
         return result;
+    }
+    // check parameter data type
+    napi_valuetype valueType = napi_undefined;
+    if (valueType != napi_number) {
+        ErrorLog("NapiMifareClassicTag::GetBlockIndex, Invalid data type!");
+        return nullptr;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -220,9 +234,16 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
+    // check parameter number
     if (argc != expectedArgsCount) {
-        ErrorLog("Requires 1 argument.");
+        ErrorLog("NapiMifareClassicTag::GetSectorIndex, Requires 1 argument.");
         return result;
+    }
+    // check parameter data type
+    napi_valuetype valueType = napi_undefined;
+    if (valueType != napi_number) {
+        ErrorLog("NapiMifareClassicTag::GetSectorIndex, Invalid data type!");
+        return nullptr;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
