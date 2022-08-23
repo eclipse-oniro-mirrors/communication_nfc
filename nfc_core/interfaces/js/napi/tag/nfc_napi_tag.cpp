@@ -29,6 +29,7 @@ napi_value ndefTagObject;
 napi_value mifareClassicTagObject;
 napi_value mifareUltralightTagObject;
 napi_value ndefFormatableTagObject;
+std::shared_ptr<TagInfo> nfcTaginfo;
 
 napi_value ParseIntArray(napi_env env, napi_value obj, std::vector<int> &typeArray)
 {
@@ -195,7 +196,6 @@ template<typename T, typename D>
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("nfcTag JS_Constructor");
-    std::shared_ptr<TagInfo> nfcTaginfo;
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNfcTagSession *nfcTag = new T();
     size_t argc = 1;
@@ -229,7 +229,7 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
         env, thisVar, nfcTag,
         [](napi_env env, void *data, void *hint) {
             if (data) {
-                D *nfcTag = (D *)data;
+                T *nfcTag = (T *)data;
                 delete nfcTag;
             }
         },
