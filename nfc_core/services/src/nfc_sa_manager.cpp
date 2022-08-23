@@ -61,10 +61,27 @@ bool NfcSaManager::Init()
             InfoLog("NfcSaManager::Init Add System Ability failed!");
             return false;
         }
+        AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
         registerToService_ = true;
     }
     InfoLog("NfcSaManager::Init init success.");
     return true;
+}
+
+void NfcSaManager::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    InfoLog("OnAddSystemAbility systemAbilityId:%{public}d added!", systemAbilityId);
+    if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
+        InfoLog("ImCommonEventManager::OnAddSystemAbility systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
+    }
+    nfcService_->eventHandler_->SubscribePackageChangedEvent();
+    nfcService_->eventHandler_->SubscribeScreenChangedEvent();
+}
+
+void NfcSaManager::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    InfoLog("NfcSaManager OnRemoveSystemAbility finish");
 }
 
 void NfcSaManager::OnStop()

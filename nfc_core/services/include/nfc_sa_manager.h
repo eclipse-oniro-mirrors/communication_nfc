@@ -15,6 +15,7 @@
 #ifndef NFC_SA_MANAGER_H
 #define NFC_SA_MANAGER_H
 
+#include "common_event_handler.h"
 #include "iservice_registry.h"
 #include "nfc_controller_impl.h"
 #include "nfc_service.h"
@@ -37,6 +38,8 @@ public:
     /* Nfc open or close operations */
     void OnStart() override;
     void OnStop() override;
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
     /* query service state */
     ServiceRunningState QueryServiceState() const

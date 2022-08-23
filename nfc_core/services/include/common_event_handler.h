@@ -34,6 +34,9 @@ public:
     void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher);
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 
+    void SubscribeScreenChangedEvent();
+    void SubscribePackageChangedEvent();
+
 protected:
     // Screen Changed Receiver
     class ScreenChangedReceiver;
@@ -41,9 +44,6 @@ protected:
     class PackageChangedReceiver;
 
 private:
-    void SubscribeScreenChangedEvent();
-    void SubscribePackageChangedEvent();
-
     std::shared_ptr<EventFwk::CommonEventSubscriber> screenSubscriber_ {};
     std::shared_ptr<EventFwk::CommonEventSubscriber> pkgSubscriber_ {};
 
