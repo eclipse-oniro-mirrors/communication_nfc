@@ -75,6 +75,14 @@ void NfcSaManager::OnAddSystemAbility(int32_t systemAbilityId, const std::string
         InfoLog("OnAddSystemAbility systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
     }
+    if (nfcService_ == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return;
+    }
+    if (nfcService_->eventHandler_ == nullptr) {
+        ErrorLog("eventHandler_ is nullptr");
+        return;
+    }
     nfcService_->eventHandler_->SubscribePackageChangedEvent();
     nfcService_->eventHandler_->SubscribeScreenChangedEvent();
 }
