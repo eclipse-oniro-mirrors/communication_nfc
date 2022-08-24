@@ -45,14 +45,14 @@ static napi_value CreateEnumNfcState(napi_env env, napi_value exports)
     napi_value state_on = nullptr;
     napi_value state_turning_off = nullptr;
     napi_create_int32(env, (int32_t)NfcState::STATE_OFF, &state_off);
-    napi_create_int32(env, (int32_t)NfcState::STATE_TURNING_ON, &state_turning_off);
+    napi_create_int32(env, (int32_t)NfcState::STATE_TURNING_OFF, &state_turning_off);
     napi_create_int32(env, (int32_t)NfcState::STATE_ON, &state_on);
     napi_create_int32(env, (int32_t)NfcState::STATE_TURNING_ON, &state_turning_on);
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_PROPERTY("STATE_OFF", state_off),
-        DECLARE_NAPI_PROPERTY("STATE_TURNING_OFF", state_turning_off),
-        DECLARE_NAPI_PROPERTY("STATE_ON", state_on),
-        DECLARE_NAPI_PROPERTY("STATE_TURNING_ON", state_turning_on),
+        DECLARE_NAPI_STATIC_PROPERTY("STATE_OFF", state_off),
+        DECLARE_NAPI_STATIC_PROPERTY("STATE_TURNING_OFF", state_turning_off),
+        DECLARE_NAPI_STATIC_PROPERTY("STATE_ON", state_on),
+        DECLARE_NAPI_STATIC_PROPERTY("STATE_TURNING_ON", state_turning_on),
     };
     napi_value result = nullptr;
     napi_define_class(env, "NfcState", NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
