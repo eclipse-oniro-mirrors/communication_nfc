@@ -58,7 +58,6 @@ bool NfcControllerProxy::TurnOff()
     int res = ProcessBoolRes(KITS::COMMAND_TURN_OFF, data, option, result);
     if (res != ERR_NONE) {
         ErrorLog("NfcControllerProxy::TurnOff error.");
-        DebugLog("NfcControllerProxy::TurnOff error.");
         return false;
     }
     return result;
