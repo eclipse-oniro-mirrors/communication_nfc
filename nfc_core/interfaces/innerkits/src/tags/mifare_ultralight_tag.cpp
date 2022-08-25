@@ -53,7 +53,7 @@ std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<T
 {
     InfoLog("MifareUltralightTag::GetTag in tech len.%{public}d ", (int)tag.lock()->GetTagTechList().size());
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
-        DebugLog("MifareUltralightTag::GetTag tag invalid");
+        ErrorLog("MifareUltralightTag::GetTag tag invalid");
         return nullptr;
     }
 
