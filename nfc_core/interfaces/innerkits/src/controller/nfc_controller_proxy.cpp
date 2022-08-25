@@ -82,7 +82,7 @@ int NfcControllerProxy::GetState()
 
 bool NfcControllerProxy::IsNfcOpen()
 {
-    InfoLog("NfcControllerProxy::IsNfcOpen.");
+    DebugLog("NfcControllerProxy::IsNfcOpen.");
     bool result = true;
     MessageParcel data;
     MessageOption option;
