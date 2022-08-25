@@ -26,7 +26,7 @@ int NfcBasicProxy::ProcessIntRes(int cmd, MessageParcel& data, MessageOption& op
         result = reply.ReadInt32();
         InfoLog("It is successful To send request %{public}d with Res %{public}d.", cmd, res);
     } else {
-        InfoLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
+        ErrorLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
     }
     return res;
 }
@@ -40,7 +40,7 @@ int NfcBasicProxy::ProcessBoolRes(int cmd, MessageParcel& data, MessageOption& o
         InfoLog("It is successful To send request(%{public}d) with Res(%{public}d) result(%{public}d).",
             cmd, res, result);
     } else {
-        InfoLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
+        ErrorLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
     }
     return res;
 }

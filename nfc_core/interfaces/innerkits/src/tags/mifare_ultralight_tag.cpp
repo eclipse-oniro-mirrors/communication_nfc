@@ -24,7 +24,7 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
 {
     InfoLog("MifareUltralightTag::MifareUltralightTag in");
     if (tag.expired()) {
-        InfoLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
+        DebugLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
@@ -37,7 +37,7 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
             tag.lock()->GetTagUid().at(0));
     if ((tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK) == 0x00) &&
         tag.lock()->GetTagUid().at(0) == NXP_MANUFACTURER_ID) {
-        InfoLog("MifareUltralightTag::MifareUltralightTag Ctype.%{public}d",
+        DebugLog("MifareUltralightTag::MifareUltralightTag Ctype.%{public}d",
                 tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE));
         if (tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
             type_ = EmMifareUltralightType::TYPE_ULTRALIGHT_C;
@@ -53,7 +53,7 @@ std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<T
 {
     InfoLog("MifareUltralightTag::GetTag in tech len.%{public}d ", (int)tag.lock()->GetTagTechList().size());
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
-        InfoLog("MifareUltralightTag::GetTag tag invalid");
+        DebugLog("MifareUltralightTag::GetTag tag invalid");
         return nullptr;
     }
 
@@ -71,7 +71,7 @@ std::string MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex)
         int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
         return SendCommand(sendCommand, false, response);
     } else {
-        DebugLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%{public}d err!", pageIndex);
+        ErrorLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%{public}d err!", pageIndex);
     }
     return "";
 }
@@ -93,7 +93,7 @@ int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string&
         return response;
     }
 
-    InfoLog("MifareUltralightTag::WriteSinglePages param error!");
+    ErrorLog("MifareUltralightTag::WriteSinglePages param error!");
     return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
 }
 

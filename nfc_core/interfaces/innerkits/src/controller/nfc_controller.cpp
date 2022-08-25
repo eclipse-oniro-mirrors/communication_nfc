@@ -62,7 +62,7 @@ void NfcController::InitNfcController()
 
 NfcController &NfcController::GetInstance()
 {
-    InfoLog("NfcController::GetInstance in.");
+    DebugLog("NfcController::GetInstance in.");
     InitNfcController();
     static NfcController instance;
     return instance;

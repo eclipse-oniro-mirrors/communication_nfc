@@ -23,12 +23,12 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 {
     DebugLog("NdefTag::NdefTag in");
     if (tag.expired()) {
-        DebugLog("NdefTag::NdefTag tag invalid");
+        ErrorLog("NdefTag::NdefTag tag invalid");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_NDEF_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("NdefTag::NdefTag extra data invalid");
+        ErrorLog("NdefTag::NdefTag extra data invalid");
         return;
     }
 
@@ -36,14 +36,14 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
     ndefTagMode_ = (EmNdefTagMode)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_MODE);
     ndefMsg_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NDEF_MSG);
 
-    DebugLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) ndefMsg_(%{public}s)",
+    InfoLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) ndefMsg_(%{public}s)",
              nfcForumType_, ndefTagMode_, ndefMsg_.c_str());
 }
 
 std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
-        DebugLog("NdefTag::GetTag error");
+        ErrorLog("NdefTag::GetTag error");
         return nullptr;
     }
 
@@ -67,7 +67,7 @@ std::shared_ptr<NdefMessage> NdefTag::GetCachedNdefMsg() const
 
 std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
 {
-    InfoLog("NdefTag::GetNdefTagTypeString in");
+    DebugLog("NdefTag::GetNdefTagTypeString in");
     std::string typeString;
     switch (emNfcForumType) {
         case NFC_FORUM_TYPE_1:
@@ -91,7 +91,7 @@ std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
         default:
             break;
     }
-    DebugLog("[NdefTag::GetNdefTagTypeString] typeString=%{public}d.", emNfcForumType);
+    InfoLog("[NdefTag::GetNdefTagTypeString] typeString=%{public}d.", emNfcForumType);
     return typeString;
 }
 
@@ -105,21 +105,21 @@ std::shared_ptr<NdefMessage> NdefTag::ReadNdef()
     DebugLog("NdefTag::ReadNdef in.");
     OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
     if (!tagSession) {
-        DebugLog("[NdefTag::ReadNdef] tagSession is null.");
+        ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
         return std::shared_ptr<NdefMessage>();
     }
 
     if (tagSession->IsNdef(GetTagRfDiscId())) {
         std::string MessageData = tagSession->NdefRead(GetTagRfDiscId());
         if (MessageData.empty() && !tagSession->IsTagFieldOn(GetTagRfDiscId())) {
-            DebugLog("[NdefTag::ReadNdef] read ndef message is null and tag is not field on");
+            ErrorLog("[NdefTag::ReadNdef] read ndef message is null and tag is not field on");
             return std::shared_ptr<NdefMessage>();
         }
 
         return NdefMessage::GetNdefMessage(MessageData);
     } else {
         if (!tagSession->IsTagFieldOn(GetTagRfDiscId())) {
-            DebugLog("[NdefTag::ReadNdef] tag is not field on.");
+            WarnLog("[NdefTag::ReadNdef] tag is not field on.");
             return std::shared_ptr<NdefMessage>();
         }
     }
@@ -130,13 +130,13 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
 {
     InfoLog("NdefTag::WriteNdef in.");
     if (!IsConnected()) {
-        DebugLog("[NdefTag::WriteNdef] connect tag first!");
+        ErrorLog("[NdefTag::WriteNdef] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
 
     OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
     if (!tagSession) {
-        DebugLog("[NdefTag::WriteNdef] tagSession is null.");
+        ErrorLog("[NdefTag::WriteNdef] tagSession is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
 
@@ -148,7 +148,7 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         printf("\n");
         return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
     } else {
-        DebugLog("[NdefTag::WriteNdef] is not ndef tag!");
+        ErrorLog("[NdefTag::WriteNdef] is not ndef tag!");
         return NfcErrorCode::NFC_SDK_ERROR_NOT_NDEF_TAG;
     }
 }
@@ -166,12 +166,12 @@ bool NdefTag::IsEnableReadOnly()
 int NdefTag::EnableReadOnly()
 {
     if (!IsConnected()) {
-        DebugLog("[NdefTag::EnableReadOnly] connect tag first!");
+        ErrorLog("[NdefTag::EnableReadOnly] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
     if (!tagSession) {
-        DebugLog("[NdefTag::EnableReadOnly] tagSession is null.");
+        ErrorLog("[NdefTag::EnableReadOnly] tagSession is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     return tagSession->NdefMakeReadOnly(GetTagRfDiscId());

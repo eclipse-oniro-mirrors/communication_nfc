@@ -21,12 +21,12 @@ namespace KITS {
 NfcFTag::NfcFTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_F_TECH)
 {
     if (tag.expired()) {
-        DebugLog("NfcFTag::NfcFTag tag invalid ");
+        ErrorLog("NfcFTag::NfcFTag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_F_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("NfcFTag::NfcFTag extra data invalid");
+        ErrorLog("NfcFTag::NfcFTag extra data invalid");
         return;
     }
     std::string pmmStr = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_PMM);
@@ -39,7 +39,7 @@ std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     DebugLog("NfcFTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
-        DebugLog("NfcFTag::GetTag no NFC_F_TECH");
+        ErrorLog("NfcFTag::GetTag no NFC_F_TECH");
         return nullptr;
     }
 
