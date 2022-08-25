@@ -37,7 +37,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
     ndefMsg_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NDEF_MSG);
 
     InfoLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) ndefMsg_(%{public}s)",
-             nfcForumType_, ndefTagMode_, ndefMsg_.c_str());
+        nfcForumType_, ndefTagMode_, ndefMsg_.c_str());
 }
 
 std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
