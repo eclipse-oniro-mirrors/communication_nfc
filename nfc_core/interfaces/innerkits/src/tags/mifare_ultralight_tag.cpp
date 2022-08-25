@@ -38,7 +38,7 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
     if ((tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK) == 0x00) &&
         tag.lock()->GetTagUid().at(0) == NXP_MANUFACTURER_ID) {
         DebugLog("MifareUltralightTag::MifareUltralightTag Ctype.%{public}d",
-                tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE));
+            tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE));
         if (tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
             type_ = EmMifareUltralightType::TYPE_ULTRALIGHT_C;
         } else {
