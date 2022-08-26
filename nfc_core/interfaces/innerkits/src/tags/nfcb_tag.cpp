@@ -22,18 +22,18 @@ namespace KITS {
 NfcBTag::NfcBTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_B_TECH)
 {
     if (tag.expired()) {
-        DebugLog("NfcBTag::NfcBTag tag invalid ");
+        ErrorLog("NfcBTag::NfcBTag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_B_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("NfcBTag::NfcBTag extra data invalid");
+        ErrorLog("NfcBTag::NfcBTag extra data invalid");
         return;
     }
 
     appData_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::APP_DATA);
     protocolInfo_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::PROTOCOL_INFO);
-    DebugLog("NfcBTag::NfcBTag appData_(%{public}s) protocolInfo_(%{public}s)",
+    InfoLog("NfcBTag::NfcBTag appData_(%{public}s) protocolInfo_(%{public}s)",
         appData_.c_str(), protocolInfo_.c_str());
 }
 
@@ -41,7 +41,7 @@ std::shared_ptr<NfcBTag> NfcBTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     DebugLog("NfcBTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_B_TECH)) {
-        DebugLog("NfcBTag::GetTag err");
+        ErrorLog("NfcBTag::GetTag err");
         return nullptr;
     }
 

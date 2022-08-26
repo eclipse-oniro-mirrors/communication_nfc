@@ -22,25 +22,25 @@ namespace KITS {
 NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_A_TECH)
 {
     if (tag.expired()) {
-        DebugLog("NfcATag::NfcATag tag invalid ");
+        ErrorLog("NfcATag::NfcATag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_A_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("NfcATag::NfcATag extra data invalid");
+        ErrorLog("NfcATag::NfcATag extra data invalid");
         return;
     }
 
     sak_ = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     atqa_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
-    DebugLog("NfcATag::NfcATag sak_(%{public}d) atqa_(%{public}s)", sak_, atqa_.c_str());
+    InfoLog("NfcATag::NfcATag sak_(%{public}d) atqa_(%{public}s)", sak_, atqa_.c_str());
 }
 
 std::shared_ptr<NfcATag> NfcATag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     DebugLog("NfcATag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH)) {
-        DebugLog("NfcATag::GetTag err");
+        ErrorLog("NfcATag::GetTag err");
         return nullptr;
     }
 

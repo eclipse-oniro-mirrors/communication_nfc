@@ -127,11 +127,11 @@ int TagInfo::GetTagRfDiscId() const
 bool TagInfo::Marshalling(Parcel& parcel) const
 {
     if (remoteTagSession_ == nullptr) {
-        WarnLog("TagInfo::Marshalling remoteTagSession_ is null.");
+        ErrorLog("TagInfo::Marshalling remoteTagSession_ is null.");
         return false;
     }
     if (tagTechList_.size() > MAX_TAG_TECH_NUM) {
-        WarnLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
+        ErrorLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
         return false;
     }
     parcel.WriteInt32(tagRfDiscId_);
@@ -151,20 +151,20 @@ std::shared_ptr<TagInfo> TagInfo::Unmarshalling(Parcel& parcel)
     std::string tagUid = parcel.ReadString();
     int size = parcel.ReadInt32();
     if (size > MAX_TAG_TECH_NUM) {
-        WarnLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
+        ErrorLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
         return nullptr;
     }
     std::vector<int> tagTechList;
     parcel.ReadInt32Vector(&tagTechList);
     sptr<IRemoteObject> tagService = parcel.ReadObject<IRemoteObject>();
     if (tagService == nullptr) {
-        WarnLog("TagInfo::Unmarshalling tagService is null.");
+        ErrorLog("TagInfo::Unmarshalling tagService is null.");
         return nullptr;
     }
     OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(tagService);
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData(parcel.ReadParcelable<AppExecFwk::PacMap>());
     if (tagTechList.size() > 0 && tagTechExtrasData == nullptr) {
-        WarnLog("TagInfo::Unmarshalling tagTechExtrasData is null.");
+        ErrorLog("TagInfo::Unmarshalling tagTechExtrasData is null.");
         return nullptr;
     }
     std::shared_ptr<TagInfo> tag = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData,
