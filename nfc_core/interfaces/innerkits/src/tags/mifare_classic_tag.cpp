@@ -39,7 +39,7 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     int sak = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     std::string atqa = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
 
-    DebugLog("MifareClassicTag::MifareClassicTag sak.%d atqa.(%d)%s", sak, atqa.size(), atqa.c_str());
+    DebugLog("MifareClassicTag::MifareClassicTag sak.%d atqa.(%d)%s", sak, (int)atqa.size(), atqa.c_str());
     for (size_t i = 0; i < atqa.size(); i++) {
         printf("%02x ", atqa.at(i));
     }
@@ -107,7 +107,7 @@ bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& ke
             "[MifareClassicTag::AuthenticateSector] param err! sectorIndex.%d "
             "keyLen.%d",
             sectorIndex,
-            key.size());
+            (int)key.size());
         return false;
     }
 
@@ -154,7 +154,7 @@ int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& d
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || (data.size() != MC_BLOCK_SIZE)) {
-        DebugLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %d dataLen= %d err", blockIndex, data.size());
+        DebugLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %d dataLen= %d err", blockIndex, (int)data.size());
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
