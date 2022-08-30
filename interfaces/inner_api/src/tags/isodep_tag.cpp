@@ -22,12 +22,12 @@ namespace KITS {
 IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_ISODEP_TECH)
 {
     if (tag.expired()) {
-        DebugLog("IsoDepTag::IsoDepTag tag invalid ");
+        ErrorLog("IsoDepTag::IsoDepTag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_ISODEP_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("IsoDepTag::IsoDepTag extra data invalid");
+        ErrorLog("IsoDepTag::IsoDepTag extra data invalid");
         return;
     }
     historicalBytes_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::HISTORICAL_BYTES);
@@ -40,7 +40,7 @@ std::shared_ptr<IsoDepTag> IsoDepTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     DebugLog("IsoDepTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_ISODEP_TECH)) {
-        DebugLog("IsoDepTag::GetTag err");
+        ErrorLog("IsoDepTag::GetTag err");
         return nullptr;
     }
 
