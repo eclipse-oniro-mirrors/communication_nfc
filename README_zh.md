@@ -12,11 +12,11 @@
 
 近距离无线通信技术\(Near Field Communication，NFC\) ，是一种非接触式识别和互联技术，可以在移动设备、消费类电子产品、PC和智能设备间进行近距离无线通信。
 
-OpenHarmony中NFC服务提供有源标签读写能力。
+NFC服务提供NFC开关控制、NFC标签发现和分发、NFC标签读写、NFC卡模拟等业务功能。
 
 ## 系统架构<a name="section342962219551"></a>
 
-**图 1**  NFC组件架构图<a name="fig444313176464"></a>  
+**图 1**  NFC服务组件架构图<a name="fig444313176464"></a>  
 
 
 ![](figures/zh-cn_image_0000001124327253.png)
@@ -30,33 +30,36 @@ OpenHarmony中NFC服务提供有源标签读写能力。
 
 ```
 /foundation/communication/nfc
-├── interfaces                        # 接口代码
-│   └── kits
-│       └── native_cpp                # 本地SDK库
-│           └── connected_tag_base    # NFC有源标签SDK实现
-│           └── napi                  # native api
-│               └── connected_tag     # NFC有源标签native api
-└── sa_profile                        # 服务属性声明
-│   └── connected_tag                 # NFC有源标签服务属性声明
-└── services                          # 子系统服务代码
-    └── connected_tag                 # NFC有源标签服务
-        ├── etc                       # 系统服务配置
-        ├── include                   # 头文件
-        └── src                       # 源文件
+├── interfaces                        # 接口
+│   └── inner_api                     # 系统内部件间接口
+├── frameworks                        # 框架层接口
+│   └── js                            # JS API的实现
+│       └── napi                      # 通过napi封装的JS接口代码实现
+├── services                          # NFC服务进程的实现
+├── test                              # 测试代码
+├── BUILD.gn                          # 编译入口
+└── bundle.json                       # 部件描述文件
 ```
 
 ## 约束<a name="section119744591305"></a>
 
-设备必须具备有源标签芯片，才能使用有源标签的读写服务。
+设备必须具备NFC控制器芯片，才能使用NFC服务。
 
 ## 说明<a name="section1312121216216"></a>
 
 ### 使用说明<a name="section129654513264"></a>
 
--  有源标签的读写
+-  NFC开关
 
-设备必须具备有源标签芯片，才能使用有源标签的读写服务，参考“js-apis-connectedTag.md”有源标签开发指南。
+参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-nfcController.md。
 
+-  NFC标签读写
+
+参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-nfcTag.md。
+
+-  NFC卡模拟
+
+参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-cardEmulation.md。
 
 ## 相关仓<a name="section1371113476307"></a>
 

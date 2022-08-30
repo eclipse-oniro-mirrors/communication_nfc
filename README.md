@@ -11,14 +11,14 @@
 
 Near-field communication \(NFC\) is a non-contact identification and interconnection technology for short-distance wireless communication between mobile devices, consumer electronic products, PCs, and smart devices.
 
-The NFC module provides connected tag reading and writing.
+NFC service provides NFC switch control, NFC tag discovery and dispatch, NFC tag reading and writing, NFC card emulation functions.
 
 ## Architecture<a name="section13587185873516"></a>
 
 **Figure  1**  NFC architecture<a name="fig4460722185514"></a>  
 
 
-![](figures/en-us_image_0000001086731550.gif)
+![](figures/en-us_image_0000001086731550.png)
 
 ## Directory Structure<a name="section161941989596"></a>
 
@@ -26,30 +26,34 @@ The main code directory structure of Intelligent Soft Bus is as follows:
 
 ```
 /foundation/communication
-├── interfaces                        # Interface code
-│   └── kits
-│       └── native_cpp                # Native SDK
-│           └── connected_tag_base    # NFC connected tag SDK
-│           └── napi                  # Native api
-│               └── connected_tag     # Native api of NFC connected tag
-└── sa_profile                        # Declare of sub system attribute
-│   └── connected_tag                 # Declare of NFC connected tag attribute
-└── services                          # Sub system service code folder
-    └── connected_tag                 # NFC connected tag folder
-        ├── etc                       # System service config
-        ├── include                   # Include code
-        └── src                       # Source code
+├── interfaces                        # Interface
+│   └── inner_api                     # System inner interface
+├── frameworks                        # Framework interface
+│   └── js                            # Implementation of JS API
+│       └── napi                      # Napi implementation of JS API
+├── services                          # Service implementation
+├── test                              # Test code
+├── BUILD.gn                          # Build entry
+└── bundle.json                       # Component description
 ```
 
 ## Constraints<a name="section119744591305"></a>
 
--   Devices must has the connected tag chip.
+-   The device must have an NFC controller chip to use NFC services.
 
 ## Usage<a name="section1312121216216"></a>
 
--  connected tag reading and writing.
+-  NFC switch
 
-Devices must has the connected tag chip to connected tag reading and writing. Please reference "js-apis-connectedTag.md”。
+Please reference: docs/zh-cn/application-dev/reference/apis/js-apis-nfcController.md。
+
+-  NFC tag reading and writing
+
+Please reference: docs/zh-cn/application-dev/reference/apis/js-apis-nfcTag.md。
+
+-  NFC card emulation
+
+Please reference: docs/zh-cn/application-dev/reference/apis/js-apis-cardEmulation.md。
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
