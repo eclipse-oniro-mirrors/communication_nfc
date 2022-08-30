@@ -75,7 +75,7 @@ KITS::NfcErrorCode NfcControllerCallBackStub::RegisterCallBack(const sptr<INfcCo
     DebugLog("NfcControllerCallBackStub RegisterCallBack");
     std::shared_lock<std::shared_mutex> guard(callbackMutex);
     if (callBack == nullptr) {
-        DebugLog("RegisterUserCallBack:callBack is nullptr!");
+        ErrorLog("RegisterUserCallBack:callBack is nullptr!");
         callback_ = callBack;
         return KITS::NFC_FAILED;
     }

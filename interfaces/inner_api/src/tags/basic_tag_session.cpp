@@ -116,7 +116,7 @@ OHOS::sptr<TAG::ITagSession> BasicTagSession::GetRemoteTagSession() const
 {
     DebugLog("BasicTagSession::GetRemoteTagSession in.");
     if (!IsConnected() || tagInfo_.expired()) {
-        DebugLog("[BasicTagSession::GetRemoteTagSession] tag is null.");
+        ErrorLog("[BasicTagSession::GetRemoteTagSession] tag is null.");
         return OHOS::sptr<TAG::ITagSession>();
     }
     return tagInfo_.lock()->GetRemoteTagSession();
@@ -125,7 +125,7 @@ OHOS::sptr<TAG::ITagSession> BasicTagSession::GetRemoteTagSession() const
 int BasicTagSession::GetTagRfDiscId() const
 {
     if (tagInfo_.expired()) {
-        DebugLog("[BasicTagSession::GetTagRfDiscId] tag is null.");
+        ErrorLog("[BasicTagSession::GetTagRfDiscId] tag is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_INVALID;
     }
     return tagInfo_.lock()->GetTagRfDiscId();
@@ -134,7 +134,7 @@ int BasicTagSession::GetTagRfDiscId() const
 void BasicTagSession::SetConnectedTagTech(KITS::TagTechnology tech) const
 {
     if (tagInfo_.expired()) {
-        DebugLog("[BasicTagSession::SetConnectedTagTech] tag is null.");
+        ErrorLog("[BasicTagSession::SetConnectedTagTech] tag is null.");
         return;
     }
     tagInfo_.lock()->SetConnectedTagTech(tech);
@@ -143,7 +143,7 @@ void BasicTagSession::SetConnectedTagTech(KITS::TagTechnology tech) const
 KITS::TagTechnology BasicTagSession::GetConnectedTagTech() const
 {
     if (tagInfo_.expired()) {
-        DebugLog("[BasicTagSession::GetConnectedTagTech] tag is null.");
+        ErrorLog("[BasicTagSession::GetConnectedTagTech] tag is null.");
         return KITS::TagTechnology::NFC_INVALID_TECH;
     }
 

@@ -48,7 +48,7 @@ void NfcController::InitNfcController()
             SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         OHOS::sptr<OHOS::IRemoteObject> obj = systemAbilityMgr->GetSystemAbility(NFC_MANAGER_SYS_ABILITY_ID);
         if (obj == nullptr) {
-            DebugLog("Nfc Controller Is Unexist.");
+            ErrorLog("Nfc Controller Is Unexist.");
             return;
         }
         nfcControllerProxy_ = std::make_shared<NfcControllerProxy>(obj);

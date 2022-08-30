@@ -22,12 +22,12 @@ namespace KITS {
 Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_V_TECH)
 {
     if (tag.expired()) {
-        DebugLog("Iso15693Tag::Iso15693Tag tag invalid ");
+        ErrorLog("Iso15693Tag::Iso15693Tag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_V_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("Iso15693Tag::Iso15693Tag extra data invalid");
+        ErrorLog("Iso15693Tag::Iso15693Tag extra data invalid");
         return;
     }
     dsfId_ = char(tag.lock()->GetIntExtrasData(extraData, TagInfo::DSF_ID));
@@ -54,7 +54,7 @@ std::string Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex)
     InfoLog("Iso15693Tag::ReadSingleBlock in flag= %{public}d blockIndex= %{public}d", flag, blockIndex);
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         !IsConnected()) {
-        DebugLog("[Iso15693Tag::ReadSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
+        ErrorLog("[Iso15693Tag::ReadSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return "";
     }
 
@@ -71,11 +71,11 @@ int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std:
 {
     InfoLog("Iso15693Tag::WriteSingleBlock in");
     if (!IsConnected()) {
-        DebugLog("[Iso15693Tag::WriteSingleBlock] connect tag first!");
+        ErrorLog("[Iso15693Tag::WriteSingleBlock] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::WriteSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
+        ErrorLog("[Iso15693Tag::WriteSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -93,11 +93,11 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
 {
     InfoLog("Iso15693Tag::LockSingleBlock in");
     if (!IsConnected()) {
-        DebugLog("[Iso15693Tag::LockSingleBlock] connect tag first!");
+        ErrorLog("[Iso15693Tag::LockSingleBlock] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::LockSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
+        ErrorLog("[Iso15693Tag::LockSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
@@ -139,7 +139,7 @@ int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t
 {
     InfoLog("Iso15693Tag::WriteMultipleBlock in");
     if (!IsConnected()) {
-        DebugLog("[Iso15693Tag::WriteMultipleBlock] connect tag first!");
+        ErrorLog("[Iso15693Tag::WriteMultipleBlock] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||

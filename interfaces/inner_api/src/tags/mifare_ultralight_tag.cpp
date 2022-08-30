@@ -24,12 +24,12 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
 {
     InfoLog("MifareUltralightTag::MifareUltralightTag in");
     if (tag.expired()) {
-        DebugLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
+        ErrorLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
         return;
     }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
     if (extraData.IsEmpty()) {
-        DebugLog("MifareUltralightTag::MifareUltralightTag extra data invalid");
+        ErrorLog("MifareUltralightTag::MifareUltralightTag extra data invalid");
         return;
     }
     InfoLog("MifareUltralightTag::MifareUltralightTag sak.%{public}d tagid.%{public}d",
