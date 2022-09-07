@@ -33,30 +33,30 @@ public:
     // define TagExternData Name
     static constexpr const auto TECH_EXTRA_DATA_PREFIX = "Tech_Extra_Data_";
     // ISODEP
-    static constexpr const auto HISTORICAL_BYTES = "HistoricalBytes";
-    static constexpr const auto HILAYER_RESPONSE = "HiLayerResponse";
+    static constexpr const auto HISTORICAL_BYTES = "historicalBytes";
+    static constexpr const auto HILAYER_RESPONSE = "hiLayerResponse";
     // iso 14443-3a
-    static constexpr const auto SAK = "Sak";
-    static constexpr const auto ATQA = "Atqa";
+    static constexpr const auto SAK = "sak";
+    static constexpr const auto ATQA = "atqa";
     // iso 14443-3b
-    static constexpr const auto APP_DATA = "AppData";
-    static constexpr const auto PROTOCOL_INFO = "ProtocolInfo";
+    static constexpr const auto APP_DATA = "appData";
+    static constexpr const auto PROTOCOL_INFO = "protocolInfo";
     // NDEF
-    static constexpr const auto NDEF_MSG = "NdefMsg";
-    static constexpr const auto NDEF_FORUM_TYPE = "NdefForumType";
-    static constexpr const auto NDEF_TAG_MODE = "NdefTagMode";
+    static constexpr const auto NDEF_MSG = "ndefMsg";
+    static constexpr const auto NDEF_FORUM_TYPE = "ndefForumType";
+    static constexpr const auto NDEF_TAG_MODE = "ndefTagMode";
     // MifareUltralight
-    static constexpr const auto MIFARE_ULTRALIGHT_C_TYPE = "MifareUltralightC";
+    static constexpr const auto MIFARE_ULTRALIGHT_C_TYPE = "mifareUltralightC";
     // Iso15693
-    static constexpr const auto RESPONSE_FLAGS = "ResponseFlags";
-    static constexpr const auto DSF_ID = "DsfId";
+    static constexpr const auto RESPONSE_FLAGS = "responseFlags";
+    static constexpr const auto DSF_ID = "dsfId";
     // NfcF, Feilica
-    static constexpr const auto NFCF_SC = "SystemCode";
-    static constexpr const auto NFCF_PMM = "Pmm";
+    static constexpr const auto NFCF_SC = "systemCode";
+    static constexpr const auto NFCF_PMM = "pmm";
 
 public:
     TagInfo(std::vector<int> tagTechList,
-        std::weak_ptr<AppExecFwk::PacMap> tagTechExtrasData,
+        std::vector<std::shared_ptr<AppExecFwk::PacMap>> tagTechExtrasDatas,
         std::string& tagUid,
         int tagRfDiscId,
         OHOS::sptr<TAG::ITagSession> tagSession);
@@ -70,7 +70,7 @@ public:
 
     std::string GetStringExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     int GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
-    std::weak_ptr<AppExecFwk::PacMap> GetTagExtrasData() const;
+    std::vector<std::shared_ptr<AppExecFwk::PacMap>> GetTagExtrasDatas() const;
     AppExecFwk::PacMap GetTechExtrasData(KITS::TagTechnology tech);
     bool IsTechSupported(KITS::TagTechnology tech);
     int GetTagRfDiscId() const;
@@ -87,7 +87,7 @@ private:
     std::vector<int> tagTechList_;
 
     OHOS::sptr<TAG::ITagSession> remoteTagSession_;
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData_;
+    std::vector<std::shared_ptr<AppExecFwk::PacMap>> tagTechExtrasDatas_;
     friend class BasicTagSession;
     friend class NdefTag;
     friend class NdefFormatableTag;
