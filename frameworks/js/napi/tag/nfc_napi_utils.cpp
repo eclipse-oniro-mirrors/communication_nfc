@@ -288,7 +288,7 @@ void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<u
     DebugLog("ConvertUsignedCharVectorToJS size is %{public}zu", unsignedCharVector.size());
     for (size_t i = 0; i < unsignedCharVector.size(); i++){
         int32_t intVaule = static_cast<int32_t>(unsignedCharVector[i]);
-        DebugLog("ConvertUsignedCharVectorToJS int value %{public}d is %{public}d", i, intVaule);
+        DebugLog("ConvertUsignedCharVectorToJS int value %{public}zu is %{public}d", i, intVaule);
         napi_value obj = nullptr;
         napi_create_int32(env, intVaule, &obj);
         napi_set_element(env, result, i, obj);
