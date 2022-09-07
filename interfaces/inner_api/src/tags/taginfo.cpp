@@ -24,7 +24,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 TagInfo::TagInfo(std::vector<int> tagTechList,
-                 std::weak_ptr<AppExecFwk::PacMap> tagTechExtrasData,
+                 std::vector<std::shared_ptr<AppExecFwk::PacMap>> tagTechExtrasDatas,
                  std::string& tagUid,
                  int tagRfDiscId,
                  OHOS::sptr<TAG::ITagSession> tagSession)
@@ -33,7 +33,7 @@ TagInfo::TagInfo(std::vector<int> tagTechList,
       tagUid_(tagUid),
       tagTechList_(std::move(tagTechList)),
       remoteTagSession_(tagSession),
-      tagTechExtrasData_(tagTechExtrasData.lock())
+      tagTechExtrasDatas_(tagTechExtrasDatas)
 {
 }
 
@@ -60,9 +60,9 @@ OHOS::sptr<TAG::ITagSession> TagInfo::GetRemoteTagSession() const
     return remoteTagSession_;
 }
 
-std::weak_ptr<AppExecFwk::PacMap> TagInfo::GetTagExtrasData() const
+std::vector<std::shared_ptr<AppExecFwk::PacMap>> TagInfo::GetTagExtrasDatas() const
 {
-    return tagTechExtrasData_;
+    return tagTechExtrasDatas_;
 }
 
 std::vector<int> TagInfo::GetTagTechList() const
@@ -73,13 +73,16 @@ std::vector<int> TagInfo::GetTagTechList() const
 AppExecFwk::PacMap TagInfo::GetTechExtrasData(KITS::TagTechnology tech)
 {
     AppExecFwk::PacMap pacmap;
-    if (!tagTechExtrasData_) {
+    if (tagTechExtrasDatas_.empty()) {
         return pacmap;
     }
 
-    for (int i = 0; i < int(tagTechList_.size()); i++) {
+    int extraLength = tagTechExtrasDatas_.size();
+    DebugLog("GetTechExtrasData length is %{public}d ", extraLength);
+
+    for (int i = 0; i < tagTechList_.size(); i++) {
         if (static_cast<int>(tech) == tagTechList_[i]) {
-            pacmap = tagTechExtrasData_->GetPacMap(TECH_EXTRA_DATA_PREFIX + std::to_string(i));
+            pacmap = *(tagTechExtrasDatas_[i]);
         }
     }
     return pacmap;
@@ -101,7 +104,7 @@ int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string&
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 
-    return extrasData.GetLongValue(extrasName);
+    return extrasData.GetIntValue(extrasName);
 }
 
 void TagInfo::SetConnectedTagTech(KITS::TagTechnology connectedTagTech)
@@ -139,8 +142,11 @@ bool TagInfo::Marshalling(Parcel& parcel) const
     parcel.WriteInt32(tagTechList_.size());
     parcel.WriteInt32Vector(tagTechList_);
     parcel.WriteObject<IRemoteObject>(remoteTagSession_->AsObject());
-    if (tagTechList_.size() > 0 && tagTechExtrasData_ != nullptr) {
-        parcel.WriteParcelable(tagTechExtrasData_.get());
+
+    if (tagTechList_.size() > 0 && (!tagTechExtrasDatas_.empty())) {
+        for (size_t i = 0; i < tagTechExtrasDatas_.size(); i++) {
+            parcel.WriteParcelable(tagTechExtrasDatas_[i].get());
+        }
     }
     return true;
 }
@@ -162,12 +168,23 @@ std::shared_ptr<TagInfo> TagInfo::Unmarshalling(Parcel& parcel)
         return nullptr;
     }
     OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(tagService);
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData(parcel.ReadParcelable<AppExecFwk::PacMap>());
-    if (tagTechList.size() > 0 && tagTechExtrasData == nullptr) {
-        ErrorLog("TagInfo::Unmarshalling tagTechExtrasData is null.");
+    std::vector<std::shared_ptr<AppExecFwk::PacMap>> tagTechExtrasDatas_;
+
+    if (tagTechExtrasDatas_.empty()) {
+        ErrorLog("TagInfo::Unmarshalling tagTechExtrasDatas is null.");
         return nullptr;
     }
-    std::shared_ptr<TagInfo> tag = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData,
+    
+    if (tagTechList.size() > 0 ) {
+        for (size_t i = 0; i < tagTechExtrasDatas_.size(); i++){
+            std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData(parcel.ReadParcelable<AppExecFwk::PacMap>());
+            tagTechExtrasDatas_[i] = tagTechExtrasData;
+        }
+    } else {
+        ErrorLog("TagInfo::Unmarshalling tagTechList is empty.");
+        return nullptr;
+    }
+    std::shared_ptr<TagInfo> tag = std::make_shared<TagInfo>(tagTechList, tagTechExtrasDatas_,
         tagUid, tagRfDiscId, tagSession);
     return tag;
 }
