@@ -41,7 +41,7 @@ napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
     } else {
         std::vector<unsigned char> sysCode = nfcFTagPtr->getSystemCode();     
         for(size_t i=0; i<sysCode.size();i++){
-        DebugLog("NapiNfcFTag::systemCode  %{public}d is %{public}zu", i, sysCode[i]);
+        DebugLog("NapiNfcFTag::systemCode  %{public}zu is %{public}hhu", i, sysCode[i]);
         }
         napi_value result = nullptr;
         napi_create_array_with_length(env, sysCode.size(), &result);
@@ -70,7 +70,7 @@ napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
     } else {
         std::vector<unsigned char> pmm = nfcFTagPtr->getPmm();  
         for(size_t i=0; i<pmm.size();i++){
-        DebugLog("NapiNfcFTag::pmm  %{public}d is %{public}zu", i, pmm[i]);
+        DebugLog("NapiNfcFTag::pmm  %{public}zu is %{public}hhu", i, pmm[i]);
         }
         napi_value result = nullptr;
         napi_create_array_with_length(env, pmm.size(), &result);
