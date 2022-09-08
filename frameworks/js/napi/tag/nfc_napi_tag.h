@@ -34,10 +34,10 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-napi_value RegisterNfcATagObject(napi_env env, napi_value exports);
-napi_value RegisterNfcBTagObject(napi_env env, napi_value exports);
-napi_value RegisterNfcFTagObject(napi_env env, napi_value exports);
-napi_value RegisterNfcVTagObject(napi_env env, napi_value exports);
+napi_value RegisternfcATagObject(napi_env env, napi_value exports);
+napi_value RegisternfcBTagObject(napi_env env, napi_value exports);
+napi_value RegisternfcFTagObject(napi_env env, napi_value exports);
+napi_value RegisternfcVTagObject(napi_env env, napi_value exports);
 napi_value RegisterIsoDepTagObject(napi_env env, napi_value exports);
 napi_value RegisterNdefTagObject(napi_env env, napi_value exports);
 napi_value RegisterMifareClassicTagObject(napi_env env, napi_value exports);
