@@ -72,9 +72,9 @@ void SetPacMapObject(
         DebugLog("SetPacMap keystr :%{public}s", valueString.c_str());
         pacMap->PutStringValue(keyStr, valueString);
     } else if (valueType == napi_number) {
-        int valueNumber = 0;
-        napi_get_value_int32(env, value, &valueNumber);
-        pacMap->PutIntValue(keyStr, valueNumber);
+        double valueNumber = 0;
+        napi_get_value_double(env, value, &valueNumber);
+        pacMap->PutDoubleValue(keyStr, valueNumber);
     } else if (valueType == napi_boolean) {
         bool valueBool = false;
         napi_get_value_bool(env, value, &valueBool);
@@ -82,9 +82,7 @@ void SetPacMapObject(
     } else if (valueType == napi_null) {
         pacMap->PutObject(keyStr, nullptr);
     } else if (valueType == napi_object) {
-        std::vector<std::string> stringValues;
-        ParseStringArray(env, value, stringValues);
-        pacMap->PutStringValueArray(keyStr, stringValues);
+        pacMap->PutStringValueArray(keyStr, ConvertStringVector(env, value));
     } else {
         ErrorLog("SetPacMapObject pacMap type error");
     }
@@ -105,35 +103,13 @@ void AnalysisPacMap(std::shared_ptr<AppExecFwk::PacMap> &pacMap, const napi_env 
         napi_value key = 0;
         status = napi_get_element(env, keys, i, &key);
         std::string keyStr = UnwrapStringFromJS(env, key);
-        DebugLog("keyStr:%{public}s", keyStr.c_str());
         napi_value value = 0;
         napi_get_property(env, arg, key, &value);
         SetPacMapObject(pacMap, env, keyStr, value);
     }
 }
 
-void AnalysisPacMapArray(std::vector<std::shared_ptr<AppExecFwk::PacMap>> &tagTechExtrasDatas, const napi_env &env, const napi_value &arg)
-{
-    DebugLog("AnalysisPacMapArray begin");
-
-    uint32_t arrLen = 0;
-    napi_status status = napi_get_array_length(env, arg, &arrLen);
-
-    DebugLog("AnalysisPacMapArray array length %{public}d", arrLen);
-    if (status != napi_ok) {
-        ErrorLog("AnalysisPacMapArray err");
-        return;
-    }
-    for (size_t i = 0; i < arrLen; ++i) {
-        std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
-        napi_value pacMap = 0;
-        status = napi_get_element(env, arg, i, &pacMap);
-        AnalysisPacMap(tagTechExtrasData, env, pacMap);
-        tagTechExtrasDatas.push_back(tagTechExtrasData);
-    }
-}
-
-napi_value ParseExtrasData(napi_env env, napi_value obj, std::vector<std::shared_ptr<AppExecFwk::PacMap>> &tagTechExtrasDatas)
+napi_value ParseExtrasData(napi_env env, napi_value obj, std::shared_ptr<AppExecFwk::PacMap> &tagTechExtrasData)
 {
     napi_valuetype valueType = napi_undefined;
 
@@ -141,7 +117,7 @@ napi_value ParseExtrasData(napi_env env, napi_value obj, std::vector<std::shared
 
     if (valueType == napi_object) {
         DebugLog("PacMap parse begin");
-        AnalysisPacMapArray(tagTechExtrasDatas, env, obj);
+        AnalysisPacMap(tagTechExtrasData, env, obj);
     } else {
         ErrorLog("ParseExtrasData wrong arg!");
         return nullptr;
@@ -185,10 +161,10 @@ std::shared_ptr<TagInfo> ParseTagInfo(napi_env env, napi_value obj)
         }
     }
 
-    std::vector<std::shared_ptr<AppExecFwk::PacMap>> tagTechExtrasDatas;
+    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     napi_value extrasData = GetNamedProperty(env, obj, "extrasData");
     if (extrasData) {
-        if (ParseExtrasData(env, extrasData, tagTechExtrasDatas) == nullptr) {
+        if (ParseExtrasData(env, extrasData, tagTechExtrasData) == nullptr) {
             ErrorLog("parse tagTechExtrasData failed");
             return nullptr;
         }
@@ -206,7 +182,7 @@ std::shared_ptr<TagInfo> ParseTagInfo(napi_env env, napi_value obj)
         }
     }
     DebugLog("taginfo parse finished.");
-    return std::make_shared<TagInfo>(tagTechList, tagTechExtrasDatas, tagUid, tagRfDiscId, tagSession);
+    return std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
 }
 
 template<typename T>
@@ -316,7 +292,7 @@ napi_status InitMifareUltralightType(napi_env env, napi_value exports)
     return napi_define_properties(env, exports, arrSize, desc);
 }
 
-napi_value RegisterNfcATagObject(napi_env env, napi_value exports)
+napi_value RegisternfcATagObject(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getSak", NapiNfcATag::GetSak),
@@ -333,7 +309,7 @@ napi_value RegisterNfcATagObject(napi_env env, napi_value exports)
     return exports;
 }
 
-napi_value RegisterNfcBTagObject(napi_env env, napi_value exports)
+napi_value RegisternfcBTagObject(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getRespAppData", NapiNfcBTag::GetRespAppData),
@@ -350,7 +326,7 @@ napi_value RegisterNfcBTagObject(napi_env env, napi_value exports)
     return exports;
 }
 
-napi_value RegisterNfcFTagObject(napi_env env, napi_value exports)
+napi_value RegisternfcFTagObject(napi_env env, napi_value exports)
 {
     DebugLog("Register nfcFTag Object begin");
     napi_property_descriptor desc[] = {
@@ -368,7 +344,7 @@ napi_value RegisterNfcFTagObject(napi_env env, napi_value exports)
     return exports;
 }
 
-napi_value RegisterNfcVTagObject(napi_env env, napi_value exports)
+napi_value RegisternfcVTagObject(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getResponseFlags", NapiNfcVTag::GetResponseFlags),
@@ -614,13 +590,13 @@ static napi_value InitJs(napi_env env, napi_value exports)
 {
     DebugLog("Init, nfc_napi_tag");
     // register NfcA tag object
-    RegisterNfcATagObject(env, exports);
+    RegisternfcATagObject(env, exports);
     // register NfcBtag object
-    RegisterNfcBTagObject(env, exports);
+    RegisternfcBTagObject(env, exports);
     // register NfcFtag object
-    RegisterNfcFTagObject(env, exports);
+    RegisternfcFTagObject(env, exports);
     // register NfcVtag object
-    RegisterNfcVTagObject(env, exports);
+    RegisternfcVTagObject(env, exports);
     // register IsoDeptag object
     RegisterIsoDepTagObject(env, exports);
     // register NedfTag object

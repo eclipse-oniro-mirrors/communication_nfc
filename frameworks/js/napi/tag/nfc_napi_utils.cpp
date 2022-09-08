@@ -135,35 +135,6 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     return result;
 }
 
-napi_value ParseStringArray(napi_env env, napi_value obj, std::vector<std::string> &typeArray)
-{
-    bool result = false;
-    napi_status status = napi_is_array(env, obj, &result);
-    if (status != napi_ok || !result) {
-        ErrorLog("Invalid input parameter type!");
-        return nullptr;
-    }
-
-    napi_value elementValue = nullptr;
-    uint32_t arrayLength = 0;
-    NAPI_CALL(env, napi_get_array_length(env, obj, &arrayLength));
-    typeArray.resize(arrayLength);
-    for (uint32_t i = 0; i < arrayLength; ++i) {
-        NAPI_CALL(env, napi_get_element(env, obj, i, &elementValue));
-        napi_valuetype valueType = napi_undefined;
-        napi_typeof(env, elementValue, &valueType);
-        if (valueType == napi_string) {
-            std::string valueString = UnwrapStringFromJS(env, elementValue);
-            typeArray[i] = valueString;
-            DebugLog("ParseStringArray :array[%{public}d] is %{public}s ", i, valueString.c_str());
-        } else {
-            ErrorLog("Invalid parameter type of array element!");
-            return nullptr;
-        }
-    }
-    return CreateUndefined(env);
-}
-
 napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
 {
     napi_value result = nullptr;
@@ -281,17 +252,17 @@ void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int>& int
 void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector)
 {
     DebugLog("ConvertUsignedCharVectorToJS called");
+    size_t idx = 0;
 
     if (unsignedCharVector.empty()) {
         return;
     }
     DebugLog("ConvertUsignedCharVectorToJS size is %{public}zu", unsignedCharVector.size());
-    for (size_t i = 0; i < unsignedCharVector.size(); i++){
-        int32_t intVaule = static_cast<int32_t>(unsignedCharVector[i]);
-        DebugLog("ConvertUsignedCharVectorToJS int value %{public}d is %{public}d", i, intVaule);
+    for (auto& num : unsignedCharVector) {
         napi_value obj = nullptr;
-        napi_create_int32(env, intVaule, &obj);
-        napi_set_element(env, result, i, obj);
+        napi_create_int32(env, num, &obj);
+        napi_set_element(env, result, idx, obj);
+        idx++;
     }
 }
 
