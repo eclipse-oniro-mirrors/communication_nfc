@@ -48,6 +48,7 @@ private:
     int HandleIsNfcOpen(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
 
 private:
     KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,

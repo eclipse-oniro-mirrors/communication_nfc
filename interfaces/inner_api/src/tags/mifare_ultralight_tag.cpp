@@ -27,7 +27,7 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("MifareUltralightTag::MifareUltralightTag extra data invalid");
         return;

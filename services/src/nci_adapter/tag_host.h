@@ -14,9 +14,7 @@
  */
 #ifndef TAG_HOST_H
 #define TAG_HOST_H
-
 #include <mutex>
-
 #include "itag_host.h"
 #include "synchronize_event.h"
 
@@ -88,7 +86,7 @@ public:
     std::vector<int> GetTechList() override;
     int GetConnectedTech() override;
     void RemoveTech(int tech) override;
-    std::weak_ptr<AppExecFwk::PacMap> GetTechExtrasData() override;
+    std::vector<AppExecFwk::PacMap> GetTechExtrasData() override;
     std::string GetTagUid() override;
     int GetTagRfDiscId() override;
 
@@ -125,14 +123,14 @@ private:
     std::mutex mutex_ {};
     /* NFC-A NFC-B NFC-F NFC-V... */
     std::vector<int> tagTechList_;
+    std::vector<AppExecFwk::PacMap> techExtras_;
     std::vector<int> tagRfDiscIdList_;
     std::vector<int> tagActivatedProtocols_;
     std::string tagUid_;
-    std::shared_ptr<AppExecFwk::PacMap> techExtras_;
     std::vector<std::string> tagPollBytes_;
     std::vector<std::string> tagActivatedBytes_;
     int connectedTagDiscId_;
-    uint32_t connectedTechIndex_;
+    int connectedTechIndex_;
     volatile bool isTagFieldOn_;
     volatile bool isFieldChecking_;
     volatile bool isPauseFieldChecking_;

@@ -23,14 +23,72 @@
 #include "nfcc_host.h"
 #include "want.h"
 #include "utils/preferences/nfc_pref_impl.h"
+#include "tag_session.h"
 
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
 
+NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
+    : nfccHost_(std::move(nfccHost)),
+    nfcControllerImpl_(nullptr),
+    eventHandler_(nullptr),
+    tagDispatcher_(nullptr),
+    nfcState_(KITS::STATE_OFF)
+{
+}
+
+NfcService::~NfcService()
+{
+    nfcControllerImpl_ = nullptr;
+    if (task_ && task_->joinable()) {
+        task_->join();
+    }
+    if (rootTask_ && rootTask_->joinable()) {
+        rootTask_->join();
+    }
+}
+
+std::weak_ptr<NfcService> NfcService::GetInstance() const
+{
+    return nfcService_;
+}
+
+bool NfcService::Initialize()
+{
+    nfcService_ = shared_from_this();
+    InfoLog("Nfc service initialize.");
+    if (nfccHost_) {
+        nfccHost_->SetNfccHostListener(nfcService_);
+    } else {
+        nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
+    }
+    AppDataParser::GetInstance().InitAppList();
+
+    // inner message handler, used by other modules as initialization parameters
+    std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
+    eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
+    tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
+    tagSessionIface_ = new TAG::TagSession(shared_from_this());
+
+    // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
+    nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
+
+    eventHandler_->Intialize(tagDispatcher_);
+    runner->Run();
+    // NFC ROOT
+    ExecuteTask(KITS::TASK_INITIALIZE);
+    return true;
+}
+
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
 {
     return tagDispatcher_;
+}
+
+OHOS::sptr<IRemoteObject> NfcService::GetTagServiceIface()
+{
+    return tagSessionIface_;
 }
 
 void NfcService::OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
@@ -164,8 +222,8 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
     std::lock_guard<std::mutex> lock(mutex_);
     bool isExist = false;
     NfcStateRegistryRecord record;
-    InfoLog("RecordsSize=%{public}d,isExist=%{public}d,type=%{public}s,callerToken=%{public}d",
-        (int)stateRecords_.size(), isExist, type.c_str(), callerToken);
+    InfoLog("RecordsSize=%{public}zu,isExist=%{public}d,type=%{public}s,callerToken=%{public}d",
+        stateRecords_.size(), isExist, type.c_str(), callerToken);
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         record = stateRecords_[i];
         InfoLog("record.type_=%{public}s,record.callerToken=%{public}d",
@@ -242,7 +300,7 @@ void NfcService::UpdateNfcState(int newState)
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);
-    DebugLog("stateRecords_.size[%{public}d]", (int)stateRecords_.size());
+    DebugLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         NfcStateRegistryRecord record = stateRecords_[i];
         DebugLog("stateRecords_[%{public}d]:type_=%{public}s,callerToken=%{public}d",
@@ -294,67 +352,11 @@ void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData>
     }
     if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
         (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
-        AppDataParser::GetInstance().PackageAddAndChangeEvent(data);
+        AppDataParser::GetInstance().HandleAppAddOrChangedEvent(data);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        AppDataParser::GetInstance().PackageRemoveEvent(data);
+        AppDataParser::GetInstance().HandleAppRemovedEvent(data);
     } else {
         DebugLog("not need event.");
-    }
-}
-
-std::weak_ptr<NfcService> NfcService::GetInstance() const
-{
-    return nfcService_;
-}
-
-bool NfcService::Initialize()
-{
-    nfcService_ = shared_from_this();
-    InfoLog("Nfc service initialize.");
-    if (nfccHost_) {
-        nfccHost_->SetNfccHostListener(nfcService_);
-    } else {
-        nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
-    }
-    if (!(AppDataParser::GetInstance().UpdateTechList())) {
-        WarnLog("Update TechList failed.");
-    }
-    if (!(AppDataParser::GetInstance().UpdateAidList())) {
-        WarnLog("Update AidList failed.");
-    }
-    
-    // inner message handler, used by other modules as initialization parameters
-    std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("common event handler");
-    eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
-    tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
-
-    // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
-    nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
-
-    eventHandler_->Intialize(tagDispatcher_);
-    runner->Run();
-    // NFC ROOT
-    ExecuteTask(KITS::TASK_INITIALIZE);
-    return true;
-}
-
-NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
-    : nfccHost_(std::move(nfccHost)),
-    nfcControllerImpl_(nullptr),
-    eventHandler_(nullptr),
-    tagDispatcher_(nullptr),
-    nfcState_(KITS::STATE_OFF)
-{
-}
-
-NfcService::~NfcService()
-{
-    nfcControllerImpl_ = nullptr;
-    if (task_ && task_->joinable()) {
-        task_->join();
-    }
-    if (rootTask_ && rootTask_->joinable()) {
-        rootTask_->join();
     }
 }
 }  // namespace NFC

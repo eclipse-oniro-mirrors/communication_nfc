@@ -40,7 +40,7 @@ public:
     KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) override;
     KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) override;
-
+    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
 private:
 };
 }  // namespace NFC

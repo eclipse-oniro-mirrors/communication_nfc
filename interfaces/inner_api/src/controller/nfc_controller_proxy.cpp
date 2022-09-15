@@ -162,5 +162,24 @@ KITS::NfcErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& typ
     }
     return KITS::NFC_SUCCESS;
 }
+
+OHOS::sptr<IRemoteObject> NfcControllerProxy::GetTagServiceIface()
+{
+    DebugLog("GetTagServiceIface start!");
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("GetTagServiceIface, Write interface token error");
+        return nullptr;
+    }
+    int32_t res = Remote()->SendRequest(KITS::COMMAND_GET_TAG_INTERFACE, data, reply, option);
+    if (res != ERR_NONE) {
+        ErrorLog("GetTagServiceIface SendRequest err %{public}d", res);
+        return nullptr;
+    }
+    sptr<OHOS::IRemoteObject> remoteObject = reply.ReadRemoteObject();
+    return remoteObject;
+}
 }  // namespace NFC
 }  // namespace OHOS

@@ -13,19 +13,17 @@
  * limitations under the License.
  */
 #include "tag_host.h"
-
-#include <memory>
 #include <thread>
-
 #include "loghelper.h"
 #include "nfa_api.h"
 #include "nfc_sdk_common.h"
-#include "tag_nci_adapter.h"
 #include "taginfo.h"
+#include "tag_nci_adapter.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
+static const int INVALID_VALUE = -1;
 OHOS::NFC::SynchronizeEvent TagHost::filedCheckWatchDog_;
 TagHost::TagHost(const std::vector<int>& tagTechList,
                  const std::vector<int>& tagRfDiscIdList,
@@ -37,11 +35,10 @@ TagHost::TagHost(const std::vector<int>& tagTechList,
       tagRfDiscIdList_(std::move(tagRfDiscIdList)),
       tagActivatedProtocols_(std::move(tagActivatedProtocols)),
       tagUid_(tagUid),
-      techExtras_(std::make_shared<AppExecFwk::PacMap>()),
       tagPollBytes_(std::move(tagPollBytes)),
       tagActivatedBytes_(std::move(tagActivatedBytes)),
-      connectedTagDiscId_(-1),
-      connectedTechIndex_(-1),
+      connectedTagDiscId_(INVALID_VALUE),
+      connectedTechIndex_(INVALID_VALUE),
       isTagFieldOn_(true),
       isFieldChecking_(false),
       isPauseFieldChecking_(false),
@@ -72,7 +69,7 @@ bool TagHost::Connect(int technology)
         }
         // try connect the tag
         if (connectedTagDiscId_ != tagRfDiscIdList_[i]) {
-            if (connectedTagDiscId_ == -1) {
+            if (connectedTagDiscId_ == INVALID_VALUE) {
                 // first connect
                 status = TagNciAdapter::GetInstance().Connect(tagRfDiscIdList_[i],
                     tagActivatedProtocols_[i], tagTechList_[i]);
@@ -107,8 +104,8 @@ bool TagHost::Disconnect()
 {
     DebugLog("TagHost::Disconnect");
     std::lock_guard<std::mutex> lock(mutex_);
-    connectedTagDiscId_ = -1;
-    connectedTechIndex_ = -1;
+    connectedTagDiscId_ = INVALID_VALUE;
+    connectedTechIndex_ = INVALID_VALUE;
     isTagFieldOn_ = false;
     bool result = TagNciAdapter::GetInstance().Disconnect();
     {
@@ -122,7 +119,7 @@ bool TagHost::Disconnect()
 bool TagHost::Reconnect()
 {
     DebugLog("TagHost::Reconnect");
-    if (connectedTechIndex_ == -1) {
+    if (connectedTechIndex_ == INVALID_VALUE) {
         return true;
     }
     PauseFieldChecking();
@@ -270,7 +267,7 @@ std::vector<int> TagHost::GetTechList()
 void TagHost::RemoveTech(int tech)
 {
     DebugLog("TagHost::RemoveTech");
-    if (tech == -1) {
+    if (tech == INVALID_VALUE) {
         DebugLog("Remove all");
     }
 }
@@ -419,17 +416,16 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
     return pacMap;
 }
 
-std::weak_ptr<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
+std::vector<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
 {
-    DebugLog("TagHost::GetTechExtrasData, tech len.%{public}d", (int)tagTechList_.size());
+    DebugLog("TagHost::GetTechExtrasData, tech len.%{public}zu", tagTechList_.size());
+    techExtras_.clear();
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
         if (tagTechList_[i] == TARGET_TYPE_NDEF || tagTechList_[i] == TARGET_TYPE_NDEF_FORMATABLE) {
             continue;
         }
         AppExecFwk::PacMap extra = ParseTechExtras(i);
-        if (!(extra.IsEmpty())) {
-            techExtras_->PutPacMap(KITS::TagInfo::TECH_EXTRA_DATA_PREFIX + std::to_string(i), extra);
-        }
+        techExtras_.push_back(extra);
     }
     return techExtras_;
 }
@@ -482,6 +478,11 @@ void TagHost::AddNdefTech()
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
+            // includes size + mode;
+            if (ndefInfo.size() < 2) {
+                WarnLog("TagHost::AddNdefTech, invalid size = %{public}zu", ndefInfo.size());
+                return;
+            }
             DebugLog("Add ndef tag info, index: %{public}d", index);
             tagTechList_.push_back(targetTypeNdef);
             tagRfDiscIdList_.push_back(tagRfDiscIdList_[i]);
@@ -494,11 +495,10 @@ void TagHost::AddNdefTech()
             pacMap.PutLongValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
                 GetNdefType(tagActivatedProtocols_[i]));
-            pacMap.PutLongValue("NDEF_TAG_LENGTH", ndefInfo[0]);
-            pacMap.PutLongValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]);
+            pacMap.PutLongValue("NDEF_TAG_LENGTH", ndefInfo[0]); // size
+            pacMap.PutLongValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
-            techExtras_->PutPacMap(KITS::TagInfo::TECH_EXTRA_DATA_PREFIX + std::to_string(index), pacMap);
-
+            techExtras_.push_back(pacMap);
             foundFormat = false;
             break;
         }
@@ -588,7 +588,7 @@ bool TagHost::IsNdefMsgContained(std::vector<int>& ndefInfo)
 int TagHost::GetConnectedTech()
 {
     DebugLog("TagHost::GetConnectedTech");
-    if (connectedTechIndex_ != -1) {
+    if (connectedTechIndex_ != INVALID_VALUE) {
         return tagTechList_[connectedTechIndex_];
     }
     return 0;

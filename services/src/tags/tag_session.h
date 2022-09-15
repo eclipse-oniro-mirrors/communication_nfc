@@ -29,9 +29,9 @@ public:
     // Constructor/Destructor
     explicit TagSession(std::shared_ptr<NFC::INfcService> service);
     ~TagSession() override;
-    // copy/operator functions
     TagSession(const TagSession&) = delete;
     TagSession& operator=(const TagSession&) = delete;
+
     /**
      * @brief To connect the tagRfDiscId by technology.
      * @param tagRfDiscId the rf disc id of tag

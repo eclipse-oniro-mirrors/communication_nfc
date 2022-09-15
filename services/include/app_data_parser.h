@@ -14,63 +14,62 @@
 */
 #ifndef APP_DATA_PARSER_H
 #define APP_DATA_PARSER_H
-
-#include <future>
-#include <map>
-#include <mutex>
 #include <vector>
-
 #include "ability_info.h"
-#include "access_token.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
-#include "nfc_service.h"
-#include "iremote_object.h"
-#include "iservice_registry.h"
+#include "element_name.h"
 #include "loghelper.h"
+#include "nfc_service.h"
 #include "system_ability.h"
 #include "want.h"
 
 namespace OHOS {
 namespace NFC {
+using AppExecFwk::AbilityInfo;
+using OHOS::AppExecFwk::ElementName;
 class AppDataParser {
 public:
     explicit AppDataParser();
     ~AppDataParser();
 
-    struct CustomDataAid {
-        std::string name;
-        std::string value;
+    struct AidInfo {
+        std::string name; // the type, payment-aid, or other-aid
+        std::string value; // the aid value
     };
 
-    struct AppTechList {
-        OHOS::AppExecFwk::AbilityInfo abilityInfo;
-        std::vector<std::string> tech;
+    struct TagAppTechInfo {
+        ElementName element;
+        std::vector<std::string> tech; // technology, such as NfcA/NfcB/IsoDep.
     };
 
-    struct HostApduAid {
-        OHOS::AppExecFwk::AbilityInfo abilityInfo;
-        std::vector<AppDataParser::CustomDataAid> customDataAid;
+    struct HceAppAidInfo {
+        ElementName element;
+        std::vector<AidInfo> customDataAid;
     };
 
-    std::map<std::string, AppDataParser::AppTechList> g_appTechList;
-    std::map<std::string, AppDataParser::HostApduAid> g_hostApduService;
+    std::vector<TagAppTechInfo> g_tagAppAndTechMap;
+    std::vector<HceAppAidInfo> g_hceAppAndAidMap;
 
     static AppDataParser& GetInstance();
-    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-    void PackageAddAndChangeEvent(std::shared_ptr<EventFwk::CommonEventData> data);
-    void PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData> data);
-    bool UpdateTechList();
-    bool UpdateAidList();
-    bool DeleteAppTechList(std::string bundleName);
-    bool DeleteHostApduService(std::string bundleName);
+
+    void HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    void InitAppList();
+    std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
 private:
-    void ModifyAppTechList(AppExecFwk::AbilityInfo &abilityInfo);
-    void ModifyHostApduService(AppExecFwk::AbilityInfo &abilityInfo);
-    bool QueryAbilityInfosByAction(const std::string bundleName, const std::string action);
-    bool QueryAbilityInfosByAction(const std::string action);
+    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
+    ElementName GetMatchedTagKeyElement(ElementName &element);
+    ElementName GetMatchedHceKeyElement(ElementName &element);
+    bool IsMatchedByBundleName(ElementName &src, ElementName &target);
+    bool InitAppListByAction(const std::string action);
+    bool UpdateAppListInfo(ElementName &element, const std::string action);
+    void UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element);
+    void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
+    void RemoveTagAppInfo(ElementName &element);
+    void RemoveHceAppInfo(ElementName &element);
 };
 }  // namespace NFC
 }  // namespace OHOS

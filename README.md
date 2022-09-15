@@ -22,10 +22,8 @@ NFC service provides NFC switch control, NFC tag discovery and dispatch, NFC tag
 
 ## Directory Structure<a name="section161941989596"></a>
 
-The main code directory structure of Intelligent Soft Bus is as follows:
-
 ```
-/foundation/communication
+/foundation/communication/nfc
 ├── interfaces                        # Interface
 │   └── inner_api                     # System inner interface
 ├── frameworks                        # Framework interface

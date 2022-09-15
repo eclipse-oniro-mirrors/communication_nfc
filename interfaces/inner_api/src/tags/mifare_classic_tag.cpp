@@ -31,7 +31,7 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("MifareClassicTag::MifareClassicTag tag invalid");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("MifareClassicTag::MifareClassicTag extra data invalid");
         return;
@@ -39,8 +39,8 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     int sak = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     std::string atqa = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
 
-    DebugLog("MifareClassicTag::MifareClassicTag sak.%{public}d atqa.(%{public}d)%{public}s",
-        sak, (int)atqa.size(), atqa.c_str());
+    DebugLog("MifareClassicTag::MifareClassicTag sak.%{public}d atqa.(%{public}zu) %{public}s",
+        sak, atqa.size(), atqa.c_str());
     for (size_t i = 0; i < atqa.size(); i++) {
         printf("%02x ", atqa.at(i));
     }
@@ -104,11 +104,8 @@ std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo
 bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA)
 {
     if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT) || !IsConnected() || key.empty()) {
-        ErrorLog(
-            "[MifareClassicTag::AuthenticateSector] param err! sectorIndex.%{public}d "
-            "keyLen.%{public}d",
-            sectorIndex,
-            (int)key.size());
+        ErrorLog("[MifareClassicTag::AuthenticateSector] err! sectorIndex.%{public}d, keyLen.%{public}zu",
+            sectorIndex, key.size());
         return false;
     }
 

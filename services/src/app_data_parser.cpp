@@ -13,24 +13,25 @@
 * limitations under the License.
 */
 #include "app_data_parser.h"
-
 #include "common_event_handler.h"
 #include "common_event_manager.h"
-#include "common_event_support.h"
+#include "iservice_registry.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace NFC {
 const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
-const std::string APP_TECH = "tag-tech";
-const std::string PAY_AID = "payment-aid";
-const std::string OTHER_AID = "other-aid";
+const std::string KEY_TAG_TECH = "tag-tech";
+const std::string KEY_PAYMENT_AID = "payment-aid";
+const std::string KEY_OHTER_AID = "other-aid";
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser appDataParser_;
 
 AppDataParser::AppDataParser()
 {
+    g_tagAppAndTechMap.clear();
+    g_hceAppAndAidMap.clear();
 }
 
 AppDataParser::~AppDataParser()
@@ -42,215 +43,297 @@ AppDataParser& AppDataParser::GetInstance()
     return appDataParser_;
 }
 
-void AppDataParser::PackageAddAndChangeEvent(std::shared_ptr<EventFwk::CommonEventData> data)
-{
-    InfoLog("Package add and change event");
-    std::string bundleName = data->GetWant().GetElement().GetBundleName();
-    DebugLog("PackageAddAndChangeEvent bundlename:%{public}s", bundleName.c_str());
-    if (appDataParser_.QueryAbilityInfosByAction(bundleName, ACTION_TAG_FOUND)) {
-        InfoLog("Add tag app is ok");
-        return;
-    }
-    if (QueryAbilityInfosByAction(bundleName, ACTION_HOST_APDU_SERVICE)) {
-        InfoLog("Add hce app is ok");
-        return;
-    }
-    InfoLog("Query AbilityInfo failed.");
-}
-
-bool AppDataParser::QueryAbilityInfosByAction(const std::string bundleName, const std::string action)
-{
-    if (!bundleMgrProxy_) {
-        DebugLog("bundleMgrProxy_ is nullptr.");
-        return false;
-    }
-    if ((action != ACTION_TAG_FOUND) && (action != ACTION_HOST_APDU_SERVICE)) {
-        DebugLog("Action is not right.");
-        return false;
-    }
-    AAFwk::Want want;
-    want.SetAction(action);
-    int32_t userId = AppExecFwk::Constants::START_USERID;
-    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-    if (!(bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos))) {
-        DebugLog("Unable to get corresponding abilityInfos.");
-        return false;
-    }
-    for (auto& abilityInfo : abilityInfos) {
-        if ((bundleName.compare(abilityInfo.bundleName) == 0) &&
-            (action.compare(ACTION_TAG_FOUND) == 0)) {
-            appDataParser_.ModifyAppTechList(abilityInfo);
-            DeleteHostApduService(bundleName);
-            return true;
-        } else if ((bundleName.compare(abilityInfo.bundleName) == 0) &&
-            (action.compare(ACTION_HOST_APDU_SERVICE) == 0)) {
-            appDataParser_.ModifyHostApduService(abilityInfo);
-            DeleteAppTechList(bundleName);
-            return true;
-        }
-    }
-    DebugLog("There is not suitable abilityinfo.");
-    return false;
-}
-
-bool AppDataParser::QueryAbilityInfosByAction(const std::string action)
-{
-    if (!bundleMgrProxy_) {
-        DebugLog("bundleMgrProxy_ is nullptr.");
-        return false;
-    }
-    if ((action != ACTION_TAG_FOUND) && (action != ACTION_HOST_APDU_SERVICE)) {
-        DebugLog("Action is not right.");
-        return false;
-    }
-    AAFwk::Want want;
-    want.SetAction(action);
-    int32_t userId = AppExecFwk::Constants::START_USERID;
-    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-    if (!(bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos))) {
-        DebugLog("Unable to get corresponding abilityInfos.");
-        return false;
-    }
-    if (action.compare(ACTION_TAG_FOUND) == 0) {
-        for (auto& abilityInfo : abilityInfos) {
-            appDataParser_.ModifyAppTechList(abilityInfo);
-        }
-    } else {
-        for (auto& abilityInfo : abilityInfos) {
-            appDataParser_.ModifyHostApduService(abilityInfo);
-        }
-    }
-    DebugLog("QueryAbilityInfosByAction finsih.");
-    return true;
-}
-
-void AppDataParser::ModifyAppTechList(AppExecFwk::AbilityInfo &abilityInfo)
-{
-    std::vector<std::string> valueList;
-    for (auto& data : abilityInfo.metaData.customizeData) {
-        if (data.name == APP_TECH) {
-            valueList.emplace_back(data.value);
-        }
-    }
-    AppTechList appTechList;
-    appTechList.abilityInfo = abilityInfo;
-    appTechList.tech = valueList;
-    appDataParser_.g_appTechList.insert(make_pair(abilityInfo.bundleName, appTechList));
-    DebugLog("Finish modify APP tech list.");
-}
-
-void AppDataParser::ModifyHostApduService(AppExecFwk::AbilityInfo &abilityInfo)
-{
-    std::vector<AppDataParser::CustomDataAid> customDataAidList;
-    AppDataParser::CustomDataAid customDataAid;
-    for (auto& data : abilityInfo.metaData.customizeData) {
-        if ((data.name == PAY_AID) || (data.name == OTHER_AID)) {
-            customDataAid.name = data.name;
-            customDataAid.value = data.value;
-            customDataAidList.emplace_back(customDataAid);
-        }
-    }
-    HostApduAid hostApduAid;
-    hostApduAid.abilityInfo = abilityInfo;
-    hostApduAid.customDataAid = customDataAidList;
-    appDataParser_.g_hostApduService.insert(make_pair(abilityInfo.bundleName, hostApduAid));
-    DebugLog("Finish modify host apdu service.");
-}
-
-void AppDataParser::PackageRemoveEvent(std::shared_ptr<EventFwk::CommonEventData> data)
-{
-    InfoLog("NfcService::ProcessPackageRemoveEvent");
-    std::string bundleName = data->GetWant().GetElement().GetBundleName();
-    DebugLog("bundleName is:%{public}s", bundleName.c_str());
-    if (bundleName.empty()) {
-        DebugLog("Can not get bundleName.");
-        return;
-    }
-    if ((!g_appTechList.empty()) || (!g_hostApduService.empty())) {
-        if (DeleteAppTechList(bundleName)) {
-            DebugLog("DeleteAppTechList success.");
-            return;
-        }
-        if (DeleteHostApduService(bundleName)) {
-            DebugLog("DeleteHostApduService success.");
-            return;
-        }
-    }
-    DebugLog("Not need remove any record");
-}
-
-bool AppDataParser::DeleteAppTechList(std::string bundleName)
-{
-    auto appIter = appDataParser_.g_appTechList.find(bundleName);
-    if (appIter != appDataParser_.g_appTechList.end()) {
-        appDataParser_.g_appTechList.erase(appIter);
-        DebugLog("Delete APP tech from app tech list.");
-        return true;
-    }
-    return false;
-}
-
-bool AppDataParser::DeleteHostApduService(std::string bundleName)
-{
-    auto apduIter = appDataParser_.g_hostApduService.find(bundleName);
-    if (apduIter != appDataParser_.g_hostApduService.end()) {
-        appDataParser_.g_hostApduService.erase(apduIter);
-        DebugLog("Delete AID from host apdu service.");
-        return true;
-    }
-    return false;
-}
-
-bool AppDataParser::UpdateTechList()
-{
-    DebugLog("Update TechList");
-    bundleMgrProxy_ = GetBundleMgrProxy();
-    if (!bundleMgrProxy_) {
-        DebugLog("bundleMgrProxy_ is nullptr.");
-        return false;
-    }
-    if (!appDataParser_.QueryAbilityInfosByAction(ACTION_TAG_FOUND)) {
-        DebugLog("Updaete app tech list failed.");
-        return false;
-    }
-    DebugLog("TechList update finish,tech list length=%{public}d",
-        (int)appDataParser_.g_appTechList.size());
-    return true;
-}
-
-bool AppDataParser::UpdateAidList()
-{
-    DebugLog("Update AidList");
-    bundleMgrProxy_ = GetBundleMgrProxy();
-    if (!bundleMgrProxy_) {
-        DebugLog("bundleMgrProxy_ is nullptr.");
-        return false;
-    }
-    if (!appDataParser_.QueryAbilityInfosByAction(ACTION_HOST_APDU_SERVICE)) {
-        DebugLog("Updaete host apdu service failed.");
-        return false;
-    }
-    DebugLog("Host apdu aid servcie update finish,aid list length=%{public}d",
-        (int)appDataParser_.g_hostApduService.size());
-    return true;
-}
-
 sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
 {
-    InfoLog("Get bundle manager proxy.");
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!systemAbilityManager) {
-        InfoLog("systemAbilityManager is null");
+        ErrorLog("GetBundleMgrProxy, systemAbilityManager is null");
         return nullptr;
     }
     sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (!remoteObject) {
-        InfoLog("remoteObject is null");
+        ErrorLog("GetBundleMgrProxy, remoteObject is null");
         return nullptr;
     }
-    InfoLog("bundle manager proxy acquire");
     return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+}
+
+void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    if (data == nullptr) {
+       ErrorLog("HandleAppAddOrChangedEvent, invalid data.");
+       return;
+    }
+    ElementName element = data->GetWant().GetElement();
+    std::string bundleName = element.GetBundleName();
+    if (bundleName.empty()) {
+        ErrorLog("HandleAppAddOrChangedEvent, invaid bundleName.");
+        return;
+    }
+    DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s", bundleName.c_str());
+    UpdateAppListInfo(element, ACTION_TAG_FOUND);
+    UpdateAppListInfo(element, ACTION_HOST_APDU_SERVICE);
+}
+
+void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    if (data == nullptr) {
+       ErrorLog("HandleAppRemovedEvent, invalid data.");
+       return;
+    }
+    ElementName element = data->GetWant().GetElement();
+    std::string bundleName = element.GetBundleName();
+    if (bundleName.empty()) {
+        ErrorLog("HandleAppRemovedEvent, invalid bundleName.");
+        return;
+    }
+    DebugLog("HandleAppRemovedEvent, bundleName %{public}s tag size %{public}zu, hce size %{public}zu", bundleName.c_str(),
+        g_tagAppAndTechMap.size(), g_hceAppAndAidMap.size());
+    RemoveTagAppInfo(element);
+    RemoveHceAppInfo(element);
+}
+
+bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
+{
+    if (!bundleMgrProxy_) {
+        ErrorLog("UpdateAppListInfo, bundleMgrProxy_ is nullptr.");
+        return false;
+    }
+    if (action.compare(ACTION_TAG_FOUND) != 0 && action.compare(ACTION_HOST_APDU_SERVICE) != 0) {
+        ErrorLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
+        return false;
+    }
+    std::string bundleName = element.GetBundleName();
+    AAFwk::Want want;
+    want.SetAction(action);
+    int32_t userId = AppExecFwk::Constants::START_USERID;
+    std::vector<AbilityInfo> abilityInfos;
+    if (!bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos)) {
+        WarnLog("UpdateAppListInfo, query none for action %{public}s", action.c_str());
+        return false;
+    }
+    for (auto& abilityInfo : abilityInfos) {
+        if (bundleName.empty() || bundleName.compare(abilityInfo.bundleName) != 0) {
+            continue;
+        }
+        if (action.compare(ACTION_TAG_FOUND) == 0) {
+            UpdateTagAppList(abilityInfo, element);
+        }
+        if (action.compare(ACTION_HOST_APDU_SERVICE) == 0) {
+            UpdateHceAppList(abilityInfo, element);
+        }
+    }
+    return true;
+}
+
+bool AppDataParser::InitAppListByAction(const std::string action)
+{
+    if (!bundleMgrProxy_) {
+        ErrorLog("InitAppListByAction, bundleMgrProxy_ is nullptr.");
+        return false;
+    }
+    AAFwk::Want want;
+    want.SetAction(action);
+    int32_t userId = AppExecFwk::Constants::START_USERID;
+    std::vector<AbilityInfo> abilityInfos;
+    if (!bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos)) {
+        ErrorLog("InitAppListByAction, query none for action %{public}s", action.c_str());
+        return false;
+    }
+    if (ACTION_TAG_FOUND.compare(action) == 0) {
+        for (auto& abilityInfo : abilityInfos) {
+            ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+                abilityInfo.moduleName);
+           UpdateTagAppList(abilityInfo, element);
+        }
+    } else if (ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
+        for (auto& abilityInfo : abilityInfos) {
+            ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+                abilityInfo.moduleName);
+           UpdateHceAppList(abilityInfo, element);
+        }
+    } else {
+        WarnLog("InitAppListByAction,unknown action = %{public}s", action.c_str());
+    }
+    return true;
+}
+
+bool AppDataParser::IsMatchedByBundleName(ElementName &src, ElementName &target)
+{
+    if (src.GetBundleName().compare(target.GetBundleName()) == 0) {
+        return true;
+    }
+    return false;
+}
+
+ElementName AppDataParser::GetMatchedTagKeyElement(ElementName &element)
+{
+    ElementName emptyElement;
+    std::vector<TagAppTechInfo>::iterator iter;
+    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            return (*iter).element;
+        }
+    }
+    return emptyElement;
+}
+
+ElementName AppDataParser::GetMatchedHceKeyElement(ElementName &element)
+{
+    ElementName emptyElement;
+    std::vector<HceAppAidInfo>::iterator iter;
+    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); iter++) {
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            return (*iter).element;
+        }
+    }
+    return emptyElement;
+}
+
+void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element)
+{
+    if (!GetMatchedTagKeyElement(element).GetBundleName().empty()) {
+        WarnLog("UpdateTagAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
+        RemoveTagAppInfo(element);
+    }
+    std::vector<std::string> valueList;
+    for (auto& data : abilityInfo.metadata) {
+        if (KEY_TAG_TECH.compare(data.name) == 0) {
+            valueList.emplace_back(data.value);
+            DebugLog("UpdateHceAppList, push tech %{public}s", data.value.c_str());
+        }
+    }
+    if (valueList.empty()) {
+        DebugLog("UpdateTagAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
+            element.GetAbilityName().c_str());
+        return;
+    }
+
+    TagAppTechInfo tagATppechInfo;
+    tagATppechInfo.element = element;
+    tagATppechInfo.tech = valueList;
+    g_tagAppAndTechMap.push_back(tagATppechInfo);
+    DebugLog("UpdateTagAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+}
+
+void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element)
+{
+    if (!GetMatchedHceKeyElement(element).GetBundleName().empty()) {
+        WarnLog("UpdateHceAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
+        RemoveHceAppInfo(element);
+    }
+    std::vector<AppDataParser::AidInfo> customDataAidList;
+    AppDataParser::AidInfo customDataAid;
+    for (auto& data : abilityInfo.metadata) {
+        if ((KEY_PAYMENT_AID.compare(data.name) == 0) || (KEY_OHTER_AID.compare(data.name) == 0)) {
+            customDataAid.name = data.name;
+            customDataAid.value = data.value;
+            customDataAidList.emplace_back(customDataAid);
+            DebugLog("UpdateHceAppList, push aid %{public}s", data.value.c_str());
+        }
+    }
+    if (customDataAidList.empty()) {
+        DebugLog("UpdateHceAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
+            element.GetAbilityName().c_str());
+        return;
+    }
+    HceAppAidInfo hceAppAidInfo;
+    hceAppAidInfo.element = element;
+    hceAppAidInfo.customDataAid = customDataAidList;
+    g_hceAppAndAidMap.push_back(hceAppAidInfo);
+    DebugLog("UpdateHceAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+}
+
+void AppDataParser::RemoveTagAppInfo(ElementName &element)
+{
+    ElementName keyElement = GetMatchedTagKeyElement(element);
+    if (keyElement.GetBundleName().empty()) {
+        WarnLog("RemoveTagAppInfo, keyElement is none, ignore it.");
+        return;
+    }
+    DebugLog("RemoveTagAppInfo, request app %{public}s", keyElement.GetBundleName().c_str());
+    std::vector<TagAppTechInfo>::iterator iter;
+    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+        // compare only bundle name to remote the app.
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            DebugLog("RemoveTagAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
+            g_tagAppAndTechMap.erase(iter);
+            break;
+        }
+    }
+}
+
+void AppDataParser::RemoveHceAppInfo(ElementName &element)
+{
+    ElementName keyElement = GetMatchedHceKeyElement(element);
+    if (keyElement.GetBundleName().empty()) {
+        WarnLog("RemoveHceAppInfo, keyElement is none, ignore it.");
+        return;
+    }
+    DebugLog("RemoveHceAppInfo, app %{public}s", keyElement.GetBundleName().c_str());
+    std::vector<HceAppAidInfo>::iterator iter;
+    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); iter++) {
+        // compare only bundle name to remote the app.
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            DebugLog("RemoveHceAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
+            g_hceAppAndAidMap.erase(iter);
+            break;
+        }
+    }
+}
+
+void AppDataParser::InitAppList()
+{
+    bundleMgrProxy_ = GetBundleMgrProxy();
+    if (!bundleMgrProxy_) {
+        ErrorLog("InitAppList, bundleMgrProxy_ is nullptr.");
+        return;
+    }
+    InitAppListByAction(ACTION_TAG_FOUND);
+    InitAppListByAction(ACTION_HOST_APDU_SERVICE);
+    DebugLog("InitAppList, tag size %{public}zu, hce size %{public}zu", g_tagAppAndTechMap.size(),
+        g_hceAppAndAidMap.size());
+}
+
+std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int> discTechList)
+{
+    std::vector<ElementName> elements;
+    for (size_t i = 0; i < discTechList.size(); i++) {
+        std::string discStrTech = KITS::TagInfo::GetStringTach(discTechList[i]);
+        DebugLog("GetDispatchTagAppsByTech, tag size = %{public}zu", g_tagAppAndTechMap.size());
+        if (discStrTech.empty()) {
+            continue;
+        }
+
+        // parse for all installed app that can handle this technology.
+        std::vector<TagAppTechInfo>::iterator iter;
+        for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+            bool appExisted = false;
+            for (auto item : elements) {
+                if (IsMatchedByBundleName(item, (*iter).element)) {
+                    appExisted = true;
+                    break;
+                }
+            }
+            if (appExisted) {
+                continue;
+            }
+
+            std::vector<std::string> vectorTech = (*iter).tech;
+            for (size_t i = 0; i < vectorTech.size(); i++) {
+                DebugLog("GetDispatchTagAppsByTech, cmp tech %{public}s vs %{public}s",
+                    discStrTech.c_str(), vectorTech[i].c_str());
+                if (discStrTech.compare(vectorTech[i]) == 0) {
+                    elements.push_back((*iter).element);
+                    break;
+                }
+            }
+        }
+    }
+    return elements;
 }
 }  // namespace NFC
 }  // namespace OHOS

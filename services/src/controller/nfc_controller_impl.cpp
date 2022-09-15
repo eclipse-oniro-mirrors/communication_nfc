@@ -82,6 +82,11 @@ KITS::NfcErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToke
     return KITS::NFC_FAILED;
 }
 
+OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
+{
+    return nfcService_.lock()->GetTagServiceIface();
+}
+
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     std::string info = GetDumpInfo();

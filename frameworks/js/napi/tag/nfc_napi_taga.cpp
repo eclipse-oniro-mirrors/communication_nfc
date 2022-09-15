@@ -26,24 +26,34 @@ napi_value NapiNfcATag::GetSak(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcATag *objectInfo = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getSak objInfo %{public}p", objectInfo);
+    if (objectInfo == nullptr) {
+        ErrorLog("GetSak objectInfo nullptr!");
+        napi_get_boolean(env, 0, &result);
+        return result;
+    }
+    if (objectInfo->tagSession == nullptr) {
+        ErrorLog("GetSak tagSession nullptr!");
+        napi_get_boolean(env, 0, &result);
+        return result;
+    }
+
     // transfer
     NfcATag *nfcTagPtr = static_cast<NfcATag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcTagPtr == nullptr) {
         ErrorLog("GetSak find objectInfo failed!");
-        return nullptr;
+        napi_get_boolean(env, 0, &result);
     } else {
         int sak = nfcTagPtr->GetSak();
-        DebugLog("sak %{public}d", sak);
-        napi_value result = nullptr;
         napi_create_int32(env, sak, &result);
-        return result;
     }
+    return result;
 }
 
 napi_value NapiNfcATag::GetAtqa(napi_env env, napi_callback_info info)
@@ -52,23 +62,34 @@ napi_value NapiNfcATag::GetAtqa(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcATag *objectInfo = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getAtqa %{public}p", objectInfo);
+    if (objectInfo == nullptr) {
+        ErrorLog("GetAtqa objectInfo nullptr!");
+        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
+        return result;
+    }
+    if (objectInfo->tagSession == nullptr) {
+        ErrorLog("GetAtqa tagSession nullptr!");
+        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
+        return result;
+    }
+
     NfcATag *nfcTagPtr = static_cast<NfcATag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcTagPtr == nullptr) {
         ErrorLog("GetAtqa find objectInfo failed!");
-        return nullptr;
+        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
     } else {
-        napi_value ret = nullptr;
         std::string atqa = nfcTagPtr->GetAtqa();
         DebugLog("atqa %{public}s", atqa.c_str());
-        napi_create_string_utf8(env, atqa.c_str(), NAPI_AUTO_LENGTH, &ret);
-        return ret;
+        napi_create_string_utf8(env, atqa.c_str(), NAPI_AUTO_LENGTH, &result);
     }
+    return result;
 }
 } // namespace KITS
 } // namespace NFC

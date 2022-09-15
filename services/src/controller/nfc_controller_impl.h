@@ -37,6 +37,7 @@ public:
     KITS::NfcErrorCode UnRegisterCallBack(const std::string& type,
         Security::AccessToken::AccessTokenID callerToken) override;
     KITS::NfcErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
+    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:
     std::string GetDumpInfo();

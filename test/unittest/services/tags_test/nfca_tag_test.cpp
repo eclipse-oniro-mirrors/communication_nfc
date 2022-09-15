@@ -60,17 +60,17 @@ void NfcATagTest::SetUp()
     // NFC_A_TECH must put at index 0, because defined TEST_NFCA_INDEX = 0;
     tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
     tagTechList.push_back((int)TagTechnology::NFC_ISODEP_TECH);
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap nfcAExtrasData;
     nfcAExtrasData.PutLongValue(KITS::TagInfo::SAK, TEST_SAK);
     nfcAExtrasData.PutStringValue(KITS::TagInfo::ATQA, TEST_ATQA);
-    tagTechExtrasData->PutPacMap(KITS::TagInfo::TECH_EXTRA_DATA_PREFIX
-        + std::to_string(TEST_NFCA_INDEX), nfcAExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
     
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void NfcATagTest::TearDown()

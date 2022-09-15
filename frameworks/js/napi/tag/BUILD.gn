@@ -40,13 +40,15 @@ ohos_shared_library("tag") {
     "nfc_napi_utils.cpp",
   ]
 
-  deps = [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps =
+      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
 
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc_js:rpc",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

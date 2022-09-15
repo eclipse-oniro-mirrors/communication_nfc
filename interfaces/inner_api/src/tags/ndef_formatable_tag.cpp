@@ -44,7 +44,7 @@ int NFC::KITS::NdefFormatableTag::FormatReadOnly(std::weak_ptr<NdefMessage> firs
 
 int NFC::KITS::NdefFormatableTag::Format(std::weak_ptr<NdefMessage> firstMessage, bool bMakeReadOnly)
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_INVALID;

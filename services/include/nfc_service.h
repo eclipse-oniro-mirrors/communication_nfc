@@ -49,6 +49,7 @@ public:
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
+    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
 
 protected:
     // screen changed
@@ -96,6 +97,7 @@ private:
     std::shared_ptr<NCI::INfccHost> nfccHost_ {};
 
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_;
+    OHOS::sptr<IRemoteObject> tagSessionIface_{};
     std::shared_ptr<CommonEventHandler> eventHandler_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current state.

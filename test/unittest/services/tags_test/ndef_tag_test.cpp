@@ -59,17 +59,18 @@ void NdefTagTest::SetUp()
 
     // NFC_NDEF_TECH must put at index 0, because defined TEST_NDEF_INDEX = 0;
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_NDEF_TECH));
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap ndefExtrasData;
     ndefExtrasData.PutLongValue(TagInfo::NDEF_FORUM_TYPE, TEST_NDEF_FORUM_TYPE);
     ndefExtrasData.PutLongValue(TagInfo::NDEF_TAG_MODE, TEST_NDEF_TAG_MODE);
     ndefExtrasData.PutStringValue(TagInfo::NDEF_MSG, TEST_NDEF_MSG);
-    tagTechExtrasData->PutPacMap(TagInfo::TECH_EXTRA_DATA_PREFIX + std::to_string(TEST_NDEF_INDEX), ndefExtrasData);
+    tagTechExtras.push_back(ndefExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void NdefTagTest::TearDown()

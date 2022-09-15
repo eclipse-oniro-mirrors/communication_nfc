@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 #include "taginfo.h"
-
 #include "loghelper.h"
+#include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
 #include "refbase.h"
@@ -24,17 +24,20 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 TagInfo::TagInfo(std::vector<int> tagTechList,
-                 std::weak_ptr<AppExecFwk::PacMap> tagTechExtrasData,
-                 std::string& tagUid,
-                 int tagRfDiscId,
-                 OHOS::sptr<TAG::ITagSession> tagSession)
-    : tagRfDiscId_(tagRfDiscId),
-      connectedTagTech_(KITS::TagTechnology::NFC_INVALID_TECH),
-      tagUid_(tagUid),
-      tagTechList_(std::move(tagTechList)),
-      remoteTagSession_(tagSession),
-      tagTechExtrasData_(tagTechExtrasData.lock())
+                std::vector<AppExecFwk::PacMap> tagTechExtrasData,
+                std::string& tagUid,
+                int tagRfDiscId,
+                OHOS::sptr<IRemoteObject> tagServiceIface)
 {
+    tagRfDiscId_ = tagRfDiscId;
+    tagUid_ = tagUid;
+    tagTechList_ = std::move(tagTechList);
+    tagServiceIface_ = tagServiceIface;
+    tagTechExtrasData_ = std::move(tagTechExtrasData);
+    connectedTagTech_ = KITS::TagTechnology::NFC_INVALID_TECH;
+    if (tagServiceIface != nullptr) {
+        tagSessionProxy_ = new TAG::TagSessionProxy(tagServiceIface);
+    }
 }
 
 TagInfo::~TagInfo()
@@ -55,14 +58,15 @@ bool TagInfo::IsTechSupported(KITS::TagTechnology tech)
     return false;
 }
 
-OHOS::sptr<TAG::ITagSession> TagInfo::GetRemoteTagSession() const
+OHOS::sptr<TAG::ITagSession> TagInfo::GetTagSessionProxy()
 {
-    return remoteTagSession_;
-}
-
-std::weak_ptr<AppExecFwk::PacMap> TagInfo::GetTagExtrasData() const
-{
-    return tagTechExtrasData_;
+    if (tagSessionProxy_ == nullptr) {
+        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
+        if (iface != nullptr) {
+            tagSessionProxy_ = new TAG::TagSessionProxy(iface);
+        }
+    }
+    return tagSessionProxy_;
 }
 
 std::vector<int> TagInfo::GetTagTechList() const
@@ -70,16 +74,52 @@ std::vector<int> TagInfo::GetTagTechList() const
     return std::move(tagTechList_);
 }
 
-AppExecFwk::PacMap TagInfo::GetTechExtrasData(KITS::TagTechnology tech)
+std::string TagInfo::GetStringTach(int tech)
+{
+    switch (tech) {
+        case static_cast<int>(TagTechnology::NFC_A_TECH):
+            return "NfcA";
+        case static_cast<int>(TagTechnology::NFC_B_TECH):
+            return "NfcB";
+        case static_cast<int>(TagTechnology::NFC_F_TECH):
+            return "NfcF";
+        case static_cast<int>(TagTechnology::NFC_V_TECH):
+            return "NfcV";
+        case static_cast<int>(TagTechnology::NFC_ISODEP_TECH):
+            return "IsoDep";
+        case static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH):
+            return "MifacreClassic";
+        case static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH):
+            return "MifacreUL";
+        default:
+            break;
+    }
+    return "";
+}
+
+AppExecFwk::PacMap TagInfo::GetTechExtrasByIndex(size_t techIndex)
 {
     AppExecFwk::PacMap pacmap;
-    if (!tagTechExtrasData_) {
+    if (tagTechList_.size() == 0 || tagTechList_.size() != tagTechExtrasData_.size()) {
+        return pacmap;
+    }
+    if (techIndex < 0 || techIndex >= tagTechExtrasData_.size()) {
+        return pacmap;
+    }
+    return tagTechExtrasData_[techIndex];
+}
+
+AppExecFwk::PacMap TagInfo::GetTechExtrasByTech(KITS::TagTechnology tech)
+{
+    AppExecFwk::PacMap pacmap;
+    if (tagTechList_.size() == 0 || tagTechList_.size() != tagTechExtrasData_.size()) {
         return pacmap;
     }
 
-    for (int i = 0; i < int(tagTechList_.size()); i++) {
+    for (size_t i = 0; i < tagTechList_.size(); i++) {
         if (static_cast<int>(tech) == tagTechList_[i]) {
-            pacmap = tagTechExtrasData_->GetPacMap(TECH_EXTRA_DATA_PREFIX + std::to_string(i));
+            pacmap = tagTechExtrasData_[i];
+            break;
         }
     }
     return pacmap;
@@ -91,8 +131,7 @@ std::string TagInfo::GetStringExtrasData(AppExecFwk::PacMap& extrasData, const s
     if (extrasData.IsEmpty() || extrasName.empty()) {
         return value;
     }
-
-    return extrasData.GetStringValue(extrasName);
+    return extrasData.GetStringValue(extrasName, "");
 }
 
 int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName)
@@ -100,8 +139,7 @@ int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string&
     if (extrasData.IsEmpty() || extrasName.empty()) {
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
-
-    return extrasData.GetLongValue(extrasName);
+    return extrasData.GetLongValue(extrasName, 0);
 }
 
 void TagInfo::SetConnectedTagTech(KITS::TagTechnology connectedTagTech)
@@ -124,53 +162,6 @@ int TagInfo::GetTagRfDiscId() const
     return tagRfDiscId_;
 }
 
-bool TagInfo::Marshalling(Parcel& parcel) const
-{
-    if (remoteTagSession_ == nullptr) {
-        ErrorLog("TagInfo::Marshalling remoteTagSession_ is null.");
-        return false;
-    }
-    if (tagTechList_.size() > MAX_TAG_TECH_NUM) {
-        ErrorLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
-        return false;
-    }
-    parcel.WriteInt32(tagRfDiscId_);
-    parcel.WriteString(tagUid_);
-    parcel.WriteInt32(tagTechList_.size());
-    parcel.WriteInt32Vector(tagTechList_);
-    parcel.WriteObject<IRemoteObject>(remoteTagSession_->AsObject());
-    if (tagTechList_.size() > 0 && tagTechExtrasData_ != nullptr) {
-        parcel.WriteParcelable(tagTechExtrasData_.get());
-    }
-    return true;
-}
-
-std::shared_ptr<TagInfo> TagInfo::Unmarshalling(Parcel& parcel)
-{
-    int tagRfDiscId = parcel.ReadInt32();
-    std::string tagUid = parcel.ReadString();
-    int size = parcel.ReadInt32();
-    if (size > MAX_TAG_TECH_NUM) {
-        ErrorLog("TagInfo::Marshalling more than MAX_TAG_TECH_NUM.");
-        return nullptr;
-    }
-    std::vector<int> tagTechList;
-    parcel.ReadInt32Vector(&tagTechList);
-    sptr<IRemoteObject> tagService = parcel.ReadObject<IRemoteObject>();
-    if (tagService == nullptr) {
-        ErrorLog("TagInfo::Unmarshalling tagService is null.");
-        return nullptr;
-    }
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(tagService);
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData(parcel.ReadParcelable<AppExecFwk::PacMap>());
-    if (tagTechList.size() > 0 && tagTechExtrasData == nullptr) {
-        ErrorLog("TagInfo::Unmarshalling tagTechExtrasData is null.");
-        return nullptr;
-    }
-    std::shared_ptr<TagInfo> tag = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData,
-        tagUid, tagRfDiscId, tagSession);
-    return tag;
-}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

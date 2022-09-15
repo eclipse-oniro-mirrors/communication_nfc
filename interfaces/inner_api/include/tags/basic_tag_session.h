@@ -34,7 +34,7 @@ public:
     int GetMaxSendCommandLength() const;
 
 protected:
-    OHOS::sptr<TAG::ITagSession> GetRemoteTagSession() const;
+    OHOS::sptr<TAG::ITagSession> GetTagSessionProxy() const;
     int GetTagRfDiscId() const;
     void SetConnectedTagTech(KITS::TagTechnology tech) const;
     KITS::TagTechnology GetConnectedTagTech() const;
