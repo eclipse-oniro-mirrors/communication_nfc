@@ -25,7 +25,7 @@ IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::Ta
         ErrorLog("IsoDepTag::IsoDepTag tag invalid ");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_ISODEP_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_ISODEP_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("IsoDepTag::IsoDepTag extra data invalid");
         return;
@@ -59,7 +59,7 @@ std::string IsoDepTag::GetHiLayerResponse() const
 
 bool IsoDepTag::IsExtendedApduSupported() const
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         return false;
     }

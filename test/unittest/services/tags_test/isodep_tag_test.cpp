@@ -61,17 +61,17 @@ void IsoDepTagTest::SetUp()
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_B_TECH));
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap isodepExtrasData;
     isodepExtrasData.PutStringValue(TagInfo::HISTORICAL_BYTES, TEST_HISTORICAL_BYTES);
     isodepExtrasData.PutStringValue(TagInfo::HILAYER_RESPONSE, TEST_HILAYER_RESPONSE);
-    tagTechExtrasData->PutPacMap(TagInfo::TECH_EXTRA_DATA_PREFIX +
-        std::to_string(TEST_ISODEP_INDEX), isodepExtrasData);
+    tagTechExtras.push_back(isodepExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void IsoDepTagTest::TearDown()

@@ -13,38 +13,38 @@
  * limitations under the License.
  */
 #include "tag_dispatcher.h"
-
+#include "ability_manager_client.h"
+#include "app_data_parser.h"
 #include "itag_host.h"
 #include "loghelper.h"
+#include "want.h"
 
 namespace OHOS {
 using TagHostMapIter = std::map<int, std::shared_ptr<NFC::NCI::ITagHost>>::iterator;
 namespace NFC {
 namespace TAG {
-/**
- * @brief tag found handle.
- * @param tag the discovered tag host
- * @return the Dispatched result
- */
+using OHOS::NFC::KITS::TagTechnology;
+TagDispatcher::TagDispatcher(std::shared_ptr<NFC::INfcService> nfcService)
+    : nfcService_(nfcService)
+{
+}
+
+TagDispatcher::~TagDispatcher()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+}
+
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
     DebugLog("HandleTagFound, unimplimentation...");
     return 0;
 }
 
-/**
- * @brief Reset the ignore tag parameters
- */
 void TagDispatcher::HandleTagDebounce()
 {
     DebugLog("HandleTagDebounce, unimplimentation...");
 }
 
-/**
- * @brief Find the TagHost by the rfDiscId
- * @param key the rfDiscId
- * @return the TagHost
- */
 std::weak_ptr<NCI::ITagHost> TagDispatcher::FindTagHost(int rfDiscId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -55,9 +55,7 @@ std::weak_ptr<NCI::ITagHost> TagDispatcher::FindTagHost(int rfDiscId)
     }
     return tagHost->second;
 }
-/**
- * @brief Find and remove the TagHost by rfDiscId.
- */
+
 std::shared_ptr<NCI::ITagHost> TagDispatcher::FindAndRemoveTagHost(int rfDiscId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -71,33 +69,51 @@ std::shared_ptr<NCI::ITagHost> TagDispatcher::FindAndRemoveTagHost(int rfDiscId)
     }
     return temp;
 }
-/**
- * @brief Register the TagHost Object
- * @param tag the TagHost
- */
+
 void TagDispatcher::RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     tagHostMap_.insert(make_pair(tag->GetTagRfDiscId(), tag));
 }
-/**
- * @brief Unregister the TagHost Object
- * @param handle the TagHost rfDiscId
- */
+
 void TagDispatcher::UnregisterTagHost(int rfDiscId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     tagHostMap_.erase(rfDiscId);
 }
 
-TagDispatcher::TagDispatcher(std::weak_ptr<NFC::INfcService> nfcService)
-    : nfcService_(nfcService)
+void TagDispatcher::DispatchAbility(ElementName &element,
+    std::shared_ptr<KITS::TagInfo> tagInfo)
 {
-}
+    if (element.GetBundleName().empty() || tagInfo == nullptr) {
+        ErrorLog("DispatchAbility element or tagInfo is null");
+        return;
+    }
 
-TagDispatcher::~TagDispatcher()
-{
-    std::lock_guard<std::mutex> guard(mutex_);
+    InfoLog("DispatchAbility for app %{public}s, ability = %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+    AAFwk::Want want;
+    want.SetElement(element);
+    want.SetParam("uid", tagInfo->GetTagUid());
+    want.SetParam("technology", tagInfo->GetTagTechList());
+    want.SetParam("tagRfDiscId", tagInfo->GetTagRfDiscId());
+    want.SetParam("remoteTagService", nfcService_->GetTagServiceIface());
+
+    // put extra data for all included technology
+    std::vector<int> techList = tagInfo->GetTagTechList();
+    for (size_t i = 0; i < techList.size(); i++) {
+        AppExecFwk::PacMap extra = tagInfo->GetTechExtrasByIndex(i);
+        if (techList[i] == static_cast<int>(TagTechnology::NFC_A_TECH)) {
+            want.SetParam(KITS::TagInfo::SAK, extra.GetLongValue(KITS::TagInfo::SAK, 0));
+            want.SetParam(KITS::TagInfo::ATQA, extra.GetStringValue(KITS::TagInfo::ATQA, ""));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+            want.SetParam(KITS::TagInfo::HISTORICAL_BYTES, extra.GetStringValue(KITS::TagInfo::HISTORICAL_BYTES, ""));
+        } else {
+        }
+    }
+
+    AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    InfoLog("DispatchAbility call StartAbility end ");
 }
 }  // namespace TAG
 }  // namespace NFC

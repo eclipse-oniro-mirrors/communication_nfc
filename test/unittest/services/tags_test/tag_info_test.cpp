@@ -52,11 +52,13 @@ void TagInfoTest::SetUp()
     std::vector<int> tagTechList;
     tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
     tagTechList.push_back((int)TagTechnology::NFC_ISODEP_TECH);
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
+    tagTechExtras.push_back(tagTechExtrasData);
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void TagInfoTest::TearDown()

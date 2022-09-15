@@ -50,7 +50,7 @@ public:
     virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) = 0;
     virtual KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) = 0;
-
+    virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
 private:
 };
 }  // namespace NFC

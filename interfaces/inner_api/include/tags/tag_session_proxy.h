@@ -14,7 +14,6 @@
  */
 #ifndef TAG_SESSION_PROXY_H
 #define TAG_SESSION_PROXY_H
-
 #include "iremote_proxy.h"
 #include "itag_session.h"
 #include "nfc_basic_proxy.h"

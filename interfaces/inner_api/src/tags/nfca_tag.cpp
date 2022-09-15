@@ -25,7 +25,7 @@ NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         ErrorLog("NfcATag::NfcATag tag invalid ");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_A_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_A_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcATag::NfcATag extra data invalid");
         return;

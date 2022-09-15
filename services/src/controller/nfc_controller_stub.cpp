@@ -44,6 +44,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleUnRegisterCallBack(data, reply);
         case KITS::COMMAND_IS_NFC_OPEN:
             return HandleIsNfcOpen(data, reply);
+        case KITS::COMMAND_GET_TAG_INTERFACE:
+            return HandleGetNfcTagInterface(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -168,6 +170,18 @@ KITS::NfcErrorCode NfcControllerStub::RegisterCallBack(const sptr<INfcController
 KITS::NfcErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
 {
     return UnRegisterCallBack(type, IPCSkeleton::GetCallingTokenID());
+}
+
+int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply)
+{
+    OHOS::sptr<IRemoteObject> remoteOjbect = GetTagServiceIface();
+    if (remoteOjbect == nullptr) {
+        ErrorLog("HandleGetNfcTagInterface remoteOjbect null!");
+        return KITS::NFC_FAILED;
+    }
+
+    reply.WriteRemoteObject(remoteOjbect);
+    return ERR_NONE;
 }
 }  // namespace NFC
 }  // namespace OHOS

@@ -128,6 +128,11 @@ NfcErrorCode NfcController::UnregListener(const std::string& type)
     DebugLog("NfcController::UnregListener");
     return nfcControllerService_.lock()->UnRegisterCallBack(type);
 }
+
+OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
+{
+    return nfcControllerService_.lock()->GetTagServiceIface();
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

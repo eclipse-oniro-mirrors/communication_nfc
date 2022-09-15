@@ -26,7 +26,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         ErrorLog("NdefTag::NdefTag tag invalid");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasData(KITS::TagTechnology::NFC_NDEF_TECH);
+    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_NDEF_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NdefTag::NdefTag extra data invalid");
         return;
@@ -103,7 +103,7 @@ bool NdefTag::IsNdefWritable() const
 std::shared_ptr<NdefMessage> NdefTag::ReadNdef()
 {
     DebugLog("NdefTag::ReadNdef in.");
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
         return std::shared_ptr<NdefMessage>();
@@ -134,7 +134,7 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
 
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::WriteNdef] tagSession is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
@@ -155,7 +155,7 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
 
 bool NdefTag::IsEnableReadOnly()
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         DebugLog("[NdefTag::IsEnableReadOnly] tagSession is null.");
         return 0;
@@ -169,7 +169,7 @@ int NdefTag::EnableReadOnly()
         ErrorLog("[NdefTag::EnableReadOnly] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = GetRemoteTagSession();
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::EnableReadOnly] tagSession is null.");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;

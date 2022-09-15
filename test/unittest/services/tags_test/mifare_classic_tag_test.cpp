@@ -58,17 +58,17 @@ void MifareClassicTagTest::SetUp()
 
     // NFC_MIFARE_CLASSIC_TECH must put at index 0, because defined TEST_MIFARE_CLASSIC_INDEX = 0;
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap mifareClassicExtrasData;
     mifareClassicExtrasData.PutLongValue(TagInfo::SAK, TEST_SAK);
     mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
-    tagTechExtrasData->PutPacMap(TagInfo::TECH_EXTRA_DATA_PREFIX +
-        std::to_string(TEST_MIFARE_CLASSIC_INDEX), mifareClassicExtrasData);
+    tagTechExtras.push_back(mifareClassicExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void MifareClassicTagTest::TearDown()

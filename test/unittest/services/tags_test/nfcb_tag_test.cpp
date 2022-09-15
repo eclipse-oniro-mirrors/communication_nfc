@@ -60,16 +60,16 @@ void NfcBTagTest::SetUp()
     // NFC_B_TECH must put at index 0, because defined TEST_NFCB_INDEX = 0;
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_B_TECH));
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap nfcBExtrasData;
     nfcBExtrasData.PutStringValue(TagInfo::APP_DATA, TEST_APP_DATA);
     nfcBExtrasData.PutStringValue(TagInfo::PROTOCOL_INFO, TEST_PROTOCOL_INFO);
-    tagTechExtrasData->PutPacMap(TagInfo::TECH_EXTRA_DATA_PREFIX + std::to_string(TEST_NFCB_INDEX), nfcBExtrasData);
+    tagTechExtras.push_back(nfcBExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void NfcBTagTest::TearDown()

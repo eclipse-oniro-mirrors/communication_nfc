@@ -83,6 +83,12 @@ public:
      */
     NfcErrorCode UnregListener(const std::string& type);
 
+    /**
+     * @brief Get the Tag Service Iface object
+     * 
+     * @return OHOS::sptr<IRemoteObject> the remote object of tag service.
+     */
+    OHOS::sptr<IRemoteObject> GetTagServiceIface();
 private:
     static void InitNfcController();
 

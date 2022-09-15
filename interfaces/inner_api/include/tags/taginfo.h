@@ -24,14 +24,12 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-class TagInfo final : public Parcelable {
+class TagInfo {
 public:
     static const int MAX_TAG_TECH_NUM = 10;
     static const int SEND_COMMAND_HEAD_LEN_2 = 2;
     static const int SEND_COMMAND_MAX_LEN = 256;
 
-    // define TagExternData Name
-    static constexpr const auto TECH_EXTRA_DATA_PREFIX = "Tech_Extra_Data_";
     // ISODEP
     static constexpr const auto HISTORICAL_BYTES = "HistoricalBytes";
     static constexpr const auto HILAYER_RESPONSE = "HiLayerResponse";
@@ -56,38 +54,35 @@ public:
 
 public:
     TagInfo(std::vector<int> tagTechList,
-        std::weak_ptr<AppExecFwk::PacMap> tagTechExtrasData,
+        std::vector<AppExecFwk::PacMap> tagTechExtrasData,
         std::string& tagUid,
         int tagRfDiscId,
-        OHOS::sptr<TAG::ITagSession> tagSession);
+        OHOS::sptr<IRemoteObject> tagServiceIface);
     ~TagInfo();
 
     std::string GetTagUid() const;
     std::vector<int> GetTagTechList() const;
 
-    bool Marshalling(Parcel& parcel) const override;
-    static std::shared_ptr<TagInfo> Unmarshalling(Parcel& parcel);
-
+    AppExecFwk::PacMap GetTechExtrasByIndex(size_t techIndex);
+    AppExecFwk::PacMap GetTechExtrasByTech(KITS::TagTechnology tech);
     std::string GetStringExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     int GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
-    std::weak_ptr<AppExecFwk::PacMap> GetTagExtrasData() const;
-    AppExecFwk::PacMap GetTechExtrasData(KITS::TagTechnology tech);
+
     bool IsTechSupported(KITS::TagTechnology tech);
     int GetTagRfDiscId() const;
     KITS::TagTechnology GetConnectedTagTech() const;
     void SetConnectedTagTech(KITS::TagTechnology connectedTagTech);
-
-private:
-    OHOS::sptr<TAG::ITagSession> GetRemoteTagSession() const;
-
+    OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();
+    static std::string GetStringTach(int tech);
 private:
     int tagRfDiscId_;
     KITS::TagTechnology connectedTagTech_;
     std::string tagUid_;
     std::vector<int> tagTechList_;
+    std::vector<AppExecFwk::PacMap> tagTechExtrasData_;
 
-    OHOS::sptr<TAG::ITagSession> remoteTagSession_;
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData_;
+    OHOS::sptr<IRemoteObject> tagServiceIface_;
+    OHOS::sptr<TAG::ITagSession> tagSessionProxy_;
     friend class BasicTagSession;
     friend class NdefTag;
     friend class NdefFormatableTag;

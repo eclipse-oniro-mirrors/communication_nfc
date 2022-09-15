@@ -14,20 +14,23 @@
  */
 #ifndef TAG_DISPATCH_H
 #define TAG_DISPATCH_H
-
 #include <map>
-#include <memory>
+//#include <memory>
 #include <mutex>
-
+#include "ability_info.h"
+#include "element_name.h"
 #include "itag_host.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
 class INfcService;
 namespace TAG {
+using AppExecFwk::AbilityInfo;
+using OHOS::AppExecFwk::ElementName;
 class TagDispatcher final {
 public:
-    explicit TagDispatcher(std::weak_ptr<NFC::INfcService> nfcService);
+    explicit TagDispatcher(std::shared_ptr<NFC::INfcService> nfcService);
     ~TagDispatcher();
     TagDispatcher(const TagDispatcher&) = delete;
     TagDispatcher& operator=(const TagDispatcher&) = delete;
@@ -35,14 +38,14 @@ public:
     int HandleTagFound(std::shared_ptr<NCI::ITagHost> tag);
     void HandleTagDebounce();
     std::weak_ptr<NCI::ITagHost> FindTagHost(int rfDiscId);
-
+    void DispatchAbility(ElementName &element, std::shared_ptr<KITS::TagInfo> tagInfo);
 protected:
     std::shared_ptr<NCI::ITagHost> FindAndRemoveTagHost(int rfDiscId);
     void RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag);
     void UnregisterTagHost(int rfDiscId);
 
 private:
-    std::weak_ptr<NFC::INfcService> nfcService_ {};
+    std::shared_ptr<NFC::INfcService> nfcService_ {};
     // Lock
     std::mutex mutex_ {};
     std::map<int, std::shared_ptr<NCI::ITagHost>> tagHostMap_ {};

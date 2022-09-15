@@ -33,11 +33,13 @@ namespace OHOS {
         std::vector<int> tagTechList;
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
+
+        std::vector<AppExecFwk::PacMap> tagTechExtras;
         std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
         std::string tagUid = FUZZER_TEST_UID;
         int tagRfDiscId = FUZZER_TEST_DISC_ID;
-        sptr<ITagSession> tagSession = new TagSessionProxy(nullptr);
-        return std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+        tagTechExtras.push_back(tagTechExtrasData);
+        return std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
     }
 
     void FuzzGetIntExtrasData(const uint8_t* data, size_t size)
@@ -47,7 +49,7 @@ namespace OHOS {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
-        AppExecFwk::PacMap extrasData = tagInfo->GetTechExtrasData(TagTechnology::NFC_A_TECH);
+        AppExecFwk::PacMap extrasData = tagInfo->GetTechExtrasByTech(TagTechnology::NFC_A_TECH);
         std::string extrasName = NfcSdkCommon::UnsignedCharArrayToString(data, size);
 
         tagInfo->GetIntExtrasData(extrasData, extrasName);

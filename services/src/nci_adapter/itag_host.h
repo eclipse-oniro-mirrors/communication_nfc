@@ -14,10 +14,7 @@
  */
 #ifndef I_TAG_HOST_H
 #define I_TAG_HOST_H
-
-#include <memory>
 #include <vector>
-
 #include "pac_map.h"
 
 namespace OHOS {
@@ -56,7 +53,7 @@ public:
     virtual std::vector<int> GetTechList() = 0;
     virtual int GetConnectedTech() = 0;
     virtual void RemoveTech(int technology) = 0;
-    virtual std::weak_ptr<AppExecFwk::PacMap> GetTechExtrasData() = 0;
+    virtual std::vector<AppExecFwk::PacMap> GetTechExtrasData() = 0;
     virtual std::string GetTagUid() = 0;
     virtual int GetTagRfDiscId() = 0;
 

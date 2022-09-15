@@ -58,17 +58,16 @@ void Iso15693TagTest::SetUp()
 
     // NFC_V_TECH must put at index 0, because defined TEST_ISO15693_INDEX = 0;
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_V_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap iso15693ExtrasData;
     iso15693ExtrasData.PutLongValue(TagInfo::RESPONSE_FLAGS, TEST_RESPONSE_FLAGS);
     iso15693ExtrasData.PutLongValue(TagInfo::DSF_ID, TEST_DSF_ID);
-    tagTechExtrasData->PutPacMap(TagInfo::TECH_EXTRA_DATA_PREFIX +
-        std::to_string(TEST_ISO15693_INDEX), iso15693ExtrasData);
+    tagTechExtras.push_back(iso15693ExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    OHOS::sptr<TAG::ITagSession> tagSession = new TAG::TagSessionProxy(nullptr);
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtrasData, tagUid, tagRfDiscId, tagSession);
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
 }
 
 void Iso15693TagTest::TearDown()

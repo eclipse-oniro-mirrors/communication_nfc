@@ -14,7 +14,7 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("GetTechExtrasDataFuzzTest") {
+ohos_fuzztest("GetTechExtrasByTechFuzzTest") {
   module_out_path = "nfc/services"
 
   fuzz_config_file = "//foundation/communication/nfc/test/fuzztest/tags_test/taginfo/gettechextrasdata_fuzzer"
@@ -33,7 +33,8 @@ ohos_fuzztest("GetTechExtrasDataFuzzTest") {
 
   sources = [ "gettechextrasdata_fuzzer.cpp" ]
 
-  deps = [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps =
+      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
 
   external_deps = [
     "ability_base:want",
@@ -47,6 +48,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":GetTechExtrasDataFuzzTest",
+    ":GetTechExtrasByTechFuzzTest",
   ]
 }
