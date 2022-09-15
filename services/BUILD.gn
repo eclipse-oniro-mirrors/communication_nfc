@@ -50,6 +50,7 @@ ohos_shared_library("nfc_service") {
     "src/nci_adapter/nfcc_nci_adapter.cpp",
     "src/nci_adapter/tag_host.cpp",
     "src/nci_adapter/tag_nci_adapter.cpp",
+    "src/nfc_polling_params.cpp",
     "src/nfc_sa_manager.cpp",
     "src/nfc_service.cpp",
     "src/tags/tag_dispatcher.cpp",

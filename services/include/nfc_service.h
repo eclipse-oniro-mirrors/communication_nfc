@@ -23,6 +23,7 @@
 #include "infcc_host.h"
 #include "itag_host.h"
 #include "nfc_controller_impl.h"
+#include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "access_token.h"
@@ -83,6 +84,9 @@ private:
         const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID callerToken);
+    // polling
+    void StartPollingLoop(bool force);
+    std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
 
 private:
     // ms wait for initialization, included firmware download.
@@ -103,6 +107,8 @@ private:
     // save current state.
     int nfcState_;
     int screenState_ {};
+    // polling
+    std::shared_ptr<NfcPollingParams> currPollingParams_;
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock
