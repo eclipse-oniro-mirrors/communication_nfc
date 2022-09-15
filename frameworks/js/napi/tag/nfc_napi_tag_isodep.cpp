@@ -24,7 +24,7 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetIsoDepTag GetHistoricalBytes called");
+    DebugLog("NapiIsoDepTag GetHistoricalBytes called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
@@ -33,7 +33,7 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getHistoricalBytes objInfo %{public}p", objectInfo);
+
     // transfer
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcIsoDepTagPtr == nullptr) {
@@ -50,7 +50,7 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
 
 napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetIsoDepTag GetHiLayerResponse called");
+    DebugLog("NapiIsoDepTag GetHiLayerResponse called");
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
@@ -59,7 +59,6 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getHiLayerResponse objInfo %{public}p", objectInfo);
 
     // transfer
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));

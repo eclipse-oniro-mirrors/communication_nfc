@@ -156,6 +156,7 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
             return nullptr;
         }
     }
+    DebugLog("BuildNativeTagFromJsObj, tech size: %{public}zu", tagTechList.size());
 
     // parse extrasData: PacMap[] from TagInfo object.
     std::vector<AppExecFwk::PacMap> tagTechExtras;
@@ -173,8 +174,7 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
         return nullptr;
     }
     OHOS::sptr<IRemoteObject> remoteObject = nullptr;
-    remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(
-        reinterpret_cast<napi_env>(&env), reinterpret_cast<napi_value>(remoteTagSession));
+    remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, remoteTagSession);
     if (remoteObject == nullptr) {
         WarnLog("BuildNativeTagFromJsObj, prased remoteObject is nullptr.");
     }
@@ -587,16 +587,16 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
         int32_t technology = 0;
         ParseInt32(env, technology, napiTech);
         DebugLog("BuildTagFromWantParams extra for %{public}d", technology);
-        AppExecFwk::PacMap data;
 
+        AppExecFwk::PacMap data;
         if (technology == static_cast<int>(TagTechnology::NFC_A_TECH)) {
             // parse sak of nfca
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::SAK, &propValue);
             int32_t sak = 0;
             ParseInt32(env, sak, propValue);
-            data.PutLongValue(KITS::TagInfo::SAK, sak);
-            DebugLog("BuildTagFromWantParams sak %{public}d", sak);
+            data.PutIntValue(KITS::TagInfo::SAK, sak);
+            DebugLog("BuildTagFromWantParams sak %{public}x", sak);
 
             // parse atqa of nfca
             propValue = nullptr;
