@@ -104,7 +104,7 @@ void TagDispatcher::DispatchAbility(ElementName &element,
     for (size_t i = 0; i < techList.size(); i++) {
         AppExecFwk::PacMap extra = tagInfo->GetTechExtrasByIndex(i);
         if (techList[i] == static_cast<int>(TagTechnology::NFC_A_TECH)) {
-            want.SetParam(KITS::TagInfo::SAK, extra.GetLongValue(KITS::TagInfo::SAK, 0));
+            want.SetParam(KITS::TagInfo::SAK, extra.GetIntValue(KITS::TagInfo::SAK, 0));
             want.SetParam(KITS::TagInfo::ATQA, extra.GetStringValue(KITS::TagInfo::ATQA, ""));
         } else if (techList[i] == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
             want.SetParam(KITS::TagInfo::HISTORICAL_BYTES, extra.GetStringValue(KITS::TagInfo::HISTORICAL_BYTES, ""));

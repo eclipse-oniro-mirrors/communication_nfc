@@ -283,7 +283,7 @@ void TagHost::DoTargetTypeIso144433a(AppExecFwk::PacMap &pacMap, int index)
     std::string poll = tagPollBytes_[index];
     if (!(act.empty())) {
         int sak = (act.at(0) & (0xff));
-        pacMap.PutLongValue(KITS::TagInfo::SAK, sak);
+        pacMap.PutIntValue(KITS::TagInfo::SAK, sak);
         DebugLog("DoTargetTypeIso144433a SAK: %{public}d", sak);
     }
     pacMap.PutStringValue(KITS::TagInfo::ATQA, poll);
@@ -344,9 +344,9 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
-    pacMap.PutLongValue(KITS::TagInfo::RESPONSE_FLAGS, poll.at(0));
+    pacMap.PutIntValue(KITS::TagInfo::RESPONSE_FLAGS, poll.at(0));
     DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %{public}d", poll.at(0));
-    pacMap.PutLongValue(KITS::TagInfo::DSF_ID, poll.at(1));
+    pacMap.PutIntValue(KITS::TagInfo::DSF_ID, poll.at(1));
     DebugLog("DoTargetTypeV::DSF_ID: %{public}d", poll.at(1));
 }
 
@@ -400,7 +400,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 
         case TARGET_TYPE_MIFARE_UL: {
             bool isUlC = IsUltralightC();
-            pacMap.PutLongValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
+            pacMap.PutIntValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
             DebugLog("ParseTechExtras::TARGET_TYPE_MIFARE_UL MIFARE_ULTRALIGHT_C_TYPE: %{public}d", isUlC);
             break;
         }
@@ -492,11 +492,11 @@ void TagHost::AddNdefTech()
             std::string ndefMsg = "";
             TagNciAdapter::GetInstance().ReadNdef(ndefMsg);
             pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
-            pacMap.PutLongValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
                 GetNdefType(tagActivatedProtocols_[i]));
-            pacMap.PutLongValue("NDEF_TAG_LENGTH", ndefInfo[0]); // size
-            pacMap.PutLongValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
+            pacMap.PutIntValue("NDEF_TAG_LENGTH", ndefInfo[0]); // size
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
             techExtras_.push_back(pacMap);
             foundFormat = false;
