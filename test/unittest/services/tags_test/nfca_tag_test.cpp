@@ -67,7 +67,7 @@ void NfcATagTest::SetUp()
     nfcAExtrasData.PutIntValue(KITS::TagInfo::SAK, TEST_SAK);
     nfcAExtrasData.PutStringValue(KITS::TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(nfcAExtrasData);
-    
+
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
     tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);

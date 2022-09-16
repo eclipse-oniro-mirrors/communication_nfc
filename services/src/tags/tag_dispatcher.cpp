@@ -50,7 +50,7 @@ std::weak_ptr<NCI::ITagHost> TagDispatcher::FindTagHost(int rfDiscId)
     std::lock_guard<std::mutex> lock(mutex_);
     TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
     if (tagHost == tagHostMap_.end()) {
-        WarnLog("rfDiscId not found");
+        WarnLog("FindTagHost, rfDiscId not found");
         return std::shared_ptr<NCI::ITagHost>();
     }
     return tagHost->second;
@@ -62,7 +62,7 @@ std::shared_ptr<NCI::ITagHost> TagDispatcher::FindAndRemoveTagHost(int rfDiscId)
     TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
     std::shared_ptr<NCI::ITagHost> temp = nullptr;
     if (tagHost == tagHostMap_.end()) {
-        WarnLog("rfDiscId not found");
+        WarnLog("FindAndRemoveTagHost, rfDiscId not found");
     } else {
         temp = tagHost->second;
         tagHostMap_.erase(rfDiscId);

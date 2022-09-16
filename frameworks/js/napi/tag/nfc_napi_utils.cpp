@@ -249,20 +249,27 @@ void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int>& int
     }
 }
 
-void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector)
+void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string srcValue)
 {
-    DebugLog("ConvertUsignedCharVectorToJS called");
-    size_t idx = 0;
-
-    if (unsignedCharVector.empty()) {
+    if (srcValue.empty()) {
+        WarnLog("ConvertStringToNumberArray srcValue empty");
+        napi_create_array_with_length(env, 0, &result);
         return;
     }
-    DebugLog("ConvertUsignedCharVectorToJS size is %{public}zu", unsignedCharVector.size());
-    for (auto& num : unsignedCharVector) {
-        napi_value obj = nullptr;
-        napi_create_int32(env, num, &obj);
-        napi_set_element(env, result, idx, obj);
-        idx++;
+    int strLength = srcValue.length();
+    if (strLength % 2 != 0) {
+        srcValue = '0' + srcValue;
+        strLength++;
+    }
+
+    napi_create_array_with_length(env, (strLength / 2), &result);
+    for (int i = 0; i < strLength; i += 2) {
+        // parse the hex string bytes into array.
+        std::string oneByte = srcValue.substr(i, 2);
+        unsigned char hexByte = static_cast<unsigned char> (std::stoi(oneByte, 0, 16));
+        napi_value hexByteValue = nullptr;
+        napi_create_int32(env, hexByte, &hexByteValue);
+        napi_set_element(env, result, (i / 2), hexByteValue);
     }
 }
 

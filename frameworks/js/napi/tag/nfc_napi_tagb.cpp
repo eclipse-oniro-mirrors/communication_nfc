@@ -34,16 +34,16 @@ napi_value NapiNfcBTag::GetRespAppData(napi_env env, napi_callback_info info)
     DebugLog("getRespAppData objInfo %{public}p", objectInfo);
     // transfer
     NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value ret = nullptr;
     if (nfcBTagPtr == nullptr) {
         ErrorLog("GetRespAppData find objectInfo failed!");
-        return nullptr;
+        ConvertStringToNumberArray(env, ret, "");
     } else {
-        napi_value ret = nullptr;
-        std::string data = nfcBTagPtr->GetAppData();
-        DebugLog("app data %{public}s", data.c_str());
-        napi_create_string_utf8(env, data.c_str(), NAPI_AUTO_LENGTH, &ret);
-        return ret;
+        std::string appData = nfcBTagPtr->GetAppData();
+        DebugLog("app data %{public}s", appData.c_str());
+        ConvertStringToNumberArray(env, ret, appData);
     }
+    return ret;
 }
 
 napi_value NapiNfcBTag::GetRespProtocol(napi_env env, napi_callback_info info)
@@ -60,16 +60,16 @@ napi_value NapiNfcBTag::GetRespProtocol(napi_env env, napi_callback_info info)
     DebugLog("getRespAppData objInfo %{public}p", objectInfo);
     // transfer
     NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value ret = nullptr;
     if (nfcBTagPtr == nullptr) {
         ErrorLog("GetRespProtocol find objectInfo failed!");
-        return nullptr;
+        ConvertStringToNumberArray(env, ret, "");
     } else {
-        napi_value ret = nullptr;
         std::string protocol = nfcBTagPtr->GetProtocolInfo();
         DebugLog("protocol info %{public}s", protocol.c_str());
-        napi_create_string_utf8(env, protocol.c_str(), NAPI_AUTO_LENGTH, &ret);
-        return ret;
+        ConvertStringToNumberArray(env, ret, protocol);
     }
+    return ret;
 }
 } // namespace KITS
 } // namespace NFC
