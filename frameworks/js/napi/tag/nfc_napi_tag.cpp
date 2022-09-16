@@ -159,12 +159,12 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, techValue, &valueType);
         if (valueType != napi_number) {
-            ErrorLog("ParseTechAndExtraFromJsTagInfo, not number!");
+            ErrorLog("ParseTechAndExtraFromJsTagInfo, tech not number!");
             continue;
         }
         NAPI_CALL(env, napi_get_value_int32(env, techValue, &intTech));
         tagTechList.push_back(intTech);
-        DebugLog("parsed tag tech array :%{public}d is %{public}d ", i, intTech);
+        DebugLog("parsed tech array idx %{public}d, tech is %{public}d ", i, intTech);
 
         // parse extra data for this technology
         AppExecFwk::PacMap pacMap;
@@ -225,6 +225,7 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
             pacMap.PutStringValue(KITS::TagInfo::HILAYER_RESPONSE, hilyerResp);
         } else {
         }
+        // push the pacMap even if no extra data for this technology.
         tagTechExtras.push_back(pacMap);
     }
     return CreateUndefined(env);

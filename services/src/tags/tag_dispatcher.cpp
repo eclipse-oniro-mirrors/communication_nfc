@@ -106,8 +106,18 @@ void TagDispatcher::DispatchAbility(ElementName &element,
         if (techList[i] == static_cast<int>(TagTechnology::NFC_A_TECH)) {
             want.SetParam(KITS::TagInfo::SAK, extra.GetIntValue(KITS::TagInfo::SAK, 0));
             want.SetParam(KITS::TagInfo::ATQA, extra.GetStringValue(KITS::TagInfo::ATQA, ""));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_B_TECH)) {
+            want.SetParam(KITS::TagInfo::APP_DATA, extra.GetStringValue(KITS::TagInfo::APP_DATA, ""));
+            want.SetParam(KITS::TagInfo::PROTOCOL_INFO, extra.GetStringValue(KITS::TagInfo::PROTOCOL_INFO, ""));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_F_TECH)) {
+            want.SetParam(KITS::TagInfo::NFCF_SC, extra.GetStringValue(KITS::TagInfo::NFCF_SC, ""));
+            want.SetParam(KITS::TagInfo::NFCF_PMM, extra.GetStringValue(KITS::TagInfo::NFCF_PMM, ""));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_V_TECH)) {
+            want.SetParam(KITS::TagInfo::RESPONSE_FLAGS, extra.GetIntValue(KITS::TagInfo::RESPONSE_FLAGS, 0));
+            want.SetParam(KITS::TagInfo::DSF_ID, extra.GetIntValue(KITS::TagInfo::DSF_ID, 0));
         } else if (techList[i] == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
             want.SetParam(KITS::TagInfo::HISTORICAL_BYTES, extra.GetStringValue(KITS::TagInfo::HISTORICAL_BYTES, ""));
+            want.SetParam(KITS::TagInfo::HILAYER_RESPONSE, extra.GetStringValue(KITS::TagInfo::HILAYER_RESPONSE, ""));
         } else {
         }
     }
