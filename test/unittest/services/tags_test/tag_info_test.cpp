@@ -54,7 +54,7 @@ void TagInfoTest::SetUp()
     tagTechList.push_back((int)TagTechnology::NFC_ISODEP_TECH);
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
+    AppExecFwk::PacMap tagTechExtrasData;
     tagTechExtras.push_back(tagTechExtrasData);
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;

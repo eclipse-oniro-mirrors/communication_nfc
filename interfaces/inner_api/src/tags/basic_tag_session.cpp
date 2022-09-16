@@ -37,13 +37,13 @@ int BasicTagSession::Connect()
         return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
     }
     int tagRfDiscId = GetTagRfDiscId();
-    int res = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
-    DebugLog("connect tag.%{public}d tech.%{public}d res.%{public}d. ", tagRfDiscId, tagTechnology_, res);
-    if (res == NfcErrorCode::NFC_SUCCESS) {
+    int ret = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
+    DebugLog("Connect, id = %{public}d, tech = %{public}d, ret = %{public}d", tagRfDiscId, tagTechnology_, ret);
+    if (ret == NfcErrorCode::NFC_SUCCESS) {
         isConnected_ = true;
         SetConnectedTagTech(tagTechnology_);
     }
-    return res;
+    return ret;
 }
 
 bool BasicTagSession::IsConnected() const

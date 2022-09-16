@@ -63,8 +63,8 @@ void NdefTagTest::SetUp()
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap ndefExtrasData;
-    ndefExtrasData.PutLongValue(TagInfo::NDEF_FORUM_TYPE, TEST_NDEF_FORUM_TYPE);
-    ndefExtrasData.PutLongValue(TagInfo::NDEF_TAG_MODE, TEST_NDEF_TAG_MODE);
+    ndefExtrasData.PutIntValue(TagInfo::NDEF_FORUM_TYPE, TEST_NDEF_FORUM_TYPE);
+    ndefExtrasData.PutIntValue(TagInfo::NDEF_TAG_MODE, TEST_NDEF_TAG_MODE);
     ndefExtrasData.PutStringValue(TagInfo::NDEF_MSG, TEST_NDEF_MSG);
     tagTechExtras.push_back(ndefExtrasData);
 

@@ -34,7 +34,7 @@ namespace OHOS {
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
         std::vector<AppExecFwk::PacMap> tagTechExtras;
-        std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
+        AppExecFwk::PacMap tagTechExtrasData;
         tagTechExtras.push_back(tagTechExtrasData);
         std::string tagUid = FUZZER_TEST_UID;
         int tagRfDiscId = FUZZER_TEST_DISC_ID;

@@ -53,7 +53,7 @@ bool ParseInt32(napi_env env, int32_t &param, napi_value args)
     napi_valuetype valuetype;
     napi_typeof(env, args, &valuetype);
 
-    DebugLog("param=%{public}d.", valuetype);
+    DebugLog("ParseInt32, valuetype %{public}d.", valuetype);
     if (valuetype != napi_number) {
         ErrorLog("Wrong argument type. Int32 expected.");
         return false;

@@ -61,8 +61,8 @@ void Iso15693TagTest::SetUp()
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap iso15693ExtrasData;
-    iso15693ExtrasData.PutLongValue(TagInfo::RESPONSE_FLAGS, TEST_RESPONSE_FLAGS);
-    iso15693ExtrasData.PutLongValue(TagInfo::DSF_ID, TEST_DSF_ID);
+    iso15693ExtrasData.PutIntValue(TagInfo::RESPONSE_FLAGS, TEST_RESPONSE_FLAGS);
+    iso15693ExtrasData.PutIntValue(TagInfo::DSF_ID, TEST_DSF_ID);
     tagTechExtras.push_back(iso15693ExtrasData);
 
     std::string tagUid = TEST_UID;
