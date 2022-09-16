@@ -139,7 +139,7 @@ int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string&
     if (extrasData.IsEmpty() || extrasName.empty()) {
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
-    return extrasData.GetLongValue(extrasName, 0);
+    return extrasData.GetIntValue(extrasName, 0);
 }
 
 void TagInfo::SetConnectedTagTech(KITS::TagTechnology connectedTagTech)

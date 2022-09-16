@@ -62,7 +62,7 @@ void MifareClassicTagTest::SetUp()
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap mifareClassicExtrasData;
-    mifareClassicExtrasData.PutLongValue(TagInfo::SAK, TEST_SAK);
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
     mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
 

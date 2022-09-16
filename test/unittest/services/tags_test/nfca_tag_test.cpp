@@ -64,7 +64,7 @@ void NfcATagTest::SetUp()
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap nfcAExtrasData;
-    nfcAExtrasData.PutLongValue(KITS::TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutIntValue(KITS::TagInfo::SAK, TEST_SAK);
     nfcAExtrasData.PutStringValue(KITS::TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(nfcAExtrasData);
     

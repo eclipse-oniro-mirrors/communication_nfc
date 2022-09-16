@@ -37,8 +37,9 @@ thread_local napi_ref mifareClassicConsRef_;
 thread_local napi_ref mifareUltralightConsRef_;
 thread_local napi_ref ndefFormatableConsRef_;
 std::shared_ptr<TagInfo> nfcTaginfo;
+const int INIT_REF = 1;
 
-napi_value ParseIntArray(napi_env env, napi_value obj, std::vector<int> &typeArray)
+napi_value ParseTagTechArray(napi_env env, napi_value obj, std::vector<int> &typeArray)
 {
     const int32_t ERROR_DEFAULT = -1;
     bool result = false;
@@ -132,34 +133,80 @@ napi_value ParseExtrasData(napi_env env, napi_value obj, std::shared_ptr<AppExec
     return CreateUndefined(env);
 }
 
+napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
+    std::vector<int> &tagTechList, std::vector<AppExecFwk::PacMap> &tagTechExtras)
+{
+    // prase tech and extras data from TagInfo Js Object from app.
+    napi_value technologies = GetNamedProperty(env, obj, VAR_TECH);
+    napi_value extras = GetNamedProperty(env, obj, VAR_EXTRA);
+
+    bool result = false;
+    napi_status status = napi_is_array(env, technologies, &result);
+    if (status != napi_ok || !result) {
+        ErrorLog("ParseTechAndExtraFromJsTagInfo, not array");
+        return nullptr;
+    }
+
+    napi_value techValue = nullptr;
+    napi_value extraValue = nullptr;
+    napi_value extraKeyValue = nullptr;
+    int32_t intTech = 0;
+    uint32_t arrayLength = 0;
+    NAPI_CALL(env, napi_get_array_length(env, technologies, &arrayLength));
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        NAPI_CALL(env, napi_get_element(env, technologies, i, &techValue));
+        NAPI_CALL(env, napi_get_element(env, extras, i, &extraValue));
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, techValue, &valueType);
+        if (valueType != napi_number) {
+            ErrorLog("ParseTechAndExtraFromJsTagInfo, not number!");
+            continue;
+        }
+        NAPI_CALL(env, napi_get_value_int32(env, techValue, &intTech));
+        tagTechList.push_back(intTech);
+        DebugLog("parsed tag tech array :%{public}d is %{public}d ", i, intTech);
+
+        // parse extra data for this technology
+        AppExecFwk::PacMap pacMap;
+        if (intTech == static_cast<int>(TagTechnology::NFC_A_TECH)) {
+            // for NFCA, parse extra SAK and ATQA
+            napi_get_named_property(env, extraValue, KITS::TagInfo::SAK, &extraKeyValue);
+            int32_t sak = 0;
+            ParseInt32(env, sak, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::SAK, sak);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::ATQA, &extraKeyValue);
+            std::string atqa = "";
+            ParseString(env, atqa, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::ATQA, atqa);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+            // for ISODEP, parse extra HistoryBytes and HilayerResponse
+            napi_get_named_property(env, extraValue, KITS::TagInfo::HISTORICAL_BYTES, &extraKeyValue);
+            std::string historyByets = "";
+            ParseString(env, historyByets, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::HISTORICAL_BYTES, historyByets);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::HILAYER_RESPONSE, &extraKeyValue);
+            std::string hilyerResp = "";
+            ParseString(env, hilyerResp, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::HILAYER_RESPONSE, hilyerResp);
+        }
+        tagTechExtras.push_back(pacMap);
+    }
+    return CreateUndefined(env);
+}
+
 std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
 {
     // parse uid: string from TagInfo object.
     std::string tagUid = GetNapiStringValue(env, obj, VAR_UID);
     DebugLog("BuildNativeTagFromJsObj, tag uid:%{public}s", tagUid.c_str());
 
-    // parse technology: number[] from TagInfo object.
+    // parse technology: number[], extrasData: PacMap[] from TagInfo object.
     std::vector<int> tagTechList;
-    napi_value technology = GetNamedProperty(env, obj, VAR_TECH);
-    if (technology) {
-        if (ParseIntArray(env, technology, tagTechList) == nullptr) {
-            ErrorLog("parse tagTechList failed");
-            return nullptr;
-        }
-    } else {
-        // if technology is not set, check supportedProfiles
-        napi_value supportedProfiles = GetNamedProperty(env, obj, VAR_PROFILES);
-
-        // if supportedProfiles is not null, set tagTechList with it
-        if (supportedProfiles && ParseIntArray(env, supportedProfiles, tagTechList) == nullptr) {
-            ErrorLog("parse supportedProfiles failed");
-            return nullptr;
-        }
-    }
-    DebugLog("BuildNativeTagFromJsObj, tech size: %{public}zu", tagTechList.size());
-
-    // parse extrasData: PacMap[] from TagInfo object.
     std::vector<AppExecFwk::PacMap> tagTechExtras;
+    ParseTechAndExtraFromJsTagInfo(env, obj, tagTechList, tagTechExtras);
+    DebugLog("BuildNativeTagFromJsObj, tech size %{public}zu, extra size %{public}zu", tagTechList.size(), tagTechExtras.size());
 
     // parse tagRfDiscId: number from TagInfo object.
     int tagRfDiscId = GetNapiInt32Value(env, obj, VAR_RF_ID);
@@ -305,7 +352,7 @@ void RegisterNfcAJSClass(napi_env env)
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcATag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcATag, NfcATag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &nfcAConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &nfcAConsRef_);
     DebugLog("DefineNfcAJSClass end");
 }
 
@@ -323,7 +370,7 @@ void RegisterNfcBJSClass(napi_env env)
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcBTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcBTag, NfcBTag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &nfcBConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &nfcBConsRef_);
 }
 
 void RegisterNfcFJSClass(napi_env env)
@@ -341,7 +388,7 @@ void RegisterNfcFJSClass(napi_env env)
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcFTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcFTag, NfcFTag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &nfcFConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &nfcFConsRef_);
 }
 
 void RegisterNfcVJSClass(napi_env env)
@@ -358,7 +405,7 @@ void RegisterNfcVJSClass(napi_env env)
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcVTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcVTag, Iso15693Tag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &nfcVConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &nfcVConsRef_);
 }
 
 void RegisterIsoDepJSClass(napi_env env)
@@ -376,7 +423,7 @@ void RegisterIsoDepJSClass(napi_env env)
     napi_value constructor = nullptr;
     napi_define_class(env, "IsoDepTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiIsoDepTag, IsoDepTag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &isoDepConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &isoDepConsRef_);
 }
 
 napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
@@ -402,7 +449,7 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
     napi_value constructor = nullptr;
     napi_define_class(env, "NdefTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNdefTag, NdefTag>, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &constructor);
-    napi_create_reference(env, constructor, 1, &ndefConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &ndefConsRef_);
     return exports;
 }
 
@@ -435,7 +482,7 @@ napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
     napi_define_class(env, "MifareClassicTag", NAPI_AUTO_LENGTH,
         JS_Constructor<NapiMifareClassicTag, MifareClassicTag>, nullptr, sizeof(desc) / sizeof(desc[0]), desc,
         &constructor);
-    napi_create_reference(env, constructor, 1, &mifareClassicConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &mifareClassicConsRef_);
     return exports;
 }
 
@@ -457,7 +504,7 @@ napi_value RegisterMifareUltralightJSClass(napi_env env, napi_value exports)
     napi_define_class(env, "MifareUltralightTag", NAPI_AUTO_LENGTH,
         JS_Constructor<NapiMifareUltralightTag, MifareUltralightTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
         desc, &constructor);
-    napi_create_reference(env, constructor, 1, &mifareUltralightConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &mifareUltralightConsRef_);
     return exports;
 }
 
@@ -478,7 +525,7 @@ napi_value RegisterNdefFormatableJSClass(napi_env env, napi_value exports)
     napi_define_class(env, "NdefFormatableTag ", NAPI_AUTO_LENGTH,
         JS_Constructor<NapiNdefFormatableTag, NdefFormatableTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
         desc, &constructor);
-    napi_create_reference(env, constructor, 1, &ndefFormatableConsRef_);
+    napi_create_reference(env, constructor, INIT_REF, &ndefFormatableConsRef_);
     return exports;
 }
 
@@ -576,48 +623,64 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
 
     uint32_t length = 0;
     napi_get_array_length(env, propValue, &length);
-    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), propValue);
+    napi_value technologies = propValue;
+    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), technologies);
     DebugLog("BuildTagFromWantParams for technology length %{public}d", length);
 
     // parse extras data for each technology
-    std::vector<AppExecFwk::PacMap> extrasData;
+    napi_value extrasData;
+    napi_create_array_with_length(env, length, &extrasData);
     for (uint32_t i = 0; i < length; i++) {
-        napi_value napiTech;
-        napi_get_element(env, propValue, i, &napiTech);
+        propValue = nullptr;
+        napi_get_element(env, technologies, i, &propValue);
         int32_t technology = 0;
-        ParseInt32(env, technology, napiTech);
+        ParseInt32(env, technology, propValue);
         DebugLog("BuildTagFromWantParams extra for %{public}d", technology);
 
-        AppExecFwk::PacMap data;
+        napi_value eachElement;
+        napi_create_object(env, &eachElement);
         if (technology == static_cast<int>(TagTechnology::NFC_A_TECH)) {
             // parse sak of nfca
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::SAK, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::SAK, propValue);
+
             int32_t sak = 0;
             ParseInt32(env, sak, propValue);
-            data.PutIntValue(KITS::TagInfo::SAK, sak);
             DebugLog("BuildTagFromWantParams sak %{public}x", sak);
 
             // parse atqa of nfca
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::ATQA, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::ATQA, propValue);
+
             std::string atqa = "";
             ParseString(env, atqa, propValue);
-            data.PutStringValue(KITS::TagInfo::ATQA, atqa);
             DebugLog("BuildTagFromWantParams atqa %{public}s", atqa.c_str());
         } else if (technology == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
             // parse history bytes of isodep.
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::HISTORICAL_BYTES, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::HISTORICAL_BYTES, propValue);
+
             std::string historyBytes = "";
             ParseString(env, historyBytes, propValue);
-            data.PutStringValue(KITS::TagInfo::HISTORICAL_BYTES, historyBytes);
             DebugLog("BuildTagFromWantParams historyBytes %{public}s", historyBytes.c_str());
+
+            // parse hilayer response of isodep.
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::HILAYER_RESPONSE, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::HILAYER_RESPONSE, propValue);
+
+            std::string hilayerResp = "";
+            ParseString(env, hilayerResp, propValue);
+            DebugLog("BuildTagFromWantParams hilayerResp %{public}s", hilayerResp.c_str());
         } else {
             continue;
         }
-        extrasData.push_back(data);
+        napi_set_element(env, extrasData, i, eachElement);
     }
+    napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
 }
 
 napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
