@@ -36,16 +36,16 @@ public:
      * @param void
      * @return The system code
      */
-    std::vector<unsigned char> getSystemCode() const;
+    std::string getSystemCode() const;
     /**
      * @Description Obtains the PMm (consisting of the IC code and manufacturer parameters).
      * @param void
      * @return THe PMm
      */
-    std::vector<unsigned char> getPmm() const;
+    std::string getPmm() const;
 private:
-    std::vector<unsigned char> systemCode_;
-    std::vector<unsigned char> pmm_;
+    std::string systemCode_;
+    std::string pmm_;
 };
 }  // namespace KITS
 }  // namespace NFC

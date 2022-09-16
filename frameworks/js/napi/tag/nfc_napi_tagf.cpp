@@ -35,15 +35,15 @@ napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
     DebugLog("getSystemCode objInfo %{public}p", objectInfo);
     // transfer
     NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value result = nullptr;
     if (nfcFTagPtr == nullptr) {
         ErrorLog("GetSystemCode find objectInfo failed!");
-        return nullptr;
+        ConvertStringToNumberArray(env, result, "");
     } else {
-        std::vector<unsigned char> sysCode = nfcFTagPtr->getSystemCode();
-        napi_value result = nullptr;
-        ConvertUsignedCharVectorToJS(env, result, sysCode);
-        return result;
+        std::string sysCode = nfcFTagPtr->getSystemCode();
+        ConvertStringToNumberArray(env, result, sysCode);
     }
+    return result;
 }
 
 napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
@@ -58,17 +58,18 @@ napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     DebugLog("getGetPmm objInfo %{public}p", objectInfo);
+
     // transfer
     NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value result = nullptr;
     if (nfcFTagPtr == nullptr) {
         ErrorLog("GetPmm find objectInfo failed!");
-        return nullptr;
+        ConvertStringToNumberArray(env, result, "");
     } else {
-        std::vector<unsigned char> pmm = nfcFTagPtr->getPmm();
-        napi_value result = nullptr;
-        ConvertUsignedCharVectorToJS(env, result, pmm);
-        return result;
+        std::string pmm = nfcFTagPtr->getPmm();
+        ConvertStringToNumberArray(env, result, pmm);
     }
+    return result;
 }
 } // namespace KITS
 } // namespace NFC

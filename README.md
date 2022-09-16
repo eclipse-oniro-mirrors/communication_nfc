@@ -15,7 +15,7 @@ NFC service provides NFC switch control, NFC tag discovery and dispatch, NFC tag
 
 ## Architecture<a name="section13587185873516"></a>
 
-**Figure  1**  NFC architecture<a name="fig4460722185514"></a>  
+**Figure  1**  NFC architecture<a name="fig4460722185514"></a>
 
 
 ![](figures/en-us_image_0000001086731550.png)

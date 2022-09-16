@@ -29,10 +29,8 @@ NfcFTag::NfcFTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         ErrorLog("NfcFTag::NfcFTag extra data invalid");
         return;
     }
-    std::string pmmStr = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_PMM);
-    std::string scStr = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_SC);
-    KITS::NfcSdkCommon::StringToUnsignedCharArray(pmmStr, pmm_);
-    KITS::NfcSdkCommon::StringToUnsignedCharArray(scStr, systemCode_);
+    pmm_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_PMM);
+    systemCode_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_SC);
 }
 
 std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
@@ -46,12 +44,12 @@ std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
     return std::make_shared<NfcFTag>(tag);
 }
 
-std::vector<unsigned char> NfcFTag::getSystemCode() const
+std::string NfcFTag::getSystemCode() const
 {
     return systemCode_;
 }
 
-std::vector<unsigned char> NfcFTag::getPmm() const
+std::string NfcFTag::getPmm() const
 {
     return pmm_;
 }

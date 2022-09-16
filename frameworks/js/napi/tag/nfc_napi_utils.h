@@ -168,7 +168,7 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
 std::string UnwrapStringFromJS(napi_env env, napi_value param);
 void ConvertStringVectorToJS(napi_env env, napi_value result, std::vector<std::string> &stringVector);
 void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int> &intVector);
-void ConvertUsignedCharVectorToJS(napi_env env, napi_value result, std::vector<unsigned char> &unsignedCharVector);
+void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string srcValue);
 void ConvertNdefRecordVectorToJS(napi_env env, napi_value result,
                                  std::vector<std::shared_ptr<NdefRecord>> &ndefRecords);
 void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<NdefRecord> &ndefRecord);

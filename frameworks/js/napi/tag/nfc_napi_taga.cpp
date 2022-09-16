@@ -35,12 +35,12 @@ napi_value NapiNfcATag::GetSak(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     if (objectInfo == nullptr) {
         ErrorLog("GetSak objectInfo nullptr!");
-        napi_get_boolean(env, 0, &result);
+        napi_create_int32(env, 0, &result);
         return result;
     }
     if (objectInfo->tagSession == nullptr) {
         ErrorLog("GetSak tagSession nullptr!");
-        napi_get_boolean(env, 0, &result);
+        napi_create_int32(env, 0, &result);
         return result;
     }
 
@@ -48,7 +48,7 @@ napi_value NapiNfcATag::GetSak(napi_env env, napi_callback_info info)
     NfcATag *nfcTagPtr = static_cast<NfcATag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcTagPtr == nullptr) {
         ErrorLog("GetSak find objectInfo failed!");
-        napi_get_boolean(env, 0, &result);
+        napi_create_int32(env, 0, &result);
     } else {
         int sak = nfcTagPtr->GetSak();
         napi_create_int32(env, sak, &result);
@@ -71,23 +71,23 @@ napi_value NapiNfcATag::GetAtqa(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     if (objectInfo == nullptr) {
         ErrorLog("GetAtqa objectInfo nullptr!");
-        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
+        ConvertStringToNumberArray(env, result, "");
         return result;
     }
     if (objectInfo->tagSession == nullptr) {
         ErrorLog("GetAtqa tagSession nullptr!");
-        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
+        ConvertStringToNumberArray(env, result, "");
         return result;
     }
 
     NfcATag *nfcTagPtr = static_cast<NfcATag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcTagPtr == nullptr) {
-        ErrorLog("GetAtqa find objectInfo failed!");
-        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &result);
+        ErrorLog("GetAtqa, nfcTagPtr is nullptr");
+        ConvertStringToNumberArray(env, result, "");
     } else {
         std::string atqa = nfcTagPtr->GetAtqa();
         DebugLog("atqa %{public}s", atqa.c_str());
-        napi_create_string_utf8(env, atqa.c_str(), NAPI_AUTO_LENGTH, &result);
+        ConvertStringToNumberArray(env, result, atqa);
     }
     return result;
 }

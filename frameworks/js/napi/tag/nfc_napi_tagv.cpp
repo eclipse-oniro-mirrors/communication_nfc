@@ -34,16 +34,16 @@ napi_value NapiNfcVTag::GetResponseFlags(napi_env env, napi_callback_info info)
     DebugLog("getResponseFlags objInfo %{public}p", objectInfo);
     // transfer
     Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value result = nullptr;
     if (nfcVTagPtr == nullptr) {
         ErrorLog("GetResponseFlags find objectInfo failed!");
-        return nullptr;
+        napi_create_int32(env, 0, &result);
     } else {
         int respFlags = static_cast<int>(nfcVTagPtr->GetRespFlags());
         DebugLog("respFlags %{public}d", respFlags);
-        napi_value result = nullptr;
         napi_create_int32(env, respFlags, &result);
-        return result;
     }
+    return result;
 }
 
 napi_value NapiNfcVTag::GetDsfId(napi_env env, napi_callback_info info)
@@ -58,18 +58,19 @@ napi_value NapiNfcVTag::GetDsfId(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     DebugLog("getDsfId objInfo %{public}p", objectInfo);
+
     // transfer
     Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value result = nullptr;
     if (nfcVTagPtr == nullptr) {
         ErrorLog("GetDsfId find objectInfo failed!");
-        return nullptr;
+        napi_create_int32(env, 0, &result);
     } else {
         int dsfId = static_cast<int>(nfcVTagPtr->GetDsfId());
         DebugLog("dsfId %{public}d", dsfId);
-        napi_value result = nullptr;
         napi_create_int32(env, dsfId, &result);
-        return result;
     }
+    return result;
 }
 } // namespace KITS
 } // namespace NFC

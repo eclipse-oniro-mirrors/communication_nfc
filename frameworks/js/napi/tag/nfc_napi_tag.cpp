@@ -179,6 +179,39 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
             std::string atqa = "";
             ParseString(env, atqa, extraKeyValue);
             pacMap.PutStringValue(KITS::TagInfo::ATQA, atqa);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_B_TECH)) {
+            // parse app data and protocol info of nfcb.
+            napi_get_named_property(env, extraValue, KITS::TagInfo::APP_DATA, &extraKeyValue);
+            std::string appData = "";
+            ParseString(env, appData, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::APP_DATA, appData);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::PROTOCOL_INFO, &extraKeyValue);
+            std::string protocolInfo = "";
+            ParseString(env, protocolInfo, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::PROTOCOL_INFO, protocolInfo);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_F_TECH)) {
+            // parse pmm and sc of nfcf
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NFCF_PMM, &extraKeyValue);
+            std::string pmm = "";
+            ParseString(env, pmm, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::NFCF_PMM, pmm);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NFCF_SC, &extraKeyValue);
+            std::string sysCode = "";
+            ParseString(env, sysCode, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, sysCode);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_V_TECH)) {
+            // parse response flag and dsf id of nfcv.
+            napi_get_named_property(env, extraValue, KITS::TagInfo::RESPONSE_FLAGS, &extraKeyValue);
+            int32_t respFlag = 0;
+            ParseInt32(env, respFlag, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::RESPONSE_FLAGS, respFlag);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::DSF_ID, &extraKeyValue);
+            int32_t dsfId = 0;
+            ParseInt32(env, dsfId, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::DSF_ID, dsfId);
         } else if (intTech == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
             // for ISODEP, parse extra HistoryBytes and HilayerResponse
             napi_get_named_property(env, extraValue, KITS::TagInfo::HISTORICAL_BYTES, &extraKeyValue);
@@ -190,6 +223,7 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
             std::string hilyerResp = "";
             ParseString(env, hilyerResp, extraKeyValue);
             pacMap.PutStringValue(KITS::TagInfo::HILAYER_RESPONSE, hilyerResp);
+        } else {
         }
         tagTechExtras.push_back(pacMap);
     }
@@ -640,41 +674,50 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
         napi_value eachElement;
         napi_create_object(env, &eachElement);
         if (technology == static_cast<int>(TagTechnology::NFC_A_TECH)) {
-            // parse sak of nfca
+            // parse sak and atqa of nfca
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::SAK, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::SAK, propValue);
 
-            int32_t sak = 0;
-            ParseInt32(env, sak, propValue);
-            DebugLog("BuildTagFromWantParams sak %{public}x", sak);
-
-            // parse atqa of nfca
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::ATQA, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::ATQA, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_B_TECH)) {
+            // parse app data and protocol info of nfcb.
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::APP_DATA, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::APP_DATA, propValue);
 
-            std::string atqa = "";
-            ParseString(env, atqa, propValue);
-            DebugLog("BuildTagFromWantParams atqa %{public}s", atqa.c_str());
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::PROTOCOL_INFO, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::PROTOCOL_INFO, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_F_TECH)) {
+            // parse pmm and sc of nfcf
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NFCF_PMM, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NFCF_PMM, propValue);
+
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NFCF_SC, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NFCF_SC, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_V_TECH)) {
+            // parse response flag and dsf id of nfcv.
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::RESPONSE_FLAGS, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::RESPONSE_FLAGS, propValue);
+
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::DSF_ID, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::DSF_ID, propValue);
         } else if (technology == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
-            // parse history bytes of isodep.
+            // parse history bytes and hilayer response of isodep.
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::HISTORICAL_BYTES, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::HISTORICAL_BYTES, propValue);
 
-            std::string historyBytes = "";
-            ParseString(env, historyBytes, propValue);
-            DebugLog("BuildTagFromWantParams historyBytes %{public}s", historyBytes.c_str());
-
-            // parse hilayer response of isodep.
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::HILAYER_RESPONSE, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::HILAYER_RESPONSE, propValue);
-
-            std::string hilayerResp = "";
-            ParseString(env, hilayerResp, propValue);
-            DebugLog("BuildTagFromWantParams hilayerResp %{public}s", hilayerResp.c_str());
         } else {
             continue;
         }
