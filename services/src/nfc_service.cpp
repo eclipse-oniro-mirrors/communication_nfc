@@ -18,6 +18,7 @@
 #include "common_event_handler.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
+#include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
@@ -310,6 +311,45 @@ void NfcService::UpdateNfcState(int newState)
             record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
         }
     }
+}
+
+void NfcService::StartPollingLoop(bool force)
+{
+    InfoLog("StartPollingLoop force = %{public}d", force);
+    if (!IsNfcEnabled()) {
+        return;
+    }
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nfccHost_);
+    pollingWatchDog.Run();
+    // Compute new polling parameters
+    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
+    if (force || !(newParams == currPollingParams_)) {
+        if (newParams->ShouldEnablePolling()) {
+            bool shouldRestart = currPollingParams_->ShouldEnablePolling();
+            InfoLog("StartPollingLoop shouldRestart = %{public}d", shouldRestart);
+
+            nfccHost_->EnableDiscovery(newParams->GetTechMask(),
+                                       newParams->ShouldEnableReaderMode(),
+                                       newParams->ShouldEnableHostRouting(),
+                                       shouldRestart);
+        } else {
+            nfccHost_->DisableDiscovery();
+        }
+        currPollingParams_ = newParams;
+    } else {
+        InfoLog("StartPollingLoop: polling params equal, not updating");
+    }
+    pollingWatchDog.Cancel();
+}
+
+std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenState) {
+    // Recompute polling parameters based on screen state
+    std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
+
+    params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
+    return params;
 }
 
 int NfcService::GetNfcState()

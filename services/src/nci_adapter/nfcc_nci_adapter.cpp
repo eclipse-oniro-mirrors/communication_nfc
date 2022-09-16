@@ -420,7 +420,7 @@ bool NfccNciAdapter::Deinitialize()
     return (status == NFA_STATUS_OK);
 }
 
-void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
+void NfccNciAdapter::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccNciAdapter::EnableDiscovery");
     std::lock_guard<std::mutex> lock(mutex_);
@@ -439,7 +439,11 @@ void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, b
         StartRfDiscovery(false);
     }
 
-    tNFA_TECHNOLOGY_MASK technologyMask = techMask & DEFAULT_TECH_MASK;
+    tNFA_TECHNOLOGY_MASK technologyMask = DEFAULT_TECH_MASK;
+    if (techMask != -1) {
+        technologyMask = techMask & DEFAULT_TECH_MASK;
+    }
+
     if (technologyMask != 0) {
         StopPolling();
         StartPolling(technologyMask);
@@ -545,7 +549,7 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
         }
     }
 
-    uint8_t discParam = GetDiscovryParam(curScreenState_, screenStateMask);
+    uint8_t discParam = GetDiscovryParam(screenState, screenStateMask);
     status = nciAdaptation_->NfcSetConfig(NCI_PARAM_ID_CON_DISCOVERY_PARAM,
         NCI_PARAM_LEN_CON_DISCOVERY_PARAM, &discParam);
     if (status != NFA_STATUS_OK) {
