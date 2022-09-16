@@ -36,16 +36,16 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
 
     // transfer
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value ret = nullptr;
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHistoricalBytes find objectInfo failed!");
-        return nullptr;
+        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &ret);
     } else {
-        napi_value ret = nullptr;
         std::string historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
         DebugLog("HistoricalBytes %{public}s", historicalBytes.c_str());
         napi_create_string_utf8(env, historicalBytes.c_str(), NAPI_AUTO_LENGTH, &ret);
-        return ret;
     }
+    return ret;
 }
 
 napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info info)
@@ -62,16 +62,16 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
 
     // transfer
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value ret = nullptr;
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHiLayerResponse find objectInfo failed!");
-        return nullptr;
+        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &ret);
     } else {
-        napi_value ret = nullptr;
         std::string hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
         DebugLog("HiLayerResponse %{public}s", hiLayerResponse.c_str());
         napi_create_string_utf8(env, hiLayerResponse.c_str(), NAPI_AUTO_LENGTH, &ret);
-        return ret;
     }
+    return ret;
 }
 
 static bool MatchIsExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)

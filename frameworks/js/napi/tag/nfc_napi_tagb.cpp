@@ -31,7 +31,7 @@ napi_value NapiNfcBTag::GetRespAppData(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getRespAppData objInfo %{public}p", objectInfo);
+
     // transfer
     NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     napi_value ret = nullptr;
@@ -57,7 +57,7 @@ napi_value NapiNfcBTag::GetRespProtocol(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getRespAppData objInfo %{public}p", objectInfo);
+
     // transfer
     NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     napi_value ret = nullptr;
