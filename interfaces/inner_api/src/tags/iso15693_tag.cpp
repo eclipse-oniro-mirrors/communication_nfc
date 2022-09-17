@@ -63,7 +63,7 @@ std::string Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex)
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     return SendCommand(sendCommand, false, response);
 }
 
@@ -84,7 +84,7 @@ int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std:
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + data;
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     std::string res = SendCommand(sendCommand, false, response);
     return response;
 }
@@ -106,7 +106,7 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     std::string res = SendCommand(sendCommand, false, response);
     return response;
 }
@@ -131,7 +131,7 @@ std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, u
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + char(blockNum & 0xFF);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     return SendCommand(sendCommand, false, response);
 }
 
@@ -153,7 +153,7 @@ int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + char(blockNum & 0xFF) + data;
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     std::string res = SendCommand(sendCommand, false, response);
     return response;
 }

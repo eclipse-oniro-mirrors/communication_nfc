@@ -68,7 +68,7 @@ std::string MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex)
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         DebugLog("%02X  %02X   ", command[0], command[1]);
 
-        int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+        int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
         return SendCommand(sendCommand, false, response);
     } else {
         ErrorLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%{public}d err!", pageIndex);
@@ -88,7 +88,7 @@ int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string&
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         sendCommand += data;
 
-        int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+        int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
         SendCommand(sendCommand, false, response);
         return response;
     }

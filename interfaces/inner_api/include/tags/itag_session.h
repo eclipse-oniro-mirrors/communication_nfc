@@ -22,21 +22,21 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-class ResResult : public OHOS::Parcelable {
+class TagRwResponse : public OHOS::Parcelable {
 public:
-    ResResult() : result(RESULT_FAILURE), resData("") {}
-    virtual ~ResResult() {}
+    TagRwResponse() : status_(STATUS_FAILURE), responseData_("") {}
+    virtual ~TagRwResponse() {}
 
     bool Marshalling(OHOS::Parcel &parcel) const override
     {
-        parcel.WriteInt32(result);
-        parcel.WriteString(resData);
+        parcel.WriteInt32(status_);
+        parcel.WriteString(responseData_);
         return true;
     }
 
-    static ResResult* Unmarshalling(OHOS::Parcel &parcel)
+    static sptr<TagRwResponse> Unmarshalling(OHOS::Parcel &parcel)
     {
-        ResResult* res = new ResResult();
+        sptr<TagRwResponse> res = new TagRwResponse();
         res->SetResult(parcel.ReadInt32());
         res->SetResData(parcel.ReadString());
         return res;
@@ -44,25 +44,25 @@ public:
 
     void SetResult(int32_t r)
     {
-        result = r;
+        status_ = r;
     }
     int32_t GetResult() const
     {
-        return result;
+        return status_;
     }
     void SetResData(const std::string data)
     {
-        resData = data;
+        responseData_ = data;
     }
     std::string GetResData() const
     {
-        return resData;
+        return responseData_;
     }
-    enum ResponseResult { RESULT_SUCCESS = 0, RESULT_EXCEEDED_LENGTH, RESULT_TAGLOST, RESULT_FAILURE };
+    enum Status { STATUS_SUCCESS = 0, STATUS_EXCEEDED_LENGTH, STATUS_TAG_LOST, STATUS_FAILURE };
 
 private:
-    int32_t result;
-    std::string resData;
+    int32_t status_;
+    std::string responseData_;
 };
 
 class ITagSession : public OHOS::IRemoteBroker {
@@ -89,6 +89,22 @@ public:
      */
     virtual void Disconnect(int tagRfDiscId) = 0;
     /**
+     * @brief Set the Timeout for tag operations
+     *
+     * @param timeout the timeout value to set for tag operations
+     * @param technology the tag technology
+     * @return true success of setting timeout value
+     * @return false failure of setting timeout value
+     */
+    virtual bool SetTimeout(uint32_t timeout, int technology) = 0;
+    /**
+     * @brief Get the Timeout value of tag operations
+     *
+     * @param technology the tag technology
+     * @return uint32_t the timeout value of tag operations.
+     */
+    virtual uint32_t GetTimeout(int technology) = 0;
+    /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      * @return TechList
@@ -113,7 +129,7 @@ public:
      * @param raw to send whether original data or un-original data
      * @return The response result from the host tag
      */
-    virtual std::unique_ptr<ResResult> SendRawFrame(int tagRfDiscId, std::string data, bool raw) = 0;
+    virtual std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) = 0;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag

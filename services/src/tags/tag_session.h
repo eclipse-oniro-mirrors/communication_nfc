@@ -50,6 +50,22 @@ public:
      * @param tagRfDiscId the rf disc id of tag
      */
     void Disconnect(int tagRfDiscId) override;
+        /**
+     * @brief Set the Timeout for tag operations
+     *
+     * @param timeout the timeout value to set for tag operations
+     * @param technology the tag technology
+     * @return true success of setting timeout value
+     * @return false failure of setting timeout value
+     */
+    bool SetTimeout(uint32_t timeout, int technology) override;
+    /**
+     * @brief Get the Timeout value of tag operations
+     *
+     * @param technology the tag technology
+     * @return uint32_t the timeout value of tag operations.
+     */
+    uint32_t GetTimeout(int technology) override;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
@@ -75,7 +91,7 @@ public:
      * @param raw to send whether original data or un-original data
      * @return The response result from the host tag
      */
-    std::unique_ptr<ResResult> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
+    std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag

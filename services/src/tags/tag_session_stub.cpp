@@ -39,6 +39,10 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleReconnect(data, reply);
         case KITS::COMMAND_DISCONNECT:
             return HandleDisconnect(data, reply);
+        case KITS::COMMAND_SET_TIMEOUT:
+            return HandleSetTimeout(data, reply);
+        case KITS::COMMAND_GET_TIMEOUT:
+            return HandleGetTimeout(data, reply);
         case KITS::COMMAND_GET_TECHLIST:
             return HandleGetTechList(data, reply);
         case KITS::COMMAND_IS_PRESENT:
@@ -103,6 +107,28 @@ int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
     Disconnect(tagRfDiscId);
     return ERR_NONE;
 }
+int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
+{
+    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleSetTimeout, NFC_SDK_ERROR_PERMISSION");
+        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+    }
+    int tech = data.ReadInt32();
+    int timeout = data.ReadInt32();
+    reply.WriteBool(SetTimeout(timeout, tech));
+    return ERR_NONE;
+}
+int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
+{
+    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleGetTimeout, NFC_SDK_ERROR_PERMISSION");
+        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+    }
+    int tech = data.ReadInt32();
+    int timeout = GetTimeout(tech);
+    reply.WriteInt32(timeout);
+    return ERR_NONE;
+}
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -150,7 +176,7 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
     int tagRfDiscId = data.ReadInt32();
     std::string commandData = data.ReadString();
     bool raw = data.ReadBool();
-    std::unique_ptr<ResResult> res = SendRawFrame(tagRfDiscId, commandData, raw);
+    std::unique_ptr<TagRwResponse> res = SendRawFrame(tagRfDiscId, commandData, raw);
     reply.WriteParcelable(res.get());
     reply.WriteInt32(ERR_NONE);
     return ERR_NONE;

@@ -35,6 +35,8 @@ private:
     int HandleConnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleReconnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleDisconnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetTechList(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleIsTagFieldOn(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleIsNdef(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
