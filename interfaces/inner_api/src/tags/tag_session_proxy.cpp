@@ -61,6 +61,74 @@ void TagSessionProxy::Disconnect(int tagRfDiscId)
     return;
 }
 
+bool TagSessionProxy::SetTimeout(uint32_t timeout, int technology)
+{
+    bool result = false;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return false;
+    }
+    data.WriteInt32(technology);
+    data.WriteInt32(timeout);
+    MessageOption option(MessageOption::TF_ASYNC);
+    ProcessBoolRes(KITS::COMMAND_SET_TIMEOUT, data, option, result);
+    return result;
+}
+
+uint32_t TagSessionProxy::GetTimeout(int technology)
+{
+    int result = 0;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return 0;
+    }
+    data.WriteInt32(technology);
+    MessageOption option(MessageOption::TF_ASYNC);
+    ProcessIntRes(KITS::COMMAND_GET_TIMEOUT, data, option, result);
+    return static_cast<uint32_t>(result);
+}
+
+int TagSessionProxy::GetMaxTransceiveLength(int technology)
+{
+    int result = 0;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+    }
+    data.WriteInt32(technology);
+    MessageOption option(MessageOption::TF_SYNC);
+    ProcessIntRes(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, result);
+    return result;
+}
+
+std::unique_ptr<TagRwResponse> TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string msg, bool raw)
+{
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return std::unique_ptr<TagRwResponse>();
+    }
+    data.WriteInt32(tagRfDiscId);
+    data.WriteString(msg);
+    data.WriteBool(raw);
+    int res = Remote()->SendRequest(KITS::COMMAND_SEND_RAW_FRAME, data, reply, option);
+    if (res != ERR_NONE) {
+        ErrorLog("It is failed To Send Raw Frame with Res(%{public}d).", res);
+        return std::unique_ptr<TagRwResponse>();
+    }
+    sptr<TagRwResponse> result = reply.ReadStrongParcelable<TagRwResponse>();
+    int res1 = reply.ReadInt32();
+    if (res1 != ERR_NONE) {
+        ErrorLog("It is failed To Send Raw Frame with Res1(%{public}d).", res1);
+        return std::unique_ptr<TagRwResponse>();
+    }
+    std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
+    resResult->SetResult(result->GetResult());
+    resResult->SetResData(result->GetResData());
+    DebugLog("TagSessionProxy::SendRawFrame result.%{public}d", result->GetResult());
+    return resResult;
+}
+
 std::vector<int> TagSessionProxy::GetTechList(int tagRfDiscId)
 {
     MessageParcel data;
@@ -104,34 +172,6 @@ bool TagSessionProxy::IsNdef(int tagRfDiscId)
     MessageOption option(MessageOption::TF_SYNC);
     ProcessBoolRes(KITS::COMMAND_IS_NDEF, data, option, result);
     return result;
-}
-
-std::unique_ptr<ResResult> TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string msg, bool raw)
-{
-    MessageParcel data, reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return std::unique_ptr<ResResult>();
-    }
-    data.WriteInt32(tagRfDiscId);
-    data.WriteString(msg);
-    data.WriteBool(raw);
-    int res = Remote()->SendRequest(KITS::COMMAND_SEND_RAW_FRAME, data, reply, option);
-    if (res != ERR_NONE) {
-        ErrorLog("It is failed To Send Raw Frame with Res(%{public}d).", res);
-        return std::unique_ptr<ResResult>();
-    }
-    sptr<ResResult> result = reply.ReadStrongParcelable<ResResult>();
-    int res1 = reply.ReadInt32();
-    if (res1 != ERR_NONE) {
-        ErrorLog("It is failed To Send Raw Frame with Res1(%{public}d).", res1);
-        return std::unique_ptr<ResResult>();
-    }
-    std::unique_ptr<ResResult> resResult = std::make_unique<ResResult>();
-    resResult->SetResult(result->GetResult());
-    resResult->SetResData(result->GetResData());
-    DebugLog("TagSessionProxy::SendRawFrame result.%{public}d", result->GetResult());
-    return resResult;
 }
 
 std::string TagSessionProxy::NdefRead(int tagRfDiscId)
@@ -202,19 +242,6 @@ bool TagSessionProxy::CanMakeReadOnly(int technology)
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
     ProcessBoolRes(KITS::COMMAND_CAN_MAKE_READ_ONLY, data, option, result);
-    return result;
-}
-
-int TagSessionProxy::GetMaxTransceiveLength(int technology)
-{
-    int result = 0;
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
-    }
-    data.WriteInt32(technology);
-    MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, result);
     return result;
 }
 

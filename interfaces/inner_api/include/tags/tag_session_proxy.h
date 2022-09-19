@@ -32,16 +32,19 @@ public:
     int Connect(int tagRfDiscId, int technology) override;
     int Reconnect(int tagRfDiscId) override;
     void Disconnect(int tagRfDiscId) override;
+    int GetMaxTransceiveLength(int technology) override;
+    bool SetTimeout(uint32_t timeout, int technology) override;
+    uint32_t GetTimeout(int technology) override;
+    std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
+
     std::vector<int> GetTechList(int tagRfDiscId) override;
     bool IsTagFieldOn(int tagRfDiscId) override;
     bool IsNdef(int tagRfDiscId) override;
-    std::unique_ptr<ResResult> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
     std::string NdefRead(int tagRfDiscId) override;
     int NdefWrite(int tagRfDiscId, std::string msg) override;
     int NdefMakeReadOnly(int tagRfDiscId) override;
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
     bool CanMakeReadOnly(int technology) override;
-    int GetMaxTransceiveLength(int technology) override;
     bool IsSupportedApdusExtended() override;
 
 private:

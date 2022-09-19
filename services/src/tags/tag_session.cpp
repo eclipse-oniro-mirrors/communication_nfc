@@ -22,6 +22,11 @@ namespace TAG {
 const std::string DUMP_LINE = "---------------------------";
 const std::string DUMP_END = "\n";
 
+// NFC_A = 1 ~ NDEF_FORMATABLE = 10
+const uint32_t MAX_TECH = 12;
+uint32_t g_techTimeout[MAX_TECH] = {0};
+uint32_t g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+
 TagSession::TagSession(std::shared_ptr<INfcService> service)
     : nfcService_(service)
 {
@@ -49,7 +54,7 @@ int TagSession::Connect(int tagRfDiscId, int technology)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("Connect, tag.expired error");
+        ErrorLog("Connect, tagRfDiscId not found");
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
     }
 
@@ -81,7 +86,7 @@ int TagSession::Reconnect(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("Reconnect, tag.expired error");
+        ErrorLog("Reconnect, tagRfDiscId not found");
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
     }
 
@@ -107,10 +112,28 @@ void TagSession::Disconnect(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("Disconnect, tag.expired error");
+        ErrorLog("Disconnect, tagRfDiscId not found");
         return;
     }
     tag.lock()->Disconnect();
+}
+bool TagSession::SetTimeout(uint32_t timeout, int technology)
+{
+    if (technology < 0 || technology >= MAX_TECH) {
+        ErrorLog("SetTimeout, invalid technology %{public}d", technology);
+        return false;
+    }
+    g_techTimeout[technology] = timeout;
+    return true;
+}
+
+uint32_t TagSession::GetTimeout(int technology)
+{
+    if (technology < 0 || technology >= MAX_TECH) {
+        ErrorLog("GetTimeout, invalid technology %{public}d", technology);
+        return 0;
+    }
+    return g_techTimeout[technology];
 }
 /**
  * @brief Get the TechList of the tagRfDiscId.
@@ -129,7 +152,7 @@ std::vector<int> TagSession::GetTechList(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("GetTechList, tag.expired error");
+        ErrorLog("GetTechList, tagRfDiscId not found");
         return techList;
     }
     return tag.lock()->GetTechList();
@@ -150,7 +173,7 @@ bool TagSession::IsTagFieldOn(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("IsTagFieldOn, tag.expired error");
+        ErrorLog("IsTagFieldOn, tagRfDiscId not found");
         return false;
     }
     return tag.lock()->IsTagFieldOn();
@@ -171,7 +194,7 @@ bool TagSession::IsNdef(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("IsNdef, tag.expired error");
+        ErrorLog("IsNdef, tagRfDiscId not found");
         return false;
     }
     std::vector<int> ndefInfo;
@@ -184,7 +207,7 @@ bool TagSession::IsNdef(int tagRfDiscId)
  * @param raw to send whether original data or un-original data
  * @return The response result from the host tag
  */
-std::unique_ptr<ResResult> TagSession::SendRawFrame(int tagRfDiscId, std::string data, bool raw)
+std::unique_ptr<TagRwResponse> TagSession::SendRawFrame(int tagRfDiscId, std::string data, bool raw)
 {
     DebugLog("Send Raw(%{public}d) Frame", raw);
     // Check if NFC is enabled
@@ -196,24 +219,24 @@ std::unique_ptr<ResResult> TagSession::SendRawFrame(int tagRfDiscId, std::string
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("SendRawFrame, tag.expired error");
+        ErrorLog("SendRawFrame, tagRfDiscId not found");
         return nullptr;
     }
-    std::unique_ptr<ResResult> resResult = std::make_unique<ResResult>();
+    std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
     // Check if length is within limits
     if (data.length() > static_cast<unsigned int>(GetMaxTransceiveLength(tag.lock()->GetConnectedTech()))) {
-        resResult->SetResult(ResResult::RESULT_EXCEEDED_LENGTH);
+        resResult->SetResult(TagRwResponse::STATUS_EXCEEDED_LENGTH);
         return resResult;
     }
     std::string response;
     int result = tag.lock()->Transceive(data, response);
     if (!response.empty()) {
-        resResult->SetResult(ResResult::RESULT_SUCCESS);
+        resResult->SetResult(TagRwResponse::STATUS_SUCCESS);
     } else if (result == 1) {  // result == 1 means that Tag lost
-        resResult->SetResult(ResResult::RESULT_TAGLOST);
+        resResult->SetResult(TagRwResponse::STATUS_TAG_LOST);
     } else {
         ErrorLog("SendRawFrame, response error, result %{public}d", result);
-        resResult->SetResult(ResResult::RESULT_FAILURE);
+        resResult->SetResult(TagRwResponse::STATUS_FAILURE);
     }
     resResult->SetResData(response);
     return resResult;
@@ -233,7 +256,7 @@ std::string TagSession::NdefRead(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("NdefRead, tag.expired error");
+        ErrorLog("NdefRead, tagRfDiscId not found");
         return "";
     }
     return tag.lock()->ReadNdef();
@@ -255,7 +278,7 @@ int TagSession::NdefWrite(int tagRfDiscId, std::string msg)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("NdefWrite, tag.expired error");
+        ErrorLog("NdefWrite, tagRfDiscId not found");
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
     }
 
@@ -285,7 +308,7 @@ int TagSession::NdefMakeReadOnly(int tagRfDiscId)
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("NdefMakeReadOnly, tag.expired error");
+        ErrorLog("NdefMakeReadOnly, tagRfDiscId not found");
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
     }
 
@@ -311,7 +334,7 @@ int TagSession::FormatNdef(int tagRfDiscId, const std::string& key)
     /* find the tag in the hmap */
     std::weak_ptr<NFC::NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
-        ErrorLog("FormatNdef, tag.expired error");
+        ErrorLog("FormatNdef, tagRfDiscId not found");
         return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
     }
 
@@ -336,7 +359,7 @@ bool TagSession::CanMakeReadOnly(int technology)
  */
 int TagSession::GetMaxTransceiveLength(int technology)
 {
-    return nfccHost_.lock()->GetIsoDepMaxTransceiveLength();
+    return g_maxTransLength[technology];
 }
 /**
  * @brief Checking the NfccHost whether It supported the extended Apdus

@@ -124,9 +124,9 @@ bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& ke
     // Take the first 4 bytes of the tag as part of command
     sendCommand += tagUid.substr(0, tagSubLen) + key;
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
-    return (response == TAG::ResResult::ResponseResult::RESULT_SUCCESS);
+    return (response == TAG::TagRwResponse::Status::STATUS_SUCCESS);
 }
 
 std::string MifareClassicTag::ReadSingleBlock(uint32_t blockIndex)
@@ -140,7 +140,7 @@ std::string MifareClassicTag::ReadSingleBlock(uint32_t blockIndex)
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_READ, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     return SendCommand(sendCommand, false, response);
 }
 
@@ -161,7 +161,7 @@ int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& d
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += data;
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
     return response;
 }
@@ -182,7 +182,7 @@ int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
     return response;
 }
@@ -203,7 +203,7 @@ int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
     return response;
 }
@@ -222,7 +222,7 @@ int MifareClassicTag::TransferToBlock(uint32_t blockIndex)
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_TRANSFER, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
     return response;
 }
@@ -241,7 +241,7 @@ int MifareClassicTag::RestoreFromBlock(uint32_t blockIndex)
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_RESTORE, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
 
-    int response = TAG::ResResult::ResponseResult::RESULT_FAILURE;
+    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
     SendCommand(sendCommand, false, response);
     return response;
 }

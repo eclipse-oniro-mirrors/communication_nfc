@@ -96,7 +96,10 @@ void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
 
 bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
 {
-    if (!bundleMgrProxy_) {
+    if (bundleMgrProxy_ == nullptr) {
+        bundleMgrProxy_ = GetBundleMgrProxy();
+    }
+    if (bundleMgrProxy_ == nullptr) {
         ErrorLog("UpdateAppListInfo, bundleMgrProxy_ is nullptr.");
         return false;
     }

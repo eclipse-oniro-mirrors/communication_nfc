@@ -25,6 +25,8 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 struct NapiNfcTagSession {
+    static std::shared_ptr<BasicTagSession> GetTag(napi_env env, napi_callback_info info,
+        size_t argc, napi_value argv[]);
     static napi_value GetTagInfo(napi_env env, napi_callback_info info);
     static napi_value ConnectTag(napi_env env, napi_callback_info info);
     static napi_value Reset(napi_env env, napi_callback_info info);
