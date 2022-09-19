@@ -24,7 +24,7 @@ namespace NFC {
 namespace TAG {
 int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 {
-    int result = 0;
+    int result = KITS::NfcErrorCode::NFC_FAILED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
@@ -32,20 +32,20 @@ int TagSessionProxy::Connect(int tagRfDiscId, int technology)
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(static_cast<int32_t>(technology));
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_CONNECT, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_CONNECT, data, option, result);
     return result;
 }
 
 int TagSessionProxy::Reconnect(int tagRfDiscId)
 {
-    int result = 0;
+    int result = KITS::NfcErrorCode::NFC_FAILED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_RECONNECT, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_RECONNECT, data, option, result);
     return result;
 }
 
@@ -57,7 +57,7 @@ void TagSessionProxy::Disconnect(int tagRfDiscId)
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_ASYNC);
-    ProcessCommand(KITS::COMMAND_DISCONNECT, data, option);
+    SendRequestExpectReplyNone(KITS::COMMAND_DISCONNECT, data, option);
     return;
 }
 
@@ -70,8 +70,8 @@ bool TagSessionProxy::SetTimeout(uint32_t timeout, int technology)
     }
     data.WriteInt32(technology);
     data.WriteInt32(timeout);
-    MessageOption option(MessageOption::TF_ASYNC);
-    ProcessBoolRes(KITS::COMMAND_SET_TIMEOUT, data, option, result);
+    MessageOption option(MessageOption::TF_SYNC);
+    SendRequestExpectReplyBool(KITS::COMMAND_SET_TIMEOUT, data, option, result);
     return result;
 }
 
@@ -83,8 +83,8 @@ uint32_t TagSessionProxy::GetTimeout(int technology)
         return 0;
     }
     data.WriteInt32(technology);
-    MessageOption option(MessageOption::TF_ASYNC);
-    ProcessIntRes(KITS::COMMAND_GET_TIMEOUT, data, option, result);
+    MessageOption option(MessageOption::TF_SYNC);
+    SendRequestExpectReplyInt(KITS::COMMAND_GET_TIMEOUT, data, option, result);
     return static_cast<uint32_t>(result);
 }
 
@@ -97,14 +97,14 @@ int TagSessionProxy::GetMaxTransceiveLength(int technology)
     }
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, result);
     return result;
 }
 
 std::unique_ptr<TagRwResponse> TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string msg, bool raw)
 {
     MessageParcel data, reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return std::unique_ptr<TagRwResponse>();
     }
@@ -117,11 +117,6 @@ std::unique_ptr<TagRwResponse> TagSessionProxy::SendRawFrame(int tagRfDiscId, st
         return std::unique_ptr<TagRwResponse>();
     }
     sptr<TagRwResponse> result = reply.ReadStrongParcelable<TagRwResponse>();
-    int res1 = reply.ReadInt32();
-    if (res1 != ERR_NONE) {
-        ErrorLog("It is failed To Send Raw Frame with Res1(%{public}d).", res1);
-        return std::unique_ptr<TagRwResponse>();
-    }
     std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
     resResult->SetResult(result->GetResult());
     resResult->SetResData(result->GetResData());
@@ -157,7 +152,7 @@ bool TagSessionProxy::IsTagFieldOn(int tagRfDiscId)
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessBoolRes(KITS::COMMAND_IS_PRESENT, data, option, result);
+    SendRequestExpectReplyBool(KITS::COMMAND_IS_PRESENT, data, option, result);
     return result;
 }
 
@@ -170,7 +165,7 @@ bool TagSessionProxy::IsNdef(int tagRfDiscId)
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessBoolRes(KITS::COMMAND_IS_NDEF, data, option, result);
+    SendRequestExpectReplyBool(KITS::COMMAND_IS_NDEF, data, option, result);
     return result;
 }
 
@@ -201,7 +196,7 @@ int TagSessionProxy::NdefWrite(int tagRfDiscId, std::string msg)
     data.WriteInt32(tagRfDiscId);
     data.WriteString(msg);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_NDEF_WRITE, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_NDEF_WRITE, data, option, result);
     return result;
 }
 
@@ -214,7 +209,7 @@ int TagSessionProxy::NdefMakeReadOnly(int tagRfDiscId)
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_NDEF_MAKE_READ_ONLY, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_NDEF_MAKE_READ_ONLY, data, option, result);
     return result;
 }
 
@@ -228,7 +223,7 @@ int TagSessionProxy::FormatNdef(int tagRfDiscId, const std::string& key)
     data.WriteInt32(tagRfDiscId);
     data.WriteString(key);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessIntRes(KITS::COMMAND_FORMAT_NDEF, data, option, result);
+    SendRequestExpectReplyInt(KITS::COMMAND_FORMAT_NDEF, data, option, result);
     return result;
 }
 
@@ -241,7 +236,7 @@ bool TagSessionProxy::CanMakeReadOnly(int technology)
     }
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
-    ProcessBoolRes(KITS::COMMAND_CAN_MAKE_READ_ONLY, data, option, result);
+    SendRequestExpectReplyBool(KITS::COMMAND_CAN_MAKE_READ_ONLY, data, option, result);
     return result;
 }
 
@@ -253,7 +248,7 @@ bool TagSessionProxy::IsSupportedApdusExtended()
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    ProcessBoolRes(KITS::COMMAND_IS_SUPPORTED_APDUS_EXTENDED, data, option, result);
+    SendRequestExpectReplyBool(KITS::COMMAND_IS_SUPPORTED_APDUS_EXTENDED, data, option, result);
     return result;
 }
 }  // namespace TAG

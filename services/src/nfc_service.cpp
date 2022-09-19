@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_service.h"
-
+#include <unistd.h>
 #include "app_data_parser.h"
 #include "common_event_handler.h"
 #include "loghelper.h"
@@ -64,7 +64,6 @@ bool NfcService::Initialize()
     } else {
         nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
     }
-    AppDataParser::GetInstance().InitAppList();
 
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
@@ -214,6 +213,10 @@ void NfcService::DoInitialize()
     if (lastState == KITS::STATE_ON) {
         DoTurnOn();
     }
+
+    // delay 2S to wait for bundle manager ready when device reboot
+    sleep(2);
+    AppDataParser::GetInstance().InitAppList();
 }
 
 int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
