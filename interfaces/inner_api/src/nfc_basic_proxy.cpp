@@ -18,43 +18,34 @@
 
 namespace OHOS {
 namespace NFC {
-int NfcBasicProxy::ProcessIntRes(int cmd, MessageParcel& data, MessageOption& option, int& result)
+int NfcBasicProxy::SendRequestExpectReplyInt(int cmd, MessageParcel& data, MessageOption& option, int& result)
 {
     MessageParcel reply;
-    int res = remoteObj_->SendRequest(cmd, data, reply, option);
-    if (res == ERR_NONE) {
+    int ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    if (ret == ERR_NONE) {
         result = reply.ReadInt32();
-        InfoLog("It is successful To send request %{public}d with Res %{public}d.", cmd, res);
-    } else {
-        ErrorLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
     }
-    return res;
+    InfoLog("SendRequestExpectReplyInt, cmd %{public}d, ret %{public}d, reply %{public}d", cmd, ret, result);
+    return ret;
 }
 
-int NfcBasicProxy::ProcessBoolRes(int cmd, MessageParcel& data, MessageOption& option, bool& result)
+int NfcBasicProxy::SendRequestExpectReplyBool(int cmd, MessageParcel& data, MessageOption& option, bool& result)
 {
     MessageParcel reply;
-    int32_t res = remoteObj_->SendRequest(cmd, data, reply, option);
-    if (res == ERR_NONE) {
-        result = reply.ReadInt32();
-        InfoLog("It is successful To send request(%{public}d) with Res(%{public}d) result(%{public}d).",
-            cmd, res, result);
-    } else {
-        ErrorLog("It is failed To send request(%{public}d) with Res(%{public}d).", cmd, res);
+    int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    if (ret == ERR_NONE) {
+        result = reply.ReadBool();
     }
-    return res;
+    InfoLog("SendRequestExpectReplyInt, cmd %{public}d, ret %{public}d, reply %{public}d", cmd, ret, result);
+    return ret;
 }
 
-int NfcBasicProxy::ProcessCommand(int cmd, MessageParcel& data, MessageOption& option)
+int NfcBasicProxy::SendRequestExpectReplyNone(int cmd, MessageParcel& data, MessageOption& option)
 {
     MessageParcel reply;
-    return remoteObj_->SendRequest(cmd, data, reply, option);
-}
-
-int NfcBasicProxy::ProcessCallBackCommand(int cmd, MessageParcel& data, MessageParcel& reply, MessageOption& option)
-{
-    InfoLog("ProcessCommand To send request %{public}d", cmd);
-    return remoteObj_->SendRequest(cmd, data, reply, option);
+    int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    InfoLog("SendRequestExpectReplyNone, cmd %{public}d, ret %{public}d", cmd, ret);
+    return ret;
 }
 }  // namespace NFC
 }  // namespace OHOS

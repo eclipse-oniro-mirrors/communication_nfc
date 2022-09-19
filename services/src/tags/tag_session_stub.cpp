@@ -78,9 +78,8 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
-    int res = Connect(tagRfDiscId, tech);
-
-    reply.WriteInt32(res);
+    int ret = Connect(tagRfDiscId, tech);
+    reply.WriteInt32(ret);
     return ERR_NONE;
 }
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
@@ -91,9 +90,8 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
     }
 
     int tagRfDiscId = data.ReadInt32();
-    int ec = Reconnect(tagRfDiscId);
-
-    reply.WriteInt32(ec);
+    int ret = Reconnect(tagRfDiscId);
+    reply.WriteInt32(ret);
     return ERR_NONE;
 }
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
@@ -125,8 +123,7 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
     int tech = data.ReadInt32();
-    int timeout = GetTimeout(tech);
-    reply.WriteInt32(timeout);
+    reply.WriteInt32(GetTimeout(tech));
     return ERR_NONE;
 }
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
@@ -138,7 +135,6 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     std::vector<int32_t> techList = GetTechList(tagRfDiscId);
-
     reply.WriteInt32Vector(techList);
     return ERR_NONE;
 }
@@ -149,9 +145,7 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
-    bool res = IsNdef(tagRfDiscId);
-
-    reply.WriteBool(res);
+    reply.WriteBool(IsNdef(tagRfDiscId));
     return ERR_NONE;
 }
 int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
@@ -161,9 +155,7 @@ int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
         return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
-    bool res = IsNdef(tagRfDiscId);
-
-    reply.WriteBool(res);
+    reply.WriteBool(IsNdef(tagRfDiscId));
     return ERR_NONE;
 }
 int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply)
@@ -176,9 +168,8 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
     int tagRfDiscId = data.ReadInt32();
     std::string commandData = data.ReadString();
     bool raw = data.ReadBool();
-    std::unique_ptr<TagRwResponse> res = SendRawFrame(tagRfDiscId, commandData, raw);
-    reply.WriteParcelable(res.get());
-    reply.WriteInt32(ERR_NONE);
+    std::unique_ptr<TagRwResponse> ret = SendRawFrame(tagRfDiscId, commandData, raw);
+    reply.WriteParcelable(ret.get());
     return ERR_NONE;
 }
 int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
@@ -202,9 +193,8 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     std::string msg = data.ReadString();
-    int ec = NdefWrite(tagRfDiscId, msg);
-
-    reply.WriteInt32(ec);
+    int status = NdefWrite(tagRfDiscId, msg);
+    reply.WriteInt32(status);
     return ERR_NONE;
 }
 int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& reply)
@@ -227,7 +217,7 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     std::string key = data.ReadString();
-    reply.WriteBool(FormatNdef(tagRfDiscId, key));
+    reply.WriteInt32(FormatNdef(tagRfDiscId, key));
     return ERR_NONE;
 }
 int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& reply)
