@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 #include "mifare_ultralight_tag.h"
-
 #include "loghelper.h"
+#include "nfca_tag.h"
 
 namespace OHOS {
 namespace NFC {
@@ -24,22 +24,24 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
 {
     InfoLog("MifareUltralightTag::MifareUltralightTag in");
     if (tag.expired()) {
-        ErrorLog("MifareUltralightTag::MifareUltralightTag tag invalid ");
+        ErrorLog("MifareUltralightTag, tag invalid");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
-    if (extraData.IsEmpty()) {
-        ErrorLog("MifareUltralightTag::MifareUltralightTag extra data invalid");
+    type_ = EmMifareUltralightType::TYPE_UNKOWN;
+    std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tag);
+    if (nfcA == nullptr) {
+        ErrorLog("MifareUltralightTag, not support NfcA.");
         return;
     }
-    InfoLog("MifareUltralightTag::MifareUltralightTag sak.%{public}d tagid.%{public}d",
-            tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK),
-            tag.lock()->GetTagUid().at(0));
-    if ((tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK) == 0x00) &&
-        tag.lock()->GetTagUid().at(0) == NXP_MANUFACTURER_ID) {
-        DebugLog("MifareUltralightTag::MifareUltralightTag Ctype.%{public}d",
-            tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE));
-        if (tag.lock()->GetIntExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
+    if (tag.lock()->GetTagUid().empty()) {
+        ErrorLog("MifareUltralightTag, tag uid is empty.");
+        return;
+    }
+
+    if (nfcA->GetSak() == 0x00 &&
+        KITS::NfcSdkCommon::GetByteFromHexStr(tag.lock()->GetTagUid(), 0) == NXP_MANUFACTURER_ID) {
+        AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
+        if (tag.lock()->GetBoolExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
             type_ = EmMifareUltralightType::TYPE_ULTRALIGHT_C;
         } else {
             type_ = EmMifareUltralightType::TYPE_ULTRALIGHT;
@@ -47,7 +49,9 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
     }
 }
 
-MifareUltralightTag::~MifareUltralightTag() {}
+MifareUltralightTag::~MifareUltralightTag()
+{
+}
 
 std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
@@ -83,7 +87,7 @@ int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string&
         DebugLog("[MifareUltralightTag::WriteSinglePages] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
-    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) && (data.size() == MU_PAGE_SIZE)) {
+    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) && KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
         char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_WRITE, char(pageIndex & 0xFF)};
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         sendCommand += data;

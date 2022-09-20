@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 #include "ndef_message.h"
-
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+using KITS::NfcSdkCommon;
 NdefMessage::NdefMessage(std::vector<std::shared_ptr<NdefRecord>> ndefRecords)
     : ndefRecordList_(std::move(ndefRecords))
 {
@@ -181,19 +181,19 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     uint32_t tnf = record.lock()->tnf_;
     std::string id = record.lock()->id_;
     std::string rtdType = record.lock()->tagRtdType_;
-    bool sr = payload.size() < SHORT_RECORD_SIZE;
-    bool il = (tnf == TNF_EMPTY) ? true : (id.size() > 0);
+    bool sr = NfcSdkCommon::GetHexStrBytesLen(payload) < SHORT_RECORD_SIZE;
+    bool il = (tnf == TNF_EMPTY) ? true : (NfcSdkCommon::GetHexStrBytesLen(id) > 0);
     char flag =
         char((bIsMB ? FLAG_MB : 0) | (bIsME ? FLAG_ME : 0) | (sr ? FLAG_SR : 0) | (il ? FLAG_IL : 0)) | (char)tnf;
     buffer.push_back(flag);
-    buffer.push_back((char)rtdType.size());
+    buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(rtdType));
     if (sr) {
-        buffer.push_back(char(payload.size()));
+        buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(payload));
     } else {
-        buffer.append(NfcSdkCommon::IntToString(payload.size(), NfcSdkCommon::IsLittleEndian()));
+        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload), NfcSdkCommon::IsLittleEndian()));
     }
     if (il) {
-        buffer.push_back(char(id.size()));
+        buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(id));
     }
 
     buffer.append(rtdType);
@@ -233,11 +233,11 @@ bool NdefMessage::IsInvalidRecordLayoutHead(RecordLayout& layout, bool isChunkFo
 void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFound,
     const std::string& data, uint32_t& parsedDataIndex)
 {
-    layout.typeLength = data.at(parsedDataIndex++) & 0xFF;
+    layout.typeLength = NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++) & 0xFF;
     if (layout.sr) {
-        layout.payloadLength = data.at(parsedDataIndex++) & 0xFF;
+        layout.payloadLength = NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++) & 0xFF;
     } else {
-        if (static_cast<uint32_t>(data.size()) < parsedDataIndex + int(sizeof(int))) {
+        if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + int(sizeof(int))) {
             layout.payloadLength = 0;
         } else {
             std::string lenString = data.substr(parsedDataIndex, sizeof(int));
@@ -245,7 +245,7 @@ void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFoun
             parsedDataIndex += sizeof(int);
         }
     }
-    layout.idLength = layout.il ? (data.at(parsedDataIndex++) & 0xFF) : 0;
+    layout.idLength = layout.il ? (NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++) & 0xFF) : 0;
 }
 
 bool NdefMessage::IsRecordLayoutLengthInvalid(RecordLayout& layout, bool isChunkFound)
@@ -271,48 +271,43 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
 {
     if (layout.typeLength <= 0) {
         return "";
-    } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.typeLength) {
-        ErrorLog("data len.%{public}d index.%{public}d rtdtype len.%{public}d error",
-                 static_cast<int>(data.size()),
-                 parsedDataIndex,
-                 layout.typeLength);
-        return "";
-    } else {
-        std::string type = data.substr(parsedDataIndex, layout.typeLength);
-        parsedDataIndex += layout.typeLength;
-        return type;
     }
+    if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + layout.typeLength) {
+        ErrorLog("data len.%{public}d index.%{public}d rtdtype len.%{public}d error",
+            NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.typeLength);
+        return "";
+    }
+    std::string type = data.substr(parsedDataIndex, layout.typeLength);
+    parsedDataIndex += layout.typeLength;
+    return type;
 }
 std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.idLength <= 0) {
         return "";
-    } else if (static_cast<uint32_t>(data.size()) < parsedDataIndex + layout.idLength) {
-        ErrorLog("data len.%{public}d index.%{public}d id len.%{public}d error",
-                 static_cast<int>(data.size()),
-                 parsedDataIndex,
-                 layout.idLength);
-        return "";
-    } else {
-        std::string id = data.substr(parsedDataIndex, layout.idLength);
-        parsedDataIndex += layout.idLength;
-        return id;
     }
+    if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + layout.idLength) {
+        ErrorLog("data len.%{public}d index.%{public}d id len.%{public}d error",
+            NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.idLength);
+        return "";
+    }
+    std::string id = data.substr(parsedDataIndex, layout.idLength);
+    parsedDataIndex += layout.idLength;
+    return id;
 }
 std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
-    if (layout.payloadLength > 0) {
-        if (static_cast<uint32_t>(data.size()) < (parsedDataIndex + layout.payloadLength)) {
-            ErrorLog("data len.%{public}d index.%{public}d payload len.%{public}d error",
-                static_cast<int>(data.size()), parsedDataIndex, layout.payloadLength);
-            return "";
-        }
-        std::string payload = data.substr(parsedDataIndex, layout.payloadLength);
-        parsedDataIndex += layout.payloadLength;
-        return payload;
-    } else {
+    if (layout.payloadLength <= 0) {
         return "";
     }
+    if (NfcSdkCommon::GetHexStrBytesLen(data) < (parsedDataIndex + layout.payloadLength)) {
+        ErrorLog("data len.%{public}d index.%{public}d payload len.%{public}d error",
+            NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.payloadLength);
+        return "";
+    }
+    std::string payload = data.substr(parsedDataIndex, layout.payloadLength);
+    parsedDataIndex += layout.payloadLength;
+    return payload;
 }
 void NdefMessage::SaveRecordChunks(RecordLayout& layout, bool isChunkFound,
     std::vector<std::string>& chunks, char& chunkTnf, const std::string& payload)
@@ -397,7 +392,7 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
     uint32_t parsedDataIndex = 0;
     while (!isMessageEnd) {
         RecordLayout layout;
-        ParseRecordLayoutHead(layout, data.at(parsedDataIndex++));
+        ParseRecordLayoutHead(layout, NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++));
         isMessageEnd = layout.me;
 
         if (IsInvalidRecordLayoutHead(layout, isChunkFound, recordList.size(), isMbMeIgnored)) {
@@ -423,7 +418,7 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         payload = ParseRecordPayload(layout, data, parsedDataIndex);
         SaveRecordChunks(layout, isChunkFound, chunks, chunkTnf, payload);
         payload = MergePayloadByChunks(layout, isChunkFound, chunks, chunkTnf, payload);
-        if (payload.length() > MAX_PAYLOAD_SIZE) {
+        if (NfcSdkCommon::GetHexStrBytesLen(payload) > MAX_PAYLOAD_SIZE) {
             return recordList;
         }
 

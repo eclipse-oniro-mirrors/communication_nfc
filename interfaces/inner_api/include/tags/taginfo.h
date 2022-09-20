@@ -42,6 +42,7 @@ public:
     // NDEF
     static constexpr const auto NDEF_MSG = "NdefMsg";
     static constexpr const auto NDEF_FORUM_TYPE = "NdefForumType";
+    static constexpr const auto NDEF_TAG_LENGTH = "NdefTagLength";
     static constexpr const auto NDEF_TAG_MODE = "NdefTagMode";
     // MifareUltralight
     static constexpr const auto MIFARE_ULTRALIGHT_C_TYPE = "MifareUltralightC";
@@ -67,6 +68,7 @@ public:
     AppExecFwk::PacMap GetTechExtrasByTech(KITS::TagTechnology tech);
     std::string GetStringExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
     int GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
+    bool GetBoolExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName);
 
     bool IsTechSupported(KITS::TagTechnology tech);
     int GetTagRfDiscId() const;

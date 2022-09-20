@@ -224,7 +224,8 @@ std::unique_ptr<TagRwResponse> TagSession::SendRawFrame(int tagRfDiscId, std::st
     }
     std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
     // Check if length is within limits
-    if (data.length() > static_cast<unsigned int>(GetMaxTransceiveLength(tag.lock()->GetConnectedTech()))) {
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(data) >
+        static_cast<uint32_t>(GetMaxTransceiveLength(tag.lock()->GetConnectedTech()))) {
         resResult->SetResult(TagRwResponse::STATUS_EXCEEDED_LENGTH);
         return resResult;
     }

@@ -142,6 +142,14 @@ int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string&
     return extrasData.GetIntValue(extrasName, 0);
 }
 
+bool TagInfo::GetBoolExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName)
+{
+    if (extrasData.IsEmpty() || extrasName.empty()) {
+        return false;
+    }
+    return extrasData.GetBooleanValue(extrasName, false);
+}
+
 void TagInfo::SetConnectedTagTech(KITS::TagTechnology connectedTagTech)
 {
     connectedTagTech_ = connectedTagTech;

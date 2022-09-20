@@ -41,7 +41,7 @@ public:
     static const int MC_KEY_LEN = 6;
 
     static const char MC_KEY_DEFAULT[MC_KEY_LEN];                       // 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-    static const char MC_KEY_MIFARE_APPLICATION_DIRECTORY[MC_KEY_LEN];  // 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5
+    static const char MC_KEY_MAD[MC_KEY_LEN];  // 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5
     static const char MC_KEY_NFC_FORUM[MC_KEY_LEN];                     // 0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7
 
     // sector 0-32，4 blocks per sector， sector 33-40, 16 blocks per sector
@@ -165,7 +165,7 @@ public:
     int GetBlockIndexFromSector(int sectorIndex) const;
 
 private:
-    void SetSakSize(int sak);
+    void SetSizeBySak(int sak);
 
     size_t mifareTagType_ {};
     int size_ {};

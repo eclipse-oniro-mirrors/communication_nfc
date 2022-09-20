@@ -13,20 +13,14 @@
  * limitations under the License.
  */
 #include "nfcc_nci_adapter.h"
-
 #include "nfcc_host.h"
 #include "loghelper.h"
 #include "nfc_config.h"
+#include "nfc_sdk_common.h"
 #include "nci_adaptations.h"
 #include "tag_nci_adapter.h"
 
-#ifdef _NFC_SERVICE_HCE_
-#include "hci_manager.h"
-#include "nci_bal_ce.h"
-#endif
-
 using namespace OHOS::NFC;
-
 namespace OHOS {
 namespace NFC {
 namespace NCI {
@@ -498,7 +492,12 @@ bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
     DebugLog("NfccNciAdapter::SendRawFrame");
     std::lock_guard<std::mutex> lock(mutex_);
-    nciAdaptation_->NfaSendRawFrame((uint8_t*)rawData.c_str(), (uint16_t)rawData.length(), 0);
+    uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(rawData);
+    uint8_t data[length];
+    for (uint32_t i = 0; i < length; i++) {
+        data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(rawData, i);
+    }
+    nciAdaptation_->NfaSendRawFrame(data, length, 0);
     return true;
 }
 

@@ -35,13 +35,43 @@ bool NfcSdkCommon::IsLittleEndian()
     return false;
 }
 
-std::string NfcSdkCommon::UnsignedCharArrayToString(const unsigned char* charArray, uint32_t length)
+std::string NfcSdkCommon::UnsignedCharArrayToHexString(const unsigned char* src, uint32_t length)
 {
     std::string result = "";
-    for (uint32_t i = 0; i < length; i++) {
-        result += charArray[i];
+    if (length <= 0) {
+        return result;
+    }
+    const std::string hexKeys = "0123456789ABCDEF";
+    for(uint32_t i = 0; i < length; i++) {
+       result.push_back(hexKeys[(src[i] & 0xF0) >> 4]);
+       result.push_back(hexKeys[src[i] & 0x0F]);
     }
     return result;
+}
+
+uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)
+{
+    // 2 charactors consist of one byte.
+    if (src.empty()) {
+        return 0;
+    }
+    uint32_t length = src.length(); 
+    if (length % 2 == 0) {
+        return (length / 2);
+    } else {
+        return ((length / 2) + 1);
+    }
+}
+
+unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t index)
+{
+    // 2 charactors consist of one byte.
+    if (src.empty() || index >= (src.length() - 1)) {
+        return 0;
+    }
+    std::string byte = src.substr(index, 2);
+    unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, 16));
+    return value;
 }
 
 std::string NfcSdkCommon::IntToString(uint32_t num, bool bLittleEndian)
