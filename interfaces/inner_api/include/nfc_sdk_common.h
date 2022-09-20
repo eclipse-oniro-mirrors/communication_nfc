@@ -99,7 +99,9 @@ public:
 
 public:
     static bool IsLittleEndian();
-    static std::string UnsignedCharArrayToString(const unsigned char* charArray, uint32_t length);
+    static std::string UnsignedCharArrayToHexString(const unsigned char* charArray, uint32_t length);
+    static unsigned char GetByteFromHexStr(const std::string src, uint32_t index);
+    static uint32_t GetHexStrBytesLen(const std::string src);
     static std::string IntToString(uint32_t num, bool bLittleEndian = true);
     static uint32_t StringToInt(std::string src, bool bLittleEndian = true);
 };

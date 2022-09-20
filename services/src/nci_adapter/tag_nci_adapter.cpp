@@ -49,8 +49,8 @@ static const int F_POLL_LENGTH = 10;
 static const int I93_POLL_LENGTH = 2;
 static const int I93_ACT_LENGTH = 2;
 static const int MIFACE_DES_FIRE_RESPONSE_LENGTH = 9;
-static const int MIFACE_DES_FIRE_RESPONSE_NDEF_FORMATTABLE_FIRST = 0x91;
-static const int MIFACE_DES_FIRE_RESPONSE_NDEF_FORMATTABLE_SECOND = 0xAF;
+static const int NDEF_FORMATTABLE_1ST = 0x91;
+static const int NDEF_FORMATTABLE_2ND = 0xAF;
 static const int NDEF_MODE_READ_ONLY = 1;
 static const int NDEF_MODE_READ_WRITE = 2;
 static const int NDEF_MODE_UNKNOWN = 3;
@@ -135,7 +135,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
         case NFA_NDEF_DATA_EVT: {
             DebugLog("NdefCallback: NFA_NDEF_DATA_EVT; data_len = %u", eventData->ndef_data.len);
             uint32_t ndefDataLen = eventData->ndef_data.len;
-            readNdefData = KITS::NfcSdkCommon::UnsignedCharArrayToString(
+            readNdefData = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(
                 eventData->ndef_data.p_data, ndefDataLen);
             break;
         }
@@ -263,9 +263,14 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
     bool retry = false;
     do {
         NFC::SynchronizeGuard guard(transceiveEvent_);
+        uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(request);
+        uint8_t data[length];
+        for (uint32_t i = 0; i < length; i++) {
+            data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(request, i);
+        }
+
         receivedData_ = "";
-        status = nciAdaptations_->NfaSendRawFrame(
-            (uint8_t*)request.c_str(), (uint16_t)request.size(), NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
+        status = nciAdaptations_->NfaSendRawFrame(data, length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
         if (status != NFA_STATUS_OK) {
             ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
             break;
@@ -282,14 +287,19 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
         // not auth
         if (retry) {
             retry = false;
-        } else if (connectedProtocol_ == NFA_PROTOCOL_MIFARE && (request[0] != 0x60 && request[0] != 0x61) &&
-                   response.size() == 1 && response[0] != 0x00) {
+        } else if (connectedProtocol_ == NFA_PROTOCOL_MIFARE &&
+            KITS::NfcSdkCommon::GetByteFromHexStr(request, 0) != 0x60 &&
+            KITS::NfcSdkCommon::GetByteFromHexStr(request, 0) != 0x61 &&
+            KITS::NfcSdkCommon::GetHexStrBytesLen(response) == 1 &&
+            KITS::NfcSdkCommon::GetByteFromHexStr(response, 0) != 0x00) {
             DebugLog("NFA_PROTOCOL_MIFARE retry");
             retry = true;
         }
 
         if (!retry) {
-            if (connectedProtocol_ == NFA_PROTOCOL_MIFARE && response.size() == 1 && response[0] != 0x00) {
+            if (connectedProtocol_ == NFA_PROTOCOL_MIFARE &&
+                KITS::NfcSdkCommon::GetHexStrBytesLen(response) == 1 &&
+                KITS::NfcSdkCommon::GetByteFromHexStr(response, 0) != 0x00) {
                 DebugLog("Ready to reconnect");
                 Reconnect(connectedTagDiscId_, NFA_PROTOCOL_MIFARE, TagHost::TARGET_TYPE_MIFARE_CLASSIC, true);
             }
@@ -304,7 +314,7 @@ void TagNciAdapter::HandleTranceiveData(unsigned char status, unsigned char* dat
     DebugLog("TagNciAdapter::HandleTranceiveData");
     NFC::SynchronizeGuard guard(transceiveEvent_);
     if (status == NFA_STATUS_OK || status == NFA_STATUS_CONTINUE) {
-        receivedData_.append(KITS::NfcSdkCommon::UnsignedCharArrayToString(data, dataLen));
+        receivedData_ = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(data, dataLen);
     }
     if (status == NFA_STATUS_OK) {
         transceiveEvent_.NotifyOne();
@@ -433,7 +443,7 @@ void TagNciAdapter::ReadNdef(std::string& response)
         }
         readNdefEvent_.Wait();
 
-        if (!readNdefData.empty() && readNdefData.size() > 0) {
+        if (KITS::NfcSdkCommon::GetHexStrBytesLen(readNdefData) > 0) {
             response = readNdefData;
         }
     }
@@ -465,10 +475,10 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     uint8_t buffer[maxBufferSize] = {0};
     uint32_t curDataSize = 0;
     NFC::SynchronizeGuard guard(writeNdefEvent_);
-    uint32_t length = ndefMessage.length();
+    uint32_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(ndefMessage);
     unsigned char data[length];
     for (uint32_t i = 0; i < length; i++) {
-        data[i] = ndefMessage.at(i);
+        data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(ndefMessage, i);
     }
     if (lastNdefCheckedStatus_ == NFA_STATUS_FAILED) {
         if (isNdefCapable_) {
@@ -663,20 +673,20 @@ std::string TagNciAdapter::GetUidFromData(tNFA_ACTIVATED activated) const
     if (discType == NCI_DISCOVERY_TYPE_POLL_A || discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
         discType == NCI_DISCOVERY_TYPE_LISTEN_A || discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
         int nfcid1Len = nfcRfTechParams.param.pa.nfcid1_len;
-        uid = KITS::NfcSdkCommon::UnsignedCharArrayToString(nfcRfTechParams.param.pa.nfcid1, nfcid1Len);
+        uid = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(nfcRfTechParams.param.pa.nfcid1, nfcid1Len);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_B || discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
                discType == NCI_DISCOVERY_TYPE_LISTEN_B || discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
-        uid = KITS::NfcSdkCommon::UnsignedCharArrayToString(nfcRfTechParams.param.pb.nfcid0, NFC_NFCID0_MAX_LEN);
+        uid = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(nfcRfTechParams.param.pb.nfcid0, NFC_NFCID0_MAX_LEN);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_F || discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE ||
                discType == NCI_DISCOVERY_TYPE_LISTEN_F || discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
-        uid = KITS::NfcSdkCommon::UnsignedCharArrayToString(nfcRfTechParams.param.pf.nfcid2, NFC_NFCID2_LEN);
+        uid = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(nfcRfTechParams.param.pf.nfcid2, NFC_NFCID2_LEN);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_V || discType == NCI_DISCOVERY_TYPE_LISTEN_ISO15693) {
         unsigned char* i93Uid = activated.params.i93.uid;
         unsigned char i93UidReverse[I93_UID_BYTE_LEN];
         for (int i = 0; i < I93_UID_BYTE_LEN; i++) {
             i93UidReverse[i] = i93Uid[I93_UID_BYTE_LEN - i - 1];
         }
-        uid = KITS::NfcSdkCommon::UnsignedCharArrayToString(i93UidReverse, I93_UID_BYTE_LEN);
+        uid = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(i93UidReverse, I93_UID_BYTE_LEN);
     } else {
         uid = "";
     }
@@ -690,7 +700,7 @@ std::string TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated) const
     char discType = nfcRfTechParams.mode;
     if (discType == NCI_DISCOVERY_TYPE_POLL_A || discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
         discType == NCI_DISCOVERY_TYPE_LISTEN_A || discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
-        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToString(nfcRfTechParams.param.pa.sens_res, SENS_RES_LENGTH);
+        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(nfcRfTechParams.param.pa.sens_res, SENS_RES_LENGTH);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_B || discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
                discType == NCI_DISCOVERY_TYPE_LISTEN_B || discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
         int length = nfcRfTechParams.param.pb.sensb_res_len;
@@ -700,7 +710,7 @@ std::string TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated) const
             WarnLog("sensb_res_len %{public}d error", length);
             length = 0;
         }
-        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToString(
+        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(
             nfcRfTechParams.param.pb.sensb_res + SENSB_RES_POLL_POS, length);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_F || discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE ||
                discType == NCI_DISCOVERY_TYPE_LISTEN_F || discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
@@ -718,10 +728,10 @@ std::string TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated) const
             cTechPoll[POS_NFCF_STSTEM_CODE_HIGH] = static_cast<unsigned char>(*pSystemCodes >> SYSTEM_CODE_SHIFT);
             cTechPoll[POS_NFCF_STSTEM_CODE_LOW] = static_cast<unsigned char>(*pSystemCodes);
         }
-        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToString(cTechPoll, F_POLL_LENGTH);
+        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(cTechPoll, F_POLL_LENGTH);
     } else if (discType == NCI_DISCOVERY_TYPE_POLL_V || discType == NCI_DISCOVERY_TYPE_LISTEN_ISO15693) {
         unsigned char cTechPoll[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
-        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToString(cTechPoll, I93_POLL_LENGTH);
+        techPoll = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(cTechPoll, I93_POLL_LENGTH);
     } else {
         techPoll = "";
     }
@@ -745,20 +755,20 @@ std::string TagNciAdapter::GetTechActFromData(tNFA_ACTIVATED activated) const
             discType == NCI_DISCOVERY_TYPE_LISTEN_A || discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
             if (activated.activate_ntf.intf_param.type == NFC_INTERFACE_ISO_DEP) {
                 tNFC_INTF_PA_ISO_DEP paIso = activated.activate_ntf.intf_param.intf_param.pa_iso;
-                techAct = (paIso.his_byte_len > 0) ? KITS::NfcSdkCommon::UnsignedCharArrayToString(
+                techAct = (paIso.his_byte_len > 0) ? KITS::NfcSdkCommon::UnsignedCharArrayToHexString(
                     paIso.his_byte, paIso.his_byte_len) : "";
             }
         } else if (discType == NCI_DISCOVERY_TYPE_POLL_B || discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
                    discType == NCI_DISCOVERY_TYPE_LISTEN_B || discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
             if (activated.activate_ntf.intf_param.type == NFC_INTERFACE_ISO_DEP) {
                 tNFC_INTF_PB_ISO_DEP pbIso = activated.activate_ntf.intf_param.intf_param.pb_iso;
-                techAct = (pbIso.hi_info_len > 0) ? KITS::NfcSdkCommon::UnsignedCharArrayToString(
+                techAct = (pbIso.hi_info_len > 0) ? KITS::NfcSdkCommon::UnsignedCharArrayToHexString(
                     pbIso.hi_info, pbIso.hi_info_len) : "";
             }
         }
     } else if (protocol == NCI_PROTOCOL_15693) {
         unsigned char techActivated[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
-        techAct = KITS::NfcSdkCommon::UnsignedCharArrayToString(techActivated, I93_ACT_LENGTH);
+        techAct = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(techActivated, I93_ACT_LENGTH);
     } else if (protocol == NFC_PROTOCOL_MIFARE) {
         techAct = nfcRfTechParams.param.pa.sel_rsp;
     } else {
@@ -916,8 +926,8 @@ void TagNciAdapter::SetNciAdaptations(std::shared_ptr<INfcNci> nciAdaptations)
 
 bool TagNciAdapter::IsNdefFormattable()
 {
-    const int INDEX_NDEF_FORMAT_FIRST = 7;
-    const int INDEX_NDEF_FORMAT_SECOND = 8;
+    const int IDX_NDEF_FORMAT_1ST = 7;
+    const int IDX_NDEF_FORMAT_2ND = 8;
     if (tagActivatedProtocol_ == NFA_PROTOCOL_T1T || tagActivatedProtocol_ == NFA_PROTOCOL_T5T ||
         tagActivatedProtocol_ == NFC_PROTOCOL_MIFARE) {
         return true;
@@ -925,16 +935,14 @@ bool TagNciAdapter::IsNdefFormattable()
         return isMifareUltralight_;
     } else if (tagActivatedProtocol_ == NFA_PROTOCOL_T3T) {
         return isFelicaLite_;
-    } else if (tagActivatedProtocol_ == NFA_PROTOCOL_ISO_DEP) {
-        if (isMifareDESFire_) {
-            std::string request = {(char)0x90, 0x60, 0x00, 0x00, 0x00};
-            std::string response;
-            Transceive(request, response);
-            if (response.length() == MIFACE_DES_FIRE_RESPONSE_LENGTH &&
-                response.at(INDEX_NDEF_FORMAT_FIRST) == MIFACE_DES_FIRE_RESPONSE_NDEF_FORMATTABLE_FIRST &&
-                response.at(INDEX_NDEF_FORMAT_SECOND) == MIFACE_DES_FIRE_RESPONSE_NDEF_FORMATTABLE_SECOND) {
-                return true;
-            }
+    } else if (tagActivatedProtocol_ == NFA_PROTOCOL_ISO_DEP && isMifareDESFire_) {
+        std::string hexRequest = "9060000000";
+        std::string response;
+        Transceive(hexRequest, response);
+        if (KITS::NfcSdkCommon::GetHexStrBytesLen(response) == MIFACE_DES_FIRE_RESPONSE_LENGTH &&
+            KITS::NfcSdkCommon::GetByteFromHexStr(response, IDX_NDEF_FORMAT_1ST) == NDEF_FORMATTABLE_1ST &&
+            KITS::NfcSdkCommon::GetByteFromHexStr(response, IDX_NDEF_FORMAT_2ND) == NDEF_FORMATTABLE_2ND) {
+            return true;
         }
     }
     return false;

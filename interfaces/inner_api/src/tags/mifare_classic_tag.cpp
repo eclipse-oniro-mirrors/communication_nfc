@@ -13,46 +13,38 @@
  * limitations under the License.
  */
 #include "mifare_classic_tag.h"
-
 #include "loghelper.h"
+#include "nfca_tag.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 const char MifareClassicTag::MC_KEY_DEFAULT[MC_KEY_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-const char MifareClassicTag::MC_KEY_MIFARE_APPLICATION_DIRECTORY[MC_KEY_LEN] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5};
+// MIFARE Application Directory (MAD)
+const char MifareClassicTag::MC_KEY_MAD[MC_KEY_LEN] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5};
 const char MifareClassicTag::MC_KEY_NFC_FORUM[MC_KEY_LEN] = {0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7};
 
 MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     : BasicTagSession(tag, KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)
 {
-    DebugLog("MifareClassicTag::MifareClassicTag in");
-    if (tag.expired()) {
-        ErrorLog("MifareClassicTag::MifareClassicTag tag invalid");
-        return;
-    }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
-    if (extraData.IsEmpty()) {
-        ErrorLog("MifareClassicTag::MifareClassicTag extra data invalid");
-        return;
-    }
-    int sak = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
-    std::string atqa = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
-
-    DebugLog("MifareClassicTag::MifareClassicTag sak.%{public}d atqa.(%{public}zu) %{public}s",
-        sak, atqa.size(), atqa.c_str());
-    for (size_t i = 0; i < atqa.size(); i++) {
-        printf("%02x ", atqa.at(i));
-    }
-    printf("\n");
-
     isEmulated_ = false;
-    mifareTagType_ = EmMifareTagType::TYPE_CLASSIC;
+    mifareTagType_ = EmMifareTagType::TYPE_UNKNOWN;
+    if (tag.expired()) {
+        ErrorLog("MifareClassicTag, tag invalid");
+        return;
+    }
+    std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tag);
+    if (nfcA == nullptr) {
+        ErrorLog("MifareClassicTag, not support NfcA.");
+        return;
+    }
 
-    SetSakSize(sak);
+    DebugLog("MifareClassicTag, sak %{public}x", nfcA->GetSak());
+    mifareTagType_ = EmMifareTagType::TYPE_CLASSIC;
+    SetSizeBySak(nfcA->GetSak());
 }
 
-void MifareClassicTag::SetSakSize(int sak)
+void MifareClassicTag::SetSizeBySak(int sak)
 {
     switch (sak) {
         case SAK01:
@@ -88,6 +80,7 @@ void MifareClassicTag::SetSakSize(int sak)
             mifareTagType_ = EmMifareTagType::TYPE_PRO;
             break;
         default:
+            ErrorLog("[MifareClassicTag::SetSizeBySak] err! sak %{public}x", sak);
             break;
     }
 }
@@ -104,8 +97,8 @@ std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo
 bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA)
 {
     if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT) || !IsConnected() || key.empty()) {
-        ErrorLog("[MifareClassicTag::AuthenticateSector] err! sectorIndex.%{public}d, keyLen.%{public}zu",
-            sectorIndex, key.size());
+        ErrorLog("[MifareClassicTag::AuthenticateSector] err! sectorIndex.%{public}d, keyLen empty",
+            sectorIndex);
         return false;
     }
 
@@ -151,9 +144,10 @@ int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& d
         ErrorLog("[MifareClassicTag::WriteSingleBlock] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
-    if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || (data.size() != MC_BLOCK_SIZE)) {
+    if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) ||
+        KITS::NfcSdkCommon::GetHexStrBytesLen(data) != MC_BLOCK_SIZE) {
         ErrorLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %{public}d dataLen= %{public}d err",
-            blockIndex, (int)data.size());
+            blockIndex, KITS::NfcSdkCommon::GetHexStrBytesLen(data));
         return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
     }
 

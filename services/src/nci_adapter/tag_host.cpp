@@ -282,7 +282,7 @@ void TagHost::DoTargetTypeIso144433a(AppExecFwk::PacMap &pacMap, int index)
     std::string act = tagActivatedBytes_[index];
     std::string poll = tagPollBytes_[index];
     if (!(act.empty())) {
-        int sak = (act.at(0) & (0xff));
+        int sak = (KITS::NfcSdkCommon::GetByteFromHexStr(act, 0) & 0xff);
         pacMap.PutIntValue(KITS::TagInfo::SAK, sak);
         DebugLog("DoTargetTypeIso144433a SAK: %{public}d", sak);
     }
@@ -298,8 +298,8 @@ void TagHost::DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
-    if (poll.length() < NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) {
-        DebugLog("DoTargetTypeIso144433b poll.len: %{public}d", (int)poll.length());
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) < NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) {
+        DebugLog("DoTargetTypeIso144433b poll.len: %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(poll));
         return;
     }
 
@@ -339,15 +339,15 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
-    if (poll.length() < NCI_POLL_LENGTH_MIN) {
-        DebugLog("DoTargetTypeV poll.len: %{public}d", (int)poll.length());
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) < NCI_POLL_LENGTH_MIN) {
+        DebugLog("DoTargetTypeV poll.len: %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(poll));
         return;
     }
 
-    pacMap.PutIntValue(KITS::TagInfo::RESPONSE_FLAGS, poll.at(0));
-    DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %{public}d", poll.at(0));
-    pacMap.PutIntValue(KITS::TagInfo::DSF_ID, poll.at(1));
-    DebugLog("DoTargetTypeV::DSF_ID: %{public}d", poll.at(1));
+    pacMap.PutIntValue(KITS::TagInfo::RESPONSE_FLAGS, KITS::NfcSdkCommon::GetByteFromHexStr(poll, 0));
+    DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %{public}d", KITS::NfcSdkCommon::GetByteFromHexStr(poll, 0));
+    pacMap.PutIntValue(KITS::TagInfo::DSF_ID, KITS::NfcSdkCommon::GetByteFromHexStr(poll, 1));
+    DebugLog("DoTargetTypeV::DSF_ID: %{public}d", KITS::NfcSdkCommon::GetByteFromHexStr(poll, 1));
 }
 
 void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
@@ -358,14 +358,14 @@ void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
-    if (poll.length() < SENSF_RES_LENGTH) {
-        DebugLog("DoTargetTypeF no ppm, poll.len: %{public}d", (int)poll.length());
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) < SENSF_RES_LENGTH) {
+        DebugLog("DoTargetTypeF no ppm, poll.len: %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(poll));
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_PMM, poll.substr(0, SENSF_RES_LENGTH)); // 8 bytes for ppm
 
-    if (poll.length() < F_POLL_LENGTH) {
-        DebugLog("DoTargetTypeF no sc, poll.len: %{public}d", (int)poll.length());
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) < F_POLL_LENGTH) {
+        DebugLog("DoTargetTypeF no sc, poll.len: %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(poll));
         return;
     }
     pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, poll.substr(SENSF_RES_LENGTH, 2)); // 2 bytes for sc
@@ -400,7 +400,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 
         case TARGET_TYPE_MIFARE_UL: {
             bool isUlC = IsUltralightC();
-            pacMap.PutIntValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
+            pacMap.PutBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
             DebugLog("ParseTechExtras::TARGET_TYPE_MIFARE_UL MIFARE_ULTRALIGHT_C_TYPE: %{public}d", isUlC);
             break;
         }
@@ -488,6 +488,7 @@ void TagHost::AddNdefTech()
             tagRfDiscIdList_.push_back(tagRfDiscIdList_[i]);
             tagActivatedProtocols_.push_back(tagActivatedProtocols_[i]);
 
+            // parse extras data for ndef tech.
             AppExecFwk::PacMap pacMap;
             std::string ndefMsg = "";
             TagNciAdapter::GetInstance().ReadNdef(ndefMsg);
@@ -495,7 +496,7 @@ void TagHost::AddNdefTech()
             pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
                 GetNdefType(tagActivatedProtocols_[i]));
-            pacMap.PutIntValue("NDEF_TAG_LENGTH", ndefInfo[0]); // size
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[0]); // size
             pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
             techExtras_.push_back(pacMap);
@@ -606,7 +607,7 @@ bool TagHost::IsUltralightC()
     std::string command = {MIFARE_READ, PAGE_ADDR};
     std::string response;
     TagNciAdapter::GetInstance().Transceive(command, response);
-    if (!(response.empty()) && response.length() == NCI_MIFARE_ULTRALIGHT_C_RESPONSE_LENGTH) {
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(response) == NCI_MIFARE_ULTRALIGHT_C_RESPONSE_LENGTH) {
         if (response[DATA_BYTE2] == NCI_MIFARE_ULTRALIGHT_C_BLANK_CARD &&
             response[DATA_BYTE3] == NCI_MIFARE_ULTRALIGHT_C_BLANK_CARD &&
             response[DATA_BYTE4] == NCI_MIFARE_ULTRALIGHT_C_BLANK_CARD &&

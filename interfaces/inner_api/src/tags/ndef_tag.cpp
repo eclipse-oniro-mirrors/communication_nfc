@@ -142,10 +142,6 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
 
     if (tagSession->IsNdef(GetTagRfDiscId())) {
         std::string ndefMessage = NdefMessage::MessageToString(msg);
-        for (size_t i = 0; i < ndefMessage.size(); i++) {
-            printf("%02x ", ndefMessage.at(i));
-        }
-        printf("\n");
         return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
     } else {
         ErrorLog("[NdefTag::WriteNdef] is not ndef tag!");
