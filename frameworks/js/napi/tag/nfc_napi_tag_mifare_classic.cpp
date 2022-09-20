@@ -39,7 +39,7 @@ napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
-        return nullptr;
+        return CreateUndefined(env);
     } else {
         int sectorCount = nfcMifareClassicTagPtr->GetSectorCount();
         DebugLog("sectorCount %{public}d", sectorCount);
@@ -67,9 +67,10 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Invalid data type!");
-        return nullptr;
+        return CreateUndefined(env);
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -85,7 +86,7 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
-        return nullptr;
+        return CreateUndefined(env);
     }
     int blockCountInSector = nfcMifareClassicTagPtr->GetBlockCountInSector(sectorIndex);
     DebugLog("blockCountInSector %{public}d", blockCountInSector);
@@ -111,7 +112,7 @@ napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        return nullptr;
+        return CreateUndefined(env);
     } else {
         // MifareClassicTag::EmMifareTagType mifareType = nfcMifareClassicTagPtr->GetType();
         MifareClassicTag::EmMifareTagType mifareType = MifareClassicTag::TYPE_UNKNOWN;
@@ -196,9 +197,10 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockIndex, Invalid data type!");
-        return nullptr;
+        return CreateUndefined(env);
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -214,7 +216,7 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
-        return nullptr;
+        return CreateUndefined(env);
     }
     int blockIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(sectorIndex);
     DebugLog("BlockIndex %{public}d", blockIndex);
@@ -241,9 +243,10 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetSectorIndex, Invalid data type!");
-        return nullptr;
+        return CreateUndefined(env);
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -259,7 +262,7 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
-        return nullptr;
+        return CreateUndefined(env);
     }
     // int sectorIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(blockIndex); // no cpp func
     int sectorIndex = 4;
@@ -349,7 +352,7 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->sectorIndex);
@@ -439,7 +442,7 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
@@ -523,7 +526,7 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
@@ -613,7 +616,7 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
@@ -701,7 +704,7 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
@@ -789,7 +792,7 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
@@ -875,7 +878,7 @@ napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_in
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareClassicContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);

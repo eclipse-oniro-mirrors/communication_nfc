@@ -29,7 +29,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 struct NapiNdefTag : public NapiNfcTagSession {
-    static napi_value RegisterNdefMessageObject(napi_env env, napi_value exports);
+    static napi_value RegisterNdefMessageJSClass(napi_env env, napi_value exports);
     static napi_value CreateNdefMessage(napi_env env, napi_callback_info info);
     static napi_value GetNdefTagType(napi_env env, napi_callback_info info);
     static napi_value GetNdefMessage(napi_env env, napi_callback_info info);
