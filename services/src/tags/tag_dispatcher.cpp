@@ -118,6 +118,9 @@ void TagDispatcher::DispatchAbility(ElementName &element,
         } else if (techList[i] == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
             want.SetParam(KITS::TagInfo::HISTORICAL_BYTES, extra.GetStringValue(KITS::TagInfo::HISTORICAL_BYTES, ""));
             want.SetParam(KITS::TagInfo::HILAYER_RESPONSE, extra.GetStringValue(KITS::TagInfo::HILAYER_RESPONSE, ""));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+            want.SetParam(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE,
+                extra.GetBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, false));
         } else {
         }
     }

@@ -272,7 +272,7 @@ int MifareClassicTag::GetBlockCountInSector(int sectorIndex) const
     return NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
 }
 
-size_t MifareClassicTag::GetMifareTagType() const
+MifareClassicTag::EmMifareTagType MifareClassicTag::GetMifareTagType() const
 {
     return mifareTagType_;
 }
@@ -296,7 +296,19 @@ int MifareClassicTag::GetBlockIndexFromSector(int sectorIndex) const
         return MC_SECTOR_COUNT_OF_SIZE_2K * MC_BLOCK_COUNT +
                (sectorIndex - MC_SECTOR_COUNT_OF_SIZE_2K) * MC_BLOCK_COUNT_OF_4K;
     }
-    return NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+    return 0;
+}
+
+int MifareClassicTag::GetSectorIndexFromBlock(int blockIndex) const
+{
+    if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
+        return 0;
+    }
+    if (blockIndex < MC_SECTOR_COUNT_OF_SIZE_2K * MC_BLOCK_COUNT) {
+        return blockIndex / MC_BLOCK_COUNT;
+    } else {
+        return MC_SECTOR_COUNT_OF_SIZE_2K + (blockIndex - MC_SECTOR_COUNT_OF_SIZE_2K * MC_BLOCK_COUNT) / MC_BLOCK_SIZE;
+    }
 }
 }  // namespace KITS
 }  // namespace NFC
