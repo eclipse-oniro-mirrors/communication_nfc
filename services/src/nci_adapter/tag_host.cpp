@@ -344,6 +344,7 @@ void TagHost::DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
+    // 1st byte is response flag, 2nd byte is dsf id.
     pacMap.PutIntValue(KITS::TagInfo::RESPONSE_FLAGS, KITS::NfcSdkCommon::GetByteFromHexStr(poll, 0));
     DebugLog("DoTargetTypeV::RESPONSE_FLAGS: %{public}d", KITS::NfcSdkCommon::GetByteFromHexStr(poll, 0));
     pacMap.PutIntValue(KITS::TagInfo::DSF_ID, KITS::NfcSdkCommon::GetByteFromHexStr(poll, 1));

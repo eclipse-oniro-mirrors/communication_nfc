@@ -52,7 +52,7 @@ static void NativeReadMultiplePages(napi_env env, void *data)
         ErrorLog("NativeReadMultiplePages find objectInfo failed!");
     } else {
         context->value = nfcMifareUlTagPtr->ReadMultiplePages(context->pageIndex);
-        DebugLog("ReadMultiplePages context value = %{public}d", context->pageIndex);
+        DebugLog("NativeReadMultiplePages context value = %{public}d", context->pageIndex);
     }
     context->resolved = true;
 }
@@ -96,7 +96,7 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareUltralightContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
@@ -139,10 +139,10 @@ static void NativeWriteSinglePages(napi_env env, void *data)
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
-        DebugLog("NativeReadMultiplePages find objectInfo failed!");
+        DebugLog("NativeWriteSinglePages find objectInfo failed!");
     } else {
         context->value = nfcMifareUlTagPtr->WriteSinglePages(context->pageIndex, context->data);
-        DebugLog("WriteSinglePages context value = %{public}d", context->value);
+        DebugLog("NativeWriteSinglePages context value = %{public}d", context->value);
     }
     context->resolved = true;
 }
@@ -186,7 +186,7 @@ napi_value NapiMifareUltralightTag::WriteSinglePages(napi_env env, napi_callback
         std::string errorCode = std::to_string(napi_generic_failure);
         std::string errorMessage = "MifareUltralightContext is nullptr";
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
@@ -216,21 +216,20 @@ napi_value NapiMifareUltralightTag::GetType(napi_env env, napi_callback_info inf
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getType objInfo %{public}p", objectInfo);
 
     // transfer
+    napi_value result = nullptr;
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        return nullptr;
+        napi_create_int32(env, static_cast<int>(MifareUltralightTag::EmMifareUltralightType::TYPE_UNKOWN), &result);
     } else {
         MifareUltralightTag::EmMifareUltralightType mifareUlType = nfcMifareUlTagPtr->GetType();
-        DebugLog("sectorCount %{public}d", mifareUlType);
-        napi_value result = nullptr;
-        napi_create_int32(env, mifareUlType, &result);
-        return result;
+        DebugLog("GetType mifareUlType %{public}d", mifareUlType);
+        napi_create_int32(env, static_cast<int>(mifareUlType), &result);
     }
+    return result;
 }
 } // namespace KITS
 } // namespace NFC
