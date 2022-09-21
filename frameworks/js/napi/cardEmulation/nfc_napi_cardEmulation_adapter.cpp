@@ -13,10 +13,9 @@
 * limitations under the License.
 */
 
-#include "nfc_napi_cardEmulation_adapter.h"
-
 #include <vector>
 
+#include "nfc_napi_cardEmulation_adapter.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
@@ -34,7 +33,6 @@ napi_value IsSupported(napi_env env, napi_callback_info info)
     napi_get_boolean(env, ispt, &result);
     return result;
 }
-
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
