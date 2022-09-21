@@ -20,10 +20,6 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-// std::shared_ptr<OHOS::NFC::NfcControllerProxy> NfcController::nfcControllerProxy_;
-// std::weak_ptr<INfcControllerService> NfcController::nfcControllerService_;
-// bool NfcController::initialized_ = false;
-// std::mutex NfcController::mutex_;
 
 cardEmulation::cardEmulation()
 {
@@ -39,25 +35,24 @@ bool cardEmulation::IsSupported(featureType number)
 {
     DebugLog("cardEmulation::IsSupported in.");
     switch (number) {
-        case HCE:{
+        case HCE: {
             DebugLog("cardEmulation::HCE card emulation is supported.");
             break;
         }
-        case UICC:{
+        case UICC: {
             DebugLog("cardEmulation::UICC card emulation is supported.");
             break;
         }
-        case ESE:{
+        case ESE: {
             DebugLog("cardEmulation::ESE card emulation is supported.");
             break;
         }
         default:
             DebugLog("cardEmulation:: card emulation is not supported.");
-            return false;   
+            return false;
     }
     return true;
 }
-
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
