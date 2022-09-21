@@ -12,18 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "loghelper.h" 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 
 #include "nfc_napi_cardEmulation_adapter.h"
-#include "nfc_sdk_common.h" 
-//#include "nfc_napi_cardEmulation.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-namespace cardEmulation{
+namespace cardEmulation {
 
 /*
  * Module initialization function
