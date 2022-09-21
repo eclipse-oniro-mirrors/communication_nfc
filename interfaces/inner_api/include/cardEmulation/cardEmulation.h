@@ -50,12 +50,9 @@ public:
      * @since 6
      */
     bool IsSupported(featureType number);
-    
 
 };
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
 #endif // NFC_CONTROLLER_H
-
-
