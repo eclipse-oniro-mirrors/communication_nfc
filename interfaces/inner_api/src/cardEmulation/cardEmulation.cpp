@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "cardEmulation.h"
-
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 
@@ -31,10 +30,10 @@ cardEmulation::~cardEmulation()
     DebugLog("destruct cardEmulation");
 }
 
-bool cardEmulation::IsSupported(featureType number)
+bool cardEmulation::IsSupported(FeatureType feature)
 {
     DebugLog("cardEmulation::IsSupported in.");
-    switch (number) {
+    switch (feature) {
         case HCE: {
             DebugLog("cardEmulation::HCE card emulation is supported.");
             break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,11 +16,7 @@
 #ifndef CARDEMULATION_H
 #define CARDEMULATION_H
 
-#include "nfc_controller_callback_stub.h"
-#include "nfc_controller_proxy.h"
 #include "nfc_sdk_common.h"
-#include "infc_controller_callback.h"
-#include "infc_controller_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -49,8 +45,8 @@ public:
      *
      * @since 6
      */
-    bool IsSupported(featureType number);
-}
+    bool IsSupported(FeatureType feature);
+};
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

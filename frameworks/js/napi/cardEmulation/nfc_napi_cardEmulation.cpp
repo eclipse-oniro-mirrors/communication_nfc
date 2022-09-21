@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,18 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "loghelper.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-
 #include "nfc_napi_cardEmulation_adapter.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-namespace cardEmulation {
+const std::string FEATURE_TYPE = "FeatureType";
 
 /*
  * Module initialization function
@@ -44,18 +42,18 @@ static napi_value CreateEnumFeatureType(napi_env env, napi_value exports)
     napi_value hce = nullptr;
     napi_value uicc = nullptr;
     napi_value ese = nullptr;
-    napi_create_int32(env, static_cast<int32_t>(featureType::HCE), &hce);
-    napi_create_int32(env, static_cast<int32_t>(featureType::UICC), &uicc);
-    napi_create_int32(env, static_cast<int32_t>(featureType::ESE), &ese);
+    napi_create_int32(env, static_cast<int32_t>(FeatureType::HCE), &hce);
+    napi_create_int32(env, static_cast<int32_t>(FeatureType::UICC), &uicc);
+    napi_create_int32(env, static_cast<int32_t>(FeatureType::ESE), &ese);
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("HCE", hce),
-        DECLARE_NAPI_STATIC_PROPERTY("HCE", uicc),
+        DECLARE_NAPI_STATIC_PROPERTY("UICC", uicc),
         DECLARE_NAPI_STATIC_PROPERTY("ESE", ese),
     };
     napi_value result = nullptr;
-    napi_define_class(env, "FeatureType", NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
+    napi_define_class(env, FEATURE_TYPE.c_str(), NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
         sizeof(desc) / sizeof(*desc), desc, &result);
-    napi_set_named_property(env, exports, "FeatureType", result);
+    napi_set_named_property(env, exports, FEATURE_TYPE.c_str(), result);
     return exports;
 }
 
@@ -76,7 +74,7 @@ static napi_module cardEmulationModule = {
     .nm_flags = 0,
     .nm_filename = NULL,
     .nm_register_func = InitJs,
-    .nm_modname = "nfc.cardemulation",
+    .nm_modname = "nfc.cardEmulation",
     .nm_priv = ((void *)0),
     .reserved = { 0 }
 };
@@ -86,7 +84,6 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
     napi_module_register(&cardEmulationModule);
 }
 
-}  // namespace cardEmulation
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

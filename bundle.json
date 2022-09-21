@@ -61,7 +61,7 @@
                 "fwk_group": [
                     "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
                     "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
-		     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardEmulation",
+		     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardemulation",
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
                 ],
                 "service_group": [
