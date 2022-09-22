@@ -390,18 +390,13 @@ bool NfccNciAdapter::Deinitialize()
     NciBalCe::GetInstance().Deinitialize();
 #endif
 
-    // Stop the discovery before calling NFA_Disable.
-    if (rfEnabled_) {
-        StartRfDiscovery(false);
-    }
-
     if (isNfcEnabled_) {
         /* graceful */
         status = nciAdaptation_->NfaDisable(true);
         if (status == NFA_STATUS_OK) {
             DebugLog("NfccNciAdapter::Deinitialize: wait for completion");
         } else {
-            DebugLog("NfccNciAdapter::Deinitialize: fail disable; error = 0x%{public}X", status);
+            ErrorLog("NfccNciAdapter::Deinitialize: fail disable; error = 0x%{public}X", status);
         }
     }
     isNfcEnabled_ = false;
