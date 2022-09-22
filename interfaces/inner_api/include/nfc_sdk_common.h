@@ -77,7 +77,7 @@ enum NfcErrorCode : const int {
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
 
-enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE };
+enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE, TASK_START_POLLING_LOOP };
 
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,

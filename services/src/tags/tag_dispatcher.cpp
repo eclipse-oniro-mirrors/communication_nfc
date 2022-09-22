@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "tag_dispatcher.h"
+#include <functional>
 #include "ability_manager_client.h"
 #include "app_data_parser.h"
 #include "itag_host.h"
@@ -34,9 +35,32 @@ TagDispatcher::~TagDispatcher()
     std::lock_guard<std::mutex> guard(mutex_);
 }
 
+void TagDispatcher::TagDisconnectedCallback(int handle)
+{
+    UnregisterTagHost(handle);
+    nfcService_->ExecuteStartPollingLoop();
+}
+
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
     DebugLog("HandleTagFound, unimplimentation...");
+    static NCI::ITagHost::TagDisconnectedCallBack callback =
+        std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
+    tag->OnFieldChecking(callback, DEFAULT_FIELD_ON_CHECK_DURATION);
+
+    std::vector<int> techList = tag->GetTechList();
+    std::string tagUid = tag->GetTagUid();
+    std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
+    int tagRfDiscId = tag->GetTagRfDiscId();
+
+    DebugLog("techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s, rfID = %{public}d",
+        techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
+
+    std::shared_ptr<KITS::TagInfo> tagInfo = std::make_shared<KITS::TagInfo>(techList, tagTechExtras,
+        tagUid, tagRfDiscId, nfcService_->GetTagServiceIface());
+    if (tagInfo == nullptr) {
+        ErrorLog("taginfo is null");
+    }
     return 0;
 }
 

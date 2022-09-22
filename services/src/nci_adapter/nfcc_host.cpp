@@ -93,6 +93,10 @@ bool NfccHost::SendRawFrame(std::string& rawData)
 bool NfccHost::SetScreenStatus(unsigned char screenStateMask)
 {
     DebugLog("NfccHost::SetScreenStatus");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::SetScreenStatus(): unsupported chip type");
+        return true;
+    }
     NfccNciAdapter::GetInstance().SetScreenStatus(screenStateMask);
     return true;
 }

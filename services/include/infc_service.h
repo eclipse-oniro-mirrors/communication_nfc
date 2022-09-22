@@ -57,6 +57,7 @@ public:
     virtual std::weak_ptr<NFC::NCI::INfccHost> GetNfccHost() = 0;
     virtual std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() = 0;
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
+    virtual void ExecuteStartPollingLoop() = 0;
 
 private:
 };
