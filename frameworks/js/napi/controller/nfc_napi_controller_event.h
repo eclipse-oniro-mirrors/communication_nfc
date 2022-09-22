@@ -35,13 +35,13 @@ class AsyncEventData {
 public:
     napi_env env;
     napi_ref callbackRef;
-    napi_value jsEvent;
+    std::function<napi_value ()> packResult;
 
-    explicit AsyncEventData(napi_env e, napi_ref r, napi_value v)
+    explicit AsyncEventData(napi_env e, napi_ref r, std::function<napi_value ()> v)
     {
         env = e;
         callbackRef = r;
-        jsEvent = v;
+        packResult = v;
     }
 
     AsyncEventData() = delete;

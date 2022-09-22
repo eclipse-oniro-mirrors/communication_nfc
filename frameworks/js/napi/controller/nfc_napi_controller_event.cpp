@@ -32,11 +32,14 @@ static std::set<std::string> g_supportEventList = {
 
 bool EventRegister::isEventRegistered = false;
 
+constexpr uint32_t INVALID_REF_COUNT = 0xFF;
+
 static std::shared_mutex g_regInfoMutex;
 static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
 
 class NapiEvent {
 public:
+    napi_value CreateResult(const napi_env& env, int value);
     bool CheckIsRegister(const std::string& type);
     void EventNotify(AsyncEventData *asyncEvent);
 
@@ -50,9 +53,11 @@ public:
 
         std::vector<RegObj>& vecObj = g_eventRegisterInfo[type];
         for (auto& each : vecObj) {
-            napi_value result;
-            napi_create_int32(each.m_regEnv, obj, &result);
-            AsyncEventData *asyncEvent = new AsyncEventData(each.m_regEnv, each.m_regHanderRef, result);
+            auto result = [this, env = each.m_regEnv, obj] () -> napi_value {
+                return CreateResult(env, obj);
+            };
+            AsyncEventData *asyncEvent =
+                new (std::nothrow)AsyncEventData(each.m_regEnv, each.m_regHanderRef, result);
             if (asyncEvent == nullptr) {
                 return;
             }
@@ -61,6 +66,47 @@ public:
     }
 };
 
+static void after_work_cb(uv_work_t *work, int status)
+{
+    AsyncEventData *asyncData = static_cast<AsyncEventData *>(work->data);
+    InfoLog("Napi event uv_queue_work, env: %{private}p, status: %{public}d", asyncData->env, status);
+    napi_value handler = nullptr;
+    napi_handle_scope scope = nullptr;
+    napi_value jsEvent = nullptr;
+    uint32_t refCount = INVALID_REF_COUNT;
+    napi_open_handle_scope(asyncData->env, &scope);
+    if (scope == nullptr) {
+        ErrorLog("scope is nullptr");
+        goto EXIT;
+    }
+
+    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+    if (handler == nullptr) {
+        ErrorLog("handler is nullptr");
+        goto EXIT;
+    }
+    napi_value undefine;
+    napi_get_undefined(asyncData->env, &undefine);
+    jsEvent = asyncData->packResult();
+
+    DebugLog("Push event to js, env: %{public}p, ref : %{public}p", asyncData->env, &asyncData->callbackRef);
+    if (napi_call_function(asyncData->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+        DebugLog("Report event to Js failed");
+    }
+
+EXIT:
+    napi_close_handle_scope(asyncData->env, scope);
+    napi_reference_unref(asyncData->env, asyncData->callbackRef, &refCount);
+    InfoLog("after_work_cb unref, env: %{private}p, callbackRef: %{private}p, refCount: %{public}d",
+        asyncData->env, asyncData->callbackRef, refCount);
+    if (refCount == 0) {
+        napi_delete_reference(asyncData->env, asyncData->callbackRef);
+    }
+    delete asyncData;
+    delete work;
+    asyncData = nullptr;
+    work = nullptr;
+}
 
 void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
 {
@@ -81,38 +127,22 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
     }
 
     InfoLog("Get the event loop, napi_env: %p", asyncEvent->env);
+    uint32_t refCount = INVALID_REF_COUNT;
+    napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
     work->data = asyncEvent;
+    uv_after_work_cb tmp_after_work_cb = after_work_cb;
     uv_queue_work(
         loop,
         work,
         [](uv_work_t* work) {},
-        [](uv_work_t* work, int status) {
-            AsyncEventData *asyncData = static_cast<AsyncEventData*>(work->data);
-            InfoLog("Napi event uv_queue_work, env: %{private}p, status: %{public}d", asyncData->env, status);
-            napi_value handler = nullptr;
-            napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(asyncData->env, &scope);
-            if (scope == nullptr) {
-                DebugLog("scope is nullptr");
-                napi_close_handle_scope(asyncData->env, scope);
-                goto EXIT;
-            }
-            napi_value undefine;
-            napi_get_undefined(asyncData->env, &undefine);
-            napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+        tmp_after_work_cb);
+}
 
-            DebugLog("Push event to js, env: %{public}p, ref : %{public}p", asyncData->env, &asyncData->callbackRef);
-            if (napi_call_function(asyncData->env, nullptr, handler, 1, &asyncData->jsEvent, &undefine) != napi_ok) {
-                DebugLog("Report event to Js failed");
-            }
-            napi_close_handle_scope(asyncData->env, scope);
-
-        EXIT:
-            delete asyncData;
-            asyncData = nullptr;
-            delete work;
-            work = nullptr;
-        });
+napi_value NapiEvent::CreateResult(const napi_env& env, int value)
+{
+    napi_value result;
+    napi_create_int32(env, value, &result);
+    return result;
 }
 
 bool NapiEvent::CheckIsRegister(const std::string& type)
@@ -294,7 +324,13 @@ void EventRegister::DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& 
             napi_strict_equals(iter->m_regEnv, handlerTemp, handler, &isEqual);
             DebugLog("Delete register isEqual = %{public}d", isEqual);
             if (isEqual) {
-                napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
+                uint32_t refCount = INVALID_REF_COUNT;
+                napi_reference_unref(iter->m_regEnv, iter->m_regHanderRef, &refCount);
+                InfoLog("delete ref, m_regEnv: %{private}p, m_regHanderRef: %{private}p, refCount: %{public}d",
+                    iter->m_regEnv, iter->m_regHanderRef, refCount);
+                if (refCount == 0) {
+                    napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
+                }
                 DebugLog("Delete register object ref.");
                 iter = vecRegObjs.erase(iter);
             } else {
@@ -312,7 +348,13 @@ void EventRegister::DeleteAllRegisterObj(const napi_env& env, std::vector<RegObj
     auto iter = vecRegObjs.begin();
     for (; iter != vecRegObjs.end();) {
         if (env == iter->m_regEnv) {
-            napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
+            uint32_t refCount = INVALID_REF_COUNT;
+            napi_reference_unref(iter->m_regEnv, iter->m_regHanderRef, &refCount);
+            InfoLog("delete all ref, m_regEnv: %{private}p, m_regHanderRef: %{private}p, refCount: %{public}d",
+                iter->m_regEnv, iter->m_regHanderRef, refCount);
+            if (refCount == 0) {
+                napi_delete_reference(iter->m_regEnv, iter->m_regHanderRef);
+            }
             iter = vecRegObjs.erase(iter);
         } else {
             DebugLog("Unregister all event, env is not equal %{private}p, : %{private}p", env, iter->m_regEnv);
