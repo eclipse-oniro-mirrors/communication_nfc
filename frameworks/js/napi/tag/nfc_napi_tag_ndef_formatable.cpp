@@ -44,7 +44,6 @@ static void NativeFormat(napi_env env, void *data)
 {
     DebugLog("NativeFormat called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
-    DebugLog("NativeFormat objInfo %{public}p", context->objectInfo);
 
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
@@ -88,7 +87,6 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("WriteNdef objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchFormatParameters(env, params, paramsCount), "Format type mismatch");
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
@@ -134,8 +132,6 @@ static void NativeFormatReadOnly(napi_env env, void *data)
 {
     DebugLog("NativeFormatReadOnly called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
-    DebugLog("NativeFormatReadOnly objInfo %{public}p", context->objectInfo);
-
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (ndefFormatableTagPtr == nullptr) {
@@ -178,7 +174,6 @@ napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_inf
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("FormatReadOnly objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchFormatReadOnlyParameters(env, params, paramsCount), "FormatReadOnly type mismatch");
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();

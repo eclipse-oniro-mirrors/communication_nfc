@@ -197,15 +197,16 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
         ErrorLog("Invalid number of arguments");
         return nullptr;
     }
+    napi_value tagInfoJsObj = argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)];
     napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)], &valueType));
+    NAPI_CALL(env, napi_typeof(env, tagInfoJsObj, &valueType));
     // check parameter data type
     if (valueType != napi_object) {
         ErrorLog("invalid data type!");
         return nullptr;
     }
     // parse Taginfo parameters passed from JS
-    nfcTaginfo = BuildNativeTagFromJsObj(env, argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)]);
+    nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
     if (nfcTaginfo == nullptr) {
         ErrorLog("taginfo parse failed.");
         return nullptr;
@@ -214,6 +215,7 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
         ErrorLog("Get Nfc Tag failed");
         return nullptr;
     }
+
     // wrap  data into thisVar
     napi_status status = napi_wrap(
         env, thisVar, nfcTag,
@@ -288,6 +290,7 @@ void RegisterNfcAJSClass(napi_env env)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getSak", NapiNfcATag::GetSak),
         DECLARE_NAPI_FUNCTION("getAtqa", NapiNfcATag::GetAtqa),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -310,6 +313,7 @@ void RegisterNfcBJSClass(napi_env env)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getRespAppData", NapiNfcBTag::GetRespAppData),
         DECLARE_NAPI_FUNCTION("getRespProtocol", NapiNfcBTag::GetRespProtocol),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -331,6 +335,7 @@ void RegisterNfcFJSClass(napi_env env)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getSystemCode", NapiNfcFTag::GetSystemCode),
         DECLARE_NAPI_FUNCTION("getPmm", NapiNfcFTag::GetPmm),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -351,6 +356,7 @@ void RegisterNfcVJSClass(napi_env env)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getResponseFlags", NapiNfcVTag::GetResponseFlags),
         DECLARE_NAPI_FUNCTION("getDsfId", NapiNfcVTag::GetDsfId),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -372,6 +378,7 @@ void RegisterIsoDepJSClass(napi_env env)
         DECLARE_NAPI_FUNCTION("getHistoricalBytes", NapiIsoDepTag::GetHistoricalBytes),
         DECLARE_NAPI_FUNCTION("getHiLayerResponse", NapiIsoDepTag::GetHiLayerResponse),
         DECLARE_NAPI_FUNCTION("isExtendedApduSupported", NapiIsoDepTag::IsExtendedApduSupported),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -402,6 +409,7 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("canSetReadOnly", NapiNdefTag::CanSetReadOnly),
         DECLARE_NAPI_FUNCTION("setReadOnly", NapiNdefTag::SetReadOnly),
         DECLARE_NAPI_FUNCTION("getNdefTagTypeString", NapiNdefTag::GetNdefTagTypeString),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -438,6 +446,7 @@ napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isEmulatedTag", NapiMifareClassicTag::IsEmulatedTag),
         DECLARE_NAPI_FUNCTION("getBlockIndex", NapiMifareClassicTag::GetBlockIndex),
         DECLARE_NAPI_FUNCTION("getSectorIndex", NapiMifareClassicTag::GetSectorIndex),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -464,6 +473,7 @@ napi_value RegisterMifareUltralightJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("readMultiplePages", NapiMifareUltralightTag::ReadMultiplePages),
         DECLARE_NAPI_FUNCTION("writeSinglePages", NapiMifareUltralightTag::WriteSinglePages),
         DECLARE_NAPI_FUNCTION("getType", NapiMifareUltralightTag::GetType),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
@@ -489,6 +499,7 @@ napi_value RegisterNdefFormatableJSClass(napi_env env, napi_value exports)
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("format", NapiNdefFormatableTag::Format),
         DECLARE_NAPI_FUNCTION("formatReadOnly", NapiNdefFormatableTag::FormatReadOnly),
+        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
         DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
         DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),

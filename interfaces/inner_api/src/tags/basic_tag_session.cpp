@@ -171,6 +171,11 @@ KITS::TagTechnology BasicTagSession::GetConnectedTagTech() const
 
     return tagInfo_.lock()->GetConnectedTagTech();
 }
+
+std::weak_ptr<TagInfo> BasicTagSession::GetTagInfo() const
+{
+    return tagInfo_;
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

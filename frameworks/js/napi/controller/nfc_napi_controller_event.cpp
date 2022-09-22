@@ -88,8 +88,6 @@ static void after_work_cb(uv_work_t *work, int status)
     napi_value undefine;
     napi_get_undefined(asyncData->env, &undefine);
     jsEvent = asyncData->packResult();
-
-    DebugLog("Push event to js, env: %{public}p, ref : %{public}p", asyncData->env, &asyncData->callbackRef);
     if (napi_call_function(asyncData->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
         DebugLog("Report event to Js failed");
     }
@@ -265,7 +263,7 @@ bool EventRegister::IsEventSupport(const std::string& type)
 
 void EventRegister::Register(const napi_env& env, const std::string& type, napi_value handler)
 {
-    InfoLog("Register event: %{public}s, env: %{public}p", type.c_str(), env);
+    InfoLog("Register event: %{public}s", type.c_str());
     if (!IsEventSupport(type)) {
         DebugLog("Register type error or not support!");
         return;
@@ -365,7 +363,7 @@ void EventRegister::DeleteAllRegisterObj(const napi_env& env, std::vector<RegObj
 
 void EventRegister::Unregister(const napi_env& env, const std::string& type, napi_value handler)
 {
-    InfoLog("Unregister event: %{public}s, env: %{public}p", type.c_str(), env);
+    InfoLog("Unregister event: %{public}s", type.c_str());
     if (!IsEventSupport(type)) {
         DebugLog("Unregister type error or not support!");
         return;

@@ -159,7 +159,7 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("MakeMimeRecord objInfo %{public}p", objectInfo);
+
     // transfer
     std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
     if (ndefMessagePtr == nullptr) {
@@ -208,7 +208,7 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("MakeExternalRecord objInfo %{public}p", objectInfo);
+
     // transfer
     std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
     if (ndefMessagePtr == nullptr) {
@@ -252,7 +252,7 @@ napi_value NapiNdefMessage::MessageToString(napi_env env, napi_callback_info inf
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("MessageToString objInfo %{public}p", objectInfo);
+
     // transfer
     std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
     if (ndefMessagePtr == nullptr) {

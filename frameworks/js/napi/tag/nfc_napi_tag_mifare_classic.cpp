@@ -303,8 +303,6 @@ static void NativeAuthenticateSector(napi_env env, void *data)
 {
     DebugLog("NativeAuthenticateSector called");
     auto context = static_cast<MifareClassicContext<bool, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeAuthenticateSector objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
@@ -482,8 +480,6 @@ static bool MatchWriteSingleBlockParameters(napi_env env, const napi_value param
 static void NativeWriteSingleBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeWriteSingleBlock objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
@@ -570,8 +566,6 @@ static bool MatchIncrementBlockParameters(napi_env env, const napi_value paramet
 static void NativeIncrementBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeIncrementBlock objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
@@ -659,8 +653,6 @@ static bool MatchDecrementBlockParameters(napi_env env, const napi_value paramet
 static void NativeDecrementBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeDecrementBlock objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
@@ -747,8 +739,6 @@ static bool MatchTransferToBlockParameters(napi_env env, const napi_value parame
 static void NativeTransferToBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeTransferToBlock objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
@@ -833,8 +823,6 @@ static bool MatchRestoreFromBlockParameters(napi_env env, const napi_value param
 static void NativeRestoreFromBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
-    DebugLog("NativeRestoreFromBlock objInfo %{public}p", context->objectInfo);
-
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {

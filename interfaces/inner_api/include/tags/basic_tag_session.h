@@ -34,6 +34,7 @@ public:
     std::string GetTagUid();
     std::string SendCommand(std::string& data, bool raw, int& response);
     int GetMaxSendCommandLength() const;
+    std::weak_ptr<TagInfo> GetTagInfo() const;
 
 protected:
     OHOS::sptr<TAG::ITagSession> GetTagSessionProxy() const;

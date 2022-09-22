@@ -31,7 +31,7 @@ napi_value NapiNfcVTag::GetResponseFlags(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getResponseFlags objInfo %{public}p", objectInfo);
+
     // transfer
     Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
     napi_value result = nullptr;
@@ -57,7 +57,6 @@ napi_value NapiNfcVTag::GetDsfId(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getDsfId objInfo %{public}p", objectInfo);
 
     // transfer
     Iso15693Tag *nfcVTagPtr = static_cast<Iso15693Tag *>(static_cast<void *>(objectInfo->tagSession.get()));
