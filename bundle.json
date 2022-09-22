@@ -56,14 +56,19 @@
             ]
         },
         "build": {
-            "sub_component": [
-                "//third_party/libnfc-nci/SN100x:nfc-nci",
-                "//foundation/communication/nfc/sa_profile:nfc_profile",
-                "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
-                "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
-                "//foundation/communication/nfc/frameworks/js/napi/tag:tag",
-                "//foundation/communication/nfc/services:nfc_service"
-            ],
+            "group_type": {
+                "base_group": [],
+                "fwk_group": [
+                    "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
+                    "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
+                    "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
+                ],
+                "service_group": [
+                    "//third_party/libnfc-nci/SN100x:nfc-nci",
+                    "//foundation/communication/nfc/sa_profile:nfc_profile",
+                    "//foundation/communication/nfc/services:nfc_service"
+                ]
+            },
             "inner_kits": [
                 {
                     "type": "so",
