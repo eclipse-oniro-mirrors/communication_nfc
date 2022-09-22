@@ -75,6 +75,9 @@ bool NfcService::Initialize()
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
     eventHandler_->Intialize(tagDispatcher_);
+
+    currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
+
     runner->Run();
     // NFC ROOT
     ExecuteTask(KITS::TASK_INITIALIZE);
@@ -151,10 +154,12 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
         case KITS::TASK_TURN_OFF:
             DoTurnOff();
             break;
-        case KITS::TASK_INITIALIZE: {
+        case KITS::TASK_INITIALIZE:
             DoInitialize();
             break;
-        }
+        case KITS::TASK_START_POLLING_LOOP:
+            StartPollingLoop(false);
+            break;
         default:
             break;
     }
@@ -184,6 +189,12 @@ bool NfcService::DoTurnOn()
     InfoLog("Get nci version: ver %{public}d", nciVersion_);
 
     UpdateNfcState(KITS::STATE_ON);
+
+    nfccHost_->SetScreenStatus(8); // 8 for screen on-unlock
+
+    /* Start polling loop */
+    StartPollingLoop(true);
+
     return true;
 }
 
@@ -200,6 +211,12 @@ bool NfcService::DoTurnOff()
     InfoLog("NfccHost deinitialize result %{public}d", result);
 
     nfcWatchDog.Cancel();
+
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
+    }
+
     UpdateNfcState(KITS::STATE_OFF);
     return result;
 }
@@ -316,6 +333,11 @@ void NfcService::UpdateNfcState(int newState)
     }
 }
 
+void NfcService::ExecuteStartPollingLoop()
+{
+    ExecuteTask(KITS::TASK_START_POLLING_LOOP);
+}
+
 void NfcService::StartPollingLoop(bool force)
 {
     InfoLog("StartPollingLoop force = %{public}d", force);
@@ -327,7 +349,7 @@ void NfcService::StartPollingLoop(bool force)
     NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nfccHost_);
     pollingWatchDog.Run();
     // Compute new polling parameters
-    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
+    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(8); // 8 for screen on unlock
     if (force || !(newParams == currPollingParams_)) {
         if (newParams->ShouldEnablePolling()) {
             bool shouldRestart = currPollingParams_->ShouldEnablePolling();
@@ -347,7 +369,8 @@ void NfcService::StartPollingLoop(bool force)
     pollingWatchDog.Cancel();
 }
 
-std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenState) {
+std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenState)
+{
     // Recompute polling parameters based on screen state
     std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
 

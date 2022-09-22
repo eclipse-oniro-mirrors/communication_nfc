@@ -144,7 +144,7 @@ public:
      * @param void
      * @return type of MifareClassic tag.
      */
-    size_t GetMifareTagType() const;
+    MifareClassicTag::EmMifareTagType GetMifareTagType() const;
     /**
      * @Description Get size of the tag in bytes.
      * @param void
@@ -163,11 +163,16 @@ public:
      * @return index of first block in the sector
      */
     int GetBlockIndexFromSector(int sectorIndex) const;
-
+    /**
+     * @Description Get the sector index that contains the specific block.
+     * @param blockIndex index of block
+     * @return the sector index that contains the block.
+     */
+    int GetSectorIndexFromBlock(int blockIndex) const;
 private:
     void SetSizeBySak(int sak);
 
-    size_t mifareTagType_ {};
+    MifareClassicTag::EmMifareTagType mifareTagType_ {MifareClassicTag::EmMifareTagType::TYPE_UNKNOWN};
     int size_ {};
     bool isEmulated_ {};
 };

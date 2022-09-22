@@ -39,6 +39,7 @@ static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
 
 class NapiEvent {
 public:
+    napi_value CreateResult(const napi_env& env, int value);
     bool CheckIsRegister(const std::string& type);
     void EventNotify(AsyncEventData *asyncEvent);
 
@@ -52,9 +53,11 @@ public:
 
         std::vector<RegObj>& vecObj = g_eventRegisterInfo[type];
         for (auto& each : vecObj) {
-            napi_value result;
-            napi_create_int32(each.m_regEnv, obj, &result);
-            AsyncEventData *asyncEvent = new AsyncEventData(each.m_regEnv, each.m_regHanderRef, result);
+            auto result = [this, env = each.m_regEnv, obj] () -> napi_value {
+                return CreateResult(env, obj);
+            };
+            AsyncEventData *asyncEvent =
+                new (std::nothrow)AsyncEventData(each.m_regEnv, each.m_regHanderRef, result);
             if (asyncEvent == nullptr) {
                 return;
             }
@@ -69,20 +72,25 @@ static void after_work_cb(uv_work_t *work, int status)
     InfoLog("Napi event uv_queue_work, env: %{private}p, status: %{public}d", asyncData->env, status);
     napi_value handler = nullptr;
     napi_handle_scope scope = nullptr;
+    napi_value jsEvent = nullptr;
     uint32_t refCount = INVALID_REF_COUNT;
     napi_open_handle_scope(asyncData->env, &scope);
     if (scope == nullptr) {
-        DebugLog("scope is nullptr");
-        napi_close_handle_scope(asyncData->env, scope);
+        ErrorLog("scope is nullptr");
         goto EXIT;
     }
 
     napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+    if (handler == nullptr) {
+        ErrorLog("handler is nullptr");
+        goto EXIT;
+    }
     napi_value undefine;
     napi_get_undefined(asyncData->env, &undefine);
+    jsEvent = asyncData->packResult();
 
     DebugLog("Push event to js, env: %{public}p, ref : %{public}p", asyncData->env, &asyncData->callbackRef);
-    if (napi_call_function(asyncData->env, nullptr, handler, 1, &asyncData->jsEvent, &undefine) != napi_ok) {
+    if (napi_call_function(asyncData->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
         DebugLog("Report event to Js failed");
     }
 
@@ -128,6 +136,13 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         work,
         [](uv_work_t* work) {},
         tmp_after_work_cb);
+}
+
+napi_value NapiEvent::CreateResult(const napi_env& env, int value)
+{
+    napi_value result;
+    napi_create_int32(env, value, &result);
+    return result;
 }
 
 bool NapiEvent::CheckIsRegister(const std::string& type)

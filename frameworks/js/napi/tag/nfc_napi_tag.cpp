@@ -129,6 +129,11 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
             std::string hilyerResp = "";
             ParseString(env, hilyerResp, extraKeyValue);
             pacMap.PutStringValue(KITS::TagInfo::HILAYER_RESPONSE, hilyerResp);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+            napi_get_named_property(env, extraValue, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, &extraKeyValue);
+            bool isUlC = false;
+            ParseBool(env, isUlC, extraKeyValue);
+            pacMap.PutBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
         } else {
         }
         // push the pacMap even if no extra data for this technology.
@@ -659,8 +664,12 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::HILAYER_RESPONSE, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::HILAYER_RESPONSE, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, propValue);
         } else {
-            continue;
+            // set empty eachElement into extrasData to let the size same with technologies array.
         }
         napi_set_element(env, extrasData, i, eachElement);
     }

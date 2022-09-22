@@ -51,6 +51,7 @@ public:
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    void ExecuteStartPollingLoop() override;
 
 protected:
     // screen changed

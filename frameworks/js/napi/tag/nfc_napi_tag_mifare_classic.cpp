@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "nfc_napi_tag_mifare_classic.h"
-
 #include "loghelper.h"
 
 namespace OHOS {
@@ -37,16 +35,16 @@ napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info
     // transfer
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    napi_value result = nullptr;
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetSectorCount find objectInfo failed!");
-        return CreateUndefined(env);
+        napi_create_int32(env, 0, &result);
     } else {
         int sectorCount = nfcMifareClassicTagPtr->GetSectorCount();
-        DebugLog("sectorCount %{public}d", sectorCount);
-        napi_value result = nullptr;
+        DebugLog("GetSectorCount sectorCount %{public}d", sectorCount);
         napi_create_int32(env, sectorCount, &result);
-        return result;
     }
+    return result;
 }
 
 napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callback_info info)
@@ -63,6 +61,7 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     // check parameter number
     if (argc != expectedArgsCount) {
         ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Requires 1 argument.");
+        napi_create_int32(env, 0, &result);
         return result;
     }
     // check parameter data type
@@ -70,7 +69,8 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Invalid data type!");
-        return CreateUndefined(env);
+        napi_create_int32(env, 0, &result);
+        return result;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -85,12 +85,12 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
-        return CreateUndefined(env);
+        ErrorLog("GetBlockCountInSector find objectInfo failed!");
+        napi_create_int32(env, 0, &result);
+        return result;
     }
     int blockCountInSector = nfcMifareClassicTagPtr->GetBlockCountInSector(sectorIndex);
-    DebugLog("blockCountInSector %{public}d", blockCountInSector);
-
+    DebugLog("GetBlockCountInSector blockCountInSector %{public}d", blockCountInSector);
     napi_create_int32(env, blockCountInSector, &result);
     return result;
 }
@@ -108,19 +108,18 @@ napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
     // transfer
+    napi_value result = nullptr;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        return CreateUndefined(env);
+        napi_create_int32(env, static_cast<int>(MifareClassicTag::EmMifareTagType::TYPE_UNKNOWN), &result);
     } else {
-        // MifareClassicTag::EmMifareTagType mifareType = nfcMifareClassicTagPtr->GetType();
-        MifareClassicTag::EmMifareTagType mifareType = MifareClassicTag::TYPE_UNKNOWN;
-        DebugLog("sectorCount %{public}d", mifareType);
-        napi_value result = nullptr;
-        napi_create_int32(env, mifareType, &result);
-        return result;
+        MifareClassicTag::EmMifareTagType mifareType = nfcMifareClassicTagPtr->GetMifareTagType();
+        DebugLog("GetType mifareType %{public}d", mifareType);
+        napi_create_int32(env, static_cast<int>(mifareType), &result);
     }
+    return result;
 }
 
 napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info info)
@@ -129,7 +128,6 @@ napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info inf
     napi_value thisVar = nullptr;
     std::size_t argc = 0;
     napi_value argv[] = {nullptr};
-    napi_value result = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -138,15 +136,17 @@ napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info inf
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
     // transfer
+    napi_value result = nullptr;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
+        ErrorLog("GetTagSize find objectInfo failed!");
+        napi_create_int32(env, 0, &result);
         return result;
     }
 
     int tagSize = nfcMifareClassicTagPtr->GetSize();
-    DebugLog("sectorCount %{public}d", tagSize);
+    DebugLog("GetTagSize tagSize %{public}d", tagSize);
     napi_create_int32(env, tagSize, &result);
     return result;
 }
@@ -169,19 +169,20 @@ napi_value NapiMifareClassicTag::IsEmulatedTag(napi_env env, napi_callback_info 
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
+        ErrorLog("IsEmulatedTag find objectInfo failed!");
+        napi_get_boolean(env, false, &result);
         return result;
     }
 
     bool isEmulated = nfcMifareClassicTagPtr->IsEmulated();
-    DebugLog("sectorCount %{public}d", isEmulated);
+    DebugLog("IsEmulatedTag isEmulated %{public}d", isEmulated);
     napi_get_boolean(env, isEmulated, &result);
     return result;
 }
 
 napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetBlockCountInSector called");
+    DebugLog("GetBlockIndex called");
     napi_value thisVar = nullptr;
     size_t expectedArgsCount = ARGV_NUM_1;
     size_t argc = expectedArgsCount;
@@ -193,6 +194,7 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     // check parameter number
     if (argc != expectedArgsCount) {
         ErrorLog("NapiMifareClassicTag::GetBlockIndex, Requires 1 argument.");
+        napi_create_int32(env, 0, &result);
         return result;
     }
     // check parameter data type
@@ -200,7 +202,8 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockIndex, Invalid data type!");
-        return CreateUndefined(env);
+        napi_create_int32(env, 0, &result);
+        return result;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -215,12 +218,12 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
-        return CreateUndefined(env);
+        ErrorLog("GetBlockIndex find objectInfo failed!");
+        napi_create_int32(env, 0, &result);
+        return result;
     }
     int blockIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(sectorIndex);
-    DebugLog("BlockIndex %{public}d", blockIndex);
-
+    DebugLog("GetBlockIndex blockIndex %{public}d", blockIndex);
     napi_create_int32(env, blockIndex, &result);
     return result;
 }
@@ -239,6 +242,7 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     // check parameter number
     if (argc != expectedArgsCount) {
         ErrorLog("NapiMifareClassicTag::GetSectorIndex, Requires 1 argument.");
+        napi_create_int32(env, 0, &result);
         return result;
     }
     // check parameter data type
@@ -246,7 +250,8 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetSectorIndex, Invalid data type!");
-        return CreateUndefined(env);
+        napi_create_int32(env, 0, &result);
+        return result;
     }
 
     NapiMifareClassicTag *objectInfo = nullptr;
@@ -261,13 +266,12 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
-        return CreateUndefined(env);
+        ErrorLog("GetSectorIndex find objectInfo failed!");
+        napi_create_int32(env, 0, &result);
+        return result;
     }
-    // int sectorIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(blockIndex); // no cpp func
-    int sectorIndex = 4;
-    DebugLog("sectorIndex%{public}d", blockIndex);
-
+    int sectorIndex = nfcMifareClassicTagPtr->GetSectorIndexFromBlock(blockIndex);
+    DebugLog("GetSectorIndex sectorIndex %{public}d", sectorIndex);
     napi_create_int32(env, sectorIndex, &result);
     return result;
 }
