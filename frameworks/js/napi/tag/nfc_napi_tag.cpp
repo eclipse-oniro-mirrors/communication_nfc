@@ -39,100 +39,6 @@ thread_local napi_ref ndefFormatableConsRef_;
 std::shared_ptr<TagInfo> nfcTaginfo;
 const int INIT_REF = 1;
 
-napi_value ParseTagTechArray(napi_env env, napi_value obj, std::vector<int> &typeArray)
-{
-    const int32_t ERROR_DEFAULT = -1;
-    bool result = false;
-    napi_status status = napi_is_array(env, obj, &result);
-    if (status != napi_ok || !result) {
-        ErrorLog("Invalid input parameter type!");
-        return nullptr;
-    }
-
-    napi_value elementValue = nullptr;
-    int32_t element = ERROR_DEFAULT;
-    uint32_t arrayLength = 0;
-    NAPI_CALL(env, napi_get_array_length(env, obj, &arrayLength));
-    typeArray.resize(arrayLength);
-    for (uint32_t i = 0; i < arrayLength; ++i) {
-        NAPI_CALL(env, napi_get_element(env, obj, i, &elementValue));
-        napi_valuetype valueType = napi_undefined;
-        napi_typeof(env, elementValue, &valueType);
-        if (valueType == napi_number) {
-            NAPI_CALL(env, napi_get_value_int32(env, elementValue, &element));
-            typeArray[i] = element;
-            DebugLog("tag tech array :%{public}d is %{public}d ", i, element);
-        } else {
-            ErrorLog("Invalid parameter type of array element!");
-            return nullptr;
-        }
-    }
-    return CreateUndefined(env);
-}
-
-void SetPacMapObject(
-    std::shared_ptr<AppExecFwk::PacMap> &pacMap, const napi_env &env, std::string keyStr, napi_value value)
-{
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, value, &valueType);
-    if (valueType == napi_string) {
-        std::string valueString = UnwrapStringFromJS(env, value);
-        DebugLog("SetPacMap keystr :%{public}s", valueString.c_str());
-        pacMap->PutStringValue(keyStr, valueString);
-    } else if (valueType == napi_number) {
-        double valueNumber = 0;
-        napi_get_value_double(env, value, &valueNumber);
-        pacMap->PutDoubleValue(keyStr, valueNumber);
-    } else if (valueType == napi_boolean) {
-        bool valueBool = false;
-        napi_get_value_bool(env, value, &valueBool);
-        pacMap->PutBooleanValue(keyStr, valueBool);
-    } else if (valueType == napi_null) {
-        pacMap->PutObject(keyStr, nullptr);
-    } else if (valueType == napi_object) {
-        pacMap->PutStringValueArray(keyStr, ConvertStringVector(env, value));
-    } else {
-        ErrorLog("SetPacMapObject pacMap type error");
-    }
-}
-
-void AnalysisPacMap(std::shared_ptr<AppExecFwk::PacMap> &pacMap, const napi_env &env, const napi_value &arg)
-{
-    DebugLog("AnalysisPacMap begin");
-    napi_value keys = 0;
-    napi_get_property_names(env, arg, &keys);
-    uint32_t arrLen = 0;
-    napi_status status = napi_get_array_length(env, keys, &arrLen);
-    if (status != napi_ok) {
-        ErrorLog("AnalysisPacMap errr");
-        return;
-    }
-    for (size_t i = 0; i < arrLen; ++i) {
-        napi_value key = 0;
-        status = napi_get_element(env, keys, i, &key);
-        std::string keyStr = UnwrapStringFromJS(env, key);
-        napi_value value = 0;
-        napi_get_property(env, arg, key, &value);
-        SetPacMapObject(pacMap, env, keyStr, value);
-    }
-}
-
-napi_value ParseExtrasData(napi_env env, napi_value obj, std::shared_ptr<AppExecFwk::PacMap> &tagTechExtrasData)
-{
-    napi_valuetype valueType = napi_undefined;
-
-    napi_typeof(env, obj, &valueType);
-
-    if (valueType == napi_object) {
-        DebugLog("PacMap parse begin");
-        AnalysisPacMap(tagTechExtrasData, env, obj);
-    } else {
-        ErrorLog("ParseExtrasData wrong arg!");
-        return nullptr;
-    }
-    return CreateUndefined(env);
-}
-
 napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     std::vector<int> &tagTechList, std::vector<AppExecFwk::PacMap> &tagTechExtras)
 {
@@ -484,7 +390,7 @@ void RegisterIsoDepJSClass(napi_env env)
 napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
 {
     // register NdefMessage object
-    NapiNdefTag::RegisterNdefMessageObject(env, exports);
+    NapiNdefTag::RegisterNdefMessageJSClass(env, exports);
 
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("createNdefMessage", NapiNdefTag::CreateNdefMessage),

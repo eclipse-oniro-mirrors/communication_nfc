@@ -166,12 +166,12 @@ std::string GetStringFromValue(napi_env env, napi_value value);
 napi_value GetNamedProperty(napi_env env, napi_value object, const std::string &propertyName);
 int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string &name, const int32_t &defValue = 0);
 std::string UnwrapStringFromJS(napi_env env, napi_value param);
-void ConvertStringVectorToJS(napi_env env, napi_value result, std::vector<std::string> &stringVector);
-void ConvertIntVectorToJS(napi_env env, napi_value result, std::vector<int> &intVector);
+void ConvertStringVectorToJS(napi_env env, napi_value &result, std::vector<std::string> &stringVector);
+void ConvertIntVectorToJS(napi_env env, napi_value &result, std::vector<int> &intVector);
 void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string srcValue);
-void ConvertNdefRecordVectorToJS(napi_env env, napi_value result,
+void ConvertNdefRecordVectorToJS(napi_env env, napi_value &result,
                                  std::vector<std::shared_ptr<NdefRecord>> &ndefRecords);
-void ConvertNdefRecordToJS(napi_env env, napi_value result, std::shared_ptr<NdefRecord> &ndefRecord);
+void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<NdefRecord> &ndefRecord);
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
 napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);

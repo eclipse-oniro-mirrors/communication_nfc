@@ -37,6 +37,13 @@ struct NapiNfcTagSession {
     static napi_value GetMaxSendLength(napi_env env, napi_callback_info info);
     std::shared_ptr<BasicTagSession> tagSession = nullptr;
 };
+
+template<typename T, typename D>
+struct NfcTagSessionContext : BaseContext {
+    T value;
+    D *objectInfo;
+    std::string dataBytes;
+};
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

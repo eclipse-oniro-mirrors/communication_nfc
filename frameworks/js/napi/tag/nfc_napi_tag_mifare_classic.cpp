@@ -66,6 +66,7 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Invalid data type!");
         napi_create_int32(env, 0, &result);
@@ -198,6 +199,7 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetBlockIndex, Invalid data type!");
         napi_create_int32(env, 0, &result);
@@ -245,6 +247,7 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     }
     // check parameter data type
     napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_0], &valueType);
     if (valueType != napi_number) {
         ErrorLog("NapiMifareClassicTag::GetSectorIndex, Invalid data type!");
         napi_create_int32(env, 0, &result);
