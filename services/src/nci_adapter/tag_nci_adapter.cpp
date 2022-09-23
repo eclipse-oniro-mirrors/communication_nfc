@@ -390,8 +390,9 @@ void TagNciAdapter::ResetTagFieldOnFlag()
 int TagNciAdapter::GetTimeout(int technology) const
 {
     int timeout = DEFAULT_TIMEOUT;
-    if (technology > 0 && technology < MAX_NUM_TECHNOLOGY) {
-        timeout = technologyTimeoutsTable_[technology];
+    uint32_t tech = technology;
+    if (tech > 0 && tech < MAX_NUM_TECHNOLOGY) {
+        timeout = technologyTimeoutsTable_[tech];
     } else {
         WarnLog("TagNciAdapter::GetTimeout, Unknown technology");
     }
@@ -744,9 +745,9 @@ std::string TagNciAdapter::GetTechActFromData(tNFA_ACTIVATED activated) const
     unsigned char protocol = activated.activate_ntf.protocol;
     tNFC_RF_TECH_PARAMS nfcRfTechParams = activated.activate_ntf.rf_tech_param;
     if (protocol == NCI_PROTOCOL_T1T) {
-        techAct = nfcRfTechParams.param.pa.sel_rsp;
+        techAct = KITS::NfcSdkCommon::UnsignedCharToHexString(nfcRfTechParams.param.pa.sel_rsp);
     } else if (protocol == NCI_PROTOCOL_T2T) {
-        techAct = nfcRfTechParams.param.pa.sel_rsp;
+        techAct = KITS::NfcSdkCommon::UnsignedCharToHexString(nfcRfTechParams.param.pa.sel_rsp);
     } else if (protocol == NCI_PROTOCOL_T3T) {
         techAct = "";
     } else if (protocol == NCI_PROTOCOL_ISO_DEP) {
@@ -754,9 +755,7 @@ std::string TagNciAdapter::GetTechActFromData(tNFA_ACTIVATED activated) const
         if (discType == NCI_DISCOVERY_TYPE_POLL_A || discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
             discType == NCI_DISCOVERY_TYPE_LISTEN_A || discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
             if (activated.activate_ntf.intf_param.type == NFC_INTERFACE_ISO_DEP) {
-                tNFC_INTF_PA_ISO_DEP paIso = activated.activate_ntf.intf_param.intf_param.pa_iso;
-                techAct = (paIso.his_byte_len > 0) ? KITS::NfcSdkCommon::UnsignedCharArrayToHexString(
-                    paIso.his_byte, paIso.his_byte_len) : "";
+                techAct = KITS::NfcSdkCommon::UnsignedCharToHexString(nfcRfTechParams.param.pa.sel_rsp);
             }
         } else if (discType == NCI_DISCOVERY_TYPE_POLL_B || discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
                    discType == NCI_DISCOVERY_TYPE_LISTEN_B || discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
@@ -770,7 +769,7 @@ std::string TagNciAdapter::GetTechActFromData(tNFA_ACTIVATED activated) const
         unsigned char techActivated[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
         techAct = KITS::NfcSdkCommon::UnsignedCharArrayToHexString(techActivated, I93_ACT_LENGTH);
     } else if (protocol == NFC_PROTOCOL_MIFARE) {
-        techAct = nfcRfTechParams.param.pa.sel_rsp;
+        techAct = KITS::NfcSdkCommon::UnsignedCharToHexString(nfcRfTechParams.param.pa.sel_rsp);
     } else {
         techAct = "";
     }

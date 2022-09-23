@@ -110,7 +110,7 @@ private:
     std::vector<int> tagActivatedProtocols_ {}; // protocol
     std::vector<std::string> tagPollBytes_ {};
     std::vector<std::string> tagActivatedBytes_ {};
-    int techListIndex_;                             // current tech list index
+    uint32_t techListIndex_;                             // current tech list index
     std::vector<int> tagDiscIdListOfDiscResult_ {}; // disc id
     std::vector<int> tagProtocolsOfDiscResult_ {};  // protocol
     int tagActivatedProtocol_;

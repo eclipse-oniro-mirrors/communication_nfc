@@ -100,6 +100,7 @@ public:
 public:
     static bool IsLittleEndian();
     static std::string UnsignedCharArrayToHexString(const unsigned char* charArray, uint32_t length);
+    static std::string UnsignedCharToHexString(const unsigned char charArray);
     static unsigned char GetByteFromHexStr(const std::string src, uint32_t index);
     static uint32_t GetHexStrBytesLen(const std::string src);
     static std::string IntToString(uint32_t num, bool bLittleEndian = true);
