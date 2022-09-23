@@ -44,8 +44,6 @@ static void NativeReadMultiplePages(napi_env env, void *data)
 {
     DebugLog("NativeReadMultiplePages called");
     auto context = static_cast<MifareUltralightContext<std::string, NapiMifareUltralightTag> *>(data);
-    DebugLog("NativeReadMultiplePages objInfo %{public}p", context->objectInfo);
-
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
@@ -88,7 +86,6 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("ReadMultiplePages objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchReadMultiplePagesParameters(env, params, paramsCount), "ReadMultiplePages type mismatch");
     auto context = std::make_unique<MifareUltralightContext<std::string, NapiMifareUltralightTag>>().release();
@@ -134,8 +131,6 @@ static void NativeWriteSinglePages(napi_env env, void *data)
 {
     DebugLog("NativeWriteSinglePages called");
     auto context = static_cast<MifareUltralightContext<int, NapiMifareUltralightTag> *>(data);
-    DebugLog("NativeWriteSinglePages objInfo %{public}p", context->objectInfo);
-
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
@@ -178,7 +173,6 @@ napi_value NapiMifareUltralightTag::WriteSinglePages(napi_env env, napi_callback
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("WriteSinglePages objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchWriteSinglePagesParameters(env, params, paramsCount), "WriteSinglePages type mismatch");
     auto context = std::make_unique<MifareUltralightContext<int, NapiMifareUltralightTag>>().release();

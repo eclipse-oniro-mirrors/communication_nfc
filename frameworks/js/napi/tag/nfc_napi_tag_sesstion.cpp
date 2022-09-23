@@ -21,7 +21,8 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
-
+const std::string VAR_UID = "uid";
+const std::string VAR_TECH = "technology";
 std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_callback_info info,
     size_t argc, napi_value argv[])
 {
@@ -41,6 +42,37 @@ std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_ca
         return nullptr;
     }
     return objectInfo->tagSession;
+}
+
+napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+    if (nfcTag == nullptr) {
+        return CreateUndefined(env);
+    }
+    std::weak_ptr<TagInfo> tagInfo = nfcTag->GetTagInfo();
+    if (tagInfo.expired()) {
+        return CreateUndefined(env);
+    }
+    std::string uid = tagInfo.lock()->GetTagUid();
+    std::vector<int> techList = tagInfo.lock()->GetTagTechList();
+
+    // build tagInfo Js Object, with menber uid and technology only.
+    napi_value tagInfoObj = nullptr;
+    napi_value uidValue;
+    napi_value techValue;
+    napi_create_object(env, &tagInfoObj);
+    napi_create_string_utf8(env, uid.c_str(), uid.length(), &uidValue);
+    napi_create_array_with_length(env, techList.size(), &techValue);
+    for (uint32_t i = 0; i < techList.size(); i++) {
+        napi_value tech;
+        napi_create_uint32(env, techList[i], &tech);
+        napi_set_element(env, techValue, i, tech);
+    }
+    napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), uidValue);
+    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), techValue);
+    return tagInfoObj;
 }
 
 napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
@@ -179,8 +211,6 @@ static bool MatchSendDataParameters(napi_env env, const napi_value parameters[],
 static void NativeSendData(napi_env env, void *data)
 {
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
-    DebugLog("NativeDecrementBlock objInfo %{public}p", context->objectInfo);
-
     BasicTagSession *nfcTagSessionPtr =
         static_cast<BasicTagSession *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcTagSessionPtr == nullptr) {

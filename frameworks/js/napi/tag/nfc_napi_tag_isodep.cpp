@@ -89,7 +89,6 @@ static void NativeIsExtendedApduSupported(napi_env env, void *data)
 {
     DebugLog("NativeIsExtendedApduSupported called");
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
-    DebugLog("NativeIsExtendedApduSupported objInfo %{public}p", context->objectInfo);
 
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcIsoDepTagPtr == nullptr) {
@@ -135,7 +134,6 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("IsExtendedApduSupported objInfo %{public}p", objectInfoCb);
 
     NAPI_ASSERT(env, MatchIsExtendedApduSupportedParameters(env, params, paramsCount),
         "IsExtendedApduSupported type mismatch");

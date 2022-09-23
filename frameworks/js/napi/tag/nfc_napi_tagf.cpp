@@ -32,7 +32,7 @@ napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getSystemCode objInfo %{public}p", objectInfo);
+
     // transfer
     NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     napi_value result = nullptr;
@@ -57,7 +57,6 @@ napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    DebugLog("getGetPmm objInfo %{public}p", objectInfo);
 
     // transfer
     NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
