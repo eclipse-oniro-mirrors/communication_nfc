@@ -49,6 +49,15 @@ std::string NfcSdkCommon::UnsignedCharArrayToHexString(const unsigned char* src,
     return result;
 }
 
+std::string NfcSdkCommon::UnsignedCharToHexString(const unsigned char src)
+{
+    std::string result = "";
+    const std::string hexKeys = "0123456789ABCDEF";
+    result.push_back(hexKeys[(src & 0xF0) >> 4]);
+    result.push_back(hexKeys[src & 0x0F]);
+    return result;
+}
+
 uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)
 {
     // 2 charactors consist of one byte.
