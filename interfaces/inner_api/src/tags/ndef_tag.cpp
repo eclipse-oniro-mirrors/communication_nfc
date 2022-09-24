@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "ndef_tag.h"
-
 #include "loghelper.h"
 
 namespace OHOS {
@@ -21,7 +20,6 @@ namespace NFC {
 namespace KITS {
 NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_NDEF_TECH)
 {
-    DebugLog("NdefTag::NdefTag in");
     if (tag.expired()) {
         ErrorLog("NdefTag::NdefTag tag invalid");
         return;
@@ -35,15 +33,16 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
     nfcForumType_ = (EmNfcForumType)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_FORUM_TYPE);
     ndefTagMode_ = (EmNdefTagMode)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_MODE);
     ndefMsg_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NDEF_MSG);
+    maxTagSize_ = tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_LENGTH);
 
-    InfoLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) ndefMsg_(%{public}s)",
-        nfcForumType_, ndefTagMode_, ndefMsg_.c_str());
+    InfoLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) maxTagSize_(%{public}d)",
+        nfcForumType_, ndefTagMode_, maxTagSize_);
 }
 
 std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
-        ErrorLog("NdefTag::GetTag error");
+        ErrorLog("NdefTag::GetTag error or no ndef tech included");
         return nullptr;
     }
 
@@ -60,6 +59,11 @@ NdefTag::EmNdefTagMode NdefTag::GetNdefTagMode() const
     return ndefTagMode_;
 }
 
+uint32_t NdefTag::GetMaxTagSize() const
+{
+    return maxTagSize_;
+}
+
 std::shared_ptr<NdefMessage> NdefTag::GetCachedNdefMsg() const
 {
     return NdefMessage::GetNdefMessage(ndefMsg_);
@@ -67,7 +71,6 @@ std::shared_ptr<NdefMessage> NdefTag::GetCachedNdefMsg() const
 
 std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
 {
-    DebugLog("NdefTag::GetNdefTagTypeString in");
     std::string typeString;
     switch (emNfcForumType) {
         case NFC_FORUM_TYPE_1:
@@ -91,7 +94,6 @@ std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
         default:
             break;
     }
-    InfoLog("[NdefTag::GetNdefTagTypeString] typeString=%{public}d.", emNfcForumType);
     return typeString;
 }
 
@@ -102,7 +104,6 @@ bool NdefTag::IsNdefWritable() const
 
 std::shared_ptr<NdefMessage> NdefTag::ReadNdef()
 {
-    DebugLog("NdefTag::ReadNdef in.");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
@@ -128,7 +129,6 @@ std::shared_ptr<NdefMessage> NdefTag::ReadNdef()
 
 int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
 {
-    InfoLog("NdefTag::WriteNdef in.");
     if (!IsConnected()) {
         ErrorLog("[NdefTag::WriteNdef] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;

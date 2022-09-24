@@ -145,6 +145,12 @@ void TagDispatcher::DispatchAbility(ElementName &element,
         } else if (techList[i] == static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
             want.SetParam(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE,
                 extra.GetBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, false));
+        } else if (techList[i] == static_cast<int>(TagTechnology::NFC_NDEF_TECH)) {
+            // set ndef message/type/max size/read mode for ndef tag
+            want.SetParam(KITS::TagInfo::NDEF_MSG, extra.GetStringValue(KITS::TagInfo::NDEF_MSG, ""));
+            want.SetParam(KITS::TagInfo::NDEF_FORUM_TYPE, extra.GetIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, 0));
+            want.SetParam(KITS::TagInfo::NDEF_TAG_LENGTH, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, 0));
+            want.SetParam(KITS::TagInfo::NDEF_TAG_MODE, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_MODE, 0));
         } else {
         }
     }
