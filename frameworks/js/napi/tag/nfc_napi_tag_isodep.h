@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NFC_NAPI_TAG_ISODEP_H_
-#define NFC_NAPI_TAG_ISODEP_H_
+#ifndef NFC_NAPI_TAG_ISODEP_H
+#define NFC_NAPI_TAG_ISODEP_H
 
 #include "isodep_tag.h"
 #include "napi/native_api.h"

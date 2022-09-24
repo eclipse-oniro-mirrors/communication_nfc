@@ -25,7 +25,7 @@ namespace NFC {
 class NfcService;
 class NfcControllerImpl final : public NfcControllerStub {
 public:
-    NfcControllerImpl(std::weak_ptr<NfcService> nfcService);
+    explicit NfcControllerImpl(std::weak_ptr<NfcService> nfcService);
     ~NfcControllerImpl() override;
 
     int GetState() override;
