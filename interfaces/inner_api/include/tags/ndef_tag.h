@@ -65,6 +65,12 @@ public:
      */
     EmNdefTagMode GetNdefTagMode() const;
     /**
+     * @brief Get the Max Tag Size for this found ndef tag
+     *
+     * @return the max tag size when the tag is discoveried.
+     */
+    uint32_t GetMaxTagSize() const;
+    /**
      * @Description Get the ndef message that was read from ndef tag when tag discovery.
      * @param void
      * @return ndef message.
@@ -111,6 +117,7 @@ private:
     EmNfcForumType nfcForumType_ {};
     EmNdefTagMode ndefTagMode_ {};
     std::string ndefMsg_ {};
+    uint32_t maxTagSize_;
 };
 }  // namespace KITS
 }  // namespace NFC

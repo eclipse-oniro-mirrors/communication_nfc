@@ -134,6 +134,27 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
             bool isUlC = false;
             ParseBool(env, isUlC, extraKeyValue);
             pacMap.PutBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
+        } else if (intTech == static_cast<int>(TagTechnology::NFC_NDEF_TECH)) {
+            // parse ndef message/type/max size/read mode for ndef tag
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NDEF_MSG, &extraKeyValue);
+            std::string ndefMessage = "";
+            ParseString(env, ndefMessage, extraKeyValue);
+            pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMessage);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NDEF_FORUM_TYPE, &extraKeyValue);
+            int32_t forumType = 0;
+            ParseInt32(env, forumType, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, forumType);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NDEF_TAG_LENGTH, &extraKeyValue);
+            int32_t maxNdefSize = 0;
+            ParseInt32(env, maxNdefSize, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, maxNdefSize);
+
+            napi_get_named_property(env, extraValue, KITS::TagInfo::NDEF_TAG_MODE, &extraKeyValue);
+            int32_t readMode = 0;
+            ParseInt32(env, readMode, extraKeyValue);
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, readMode);
         } else {
         }
         // push the pacMap even if no extra data for this technology.
@@ -679,6 +700,23 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
             propValue = nullptr;
             napi_get_named_property(env, parameters, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_NDEF_TECH)) {
+            // parse ndef message/type/max size/read mode for ndef tag
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NDEF_MSG, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_MSG, propValue);
+
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NDEF_FORUM_TYPE, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_FORUM_TYPE, propValue);
+
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NDEF_TAG_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_TAG_LENGTH, propValue);
+
+            propValue = nullptr;
+            napi_get_named_property(env, parameters, KITS::TagInfo::NDEF_TAG_MODE, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_TAG_MODE, propValue);
         } else {
             // set empty eachElement into extrasData to let the size same with technologies array.
         }
