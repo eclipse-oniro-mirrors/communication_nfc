@@ -213,14 +213,14 @@ std::unique_ptr<TagRwResponse> TagSession::SendRawFrame(int tagRfDiscId, std::st
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SendRawFrame, IsTagFieldOn error");
-        return nullptr;
+        return std::make_unique<TagRwResponse>();
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("SendRawFrame, tagRfDiscId not found");
-        return nullptr;
+        return std::make_unique<TagRwResponse>();
     }
     std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
     // Check if length is within limits
