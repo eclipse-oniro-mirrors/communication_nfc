@@ -285,7 +285,7 @@ napi_status InitMifareClassicType(napi_env env, napi_value exports)
     };
 
     constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
-    DefineEnumClassByName(env, exports, "MifareUltralightType", arrSize, desc);
+    DefineEnumClassByName(env, exports, "MifareClassicType", arrSize, desc);
     return napi_define_properties(env, exports, arrSize, desc);
 }
 
@@ -821,6 +821,22 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getMifareUltralightTag", GetMifareUltralightTag),
         DECLARE_NAPI_FUNCTION("getNdefFormatableTag", GetNdefFormatableTag),
         DECLARE_NAPI_FUNCTION("getTagInfo", GetTagInfo),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_A", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_A_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_B", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_B_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("ISO_DEP",
+                                     GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_ISODEP_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_F", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_F_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_V", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_V_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NDEF", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("MIFARE_CLASSIC",
+                                     GetNapiValue(env,
+                                                  static_cast<int32_t>(TagTechnology::NFC_MIFARE_CLASSIC_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("MIFARE_ULTRALIGHT",
+                                     GetNapiValue(env,
+                                                  static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NDEF_FORMATABLE",
+                                     GetNapiValue(env,
+                                                  static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
