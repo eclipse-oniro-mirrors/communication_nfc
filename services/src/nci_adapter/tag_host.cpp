@@ -284,7 +284,7 @@ void TagHost::DoTargetTypeIso144433a(AppExecFwk::PacMap &pacMap, int index)
     if (!(act.empty())) {
         int sak = (KITS::NfcSdkCommon::GetByteFromHexStr(act, 0) & 0xff);
         pacMap.PutIntValue(KITS::TagInfo::SAK, sak);
-        DebugLog("DoTargetTypeIso144433a SAK: %{public}d", sak);
+        DebugLog("DoTargetTypeIso144433a SAK: 0x%{public}X", sak);
     }
     pacMap.PutStringValue(KITS::TagInfo::ATQA, poll);
     DebugLog("DoTargetTypeIso144433a ATQA: %{public}s", poll.c_str());

@@ -35,9 +35,9 @@ TagDispatcher::~TagDispatcher()
     std::lock_guard<std::mutex> guard(mutex_);
 }
 
-void TagDispatcher::TagDisconnectedCallback(int handle)
+void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 {
-    UnregisterTagHost(handle);
+    UnregisterTagHost(tagRfDiscId);
     nfcService_->ExecuteStartPollingLoop();
 }
 
@@ -52,6 +52,8 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     std::string tagUid = tag->GetTagUid();
     std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
     int tagRfDiscId = tag->GetTagRfDiscId();
+
+    RegisterTagHost(tag);
 
     DebugLog("techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s, rfID = %{public}d",
         techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
