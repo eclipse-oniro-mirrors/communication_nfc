@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "nfc_napi_tag_sesstion.h"
-
 #include "loghelper.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -63,7 +62,9 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
     napi_value uidValue;
     napi_value techValue;
     napi_create_object(env, &tagInfoObj);
-    napi_create_string_utf8(env, uid.c_str(), uid.length(), &uidValue);
+    std::vector<unsigned char> uidBytes;
+    NfcSdkCommon::HexStringToBytes(uid, uidBytes);
+    BytesVectorToJS(env, uidValue, uidBytes);
     napi_create_array_with_length(env, techList.size(), &techValue);
     for (uint32_t i = 0; i < techList.size(); i++) {
         napi_value tech;

@@ -166,7 +166,10 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
 std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
 {
     // parse uid: string from TagInfo object.
-    std::string tagUid = GetNapiStringValue(env, obj, VAR_UID);
+    napi_value uidValue = GetNamedProperty(env, obj, VAR_UID);
+    std::vector<unsigned char> bytes;
+    ParseBytesVector(env, bytes, uidValue);
+    std::string tagUid = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(bytes.data()), bytes.size());
     DebugLog("BuildNativeTagFromJsObj, tag uid:%{public}s", tagUid.c_str());
 
     // parse technology: number[], extrasData: PacMap[] from TagInfo object.
@@ -737,6 +740,9 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
     napi_get_named_property(env, parameters, VAR_UID.c_str(), &propValue);
     napi_typeof(env, propValue, &valueType);
     if (propValue != nullptr && valueType == napi_string) {
+        std::vector<unsigned char> bytes;
+        JsStringToBytesVector(env, propValue, bytes);
+        BytesVectorToJS(env, propValue, bytes);
         napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), propValue);
         DebugLog("BuildTagFromWantParams for uid");
     }
@@ -748,6 +754,8 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
     napi_get_named_property(env, parameters, VAR_RF_ID.c_str(), &propValue);
     napi_typeof(env, propValue, &valueType);
     if (propValue != nullptr && valueType == napi_number) {
+        std::vector<unsigned char> uidBytes;
+        BytesVectorToJS(env, propValue, uidBytes);
         napi_set_named_property(env, tagInfoObj, VAR_RF_ID.c_str(), propValue);
         DebugLog("BuildTagFromWantParams for tagRfDiscId");
     }

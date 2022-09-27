@@ -49,7 +49,7 @@ namespace OHOS {
             return;
         }
         AppExecFwk::PacMap extrasData = tagInfo->GetTechExtrasByTech(TagTechnology::NFC_A_TECH);
-        std::string extrasName = NfcSdkCommon::UnsignedCharArrayToHexString(data, size);
+        std::string extrasName = NfcSdkCommon::BytesVecToHexString(data, size);
 
         tagInfo->GetStringExtrasData(extrasData, extrasName);
     }

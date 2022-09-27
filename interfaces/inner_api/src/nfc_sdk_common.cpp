@@ -35,7 +35,7 @@ bool NfcSdkCommon::IsLittleEndian()
     return false;
 }
 
-std::string NfcSdkCommon::UnsignedCharArrayToHexString(const unsigned char* src, uint32_t length)
+std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t length)
 {
     std::string result = "";
     if (length <= 0) {
@@ -56,6 +56,20 @@ std::string NfcSdkCommon::UnsignedCharToHexString(const unsigned char src)
     result.push_back(hexKeys[(src & 0xF0) >> 4]);
     result.push_back(hexKeys[src & 0x0F]);
     return result;
+}
+
+void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char> &bytes)
+{
+    if (src.empty()) {
+        return;
+    }
+
+    // two charactors consist of one hex byte.
+    for (uint32_t i = 0; i < (src.size() - 1); i += 2) {
+        std::string byte = src.substr(i, 2);
+        unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, 16));
+        bytes.push_back(value);
+    }
 }
 
 uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)

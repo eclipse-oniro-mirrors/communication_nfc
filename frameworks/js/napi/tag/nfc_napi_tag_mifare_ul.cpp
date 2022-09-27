@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "nfc_napi_tag_mifare_ul.h"
-
 #include "loghelper.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -50,7 +49,7 @@ static void NativeReadMultiplePages(napi_env env, void *data)
         ErrorLog("NativeReadMultiplePages find objectInfo failed!");
     } else {
         context->value = nfcMifareUlTagPtr->ReadMultiplePages(context->pageIndex);
-        DebugLog("NativeReadMultiplePages context value = %{public}d", context->pageIndex);
+        DebugLog("NativeReadMultiplePages context value = %{public}s", context->value.c_str());
     }
     context->resolved = true;
 }
@@ -62,7 +61,7 @@ static void ReadMultiplePagesCallback(napi_env env, napi_status status, void *da
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
         if (context->resolved) {
-            napi_create_string_utf8(env, context->value.c_str(), context->value.size(), &callbackValue);
+            ConvertStringToNumberArray(env, callbackValue, context->value);
         } else {
             callbackValue = CreateErrorMessage(env, "ReadMultiplePages error by ipc");
         }
@@ -114,11 +113,11 @@ static bool MatchWriteSinglePagesParameters(napi_env env, const napi_value param
     bool typeMatch = false;
     switch (parameterCount) {
         case ARGV_NUM_2: {
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_string});
+            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object});
             break;
         }
         case ARGV_NUM_3:
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_string, napi_function});
+            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object, napi_function});
             break;
         default: {
             return false;
@@ -134,7 +133,7 @@ static void NativeWriteSinglePages(napi_env env, void *data)
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
-        DebugLog("NativeWriteSinglePages find objectInfo failed!");
+        ErrorLog("NativeWriteSinglePages find objectInfo failed!");
     } else {
         context->value = nfcMifareUlTagPtr->WriteSinglePages(context->pageIndex, context->data);
         DebugLog("NativeWriteSinglePages context value = %{public}d", context->value);
@@ -186,7 +185,9 @@ napi_value NapiMifareUltralightTag::WriteSinglePages(napi_env env, napi_callback
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
     DebugLog("WriteSinglePages blockIndex = %{public}d", context->pageIndex);
 
-    context->data = GetStringFromValue(env, params[ARGV_INDEX_1]);
+    std::vector<unsigned char> dataVec;
+    ParseBytesVector(env, dataVec, params[ARGV_INDEX_1]);
+    context->data = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()), dataVec.size());
     DebugLog("WriteSinglePages data = %{public}s", context->data.c_str());
 
     if (paramsCount == ARGV_NUM_3) {
