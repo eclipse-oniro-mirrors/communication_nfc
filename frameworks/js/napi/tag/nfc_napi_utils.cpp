@@ -14,9 +14,9 @@
  */
 
 #include "nfc_napi_utils.h"
-
 #include <cstring>
 #include "loghelper.h"
+#include "nfc_sdk_common.h"
 #include "securec.h"
 
 namespace OHOS {
@@ -73,6 +73,34 @@ bool ParseBool(napi_env env, bool &param, napi_value args)
         return false;
     }
     napi_get_value_bool(env, args, &param);
+    return true;
+}
+
+bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args)
+{
+    bool isArray = false;
+    napi_status status = napi_is_array(env, args, &isArray);
+    if (status != napi_ok || !isArray) {
+        ErrorLog("ParseBytesVector, not array");
+        return false;
+    }
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, args, &arrayLength);
+    for (uint32_t i = 0; i < arrayLength; i++) {
+        napi_value element = nullptr;
+        napi_get_element(env, args, i, &element);
+
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, element, &valueType);
+        if (valueType != napi_number) {
+            ErrorLog("ParseBytesVector, not number!");
+            return false;
+        }
+
+        uint32_t byteValue = 0x0;
+        napi_get_value_uint32(env, element, &byteValue);
+        vec.push_back(static_cast<unsigned char>(byteValue));
+    }
     return true;
 }
 
@@ -215,6 +243,19 @@ std::string UnwrapStringFromJS(napi_env env, napi_value arg)
     }
 }
 
+void JsStringToBytesVector(napi_env env, napi_value &src, std::vector<unsigned char> &values)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, src, &valueType);
+    if (valueType != napi_string) {
+        return;
+    }
+    
+    std::string data;
+    ParseString(env, data, src);
+    NfcSdkCommon::HexStringToBytes(data, values);
+}
+
 void ConvertStringVectorToJS(napi_env env, napi_value &result, std::vector<std::string>& stringVector)
 {
     DebugLog("ConvertStringVectorToJS called");
@@ -234,20 +275,19 @@ void ConvertStringVectorToJS(napi_env env, napi_value &result, std::vector<std::
     }
 }
 
-void ConvertIntVectorToJS(napi_env env, napi_value &result, std::vector<int>& intVector)
+void BytesVectorToJS(napi_env env, napi_value &result, std::vector<unsigned char>& src)
 {
-    DebugLog("ConvertIntVectorToJS called");
-    size_t idx = 0;
-
-    if (intVector.empty()) {
-        WarnLog("ConvertIntVectorToJS intVector empty");
+    if (src.empty()) {
+        WarnLog("BytesVectorToJS src empty");
         napi_create_array_with_length(env, 0, &result);
         return;
     }
-    DebugLog("ConvertIntVectorToJS size is %{public}zu", intVector.size());
-    for (auto& num : intVector) {
+    size_t idx = 0;
+    DebugLog("BytesVectorToJS size is %{public}zu", src.size());
+    napi_create_array_with_length(env, src.size(), &result);
+    for (auto& num : src) {
         napi_value obj = nullptr;
-        napi_create_int32(env, num, &obj);
+        napi_create_uint32(env, num, &obj);
         napi_set_element(env, result, idx, obj);
         idx++;
     }

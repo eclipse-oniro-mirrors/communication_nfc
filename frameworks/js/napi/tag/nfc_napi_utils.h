@@ -156,6 +156,7 @@ napi_value GetNapiValue(napi_env env, T val)
 bool ParseString(napi_env env, std::string &param, napi_value args);
 bool ParseInt32(napi_env env, int32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
+bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
 napi_value CreateErrorMessage(napi_env env, std::string message, int32_t errorCode = ERROR_DEFAULT);
@@ -167,7 +168,8 @@ napi_value GetNamedProperty(napi_env env, napi_value object, const std::string &
 int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string &name, const int32_t &defValue = 0);
 std::string UnwrapStringFromJS(napi_env env, napi_value param);
 void ConvertStringVectorToJS(napi_env env, napi_value &result, std::vector<std::string> &stringVector);
-void ConvertIntVectorToJS(napi_env env, napi_value &result, std::vector<int> &intVector);
+void JsStringToBytesVector(napi_env env, napi_value &src, std::vector<unsigned char> &values);
+void BytesVectorToJS(napi_env env, napi_value &result, std::vector<unsigned char> &src);
 void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string srcValue);
 void ConvertNdefRecordVectorToJS(napi_env env, napi_value &result,
                                  std::vector<std::shared_ptr<NdefRecord>> &ndefRecords);

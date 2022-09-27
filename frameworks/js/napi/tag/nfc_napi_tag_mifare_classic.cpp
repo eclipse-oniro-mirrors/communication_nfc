@@ -14,6 +14,7 @@
  */
 #include "nfc_napi_tag_mifare_classic.h"
 #include "loghelper.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -292,8 +293,10 @@ static bool MatchAuthenticateSectorParameters(napi_env env, const napi_value par
         }
     }
     if (typeMatch) {
+        // authenticateSector(sectorIndex: number, key: number[], isKeyA: boolean)
+        // index = 1, check key is number array.
         bool isArray = false;
-        napi_is_array(env, parameters[1], &isArray);
+        napi_is_array(env, parameters[ARGV_INDEX_1], &isArray);
         return isArray;
     }
     return false;
@@ -309,7 +312,8 @@ static void NativeAuthenticateSector(napi_env env, void *data)
         ErrorLog("NativeAuthenticateSector find objectInfo failed!");
         context->value = true;
     } else {
-        context->value = nfcMifareClassicTagPtr->AuthenticateSector(context->sectorIndex, "aaa", context->bIsKeyA);
+        context->value = nfcMifareClassicTagPtr->AuthenticateSector(context->sectorIndex,
+            context->key, context->bIsKeyA);
     }
     context->resolved = true;
 }
@@ -359,6 +363,10 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->sectorIndex);
     DebugLog("AuthenticateSector sectorIndex = %{public}d", context->sectorIndex);
+
+    std::vector<unsigned char> keyVec;
+    ParseBytesVector(env, keyVec, params[ARGV_INDEX_1]);
+    context->key = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(keyVec.data()), keyVec.size());
 
     napi_get_value_bool(env, params[ARGV_INDEX_2], &context->bIsKeyA);
     DebugLog("AuthenticateSector bIsKeyA = %{public}d", context->bIsKeyA);
@@ -414,7 +422,7 @@ static void ReadSingleBlockCallback(napi_env env, napi_status status, void *data
     napi_value callbackValue = nullptr;
     if (status == napi_ok) {
         if (context->resolved) {
-            napi_create_string_utf8(env, context->value.c_str(), context->value.size(), &callbackValue);
+            ConvertStringToNumberArray(env, callbackValue, context->value);
         } else {
             callbackValue = CreateErrorMessage(env, "ReadSingleBlock error by ipc");
         }
@@ -464,11 +472,11 @@ static bool MatchWriteSingleBlockParameters(napi_env env, const napi_value param
     bool typeMatch = false;
     switch (parameterCount) {
         case ARGV_NUM_2: {
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_string});
+            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object});
             break;
         }
         case ARGV_NUM_3:
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_string, napi_function});
+            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object, napi_function});
             break;
         default: {
             return false;
@@ -532,7 +540,9 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     DebugLog("WriteSingleBlock blockIndex = %{public}d", context->blockIndex);
 
-    context->data = GetStringFromValue(env, params[ARGV_INDEX_1]);
+    std::vector<unsigned char> dataVec;
+    ParseBytesVector(env, dataVec, params[ARGV_INDEX_1]);
+    context->data = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()), dataVec.size());
     DebugLog("WriteSingleBlock data = %{public}s", context->data.c_str());
 
     if (paramsCount == ARGV_NUM_3) {

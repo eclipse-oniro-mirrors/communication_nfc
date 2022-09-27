@@ -96,12 +96,18 @@ std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo
 
 bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA)
 {
-    if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT) || !IsConnected() || key.empty()) {
-        ErrorLog("[MifareClassicTag::AuthenticateSector] err! sectorIndex.%{public}d, keyLen empty",
-            sectorIndex);
+    if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT)) {
+        ErrorLog("AuthenticateSector err! sectorIndex %{public}d", sectorIndex);
         return false;
     }
-
+    if (key.empty()) {
+        ErrorLog("AuthenticateSector err! key empty");
+        return false;
+    }
+    if (!IsConnected()) {
+        ErrorLog("AuthenticateSector err! tag is not connected");
+        return false;
+    }
     char command[TagInfo::SEND_COMMAND_MAX_LEN];
     int commandLen = 0;
     if (bIsKeyA) {

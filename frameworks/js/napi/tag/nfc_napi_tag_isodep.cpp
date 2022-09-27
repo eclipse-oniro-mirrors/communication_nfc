@@ -39,11 +39,11 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
     napi_value ret = nullptr;
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHistoricalBytes find objectInfo failed!");
-        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &ret);
+        ConvertStringToNumberArray(env, ret, "");
     } else {
         std::string historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
         DebugLog("HistoricalBytes %{public}s", historicalBytes.c_str());
-        napi_create_string_utf8(env, historicalBytes.c_str(), NAPI_AUTO_LENGTH, &ret);
+        ConvertStringToNumberArray(env, ret, historicalBytes);
     }
     return ret;
 }
@@ -65,11 +65,11 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
     napi_value ret = nullptr;
     if (nfcIsoDepTagPtr == nullptr) {
         ErrorLog("GetHiLayerResponse find objectInfo failed!");
-        napi_create_string_utf8(env, "", NAPI_AUTO_LENGTH, &ret);
+        ConvertStringToNumberArray(env, ret, "");
     } else {
         std::string hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
         DebugLog("HiLayerResponse %{public}s", hiLayerResponse.c_str());
-        napi_create_string_utf8(env, hiLayerResponse.c_str(), NAPI_AUTO_LENGTH, &ret);
+        ConvertStringToNumberArray(env, ret, hiLayerResponse);
     }
     return ret;
 }
