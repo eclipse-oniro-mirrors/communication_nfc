@@ -202,12 +202,15 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         }
         case NFA_SELECT_RESULT_EVT: {
             DebugLog("NfaConnectionCallback: NFA_SELECT_RESULT_EVT: status = 0x%{public}X", eventData->status);
+            TagNciAdapter::GetInstance().HandleSelectResult();
             break;
         }
         /* Data message received (for non-NDEF reads) */
         case NFA_DATA_EVT: {
             DebugLog("NfaConnectionCallback: NFA_DATA_EVT: status = 0x%{public}X, len = %{public}d",
                 eventData->status, eventData->data.len);
+            TagNciAdapter::GetInstance().HandleTranceiveData(eventData->status, eventData->data.p_data,
+                eventData->data.len);
             break;
         }
         case NFA_PRESENCE_CHECK_EVT: {
@@ -229,9 +232,14 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         }
         case NFA_NDEF_DETECT_EVT: {
             DebugLog("NfaConnectionCallback: NFA_NDEF_DETECT_EVT: status = 0x%{public}X, protocol = 0x%{public}X,"
-                " max_size = %{public}u, cur_size = %{public}u, flags = 0x%{public}X", eventData->ndef_detect.status,
-                eventData->ndef_detect.protocol, static_cast<unsigned int>(eventData->ndef_detect.max_size),
+                " max_size = %{public}u, cur_size = %{public}u, flags = 0x%{public}X",
+                eventData->ndef_detect.status, eventData->ndef_detect.protocol,
+                static_cast<unsigned int>(eventData->ndef_detect.max_size),
                 static_cast<unsigned int>(eventData->ndef_detect.cur_size), eventData->ndef_detect.flags);
+            TagNciAdapter::GetInstance().HandleNdefCheckResult(eventData->ndef_detect.status,
+                                                               eventData->ndef_detect.cur_size,
+                                                               eventData->ndef_detect.flags,
+                                                               eventData->ndef_detect.max_size);
             break;
         }
         default: {

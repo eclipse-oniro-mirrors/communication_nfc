@@ -223,7 +223,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         deactivatedEvent_.Wait(DEFAULT_TIMEOUT);
     }
     {
-        NFC::SynchronizeGuard guard(selectEvent_);
+        NFC::SynchronizeGuard guard(activatedEvent_);
         tNFA_INTF_TYPE rfInterface = GetRfInterface(protocol);
         tNFA_STATUS status = nciAdaptations_->NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol, rfInterface);
         if (status != NFA_STATUS_OK) {
@@ -231,7 +231,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
             rfDiscoveryMutex_.unlock();
             return false;
         }
-        if (selectEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+        if (activatedEvent_.Wait(DEFAULT_TIMEOUT) == false) {
             ErrorLog("TagNciAdapter::Reconnect: Time out when select");
             status = nciAdaptations_->NfaDeactivate(false);
             if (status != NFA_STATUS_OK) {
