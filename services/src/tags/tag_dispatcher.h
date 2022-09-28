@@ -45,13 +45,16 @@ protected:
     void UnregisterTagHost(int rfDiscId);
 
 private:
-    void TagDisconnectedCallback(int handle);
+    void TagDisconnectedCallback(int tagRfDiscId);
     std::shared_ptr<NFC::INfcService> nfcService_ {};
     // Lock
     std::mutex mutex_ {};
     std::map<int, std::shared_ptr<NCI::ITagHost>> tagHostMap_ {};
-
+    // tag field on checking
     const int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
+    const int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
+    // ndef message
+    std::string lastNdefMsg_;
 };
 }  // namespace TAG
 }  // namespace NFC

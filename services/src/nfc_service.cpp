@@ -74,8 +74,6 @@ bool NfcService::Initialize()
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
-    eventHandler_->Intialize(tagDispatcher_);
-
     currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
 
     runner->Run();
@@ -223,6 +221,11 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
+    // delay 5s to wait for bundle manager ready when device reboot
+    sleep(5);
+    eventHandler_->Intialize(tagDispatcher_);
+    AppDataParser::GetInstance().InitAppList();
+
     DebugLog("DoInitialize start FactoryReset");
     nfccHost_->FactoryReset();
 
@@ -230,10 +233,6 @@ void NfcService::DoInitialize()
     if (lastState == KITS::STATE_ON) {
         DoTurnOn();
     }
-
-    // delay 2S to wait for bundle manager ready when device reboot
-    sleep(2);
-    AppDataParser::GetInstance().InitAppList();
 }
 
 int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
@@ -358,7 +357,7 @@ void NfcService::StartPollingLoop(bool force)
             nfccHost_->EnableDiscovery(newParams->GetTechMask(),
                                        newParams->ShouldEnableReaderMode(),
                                        newParams->ShouldEnableHostRouting(),
-                                       shouldRestart);
+                                       true);
         } else {
             nfccHost_->DisableDiscovery();
         }

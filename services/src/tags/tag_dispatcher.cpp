@@ -18,6 +18,8 @@
 #include "app_data_parser.h"
 #include "itag_host.h"
 #include "loghelper.h"
+#include "ndef_message.h"
+#include "nfc_sdk_common.h"
 #include "want.h"
 
 namespace OHOS {
@@ -26,7 +28,8 @@ namespace NFC {
 namespace TAG {
 using OHOS::NFC::KITS::TagTechnology;
 TagDispatcher::TagDispatcher(std::shared_ptr<NFC::INfcService> nfcService)
-    : nfcService_(nfcService)
+    : nfcService_(nfcService),
+    lastNdefMsg_("")
 {
 }
 
@@ -46,15 +49,30 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     DebugLog("HandleTagFound, unimplimentation...");
     static NCI::ITagHost::TagDisconnectedCallBack callback =
         std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
+
+    int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
+    if (tag->GetConnectedTech() == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+        fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
+    }
+
+    std::string ndefMsg = tag->ReadNdef();
+    std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
+    if (ndefMessage == nullptr) {
+        if (!tag->Reconnect()) {
+            tag->Disconnect();
+            ErrorLog("bad connection, tag disconnected");
+            return 0;
+        }
+    }
+
+    lastNdefMsg_ = ndefMsg;
+    RegisterTagHost(tag);
     tag->OnFieldChecking(callback, DEFAULT_FIELD_ON_CHECK_DURATION);
 
     std::vector<int> techList = tag->GetTechList();
     std::string tagUid = tag->GetTagUid();
     std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
     int tagRfDiscId = tag->GetTagRfDiscId();
-
-    RegisterTagHost(tag);
-
     DebugLog("techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s, rfID = %{public}d",
         techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
 
@@ -62,6 +80,14 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
         tagUid, tagRfDiscId, nfcService_->GetTagServiceIface());
     if (tagInfo == nullptr) {
         ErrorLog("taginfo is null");
+        return 0;
+    }
+
+    // try start ability
+    std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);
+    InfoLog("try start ability elements size = %{public}zu", elements.size());
+    if (elements.size() > 0) {
+        DispatchAbility(elements[0], tagInfo);
     }
     return 0;
 }
