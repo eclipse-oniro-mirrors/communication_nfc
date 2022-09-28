@@ -29,11 +29,13 @@ config("nfc_inner_kits_public_config") {
     "include",
     "include/controller",
     "include/tags",
+    "include/cardEmulation",
   ]
 }
 
 ohos_shared_library("nfc_inner_kits") {
   sources = [
+    "src/cardEmulation/cardEmulation.cpp",
     "src/controller/nfc_controller.cpp",
     "src/controller/nfc_controller_callback_stub.cpp",
     "src/controller/nfc_controller_proxy.cpp",
