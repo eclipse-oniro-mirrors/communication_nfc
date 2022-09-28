@@ -21,10 +21,9 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
-napi_value ndefMessageReadObject;
-thread_local napi_ref ndefMessageRef_;
-thread_local napi_ref ndefMessageReadRef_;
 const int INIT_REF = 1;
+thread_local napi_ref ndefMessageRef_;       // for read and getNedfMessage NAPI
+thread_local napi_ref ndefMessageCreateRef_; // for createNdefMessage NAPI
 
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
 {
@@ -84,11 +83,11 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
     return params;
 }
 
-napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
+napi_value CreateNdefMessage_Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    DebugLog("ndef JS_Constructor in");
+    DebugLog("ndef CreateNdefMessage_Constructor in");
     std::shared_ptr<NdefMessage> ndefMessage;
-    // nfcTag is defined as a native instance that will be wrapped in the JS object
+    // napiNdefMessage is defined as a native instance that will be wrapped in the JS object
     NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
     size_t argc = 1;
     napi_value argv[] = {nullptr};
@@ -134,9 +133,9 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     return thisVar;
 }
 
-napi_value NdefMessageCallbackObject(napi_env env, napi_callback_info cbinfo)
+napi_value NdefMessage_Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    DebugLog("ndef NdefMessageCallbackObject in");
+    DebugLog("ndef NdefMessage_Constructor in");
     size_t argc = 0;
     napi_value argv[] = {nullptr};
     napi_value thisVar = nullptr;
@@ -154,43 +153,36 @@ napi_value NapiNdefTag::RegisterNdefMessageJSClass(napi_env env, napi_value expo
         DECLARE_NAPI_FUNCTION("makeExternalRecord", NapiNdefMessage::MakeExternalRecord),
         DECLARE_NAPI_FUNCTION("messageToString", NapiNdefMessage::MessageToString),
     };
-    // define JS class NdefMessage, JS_Constructor is the callback function
-    napi_value constructor = nullptr;
+    
+    napi_value constructor_create = nullptr; // for ndefMessageCreateRef_
+    napi_value constructor = nullptr; // for ndefMessageRef_
+    // CreateNdefMessage_Constructor is for CreateNdefMessage NAPI with params to parse
     NAPI_CALL(env,
-        napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, JS_Constructor, nullptr,
+        napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, CreateNdefMessage_Constructor, nullptr,
+            sizeof(desc) / sizeof(desc[0]), desc, &constructor_create));
+    
+    // NdefMessage_Constructor is for GetNdefMessage and Read NdefMessage NAPI with no params
+    NAPI_CALL(env,
+        napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, NdefMessage_Constructor, nullptr,
             sizeof(desc) / sizeof(desc[0]), desc, &constructor));
     
-    NAPI_CALL(env,
-        napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, NdefMessageCallbackObject, nullptr,
-            sizeof(desc) / sizeof(desc[0]), desc, &constructor));
-    
+    napi_create_reference(env, constructor_create, INIT_REF, &ndefMessageCreateRef_);
     napi_create_reference(env, constructor, INIT_REF, &ndefMessageRef_);
-    napi_create_reference(env, constructor, INIT_REF, &ndefMessageReadRef_);
     return exports;
 }
 
 napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 {
-    DebugLog("Ndef CreateNdefMessage begin");
-    napi_value thisVar = nullptr;
+    InfoLog("Ndef CreateNdefMessage begin");
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    NapiNdefTag *objectInfo = nullptr;
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcNdefTagPtr == nullptr) {
-        ErrorLog("GetType find objectInfo failed!");
-        return nullptr;
-    } else {
-        // to-do
-        napi_value result = nullptr;
-        return result;
-    }
+    napi_value result = nullptr;
+    napi_value constructor = nullptr;
+    // new instance of JS object ndefMessage  
+    napi_get_reference_value(env, ndefMessageCreateRef_, &constructor);
+    NAPI_CALL(env, napi_new_instance(env, constructor, 0, nullptr, &result));
+    return result;
 }
 
 napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
@@ -234,6 +226,11 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
+    napi_value result = nullptr;
+    napi_value constructor = nullptr;
+    napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    napi_new_instance(env, constructor, 0, nullptr, &result);
+
     // transfer
     NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
@@ -252,7 +249,7 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
             },
             nullptr, nullptr);
         NAPI_ASSERT(env, status1 == napi_ok, "failed to wrap ndefMessage");
-        return ndefMessage;
+        return result;
     }
 }
 
@@ -365,10 +362,12 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
     NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
     auto context = static_cast<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
+    napi_value constructor = nullptr;
     napiNdefMessage->ndefMessage = context->value;
     if (status == napi_ok) {
         if (context->resolved) {
-            napi_new_instance(env, ndefMessageReadObject, 0, nullptr, &callbackValue);
+            napi_get_reference_value(env, ndefMessageRef_, &constructor);
+            napi_new_instance(env, constructor, 0, nullptr, &callbackValue);
             napi_status status1 = napi_wrap(
                 env, callbackValue, napiNdefMessage,
                 [](napi_env env, void *data, void *hint) {
