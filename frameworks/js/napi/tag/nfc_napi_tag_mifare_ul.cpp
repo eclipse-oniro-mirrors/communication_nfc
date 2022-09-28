@@ -218,9 +218,9 @@ napi_value NapiMifareUltralightTag::GetType(napi_env env, napi_callback_info inf
         static_cast<MifareUltralightTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareUlTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        napi_create_int32(env, static_cast<int>(MifareUltralightTag::EmMifareUltralightType::TYPE_UNKOWN), &result);
+        napi_create_int32(env, static_cast<int>(MifareUltralightTag::EmType::TYPE_UNKNOWN), &result);
     } else {
-        MifareUltralightTag::EmMifareUltralightType mifareUlType = nfcMifareUlTagPtr->GetType();
+        MifareUltralightTag::EmType mifareUlType = nfcMifareUlTagPtr->GetType();
         DebugLog("GetType mifareUlType %{public}d", mifareUlType);
         napi_create_int32(env, static_cast<int>(mifareUlType), &result);
     }

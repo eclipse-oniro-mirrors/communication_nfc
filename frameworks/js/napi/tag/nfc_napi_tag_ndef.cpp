@@ -210,7 +210,7 @@ napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
     NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        napi_create_int32(env, NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1, &result);
+        napi_create_int32(env, NdefTag::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN, &result);
         return result;
     } else {
         NdefTag::EmNfcForumType nfcForumType = nfcNdefTagPtr->GetNdefTagType();

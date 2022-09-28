@@ -15,7 +15,11 @@
 #include "nfc_napi_tag.h"
 #include "loghelper.h"
 #include "napi_remote_object.h"
+#include "ndef_message.h"
+#include "ndef_tag.h"
 #include "nfc_sdk_common.h"
+#include "mifare_classic_tag.h"
+#include "mifare_ultralight_tag.h"
 
 namespace OHOS {
 namespace NFC {
@@ -38,6 +42,169 @@ thread_local napi_ref mifareUltralightConsRef_;
 thread_local napi_ref ndefFormatableConsRef_;
 std::shared_ptr<TagInfo> nfcTaginfo;
 const int INIT_REF = 1;
+
+static napi_value EnumConstructor(napi_env env, napi_callback_info info)
+{
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    napi_get_cb_info(env, info, nullptr, nullptr, &thisArg, &data);
+    napi_value global = nullptr;
+    napi_get_global(env, &global);
+    return thisArg;
+}
+
+static napi_value RegisterEnumTnfType(napi_env env, napi_value exports)
+{
+    napi_value tnfEmpty = nullptr;
+    napi_value tnfKnown = nullptr;
+    napi_value tnfMedia = nullptr;
+    napi_value tnfUri = nullptr;
+    napi_value tnfExtApp = nullptr;
+    napi_value tnfUnknown = nullptr;
+    napi_value tnfUnchanged = nullptr;
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_EMPTY), &tnfEmpty);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_WELL_KNOWN), &tnfKnown);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_MIME_MEDIA), &tnfMedia);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_ABSOLUTE_URI), &tnfUri);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_EXTERNAL_TYPE), &tnfExtApp);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_UNKNOWN), &tnfUnknown);
+    napi_create_int32(env, static_cast<int32_t>(NdefMessage::EmTnfType::TNF_UNCHANGED), &tnfUnchanged);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_EMPTY", tnfEmpty),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_WELL_KNOWN", tnfKnown),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_MEDIA", tnfMedia),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_ABSOLUTE_URI", tnfUri),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_EXT_APP", tnfExtApp),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_UNKNOWN", tnfUnknown),
+        DECLARE_NAPI_STATIC_PROPERTY("TNF_UNCHANGED", tnfUnchanged),
+    };
+
+    // define "TnfType" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "TnfType", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "TnfType", result);
+    return exports;
+}
+
+static napi_value RegisterEnumNfcForumType(napi_env env, napi_value exports)
+{
+    napi_value type1 = nullptr;
+    napi_value type2 = nullptr;
+    napi_value type3 = nullptr;
+    napi_value type4 = nullptr;
+    napi_value typeMc = nullptr;
+    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1), &type1);
+    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2), &type2);
+    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3), &type3);
+    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4), &type4);
+    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::MIFARE_CLASSIC), &typeMc);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_1", type1),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_2", type2),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_3", type3),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_4", type4),
+        DECLARE_NAPI_STATIC_PROPERTY("MIFARE_CLASSIC", typeMc),
+    };
+
+    // define "NfcForumType" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "NfcForumType", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "NfcForumType", result);
+    return exports;
+}
+
+static napi_value RegisterEnumRtdType(napi_env env, napi_value exports)
+{
+    napi_value rtdText = nullptr;
+    napi_value rtdUri = nullptr;
+    napi_create_int32(env, static_cast<int32_t>('T'), &rtdText);
+    napi_create_int32(env, static_cast<int32_t>('U'), &rtdUri);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("RTD_TEXT", rtdText),
+        DECLARE_NAPI_STATIC_PROPERTY("RTD_URI", rtdUri),
+    };
+
+    // define "RtdType" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "RtdType", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "RtdType", result);
+    return exports;
+}
+
+static napi_value RegisterEnumMifareClassicType(napi_env env, napi_value exports)
+{
+    napi_value typeUnknown = nullptr;
+    napi_value typeClassic = nullptr;
+    napi_value typePlus = nullptr;
+    napi_value typePro = nullptr;
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::EmType::TYPE_UNKNOWN), &typeUnknown);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::EmType::TYPE_CLASSIC), &typeClassic);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::EmType::TYPE_PLUS), &typePlus);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::EmType::TYPE_PRO), &typePro);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_UNKNOWN", typeUnknown),
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_CLASSIC", typeClassic),
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_PLUS", typePlus),
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_PRO", typePro),
+    };
+
+    // define "MifareClassicType" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "MifareClassicType", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "MifareClassicType", result);
+    return exports;
+}
+
+static napi_value RegisterEnumMifareClassicSize(napi_env env, napi_value exports)
+{
+    napi_value sizeMini = nullptr;
+    napi_value size1K = nullptr;
+    napi_value size2K = nullptr;
+    napi_value size4K = nullptr;
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::MC_SIZE_MINI), &sizeMini);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::MC_SIZE_1K), &size1K);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::MC_SIZE_2K), &size2K);
+    napi_create_int32(env, static_cast<int32_t>(MifareClassicTag::MC_SIZE_4K), &size4K);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("MC_SIZE_MINI", sizeMini),
+        DECLARE_NAPI_STATIC_PROPERTY("MC_SIZE_1K", size1K),
+        DECLARE_NAPI_STATIC_PROPERTY("MC_SIZE_2K", size2K),
+        DECLARE_NAPI_STATIC_PROPERTY("MC_SIZE_4K", size4K),
+    };
+
+    // define "MifareClassicSize" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "MifareClassicSize", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "MifareClassicSize", result);
+    return exports;
+}
+
+static napi_value RegisterEnumMifareUlType(napi_env env, napi_value exports)
+{
+    napi_value typeUnknown = nullptr;
+    napi_value typeUl = nullptr;
+    napi_value typeUlC = nullptr;
+    napi_create_int32(env, static_cast<int32_t>(MifareUltralightTag::EmType::TYPE_UNKNOWN), &typeUnknown);
+    napi_create_int32(env, static_cast<int32_t>(MifareUltralightTag::EmType::TYPE_ULTRALIGHT), &typeUl);
+    napi_create_int32(env, static_cast<int32_t>(MifareUltralightTag::EmType::TYPE_ULTRALIGHT_C), &typeUlC);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_UNKNOWN", typeUnknown),
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_ULTRALIGHT", typeUl),
+        DECLARE_NAPI_STATIC_PROPERTY("TYPE_ULTRALIGHT_C", typeUlC),
+    };
+
+    // define "MifareUltralightType" enum at @ohos.nfc.tag.d.ts
+    napi_value result = nullptr;
+    napi_define_class(env, "MifareUltralightType", NAPI_AUTO_LENGTH, EnumConstructor, nullptr,
+        sizeof(desc) / sizeof(*desc), desc, &result);
+    napi_set_named_property(env, exports, "MifareUltralightType", result);
+    return exports;
+}
 
 napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     std::vector<int> &tagTechList, std::vector<AppExecFwk::PacMap> &tagTechExtras)
@@ -254,60 +421,6 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     return thisVar;
 }
 
-napi_status InitNfcForumType(napi_env env, napi_value exports)
-{
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "NFC_FORUM_TYPE_1 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "NFC_FORUM_TYPE_2 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "NFC_FORUM_TYPE_3 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "NFC_FORUM_TYPE_4 ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "MIFARE_CLASSIC  ", GetNapiValue(env, static_cast<int32_t>(NdefTag::EmNfcForumType::MIFARE_CLASSIC))),
-    };
-
-    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
-    DefineEnumClassByName(env, exports, "NfcForumType ", arrSize, desc);
-    return napi_define_properties(env, exports, arrSize, desc);
-}
-
-napi_status InitMifareClassicType(napi_env env, napi_value exports)
-{
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "TYPE_UNKOWN", GetNapiValue(env, static_cast<int32_t>(MifareClassicTag::EmMifareTagType::TYPE_UNKNOWN))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "TYPE_CLASSIC", GetNapiValue(env, static_cast<int32_t>(MifareClassicTag::EmMifareTagType::TYPE_CLASSIC))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "TYPE_PLUS", GetNapiValue(env, static_cast<int32_t>(MifareClassicTag::EmMifareTagType::TYPE_PLUS))),
-        DECLARE_NAPI_STATIC_PROPERTY(
-            "TYPE_PRO", GetNapiValue(env, static_cast<int32_t>(MifareClassicTag::EmMifareTagType::TYPE_PRO))),
-    };
-
-    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
-    DefineEnumClassByName(env, exports, "MifareClassicType", arrSize, desc);
-    return napi_define_properties(env, exports, arrSize, desc);
-}
-
-napi_status InitMifareUltralightType(napi_env env, napi_value exports)
-{
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("TYPE_UNKOWN",
-            GetNapiValue(env, static_cast<int32_t>(MifareUltralightTag::EmMifareUltralightType::TYPE_UNKOWN))),
-        DECLARE_NAPI_STATIC_PROPERTY("TYPE_ULTRALIGHT",
-            GetNapiValue(env, static_cast<int32_t>(MifareUltralightTag::EmMifareUltralightType::TYPE_ULTRALIGHT))),
-        DECLARE_NAPI_STATIC_PROPERTY("TYPE_ULTRALIGHT_C",
-            GetNapiValue(env, static_cast<int32_t>(MifareUltralightTag::EmMifareUltralightType::TYPE_ULTRALIGHT_C))),
-    };
-
-    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
-    DefineEnumClassByName(env, exports, "MifareUltralightType", arrSize, desc);
-    return napi_define_properties(env, exports, arrSize, desc);
-}
-
 void RegisterNfcAJSClass(napi_env env)
 {
     DebugLog("DefineNfcAJSClass begin");
@@ -443,8 +556,6 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
 
-    NAPI_CALL(env, InitNfcForumType(env, exports));
-
     // define JS class NdefTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NdefTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNdefTag, NdefTag>, nullptr,
@@ -480,8 +591,6 @@ napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
 
-    NAPI_CALL(env, InitMifareClassicType(env, exports));
-
     // define JS class MifareClassicTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "MifareClassicTag", NAPI_AUTO_LENGTH,
@@ -507,8 +616,6 @@ napi_value RegisterMifareUltralightJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
 
-    NAPI_CALL(env, InitMifareUltralightType(env, exports));
-
     // define JS class MifareUltralightTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "MifareUltralightTag", NAPI_AUTO_LENGTH,
@@ -532,8 +639,6 @@ napi_value RegisterNdefFormatableJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
         DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
-
-    NAPI_CALL(env, InitMifareUltralightType(env, exports));
 
     // define JS class NdefFormatableTag , JS_Constructor is the callback function
     napi_value constructor = nullptr;
@@ -807,6 +912,14 @@ napi_value GetTagInfo(napi_env env, napi_callback_info info)
 static napi_value InitJs(napi_env env, napi_value exports)
 {
     DebugLog("Init, nfc_napi_tag");
+    // register enum types
+    RegisterEnumTnfType(env, exports);
+    RegisterEnumNfcForumType(env, exports);
+    RegisterEnumRtdType(env, exports);
+    RegisterEnumMifareClassicType(env, exports);
+    RegisterEnumMifareClassicSize(env, exports);
+    RegisterEnumMifareUlType(env, exports);
+
     // register all napi class for tag types.
     RegisterNfcAJSClass(env);
     RegisterNfcBJSClass(env);

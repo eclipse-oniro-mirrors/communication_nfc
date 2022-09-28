@@ -24,7 +24,7 @@ namespace KITS {
 class NdefTag final : public BasicTagSession {
 public:
     enum EmNfcForumType {
-        NFC_FORUM_TYPE_1_OTHER = -1,
+        NFC_FORUM_TYPE_UNKNOWN = 0,
         NFC_FORUM_TYPE_1 = 1,
         NFC_FORUM_TYPE_2 = 2,
         NFC_FORUM_TYPE_3 = 3,
@@ -40,7 +40,7 @@ public:
     const std::string STRING_MIFARE_CLASSIC = "com.nxp.ndef.mifareclassic";
     const std::string STRING_ICODE_SLI = "com.nxp.ndef.icodesli";
 
-    enum EmNdefTagMode { MODE_INVALID, MODE_READ_ONLY, MODE_READ_WRITE, MODE_UNKNOW };
+    enum EmNdefTagMode { MODE_UNKNOW = 0, MODE_READ_ONLY, MODE_READ_WRITE };
 
 public:
     explicit NdefTag(std::weak_ptr<TagInfo> tag);

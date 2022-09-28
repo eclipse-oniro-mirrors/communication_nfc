@@ -22,7 +22,7 @@ namespace NFC {
 namespace KITS {
 class MifareClassicTag final : public BasicTagSession {
 public:
-    enum EmMifareTagType { TYPE_UNKNOWN = -1, TYPE_CLASSIC = 0, TYPE_PLUS = 1, TYPE_PRO = 2 };
+    enum EmType { TYPE_UNKNOWN = 0, TYPE_CLASSIC = 1, TYPE_PLUS = 2, TYPE_PRO = 3 };
 
     static const int SAK01 = 0x01;
     static const int SAK08 = 0x08;
@@ -144,7 +144,7 @@ public:
      * @param void
      * @return type of MifareClassic tag.
      */
-    MifareClassicTag::EmMifareTagType GetMifareTagType() const;
+    MifareClassicTag::EmType GetMifareTagType() const;
     /**
      * @Description Get size of the tag in bytes.
      * @param void
@@ -172,7 +172,7 @@ public:
 private:
     void SetSizeBySak(int sak);
 
-    MifareClassicTag::EmMifareTagType mifareTagType_ {MifareClassicTag::EmMifareTagType::TYPE_UNKNOWN};
+    MifareClassicTag::EmType mifareTagType_ {MifareClassicTag::EmType::TYPE_UNKNOWN};
     int size_ {};
     bool isEmulated_ {};
 };
