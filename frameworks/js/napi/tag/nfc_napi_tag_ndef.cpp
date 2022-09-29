@@ -25,59 +25,74 @@ const int INIT_REF = 1;
 thread_local napi_ref ndefMessageRef_;       // for read and getNedfMessage NAPI
 thread_local napi_ref ndefMessageCreateRef_; // for createNdefMessage NAPI
 
+std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
+{
+    std::shared_ptr<NdefRecord> param = std::make_shared<NdefRecord>();
+    napi_valuetype valueType = napi_undefined;
+    napi_value result = nullptr;    
+
+    napi_get_named_property(env, args, "tnf", &result);
+    napi_typeof(env, result, &valueType);
+    if (valueType != napi_number) {
+        ErrorLog("Wrong tnf argument type. Number expected.");
+        param->tnf_ = 0;
+    }
+    napi_get_value_uint32(env, result, reinterpret_cast<uint32_t *>(&param->tnf_));
+
+    napi_get_named_property(env, args, "rtdType", &result);
+    napi_typeof(env, result, &valueType);
+    if (valueType != napi_object) {
+        ErrorLog("Wrong rtdType argument type. Array expected.");
+        param->tagRtdType_ = "";
+    }
+    std::vector<unsigned char> rtdTypeVec;
+    ParseBytesVector(env, rtdTypeVec, result);
+    param->tagRtdType_ =
+        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(rtdTypeVec.data()),
+                                          rtdTypeVec.size());
+
+    napi_get_named_property(env, args, "id", &result);
+    napi_typeof(env, result, &valueType);
+    if (valueType != napi_object) {
+        ErrorLog("Wrong id argument type. Array expected.");
+        param->id_ = "";
+    }
+    std::vector<unsigned char> idVec;
+    ParseBytesVector(env, idVec, result);
+    param->id_ =
+        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(idVec.data()), idVec.size());
+
+    napi_get_named_property(env, args, "payload", &result);
+    napi_typeof(env, result, &valueType);
+    if (valueType != napi_object) {
+        ErrorLog("Wrong payload argument type. Array expected.");
+        param->payload_ = "";
+    }
+    std::vector<unsigned char> payloadVec;
+    ParseBytesVector(env, payloadVec, result);
+    param->payload_ =
+        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(payloadVec.data()),
+                                          payloadVec.size());
+    return param;
+}
+
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
 {
     DebugLog("ParseNdefRecords called");
     uint32_t length = 0;
     napi_get_array_length(env, args, &length);
-    DebugLog("ParseNdefRecords, ndef records length, %{public}d", length);
-
     std::vector<std::shared_ptr<NdefRecord>> params;
     std::shared_ptr<NdefRecord> param = std::make_shared<NdefRecord>();
 
     for (size_t i = 0; i < length; i++) {
         napi_value ndefRecord;
         napi_valuetype valueType = napi_undefined;
-        napi_value result = nullptr;
-
         napi_get_element(env, args, i, &ndefRecord);
         napi_typeof(env, ndefRecord, &valueType);
         if (valueType != napi_object) {
             ErrorLog("Wrong ndefRecord argument type. Object expected.");
         }
-
-        napi_get_named_property(env, ndefRecord, "tnf", &result);
-        napi_typeof(env, result, &valueType);
-        if (valueType != napi_number) {
-            ErrorLog("Wrong tnf argument type. Number expected.");
-            return params;
-        }
-        napi_get_value_uint32(env, result, reinterpret_cast<uint32_t *>(&param->tnf_));
-
-        napi_get_named_property(env, ndefRecord, "rtdType", &result);
-        napi_typeof(env, result, &valueType);
-        if (valueType != napi_string) {
-            ErrorLog("Wrong rtdType argument type. String expected.");
-            return params;
-        }
-        ParseString(env, param->tagRtdType_, result);
-
-        napi_get_named_property(env, ndefRecord, "id", &result);
-        napi_typeof(env, result, &valueType);
-        if (valueType != napi_string) {
-            ErrorLog("Wrong id argument type. String expected.");
-            return params;
-        }
-        ParseString(env, param->id_, result);
-
-        napi_get_named_property(env, ndefRecord, "payload", &result);
-        napi_typeof(env, result, &valueType);
-        if (valueType != napi_string) {
-            ErrorLog("Wrong payload argument type. String expected.");
-            return params;
-        }
-        ParseString(env, param->payload_, result);
-
+        param = ParseNdefParam(env, ndefRecord);
         params.push_back(param);
     }
     return params;
@@ -102,11 +117,16 @@ napi_value CreateNdefMessage_Constructor(napi_env env, napi_callback_info cbinfo
     NAPI_CALL(env, napi_typeof(env, argv[ARGV_NUM_0], &valueType));
     // check parameter data type
     bool isArray = false;
+    bool isTypedArray = false;
     napi_is_array(env, argv[ARGV_INDEX_0], &isArray);
+    napi_is_typedarray(env, argv[ARGV_INDEX_0], &isTypedArray);
 
     // parse  parameter from JS
-    if (valueType == napi_string) {
-        std::string data = GetStringFromValue(env, argv[ARGV_INDEX_0]);
+    if (isTypedArray) {
+        std::vector<unsigned char> dataVec;
+        ParseBytesVector(env, dataVec, argv[ARGV_INDEX_0]);
+        std::string data = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
+                                                             dataVec.size());
         DebugLog("ndfe message parse data = %{public}s", data.c_str());
         napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(data);
     } else if (isArray) {
@@ -151,7 +171,7 @@ napi_value NapiNdefTag::RegisterNdefMessageJSClass(napi_env env, napi_value expo
         DECLARE_NAPI_FUNCTION("makeTextRecord", NapiNdefMessage::MakeTextRecord),
         DECLARE_NAPI_FUNCTION("makeMimeRecord", NapiNdefMessage::MakeMimeRecord),
         DECLARE_NAPI_FUNCTION("makeExternalRecord", NapiNdefMessage::MakeExternalRecord),
-        DECLARE_NAPI_FUNCTION("messageToString", NapiNdefMessage::MessageToString),
+        DECLARE_NAPI_FUNCTION("messageToBytes", NapiNdefMessage::MessageToBytes),
     };
     
     napi_value constructor_create = nullptr; // for ndefMessageCreateRef_
