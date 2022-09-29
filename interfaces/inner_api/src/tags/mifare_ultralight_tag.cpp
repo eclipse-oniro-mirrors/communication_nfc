@@ -27,7 +27,7 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("MifareUltralightTag, tag invalid");
         return;
     }
-    type_ = EmMifareUltralightType::TYPE_UNKOWN;
+    type_ = EmType::TYPE_UNKNOWN;
     std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tag);
     if (nfcA == nullptr) {
         ErrorLog("MifareUltralightTag, not support NfcA.");
@@ -42,9 +42,9 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         KITS::NfcSdkCommon::GetByteFromHexStr(tag.lock()->GetTagUid(), 0) == NXP_MANUFACTURER_ID) {
         AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
         if (tag.lock()->GetBoolExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
-            type_ = EmMifareUltralightType::TYPE_ULTRALIGHT_C;
+            type_ = EmType::TYPE_ULTRALIGHT_C;
         } else {
-            type_ = EmMifareUltralightType::TYPE_ULTRALIGHT;
+            type_ = EmType::TYPE_ULTRALIGHT;
         }
     }
 }
@@ -105,7 +105,7 @@ int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string&
     return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
 }
 
-MifareUltralightTag::EmMifareUltralightType MifareUltralightTag::GetType() const
+MifareUltralightTag::EmType MifareUltralightTag::GetType() const
 {
     return type_;
 }

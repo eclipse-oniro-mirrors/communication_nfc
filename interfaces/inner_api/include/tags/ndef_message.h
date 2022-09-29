@@ -25,9 +25,9 @@ namespace KITS {
 // record data, see NFC Data Exchange Format (NDEF) Technical Specification.
 struct NdefRecord {
     size_t tnf_;
-    std::string id_;
-    std::string payload_;
-    std::string tagRtdType_;
+    std::string id_;            // hex string, 0x00~0xFF
+    std::string payload_;       // hex string, 0x00~0xFF
+    std::string tagRtdType_;    // hex string, 0x00~0xFF
 };
 
 // layout, see NFC Data Exchange Format (NDEF) Technical Specification.
@@ -113,7 +113,7 @@ public:
     };
 
     enum EmRtdType {
-        RTD_INVALID,
+        RTD_UNKNOWN,
         RTD_TEXT,
         RTD_URI,
         RTD_SMART_POSTER,

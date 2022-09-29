@@ -179,8 +179,6 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string
     napi_async_execute_callback execute, napi_async_complete_callback complete);
 void Handle1ValueCallback(napi_env env, BaseContext *context, napi_value callbackValue);
 void Handle2ValueCallback(napi_env env, BaseContext *context, napi_value callbackValue);
-void DefineEnumClassByName(napi_env env, napi_value exports, std::string_view enumName, size_t arrSize,
-    const napi_property_descriptor *desc);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

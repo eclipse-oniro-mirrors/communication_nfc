@@ -28,7 +28,7 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     : BasicTagSession(tag, KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)
 {
     isEmulated_ = false;
-    mifareTagType_ = EmMifareTagType::TYPE_UNKNOWN;
+    mifareTagType_ = EmType::TYPE_UNKNOWN;
     if (tag.expired()) {
         ErrorLog("MifareClassicTag, tag invalid");
         return;
@@ -40,7 +40,7 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
     }
 
     DebugLog("MifareClassicTag, sak %{public}x", nfcA->GetSak());
-    mifareTagType_ = EmMifareTagType::TYPE_CLASSIC;
+    mifareTagType_ = EmType::TYPE_CLASSIC;
     SetSizeBySak(nfcA->GetSak());
 }
 
@@ -57,11 +57,11 @@ void MifareClassicTag::SetSizeBySak(int sak)
             break;
         case SAK10:
             size_ = MC_SIZE_2K;
-            mifareTagType_ = EmMifareTagType::TYPE_PLUS;
+            mifareTagType_ = EmType::TYPE_PLUS;
             break;
         case SAK11:
             size_ = MC_SIZE_4K;
-            mifareTagType_ = EmMifareTagType::TYPE_PLUS;
+            mifareTagType_ = EmType::TYPE_PLUS;
             break;
         case SAK18:
             size_ = MC_SIZE_4K;
@@ -77,7 +77,7 @@ void MifareClassicTag::SetSizeBySak(int sak)
         case SAK98:
         case SAKB8:
             size_ = MC_SIZE_4K;
-            mifareTagType_ = EmMifareTagType::TYPE_PRO;
+            mifareTagType_ = EmType::TYPE_PRO;
             break;
         default:
             ErrorLog("[MifareClassicTag::SetSizeBySak] err! sak %{public}x", sak);
@@ -278,7 +278,7 @@ int MifareClassicTag::GetBlockCountInSector(int sectorIndex) const
     return NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
 }
 
-MifareClassicTag::EmMifareTagType MifareClassicTag::GetMifareTagType() const
+MifareClassicTag::EmType MifareClassicTag::GetMifareTagType() const
 {
     return mifareTagType_;
 }

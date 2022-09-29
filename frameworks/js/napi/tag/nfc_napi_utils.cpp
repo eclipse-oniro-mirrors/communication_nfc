@@ -484,22 +484,6 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
     delete baseContext;
     baseContext = nullptr;
 }
-
-void DefineEnumClassByName(
-    napi_env env, napi_value exports, std::string_view enumName, size_t arrSize, const napi_property_descriptor *desc)
-{
-    auto construct = [](napi_env env, napi_callback_info info) -> napi_value { return nullptr; };
-    napi_value result = nullptr;
-    napi_status status =
-        napi_define_class(env, enumName.data(), NAPI_AUTO_LENGTH, construct, nullptr, arrSize, desc, &result);
-    if (status != napi_ok) {
-        ErrorLog("DefineEnumClassByName napi_define_class failed ret = %{public}d", status);
-    }
-    status = napi_set_named_property(env, exports, enumName.data(), result);
-    if (status != napi_ok) {
-        ErrorLog("DefineEnumClassByName napi_set_named_property failed ret = %{public}d", status);
-    }
-}
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

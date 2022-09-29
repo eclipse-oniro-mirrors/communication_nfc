@@ -114,9 +114,9 @@ napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
         ErrorLog("GetType find objectInfo failed!");
-        napi_create_int32(env, static_cast<int>(MifareClassicTag::EmMifareTagType::TYPE_UNKNOWN), &result);
+        napi_create_int32(env, static_cast<int>(MifareClassicTag::EmType::TYPE_UNKNOWN), &result);
     } else {
-        MifareClassicTag::EmMifareTagType mifareType = nfcMifareClassicTagPtr->GetMifareTagType();
+        MifareClassicTag::EmType mifareType = nfcMifareClassicTagPtr->GetMifareTagType();
         DebugLog("GetType mifareType %{public}d", mifareType);
         napi_create_int32(env, static_cast<int>(mifareType), &result);
     }

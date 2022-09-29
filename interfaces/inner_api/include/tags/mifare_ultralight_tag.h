@@ -29,7 +29,7 @@ public:
     static const char MIFARE_ULTRALIGHT_READ = 0x30;
     static const char MIFARE_ULTRALIGHT_WRITE = 0xA2;
 
-    enum EmMifareUltralightType { TYPE_UNKOWN = -1, TYPE_ULTRALIGHT = 1, TYPE_ULTRALIGHT_C = 2 };
+    enum EmType { TYPE_UNKNOWN = 0, TYPE_ULTRALIGHT = 1, TYPE_ULTRALIGHT_C = 2 };
 
 public:
     explicit MifareUltralightTag(std::weak_ptr<TagInfo> tag);
@@ -59,10 +59,10 @@ public:
      * @param void
      * @return type of MifareUltralight tag.
      */
-    EmMifareUltralightType GetType() const;
+    EmType GetType() const;
 
 private:
-    EmMifareUltralightType type_ {EmMifareUltralightType::TYPE_UNKOWN};
+    EmType type_ {EmType::TYPE_UNKNOWN};
 };
 }  // namespace KITS
 }  // namespace NFC
