@@ -188,7 +188,7 @@ bool NfcService::DoTurnOn()
 
     UpdateNfcState(KITS::STATE_ON);
 
-    nfccHost_->SetScreenStatus(8); // 8 for screen on-unlock
+    nfccHost_->SetScreenStatus(screenState_);
 
     /* Start polling loop */
     StartPollingLoop(true);
@@ -348,7 +348,9 @@ void NfcService::StartPollingLoop(bool force)
     NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nfccHost_);
     pollingWatchDog.Run();
     // Compute new polling parameters
-    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(8); // 8 for screen on unlock
+    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
+    InfoLog("newParams: %{public}s", newParams->ToString().c_str());
+    InfoLog("currParams: %{public}s", currPollingParams_->ToString().c_str());
     if (force || !(newParams == currPollingParams_)) {
         if (newParams->ShouldEnablePolling()) {
             bool shouldRestart = currPollingParams_->ShouldEnablePolling();
@@ -357,7 +359,7 @@ void NfcService::StartPollingLoop(bool force)
             nfccHost_->EnableDiscovery(newParams->GetTechMask(),
                                        newParams->ShouldEnableReaderMode(),
                                        newParams->ShouldEnableHostRouting(),
-                                       true);
+                                       shouldRestart || force);
         } else {
             nfccHost_->DisableDiscovery();
         }
@@ -405,6 +407,8 @@ void NfcService::HandleScreenChanged(int screenState)
 {
     screenState_ = screenState;
     DebugLog("Screen changed screenState %{public}d", screenState_);
+
+    nfccHost_->SetScreenStatus(screenState_);
 }
 
 void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)

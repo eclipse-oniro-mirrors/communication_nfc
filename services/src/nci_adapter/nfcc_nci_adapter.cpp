@@ -154,10 +154,10 @@ void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     static tNFA_STATUS curStatus = NFA_STATUS_FAILED;
     if (eventData->status != curStatus) {
-        DebugLog("DoNfaPresenceEvt: status = 0x%{public}X", eventData->status);
         curStatus = eventData->status;
     }
-    return;
+    DebugLog("DoNfaPresenceEvt: status = 0x%{public}X", eventData->status);
+    TagNciAdapter::GetInstance().HandleFieldCheckResult(curStatus);
 }
 
 void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData)
