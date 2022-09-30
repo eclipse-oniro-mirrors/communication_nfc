@@ -24,7 +24,7 @@ namespace OHOS {
 namespace NFC {
 namespace NCI {
 static const int INVALID_VALUE = -1;
-OHOS::NFC::SynchronizeEvent TagHost::filedCheckWatchDog_;
+OHOS::NFC::SynchronizeEvent TagHost::fieldCheckWatchDog_;
 TagHost::TagHost(const std::vector<int>& tagTechList,
                  const std::vector<int>& tagRfDiscIdList,
                  const std::vector<int>& tagActivatedProtocols,
@@ -109,8 +109,8 @@ bool TagHost::Disconnect()
     isTagFieldOn_ = false;
     bool result = TagNciAdapter::GetInstance().Disconnect();
     {
-        NFC::SynchronizeGuard guard(filedCheckWatchDog_);
-        filedCheckWatchDog_.NotifyOne();
+        NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
+        fieldCheckWatchDog_.NotifyOne();
     }
     DebugLog("TagHost::Disconnect exit, result = %{public}d", result);
     return result;
@@ -168,12 +168,12 @@ void TagHost::ResumeFieldChecking()
     isPauseFieldChecking_ = false;
 }
 
-void TagHost::FiledCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs)
+void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs)
 {
-    DebugLog("FiledCheckingThread::Start Filed Checking");
+    DebugLog("FieldCheckingThread::Start Field Checking");
     while (isFieldChecking_) {
-        NFC::SynchronizeGuard guard(filedCheckWatchDog_);
-        bool isNotify = filedCheckWatchDog_.Wait(delayedMs);
+        NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
+        bool isNotify = fieldCheckWatchDog_.Wait(delayedMs);
         if (isNotify || !isTagFieldOn_) {
             break;
         }
@@ -182,17 +182,17 @@ void TagHost::FiledCheckingThread(TagHost::TagDisconnectedCallBack callback, int
         }
         bool result = TagNciAdapter::GetInstance().IsTagFieldOn();
         if (!result) {
-            DebugLog("FiledCheckingThread::Tag lost...");
+            DebugLog("FieldCheckingThread::Tag lost...");
             break;
         }
     }
     isTagFieldOn_ = false;
     TagNciAdapter::GetInstance().Disconnect();
     if (callback != nullptr && isFieldChecking_ && tagRfDiscIdList_.size() > 0) {
-        DebugLog("FiledCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
+        DebugLog("FieldCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
         callback(tagRfDiscIdList_[0]);
     }
-    DebugLog("FiledCheckingThread::End Filed Checking");
+    DebugLog("FieldCheckingThread::End Field Checking");
 }
 
 void TagHost::OnFieldChecking(TagDisconnectedCallBack callback, int delayedMs)
@@ -203,7 +203,7 @@ void TagHost::OnFieldChecking(TagDisconnectedCallBack callback, int delayedMs)
     if (delayedMs <= 0) {
         delayedMs = DEFAULT_PRESENCE_CHECK_WATCH_DOG_TIMEOUT;
     }
-    std::thread(&TagHost::FiledCheckingThread, this, callback, delayedMs).detach();
+    std::thread(&TagHost::FieldCheckingThread, this, callback, delayedMs).detach();
 }
 
 void TagHost::OffFieldChecking()

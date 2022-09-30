@@ -106,7 +106,7 @@ public:
 
 private:
     AppExecFwk::PacMap ParseTechExtras(int index);
-    void FiledCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs);
+    void FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs);
     void PauseFieldChecking();
     void ResumeFieldChecking();
     void AddNdefTech();
@@ -119,7 +119,7 @@ private:
     void DoTargetTypeV(AppExecFwk::PacMap &pacMap, int index);
     void DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index);
 
-    static OHOS::NFC::SynchronizeEvent filedCheckWatchDog_;
+    static OHOS::NFC::SynchronizeEvent fieldCheckWatchDog_;
     std::mutex mutex_ {};
     /* NFC-A NFC-B NFC-F NFC-V... */
     std::vector<int> tagTechList_;

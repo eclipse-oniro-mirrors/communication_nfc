@@ -25,6 +25,7 @@ public:
     ~NfcPollingParams() {}
     bool operator==(const std::shared_ptr<NfcPollingParams> params) const;
     static std::shared_ptr<NfcPollingParams> GetNfcOffParameters();
+    std::string ToString();
 
 public:
     void SetTechMask(int techMask);

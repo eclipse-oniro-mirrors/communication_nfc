@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_polling_params.h"
+#include <string>
 
 namespace OHOS {
 namespace NFC {
@@ -67,6 +68,23 @@ bool NfcPollingParams::ShouldEnableHostRouting() const
 void NfcPollingParams::SetTechMask(int techMask)
 {
     techMask_ = techMask;
+}
+
+std::string NfcPollingParams::ToString()
+{
+    std::string str;
+    return str.append("techMask = ")
+              .append(std::to_string(techMask_))
+              .append(", ")
+              .append("enableLowPowerPolling = ")
+              .append(std::to_string(enableLowPowerPolling_))
+              .append(", ")
+              .append("enableReaderMode = ")
+              .append(std::to_string(enableReaderMode_))
+              .append(", ")
+              .append("enableHostRouting = ")
+              .append(std::to_string(enableHostRouting_))
+              .append(".");
 }
 }  // namespace NFC
 }  // namespace OHOS

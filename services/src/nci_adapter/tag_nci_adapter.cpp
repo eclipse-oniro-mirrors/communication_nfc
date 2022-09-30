@@ -96,6 +96,8 @@ TagNciAdapter::TagNciAdapter()
     ResetTimeout();
     if (NfcConfig::hasKey(NAME_PRESENCE_CHECK_ALGORITHM)) {
         presChkOption_ = NfcConfig::getUnsigned(NAME_PRESENCE_CHECK_ALGORITHM);
+    } else {
+        presChkOption_ = NFA_RW_PRES_CHK_ISO_DEP_NAK; // to be removed when read config from hdiimpl enabled
     }
 }
 

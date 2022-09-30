@@ -41,7 +41,7 @@ TagDispatcher::~TagDispatcher()
 void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 {
     UnregisterTagHost(tagRfDiscId);
-    nfcService_->ExecuteStartPollingLoop();
+    InfoLog("Tag disconnected");
 }
 
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
