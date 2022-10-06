@@ -36,14 +36,9 @@ public:
 
     /**
      * Checks whether a specified type of card emulation is supported.
-     *
-     * <p>This method is used to check Whether the host or secure element supports card emulation.
-     *
      * @param feature Indicates the card emulation type, {@code HCE}, {@code UICC}, or {@code ESE}.
      * @return Returns {@code true} if the specified type of card emulation is supported; returns
      * {@code false} otherwise.
-     *
-     * @since 6
      */
     bool IsSupported(FeatureType feature);
 };

@@ -194,7 +194,7 @@ napi_value NapiNdefTag::RegisterNdefMessageJSClass(napi_env env, napi_value expo
 napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 {
     InfoLog("Ndef CreateNdefMessage begin");
-    std::size_t argc = ARGV_NUM_1;
+    size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value result = nullptr;
@@ -209,7 +209,7 @@ napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
 {
     DebugLog("Ndef GetType called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    size_t argc = 0;
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
@@ -238,7 +238,7 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     napi_value ndefMessage = nullptr;
     NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
-    std::size_t argc = 0;
+    size_t argc = 0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNdefTag *objectInfo = nullptr;
@@ -534,81 +534,30 @@ napi_value NapiNdefTag::WriteNdef(napi_env env, napi_callback_info info)
     return result;
 }
 
-static bool MatchCanSetReadOnlyParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
-{
-    if (parameterCount > ARGV_NUM_1) {
-        return false;
-    }
-    if (parameterCount == ARGV_NUM_1) {
-        return MatchParameters(env, parameters, {napi_function});
-    }
-    return true;
-}
-
-static void NativeCanSetReadOnly(napi_env env, void *data)
-{
-    DebugLog("NativeCanSetReadOnly called");
-    auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
-
-    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcNdefTagPtr == nullptr) {
-        ErrorLog("NativeCanSetReadOnly find objectInfo failed!");
-        context->value = true;
-    } else {
-        context->value = nfcNdefTagPtr->IsEnableReadOnly();
-        DebugLog("CanSetReadOnly %{public}d", context->value);
-    }
-    context->resolved = true;
-}
-
-static void CanSetReadOnlyCallback(napi_env env, napi_status status, void *data)
-{
-    DebugLog("CanSetReadOnlyCallback called");
-    auto context = static_cast<NdefContext<bool, NapiNdefTag> *>(data);
-    napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            napi_status status = napi_get_boolean(env, context->value, &callbackValue);
-            if (status != napi_ok) {
-                ErrorLog("get boolean failed");
-            }
-        } else {
-            callbackValue = CreateErrorMessage(env, "CanSetReadOnly error by ipc");
-        }
-    } else {
-        callbackValue = CreateErrorMessage(env, "CanSetReadOnly error,napi_status = " + std ::to_string(status));
-    }
-    Handle2ValueCallback(env, context, callbackValue);
-}
-
 napi_value NapiNdefTag::CanSetReadOnly(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNdefTag CanSetReadOnly called");
-    size_t paramsCount = ARGV_NUM_1;
-    napi_value params[ARGV_NUM_1] = {0};
-    void *data = nullptr;
     napi_value thisVar = nullptr;
-    NapiNdefTag *objectInfoCb = nullptr;
+    size_t argc = 0;
+    napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
 
-    napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NapiNdefTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchCanSetReadOnlyParameters(env, params, paramsCount), "CanSetReadOnly type mismatch");
-    auto context = std::make_unique<NdefContext<bool, NapiNdefTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "error at CallBackContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return CreateUndefined(env);
-    }
-    if (paramsCount == ARGV_NUM_1) {
-        napi_create_reference(env, params[ARGV_INDEX_0], DEFAULT_REF_COUNT, &context->callbackRef);
+    // transfer
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcNdefTagPtr == nullptr) {
+        ErrorLog("CanSetReadOnly find objectInfo failed!");
+        napi_get_boolean(env, false, &result);
+        return result;
     }
 
-    context->objectInfo = objectInfoCb;
-    napi_value result = HandleAsyncWork(env, context, "CanSetReadOnly", NativeCanSetReadOnly, CanSetReadOnlyCallback);
+    bool canSetReadOnly = nfcNdefTagPtr->IsEnableReadOnly();
+    DebugLog("CanSetReadOnly canSetReadOnly %{public}d", canSetReadOnly);
+    napi_get_boolean(env, canSetReadOnly, &result);
     return result;
 }
 
