@@ -204,7 +204,13 @@ void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &elem
     for (auto& data : abilityInfo.metadata) {
         if (KEY_TAG_TECH.compare(data.name) == 0) {
             valueList.emplace_back(data.value);
-            DebugLog("UpdateHceAppList, push tech %{public}s", data.value.c_str());
+            DebugLog("UpdateHceAppList from metadata, push tech %{public}s", data.value.c_str());
+        }
+    }
+    for (auto& data : abilityInfo.metaData.customizeData) {
+        if (KEY_TAG_TECH.compare(data.name) == 0) {
+            valueList.emplace_back(data.value);
+            DebugLog("UpdateHceAppList from customizeData, push tech %{public}s", data.value.c_str());
         }
     }
     if (valueList.empty()) {
@@ -234,7 +240,15 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
-            DebugLog("UpdateHceAppList, push aid %{public}s", data.value.c_str());
+            DebugLog("UpdateHceAppList from metadata, push aid %{public}s", data.value.c_str());
+        }
+    }
+    for (auto& data : abilityInfo.metaData.customizeData) {
+        if ((KEY_PAYMENT_AID.compare(data.name) == 0) || (KEY_OHTER_AID.compare(data.name) == 0)) {
+            customDataAid.name = data.name;
+            customDataAid.value = data.value;
+            customDataAidList.emplace_back(customDataAid);
+            DebugLog("UpdateHceAppList from customizeData, push aid %{public}s", data.value.c_str());
         }
     }
     if (customDataAidList.empty()) {
