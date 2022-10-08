@@ -142,7 +142,7 @@ void TagNciAdapter::NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventD
             break;
         }
         default: {
-            DebugLog("%{public}s: Unknown event %u", "NdefCallback", event);
+            DebugLog("%{public}s: Unknown event %{public}u", "NdefCallback", event);
             break;
         }
     }
