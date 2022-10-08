@@ -113,7 +113,7 @@ public:
     };
 
     enum EmRtdType {
-        RTD_UNKNOWN,
+        RTD_UNKNOWN = 0,
         RTD_TEXT,
         RTD_URI,
         RTD_SMART_POSTER,
@@ -121,9 +121,9 @@ public:
         RTD_HANDOVER_CARRIER,
         RTD_HANDOVER_REQUEST,
         RTD_HANDOVER_SELECT,
-        RTD_OHOS_APP
+        RTD_OHOS_APP,
+        RTD_RESERVED,
     };
-
 public:
     NdefMessage(std::vector<std::shared_ptr<NdefRecord>> ndefRecords);
     ~NdefMessage();
@@ -223,6 +223,14 @@ private:
 private:
     std::vector<std::shared_ptr<NdefRecord>> ndefRecordList_ {};
 };
+
+// RTD types definitions, see NFC Record Type Definition (RTD) Specification.
+const static std::array<std::string, NdefMessage::EmRtdType::RTD_RESERVED> HEX_RTD_TYPE = {
+    "",                  // RTD_UNKNOWN
+    "54",                // 0x54, RTD_TEXT
+    "55",                // 0x55, RTD_URI
+};
+
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

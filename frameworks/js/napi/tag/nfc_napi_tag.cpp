@@ -118,9 +118,25 @@ static napi_value RegisterEnumNfcForumType(napi_env env, napi_value exports)
 static napi_value RegisterEnumRtdType(napi_env env, napi_value exports)
 {
     napi_value rtdText = nullptr;
+    std::string hexText = HEX_RTD_TYPE.at(NdefMessage::EmRtdType::RTD_TEXT);
+    uint32_t textLen = NfcSdkCommon::GetHexStrBytesLen(hexText);
+    napi_create_array_with_length(env, textLen, &rtdText);
+    for (uint32_t i = 0; i < textLen; i++) {
+        napi_value textByte;
+        napi_create_uint32(env, NfcSdkCommon::GetByteFromHexStr(hexText, i), &textByte);
+        napi_set_element(env, rtdText, i, textByte);
+    }
+
     napi_value rtdUri = nullptr;
-    napi_create_int32(env, static_cast<int32_t>('T'), &rtdText);
-    napi_create_int32(env, static_cast<int32_t>('U'), &rtdUri);
+    std::string hexUri = HEX_RTD_TYPE.at(NdefMessage::EmRtdType::RTD_URI);
+    uint32_t uriLen = NfcSdkCommon::GetHexStrBytesLen(hexUri);
+    napi_create_array_with_length(env, uriLen, &rtdUri);
+    for (uint32_t i = 0; i < uriLen; i++) {
+        napi_value uriByte;
+        napi_create_uint32(env, NfcSdkCommon::GetByteFromHexStr(hexUri, i), &uriByte);
+        napi_set_element(env, rtdUri, i, uriByte);
+    }
+
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("RTD_TEXT", rtdText),
         DECLARE_NAPI_STATIC_PROPERTY("RTD_URI", rtdUri),
