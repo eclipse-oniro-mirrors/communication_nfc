@@ -89,7 +89,7 @@ bool TagHost::Connect(int technology)
         }
         if (status == NFA_STATUS_OK) {
             connectedTagDiscId_ = tagRfDiscIdList_[i];
-            connectedTechIndex_ = i;
+            connectedTechIndex_ = static_cast<int>(i);
             isTagFieldOn_ = true;
             result = true;
         }

@@ -438,7 +438,7 @@ void NfccNciAdapter::EnableDiscovery(int techMask, bool enableReaderMode, bool e
 
     tNFA_TECHNOLOGY_MASK technologyMask = DEFAULT_TECH_MASK;
     if (techMask != -1) {
-        technologyMask = techMask & DEFAULT_TECH_MASK;
+        technologyMask = static_cast<tNFA_TECHNOLOGY_MASK>(techMask) & DEFAULT_TECH_MASK;
     }
 
     if (technologyMask != 0) {

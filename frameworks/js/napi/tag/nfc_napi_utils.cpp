@@ -300,7 +300,7 @@ void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string sr
         napi_create_array_with_length(env, 0, &result);
         return;
     }
-    int strLength = srcValue.length();
+    uint_32 strLength = srcValue.length();
     if (strLength % 2 != 0) {
         srcValue = '0' + srcValue;
         strLength++;

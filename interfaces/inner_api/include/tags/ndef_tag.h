@@ -117,7 +117,7 @@ private:
     EmNfcForumType nfcForumType_ {};
     EmNdefTagMode ndefTagMode_ {};
     std::string ndefMsg_ {};
-    uint32_t maxTagSize_;
+    uint32_t maxTagSize_ {};
 };
 }  // namespace KITS
 }  // namespace NFC

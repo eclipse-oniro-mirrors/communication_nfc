@@ -33,7 +33,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
     nfcForumType_ = (EmNfcForumType)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_FORUM_TYPE);
     ndefTagMode_ = (EmNdefTagMode)tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_MODE);
     ndefMsg_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NDEF_MSG);
-    maxTagSize_ = tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_LENGTH);
+    maxTagSize_ = static_cast<uint32_t>(tag.lock()->GetIntExtrasData(extraData, TagInfo::NDEF_TAG_LENGTH));
 
     InfoLog("NdefTag::NdefTag nfcForumType_(%{public}d) ndefTagMode_(%{public}d) maxTagSize_(%{public}d)",
         nfcForumType_, ndefTagMode_, maxTagSize_);
