@@ -417,7 +417,7 @@ bool NfccNciAdapter::Deinitialize()
     return (status == NFA_STATUS_OK);
 }
 
-void NfccNciAdapter::EnableDiscovery(int techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
+void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccNciAdapter::EnableDiscovery");
     std::lock_guard<std::mutex> lock(mutex_);
@@ -437,9 +437,7 @@ void NfccNciAdapter::EnableDiscovery(int techMask, bool enableReaderMode, bool e
     }
 
     tNFA_TECHNOLOGY_MASK technologyMask = DEFAULT_TECH_MASK;
-    if (techMask != -1) {
-        technologyMask = static_cast<tNFA_TECHNOLOGY_MASK>(techMask) & DEFAULT_TECH_MASK;
-    }
+    technologyMask = techMask & DEFAULT_TECH_MASK;
 
     if (technologyMask != 0) {
         StopPolling();
