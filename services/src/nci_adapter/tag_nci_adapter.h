@@ -74,12 +74,15 @@ private:
     TagNciAdapter();
     ~TagNciAdapter();
     void GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
-    int GetTechFromData(tNFA_ACTIVATED activated) const;
     std::string GetUidFromData(tNFA_ACTIVATED activated) const;
-    std::string GetTechPollFromData(tNFA_ACTIVATED activated) const;
-    std::string GetTechActFromData(tNFA_ACTIVATED activated) const;
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;
     bool IsTagActive() const;
+
+    std::string GetTechPollForTypeB(tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
+    std::string GetTechActForIsoDep(tNFA_ACTIVATED activated, tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
+    void GetTechFromData(tNFA_ACTIVATED activated);
+    void GetTechPollFromData(tNFA_ACTIVATED activated);
+    void GetTechActFromData(tNFA_ACTIVATED activated);
     void ParseSpecTagType(tNFA_ACTIVATED activated);
     static void NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventData);
 

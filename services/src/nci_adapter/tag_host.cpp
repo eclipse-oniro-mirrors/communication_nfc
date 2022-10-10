@@ -379,6 +379,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
     DebugLog("ParseTechExtras::targetType: %{public}d", targetType);
     switch (targetType) {
         case TARGET_TYPE_MIFARE_CLASSIC:
+            break;
         case TARGET_TYPE_ISO14443_3A: {
             DoTargetTypeIso144433a(pacMap, index);
             break;
