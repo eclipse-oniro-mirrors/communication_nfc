@@ -392,9 +392,8 @@ void TagNciAdapter::ResetTagFieldOnFlag()
 int TagNciAdapter::GetTimeout(int technology) const
 {
     int timeout = DEFAULT_TIMEOUT;
-    uint32_t tech = technology;
-    if (tech > 0 && tech < MAX_NUM_TECHNOLOGY) {
-        timeout = technologyTimeoutsTable_[tech];
+    if (technology > 0 && technology < MAX_NUM_TECHNOLOGY) {
+        timeout = technologyTimeoutsTable_[technology];
     } else {
         WarnLog("TagNciAdapter::GetTimeout, Unknown technology");
     }
