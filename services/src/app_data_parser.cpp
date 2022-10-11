@@ -219,10 +219,10 @@ void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &elem
         return;
     }
 
-    TagAppTechInfo tagATppechInfo;
-    tagATppechInfo.element = element;
-    tagATppechInfo.tech = valueList;
-    g_tagAppAndTechMap.push_back(tagATppechInfo);
+    TagAppTechInfo tagAppTechInfo;
+    tagAppTechInfo.element = element;
+    tagAppTechInfo.tech = valueList;
+    g_tagAppAndTechMap.push_back(tagAppTechInfo);
     DebugLog("UpdateTagAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
 }
