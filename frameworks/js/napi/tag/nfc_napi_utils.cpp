@@ -307,7 +307,7 @@ void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string sr
     }
 
     napi_create_array_with_length(env, (strLength / 2), &result);
-    for (int i = 0; i < strLength; i += 2) {
+    for (uint32_t i = 0; i < strLength; i += 2) {
         // parse the hex string bytes into array.
         std::string oneByte = srcValue.substr(i, 2);
         unsigned char hexByte = static_cast<unsigned char> (std::stoi(oneByte, 0, 16));
