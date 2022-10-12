@@ -46,7 +46,7 @@ void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
-    DebugLog("HandleTagFound, unimplimentation...");
+    DebugLog("HandleTagFound");
     static NCI::ITagHost::TagDisconnectedCallBack callback =
         std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
 
@@ -102,7 +102,7 @@ std::weak_ptr<NCI::ITagHost> TagDispatcher::FindTagHost(int rfDiscId)
     std::lock_guard<std::mutex> lock(mutex_);
     TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
     if (tagHost == tagHostMap_.end()) {
-        WarnLog("FindTagHost, rfDiscId not found");
+        WarnLog("FindTagHost, rfDiscId: %{public}d not found", rfDiscId);
         return std::shared_ptr<NCI::ITagHost>();
     }
     return tagHost->second;
@@ -114,10 +114,11 @@ std::shared_ptr<NCI::ITagHost> TagDispatcher::FindAndRemoveTagHost(int rfDiscId)
     TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
     std::shared_ptr<NCI::ITagHost> temp = nullptr;
     if (tagHost == tagHostMap_.end()) {
-        WarnLog("FindAndRemoveTagHost, rfDiscId not found");
+        WarnLog("FindAndRemoveTagHost, rfDiscId: %{public}d not found", rfDiscId);
     } else {
         temp = tagHost->second;
         tagHostMap_.erase(rfDiscId);
+        InfoLog("FindAndRemoveTagHost, rfDiscId: %{public}d removed", rfDiscId);
     }
     return temp;
 }
@@ -126,12 +127,14 @@ void TagDispatcher::RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     tagHostMap_.insert(make_pair(tag->GetTagRfDiscId(), tag));
+    InfoLog("RegisterTagHost, rfDiscId: %{public}d", tag->GetTagRfDiscId());
 }
 
 void TagDispatcher::UnregisterTagHost(int rfDiscId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     tagHostMap_.erase(rfDiscId);
+    InfoLog("UnregisterTagHost, rfDiscId: %{public}d", rfDiscId);
 }
 
 void TagDispatcher::DispatchAbility(ElementName &element,

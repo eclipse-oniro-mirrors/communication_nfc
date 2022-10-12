@@ -473,11 +473,18 @@ void TagHost::AddNdefTech()
     bool foundFormat = false;
     int formatHandle = 0;
     int formatLibNfcType = 0;
-    int targetTypeNdef = TARGET_TYPE_NDEF;
-    int targetTypeNdefFormatable = TARGET_TYPE_NDEF_FORMATABLE;
     uint32_t index = tagTechList_.size();
     for (uint32_t i = 0; i < index; i++) {
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
+        
+        if (!foundFormat) {
+            if (TagNciAdapter::GetInstance().IsNdefFormattable()) {
+                formatHandle = tagRfDiscIdList_[i];
+                formatLibNfcType = tagActivatedProtocols_[i];
+                foundFormat = true;
+            }
+            Reconnect();
+        }
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
             // includes size + mode;
@@ -486,10 +493,6 @@ void TagHost::AddNdefTech()
                 return;
             }
             DebugLog("Add ndef tag info, index: %{public}d", index);
-            tagTechList_.push_back(targetTypeNdef);
-            tagRfDiscIdList_.push_back(tagRfDiscIdList_[i]);
-            tagActivatedProtocols_.push_back(tagActivatedProtocols_[i]);
-
             // parse extras data for ndef tech.
             AppExecFwk::PacMap pacMap;
             std::string ndefMsg = "";
@@ -501,22 +504,26 @@ void TagHost::AddNdefTech()
             pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[0]); // size
             pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
-            techExtras_.push_back(pacMap);
+            
+            AddNdefTechToTagInfo(TARGET_TYPE_NDEF, tagRfDiscIdList_[i], tagActivatedProtocols_[i], pacMap);
             foundFormat = false;
             break;
-        }
-        if (!foundFormat && TagNciAdapter::GetInstance().IsNdefFormattable()) {
-            formatHandle = tagRfDiscIdList_[i];
-            formatLibNfcType = tagActivatedProtocols_[i];
-            foundFormat = true;
         }
     }
     if (foundFormat) {
         DebugLog("Add ndef formatable tag info, index: %{public}d", index);
-        tagTechList_.push_back(targetTypeNdefFormatable);
-        tagRfDiscIdList_.push_back(formatHandle);
-        tagActivatedProtocols_.push_back(formatLibNfcType);
+        AppExecFwk::PacMap pacMap;
+        AddNdefTechToTagInfo(TARGET_TYPE_NDEF_FORMATABLE, formatHandle, formatLibNfcType, pacMap);
     }
+}
+
+void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFwk::PacMap pacMap)
+{
+    InfoLog("AddNdefTechToTagInfo: tech = %{public}d", tech);
+    tagTechList_.push_back(tech);
+    tagRfDiscIdList_.push_back(discId);
+    tagActivatedProtocols_.push_back(actProto);
+    techExtras_.push_back(pacMap);
 }
 
 int TagHost::GetNdefType(int protocol) const
@@ -604,9 +611,7 @@ bool TagHost::IsUltralightC()
     bool result = false;
 
     // read the date content of speci addressed pages, see MIFARE Ultralight C
-    const unsigned char MIFARE_READ = 0x30;
-    const unsigned char PAGE_ADDR = 0x02;
-    std::string command = {MIFARE_READ, PAGE_ADDR};
+    std::string command = "3002"; // 0x30 for mifare read, 0x02 for page address
     std::string response;
     TagNciAdapter::GetInstance().Transceive(command, response);
     if (KITS::NfcSdkCommon::GetHexStrBytesLen(response) == NCI_MIFARE_ULTRALIGHT_C_RESPONSE_LENGTH) {
