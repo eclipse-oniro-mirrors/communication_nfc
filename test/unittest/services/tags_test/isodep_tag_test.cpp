@@ -64,9 +64,13 @@ void IsoDepTagTest::SetUp()
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
+    AppExecFwk::PacMap nfcAExtrasData;
+    AppExecFwk::PacMap nfcBExtrasData;
     AppExecFwk::PacMap isodepExtrasData;
     isodepExtrasData.PutStringValue(TagInfo::HISTORICAL_BYTES, TEST_HISTORICAL_BYTES);
     isodepExtrasData.PutStringValue(TagInfo::HILAYER_RESPONSE, TEST_HILAYER_RESPONSE);
+    tagTechExtras.push_back(nfcAExtrasData);
+    tagTechExtras.push_back(nfcBExtrasData);
     tagTechExtras.push_back(isodepExtrasData);
 
     std::string tagUid = TEST_UID;

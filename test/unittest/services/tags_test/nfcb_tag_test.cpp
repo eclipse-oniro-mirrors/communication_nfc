@@ -63,9 +63,11 @@ void NfcBTagTest::SetUp()
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap nfcBExtrasData;
+    AppExecFwk::PacMap isoDepExtrasData;
     nfcBExtrasData.PutStringValue(TagInfo::APP_DATA, TEST_APP_DATA);
     nfcBExtrasData.PutStringValue(TagInfo::PROTOCOL_INFO, TEST_PROTOCOL_INFO);
     tagTechExtras.push_back(nfcBExtrasData);
+    tagTechExtras.push_back(isoDepExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;

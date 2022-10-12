@@ -58,13 +58,16 @@ void MifareClassicTagTest::SetUp()
 
     // NFC_MIFARE_CLASSIC_TECH must put at index 0, because defined TEST_MIFARE_CLASSIC_INDEX = 0;
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap mifareClassicExtrasData;
-    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
-    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    AppExecFwk::PacMap nfcAExtrasData;
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
 
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
@@ -84,7 +87,7 @@ void MifareClassicTagTest::TearDown()
 HWTEST_F(MifareClassicTagTest, GetTag001, TestSize.Level1)
 {
     std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tagInfo_);
-    ASSERT_TRUE(nfcA == nullptr);
+    ASSERT_TRUE(nfcA != nullptr);
 }
 /**
  * @tc.name: GetTag002

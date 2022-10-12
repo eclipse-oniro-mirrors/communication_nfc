@@ -55,7 +55,9 @@ void TagInfoTest::SetUp()
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap tagTechExtrasData;
+    AppExecFwk::PacMap isoDepExtrasData;
     tagTechExtras.push_back(tagTechExtrasData);
+    tagTechExtras.push_back(isoDepExtrasData);
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
     tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
