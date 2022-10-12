@@ -204,13 +204,13 @@ void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &elem
     for (auto& data : abilityInfo.metadata) {
         if (KEY_TAG_TECH.compare(data.name) == 0) {
             valueList.emplace_back(data.value);
-            DebugLog("UpdateHceAppList from metadata, push tech %{public}s", data.value.c_str());
+            DebugLog("UpdateTagAppList from metadata, push tech %{public}s", data.value.c_str());
         }
     }
     for (auto& data : abilityInfo.metaData.customizeData) {
         if (KEY_TAG_TECH.compare(data.name) == 0) {
             valueList.emplace_back(data.value);
-            DebugLog("UpdateHceAppList from customizeData, push tech %{public}s", data.value.c_str());
+            DebugLog("UpdateTagAppList from customizeData, push tech %{public}s", data.value.c_str());
         }
     }
     if (valueList.empty()) {

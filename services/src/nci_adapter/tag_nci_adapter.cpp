@@ -54,6 +54,8 @@ static const int NDEF_FORMATTABLE_2ND = 0xAF;
 static const int NDEF_MODE_READ_ONLY = 1;
 static const int NDEF_MODE_READ_WRITE = 2;
 static const int NDEF_MODE_UNKNOWN = 3;
+static uint8_t RW_TAG_SLP_REQ[] = {0x50, 0x00};
+static uint8_t RW_DESELECT_REQ[] = {0xC2};
 
 std::mutex TagNciAdapter::rfDiscoveryMutex_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::transceiveEvent_;
@@ -204,6 +206,52 @@ bool TagNciAdapter::Disconnect()
     return (status == NFA_STATUS_OK);
 }
 
+bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface)
+{
+    tNFA_INTF_TYPE currInterface = GetRfInterface(connectedProtocol_);
+    DebugLog("TagNciAdapter::Reselect: target interface: %{public}d, currInterface = %{public}d"
+        "connectedProtocol_ = %{public}d", rfInterface, currInterface, connectedProtocol_);
+    tNFA_STATUS status = NFA_STATUS_FAILED;
+    if ((currInterface == NFA_INTERFACE_FRAME) &&
+        (NfccNciAdapter::GetInstance().GetNciVersion() >= NCI_VERSION_2_0)) {
+        NFC::SynchronizeGuard guard(activatedEvent_);
+        if (connectedProtocol_ == NFA_PROTOCOL_T2T) {
+            status = nciAdaptations_->NfaSendRawFrame(RW_TAG_SLP_REQ, sizeof(RW_TAG_SLP_REQ), 0);
+        } else if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP) {
+            status = nciAdaptations_->NfaSendRawFrame(RW_DESELECT_REQ, sizeof(RW_DESELECT_REQ), 0);
+        } else {
+            DebugLog("TagNciAdapter::Reselect: do nothing");
+            return false;
+        }
+        activatedEvent_.Wait(4); // this request do not have response, so no need to wait for callback
+        status = nciAdaptations_->NfaDeactivate(true);
+        if (status != NFA_STATUS_OK) {
+            ErrorLog("TagNciAdapter::Reselect: deactivate failed, err = 0x%{public}X", status);
+            return false;
+        }
+    }
+    return (status == NFA_STATUS_OK);
+}
+
+bool TagNciAdapter::SendReselectReqIfNeed(int protocol, int tech)
+{
+    DebugLog("TagNciAdapter::SendReselectReqIfNeed: protocol = %{public}d, tech = %{public}d",
+        protocol, tech);
+    if (protocol != NCI_PROTOCOL_ISO_DEP && protocol != NCI_PROTOCOL_MIFARE) {
+        DebugLog("TagNciAdapter::SendReselectReqIfNeed: do nothing for non isodep protocol");
+        return false;
+    }
+
+    if (tech == TagHost::TARGET_TYPE_ISO14443_3A || tech == TagHost::TARGET_TYPE_ISO14443_3B) {
+        return Reselect(NFA_INTERFACE_FRAME);
+    } else if (tech == TagHost::TARGET_TYPE_MIFARE_CLASSIC) {
+        return Reselect(NFA_INTERFACE_MIFARE);
+    } else {
+        return Reselect(NFA_INTERFACE_ISO_DEP);
+    }
+    return true;
+}
+
 bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 {
     DebugLog("TagNciAdapter::Reconnect: discId: %{public}d, protocol: %{public}d, tech: %{public}d, restart: "
@@ -216,6 +264,11 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         rfDiscoveryMutex_.unlock();
         return true;
     }
+    if (!SendReselectReqIfNeed(protocol, tech)) {
+        rfDiscoveryMutex_.unlock();
+        return false;
+    }
+
     {
         NFC::SynchronizeGuard guard(deactivatedEvent_);
         if (NFA_STATUS_OK != nciAdaptations_->NfaDeactivate(true)) {
@@ -886,6 +939,8 @@ void TagNciAdapter::ParseSpecTagType(tNFA_ACTIVATED activated)
             isMifareDESFire_ = true;
         }
     }
+    InfoLog("isFelicaLite_ = %{public}d, isMifareUltralight_ = %{public}d, isMifareDESFire_ = %{public}d",
+        isFelicaLite_, isMifareUltralight_, isMifareDESFire_);
 }
 
 void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
@@ -894,6 +949,7 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
     if (techListIndex_ >= MAX_NUM_TECHNOLOGY) {
         return;
     }
+    techListIndex_ = 0;
 
     tNFA_ACTIVATED activated = eventData->activated;
     GetTechFromData(activated); // techListIndex_ is increased in this func
@@ -991,6 +1047,7 @@ void TagNciAdapter::SetNciAdaptations(std::shared_ptr<INfcNci> nciAdaptations)
 
 bool TagNciAdapter::IsNdefFormattable()
 {
+    DebugLog("check IsNdefFormattable");
     const int IDX_NDEF_FORMAT_1ST = 7;
     const int IDX_NDEF_FORMAT_2ND = 8;
     if (tagActivatedProtocol_ == NFA_PROTOCOL_T1T || tagActivatedProtocol_ == NFA_PROTOCOL_T5T ||

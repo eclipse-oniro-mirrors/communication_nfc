@@ -110,6 +110,7 @@ private:
     void PauseFieldChecking();
     void ResumeFieldChecking();
     void AddNdefTech();
+    void AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFwk::PacMap pacMap);
     int GetNdefType(int protocol) const;
     bool IsUltralightC();
 
