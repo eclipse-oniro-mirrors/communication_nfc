@@ -86,6 +86,9 @@ private:
     void ParseSpecTagType(tNFA_ACTIVATED activated);
     static void NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventData);
 
+    bool Reselect(tNFA_INTF_TYPE rfInterface);
+    bool SendReselectReqIfNeed(int protocol, int tech);
+
     // synchronized lock
     static std::mutex rfDiscoveryMutex_;
     static OHOS::NFC::SynchronizeEvent transceiveEvent_;

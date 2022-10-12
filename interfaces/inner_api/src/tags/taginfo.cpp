@@ -88,9 +88,13 @@ std::string TagInfo::GetStringTach(int tech)
         case static_cast<int>(TagTechnology::NFC_ISODEP_TECH):
             return "IsoDep";
         case static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH):
-            return "MifacreClassic";
+            return "MifareClassic";
         case static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH):
-            return "MifacreUL";
+            return "MifareUL";
+        case static_cast<int>(TagTechnology::NFC_NDEF_TECH):
+            return "Ndef";
+        case static_cast<int>(TagTechnology::NFC_NDEF_FORMATABLE_TECH):
+            return "NdefFormatable";
         default:
             break;
     }

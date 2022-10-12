@@ -220,6 +220,7 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         }
         case NFA_READ_CPLT_EVT: {
             DebugLog("NfaConnectionCallback: NFA_READ_CPLT_EVT: status = 0x%{public}X", eventData->status);
+            TagNciAdapter::GetInstance().HandleReadComplete(eventData->status);
             break;
         }
         case NFA_WRITE_CPLT_EVT: {
