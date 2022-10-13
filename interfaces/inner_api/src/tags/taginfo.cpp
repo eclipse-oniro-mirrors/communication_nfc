@@ -105,6 +105,7 @@ AppExecFwk::PacMap TagInfo::GetTechExtrasByIndex(size_t techIndex)
 {
     AppExecFwk::PacMap pacmap;
     if (tagTechList_.size() == 0 || tagTechList_.size() != tagTechExtrasData_.size()) {
+        ErrorLog("Taginfo:: tagTechList_lenth != tagTechExtrasData_length.");
         return pacmap;
     }
     if (techIndex < 0 || techIndex >= tagTechExtrasData_.size()) {
