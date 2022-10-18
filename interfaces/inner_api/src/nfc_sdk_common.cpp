@@ -42,9 +42,9 @@ std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t
         return result;
     }
     const std::string hexKeys = "0123456789ABCDEF";
-    for(uint32_t i = 0; i < length; i++) {
-       result.push_back(hexKeys[(src[i] & 0xF0) >> 4]);
-       result.push_back(hexKeys[src[i] & 0x0F]);
+    for (uint32_t i = 0; i < length; i++) {
+        result.push_back(hexKeys[(src[i] & 0xF0) >> 4]);
+        result.push_back(hexKeys[src[i] & 0x0F]);
     }
     return result;
 }
@@ -78,7 +78,7 @@ uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)
     if (src.empty()) {
         return 0;
     }
-    uint32_t length = src.length(); 
+    uint32_t length = src.length();
     if (length % 2 == 0) {
         return (length / 2);
     } else {

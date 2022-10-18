@@ -24,10 +24,10 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 TagInfo::TagInfo(std::vector<int> tagTechList,
-                std::vector<AppExecFwk::PacMap> tagTechExtrasData,
-                std::string& tagUid,
-                int tagRfDiscId,
-                OHOS::sptr<IRemoteObject> tagServiceIface)
+                 std::vector<AppExecFwk::PacMap> tagTechExtrasData,
+                 std::string& tagUid,
+                 int tagRfDiscId,
+                 OHOS::sptr<IRemoteObject> tagServiceIface)
 {
     tagRfDiscId_ = tagRfDiscId;
     tagUid_ = tagUid;

@@ -62,8 +62,8 @@ sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
 void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     if (data == nullptr) {
-       ErrorLog("HandleAppAddOrChangedEvent, invalid data.");
-       return;
+        ErrorLog("HandleAppAddOrChangedEvent, invalid data.");
+        return;
     }
     ElementName element = data->GetWant().GetElement();
     std::string bundleName = element.GetBundleName();
@@ -79,8 +79,8 @@ void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
 void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     if (data == nullptr) {
-       ErrorLog("HandleAppRemovedEvent, invalid data.");
-       return;
+        ErrorLog("HandleAppRemovedEvent, invalid data.");
+        return;
     }
     ElementName element = data->GetWant().GetElement();
     std::string bundleName = element.GetBundleName();
@@ -88,8 +88,10 @@ void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
         ErrorLog("HandleAppRemovedEvent, invalid bundleName.");
         return;
     }
-    DebugLog("HandleAppRemovedEvent, bundleName %{public}s tag size %{public}zu, hce size %{public}zu", bundleName.c_str(),
-        g_tagAppAndTechMap.size(), g_hceAppAndAidMap.size());
+    DebugLog("HandleAppRemovedEvent, bundleName %{public}s tag size %{public}zu, hce size %{public}zu",
+        bundleName.c_str(),
+        g_tagAppAndTechMap.size(),
+        g_hceAppAndAidMap.size());
     RemoveTagAppInfo(element);
     RemoveHceAppInfo(element);
 }
@@ -148,13 +150,13 @@ bool AppDataParser::InitAppListByAction(const std::string action)
         for (auto& abilityInfo : abilityInfos) {
             ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
                 abilityInfo.moduleName);
-           UpdateTagAppList(abilityInfo, element);
+            UpdateTagAppList(abilityInfo, element);
         }
     } else if (ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
         for (auto& abilityInfo : abilityInfos) {
             ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
                 abilityInfo.moduleName);
-           UpdateHceAppList(abilityInfo, element);
+            UpdateHceAppList(abilityInfo, element);
         }
     } else {
         WarnLog("InitAppListByAction,unknown action = %{public}s", action.c_str());

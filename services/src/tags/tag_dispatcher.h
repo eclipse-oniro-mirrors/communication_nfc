@@ -15,7 +15,6 @@
 #ifndef TAG_DISPATCH_H
 #define TAG_DISPATCH_H
 #include <map>
-//#include <memory>
 #include <mutex>
 #include "ability_info.h"
 #include "element_name.h"
@@ -51,8 +50,8 @@ private:
     std::mutex mutex_ {};
     std::map<int, std::shared_ptr<NCI::ITagHost>> tagHostMap_ {};
     // tag field on checking
-    const int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
-    const int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
+    const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
+    const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
     // ndef message
     std::string lastNdefMsg_;
 };

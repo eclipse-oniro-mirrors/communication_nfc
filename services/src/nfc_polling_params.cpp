@@ -24,7 +24,6 @@ NfcPollingParams::NfcPollingParams() : techMask_(0),
     enableReaderMode_(false),
     enableHostRouting_(false)
 {
-
 }
 
 bool NfcPollingParams::operator==(const std::shared_ptr<NfcPollingParams> params) const

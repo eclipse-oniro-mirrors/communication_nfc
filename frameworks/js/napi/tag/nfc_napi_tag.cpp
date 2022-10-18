@@ -359,7 +359,8 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
     std::vector<int> tagTechList;
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     ParseTechAndExtraFromJsTagInfo(env, obj, tagTechList, tagTechExtras);
-    DebugLog("BuildNativeTagFromJsObj, tech size %{public}zu, extra size %{public}zu", tagTechList.size(), tagTechExtras.size());
+    DebugLog("BuildNativeTagFromJsObj, tech size %{public}zu, extra size %{public}zu",
+        tagTechList.size(), tagTechExtras.size());
 
     // parse tagRfDiscId: number from TagInfo object.
     int tagRfDiscId = GetNapiInt32Value(env, obj, VAR_RF_ID);
