@@ -22,7 +22,6 @@
 #include "nfcc_host.h"
 #include "nfcc_nci_adapter.h"
 #include "rw_int.h"
-#include "tag_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -206,7 +205,7 @@ bool TagNciAdapter::Disconnect()
     return (status == NFA_STATUS_OK);
 }
 
-bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface)
+bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscoveryMutex_ outer when called
 {
     tNFA_INTF_TYPE currInterface = GetRfInterface(connectedProtocol_);
     DebugLog("TagNciAdapter::Reselect: target interface: %{public}d, currInterface = %{public}d"
@@ -445,7 +444,7 @@ void TagNciAdapter::ResetTagFieldOnFlag()
 int TagNciAdapter::GetTimeout(int technology) const
 {
     int timeout = DEFAULT_TIMEOUT;
-    if (technology > 0 && technology < MAX_NUM_TECHNOLOGY) {
+    if (technology > 0 && technology <= MAX_TECH_VAL) {
         timeout = technologyTimeoutsTable_[technology];
     } else {
         WarnLog("TagNciAdapter::GetTimeout, Unknown technology");

@@ -23,6 +23,7 @@
 #include "nfa_api.h"
 #include "nfa_rw_api.h"
 #include "synchronize_event.h"
+#include "tag_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -109,8 +110,9 @@ private:
 
     // tag technology and protocols discovery.
     static const uint32_t MAX_NUM_TECHNOLOGY = 10;
+    static const int MAX_TECH_VAL = TagHost::TARGET_TYPE_NDEF_FORMATABLE;
     static std::shared_ptr<INfcNci> nciAdaptations_;
-    int technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY] {};
+    int technologyTimeoutsTable_[MAX_TECH_VAL + 1] {};
     std::vector<int> tagTechList_ {};           // tag type
     std::vector<int> tagRfDiscIdList_ {};       // disc id
     std::vector<int> tagActivatedProtocols_ {}; // protocol

@@ -253,7 +253,6 @@ std::vector<int> TagHost::GetTechList()
                 technology = KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH;
                 break;
 
-            case TARGET_TYPE_KOVIO_BARCODE:
             case TARGET_TYPE_UNKNOWN:
             default:
                 technology = KITS::TagTechnology::NFC_INVALID_TECH;
@@ -372,6 +371,13 @@ void TagHost::DoTargetTypeF(AppExecFwk::PacMap &pacMap, int index)
     pacMap.PutStringValue(KITS::TagInfo::NFCF_SC, poll.substr(SENSF_RES_LENGTH, 2)); // 2 bytes for sc
 }
 
+void TagHost::DoTargetTypeNdef(AppExecFwk::PacMap &pacMap)
+{
+    DebugLog("DoTargetTypeNdef");
+    pacMap = ndefExtras_;
+    ndefExtras_.Clear();
+}
+
 AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 {
     AppExecFwk::PacMap pacMap;
@@ -380,6 +386,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
     switch (targetType) {
         case TARGET_TYPE_MIFARE_CLASSIC:
             break;
+
         case TARGET_TYPE_ISO14443_3A: {
             DoTargetTypeIso144433a(pacMap, index);
             break;
@@ -411,6 +418,18 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
             DoTargetTypeF(pacMap, index);
             break;
         }
+
+        case TARGET_TYPE_NDEF: {
+            DoTargetTypeNdef(pacMap);
+            break;
+        }
+
+        case TARGET_TYPE_NDEF_FORMATABLE:
+            break;
+
+        case TARGET_TYPE_UNKNOWN:
+            break;
+
         default:
             DebugLog("ParseTechExtras::unhandle for : %{public}d", targetType);
             break;
@@ -423,9 +442,6 @@ std::vector<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
     DebugLog("TagHost::GetTechExtrasData, tech len.%{public}zu", tagTechList_.size());
     techExtras_.clear();
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
-        if (tagTechList_[i] == TARGET_TYPE_NDEF || tagTechList_[i] == TARGET_TYPE_NDEF_FORMATABLE) {
-            continue;
-        }
         AppExecFwk::PacMap extra = ParseTechExtras(i);
         techExtras_.push_back(extra);
     }
@@ -476,7 +492,7 @@ void TagHost::AddNdefTech()
     uint32_t index = tagTechList_.size();
     for (uint32_t i = 0; i < index; i++) {
         TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
-        
+
         if (!foundFormat) {
             if (TagNciAdapter::GetInstance().IsNdefFormattable()) {
                 formatHandle = tagRfDiscIdList_[i];
@@ -487,8 +503,7 @@ void TagHost::AddNdefTech()
         }
         std::vector<int> ndefInfo;
         if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
-            // includes size + mode;
-            if (ndefInfo.size() < 2) {
+            if (ndefInfo.size() < NDEF_INFO_SIZE) {
                 WarnLog("TagHost::AddNdefTech, invalid size = %{public}zu", ndefInfo.size());
                 return;
             }
@@ -501,10 +516,10 @@ void TagHost::AddNdefTech()
             pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
                 GetNdefType(tagActivatedProtocols_[i]));
-            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[0]); // size
-            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[1]); // mode
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[NDEF_SIZE_INDEX]);
+            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[NDEF_MODE_INDEX]);
             DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
-            
+
             AddNdefTechToTagInfo(TARGET_TYPE_NDEF, tagRfDiscIdList_[i], tagActivatedProtocols_[i], pacMap);
             foundFormat = false;
             break;
@@ -523,7 +538,7 @@ void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFw
     tagTechList_.push_back(tech);
     tagRfDiscIdList_.push_back(discId);
     tagActivatedProtocols_.push_back(actProto);
-    techExtras_.push_back(pacMap);
+    ndefExtras_ = pacMap; // techExtras_ will be handled in ParseTechExtras()
 }
 
 int TagHost::GetNdefType(int protocol) const
