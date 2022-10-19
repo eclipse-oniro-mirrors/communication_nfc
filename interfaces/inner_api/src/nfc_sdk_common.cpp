@@ -19,6 +19,7 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+
 bool NfcSdkCommon::IsLittleEndian()
 {
     const char LAST_DATA_BYTE = 0x78;
@@ -43,7 +44,7 @@ std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t
     }
     const std::string hexKeys = "0123456789ABCDEF";
     for (uint32_t i = 0; i < length; i++) {
-        result.push_back(hexKeys[(src[i] & 0xF0) >> 4]);
+        result.push_back(hexKeys[(src[i] & 0xF0) >> HALF_BYTE_BITS]);
         result.push_back(hexKeys[src[i] & 0x0F]);
     }
     return result;
@@ -53,7 +54,7 @@ std::string NfcSdkCommon::UnsignedCharToHexString(const unsigned char src)
 {
     std::string result = "";
     const std::string hexKeys = "0123456789ABCDEF";
-    result.push_back(hexKeys[(src & 0xF0) >> 4]);
+    result.push_back(hexKeys[(src & 0xF0) >> HALF_BYTE_BITS]);
     result.push_back(hexKeys[src & 0x0F]);
     return result;
 }
@@ -65,9 +66,9 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
     }
 
     // two charactors consist of one hex byte.
-    for (uint32_t i = 0; i < (src.size() - 1); i += 2) {
-        std::string byte = src.substr(i, 2);
-        unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, 16));
+    for (uint32_t i = 0; i < (src.size() - 1); i += HEX_BYTE_LEN) {
+        std::string byte = src.substr(i, HEX_BYTE_LEN);
+        unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, HEX_VALUE));
         bytes.push_back(value);
     }
 }
@@ -79,10 +80,10 @@ uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)
         return 0;
     }
     uint32_t length = src.length();
-    if (length % 2 == 0) {
-        return (length / 2);
+    if (length % HEX_BYTE_LEN == 0) {
+        return (length / HEX_BYTE_LEN);
     } else {
-        return ((length / 2) + 1);
+        return ((length / HEX_BYTE_LEN) + 1);
     }
 }
 
@@ -92,8 +93,8 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
     if (src.empty() || index >= (src.length() - 1)) {
         return 0;
     }
-    std::string byte = src.substr(index, 2);
-    unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, 16));
+    std::string byte = src.substr(index, HEX_BYTE_LEN);
+    unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, HEX_VALUE));
     return value;
 }
 
