@@ -32,11 +32,11 @@ public:
     bool TurnOn() override;
     bool TurnOff() override;
     bool IsNfcOpen() override;
-    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type, Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type,
+    KITS::ErrorCode UnRegisterCallBack(const std::string& type,
         Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::NfcErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:

@@ -53,33 +53,30 @@ bool NfcControllerImpl::IsNfcOpen()
     return nfcService_.lock()->IsNfcEnabled();
 }
 
-KITS::NfcErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+KITS::ErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
     const std::string& type, Security::AccessToken::AccessTokenID callerToken)
 {
-    DebugLog("RegisterCallBack NfcControllerImpl");
     if (!nfcService_.lock()->SetRegisterCallBack(callback, type, callerToken)) {
-        return KITS::NFC_SUCCESS;
+        return KITS::ERR_NONE;
     }
-    return KITS::NFC_FAILED;
+    return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::NfcErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
+KITS::ErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
     Security::AccessToken::AccessTokenID callerToken)
 {
-    DebugLog("UnRegisterCallBack NfcControllerImpl");
     if (!nfcService_.lock()->RemoveRegisterCallBack(type, callerToken)) {
-        return KITS::NFC_SUCCESS;
+        return KITS::ERR_NONE;
     }
-    return KITS::NFC_FAILED;
+    return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::NfcErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
+KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
 {
-    DebugLog("UnRegisterAllCallBack NfcControllerImpl");
     if (!nfcService_.lock()->RemoveAllRegisterCallBack(callerToken)) {
-        return KITS::NFC_SUCCESS;
+        return KITS::ERR_NONE;
     }
-    return KITS::NFC_FAILED;
+    return KITS::ERR_NFC_PARAMETERS;
 }
 
 OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
@@ -93,9 +90,9 @@ int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& a
     int ret = dprintf(fd, "%s\n", info.c_str());
     if (ret < 0) {
         ErrorLog("NfcControllerImpl Dump ret = %{public}d", ret);
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
-    return KITS::NFC_SUCCESS;
+    return KITS::ERR_NONE;
 }
 
 std::string NfcControllerImpl::GetDumpInfo()

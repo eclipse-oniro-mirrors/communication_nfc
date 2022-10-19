@@ -84,10 +84,10 @@ public:
     bool IsNdefWritable() const;
     /**
      * @Description Read ndef tag
-     * @param void
-     * @return ndef message in tag.
+     * @param ndefMessage the NdefMessage instance read.
+     * @return the error code of calling function.
      */
-    std::shared_ptr<NdefMessage> ReadNdef();
+    int ReadNdef(std::shared_ptr<NdefMessage> ndefMessage);
     /**
      * @Description write ndef tag
      * @param msg ndef message to write
@@ -96,10 +96,10 @@ public:
     int WriteNdef(std::shared_ptr<NdefMessage> msg);
     /**
      * @Description check ndef tag can be set read-only
-     * @param void
-     * @return return true if the tag can be set readonly, otherwise return false.
+     * @param canSetReadOnly the output for ndef tag can be set read-only or not.
+     * @return the error code of calling function.
      */
-    bool IsEnableReadOnly();
+    int IsEnableReadOnly(bool &canSetReadOnly);
     /**
      * @Description set ndef tag read-only
      * @param void

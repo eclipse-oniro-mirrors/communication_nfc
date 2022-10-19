@@ -24,59 +24,63 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 static bool MatchFormatParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool typeMatch = false;
+    bool isTypeMatched = false;
     switch (parameterCount) {
         case ARGV_NUM_1: {
-            typeMatch = MatchParameters(env, parameters, {napi_object});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message", "NdefMessage")));
+            }
             break;
         }
         case ARGV_NUM_2:
-            typeMatch = MatchParameters(env, parameters, {napi_object, napi_function});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object, napi_function});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message & callback", "NdefMessage & function")));
+            }
             break;
         default: {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
             return false;
         }
     }
-    return typeMatch;
+    return isTypeMatched;
 }
 
 static void NativeFormat(napi_env env, void *data)
 {
-    DebugLog("NativeFormat called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
 
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (ndefFormatableTagPtr == nullptr) {
-        ErrorLog("NativeFormat find objectInfo failed!");
-        context->value = true;
+    if (ndefFormatableTagPtr != nullptr) {
+        context->errorCode = ndefFormatableTagPtr->Format(context->msg);
     } else {
-        context->value = ndefFormatableTagPtr->Format(context->msg);
-        DebugLog("Format %{public}d", context->value);
+        ErrorLog("NativeFormat, ndefFormatableTagPtr failed.");
     }
     context->resolved = true;
 }
 
 static void FormatCallback(napi_env env, napi_status status, void *data)
 {
-    DebugLog("FormatCallback called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            napi_create_int32(env, context->value, &callbackValue);
-        } else {
-            callbackValue = CreateErrorMessage(env, "Format error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is void.
+        napi_get_undefined(env, &callbackValue);
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue = CreateErrorMessage(env, "Format error,napi_status = " + std ::to_string(status));
+        std::string errMessage = BuildErrorMessage(context->errorCode, "format", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, errMessage);
     }
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
 napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNdefFormatableTag Format called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -88,19 +92,19 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchFormatParameters(env, params, paramsCount), "Format type mismatch");
+    if (!MatchFormatParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "error at CallBackContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
         return nullptr;
     }
 
     // parse the params
     napi_status status1 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
     NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
-
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }
@@ -112,58 +116,62 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 
 static bool MatchFormatReadOnlyParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool typeMatch = false;
+    bool isTypeMatched = false;
     switch (parameterCount) {
         case ARGV_NUM_1: {
-            typeMatch = MatchParameters(env, parameters, {napi_object});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message", "NdefMessage")));
+            }
             break;
         }
         case ARGV_NUM_2:
-            typeMatch = MatchParameters(env, parameters, {napi_object, napi_function});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object, napi_function});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message & callback", "NdefMessage & function")));
+            }
             break;
         default: {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
             return false;
         }
     }
-    return typeMatch;
+    return isTypeMatched;
 }
 
 static void NativeFormatReadOnly(napi_env env, void *data)
 {
-    DebugLog("NativeFormatReadOnly called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (ndefFormatableTagPtr == nullptr) {
-        ErrorLog("NativeFormatReadOnly find objectInfo failed!");
-        context->value = true;
+    if (ndefFormatableTagPtr != nullptr) {
+        context->errorCode = ndefFormatableTagPtr->FormatReadOnly(context->msg);
     } else {
-        context->value = ndefFormatableTagPtr->FormatReadOnly(context->msg);
-        DebugLog("FormatReadOnly %{public}d", context->value);
+        ErrorLog("NativeFormatReadOnly, ndefFormatableTagPtr failed.");
     }
     context->resolved = true;
 }
 
 static void FormatReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
-    DebugLog("FormatReadOnlyCallback called");
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            napi_create_int32(env, context->value, &callbackValue);
-        } else {
-            callbackValue = CreateErrorMessage(env, "FormatReadOnly error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is void.
+        napi_get_undefined(env, &callbackValue);
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue = CreateErrorMessage(env, "FormatReadOnly error,napi_status = " + std ::to_string(status));
+        std::string errMessage = BuildErrorMessage(context->errorCode, "formatReadOnly", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, errMessage);
     }
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
 napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNdefFormatableTag FormatReadOnly called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -175,19 +183,19 @@ napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_inf
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchFormatReadOnlyParameters(env, params, paramsCount), "FormatReadOnly type mismatch");
+    if (!MatchFormatReadOnlyParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "error at CallBackContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
         return nullptr;
     }
 
     // parse the params
     napi_status status1 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
     NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
-
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }

@@ -21,10 +21,6 @@ namespace NFC {
 namespace KITS {
 Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_V_TECH)
 {
-    if (tag.expired()) {
-        ErrorLog("Iso15693Tag::Iso15693Tag tag invalid ");
-        return;
-    }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_V_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("Iso15693Tag::Iso15693Tag extra data invalid");
@@ -43,62 +39,59 @@ Iso15693Tag::~Iso15693Tag()
 std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
+        ErrorLog("Iso15693Tag::GetTag error, no mathced technology.");
         return nullptr;
     }
-
     return std::make_shared<Iso15693Tag>(tag);
 }
 
-std::string Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex)
+int Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex, std::string &hexRespData)
 {
-    InfoLog("Iso15693Tag::ReadSingleBlock in flag= %{public}d blockIndex= %{public}d", flag, blockIndex);
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
-        !IsConnected()) {
+    if (!IsConnected()) {
+        ErrorLog("[Iso15693Tag::ReadSingleBlock] connect tag first!");
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
+    }
+    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::ReadSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
-        return "";
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     std::string tagUid = GetTagUid();
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {char(flag & 0xFF), CMD_READ_SINGLE_BLOCK};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF);
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    return SendCommand(sendCommand, false, response);
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
-int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std::string& data)
+int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std::string& hexCmdData)
 {
-    InfoLog("Iso15693Tag::WriteSingleBlock in");
     if (!IsConnected()) {
         ErrorLog("[Iso15693Tag::WriteSingleBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::WriteSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     std::string tagUid = GetTagUid();
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {char(flag & 0xFF), CMD_WRITE_SINGLE_BLOCK};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-    sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + data;
+    sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + hexCmdData;
 
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    std::string res = SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
 {
-    InfoLog("Iso15693Tag::LockSingleBlock in");
     if (!IsConnected()) {
         ErrorLog("[Iso15693Tag::LockSingleBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::LockSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     std::string tagUid = GetTagUid();
@@ -106,56 +99,46 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF);
 
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    std::string res = SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
-std::string Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum)
+int Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, std::string &hexRespData)
 {
-    InfoLog("Iso15693Tag::ReadMultipleBlock in flag= %{public}d blockIndex= %{public}d blockNum=%{public}d",
-        flag, blockIndex, blockNum);
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         (blockNum < 0 || blockNum >= ISO15693_MAX_BLOCK_INDEX) || !IsConnected()) {
-        DebugLog(
+        ErrorLog(
             "[Iso15693Tag::ReadMultipleBlock] flag= %{public}d blockIndex= %{public}d "
-            "blockNum=%{public}d err",
-            flag,
-            blockIndex,
-            blockNum);
-        return "";
+            "blockNum=%{public}d err", flag, blockIndex, blockNum);
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     std::string tagUid = GetTagUid();
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {char(flag & 0xFF), CMD_READ_MULTIPLE_BLOCK};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + char(blockNum & 0xFF);
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    return SendCommand(sendCommand, false, response);
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
-int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& data)
+int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum,
+    const std::string& hexCmdData)
 {
-    InfoLog("Iso15693Tag::WriteMultipleBlock in");
     if (!IsConnected()) {
         ErrorLog("[Iso15693Tag::WriteMultipleBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         (blockNum <= 0 || blockNum > ISO15693_MAX_BLOCK_INDEX)) {
-        DebugLog("[Iso15693Tag::WriteMultipleBlock] flag=%{public}d blockIndex= %{public}d err", flag, blockIndex);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        ErrorLog("[Iso15693Tag::WriteMultipleBlock] flag=%{public}d blockIndex= %{public}d err", flag, blockIndex);
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     std::string tagUid = GetTagUid();
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {char(flag & 0xFF), CMD_WRITE_MULTIPLE_BLOCK};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-    sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + char(blockNum & 0xFF) + data;
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    std::string res = SendCommand(sendCommand, false, response);
-    return response;
+    sendCommand = sendCommand + tagUid + char(blockIndex & 0xFF) + char(blockNum & 0xFF) + hexCmdData;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 char Iso15693Tag::GetDsfId() const

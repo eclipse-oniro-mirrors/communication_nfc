@@ -35,7 +35,7 @@ public:
     int GetMaxTransceiveLength(int technology) override;
     bool SetTimeout(uint32_t timeout, int technology) override;
     uint32_t GetTimeout(int technology) override;
-    std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
+    int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
 
     std::vector<int> GetTechList(int tagRfDiscId) override;
     bool IsTagFieldOn(int tagRfDiscId) override;
@@ -44,9 +44,8 @@ public:
     int NdefWrite(int tagRfDiscId, std::string msg) override;
     int NdefMakeReadOnly(int tagRfDiscId) override;
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
-    bool CanMakeReadOnly(int technology) override;
-    bool IsSupportedApdusExtended() override;
-
+    int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
+    int IsSupportedApdusExtended(bool &isSupported) override;
 private:
 };
 }  // namespace TAG

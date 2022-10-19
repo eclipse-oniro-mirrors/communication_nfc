@@ -34,11 +34,11 @@ public:
 
     NfcControllerStub() {}
     virtual ~NfcControllerStub() {}
-    virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    virtual KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type, Security::AccessToken::AccessTokenID callerToken) = 0;
-    virtual KITS::NfcErrorCode UnRegisterCallBack(const std::string& type,
+    virtual KITS::ErrorCode UnRegisterCallBack(const std::string& type,
         Security::AccessToken::AccessTokenID callerToken) = 0;
-    virtual KITS::NfcErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) = 0;
     void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
 
 private:
@@ -51,9 +51,9 @@ private:
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
 
 private:
-    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) override;
-    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) override;
+    KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
 
 private:
     sptr<INfcControllerCallback> callback_;

@@ -73,7 +73,7 @@ int NfcController::TurnOn()
 {
     DebugLog("NfcController::TurnOn in.");
     if (nfcControllerService_.expired()) {
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     return nfcControllerService_.lock()->TurnOn();
 }
@@ -83,7 +83,7 @@ int NfcController::TurnOff()
 {
     DebugLog("NfcController::TurnOff in.");
     if (nfcControllerService_.expired()) {
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     return nfcControllerService_.lock()->TurnOff();
 }
@@ -108,14 +108,14 @@ int NfcController::IsNfcAvailable()
 int NfcController::IsNfcOpen()
 {
     if (nfcControllerService_.expired()) {
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     DebugLog("NfcController::IsNfcOpen");
     return nfcControllerService_.lock()->IsNfcOpen();
 }
 
 // register NFC state change callback
-NfcErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callback,
+ErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callback,
     const std::string& type)
 {
     DebugLog("NfcController::RegListener");
@@ -123,7 +123,7 @@ NfcErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &call
 }
 
 // unregister NFC state change
-NfcErrorCode NfcController::UnregListener(const std::string& type)
+ErrorCode NfcController::UnregListener(const std::string& type)
 {
     DebugLog("NfcController::UnregListener");
     return nfcControllerService_.lock()->UnRegisterCallBack(type);

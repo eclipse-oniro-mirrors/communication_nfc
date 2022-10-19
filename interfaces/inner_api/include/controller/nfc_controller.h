@@ -75,13 +75,13 @@ public:
      * @param type the type for this callback, it's "nfcStateChange"
      * @return The status code for register operation.
      */
-    NfcErrorCode RegListener(const sptr<INfcControllerCallback> &callback, const std::string& type);
+    ErrorCode RegListener(const sptr<INfcControllerCallback> &callback, const std::string& type);
     /**
      * @Description Unregisters the callback for nfc state changed notification.
      * @param type the type for this callback, it's "nfcStateChange"
      * @return The status code for unregister operation.
      */
-    NfcErrorCode UnregListener(const std::string& type);
+    ErrorCode UnregListener(const std::string& type);
 
     /**
      * @brief Get the Tag Service Iface object

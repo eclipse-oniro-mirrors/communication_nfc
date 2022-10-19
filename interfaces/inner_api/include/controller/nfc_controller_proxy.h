@@ -37,9 +37,9 @@ public:
     bool TurnOff() override;
     int GetState() override;
     bool IsNfcOpen() override;
-    KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) override;
-    KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) override;
+    KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
 private:
 };

@@ -24,9 +24,8 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info info)
 {
-    DebugLog("NapiIsoDepTag GetHistoricalBytes called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
@@ -42,7 +41,6 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
         ConvertStringToNumberArray(env, ret, "");
     } else {
         std::string historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
-        DebugLog("HistoricalBytes %{public}s", historicalBytes.c_str());
         ConvertStringToNumberArray(env, ret, historicalBytes);
     }
     return ret;
@@ -50,9 +48,8 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
 
 napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info info)
 {
-    DebugLog("NapiIsoDepTag GetHiLayerResponse called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
@@ -68,7 +65,6 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
         ConvertStringToNumberArray(env, ret, "");
     } else {
         std::string hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
-        DebugLog("HiLayerResponse %{public}s", hiLayerResponse.c_str());
         ConvertStringToNumberArray(env, ret, hiLayerResponse);
     }
     return ret;
@@ -76,56 +72,57 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
 
 static bool MatchIsExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    if (parameterCount > 1) {
+    if (parameterCount > ARGV_NUM_1) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
         return false;
     }
-    if (parameterCount == 1) {
-        return MatchParameters(env, parameters, {napi_function});
+    if (parameterCount == ARGV_NUM_1) {
+        bool isTypeMatched = MatchParameters(env, parameters, {napi_function});
+        if (!isTypeMatched) {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "callback", "function")));
+        }
+        return isTypeMatched;
     }
     return true;
 }
 
 static void NativeIsExtendedApduSupported(napi_env env, void *data)
 {
-    DebugLog("NativeIsExtendedApduSupported called");
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
+    context->value = false;
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
 
     IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcIsoDepTagPtr == nullptr) {
-        DebugLog("NativeIsExtendedApduSupported find objectInfo failed!");
-        context->value = true;
+    if (nfcIsoDepTagPtr != nullptr) {
+        bool isSupported = false;
+        context->errorCode = nfcIsoDepTagPtr->IsExtendedApduSupported(isSupported);
+        context->value = isSupported;
     } else {
-        context->value = nfcIsoDepTagPtr->IsExtendedApduSupported();
+        ErrorLog("NativeIsExtendedApduSupported nfcIsoDepTagPtr failed!");
     }
     context->resolved = true;
 }
 
 static void IsExtendedApduSupportedCallback(napi_env env, napi_status status, void *data)
 {
-    DebugLog("IsExtendedApduSupportedCallback called");
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            napi_status status = napi_get_boolean(env, context->value, &callbackValue);
-            if (status != napi_ok) {
-                ErrorLog("get boolean failed");
-            }
-        } else {
-            callbackValue = CreateErrorMessage(env, "IsExtendedApduSupported error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is boolean.
+        napi_get_boolean(env, context->value, &callbackValue);
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue =
-            CreateErrorMessage(env, "IsExtendedApduSupported error,napi_status = " + std ::to_string(status));
+        std::string msg = BuildErrorMessage(context->errorCode, "isExtendedApduSupported", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, msg);
     }
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
 napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetIsoDepTag IsExtendedApduSupported called");
-    size_t paramsCount = 1;
-    napi_value params[1] = {0};
+    size_t paramsCount = ARGV_NUM_1;
+    napi_value params[ARGV_NUM_1] = {0};
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiIsoDepTag *objectInfoCb = nullptr;
@@ -135,16 +132,16 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchIsExtendedApduSupportedParameters(env, params, paramsCount),
-        "IsExtendedApduSupported type mismatch");
+    if (!MatchIsExtendedApduSupportedParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<CallBackContext<bool, NapiIsoDepTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "error at SingleValueContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-        return nullptr;
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
+        return CreateUndefined(env);
     }
-    if (paramsCount == 1) {
+    if (paramsCount == ARGV_NUM_1) {
         napi_create_reference(env, params[0], DEFAULT_REF_COUNT, &context->callbackRef);
     }
 

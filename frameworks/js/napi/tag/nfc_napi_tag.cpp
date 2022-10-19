@@ -228,12 +228,10 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     // prase tech and extras data from TagInfo Js Object from app.
     napi_value technologies = GetNamedProperty(env, obj, VAR_TECH);
     napi_value extras = GetNamedProperty(env, obj, VAR_EXTRA);
-
-    bool result = false;
-    napi_status status = napi_is_array(env, technologies, &result);
-    if (status != napi_ok || !result) {
-        ErrorLog("ParseTechAndExtraFromJsTagInfo, not array");
-        return nullptr;
+    if (!IsNumberArray(env, technologies)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo.technology", "number[]")));
+        return CreateUndefined(env);
     }
 
     napi_value techValue = nullptr;
@@ -370,16 +368,15 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
     napi_value remoteTagSession = GetNamedProperty(env, obj, VAR_SERVICE);
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, remoteTagSession, &valueType);
-    if (remoteTagSession == nullptr || valueType != napi_object) {
-        ErrorLog("BuildNativeTagFromJsObj, invalid remoteTagService");
-        return nullptr;
-    }
     OHOS::sptr<IRemoteObject> remoteObject = nullptr;
-    remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, remoteTagSession);
+    if (remoteTagSession != nullptr && valueType == napi_object) {
+        remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, remoteTagSession);
+    }
+
+    // remoteObject is allowed to be null, remote nfc service will initialize it again.
     if (remoteObject == nullptr) {
         WarnLog("BuildNativeTagFromJsObj, prased remoteObject is nullptr.");
     }
-    DebugLog("BuildNativeTagFromJsObj, taginfo parse finished.");
     return std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, remoteObject);
 }
 
@@ -393,35 +390,32 @@ bool RegisterTag(NapiNfcTagSession *nfcTag, std::shared_ptr<TagInfo> nfcTaginfo)
 template<typename T, typename D>
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    DebugLog("nfcTag JS_Constructor");
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNfcTagSession *nfcTag = new T();
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     // check parameter number
     if (argc != static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_1)) {
-        ErrorLog("Invalid number of arguments");
-        return nullptr;
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
+        return CreateUndefined(env);
     }
     napi_value tagInfoJsObj = argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)];
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, tagInfoJsObj, &valueType));
+
     // check parameter data type
-    if (valueType != napi_object) {
-        ErrorLog("invalid data type!");
-        return nullptr;
+    if (!IsObject(env, tagInfoJsObj)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
+        return CreateUndefined(env);
     }
     // parse Taginfo parameters passed from JS
     nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
-    if (nfcTaginfo == nullptr) {
-        ErrorLog("taginfo parse failed.");
-        return nullptr;
-    }
     if (!RegisterTag<D>(nfcTag, nfcTaginfo)) {
-        ErrorLog("Get Nfc Tag failed");
-        return nullptr;
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        return CreateUndefined(env);
     }
 
     // wrap  data into thisVar
@@ -621,7 +615,7 @@ napi_value RegisterMifareUltralightJSClass(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("readMultiplePages", NapiMifareUltralightTag::ReadMultiplePages),
-        DECLARE_NAPI_FUNCTION("writeSinglePages", NapiMifareUltralightTag::WriteSinglePages),
+        DECLARE_NAPI_FUNCTION("writeSinglePage", NapiMifareUltralightTag::WriteSinglePage),
         DECLARE_NAPI_FUNCTION("getType", NapiMifareUltralightTag::GetType),
         DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
         DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
@@ -670,80 +664,68 @@ napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref
 {
     if (ref == nullptr) {
         ErrorLog("GetSpecificTagObj error ref");
-        return nullptr;
+        return CreateUndefined(env);
     }
-    std::size_t argc = 1;
-    napi_value argv[1] = {0};
+    std::size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[0], &valueType);
-    if (argv[0] == nullptr || valueType != napi_object) {
-        ErrorLog("GetSpecificTagObj error argv type");
-        return nullptr;
+    if (!IsObject(env, argv[0])) {
+        ErrorLog("GetSpecificTagObj error argv type, not napi_object");
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
+        return CreateUndefined(env);
     }
 
     // new instance of JS object NfcATag
-    DebugLog("GetSpecificTagObj napi_get_reference_value start");
     napi_value result;
     napi_value constructor = nullptr;
     napi_get_reference_value(env, ref, &constructor);
-    DebugLog("GetSpecificTagObj napi_get_reference_value end");
     napi_new_instance(env, constructor, argc, argv, &result);
-    DebugLog("GetSpecificTagObj napi_new_instance end");
     return result;
 }
 
 napi_value GetNfcATag(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNfcATag begin");
     return GetSpecificTagObj(env, info, nfcAConsRef_);
 }
 
 napi_value GetNfcBTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetNfcBTag begin");
     return GetSpecificTagObj(env, info, nfcBConsRef_);
 }
 
 napi_value GetNfcFTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcFag GetNfcFTag begin");
     return GetSpecificTagObj(env, info, nfcFConsRef_);
 }
 
 napi_value GetNfcVTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetNfcVTag begin");
     return GetSpecificTagObj(env, info, nfcVConsRef_);
 }
 
 napi_value GetIsoDepTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetIsoDepTag begin");
     return GetSpecificTagObj(env, info, isoDepConsRef_);
 }
 
 napi_value GetNdefTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetNdefTag begin");
     return GetSpecificTagObj(env, info, ndefConsRef_);
 }
 
 napi_value GetMifareClassicTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetMifareClassicTag begin");
     return GetSpecificTagObj(env, info, mifareClassicConsRef_);
 }
 
 napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetMifareUltralightTag begin");
     return GetSpecificTagObj(env, info, mifareUltralightConsRef_);
 }
 
 napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfcTag GetNdefFormatableTag begin");
     return GetSpecificTagObj(env, info, ndefFormatableConsRef_);
 }
 
@@ -853,7 +835,6 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
 napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 {
     // the parameters is from Want JS object, parse it to build the TagInfo JS Object.
-    DebugLog("BuildTagFromWantParams begin");
     napi_value tagInfoObj = nullptr;
     napi_create_object(env, &tagInfoObj);
 
@@ -894,33 +875,28 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 
 napi_value GetTagInfo(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfc_napi_tag::GetTagInfo start");
     // has only one arg, want: Want
-    std::size_t argc = 1;
-    napi_value argv[1] = {nullptr};
+    std::size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[0], &valueType);
-
-    if (argv[0] == nullptr || valueType != napi_object) {
-        ErrorLog("nfc_napi_tag::GetTagInfo error argv type");
-        return nullptr;
+    if (!IsObject(env, argv[0])) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "want", "Want")));
+        return CreateUndefined(env);
     }
 
     // Get parameters?: {[key: string]: any} from want.
     napi_value want = argv[0];
     napi_value parameters = nullptr;
-    valueType = napi_undefined;
     napi_create_object(env, &parameters);
     napi_get_named_property(env, want, "parameters", &parameters);
-    napi_typeof(env, parameters, &valueType);
-    if (parameters == nullptr || valueType != napi_object) {
-        ErrorLog("nfc_napi_tag::GetTagInfo no parameters");
-        return nullptr;
+    if (!IsObject(env, parameters)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+        return CreateUndefined(env);
     }
 
     napi_value tagInfoObj = BuildTagFromWantParams(env, parameters);
-    DebugLog("nfc_napi_tag::GetTagInfo end");
     return tagInfoObj;
 }
 
@@ -951,11 +927,11 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getNfcBTag", GetNfcBTag),
         DECLARE_NAPI_FUNCTION("getNfcFTag", GetNfcFTag),
         DECLARE_NAPI_FUNCTION("getNfcVTag", GetNfcVTag),
-        DECLARE_NAPI_FUNCTION("getIsoDepTag", GetIsoDepTag),
-        DECLARE_NAPI_FUNCTION("getNdefTag", GetNdefTag),
-        DECLARE_NAPI_FUNCTION("getMifareClassicTag", GetMifareClassicTag),
-        DECLARE_NAPI_FUNCTION("getMifareUltralightTag", GetMifareUltralightTag),
-        DECLARE_NAPI_FUNCTION("getNdefFormatableTag", GetNdefFormatableTag),
+        DECLARE_NAPI_FUNCTION("getIsoDep", GetIsoDepTag),
+        DECLARE_NAPI_FUNCTION("getNdef", GetNdefTag),
+        DECLARE_NAPI_FUNCTION("getMifareClassic", GetMifareClassicTag),
+        DECLARE_NAPI_FUNCTION("getMifareUltralight", GetMifareUltralightTag),
+        DECLARE_NAPI_FUNCTION("getNdefFormatable", GetNdefFormatableTag),
         DECLARE_NAPI_FUNCTION("getTagInfo", GetTagInfo),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_A", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_A_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_B", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_B_TECH))),

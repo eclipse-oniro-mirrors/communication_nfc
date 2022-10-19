@@ -47,19 +47,20 @@ public:
      * operation. If it is set, the VICC shall wait for the reception of an EOF from the VCD and upon such reception
      * shall return its response.
      * @param blockIndex index of block to read
-     * @return the block data
+     * @param hexRespData the hex response data read.
+     * @return the error code of calling function.
      */
-    std::string ReadSingleBlock(uint32_t flag, uint32_t blockIndex);
+    int ReadSingleBlock(uint32_t flag, uint32_t blockIndex, std::string &hexRespData);
     /**
      * @Description Write a block
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
      * operation. If it is set, the VICC shall wait for the reception of an EOF from the VCD and upon such reception
      * shall return its response.
      * @param blockIndex index of block to write
-     * @param data block data to write
+     * @param hexCmdData block data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std::string& data);
+    int WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std::string& hexCmdData);
     /**
      * @Description Lock a block. A locked block can only be read, not written.
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -76,9 +77,10 @@ public:
      * shall return its response.
      * @param blockIndex index of block to read
      * @param blockNum num of block to read
-     * @return multiple block data
+     * @param hexRespData the hex response data read.
+     * @return the error code of calling function.
      */
-    std::string ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum);
+    int ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, std::string &hexRespData);
     /**
      * @Description Write multiple blocks
      * @param flag If the Option_flag is not set, the VICC shall return its response when it has completed the lock
@@ -86,12 +88,10 @@ public:
      * shall return its response.
      * @param blockIndex index of block to write
      * @param blockNum num of block to write
-     * @param data block data to write
-     * @param data data of multiple blocks to write
-     * @param dataLen total data length to write
+     * @param hexCmdData block data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& data);
+    int WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, const std::string& hexCmdData);
     /**
      * @Description Get DsfId bytes of the tag.
      * @param void
