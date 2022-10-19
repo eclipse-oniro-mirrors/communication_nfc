@@ -29,7 +29,7 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
 {
     std::shared_ptr<NdefRecord> param = std::make_shared<NdefRecord>();
     napi_valuetype valueType = napi_undefined;
-    napi_value result = nullptr;    
+    napi_value result = nullptr;
 
     napi_get_named_property(env, args, "tnf", &result);
     napi_typeof(env, result, &valueType);
@@ -199,7 +199,7 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     napi_value result = nullptr;
     napi_value constructor = nullptr;
-    // new instance of JS object ndefMessage  
+    // new instance of JS object ndefMessage
     napi_get_reference_value(env, ndefMessageCreateRef_, &constructor);
     NAPI_CALL(env, napi_new_instance(env, constructor, 0, nullptr, &result));
     return result;

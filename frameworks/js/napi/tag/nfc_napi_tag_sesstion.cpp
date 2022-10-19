@@ -243,8 +243,8 @@ static void SendDataCallback(napi_env env, napi_status status, void *data)
 
 napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
 {
-    //JS API define1: sendData(data: number[]): Promise<number[]>
-    //JS API define2: sendData(data: number[], callback: AsyncCallback<number[]>): void
+    // JS API define1: sendData(data: number[]): Promise<number[]>
+    // JS API define2: sendData(data: number[], callback: AsyncCallback<number[]>): void
     DebugLog("TagSession SendData called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};

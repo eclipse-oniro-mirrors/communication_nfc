@@ -91,7 +91,8 @@ int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string&
         DebugLog("[MifareUltralightTag::WriteSinglePages] connect tag first!");
         return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
     }
-    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) && KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
+    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) &&
+        KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
         char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_WRITE, char(pageIndex & 0xFF)};
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         sendCommand += data;
