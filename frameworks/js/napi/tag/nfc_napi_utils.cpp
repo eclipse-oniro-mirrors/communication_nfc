@@ -301,19 +301,19 @@ void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string sr
         return;
     }
     uint32_t strLength = srcValue.length();
-    if (strLength % 2 != 0) {
+    if (strLength % HEX_BYTE_LEN != 0) {
         srcValue = '0' + srcValue;
         strLength++;
     }
 
-    napi_create_array_with_length(env, (strLength / 2), &result);
-    for (uint32_t i = 0; i < strLength; i += 2) {
+    napi_create_array_with_length(env, (strLength / HEX_BYTE_LEN), &result);
+    for (uint32_t i = 0; i < strLength; i += HEX_BYTE_LEN) {
         // parse the hex string bytes into array.
-        std::string oneByte = srcValue.substr(i, 2);
-        unsigned char hexByte = static_cast<unsigned char> (std::stoi(oneByte, 0, 16));
+        std::string oneByte = srcValue.substr(i, HEX_BYTE_LEN);
+        unsigned char hexByte = static_cast<unsigned char> (std::stoi(oneByte, 0, HEX_VALUE));
         napi_value hexByteValue = nullptr;
         napi_create_int32(env, hexByte, &hexByteValue);
-        napi_set_element(env, result, (i / 2), hexByteValue);
+        napi_set_element(env, result, (i / HEX_BYTE_LEN), hexByteValue);
     }
 }
 

@@ -50,6 +50,10 @@ constexpr int COMMAND_IS_SUPPORTED_APDUS_EXTENDED = TAG_SESSION_START_ID + 14;
 constexpr int COMMAND_SET_TIMEOUT = TAG_SESSION_START_ID + 15;
 constexpr int COMMAND_GET_TIMEOUT = TAG_SESSION_START_ID + 16;
 
+const static uint32_t HEX_BYTE_LEN = 2;
+const static uint32_t HEX_VALUE = 16;
+const static uint32_t HALF_BYTE_BITS = 4;
+
 enum NfcErrorCode : const int {
     NFC_SUCCESS = 0,
     NFC_FAILED,
