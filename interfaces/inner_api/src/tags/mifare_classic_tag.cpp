@@ -29,10 +29,6 @@ MifareClassicTag::MifareClassicTag(std::weak_ptr<TagInfo> tag)
 {
     isEmulated_ = false;
     mifareTagType_ = EmType::TYPE_UNKNOWN;
-    if (tag.expired()) {
-        ErrorLog("MifareClassicTag, tag invalid");
-        return;
-    }
     std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tag);
     if (nfcA == nullptr) {
         ErrorLog("MifareClassicTag, not support NfcA.");
@@ -87,27 +83,28 @@ void MifareClassicTag::SetSizeBySak(int sak)
 
 std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
-        ErrorLog("MifareClassicTag Get nullptr.");
+    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
+        !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
+        ErrorLog("MifareClassicTag::GetTag error, no mathced technology.");
         return nullptr;
     }
 
     return std::make_shared<MifareClassicTag>(tag);
 }
 
-bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA)
+int MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA)
 {
     if ((sectorIndex < 0 || sectorIndex >= MC_MAX_SECTOR_COUNT)) {
         ErrorLog("AuthenticateSector err! sectorIndex %{public}d", sectorIndex);
-        return false;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     if (key.empty()) {
         ErrorLog("AuthenticateSector err! key empty");
-        return false;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     if (!IsConnected()) {
         ErrorLog("AuthenticateSector err! tag is not connected");
-        return false;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     char command[TagInfo::SEND_COMMAND_MAX_LEN];
     int commandLen = 0;
@@ -123,69 +120,58 @@ bool MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& ke
     static const int tagSubLen = 4;
     // Take the first 4 bytes of the tag as part of command
     sendCommand += tagUid.substr(0, tagSubLen) + key;
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return (response == TAG::TagRwResponse::Status::STATUS_SUCCESS);
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
-std::string MifareClassicTag::ReadSingleBlock(uint32_t blockIndex)
+int MifareClassicTag::ReadSingleBlock(uint32_t blockIndex, std::string &hexRespData)
 {
-    InfoLog("MifareClassicTag::ReadSingleBlock in");
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || !IsConnected()) {
         ErrorLog("[MifareClassicTag::ReadSingleBlock] blockIndex= %{public}d err", blockIndex);
-        return "";
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_READ, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    return SendCommand(sendCommand, false, response);
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& data)
 {
-    InfoLog("MifareClassicTag::WriteSingleBlock in");
     if (!IsConnected()) {
         ErrorLog("[MifareClassicTag::WriteSingleBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) ||
         KITS::NfcSdkCommon::GetHexStrBytesLen(data) != MC_BLOCK_SIZE) {
         ErrorLog("[MifareClassicTag::WriteSingleBlock] blockIndex= %{public}d dataLen= %{public}d err",
             blockIndex, KITS::NfcSdkCommon::GetHexStrBytesLen(data));
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_WRITE, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += data;
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
 {
-    InfoLog("MifareClassicTag::IncrementBlock in");
     if (!IsConnected()) {
         ErrorLog("[MifareClassicTag::IncrementBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) || value < 0) {
         ErrorLog("[MifareClassicTag::IncrementBlock] blockIndex= %{public}d value=%{public}d err", blockIndex, value);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_INCREMENT, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
@@ -193,58 +179,50 @@ int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
     InfoLog("MifareClassicTag::DecrementBlock in");
     if (!IsConnected()) {
         ErrorLog("[MifareClassicTag::DecrementBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX || value < 0) {
         ErrorLog("[MifareClassicTag::DecrementBlock] blockIndex= %{public}d value=%{public}d err", blockIndex, value);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_DECREMENT, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
     sendCommand += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::TransferToBlock(uint32_t blockIndex)
 {
-    InfoLog("MifareClassicTag::TransferToBlock in");
     if (!IsConnected()) {
         ErrorLog("[MifareClassicTag::TransferToBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("[MifareClassicTag::TransferToBlock] blockIndex= %{public}d err", blockIndex);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_TRANSFER, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::RestoreFromBlock(uint32_t blockIndex)
 {
-    InfoLog("MifareClassicTag::RestoreFromBlock in");
     if (!IsConnected()) {
         ErrorLog("[MifareClassicTag::TransferToBlock] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("[MifareClassicTag::RestoreFromBlock] blockIndex= %{public}d err", blockIndex);
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_RESTORE, char(blockIndex & 0xFF)};
     std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-
-    int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-    SendCommand(sendCommand, false, response);
-    return response;
+    std::string hexRespData;
+    return SendCommand(sendCommand, false, hexRespData);
 }
 
 int MifareClassicTag::GetSectorCount() const
@@ -276,7 +254,8 @@ int MifareClassicTag::GetBlockCountInSector(int sectorIndex) const
     } else if (sectorIndex >= MC_SECTOR_COUNT_OF_SIZE_2K && sectorIndex < MC_MAX_SECTOR_COUNT) {
         return MC_BLOCK_COUNT_OF_4K;
     }
-    return NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+    ErrorLog("GetBlockCountInSector, error sectorIndex %{public}d", sectorIndex);
+    return MC_ERROR_VALUE;
 }
 
 MifareClassicTag::EmType MifareClassicTag::GetMifareTagType() const
@@ -303,13 +282,15 @@ int MifareClassicTag::GetBlockIndexFromSector(int sectorIndex) const
         return MC_SECTOR_COUNT_OF_SIZE_2K * MC_BLOCK_COUNT +
                (sectorIndex - MC_SECTOR_COUNT_OF_SIZE_2K) * MC_BLOCK_COUNT_OF_4K;
     }
-    return 0;
+    ErrorLog("GetBlockIndexFromSector, error sectorIndex %{public}d", sectorIndex);
+    return MC_ERROR_VALUE;
 }
 
 int MifareClassicTag::GetSectorIndexFromBlock(int blockIndex) const
 {
     if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
-        return 0;
+        ErrorLog("GetSectorIndexFromBlock, error blockIndex %{public}d", blockIndex);
+        return MC_ERROR_VALUE;
     }
     if (blockIndex < MC_SECTOR_COUNT_OF_SIZE_2K * MC_BLOCK_COUNT) {
         return blockIndex / MC_BLOCK_COUNT;

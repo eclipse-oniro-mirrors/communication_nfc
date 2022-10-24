@@ -35,9 +35,8 @@ void NfcControllerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    KITS::NfcErrorCode ret = KITS::NFC_FAILED;
     InfoLog("OnRemoteDied, ##callerToken=%{public}d\n", callerToken_);
-    ret = nfcConctrolService_->UnRegisterAllCallBack(callerToken_);
+    KITS::ErrorCode ret = nfcConctrolService_->UnRegisterAllCallBack(callerToken_);
     InfoLog("OnRemoteDied, UnRegisterAllCallBack##ret=%{public}d\n", ret);
     nfcConctrolService_->RemoveNfcDeathRecipient(remote);
 }

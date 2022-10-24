@@ -21,10 +21,6 @@ namespace NFC {
 namespace KITS {
 IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_ISODEP_TECH)
 {
-    if (tag.expired()) {
-        ErrorLog("IsoDepTag::IsoDepTag tag invalid ");
-        return;
-    }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_ISODEP_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("IsoDepTag::IsoDepTag extra data invalid");
@@ -38,9 +34,8 @@ IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::Ta
 
 std::shared_ptr<IsoDepTag> IsoDepTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    DebugLog("IsoDepTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_ISODEP_TECH)) {
-        ErrorLog("IsoDepTag::GetTag err");
+        ErrorLog("IsoDepTag::GetTag error, no mathced technology.");
         return nullptr;
     }
 
@@ -57,13 +52,13 @@ std::string IsoDepTag::GetHiLayerResponse() const
     return hiLayerResponse_;
 }
 
-bool IsoDepTag::IsExtendedApduSupported() const
+int IsoDepTag::IsExtendedApduSupported(bool &isSupported) const
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
-        return false;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->IsSupportedApdusExtended();
+    return tagSession->IsSupportedApdusExtended(isSupported);
 }
 }  // namespace KITS
 }  // namespace NFC

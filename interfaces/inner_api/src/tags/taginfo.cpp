@@ -142,7 +142,7 @@ std::string TagInfo::GetStringExtrasData(AppExecFwk::PacMap& extrasData, const s
 int TagInfo::GetIntExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName)
 {
     if (extrasData.IsEmpty() || extrasName.empty()) {
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     return extrasData.GetIntValue(extrasName, 0);
 }

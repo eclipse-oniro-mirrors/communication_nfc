@@ -260,7 +260,7 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
         record.nfcStateChangeCallback_ = callback;
         stateRecords_.push_back(record);
     }
-    return KITS::NFC_SUCCESS;
+    return KITS::ERR_NONE;
 }
 
 int NfcService::RemoveRegisterCallBack(const std::string& type,
@@ -268,13 +268,13 @@ int NfcService::RemoveRegisterCallBack(const std::string& type,
 {
     InfoLog("NfcService RemoveRegisterCallBack");
     std::lock_guard<std::mutex> lock(mutex_);
-    int32_t result = KITS::NFC_FAILED;
+    int32_t result = KITS::ERR_NFC_PARAMETERS;
     std::vector<NfcStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
         if (it->type_.compare(type) == 0 && it->callerToken_ == callerToken) {
             InfoLog("NfcService RemoveRegisterCallBack success.");
             stateRecords_.erase(it);
-            result = KITS::NFC_SUCCESS;
+            result = KITS::ERR_NONE;
             break;
         }
     }
@@ -285,13 +285,13 @@ int NfcService::RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID c
 {
     InfoLog("NfcService RemoveAllRegisterCallBack");
     std::lock_guard<std::mutex> lock(mutex_);
-    int32_t result = KITS::NFC_FAILED;
+    int32_t result = KITS::ERR_NFC_PARAMETERS;
     std::vector<NfcStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
         if (it->callerToken_ == callerToken) {
             InfoLog("NfcService RemoveAllRegisterCallBack success.");
             stateRecords_.erase(it);
-            result = KITS::NFC_SUCCESS;
+            result = KITS::ERR_NONE;
             break;
         }
     }

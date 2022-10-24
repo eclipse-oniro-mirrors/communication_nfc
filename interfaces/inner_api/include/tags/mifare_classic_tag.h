@@ -39,6 +39,7 @@ public:
     static const int MC_BLOCK_SIZE = 16;
     static const int MC_MAX_BLOCK_INDEX = 256;
     static const int MC_KEY_LEN = 6;
+    static const int MC_ERROR_VALUE = -1;
 
     static const char MC_KEY_DEFAULT[MC_KEY_LEN];                       // 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     static const char MC_KEY_MAD[MC_KEY_LEN];  // 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5
@@ -85,15 +86,16 @@ public:
      * @param sectorIndex Index of sector to authenticate
      * @param key key(6-byte) to authenticate
      * @param bIsKeyA KeyA flag. true means KeyA, otherwise KeyB
-     * @return Result of authenticattion. if return true, means successful.
+     * @return the error code of calling function.
      */
-    bool AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA);
+    int AuthenticateSector(int sectorIndex, const std::string& key, bool bIsKeyA);
     /**
      * @Description Read a block
      * @param blockIndex index of block to read
-     * @return the block data
+     * @param hexRespData the hex response data for reading.
+     * @return the error code of calling function.
      */
-    std::string ReadSingleBlock(uint32_t blockIndex);
+    int ReadSingleBlock(uint32_t blockIndex, std::string &hexRespData);
     /**
      * @Description Write a block
      * @param blockIndex index of block to write

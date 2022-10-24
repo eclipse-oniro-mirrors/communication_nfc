@@ -84,14 +84,8 @@ public:
      * @return true - Ndef Tag; the other - No Ndef Tag
      */
     bool IsNdef(int tagRfDiscId) override;
-    /**
-     * @brief To send the data to the tagRfDiscId.
-     * @param tagRfDiscId the rf disc id of tag
-     * @param data the sent data
-     * @param raw to send whether original data or un-original data
-     * @return The response result from the host tag
-     */
-    std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) override;
+
+    int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
@@ -118,23 +112,10 @@ public:
      * @return the format result
      */
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
-    /**
-     * @brief Checking the host tag is Read only
-     * @param technology the tag technology
-     * @return true - ReadOnly; false - No Read Only
-     */
-    bool CanMakeReadOnly(int technology) override;
-    /**
-     * @brief Get Max Transceive Length
-     * @param technology the tag technology
-     * @return Max Transceive Length
-     */
+
+    int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
     int GetMaxTransceiveLength(int technology) override;
-    /**
-     * @brief Checking the NfccHost whether It supported the extended Apdus
-     * @return true - yes; false - no
-     */
-    bool IsSupportedApdusExtended() override;
+    int IsSupportedApdusExtended(bool &isSupported) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:

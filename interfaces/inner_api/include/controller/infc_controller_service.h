@@ -47,9 +47,9 @@ public:
      */
     virtual bool IsNfcOpen() = 0;
 
-    virtual KITS::NfcErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+    virtual KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) = 0;
-    virtual KITS::NfcErrorCode UnRegisterCallBack(const std::string& type) = 0;
+    virtual KITS::ErrorCode UnRegisterCallBack(const std::string& type) = 0;
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
 private:
 };

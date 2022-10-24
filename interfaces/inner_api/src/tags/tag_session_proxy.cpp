@@ -24,10 +24,10 @@ namespace NFC {
 namespace TAG {
 int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 {
-    int result = KITS::NfcErrorCode::NFC_FAILED;
+    int result = KITS::ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(static_cast<int32_t>(technology));
@@ -38,10 +38,10 @@ int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 
 int TagSessionProxy::Reconnect(int tagRfDiscId)
 {
-    int result = KITS::NfcErrorCode::NFC_FAILED;
+    int result = KITS::ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
@@ -93,7 +93,7 @@ int TagSessionProxy::GetMaxTransceiveLength(int technology)
     int result = 0;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
@@ -101,27 +101,21 @@ int TagSessionProxy::GetMaxTransceiveLength(int technology)
     return result;
 }
 
-std::unique_ptr<TagRwResponse> TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string msg, bool raw)
+int TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     MessageParcel data, reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return std::unique_ptr<TagRwResponse>();
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
-    data.WriteString(msg);
+    data.WriteString(hexCmdData);
     data.WriteBool(raw);
-    int res = Remote()->SendRequest(KITS::COMMAND_SEND_RAW_FRAME, data, reply, option);
-    if (res != ERR_NONE) {
-        ErrorLog("It is failed To Send Raw Frame with Res(%{public}d).", res);
-        return std::unique_ptr<TagRwResponse>();
+    int statusCode = Remote()->SendRequest(KITS::COMMAND_SEND_RAW_FRAME, data, reply, option);
+    if (statusCode == ERR_NONE) {
+        hexRespData = reply.ReadString();
     }
-    sptr<TagRwResponse> result = reply.ReadStrongParcelable<TagRwResponse>();
-    std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
-    resResult->SetResult(result->GetResult());
-    resResult->SetResData(result->GetResData());
-    DebugLog("TagSessionProxy::SendRawFrame result.%{public}d", result->GetResult());
-    return resResult;
+    return statusCode;
 }
 
 std::vector<int> TagSessionProxy::GetTechList(int tagRfDiscId)
@@ -191,7 +185,7 @@ int TagSessionProxy::NdefWrite(int tagRfDiscId, std::string msg)
     int result = 0;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteString(msg);
@@ -205,7 +199,7 @@ int TagSessionProxy::NdefMakeReadOnly(int tagRfDiscId)
     int result = 0;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
@@ -218,7 +212,7 @@ int TagSessionProxy::FormatNdef(int tagRfDiscId, const std::string& key)
     int result = 0;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_UNKOWN;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteString(key);
@@ -227,29 +221,26 @@ int TagSessionProxy::FormatNdef(int tagRfDiscId, const std::string& key)
     return result;
 }
 
-bool TagSessionProxy::CanMakeReadOnly(int technology)
+int TagSessionProxy::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
 {
-    bool result = false;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
-    data.WriteInt32(technology);
+    data.WriteInt32(ndefType);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyBool(KITS::COMMAND_CAN_MAKE_READ_ONLY, data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyBool(KITS::COMMAND_CAN_MAKE_READ_ONLY, data, option, canSetReadOnly);
+    return statusCode;
 }
 
-bool TagSessionProxy::IsSupportedApdusExtended()
+int TagSessionProxy::IsSupportedApdusExtended(bool &isSupported)
 {
-    bool result = false;
     MessageParcel data;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return false;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    SendRequestExpectReplyBool(KITS::COMMAND_IS_SUPPORTED_APDUS_EXTENDED, data, option, result);
-    return result;
+    return SendRequestExpectReplyBool(KITS::COMMAND_IS_SUPPORTED_APDUS_EXTENDED, data, option, isSupported);
 }
 }  // namespace TAG
 }  // namespace NFC

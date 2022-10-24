@@ -35,12 +35,10 @@ NfcFTag::NfcFTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 
 std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    DebugLog("NfcFTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
-        ErrorLog("NfcFTag::GetTag no NFC_F_TECH");
+        ErrorLog("NfcFTag::GetTag error, no mathced technology.");
         return nullptr;
     }
-
     return std::make_shared<NfcFTag>(tag);
 }
 

@@ -44,16 +44,17 @@ public:
     /**
      * @Description Read 4 pages(16 bytes).
      * @param pageIndex index of page to read
-     * @return 4 pages data
+     * @param hexRespData the hex response data for reading.
+     * @return the error code of calling function.
      */
-    std::string ReadMultiplePages(uint32_t pageIndex);
+    int ReadMultiplePages(uint32_t pageIndex, std::string &hexRespData);
     /**
      * @Description Write a page
      * @param pageIndex index of page to write
      * @param data page data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteSinglePages(uint32_t pageIndex, const std::string& data);
+    int WriteSinglePage(uint32_t pageIndex, const std::string& data);
     /**
      * @Description Get the type of the MifareUltralight tag in bytes.
      * @param void

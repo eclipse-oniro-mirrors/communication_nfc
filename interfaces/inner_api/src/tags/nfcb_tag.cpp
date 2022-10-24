@@ -21,10 +21,6 @@ namespace NFC {
 namespace KITS {
 NfcBTag::NfcBTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_B_TECH)
 {
-    if (tag.expired()) {
-        ErrorLog("NfcBTag::NfcBTag tag invalid ");
-        return;
-    }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_B_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcBTag::NfcBTag extra data invalid");
@@ -39,12 +35,10 @@ NfcBTag::NfcBTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 
 std::shared_ptr<NfcBTag> NfcBTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    DebugLog("NfcBTag::GetTag in");
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_B_TECH)) {
-        ErrorLog("NfcBTag::GetTag err");
+        ErrorLog("NfcBTag::GetTag error, no mathced technology.");
         return nullptr;
     }
-
     return std::make_shared<NfcBTag>(tag);
 }
 

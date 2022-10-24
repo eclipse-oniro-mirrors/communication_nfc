@@ -119,7 +119,7 @@ bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value arg
     status = napi_get_arraybuffer_info(env, args, (void **)data, &size);
     if (status != napi_ok) {
         ErrorLog("can not get arraybuffer, error is %{public}d", status);
-        (*data)[0] = ERROR_DEFAULT;
+        (*data)[0] = 0;
         return false;
     }
     DebugLog("arraybuffer size is %{public}zu,buffer is %{public}d", size, (*data)[0]);
@@ -393,8 +393,7 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
     std::unique_ptr<BaseContext> context(baseContext);
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_invalid_arg);
-        std::string errorMessage = "error at baseContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
     }
     napi_value result = nullptr;
     if (context->callbackRef == nullptr) {
@@ -413,56 +412,20 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
         DebugLog("NapiUtil HandleAsyncWork napi_queue_async_work ok");
     } else {
         std::string errorCode = std::to_string(queueWorkStatus);
-        std::string errorMessage = "error at napi_queue_async_work";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
     }
     DebugLog("NfcUtil HandleAsyncWork end");
     return result;
 }
 
-void Handle1ValueCallback(napi_env env, BaseContext *baseContext, napi_value callbackValue)
+void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *baseContext, napi_value callbackValue)
 {
-    DebugLog("Handle1ValueCallback start");
     if (baseContext == nullptr) {
-        std::string errorCode = std::to_string(napi_invalid_arg);
-        std::string errorMessage = "error at baseContext is nullptr";
-        NAPI_CALL_RETURN_VOID(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
-    }
-    if (baseContext->callbackRef != nullptr) {
-        DebugLog("Handle1ValueCallback start normal callback");
-        napi_value recv = CreateUndefined(env);
-        napi_value callbackFunc = nullptr;
-        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, baseContext->callbackRef, &callbackFunc));
-        napi_value callbackValues[] = {callbackValue};
-        napi_value result = nullptr;
-        NAPI_CALL_RETURN_VOID(
-            env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
-    } else if (baseContext->deferred != nullptr) {
-        DebugLog("Handle1ValueCallback start promise callback");
-        if (baseContext->resolved) {
-            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
-        } else {
-            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, callbackValue));
-        }
-    }
-    napi_delete_async_work(env, baseContext->work);
-    delete baseContext;
-    baseContext = nullptr;
-}
-
-void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value callbackValue)
-{
-    DebugLog("Handle2ValueCallback start");
-    if (baseContext == nullptr) {
-        DebugLog("Handle2ValueCallback serious error baseContext nullptr");
-        std::string errorCode = std::to_string(napi_invalid_arg);
-        std::string errorMessage = "error at baseContext is nullptr";
-        NAPI_CALL_RETURN_VOID(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        ErrorLog("DoAsyncCallbackOrPromise serious error baseContext nullptr");
         return;
     }
     if (baseContext->callbackRef != nullptr) {
-        DebugLog("Handle2ValueCallback start normal callback");
+        DebugLog("DoAsyncCallbackOrPromise for callback");
         napi_value recv = CreateUndefined(env);
         napi_value callbackFunc = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, baseContext->callbackRef, &callbackFunc));
@@ -474,6 +437,7 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
             env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
     } else if (baseContext->deferred != nullptr) {
+        DebugLog("DoAsyncCallbackOrPromise for promise");
         if (baseContext->resolved) {
             NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, baseContext->deferred, callbackValue));
         } else {
@@ -483,6 +447,152 @@ void Handle2ValueCallback(napi_env env, BaseContext *baseContext, napi_value cal
     napi_delete_async_work(env, baseContext->work);
     delete baseContext;
     baseContext = nullptr;
+}
+
+void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, std::string &errMsg)
+{
+    napi_value businessError = CreateErrorMessage(env, errMsg, errCode);
+    if (baseContext->callbackRef != nullptr) {
+        DebugLog("ThrowAsyncError for callback");
+        napi_value recv = CreateUndefined(env);
+        napi_value callbackFunc = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, baseContext->callbackRef, &callbackFunc));
+        napi_value callbackValues[] = {nullptr, nullptr};
+        callbackValues[0] = businessError; // parameter "error"
+        callbackValues[1] = CreateUndefined(env); // parameter "callback"
+        napi_value result = nullptr;
+        NAPI_CALL_RETURN_VOID(
+            env, napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &result));
+        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, baseContext->callbackRef));
+    } else if (baseContext->deferred != nullptr) {
+        DebugLog("ThrowAsyncError for promise");
+        NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, businessError));
+    }
+
+    if (baseContext != nullptr) {
+        if (baseContext->work != nullptr) {
+            napi_delete_async_work(env, baseContext->work);
+        }
+        delete baseContext;
+        baseContext = nullptr;
+    }
+}
+
+bool IsNumberArray(const napi_env &env, const napi_value &param)
+{
+    if (!IsArray(env, param)) {
+        return false;
+    }
+
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, param, &arrayLength);
+    napi_value elementValue = nullptr;
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        napi_get_element(env, param, i, &elementValue);
+        napi_valuetype elementType = napi_undefined;
+        napi_typeof(env, elementValue, &elementType);
+        if (elementType != napi_number) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool IsObjectArray(const napi_env &env, const napi_value &param)
+{
+    if (!IsArray(env, param)) {
+        return false;
+    }
+
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, param, &arrayLength);
+    napi_value elementValue = nullptr;
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        napi_get_element(env, param, i, &elementValue);
+        napi_valuetype elementType = napi_undefined;
+        napi_typeof(env, elementValue, &elementType);
+        if (elementType != napi_object) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool IsArray(const napi_env &env, const napi_value &param)
+{
+    bool arrayType = false;
+    napi_status status = napi_is_array(env, param, &arrayType);
+    if (status != napi_ok || !arrayType) {
+        return false;
+    }
+    
+    uint32_t arrayLength = 0;
+    napi_get_array_length(env, param, &arrayLength);
+    if (arrayLength == 0) {
+        return false;
+    }
+    return true;
+}
+
+bool IsNumber(const napi_env &env, const napi_value &param)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, param, &valueType);
+    return valueType == napi_number;
+}
+
+bool IsString(const napi_env &env, const napi_value &param)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, param, &valueType);
+    return valueType == napi_string;
+}
+
+bool IsObject(const napi_env &env, const napi_value &param)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, param, &valueType);
+    return valueType == napi_object;
+}
+
+std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
+    std::string paramName, std::string expertedType)
+{
+    std::string errMsg;
+    if (errCode == BUSI_ERR_PERM) {
+        return errMsg.append("Permission denied. An attempt was made to ${")
+            .append(funcName)
+            .append("} forbidden by permission: ${")
+            .append(forbiddenPerm)
+            .append("}.");
+    } else if (errCode == BUSI_ERR_PARAM) {
+        if (paramName.length() > 0) {
+            return errMsg.append("Parameter error. The type of \"${")
+                .append(paramName)
+                .append("}\" must be ${")
+                .append(expertedType)
+                .append("}.");
+        } else {
+            return "Parameter error. The parameter number is invalid.";
+        }
+    } else if (errCode == INNER_ERR_TAG_PARAM_INVALID) {
+        return "The parsed parameter value of tag is mismatched with this function.";
+    } else if (errCode >= BUSI_ERR_TAG_STATE_INVALID) {
+        return "The tag running state of service is abnormal.";
+    }
+    return "Unknown error message";
+}
+
+napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage)
+{
+    napi_value code = nullptr;
+    napi_create_uint32(env, errCode, &code);
+    napi_value message = nullptr;
+    napi_create_string_utf8(env, errMessage.c_str(), NAPI_AUTO_LENGTH, &message);
+    napi_value businessError = nullptr;
+    napi_create_error(env, nullptr, message, &businessError);
+    napi_set_named_property(env, businessError, KEY_CODE.c_str(), code);
+    return businessError;
 }
 } // namespace KITS
 } // namespace NFC

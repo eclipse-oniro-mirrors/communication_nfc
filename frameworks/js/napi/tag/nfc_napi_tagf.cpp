@@ -25,7 +25,7 @@ napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcFTag GetSystemCode called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;
@@ -50,7 +50,7 @@ napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcFTag GetPmm called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;

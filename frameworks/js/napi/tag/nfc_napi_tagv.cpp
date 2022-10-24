@@ -24,7 +24,7 @@ napi_value NapiNfcVTag::GetResponseFlags(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcVTag GetResponseFlags called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcVTag *objectInfo = nullptr;
@@ -50,7 +50,7 @@ napi_value NapiNfcVTag::GetDsfId(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcVTag GetDsfId called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcVTag *objectInfo = nullptr;

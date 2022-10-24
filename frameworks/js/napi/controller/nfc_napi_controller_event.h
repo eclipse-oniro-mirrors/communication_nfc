@@ -82,8 +82,8 @@ public:
     void Unregister(const napi_env& env, const std::string& type, napi_value handler);
 
 private:
-    NfcErrorCode RegisterNfcStateChangedEvents(const std::string& type);
-    NfcErrorCode UnRegisterNfcEvents(const std::string& type);
+    ErrorCode RegisterNfcStateChangedEvents(const std::string& type);
+    ErrorCode UnRegisterNfcEvents(const std::string& type);
     bool IsEventSupport(const std::string& type);
     void DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs, napi_value& handler);
     void DeleteAllRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs);

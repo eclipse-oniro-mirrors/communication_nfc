@@ -24,7 +24,7 @@ napi_value NapiNfcATag::GetSak(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcATag GetSak called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
@@ -60,7 +60,7 @@ napi_value NapiNfcATag::GetAtqa(napi_env env, napi_callback_info info)
 {
     DebugLog("GetNfcATag GetAtqa called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));

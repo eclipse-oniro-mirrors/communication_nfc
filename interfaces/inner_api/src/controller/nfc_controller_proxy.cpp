@@ -32,7 +32,7 @@ bool NfcControllerProxy::TurnOn()
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     int32_t res = SendRequestExpectReplyBool(KITS::COMMAND_TURN_ON, data, option, result);
     if (res != ERR_NONE) {
@@ -48,7 +48,7 @@ bool NfcControllerProxy::TurnOff()
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     MessageOption option;
     int res = SendRequestExpectReplyBool(KITS::COMMAND_TURN_OFF, data, option, result);
@@ -66,7 +66,7 @@ int NfcControllerProxy::GetState()
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     int res = SendRequestExpectReplyInt(KITS::COMMAND_GET_STATE, data, option, state);
     if (res != ERR_NONE) {
@@ -83,7 +83,7 @@ bool NfcControllerProxy::IsNfcOpen()
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
     int res = SendRequestExpectReplyBool(KITS::COMMAND_IS_NFC_OPEN, data, option, result);
@@ -94,7 +94,7 @@ bool NfcControllerProxy::IsNfcOpen()
     return result;
 }
 
-KITS::NfcErrorCode NfcControllerProxy::RegisterCallBack(
+KITS::ErrorCode NfcControllerProxy::RegisterCallBack(
     const sptr<INfcControllerCallback> &callback,
     const std::string& type)
 {
@@ -105,46 +105,46 @@ KITS::NfcErrorCode NfcControllerProxy::RegisterCallBack(
     g_nfcControllerCallbackStub->RegisterCallBack(callback);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     if (!data.WriteString(type)) {
         ErrorLog("Write type error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
     if (!data.WriteRemoteObject(g_nfcControllerCallbackStub->AsObject())) {
         ErrorLog("RegisterCallBack WriteRemoteObject failed!");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
 
     int error = SendRequestExpectReplyNone(KITS::COMMAND_REGISTER_CALLBACK, data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
-    return KITS::NFC_SUCCESS;
+    return KITS::ERR_NONE;
 }
 
-KITS::NfcErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& type)
+KITS::ErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& type)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     if (!data.WriteString(type)) {
         ErrorLog("Write type error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
     int error = SendRequestExpectReplyNone(KITS::COMMAND_UNREGISTER_CALLBACK, data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
-    return KITS::NFC_SUCCESS;
+    return KITS::ERR_NONE;
 }
 
 OHOS::sptr<IRemoteObject> NfcControllerProxy::GetTagServiceIface()

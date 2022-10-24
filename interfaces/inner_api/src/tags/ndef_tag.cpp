@@ -20,10 +20,6 @@ namespace NFC {
 namespace KITS {
 NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_NDEF_TECH)
 {
-    if (tag.expired()) {
-        ErrorLog("NdefTag::NdefTag tag invalid");
-        return;
-    }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_NDEF_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NdefTag::NdefTag extra data invalid");
@@ -42,7 +38,7 @@ NdefTag::NdefTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
 std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
-        ErrorLog("NdefTag::GetTag error or no ndef tech included");
+        ErrorLog("NdefTag::GetTag error, no mathced technology.");
         return nullptr;
     }
 
@@ -102,42 +98,43 @@ bool NdefTag::IsNdefWritable() const
     return (ndefTagMode_ == EmNdefTagMode::MODE_READ_WRITE);
 }
 
-std::shared_ptr<NdefMessage> NdefTag::ReadNdef()
+int NdefTag::ReadNdef(std::shared_ptr<NdefMessage> ndefMessage)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
-        return std::shared_ptr<NdefMessage>();
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     if (tagSession->IsNdef(GetTagRfDiscId())) {
-        std::string MessageData = tagSession->NdefRead(GetTagRfDiscId());
-        if (MessageData.empty() && !tagSession->IsTagFieldOn(GetTagRfDiscId())) {
+        std::string messageData = tagSession->NdefRead(GetTagRfDiscId());
+        if (messageData.empty() && !tagSession->IsTagFieldOn(GetTagRfDiscId())) {
             ErrorLog("[NdefTag::ReadNdef] read ndef message is null and tag is not field on");
-            return std::shared_ptr<NdefMessage>();
+            return ErrorCode::ERR_TAG_STATE_LOST;
         }
 
-        return NdefMessage::GetNdefMessage(MessageData);
+        ndefMessage = NdefMessage::GetNdefMessage(messageData);
+        return ErrorCode::ERR_NONE;
     } else {
         if (!tagSession->IsTagFieldOn(GetTagRfDiscId())) {
             WarnLog("[NdefTag::ReadNdef] tag is not field on.");
-            return std::shared_ptr<NdefMessage>();
+            return ErrorCode::ERR_TAG_STATE_LOST;
         }
     }
-    return std::shared_ptr<NdefMessage>();
+    return ErrorCode::ERR_TAG_PARAMETERS;
 }
 
 int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
 {
     if (!IsConnected()) {
         ErrorLog("[NdefTag::WriteNdef] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
 
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::WriteNdef] tagSession is null.");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     if (tagSession->IsNdef(GetTagRfDiscId())) {
@@ -145,30 +142,30 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
     } else {
         ErrorLog("[NdefTag::WriteNdef] is not ndef tag!");
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_NDEF_TAG;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 }
 
-bool NdefTag::IsEnableReadOnly()
+int NdefTag::IsEnableReadOnly(bool &canSetReadOnly)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         DebugLog("[NdefTag::IsEnableReadOnly] tagSession is null.");
-        return 0;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->CanMakeReadOnly(nfcForumType_);
+    return tagSession->CanMakeReadOnly(nfcForumType_, canSetReadOnly);
 }
 
 int NdefTag::EnableReadOnly()
 {
     if (!IsConnected()) {
         ErrorLog("[NdefTag::EnableReadOnly] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
         ErrorLog("[NdefTag::EnableReadOnly] tagSession is null.");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     return tagSession->NdefMakeReadOnly(GetTagRfDiscId());
 }

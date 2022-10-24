@@ -45,18 +45,18 @@ int NfcControllerCallBackStub::OnRemoteRequest(
 {
     DebugLog("NfcControllerCallBackStub::OnRemoteRequest,code = %{public}d", code);
     if (mRemoteDied) {
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_STATE_UNBIND;
     }
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ErrorLog("nfc callback stub token verification error");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     int exception = data.ReadInt32();
     if (exception) {
         ErrorLog("ConnectedTagCallBackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
-        return KITS::NFC_FAILED;
+        return exception;
     }
-    int ret = KITS::NFC_FAILED;
+    int ret = KITS::ERR_NFC_STATE_UNBIND;
     switch (code) {
         case KITS::COMMAND_ON_NOTIFY: {
             ret = RemoteNfcStateChanged(data, reply);
@@ -70,17 +70,17 @@ int NfcControllerCallBackStub::OnRemoteRequest(
     return ret;
 }
 
-KITS::NfcErrorCode NfcControllerCallBackStub::RegisterCallBack(const sptr<INfcControllerCallback> &callBack)
+KITS::ErrorCode NfcControllerCallBackStub::RegisterCallBack(const sptr<INfcControllerCallback> &callBack)
 {
     DebugLog("NfcControllerCallBackStub RegisterCallBack");
     std::shared_lock<std::shared_mutex> guard(callbackMutex);
     if (callBack == nullptr) {
         ErrorLog("RegisterUserCallBack:callBack is nullptr!");
         callback_ = callBack;
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     callback_ = callBack;
-    return KITS::NFC_SUCCESS;
+    return KITS::ERR_NONE;
 }
 
 int NfcControllerCallBackStub::RemoteNfcStateChanged(MessageParcel &data, MessageParcel &reply)
@@ -89,8 +89,8 @@ int NfcControllerCallBackStub::RemoteNfcStateChanged(MessageParcel &data, Messag
     int state = data.ReadInt32();
     std::shared_lock<std::shared_mutex> guard(callbackMutex);
     OnNfcStateChanged(state);
-    reply.WriteInt32(KITS::NFC_SUCCESS); /* Reply 0 to indicate that no exception occurs. */
-    return KITS::NFC_SUCCESS;
+    reply.WriteInt32(KITS::ERR_NONE); /* Reply 0 to indicate that no exception occurs. */
+    return KITS::ERR_NONE;
 }
 }  // namespace NFC
 }  // namespace OHOS

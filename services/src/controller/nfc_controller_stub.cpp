@@ -29,7 +29,7 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
     InfoLog("NfcControllerStub OnRemoteRequest occur, code is %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ErrorLog("NfcControllerStub OnRemoteRequest GetDescriptor failed");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     switch (code) {
         case KITS::COMMAND_GET_STATE:
@@ -61,7 +61,7 @@ int NfcControllerStub::HandleGetState(MessageParcel& data, MessageParcel& reply)
 int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     bool result = TurnOn();
     reply.WriteInt32(result);
@@ -71,7 +71,7 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     bool result = TurnOff();
     reply.WriteInt32(result);
@@ -83,7 +83,7 @@ int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply
     DebugLog("NfcControllerStub::HandleIsNfcOpen");
     int exception = data.ReadInt32();
     if (exception) {
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
     bool result = IsNfcOpen();
     DebugLog("NfcControllerStub::result =%{public}d", result);
@@ -97,9 +97,9 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
     std::string type = data.ReadString();
     int exception = data.ReadInt32();
     if (exception) {
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::NfcErrorCode ret = KITS::NFC_FAILED;
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
     do {
         sptr<IRemoteObject> remote = data.ReadRemoteObject();
         if (remote == nullptr) {
@@ -152,22 +152,22 @@ int NfcControllerStub::HandleUnRegisterCallBack(MessageParcel &data, MessageParc
     std::string type = data.ReadString();
     int exception = data.ReadInt32();
     if (exception) {
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::NfcErrorCode ret = KITS::NFC_FAILED;
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
     ret = UnRegisterCallBack(type);
     DebugLog("OnUnRegisterCallBack::OnUnRegisterCallBack end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ERR_NONE;
 }
 
-KITS::NfcErrorCode NfcControllerStub::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
+KITS::ErrorCode NfcControllerStub::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
     const std::string& type)
 {
     return RegisterCallBack(callback_, type, IPCSkeleton::GetCallingTokenID());
 }
 
-KITS::NfcErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
+KITS::ErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
 {
     return UnRegisterCallBack(type, IPCSkeleton::GetCallingTokenID());
 }
@@ -177,7 +177,7 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
     OHOS::sptr<IRemoteObject> remoteOjbect = GetTagServiceIface();
     if (remoteOjbect == nullptr) {
         ErrorLog("HandleGetNfcTagInterface remoteOjbect null!");
-        return KITS::NFC_FAILED;
+        return KITS::ERR_NFC_PARAMETERS;
     }
 
     reply.WriteRemoteObject(remoteOjbect);
