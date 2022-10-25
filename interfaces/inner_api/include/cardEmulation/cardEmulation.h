@@ -22,17 +22,17 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
-class cardEmulation final {
+class CardEmulation final {
 public:
-    explicit cardEmulation();
-    ~cardEmulation();
+    explicit CardEmulation();
+    ~CardEmulation();
 
     /**
      * @Description Get an object of nfc cardEmulation.
      * @param void
      * @return an object of nfc cardEmulation
      */
-    static cardEmulation &GetInstance();
+    static CardEmulation &GetInstance();
 
     /**
      * Checks whether a specified type of card emulation is supported.

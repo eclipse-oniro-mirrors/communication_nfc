@@ -37,8 +37,8 @@ public:
 public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
-    static constexpr const auto TEST_SYSTEMCODE_DATA = "systemcode";
-    static constexpr const auto TEST_PMM_INFO = "pmm";
+    static constexpr const auto TEST_SYSTEMCODE_DATA = "0103";
+    static constexpr const auto TEST_PMM_INFO = "0104";
     static constexpr const auto TEST_NFCF_INDEX = 0;
     std::shared_ptr<TagInfo> tagInfo_;
 };
@@ -100,16 +100,6 @@ HWTEST_F(NfcFTagTest, GetTag002, TestSize.Level1)
 }
 /**
  * @tc.name: GetTag003
- * @tc.desc: Test NfcBTag GetTag.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcFTagTest, GetTag003, TestSize.Level1)
-{
-    std::shared_ptr<NfcBTag> nfcB = NfcBTag::GetTag(tagInfo_);
-    ASSERT_TRUE(nfcB == nullptr);
-}
-/**
- * @tc.name: GetTag004
  * @tc.desc: Test NfcFTag GetTag.
  * @tc.type: FUNC
  */
