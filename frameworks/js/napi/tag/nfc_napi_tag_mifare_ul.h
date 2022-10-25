@@ -28,7 +28,7 @@ namespace NFC {
 namespace KITS {
 struct NapiMifareUltralightTag : public NapiNfcTagSession {
     static napi_value ReadMultiplePages(napi_env env, napi_callback_info info);
-    static napi_value WriteSinglePages(napi_env env, napi_callback_info info);
+    static napi_value WriteSinglePage(napi_env env, napi_callback_info info);
     static napi_value GetType(napi_env env, napi_callback_info info);
 };
 

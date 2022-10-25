@@ -36,7 +36,7 @@ int NfcBasicProxy::SendRequestExpectReplyBool(int cmd, MessageParcel& data, Mess
     if (ret == ERR_NONE) {
         result = reply.ReadBool();
     }
-    InfoLog("SendRequestExpectReplyInt, cmd %{public}d, ret %{public}d, reply %{public}d", cmd, ret, result);
+    InfoLog("SendRequestExpectReplyBool, cmd %{public}d, ret %{public}d, reply %{public}d", cmd, ret, result);
     return ret;
 }
 

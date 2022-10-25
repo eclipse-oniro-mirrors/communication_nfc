@@ -47,10 +47,10 @@ public:
 
     /**
      * @Description is supported for 3 bytes length APUDs to send, the max length is 65535 bytes.
-     * @param void
-     * @return true supported for max APUDs, otherwise unsupported.
+     * @param isSupported the output for checking supportting extended apdu or not.
+     * @return the error code of calling function.
      */
-    bool IsExtendedApduSupported() const;
+    int IsExtendedApduSupported(bool &isSupported) const;
 
 private:
     std::string historicalBytes_ {};

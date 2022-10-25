@@ -21,11 +21,14 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 NdefFormatableTag::NdefFormatableTag(std::weak_ptr<TagInfo> tag)
-    : BasicTagSession(tag, KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH) {}
+    : BasicTagSession(tag, KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH)
+{
+}
 
 std::shared_ptr<NdefFormatableTag> NdefFormatableTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
     if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH)) {
+        ErrorLog("NdefFormatableTag::GetTag error, no mathced technology.");
         return nullptr;
     }
 
@@ -46,42 +49,41 @@ int NFC::KITS::NdefFormatableTag::Format(std::weak_ptr<NdefMessage> firstMessage
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
-        ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_INVALID;
+        ErrorLog("[NdefFormatableTag::Format] tagSession is null.");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     int tagRfDiscId = GetTagRfDiscId();
     std::string keyDefault(MifareClassicTag::MC_KEY_DEFAULT, MifareClassicTag::MC_KEY_LEN);
     int res = tagSession->FormatNdef(tagRfDiscId, keyDefault);
-    if (res != NfcErrorCode::NFC_SUCCESS) {
+    if (res != ErrorCode::ERR_NONE) {
+        ErrorLog("[NdefFormatableTag::Format] res failed.");
         return res;
     }
 
     if (!tagSession->IsNdef(tagRfDiscId)) {
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_INVALID;
+        ErrorLog("[NdefFormatableTag::Format] IsNdef failed.");
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (!firstMessage.expired()) {
         std::string ndefMessage = NdefMessage::MessageToString(firstMessage);
         if (ndefMessage.empty()) {
-            return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+            return ErrorCode::ERR_TAG_PARAMETERS;
         }
         res = tagSession->NdefWrite(tagRfDiscId, ndefMessage);
-        if (res != NfcErrorCode::NFC_SUCCESS) {
+        if (res != ErrorCode::ERR_NONE) {
             return res;
         }
     }
 
     if (bMakeReadOnly) {
-        if (!tagSession->CanMakeReadOnly(tagRfDiscId)) {
-            return NfcErrorCode::NFC_SDK_ERROR_DISABLE_MAKE_READONLY;
-        }
         res = tagSession->NdefMakeReadOnly(tagRfDiscId);
-        if (res != NfcErrorCode::NFC_SUCCESS) {
+        if (res != ErrorCode::ERR_NONE) {
             return res;
         }
     }
-    return NfcErrorCode::NFC_SUCCESS;
+    return ErrorCode::ERR_NONE;
 }
 }  // namespace KITS
 }  // namespace NFC

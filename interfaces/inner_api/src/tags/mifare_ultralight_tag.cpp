@@ -22,11 +22,6 @@ namespace KITS {
 MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
     : BasicTagSession(tag, KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)
 {
-    InfoLog("MifareUltralightTag::MifareUltralightTag in");
-    if (tag.expired()) {
-        ErrorLog("MifareUltralightTag, tag invalid");
-        return;
-    }
     type_ = EmType::TYPE_UNKNOWN;
     std::shared_ptr<NfcATag> nfcA = NfcATag::GetTag(tag);
     if (nfcA == nullptr) {
@@ -55,54 +50,45 @@ MifareUltralightTag::~MifareUltralightTag()
 
 std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    InfoLog("MifareUltralightTag::GetTag in tech len.%{public}d ", (int)tag.lock()->GetTagTechList().size());
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
-        ErrorLog("MifareUltralightTag::GetTag tag invalid");
+    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
+        !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+        ErrorLog("MifareUltralightTag::GetTag error, no mathced technology.");
         return nullptr;
     }
 
     return std::make_shared<MifareUltralightTag>(tag);
 }
 
-std::string MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex)
+int MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex, std::string &hexRespData)
 {
-    InfoLog("MifareUltralightTag::ReadMultiplePages in.");
     if (!IsConnected()) {
         DebugLog("[MifareUltralightTag::ReadMultiplePages] connect tag first!");
-        return "";
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT)) {
         char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_READ, char(pageIndex & 0xFF)};
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         DebugLog("%02X  %02X   ", command[0], command[1]);
-
-        int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-        return SendCommand(sendCommand, false, response);
-    } else {
-        ErrorLog("[MifareUltralightTag::ReadMultiplePages] pageindex.%{public}d err!", pageIndex);
+        return SendCommand(sendCommand, false, hexRespData);
     }
-    return "";
+    return ErrorCode::ERR_TAG_PARAMETERS;
 }
 
-int MifareUltralightTag::WriteSinglePages(uint32_t pageIndex, const std::string& data)
+int MifareUltralightTag::WriteSinglePage(uint32_t pageIndex, const std::string& data)
 {
-    InfoLog("MifareUltralightTag::WriteSinglePages in.");
     if (!IsConnected()) {
-        DebugLog("[MifareUltralightTag::WriteSinglePages] connect tag first!");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_NOT_CONNECT;
+        DebugLog("[MifareUltralightTag::WriteSinglePage] connect tag first!");
+        return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) && KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
+    if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) &&
+        KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
         char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_WRITE, char(pageIndex & 0xFF)};
         std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
         sendCommand += data;
-
-        int response = TAG::TagRwResponse::Status::STATUS_FAILURE;
-        SendCommand(sendCommand, false, response);
-        return response;
+        std::string hexRespData;
+        return SendCommand(sendCommand, false, hexRespData);
     }
-
-    ErrorLog("MifareUltralightTag::WriteSinglePages param error!");
-    return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+    return ErrorCode::ERR_TAG_PARAMETERS;
 }
 
 MifareUltralightTag::EmType MifareUltralightTag::GetType() const

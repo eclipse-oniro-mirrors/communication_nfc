@@ -23,58 +23,64 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 
 static bool MatchReadMultiplePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool typeMatch = false;
+    bool isTypeMatched = false;
     switch (parameterCount) {
         case ARGV_NUM_1: {
-            typeMatch = MatchParameters(env, parameters, {napi_number});
+            isTypeMatched = MatchParameters(env, parameters, {napi_number});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "pageIndex", "number")));
+            }
             break;
         }
         case ARGV_NUM_2:
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_function});
+            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_function});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "pageIndex & callback", "number & function")));
+            }
             break;
         default: {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
             return false;
         }
     }
-    return typeMatch;
+    return isTypeMatched;
 }
 
 static void NativeReadMultiplePages(napi_env env, void *data)
 {
-    DebugLog("NativeReadMultiplePages called");
     auto context = static_cast<MifareUltralightContext<std::string, NapiMifareUltralightTag> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareUlTagPtr == nullptr) {
-        ErrorLog("NativeReadMultiplePages find objectInfo failed!");
+    if (nfcMifareUlTagPtr != nullptr) {
+        std::string hexRespData;
+        context->errorCode = nfcMifareUlTagPtr->ReadMultiplePages(context->pageIndex, hexRespData);
+        context->value = hexRespData;
     } else {
-        context->value = nfcMifareUlTagPtr->ReadMultiplePages(context->pageIndex);
-        DebugLog("NativeReadMultiplePages context value = %{public}s", context->value.c_str());
+        ErrorLog("NativeReadMultiplePages, nfcMifareUlTagPtr failed.");
     }
     context->resolved = true;
 }
 
 static void ReadMultiplePagesCallback(napi_env env, napi_status status, void *data)
 {
-    DebugLog("ReadMultiplePagesCallback called");
     auto context = static_cast<MifareUltralightContext<std::string, NapiMifareUltralightTag> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            ConvertStringToNumberArray(env, callbackValue, context->value);
-        } else {
-            callbackValue = CreateErrorMessage(env, "ReadMultiplePages error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is number[].
+        ConvertStringToNumberArray(env, callbackValue, context->value);
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue = CreateErrorMessage(env, "ReadMultiplePages error,napi_status = " + std ::to_string(status));
+        std::string errMessage = BuildErrorMessage(context->errorCode, "readMultiplePages", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, errMessage);
     }
-
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
 napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callback_info info)
 {
-    DebugLog("ReadMultiplePages called");
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -86,18 +92,17 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchReadMultiplePagesParameters(env, params, paramsCount), "ReadMultiplePages type mismatch");
+    if (!MatchReadMultiplePagesParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<MifareUltralightContext<std::string, NapiMifareUltralightTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "MifareUltralightContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
         return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
-    DebugLog("ReadMultiplePages sectorIndex = %{public}d", context->pageIndex);
-
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[1], DEFAULT_REF_COUNT, &context->callbackRef);
     }
@@ -110,58 +115,69 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
 
 static bool MatchWriteSinglePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool typeMatch = false;
+    bool isTypeMatched = false;
     switch (parameterCount) {
         case ARGV_NUM_2: {
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object});
+            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "pageIndex & data", "number & number[]")));
+            }
             break;
         }
         case ARGV_NUM_3:
-            typeMatch = MatchParameters(env, parameters, {napi_number, napi_object, napi_function});
+            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object, napi_function});
+            if (!isTypeMatched) {
+                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+                    "", "", "pageIndex & data & callback", "number & number[] & function")));
+            }
             break;
         default: {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
             return false;
         }
     }
-    return typeMatch;
+    if (isTypeMatched) {
+        isTypeMatched = IsNumberArray(env, parameters[ARGV_NUM_1]);
+        if (!isTypeMatched) {
+            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+                "", "", "data", "number[]")));
+        }
+    }
+    return isTypeMatched;
 }
 
 static void NativeWriteSinglePages(napi_env env, void *data)
 {
-    DebugLog("NativeWriteSinglePages called");
     auto context = static_cast<MifareUltralightContext<int, NapiMifareUltralightTag> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareUlTagPtr == nullptr) {
-        ErrorLog("NativeWriteSinglePages find objectInfo failed!");
+    if (nfcMifareUlTagPtr != nullptr) {
+        context->errorCode = nfcMifareUlTagPtr->WriteSinglePage(context->pageIndex, context->data);
     } else {
-        context->value = nfcMifareUlTagPtr->WriteSinglePages(context->pageIndex, context->data);
-        DebugLog("NativeWriteSinglePages context value = %{public}d", context->value);
+        ErrorLog("NativeWriteSinglePages, nfcMifareUlTagPtr failed.");
     }
     context->resolved = true;
 }
 
 static void WriteSinglePagesCallback(napi_env env, napi_status status, void *data)
 {
-    DebugLog("WriteSinglePagesCallback called");
     auto context = static_cast<MifareUltralightContext<int, NapiMifareUltralightTag> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            napi_create_int32(env, context->value, &callbackValue);
-        } else {
-            callbackValue = CreateErrorMessage(env, "WriteSinglePages error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is void.
+        napi_get_undefined(env, &callbackValue);
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue = CreateErrorMessage(env, "WriteSinglePages error,napi_status = " + std ::to_string(status));
+        std::string errMessage = BuildErrorMessage(context->errorCode, "writeSinglePage", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, errMessage);
     }
-
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
-napi_value NapiMifareUltralightTag::WriteSinglePages(napi_env env, napi_callback_info info)
+napi_value NapiMifareUltralightTag::WriteSinglePage(napi_env env, napi_callback_info info)
 {
-    DebugLog("WriteSinglePages called");
     size_t paramsCount = ARGV_NUM_3;
     napi_value params[ARGV_NUM_3] = {0};
     void *data = nullptr;
@@ -173,38 +189,34 @@ napi_value NapiMifareUltralightTag::WriteSinglePages(napi_env env, napi_callback
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchWriteSinglePagesParameters(env, params, paramsCount), "WriteSinglePages type mismatch");
+    if (!MatchWriteSinglePagesParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<MifareUltralightContext<int, NapiMifareUltralightTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        std::string errorMessage = "MifareUltralightContext is nullptr";
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), errorMessage.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
         return CreateUndefined(env);
     }
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
-    DebugLog("WriteSinglePages blockIndex = %{public}d", context->pageIndex);
-
     std::vector<unsigned char> dataVec;
     ParseBytesVector(env, dataVec, params[ARGV_INDEX_1]);
     context->data = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()), dataVec.size());
-    DebugLog("WriteSinglePages data = %{public}s", context->data.c_str());
-
     if (paramsCount == ARGV_NUM_3) {
         napi_create_reference(env, params[ARGV_INDEX_2], DEFAULT_REF_COUNT, &context->callbackRef);
     }
 
     context->objectInfo = objectInfoCb;
     napi_value result =
-        HandleAsyncWork(env, context, "WriteSinglePages", NativeWriteSinglePages, WriteSinglePagesCallback);
+        HandleAsyncWork(env, context, "WriteSinglePage", NativeWriteSinglePages, WriteSinglePagesCallback);
     return result;
 }
 
 napi_value NapiMifareUltralightTag::GetType(napi_env env, napi_callback_info info)
 {
-    DebugLog("MifareUl GetType called");
     napi_value thisVar = nullptr;
-    std::size_t argc = 0;
+    std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareUltralightTag *objectInfo = nullptr;
@@ -221,7 +233,6 @@ napi_value NapiMifareUltralightTag::GetType(napi_env env, napi_callback_info inf
         napi_create_int32(env, static_cast<int>(MifareUltralightTag::EmType::TYPE_UNKNOWN), &result);
     } else {
         MifareUltralightTag::EmType mifareUlType = nfcMifareUlTagPtr->GetType();
-        DebugLog("GetType mifareUlType %{public}d", mifareUlType);
         napi_create_int32(env, static_cast<int>(mifareUlType), &result);
     }
     return result;

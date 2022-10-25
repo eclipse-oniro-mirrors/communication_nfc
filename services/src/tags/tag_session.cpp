@@ -48,26 +48,26 @@ int TagSession::Connect(int tagRfDiscId, int technology)
 {
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Connect, IsNfcEnabled error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_NOT_INITIALIZED;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("Connect, tagRfDiscId not found");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (!tag.lock()->IsTagFieldOn()) {
         ErrorLog("Connect, IsTagFieldOn error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_LOST;
     }
 
     if (tag.lock()->Connect(technology)) {
-        return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+        return NFC::KITS::ErrorCode::ERR_NONE;
     } else {
         ErrorLog("Connect, unallowd call error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
     }
 }
 /**
@@ -80,21 +80,21 @@ int TagSession::Reconnect(int tagRfDiscId)
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Reconnect, IsTagFieldOn error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_NOT_INITIALIZED;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("Reconnect, tagRfDiscId not found");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (tag.lock()->Reconnect()) {
-        return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+        return NFC::KITS::ErrorCode::ERR_NONE;
     } else {
         ErrorLog("Reconnect, unallowd call error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_DISCONNECT;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
     }
 }
 /**
@@ -200,47 +200,35 @@ bool TagSession::IsNdef(int tagRfDiscId)
     std::vector<int> ndefInfo;
     return tag.lock()->IsNdefMsgContained(ndefInfo);
 }
-/**
- * @brief To send the data to the tagRfDiscId.
- * @param tagRfDiscId the rf disc id of tag
- * @param data the sent data
- * @param raw to send whether original data or un-original data
- * @return The response result from the host tag
- */
-std::unique_ptr<TagRwResponse> TagSession::SendRawFrame(int tagRfDiscId, std::string data, bool raw)
+
+int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     DebugLog("Send Raw(%{public}d) Frame", raw);
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SendRawFrame, IsTagFieldOn error");
-        return std::make_unique<TagRwResponse>();
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("SendRawFrame, tagRfDiscId not found");
-        return std::make_unique<TagRwResponse>();
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    std::unique_ptr<TagRwResponse> resResult = std::make_unique<TagRwResponse>();
+
     // Check if length is within limits
-    if (KITS::NfcSdkCommon::GetHexStrBytesLen(data) >
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) >
         static_cast<uint32_t>(GetMaxTransceiveLength(tag.lock()->GetConnectedTech()))) {
-        resResult->SetResult(TagRwResponse::STATUS_EXCEEDED_LENGTH);
-        return resResult;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    std::string response;
-    int result = tag.lock()->Transceive(data, response);
-    if (!response.empty()) {
-        resResult->SetResult(TagRwResponse::STATUS_SUCCESS);
+
+    int result = tag.lock()->Transceive(hexCmdData, hexRespData);
+    if (!hexRespData.empty()) {
+        return NFC::KITS::ErrorCode::ERR_NONE;
     } else if (result == 1) {  // result == 1 means that Tag lost
-        resResult->SetResult(TagRwResponse::STATUS_TAG_LOST);
-    } else {
-        ErrorLog("SendRawFrame, response error, result %{public}d", result);
-        resResult->SetResult(TagRwResponse::STATUS_FAILURE);
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_LOST;
     }
-    resResult->SetResData(response);
-    return resResult;
+    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
 }
 /**
  * @brief Reading from the host tag
@@ -273,25 +261,25 @@ int TagSession::NdefWrite(int tagRfDiscId, std::string msg)
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefWrite, IsTagFieldOn error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_NOT_INITIALIZED;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("NdefWrite, tagRfDiscId not found");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (msg.empty()) {
         ErrorLog("NdefWrite, msg.empty error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_INVALID_PARAM;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (tag.lock()->WriteNdef(msg)) {
-        return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+        return NFC::KITS::ErrorCode::ERR_NONE;
     }
-    return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
 }
 /**
  * @brief Making the host tag to read only.
@@ -303,20 +291,20 @@ int TagSession::NdefMakeReadOnly(int tagRfDiscId)
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefMakeReadOnly, IsTagFieldOn error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_NOT_INITIALIZED;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("NdefMakeReadOnly, tagRfDiscId not found");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (tag.lock()->SetNdefReadOnly()) {
-        return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+        return NFC::KITS::ErrorCode::ERR_NONE;
     }
-    return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
 }
 /**
  * @brief format the tag by Ndef
@@ -329,29 +317,26 @@ int TagSession::FormatNdef(int tagRfDiscId, const std::string& key)
     // Check if NFC is enabled
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("FormatNdef, IsTagFieldOn error");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_NOT_INITIALIZED;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     /* find the tag in the hmap */
     std::weak_ptr<NFC::NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
     if (tag.expired()) {
         ErrorLog("FormatNdef, tagRfDiscId not found");
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     if (tag.lock()->FormatNdef(key)) {
-        return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+        return NFC::KITS::ErrorCode::ERR_NONE;
     }
-    return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
 }
-/**
- * @brief Checking the host tag is Read only
- * @param technology the tag technology
- * @return true - ReadOnly; false - No Read Only
- */
-bool TagSession::CanMakeReadOnly(int technology)
+
+int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
 {
-    return nfccHost_.lock()->CanMakeReadOnly(technology);
+    canSetReadOnly = nfccHost_.lock()->CanMakeReadOnly(ndefType);
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 /**
  * @brief Get Max Transceive Length
@@ -362,13 +347,11 @@ int TagSession::GetMaxTransceiveLength(int technology)
 {
     return g_maxTransLength[technology];
 }
-/**
- * @brief Checking the NfccHost whether It supported the extended Apdus
- * @return true - yes; false - no
- */
-bool TagSession::IsSupportedApdusExtended()
+
+int TagSession::IsSupportedApdusExtended(bool &isSupported)
 {
-    return nfccHost_.lock()->GetExtendedLengthApdusSupported();
+    isSupported = nfccHost_.lock()->GetExtendedLengthApdusSupported();
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
 int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
@@ -377,9 +360,9 @@ int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
     int ret = dprintf(fd, "%s\n", info.c_str());
     if (ret < 0) {
         ErrorLog("TagSession Dump ret = %{public}d", ret);
-        return NFC::KITS::NfcErrorCode::NFC_SER_ERROR_IO;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    return NFC::KITS::NfcErrorCode::NFC_SUCCESS;
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 std::string TagSession::GetDumpInfo()
 {

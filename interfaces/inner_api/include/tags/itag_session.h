@@ -22,49 +22,6 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-class TagRwResponse : public OHOS::Parcelable {
-public:
-    TagRwResponse() : status_(STATUS_FAILURE), responseData_("") {}
-    virtual ~TagRwResponse() {}
-
-    bool Marshalling(OHOS::Parcel &parcel) const override
-    {
-        parcel.WriteInt32(status_);
-        parcel.WriteString(responseData_);
-        return true;
-    }
-
-    static sptr<TagRwResponse> Unmarshalling(OHOS::Parcel &parcel)
-    {
-        sptr<TagRwResponse> res = new TagRwResponse();
-        res->SetResult(parcel.ReadInt32());
-        res->SetResData(parcel.ReadString());
-        return res;
-    }
-
-    void SetResult(int32_t r)
-    {
-        status_ = r;
-    }
-    int32_t GetResult() const
-    {
-        return status_;
-    }
-    void SetResData(const std::string data)
-    {
-        responseData_ = data;
-    }
-    std::string GetResData() const
-    {
-        return responseData_;
-    }
-    enum Status { STATUS_SUCCESS = 0, STATUS_EXCEEDED_LENGTH, STATUS_TAG_LOST, STATUS_FAILURE };
-
-private:
-    int32_t status_;
-    std::string responseData_;
-};
-
 class ITagSession : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.TAG.ITagSession");
@@ -125,11 +82,12 @@ public:
     /**
      * @brief To send the data to the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
-     * @param data the sent data
+     * @param hexCmdData the sent data
+     * @param hexRespData the response hex data.
      * @param raw to send whether original data or un-original data
-     * @return The response result from the host tag
+     * @return the error code of calling function.
      */
-    virtual std::unique_ptr<TagRwResponse> SendRawFrame(int tagRfDiscId, std::string data, bool raw) = 0;
+    virtual int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
@@ -158,10 +116,11 @@ public:
     virtual int FormatNdef(int tagRfDiscId, const std::string& key) = 0;
     /**
      * @brief Checking the host tag is Read only
-     * @param technology the tag technology
-     * @return true - ReadOnly; false - No Read Only
+     * @param ndefType the ndef type.
+     * @param canSetReadOnly the output for read only or not.
+     * @return the error code of calling function.
      */
-    virtual bool CanMakeReadOnly(int technology) = 0;
+    virtual int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) = 0;
     /**
      * @brief Get Max Transceive Length
      * @param technology the tag technology
@@ -170,9 +129,10 @@ public:
     virtual int GetMaxTransceiveLength(int technology) = 0;
     /**
      * @brief Checking the NfccHost whether It supported the extended Apdus
-     * @return true - yes; false - no
+     * @param isSupported the output for checking supportting extended apdu or not.
+     * @return the error code of calling function.
      */
-    virtual bool IsSupportedApdusExtended() = 0;
+    virtual int IsSupportedApdusExtended(bool &isSupported) = 0;
 
 private:
 };

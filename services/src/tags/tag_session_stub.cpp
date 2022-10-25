@@ -29,7 +29,7 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
     DebugLog("TagSessionStub OnRemoteRequest occur, code is %d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ErrorLog("TagSessionStub OnRemoteRequest GetDescriptor failed");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
     switch (code) {
@@ -72,8 +72,8 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
 int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleConnect, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleConnect, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -85,8 +85,8 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleReconnect, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleReconnect, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -97,8 +97,8 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleDisconnect, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleDisconnect, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -108,8 +108,8 @@ int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleSetTimeout, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleSetTimeout, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tech = data.ReadInt32();
     int timeout = data.ReadInt32();
@@ -119,8 +119,8 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleGetTimeout, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleGetTimeout, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tech = data.ReadInt32();
     reply.WriteInt32(GetTimeout(tech));
@@ -129,8 +129,8 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleGetTechList, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleGetTechList, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -141,8 +141,8 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleIsTagFieldOn, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleIsTagFieldOn, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
     reply.WriteBool(IsNdef(tagRfDiscId));
@@ -151,8 +151,8 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
 int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleIsNdef, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleIsNdef, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
     reply.WriteBool(IsNdef(tagRfDiscId));
@@ -161,22 +161,23 @@ int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleSendRawFrame, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleSendRawFrame, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
-    std::string commandData = data.ReadString();
+    std::string hexCmdData = data.ReadString();
     bool raw = data.ReadBool();
-    std::unique_ptr<TagRwResponse> ret = SendRawFrame(tagRfDiscId, commandData, raw);
-    reply.WriteParcelable(ret.get());
-    return ERR_NONE;
+    std::string hexRespData;
+    int statusCode = SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
+    reply.WriteString(hexRespData);
+    return statusCode;
 }
 int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleNdefRead, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleNdefRead, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -187,8 +188,8 @@ int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleNdefWrite, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleNdefWrite, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -200,8 +201,8 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleNdefMakeReadOnly, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleNdefMakeReadOnly, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -211,8 +212,8 @@ int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& r
 int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleFormatNdef, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleFormatNdef, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
@@ -223,18 +224,20 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleCanMakeReadOnly, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleCanMakeReadOnly, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    int tech = data.ReadInt32();
-    reply.WriteBool(CanMakeReadOnly(tech));
-    return ERR_NONE;
+    int ndefType = data.ReadInt32();
+    bool canSetReadOnly = false;
+    int statusCode = CanMakeReadOnly(ndefType, canSetReadOnly);
+    reply.WriteBool(canSetReadOnly);
+    return statusCode;
 }
 int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleGetMaxTransceiveLength, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleGetMaxTransceiveLength, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tech = data.ReadInt32();
     reply.WriteInt32(GetMaxTransceiveLength(tech));
@@ -243,11 +246,13 @@ int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessagePar
 int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("HandleIsSupportedApdusExtended, NFC_SDK_ERROR_PERMISSION");
-        return KITS::NfcErrorCode::NFC_SDK_ERROR_PERMISSION;
+        ErrorLog("HandleIsSupportedApdusExtended, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    reply.WriteBool(IsSupportedApdusExtended());
-    return ERR_NONE;
+    bool isSupported = false;
+    int statusCode = IsSupportedApdusExtended(isSupported);
+    reply.WriteBool(isSupported);
+    return statusCode;
 }
 }  // namespace TAG
 }  // namespace NFC

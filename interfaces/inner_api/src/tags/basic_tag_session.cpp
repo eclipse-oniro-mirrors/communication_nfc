@@ -38,13 +38,12 @@ int BasicTagSession::Connect()
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("Connect, NFC_SDK_ERROR_NOT_INITIALIZED");
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        ErrorLog("Connect, ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     int tagRfDiscId = GetTagRfDiscId();
     int ret = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
-    DebugLog("Connect, id = %{public}d, tech = %{public}d, ret = %{public}d", tagRfDiscId, tagTechnology_, ret);
-    if (ret == NfcErrorCode::NFC_SUCCESS) {
+    if (ret == ErrorCode::ERR_NONE) {
         isConnected_ = true;
         SetConnectedTagTech(tagTechnology_);
     }
@@ -65,27 +64,26 @@ int BasicTagSession::Close()
     // do reconnect to reset the tag's state.
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("Close, NFC_SDK_ERROR_NOT_INITIALIZED");
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        ErrorLog("Close, ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
-    if (tagSession->Reconnect(GetTagRfDiscId()) != NfcErrorCode::NFC_SUCCESS) {
+    if (tagSession->Reconnect(GetTagRfDiscId()) != ErrorCode::ERR_NONE) {
         ErrorLog("[BasicTagSession::Close] Reconnect fail!");
     }
     isConnected_ = false;
     tagInfo_.lock()->SetConnectedTagTech(KITS::TagTechnology::NFC_INVALID_TECH);
-    return NfcErrorCode::NFC_SUCCESS;
+    return ErrorCode::ERR_NONE;
 }
 
 bool BasicTagSession::SetTimeout(uint32_t timeout)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("SetTimeout, NFC_SDK_ERROR_NOT_INITIALIZED");
+        ErrorLog("SetTimeout, ERR_TAG_STATE_UNBIND");
         return false;
     }
     bool ret = tagSession->SetTimeout(timeout, static_cast<int>(tagTechnology_));
-    DebugLog("SetTimeout, timeout = %{public}d, ret = %{public}d", timeout, ret);
     return ret;
 }
 
@@ -93,12 +91,10 @@ uint32_t BasicTagSession::GetTimeout()
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("GetTimeout, NFC_SDK_ERROR_NOT_INITIALIZED");
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        ErrorLog("GetTimeout, ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    uint32_t ret = tagSession->GetTimeout(static_cast<int>(tagTechnology_));
-    DebugLog("GetTimeout, ret = %{public}d", ret);
-    return ret;
+    return tagSession->GetTimeout(static_cast<int>(tagTechnology_));
 }
 
 std::string BasicTagSession::GetTagUid()
@@ -109,37 +105,26 @@ std::string BasicTagSession::GetTagUid()
     return tagInfo_.lock()->GetTagUid();
 }
 
-std::string BasicTagSession::SendCommand(std::string& data, bool raw, int& response)
+int BasicTagSession::SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData)
 {
-    DebugLog("BasicTagSession::SendCommand in");
-    std::string result = "";
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("BasicTagSession::SendCommand tagSession invalid");
-        return result;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-
-    std::unique_ptr<TAG::TagRwResponse> res = tagSession->SendRawFrame(GetTagRfDiscId(), data, raw);
-    if (res) {
-        response = res->GetResult();
-        if (res->GetResult() == TAG::TagRwResponse::Status::STATUS_SUCCESS) {
-            result = res->GetResData();
-        }
-        DebugLog("[BasicTagSession::SendCommand] result.%{public}d", response);
-    }
-    return result;
+    return tagSession->SendRawFrame(GetTagRfDiscId(), hexCmdData, raw, hexRespData);
 }
 
 int BasicTagSession::GetMaxSendCommandLength() const
 {
     if (tagInfo_.expired() || (tagTechnology_ == KITS::TagTechnology::NFC_INVALID_TECH)) {
-        ErrorLog("GetMaxSendCommandLength NFC_SDK_ERROR_INVALID_PARAM");
-        return NfcErrorCode::NFC_SDK_ERROR_INVALID_PARAM;
+        ErrorLog("GetMaxSendCommandLength ERR_TAG_PARAMETERS");
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("GetMaxSendCommandLength NFC_SDK_ERROR_NOT_INITIALIZED");
-        return NfcErrorCode::NFC_SDK_ERROR_NOT_INITIALIZED;
+        ErrorLog("GetMaxSendCommandLength ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     return tagSession->GetMaxTransceiveLength(static_cast<int>(tagTechnology_));
 }
@@ -148,7 +133,7 @@ int BasicTagSession::GetTagRfDiscId() const
 {
     if (tagInfo_.expired()) {
         ErrorLog("[BasicTagSession::GetTagRfDiscId] tag is null.");
-        return NfcErrorCode::NFC_SDK_ERROR_TAG_INVALID;
+        return ErrorCode::ERR_TAG_PARAMETERS;
     }
     return tagInfo_.lock()->GetTagRfDiscId();
 }

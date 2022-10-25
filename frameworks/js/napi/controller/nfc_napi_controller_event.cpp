@@ -14,9 +14,7 @@
 */
 
 #include "nfc_napi_controller_event.h"
-
 #include <uv.h>
-
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
@@ -228,22 +226,22 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     return result;
 }
 
-NfcErrorCode EventRegister::RegisterNfcStateChangedEvents(const std::string& type)
+ErrorCode EventRegister::RegisterNfcStateChangedEvents(const std::string& type)
 {
     NfcController nfcCtrl = NfcController::GetInstance();
-    NfcErrorCode ret = nfcCtrl.RegListener(nfcStateListenerEvent, type);
-    if (ret != KITS::NFC_SUCCESS) {
+    ErrorCode ret = nfcCtrl.RegListener(nfcStateListenerEvent, type);
+    if (ret != KITS::ERR_NONE) {
         DebugLog("RegisterNfcStateChangedEvents nfcListenerEvent failed!");
         return ret;
     }
     return ret;
 }
 
-NfcErrorCode EventRegister::UnRegisterNfcEvents(const std::string& type)
+ErrorCode EventRegister::UnRegisterNfcEvents(const std::string& type)
 {
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    NfcErrorCode ret = nfcCtrl.UnregListener(type);
-    if (ret != KITS::NFC_SUCCESS) {
+    ErrorCode ret = nfcCtrl.UnregListener(type);
+    if (ret != KITS::ERR_NONE) {
         DebugLog("UnRegisterNfcEvents nfcListenerEvent failed!");
         return ret;
     }
@@ -270,7 +268,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     if (!isEventRegistered) {
-        if (RegisterNfcStateChangedEvents(type) != KITS::NFC_SUCCESS) {
+        if (RegisterNfcStateChangedEvents(type) != KITS::ERR_NONE) {
             return;
         }
         isEventRegistered = true;
@@ -372,7 +370,7 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
         DebugLog("Unregister type not registered!");
-        if (UnRegisterNfcEvents(type) != KITS::NFC_SUCCESS) {
+        if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {
             ErrorLog("UnRegisterNfcEvents failed.");
         }
         return;
@@ -385,7 +383,7 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
     }
     if (iter->second.empty()) {
         g_eventRegisterInfo.erase(iter);
-        if (UnRegisterNfcEvents(type) != KITS::NFC_SUCCESS) {
+        if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {
             ErrorLog("UnRegisterNfcEvents failed.");
         }
         isEventRegistered = false;

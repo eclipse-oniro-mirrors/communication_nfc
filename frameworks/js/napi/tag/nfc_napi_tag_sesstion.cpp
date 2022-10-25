@@ -22,6 +22,7 @@ namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 const std::string VAR_UID = "uid";
 const std::string VAR_TECH = "technology";
+
 std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_callback_info info,
     size_t argc, napi_value argv[])
 {
@@ -34,10 +35,6 @@ std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_ca
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     if (objectInfo == nullptr) {
         ErrorLog("ConnectTag objectInfo nullptr!");
-        return nullptr;
-    }
-    if (objectInfo->tagSession == nullptr) {
-        ErrorLog("ConnectTag tagSession nullptr!");
         return nullptr;
     }
     return objectInfo->tagSession;
@@ -78,7 +75,6 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
 
 napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetTagSession ConnectTag called");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -86,26 +82,23 @@ napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
         napi_get_boolean(env, false, &result);
     } else {
         int err = nfcTag->Connect();
-        napi_get_boolean(env, err == NfcErrorCode::NFC_SUCCESS, &result);
+        napi_get_boolean(env, err == ErrorCode::ERR_NONE, &result);
     }
     return result;
 }
 
 napi_value NapiNfcTagSession::Reset(napi_env env, napi_callback_info info)
 {
-    DebugLog("TagSession Reset called");
     napi_value argv[] = {nullptr};
-    napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
     if (nfcTag != nullptr) {
         nfcTag->Close();
     }
-    return result;
+    return CreateUndefined(env);
 }
 
 napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetTagSession IsTagConnected called");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -121,9 +114,8 @@ napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info in
 
 napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetTagSession SetSendDataTimeout called");
-    size_t argc = 1;
-    napi_value argv[1] = {0};
+    size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, argc, argv);
     if (nfcTag == nullptr) {
@@ -141,7 +133,6 @@ napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_inf
     }
     int32_t timeoutValue = 0;
     ParseInt32(env, timeoutValue, argv[0]);
-    ErrorLog("SetSendDataTimeout, timeoutValue = %{public}d", timeoutValue);
     bool succ = nfcTag->SetTimeout(timeoutValue);
     napi_get_boolean(env, succ, &result);
     return result;
@@ -149,7 +140,6 @@ napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_inf
 
 napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_info info)
 {
-    DebugLog("TagSession GetSendDataTimeout called");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -165,7 +155,6 @@ napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_inf
 
 napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info info)
 {
-    DebugLog("TagSession GetMaxSendLength called");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -179,47 +168,39 @@ napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info 
     return result;
 }
 
-std::string HexArrayToString(const std::vector<unsigned char >& data)
-{
-    const std::string hexKeys = "0123456789ABCDEF";
-    std::string ret = "";
-    size_t shift = 4;
-    for (auto it : data) {
-        ret.push_back(hexKeys[(it & 0xF0) >> shift]);
-        ret.push_back(hexKeys[it & 0x0F]);
-    }
-    return ret;
-}
-
 static bool MatchSendDataParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool typeMatch = false;
+    bool isTypeMatched = false;
     switch (parameterCount) {
         case ARGV_NUM_1: {
-            typeMatch = MatchParameters(env, parameters, {napi_object});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object});
             break;
         }
         case ARGV_NUM_2:
-            typeMatch = MatchParameters(env, parameters, {napi_object, napi_function});
+            isTypeMatched = MatchParameters(env, parameters, {napi_object, napi_function});
             break;
         default: {
             return false;
         }
     }
-    return typeMatch;
+    if (isTypeMatched) {
+        isTypeMatched = IsNumberArray(env, parameters[ARGV_NUM_0]);
+    }
+    return isTypeMatched;
 }
 
 static void NativeSendData(napi_env env, void *data)
 {
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     BasicTagSession *nfcTagSessionPtr =
         static_cast<BasicTagSession *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcTagSessionPtr == nullptr) {
-        ErrorLog("NativeSendData find objectInfo failed!");
+    if (nfcTagSessionPtr != nullptr) {
+        std::string hexRespData;
+        context->errorCode = nfcTagSessionPtr->SendCommand(context->dataBytes, true, hexRespData);
+        context->value = hexRespData;
     } else {
-        int status = TAG::TagRwResponse::Status::STATUS_FAILURE;
-        context->value = nfcTagSessionPtr->SendCommand(context->dataBytes, true, status);
-        DebugLog("NativeSendData context value = %{public}s", context->value.c_str());
+        ErrorLog("NativeSendData, nfcTagSessionPtr failed.");
     }
     context->resolved = true;
 }
@@ -228,24 +209,20 @@ static void SendDataCallback(napi_env env, napi_status status, void *data)
 {
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
     napi_value callbackValue = nullptr;
-    if (status == napi_ok) {
-        if (context->resolved) {
-            ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
-        } else {
-            callbackValue = CreateErrorMessage(env, "SendData error by ipc");
-        }
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is number[].
+        ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        callbackValue = CreateErrorMessage(env, "SendData error,napi_status = " + std ::to_string(status));
+        std::string errMessage = BuildErrorMessage(context->errorCode, "sendData", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, context->errorCode, errMessage);
     }
-
-    Handle2ValueCallback(env, context, callbackValue);
 }
 
 napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
 {
-    //JS API define1: sendData(data: number[]): Promise<number[]>
-    //JS API define2: sendData(data: number[], callback: AsyncCallback<number[]>): void
-    DebugLog("TagSession SendData called");
+    // JS API define1: sendData(data: number[]): Promise<number[]>
+    // JS API define2: sendData(data: number[], callback: AsyncCallback<number[]>): void
     size_t paramsCount = ARGV_NUM_2;
     napi_value params[ARGV_NUM_2] = {0};
     void *data = nullptr;
@@ -256,42 +233,30 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchSendDataParameters(env, params, paramsCount), "SendData type mismatch");
+    if (!MatchSendDataParameters(env, params, paramsCount)) {
+        ErrorLog("SendData, invalid parameters!");
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<NfcTagSessionContext<std::string, NapiNfcTagSession>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), "NfcTagSessionContext is nullptr"));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
         return CreateUndefined(env);
     }
+
     // parse the params
-    napi_value sendDatas = params[ARGV_INDEX_0];
-
-    bool isArray = false;
-    status = napi_is_array(env, sendDatas, &isArray);
-    if (status != napi_ok || !isArray) {
-        ErrorLog("NapiNfcTagSession::SendData, not array");
-        return CreateUndefined(env);
-    }
-
-    int32_t sendData = 0;
-    napi_value dataValue = nullptr;
+    int32_t hexCmdData = 0;
+    napi_value hexCmdDataValue = nullptr;
     uint32_t arrayLength = 0;
     std::vector<unsigned char> dataBytes = {};
     NAPI_CALL(env, napi_get_array_length(env, params[ARGV_INDEX_0], &arrayLength));
     for (uint32_t i = 0; i < arrayLength; ++i) {
-        NAPI_CALL(env, napi_get_element(env, sendDatas, i, &dataValue));
-        napi_valuetype valueType = napi_undefined;
-        napi_typeof(env, dataValue, &valueType);
-        if (valueType != napi_number) {
-            ErrorLog("NapiNfcTagSession::SendData, send data not number!");
-            return CreateUndefined(env);
-        }
-        NAPI_CALL(env, napi_get_value_int32(env, dataValue, &sendData));
-        dataBytes.push_back(sendData);
+        NAPI_CALL(env, napi_get_element(env, params[ARGV_INDEX_0], i, &hexCmdDataValue));
+        NAPI_CALL(env, napi_get_value_int32(env, hexCmdDataValue, &hexCmdData));
+        dataBytes.push_back(hexCmdData);
     }
-    context->dataBytes = HexArrayToString(dataBytes);
-    DebugLog("NapiNfcTagSession::SendData dataBytes %{public}s", context->dataBytes.c_str());
-
+    context->dataBytes = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataBytes.data()),
+        dataBytes.size());
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }

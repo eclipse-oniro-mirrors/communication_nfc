@@ -24,15 +24,18 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-enum NapiError : int32_t {
-    ERROR_NONE = 0,
-    ERROR_DEFAULT = -1,
-    ERROR_SERVICE_UNAVAILABLE = -2,
-    ERROR_PARAMETER_VALUE_INVALID = -3,
-    ERROR_PARAMETER_COUNTS_INVALID = -4,
-    ERROR_PARAMETER_TYPE_INVALID = -5,
-    ERROR_NATIVE_API_EXECUTE_FAIL = -6,
-};
+// business error code, throw these errors to applcation.
+const static int BUSI_ERR_PERM = 201; // Permission denied.
+const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
+const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
+const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
+
+// inner error define, not throw these error code to application.
+const static int INNER_ERR_TAG_PARAM_INVALID = 3100202; // nfc tag parameter values invalid.
+
+const std::string KEY_CODE = "code";
+const std::string TAG_PERM_DESC = "ohos.permission.NFC_TAG";
+const std::string ERR_INIT_CONTEXT = "Initialize context failed.";
 
 enum JS_CALLBACK_ARGV : size_t {
     CALLBACK_ARGV_INDEX_0 = 0,
@@ -71,7 +74,7 @@ struct BaseContext {
     napi_deferred deferred = nullptr;
     napi_ref callbackRef = nullptr;
     bool resolved = false;
-    int32_t errorCode = ERROR_DEFAULT;
+    int32_t errorCode = 0;
 };
 
 class AsyncContext {
@@ -84,7 +87,7 @@ public:
     std::function<void(void *)> completeFunc;
     napi_value resourceName;
     napi_value result;
-    int errorCode;
+    int errorCode = 0;
 
     explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
     {
@@ -94,7 +97,6 @@ public:
         executeFunc = nullptr;
         completeFunc = nullptr;
         result = nullptr;
-        errorCode = ERROR_NONE;
     }
 
     AsyncContext() = delete;
@@ -159,7 +161,7 @@ bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
-napi_value CreateErrorMessage(napi_env env, std::string message, int32_t errorCode = ERROR_DEFAULT);
+napi_value CreateErrorMessage(napi_env env, std::string message, int32_t errorCode = 0);
 napi_value CreateUndefined(napi_env env);
 std::string GetNapiStringValue(
     napi_env env, napi_value napiValue, const std::string &name, const std::string &defValue = "");
@@ -177,8 +179,17 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
 napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
-void Handle1ValueCallback(napi_env env, BaseContext *context, napi_value callbackValue);
-void Handle2ValueCallback(napi_env env, BaseContext *context, napi_value callbackValue);
+void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *context, napi_value callbackValue);
+void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, std::string &errMsg);
+bool IsNumberArray(const napi_env &env, const napi_value &param);
+bool IsObjectArray(const napi_env &env, const napi_value &param);
+bool IsArray(const napi_env &env, const napi_value &param);
+bool IsNumber(const napi_env &env, const napi_value &param);
+bool IsString(const napi_env &env, const napi_value &param);
+bool IsObject(const napi_env &env, const napi_value &param);
+std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
+    std::string paramName, std::string expertedType);
+napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

@@ -190,7 +190,8 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     if (sr) {
         buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(payload));
     } else {
-        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload), NfcSdkCommon::IsLittleEndian()));
+        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload),
+                                                NfcSdkCommon::IsLittleEndian()));
     }
     if (il) {
         buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(id));

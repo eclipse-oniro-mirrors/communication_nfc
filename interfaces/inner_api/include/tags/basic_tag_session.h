@@ -32,7 +32,7 @@ public:
     bool SetTimeout(uint32_t timeout);
     uint32_t GetTimeout();
     std::string GetTagUid();
-    std::string SendCommand(std::string& data, bool raw, int& response);
+    int SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData);
     int GetMaxSendCommandLength() const;
     std::weak_ptr<TagInfo> GetTagInfo() const;
 
