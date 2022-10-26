@@ -39,6 +39,7 @@ public:
     static constexpr const auto TEST_NDEF_TAG_MODE = NdefTag::EmNdefTagMode::MODE_READ_ONLY;
     static constexpr const auto TEST_NDEF_MSG = "ndef";
     static constexpr const auto TEST_NDEF_INDEX = 0;
+    static constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
     std::shared_ptr<TagInfo> tagInfo_;
 };
 
@@ -65,6 +66,7 @@ void NdefTagTest::SetUp()
     AppExecFwk::PacMap ndefExtrasData;
     ndefExtrasData.PutIntValue(TagInfo::NDEF_FORUM_TYPE, TEST_NDEF_FORUM_TYPE);
     ndefExtrasData.PutIntValue(TagInfo::NDEF_TAG_MODE, TEST_NDEF_TAG_MODE);
+    ndefExtrasData.PutIntValue(TagInfo::NDEF_TAG_LENGTH, TEST_NDEF_TAG_LENGTH);
     ndefExtrasData.PutStringValue(TagInfo::NDEF_MSG, TEST_NDEF_MSG);
     tagTechExtras.push_back(ndefExtrasData);
 
@@ -130,6 +132,17 @@ HWTEST_F(NdefTagTest, GetTagUid001, TestSize.Level1)
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     std::string uid = ndef->GetTagUid();
     ASSERT_TRUE(strcmp(uid.c_str(), TEST_UID) == 0);
+}
+/**
+ * @tc.name: GetMaxTagSize001
+ * @tc.desc: Test NdefTag GetMaxTagSize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetMaxTagSize001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    uint32_t maxTagSize = ndef->GetMaxTagSize();
+    ASSERT_TRUE(maxTagSize == TEST_NDEF_TAG_LENGTH);
 }
 }
 }

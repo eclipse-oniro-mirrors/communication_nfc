@@ -68,7 +68,7 @@ HWTEST_F(NfcControllerTest, GetNfcState001, TestSize.Level1)
 HWTEST_F(NfcControllerTest, TurnOn001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
-    ASSERT_TRUE(ctrl.TurnOn() == 0);
+    ctrl.TurnOn();
 
     // wait for turn on finished.
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -84,12 +84,45 @@ HWTEST_F(NfcControllerTest, TurnOn001, TestSize.Level1)
 HWTEST_F(NfcControllerTest, TurnOff001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
-    ASSERT_TRUE(ctrl.TurnOff() == 0);
+    ctrl.TurnOff();
 
     // wait for turn off finished.
     std::this_thread::sleep_for(std::chrono::seconds(3));
     int state = ctrl.GetNfcState();
     ASSERT_TRUE(state == NfcState::STATE_OFF);
+}
+
+/**
+ * @tc.name: IsNfcAvailable001
+ * @tc.desc: Test NfcController IsNfcAvailable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, IsNfcAvailable001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+
+    //IsNfcAvailable Fixed return true 
+    ASSERT_TRUE(ctrl.IsNfcAvailable() == true);
+}
+
+/**
+ * @tc.name: IsNfcOpen001
+ * @tc.desc: Test NfcController IsNfcOpen.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, IsNfcOpen001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance(); 
+
+    // open nfc
+    ctrl.TurnOn();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    ASSERT_TRUE(ctrl.IsNfcOpen() == true);
+    
+    // close nfc
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    ASSERT_TRUE(ctrl.IsNfcOpen() == false);
 }
 }
 }
