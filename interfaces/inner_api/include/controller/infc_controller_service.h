@@ -43,9 +43,10 @@ public:
     virtual bool TurnOff() = 0;
      /**
      * @brief NFC enable
-     * @return true - NFC enabled; the other
+     * @param isOpen The output for checking nfc is open or not.
+     * @return The status code of calling function.
      */
-    virtual bool IsNfcOpen() = 0;
+    virtual int IsNfcOpen(bool &isOpen) = 0;
 
     virtual KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) = 0;

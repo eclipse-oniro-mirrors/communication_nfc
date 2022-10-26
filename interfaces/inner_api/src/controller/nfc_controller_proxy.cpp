@@ -76,22 +76,15 @@ int NfcControllerProxy::GetState()
     return state;
 }
 
-bool NfcControllerProxy::IsNfcOpen()
+int NfcControllerProxy::IsNfcOpen(bool &isOpen)
 {
-    bool result = true;
     MessageParcel data;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    data.WriteInt32(0);
-    int res = SendRequestExpectReplyBool(KITS::COMMAND_IS_NFC_OPEN, data, option, result);
-    if (res != ERR_NONE) {
-        ErrorLog("NfcControllerProxy::IsNfcOpen error.");
-        return false;
-    }
-    return result;
+    return SendRequestExpectReplyBool(KITS::COMMAND_IS_NFC_OPEN, data, option, isOpen);
 }
 
 KITS::ErrorCode NfcControllerProxy::RegisterCallBack(

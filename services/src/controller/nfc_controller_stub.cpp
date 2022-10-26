@@ -80,15 +80,10 @@ int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
 
 int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply)
 {
-    DebugLog("NfcControllerStub::HandleIsNfcOpen");
-    int exception = data.ReadInt32();
-    if (exception) {
-        return KITS::ERR_NFC_PARAMETERS;
-    }
-    bool result = IsNfcOpen();
-    DebugLog("NfcControllerStub::result =%{public}d", result);
-    reply.WriteInt32(result);
-    return ERR_NONE;
+    bool isOpen = false;
+    int statusCode = IsNfcOpen(isOpen);
+    reply.WriteBool(isOpen);
+    return statusCode;
 }
 
 int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel &reply)

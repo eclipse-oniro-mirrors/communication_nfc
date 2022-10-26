@@ -117,12 +117,19 @@ HWTEST_F(NfcControllerTest, IsNfcOpen001, TestSize.Level1)
     // open nfc
     ctrl.TurnOn();
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    ASSERT_TRUE(ctrl.IsNfcOpen() == true);
+
+    bool isOpen = false;
+    int statusCode = ctrl.IsNfcOpen(isOpen);
+    ASSERT_TRUE(statusCode == KITS::ErrorCode::ERR_NONE);
+    ASSERT_TRUE(isOpen == true);
     
     // close nfc
     ctrl.TurnOff();
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    ASSERT_TRUE(ctrl.IsNfcOpen() == false);
+    isOpen = true;
+    statusCode = ctrl.IsNfcOpen(isOpen);
+    ASSERT_TRUE(statusCode == KITS::ErrorCode::ERR_NONE);
+    ASSERT_TRUE(isOpen == false);
 }
 }
 }
