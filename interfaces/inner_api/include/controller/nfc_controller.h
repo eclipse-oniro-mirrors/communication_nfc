@@ -62,13 +62,13 @@ public:
      * @param void
      * @return If the device supports NFC return 1; otherwise return 0.
      */
-    int IsNfcAvailable();
+    bool IsNfcAvailable();
     /**
      * @Description Checks whether NFC is enabled.
-     * @param void
-     * @return If NFC is enabled return 1; otherwise return 0.
+     * @param isOpen The output for checking nfc is open or not.
+     * @return The status code of calling function.
      */
-    int IsNfcOpen();
+    int IsNfcOpen(bool &isOpen);
     /**
      * @Description Registers the callback for nfc state changed notification.
      * @param callback the callback to be registered.
