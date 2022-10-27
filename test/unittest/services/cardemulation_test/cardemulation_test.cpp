@@ -41,9 +41,7 @@ void CardemulationTest::TearDownTestCase()
     std::cout << " TearDownTestCase CardemulationTest." << std::endl;
 }
 
-void CardemulationTest::SetUp() {
-
-}
+void CardemulationTest::SetUp() {}
 
 void CardemulationTest::TearDown() {}
 

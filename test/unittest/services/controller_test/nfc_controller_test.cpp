@@ -101,7 +101,7 @@ HWTEST_F(NfcControllerTest, IsNfcAvailable001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
 
-    //IsNfcAvailable Fixed return true 
+    // IsNfcAvailable Fixed return true
     ASSERT_TRUE(ctrl.IsNfcAvailable() == true);
 }
 
@@ -112,7 +112,7 @@ HWTEST_F(NfcControllerTest, IsNfcAvailable001, TestSize.Level1)
  */
 HWTEST_F(NfcControllerTest, IsNfcOpen001, TestSize.Level1)
 {
-    NfcController ctrl = NfcController::GetInstance(); 
+    NfcController ctrl = NfcController::GetInstance();
 
     // open nfc
     ctrl.TurnOn();
