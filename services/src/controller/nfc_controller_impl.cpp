@@ -48,9 +48,10 @@ bool NfcControllerImpl::TurnOff()
     return true;
 }
 
-bool NfcControllerImpl::IsNfcOpen()
+int NfcControllerImpl::IsNfcOpen(bool &isOpen)
 {
-    return nfcService_.lock()->IsNfcEnabled();
+    isOpen = nfcService_.lock()->IsNfcEnabled();
+    return KITS::ERR_NONE;
 }
 
 KITS::ErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,

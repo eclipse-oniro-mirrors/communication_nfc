@@ -98,20 +98,18 @@ int NfcController::GetNfcState()
 }
 
 // check whether NFC is supported
-int NfcController::IsNfcAvailable()
+bool NfcController::IsNfcAvailable()
 {
-    DebugLog("NfcController::IsNfcAvailable");
     return true;
 }
 
 // check whether NFC is enabled
-int NfcController::IsNfcOpen()
+int NfcController::IsNfcOpen(bool &isOpen)
 {
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    DebugLog("NfcController::IsNfcOpen");
-    return nfcControllerService_.lock()->IsNfcOpen();
+    return nfcControllerService_.lock()->IsNfcOpen(isOpen);
 }
 
 // register NFC state change callback

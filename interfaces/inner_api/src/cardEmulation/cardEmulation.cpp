@@ -20,17 +20,23 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
-cardEmulation::cardEmulation()
+CardEmulation::CardEmulation()
 {
     DebugLog("[cardEmulation::cardEmulation] new ability manager");
 }
 
-cardEmulation::~cardEmulation()
+CardEmulation::~CardEmulation()
 {
     DebugLog("destruct cardEmulation");
 }
 
-bool cardEmulation::IsSupported(FeatureType feature)
+CardEmulation &CardEmulation::GetInstance()
+{
+    static CardEmulation instance;
+    return instance;
+}
+
+bool CardEmulation::IsSupported(FeatureType feature)
 {
     DebugLog("cardEmulation::IsSupported in.");
     switch (feature) {
