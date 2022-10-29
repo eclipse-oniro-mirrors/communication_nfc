@@ -16,13 +16,9 @@
 
 #include "infcc_host.h"
 #include "loghelper.h"
+#include "ndef_tag.h"
 #include "nfcc_nci_adapter.h"
 #include "nfc_chip_type_parser.h"
-
-#ifdef _NFC_SERVICE_HCE_
-#include "hci_manager.h"
-#include "nci_bal_ce.h"
-#endif
 
 namespace OHOS {
 namespace NFC {
@@ -296,7 +292,8 @@ int NfccHost::GetDefaultIsoDepRouteDestination()
 
 bool NfccHost::CanMakeReadOnly(int ndefType)
 {
-    return true;
+    return ndefType == KITS::NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1 ||
+        ndefType == KITS::NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2;
 }
 
 bool NfccHost::GetExtendedLengthApdusSupported()
