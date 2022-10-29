@@ -36,8 +36,8 @@ public:
 public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
-    static constexpr const auto TEST_HISTORICAL_BYTES = "Historical";
-    static constexpr const auto TEST_HILAYER_RESPONSE = "HiLayer";
+    static constexpr const auto TEST_HISTORICAL_BYTES = "1015";
+    static constexpr const auto TEST_HILAYER_RESPONSE = "0106";
     static constexpr const auto TEST_ISODEP_INDEX = 2;
     std::shared_ptr<TagInfo> tagInfo_;
 };
