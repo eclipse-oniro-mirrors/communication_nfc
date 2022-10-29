@@ -24,7 +24,7 @@ namespace NFC {
 namespace KITS {
 // record data, see NFC Data Exchange Format (NDEF) Technical Specification.
 struct NdefRecord {
-    short tnf_;
+    size_t tnf_;
     std::string id_;            // hex string, 0x00~0xFF
     std::string payload_;       // hex string, 0x00~0xFF
     std::string tagRtdType_;    // hex string, 0x00~0xFF
@@ -37,10 +37,10 @@ struct RecordLayout {
     bool cf; // chunk flag
     bool sr; // short record
     bool il; // id length
-    short tnf; // type name format
-    uint16_t typeLength;
+    char tnf; // type name format
+    uint8_t typeLength;
     uint32_t payloadLength;
-    uint16_t idLength;
+    uint8_t idLength;
 };
 
 // URI charactor code defined by NFC Forum
@@ -200,12 +200,12 @@ public:
     std::vector<std::shared_ptr<NdefRecord>> GetNdefRecords() const;
 
 private:
-    static std::shared_ptr<NdefRecord> CreateNdefRecord(short tnf, const std::string& id,
+    static std::shared_ptr<NdefRecord> CreateNdefRecord(size_t tnf, const std::string& id,
         const std::string& payload, const std::string& tagRtdType);
-    static bool CheckTnf(short tnf, const std::string& tagRtdType,
+    static bool CheckTnf(size_t tnf, const std::string& tagRtdType,
         const std::string& id, const std::string& payload);
     static std::vector<std::shared_ptr<NdefRecord>> ParseRecord(const std::string& data, bool isMbMeIgnored);
-    static void ParseRecordLayoutHead(RecordLayout& layout, unsigned char head);
+    static void ParseRecordLayoutHead(RecordLayout& layout, char head);
     static bool IsInvalidRecordLayoutHead(RecordLayout& layout, bool isChunkFound,
         uint32_t parsedRecordSize, bool isMbMeIgnored);
     static void ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFound,

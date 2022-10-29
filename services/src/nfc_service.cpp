@@ -405,15 +405,15 @@ bool NfcService::IsNfcEnabled()
 
 void NfcService::HandleScreenChanged(int screenState)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
     screenState_ = screenState;
     DebugLog("Screen changed screenState %{public}d", screenState_);
+
     nfccHost_->SetScreenStatus(screenState_);
 }
 
 void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    DebugLog("HandlePackageUpdated ...");
     std::string action = data->GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");

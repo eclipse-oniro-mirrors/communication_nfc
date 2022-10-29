@@ -188,7 +188,7 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
     napi_value constructor = nullptr;
     // new instance of JS object ndefMessage
     napi_get_reference_value(env, ndefMessageCreateRef_, &constructor);
-    NAPI_CALL(env, napi_new_instance(env, constructor, argc, argv, &result));
+    NAPI_CALL(env, napi_new_instance(env, constructor, 0, nullptr, &result));
     return result;
 }
 

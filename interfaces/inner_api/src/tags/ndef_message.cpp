@@ -34,9 +34,9 @@ std::shared_ptr<NdefMessage> NdefMessage::GetNdefMessage(const std::string& data
 {
     std::vector<std::shared_ptr<NdefRecord>> ndefRecords = ParseRecord(data, false);
     if (ndefRecords.empty()) {
-        ErrorLog("GetNdefMessage, ndefRecords invalid.");
         return std::shared_ptr<NdefMessage>();
     }
+
     return GetNdefMessage(ndefRecords);
 }
 
@@ -88,7 +88,6 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::GetNdefRecords() const
 std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriString)
 {
     if (uriString.empty()) {
-        ErrorLog("MakeExternalRecord, uriString invalid.");
         return std::shared_ptr<NdefRecord>();
     }
 
@@ -122,7 +121,6 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeTextRecord(const std::string& text,
 std::shared_ptr<NdefRecord> NdefMessage::MakeMimeRecord(const std::string& mimeType, const std::string& mimeData)
 {
     if (mimeData.empty()) {
-        ErrorLog("MakeExternalRecord, mimeData invalid.");
         return std::shared_ptr<NdefRecord>();
     }
     std::string id = "";
@@ -138,7 +136,6 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeExternalRecord(const std::string& d
                                                             const std::string& externalData)
 {
     if (domainName.empty() || serviceName.empty() || externalData.empty()) {
-        ErrorLog("MakeExternalRecord, domainName or serviceName invalid.");
         return std::shared_ptr<NdefRecord>();
     }
 
@@ -165,7 +162,6 @@ std::string NdefMessage::MessageToString(std::weak_ptr<NdefMessage> ndefMessage)
 {
     std::string buffer;
     if (ndefMessage.expired()) {
-        ErrorLog("MessageToString, ndefMessage invalid.");
         return buffer;
     }
     for (size_t i = 0; i < ndefMessage.lock()->ndefRecordList_.size(); i++) {
@@ -179,7 +175,6 @@ std::string NdefMessage::MessageToString(std::weak_ptr<NdefMessage> ndefMessage)
 void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::string& buffer, bool bIsMB, bool bIsME)
 {
     if (record.expired()) {
-        ErrorLog("NdefRecordToString, record invalid.");
         return;
     }
     std::string payload = record.lock()->payload_;
@@ -207,36 +202,30 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     buffer.append(payload);
 }
 
-void NdefMessage::ParseRecordLayoutHead(RecordLayout& layout, unsigned char head)
+void NdefMessage::ParseRecordLayoutHead(RecordLayout& layout, char head)
 {
     layout.mb = (head & FLAG_MB) != 0;
     layout.me = (head & FLAG_ME) != 0;
     layout.cf = (head & FLAG_CF) != 0;
     layout.sr = (head & FLAG_SR) != 0;
     layout.il = (head & FLAG_IL) != 0;
-    layout.tnf = static_cast<short>(head & FLAG_TNF);
+    layout.tnf = char(head & FLAG_TNF);
 }
 
 bool NdefMessage::IsInvalidRecordLayoutHead(RecordLayout& layout, bool isChunkFound,
     uint32_t parsedRecordSize, bool isMbMeIgnored)
 {
     if (!layout.mb && parsedRecordSize == 0 && !isChunkFound && !isMbMeIgnored) {
-        ErrorLog("IsInvalidRecordLayoutHead, 1st error for mb and size.");
         return true;
     } else if (layout.mb && (parsedRecordSize != 0 || isChunkFound) && !isMbMeIgnored) {
-        ErrorLog("IsInvalidRecordLayoutHead, 2nd error for mb and size");
         return true;
     } else if (isChunkFound && layout.il) {
-        ErrorLog("IsInvalidRecordLayoutHead, 3rd error for il");
         return true;
     } else if (layout.cf && layout.me) {
-        ErrorLog("IsInvalidRecordLayoutHead, 4th error for cf and me");
         return true;
     } else if (isChunkFound && layout.tnf != TNF_UNCHANGED) {
-        ErrorLog("IsInvalidRecordLayoutHead, 5th error for tnf");
         return true;
     } else if (!isChunkFound && layout.tnf == TNF_UNCHANGED) {
-        ErrorLog("IsInvalidRecordLayoutHead, 6th error for tnf");
         return true;
     }
     return false;
@@ -264,20 +253,17 @@ bool NdefMessage::IsRecordLayoutLengthInvalid(RecordLayout& layout, bool isChunk
 {
     // for the middle chunks record, need the type length is zero.
     if (isChunkFound && layout.typeLength != 0) {
-        ErrorLog("IsInvalidRecordLayoutHead, 1st error for typeLength");
         return true;
     }
 
     // for the first chunk, expected has type.
     if (layout.cf && !isChunkFound) {
         if (layout.typeLength == 0 && layout.tnf != TNF_UNKNOWN) {
-            ErrorLog("IsInvalidRecordLayoutHead, 2nd error for typeLength and tnf");
             return true;
         }
     }
 
     if (layout.payloadLength > MAX_PAYLOAD_SIZE) {
-        ErrorLog("IsInvalidRecordLayoutHead, 3rd error for payloadLength");
         return true;
     }
     return false;
@@ -285,7 +271,6 @@ bool NdefMessage::IsRecordLayoutLengthInvalid(RecordLayout& layout, bool isChunk
 std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.typeLength <= 0) {
-        ErrorLog("IsInvalidRecordLayoutHead, typeLength less than 0.");
         return "";
     }
     if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + layout.typeLength) {
@@ -300,7 +285,6 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
 std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.idLength <= 0) {
-        ErrorLog("ParseRecordId, idLength <= 0");
         return "";
     }
     if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + layout.idLength) {
@@ -315,7 +299,6 @@ std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& 
 std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.payloadLength <= 0) {
-        ErrorLog("ParseRecordPayload, payloadLength <= 0");
         return "";
     }
     if (NfcSdkCommon::GetHexStrBytesLen(data) < (parsedDataIndex + layout.payloadLength)) {
@@ -355,12 +338,11 @@ std::string NdefMessage::MergePayloadByChunks(RecordLayout& layout, bool isChunk
     }
     return payload;
 }
-std::shared_ptr<NdefRecord> NdefMessage::CreateNdefRecord(short tnf, const std::string& id,
+std::shared_ptr<NdefRecord> NdefMessage::CreateNdefRecord(size_t tnf, const std::string& id,
     const std::string& payload, const std::string& tagRtdType)
 {
-    bool isValidTnf = CheckTnf(tnf, tagRtdType, id, payload);
-    if (!isValidTnf) {
-        ErrorLog("CreateNdefRecord, isValidTnf failed.");
+    bool res = CheckTnf(tnf, tagRtdType, id, payload);
+    if (!res) {
         return std::shared_ptr<NdefRecord>();
     }
     std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
@@ -370,12 +352,11 @@ std::shared_ptr<NdefRecord> NdefMessage::CreateNdefRecord(short tnf, const std::
     ndefRecord->tagRtdType_ = tagRtdType;
     return ndefRecord;
 }
-bool NdefMessage::CheckTnf(short tnf, const std::string& tagRtdType, const std::string& id, const std::string& payload)
+bool NdefMessage::CheckTnf(size_t tnf, const std::string& tagRtdType, const std::string& id, const std::string& payload)
 {
     switch (tnf) {
         case TNF_EMPTY:
             if (!tagRtdType.empty() || !id.empty() || !payload.empty()) {
-                ErrorLog("CheckTnf, TNF_EMPTY error.");
                 return false;
             }
             break;
@@ -401,7 +382,6 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
 {
     std::vector<std::shared_ptr<NdefRecord>> recordList;
     if (data.empty()) {
-        ErrorLog("ParseRecord, raw data empty.");
         return recordList;
     }
 
@@ -427,9 +407,12 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         }
         
         if (!isChunkFound) {
-            // don't parse the type and id for the middle chunks record, allowed them tobe empty.
+            // don't parse the type and id for the middle chunks record.
             tagRtdType = ParseRecordType(layout, data, parsedDataIndex);
             id = ParseRecordId(layout, data, parsedDataIndex);
+            if (tagRtdType.empty() || id.empty()) {
+                return recordList;
+            }
         }
 
         // parse the payload.
@@ -437,7 +420,6 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         SaveRecordChunks(layout, isChunkFound, chunks, chunkTnf, payload);
         payload = MergePayloadByChunks(layout, isChunkFound, chunks, chunkTnf, payload);
         if (NfcSdkCommon::GetHexStrBytesLen(payload) > MAX_PAYLOAD_SIZE) {
-            ErrorLog("ParseRecord, payload > MAX_PAYLOAD_SIZE");
             return recordList;
         }
 
