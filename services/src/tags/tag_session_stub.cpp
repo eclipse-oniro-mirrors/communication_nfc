@@ -56,7 +56,7 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
         case KITS::COMMAND_NDEF_WRITE:
             return HandleNdefWrite(data, reply);
         case KITS::COMMAND_NDEF_MAKE_READ_ONLY:
-            return HandleNdefMakeReadOnly(data, reply);
+            return HandleCanMakeReadOnly(data, reply);
         case KITS::COMMAND_FORMAT_NDEF:
             return HandleFormatNdef(data, reply);
         case KITS::COMMAND_CAN_MAKE_READ_ONLY:

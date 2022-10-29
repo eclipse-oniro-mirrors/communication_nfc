@@ -484,7 +484,6 @@ void TagNciAdapter::ReadNdef(std::string& response)
 {
     DebugLog("TagNciAdapter::ReadNdef");
     if (!IsTagActive()) {
-        ErrorLog("ReadNdef, IsTagActive failed");
         return;
     }
     rfDiscoveryMutex_.lock();
@@ -493,7 +492,7 @@ void TagNciAdapter::ReadNdef(std::string& response)
     if (lastCheckedNdefSize_ > 0) {
         tNFA_STATUS status = nciAdaptations_->NfaRwReadNdef();
         if (status != NFA_STATUS_OK) {
-            ErrorLog("ReadNdef, Read ndef fail");
+            ErrorLog("Read ndef fail");
             return;
         }
         readNdefEvent_.Wait();
@@ -521,7 +520,6 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
 {
     DebugLog("TagNciAdapter::WriteNdef");
     if (!IsTagActive()) {
-        ErrorLog("WriteNdef, IsTagActive failed");
         return false;
     }
     rfDiscoveryMutex_.lock();
@@ -554,7 +552,7 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     if (status == NCI_STATUS_OK) {
         writeNdefEvent_.Wait();
     } else {
-        ErrorLog("WriteNdef, Write ndef fail");
+        ErrorLog("Write ndef fail");
     }
     rfDiscoveryMutex_.unlock();
     return isNdefWriteSuccess_;
