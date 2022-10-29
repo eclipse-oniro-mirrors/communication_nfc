@@ -29,6 +29,25 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+public:
+    static constexpr const auto TEST_NFC_STATE_CHANGE = "nfcStateChange";
+};
+
+class INfcControllerCallbackImpl : public INfcControllerCallback {
+public:
+    INfcControllerCallbackImpl() {}
+
+    virtual ~INfcControllerCallbackImpl() {}
+
+public:
+    void OnNfcStateChanged(int nfcState) override
+    {
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
 };
 
 void NfcControllerTest::SetUpTestCase()
@@ -130,6 +149,44 @@ HWTEST_F(NfcControllerTest, IsNfcOpen001, TestSize.Level1)
     statusCode = ctrl.IsNfcOpen(isOpen);
     ASSERT_TRUE(statusCode == KITS::ErrorCode::ERR_NONE);
     ASSERT_TRUE(isOpen == false);
+}
+
+/**
+ * @tc.name: RegListener001
+ * @tc.desc: Test NfcController RegListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, RegListener001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
+    sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
+    ErrorCode errorCode = ctrl.RegListener(iNfcControllerCallbackImpl, TEST_NFC_STATE_CHANGE);
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_NONE);
+}
+
+/**
+ * @tc.name: UnregListener001
+ * @tc.desc: Test NfcController UnregListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, UnregListener001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.UnregListener(TEST_NFC_STATE_CHANGE);
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_NONE);
+}
+
+/**
+ * @tc.name: GetTagServiceIface001
+ * @tc.desc: Test NfcController GetTagServiceIface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, GetTagServiceIface001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    OHOS::sptr<IRemoteObject> objsPtr = ctrl.GetTagServiceIface();
+    ASSERT_TRUE(objsPtr != nullptr);
 }
 }
 }
