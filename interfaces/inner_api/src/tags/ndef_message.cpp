@@ -188,18 +188,21 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     std::string rtdType = record.lock()->tagRtdType_;
     bool sr = NfcSdkCommon::GetHexStrBytesLen(payload) < SHORT_RECORD_SIZE;
     bool il = (tnf == TNF_EMPTY) ? true : (NfcSdkCommon::GetHexStrBytesLen(id) > 0);
-    char flag =
-        char((bIsMB ? FLAG_MB : 0) | (bIsME ? FLAG_ME : 0) | (sr ? FLAG_SR : 0) | (il ? FLAG_IL : 0)) | (char)tnf;
-    buffer.push_back(flag);
-    buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(rtdType));
+    unsigned char flag = (unsigned char)((bIsMB ? FLAG_MB : 0) | (bIsME ? FLAG_ME : 0)
+        | (sr ? FLAG_SR : 0) | (il ? FLAG_IL : 0)) | (char)tnf;
+    buffer.append(NfcSdkCommon::UnsignedCharToHexString(flag));
+    buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(rtdType),
+        NfcSdkCommon::IsLittleEndian()));
     if (sr) {
-        buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(payload));
+        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload),
+            NfcSdkCommon::IsLittleEndian()));
     } else {
         buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload),
-                                                NfcSdkCommon::IsLittleEndian()));
+            NfcSdkCommon::IsLittleEndian()));
     }
     if (il) {
-        buffer.push_back(NfcSdkCommon::GetHexStrBytesLen(id));
+        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(id),
+            NfcSdkCommon::IsLittleEndian()));
     }
 
     buffer.append(rtdType);
@@ -252,7 +255,7 @@ void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFoun
         if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + int(sizeof(int))) {
             layout.payloadLength = 0;
         } else {
-            std::string lenString = data.substr(parsedDataIndex, sizeof(int));
+            std::string lenString = data.substr(parsedDataIndex * HEX_BYTE_LEN, sizeof(int) * HEX_BYTE_LEN);
             layout.payloadLength = NfcSdkCommon::StringToInt(lenString, NfcSdkCommon::IsLittleEndian());
             parsedDataIndex += sizeof(int);
         }
@@ -293,7 +296,7 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
             NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.typeLength);
         return "";
     }
-    std::string type = data.substr(parsedDataIndex, layout.typeLength);
+    std::string type = data.substr(parsedDataIndex * HEX_BYTE_LEN, layout.typeLength * HEX_BYTE_LEN);
     parsedDataIndex += layout.typeLength;
     return type;
 }
@@ -308,7 +311,7 @@ std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& 
             NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.idLength);
         return "";
     }
-    std::string id = data.substr(parsedDataIndex, layout.idLength);
+    std::string id = data.substr(parsedDataIndex * HEX_BYTE_LEN, layout.idLength * HEX_BYTE_LEN);
     parsedDataIndex += layout.idLength;
     return id;
 }
@@ -323,7 +326,7 @@ std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::str
             NfcSdkCommon::GetHexStrBytesLen(data), parsedDataIndex, layout.payloadLength);
         return "";
     }
-    std::string payload = data.substr(parsedDataIndex, layout.payloadLength);
+    std::string payload = data.substr(parsedDataIndex * HEX_BYTE_LEN, layout.payloadLength * HEX_BYTE_LEN);
     parsedDataIndex += layout.payloadLength;
     return payload;
 }

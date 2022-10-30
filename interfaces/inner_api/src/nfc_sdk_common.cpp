@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 #include "nfc_sdk_common.h"
-#include "loghelper.h"
 #include <sstream>
 #include <securec.h>
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -72,7 +72,7 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
     for (int i = 0; i < bytesLen; i++) {
         strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
         if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
-            ErrorLog("sscanf_s failed.");
+            ErrorLog("HexStringToBytes, sscanf_s failed.");
             bytes.clear();
             return;
         }
@@ -100,10 +100,10 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
     if (src.empty() || index >= (src.length() - 1)) {
         return 0;
     }
-    std::string strByte = src.substr(index, HEX_BYTE_LEN);
+    std::string strByte = src.substr(index * HEX_BYTE_LEN, HEX_BYTE_LEN);
     unsigned int srcIntValue;
     if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
-        ErrorLog("sscanf_s failed.");
+        ErrorLog("GetByteFromHexStr, sscanf_s failed.");
         return 0;
     }
     return static_cast<unsigned char>(srcIntValue & 0xFF);
