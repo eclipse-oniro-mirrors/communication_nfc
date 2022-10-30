@@ -308,7 +308,6 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 
 int TagNciAdapter::Transceive(std::string& request, std::string& response)
 {
-    DebugLog("TagNciAdapter::Transceive");
     if (!IsTagActive()) {
         return NFA_STATUS_BUSY;
     }
@@ -318,13 +317,12 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
     do {
         NFC::SynchronizeGuard guard(transceiveEvent_);
         uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(request);
-        uint8_t data[length];
-        for (uint32_t i = 0; i < length; i++) {
-            data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(request, i);
-        }
-
+        std::vector<unsigned char> requestInCharVec;
+        KITS::NfcSdkCommon::HexStringToBytes(request, requestInCharVec);
+        InfoLog("TagNciAdapter::Transceive: requestLen = %{public}d", length);
         receivedData_ = "";
-        status = nciAdaptations_->NfaSendRawFrame(data, length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
+        status = nciAdaptations_->NfaSendRawFrame(static_cast<uint8_t *>(requestInCharVec.data()),
+            length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
         if (status != NFA_STATUS_OK) {
             ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
             break;
@@ -337,6 +335,7 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
             break;
         }
         response = receivedData_;
+        InfoLog("TagNciAdapter::Transceive: rsp len = %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(response));
 
         // not auth
         if (retry) {
