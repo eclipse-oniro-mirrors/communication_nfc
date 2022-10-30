@@ -156,7 +156,6 @@ void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
     if (eventData->status != curStatus) {
         curStatus = eventData->status;
     }
-    DebugLog("DoNfaPresenceEvt: status = 0x%{public}X", eventData->status);
     TagNciAdapter::GetInstance().HandleFieldCheckResult(curStatus);
 }
 
@@ -214,7 +213,6 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
             break;
         }
         case NFA_PRESENCE_CHECK_EVT: {
-            DebugLog("NfaConnectionCallback: NFA_PRESENCE_CHECK_EVT");
             DoNfaPresenceEvt(eventData);
             break;
         }
@@ -367,6 +365,7 @@ bool NfccNciAdapter::Initialize()
             NciBalCe::GetInstance().InitializeCe();
             HciManager::GetInstance().Initialize();
 #endif
+            TagNciAdapter::GetInstance().RegisterNdefHandler();
             discoveryDuration_ = DEFAULT_DISCOVERY_DURATION;
             nciAdaptation_->NfaSetRfDiscoveryDuration((uint16_t)discoveryDuration_);
             DebugLog("NfccNciAdapter::Initialize: nfc enabled = %{public}d", isNfcEnabled_);
