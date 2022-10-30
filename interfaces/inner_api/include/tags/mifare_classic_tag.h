@@ -62,14 +62,14 @@ public:
     static const int MC_SIZE_4K = 4096;
     static const int MC_MAX_SECTOR_COUNT = 40;
 
-    static const char AUTHENTICATION_WITH_KEY_A = 0x60;
-    static const char AUTHENTICATION_WITH_KEY_B = 0x61;
-    static const char MIFARE_READ = 0x30;
-    static const char MIFARE_WRITE = 0xA0;
-    static const char MIFARE_TRANSFER = 0xB0;
-    static const char MIFARE_DECREMENT = 0xC0;
-    static const char MIFARE_INCREMENT = 0xC1;
-    static const char MIFARE_RESTORE = 0xC2;
+    static const unsigned char AUTHENTICATION_WITH_KEY_A = 0x60;
+    static const unsigned char AUTHENTICATION_WITH_KEY_B = 0x61;
+    static const unsigned char MIFARE_READ = 0x30;
+    static const unsigned char MIFARE_WRITE = 0xA0;
+    static const unsigned char MIFARE_TRANSFER = 0xB0;
+    static const unsigned char MIFARE_DECREMENT = 0xC0;
+    static const unsigned char MIFARE_INCREMENT = 0xC1;
+    static const unsigned char MIFARE_RESTORE = 0xC2;
 
 public:
     explicit MifareClassicTag(std::weak_ptr<TagInfo> tag);
@@ -99,10 +99,10 @@ public:
     /**
      * @Description Write a block
      * @param blockIndex index of block to write
-     * @param data block data to write
+     * @param hexData block data to write
      * @return Errorcode of write. if return 0, means successful.
      */
-    int WriteSingleBlock(uint32_t blockIndex, const std::string& data);
+    int WriteSingleBlock(uint32_t blockIndex, const std::string& hexData);
     /**
      * @Description Increment a value block
      * @param blockIndex index of block to increment

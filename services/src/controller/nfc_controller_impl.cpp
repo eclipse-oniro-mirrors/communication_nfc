@@ -36,16 +36,16 @@ int NfcControllerImpl::GetState()
     return nfcService_.lock()->GetNfcState();
 }
 
-bool NfcControllerImpl::TurnOn()
+int NfcControllerImpl::TurnOn()
 {
     nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
-    return true;
+    return KITS::ERR_NONE;
 }
 
-bool NfcControllerImpl::TurnOff()
+int NfcControllerImpl::TurnOff()
 {
     nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
-    return true;
+    return KITS::ERR_NONE;
 }
 
 int NfcControllerImpl::IsNfcOpen(bool &isOpen)

@@ -26,50 +26,35 @@ namespace NFC {
 namespace KITS {
 napi_value OpenNfc(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfc_napi_controller_adapter::OpenNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    int ret = nfcCtrl.TurnOn();
-    InfoLog("nfc_napi_controller_adapter::OpenNfc ret = %{pubilic}d", ret);
-    bool success = false;
-    if (ret == KITS::ERR_NONE) {
-        success = true;
-    }
+    int status = nfcCtrl.TurnOn();
     napi_value result;
-    napi_get_boolean(env, success, &result);
+    napi_get_boolean(env, (status == KITS::ERR_NONE), &result);
     return result;
 }
 
 napi_value CloseNfc(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfc_napi_controller_adapter::CloseNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    int ret = nfcCtrl.TurnOff();
-    InfoLog("nfc_napi_controller_adapter::CloseNfc ret = %{pubilic}d", ret);
-    bool success = false;
-    if (ret == KITS::ERR_NONE) {
-        success = true;
-    }
+    int status = nfcCtrl.TurnOff();
     napi_value result;
-    napi_get_boolean(env, success, &result);
+    napi_get_boolean(env, (status == KITS::ERR_NONE), &result);
     return result;
 }
 
 napi_value GetNfcState(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfc_napi_controller_adapter::GetNfcState");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    int ret = nfcCtrl.GetNfcState();
     napi_value result;
-    napi_create_int32(env, ret, &result);
+    napi_create_int32(env, nfcCtrl.GetNfcState(), &result);
     return result;
 }
 
 napi_value IsNfcAvailable(napi_env env, napi_callback_info info)
 {
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    bool isAvailable = nfcCtrl.IsNfcAvailable();
     napi_value result;
-    napi_get_boolean(env, isAvailable, &result);
+    napi_get_boolean(env, nfcCtrl.IsNfcAvailable(), &result);
     return result;
 }
 
@@ -79,7 +64,7 @@ napi_value IsNfcOpen(napi_env env, napi_callback_info info)
     bool isOpen = false;
     int statusCode = nfcCtrl.IsNfcOpen(isOpen);
     if (statusCode != KITS::ERR_NONE) {
-        ErrorLog("nfc_napi_controller_adapter::IsNfcOpen statusCode = %{public}d", statusCode);
+        ErrorLog("IsNfcOpen, statusCode = %{public}d", statusCode);
     }
     napi_value result;
     napi_get_boolean(env, isOpen, &result);
