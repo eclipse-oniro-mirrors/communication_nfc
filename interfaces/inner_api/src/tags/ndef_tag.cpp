@@ -136,14 +136,16 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         ErrorLog("[NdefTag::WriteNdef] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-
-    if (tagSession->IsNdef(GetTagRfDiscId())) {
-        std::string ndefMessage = NdefMessage::MessageToString(msg);
-        return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
-    } else {
-        ErrorLog("[NdefTag::WriteNdef] is not ndef tag!");
+    if (!tagSession->IsNdef(GetTagRfDiscId())) {
+        ErrorLog("[NdefTag::WriteNdef] not ndef tag.");
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
+    if (!IsNdefWritable()) {
+        ErrorLog("[NdefTag::WriteNdef] not writable.");
+        return ErrorCode::ERR_TAG_STATE_IO_FAILED;
+    }
+    std::string ndefMessage = NdefMessage::MessageToString(msg);
+    return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
 }
 
 int NdefTag::IsEnableReadOnly(bool &canSetReadOnly)
