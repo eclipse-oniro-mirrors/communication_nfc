@@ -249,11 +249,12 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
-    napi_value result = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
-    std::shared_ptr<NdefMessage> ndefMessage = nullptr;
-    
+
+    NapiNdefMessage *objectNdefMsg = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectNdefMsg));
+    NAPI_ASSERT(env, status == napi_ok, "napi_unwrap objectNdefMsg failed");
+
     // check parameter number
     if (argc != ARGV_NUM_1) {
         ErrorLog("NapiNdefMessage::MessageToBytes, Invalid number of arguments!");
@@ -270,21 +271,20 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
         return CreateUndefined(env);
     }
 
-    napi_status status1 = napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&ndefMessage));
-    NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
+    // unwrap for argument of NdefMessage.
+    NapiNdefMessage *argNdefMsg = nullptr;
+    napi_status status2 = napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
+    NAPI_ASSERT(env, status2 == napi_ok, "napi_unwrap argNdefMsg failed");
 
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
-    if (ndefMessagePtr == nullptr) {
-        ErrorLog("MessageToString find objectInfo failed!");
-        ConvertStringToNumberArray(env, result, "");
-    } else {
-        std::string buffer = ndefMessagePtr->MessageToString(ndefMessage);
+    // parse to get the raw bytes.
+    napi_value result = nullptr;
+    if (argNdefMsg != nullptr) {
+        std::shared_ptr<NdefMessage> ndefMsg = argNdefMsg->ndefMessage;
+        std::string buffer = NdefMessage::MessageToString(ndefMsg);
         ConvertStringToNumberArray(env, result, buffer.c_str());
+    } else {
+        ErrorLog("MessageToString find argNdefMsg failed!");
+        ConvertStringToNumberArray(env, result, "");
     }
     return result;
 }

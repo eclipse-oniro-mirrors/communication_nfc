@@ -25,38 +25,26 @@ static NfcControllerCallBackStub* g_nfcControllerCallbackStub = new NfcControlle
 
 NfcControllerProxy ::~NfcControllerProxy() {}
 
-bool NfcControllerProxy::TurnOn()
+int NfcControllerProxy::TurnOn()
 {
-    bool result = false;
     MessageParcel data;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int32_t res = SendRequestExpectReplyBool(KITS::COMMAND_TURN_ON, data, option, result);
-    if (res != ERR_NONE) {
-        ErrorLog("NfcControllerProxy::TurnOn error.");
-        return false;
-    }
-    return result;
+    return SendRequestExpectReplyNone(KITS::COMMAND_TURN_ON, data, option);
 }
 
-bool NfcControllerProxy::TurnOff()
+int NfcControllerProxy::TurnOff()
 {
-    bool result = false;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
     MessageOption option;
-    int res = SendRequestExpectReplyBool(KITS::COMMAND_TURN_OFF, data, option, result);
-    if (res != ERR_NONE) {
-        ErrorLog("NfcControllerProxy::TurnOff error.");
-        return false;
-    }
-    return result;
+    return SendRequestExpectReplyNone(KITS::COMMAND_TURN_OFF, data, option);
 }
 
 int NfcControllerProxy::GetState()

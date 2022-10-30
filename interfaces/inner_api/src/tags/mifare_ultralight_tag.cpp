@@ -66,9 +66,9 @@ int MifareUltralightTag::ReadMultiplePages(uint32_t pageIndex, std::string &hexR
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT)) {
-        char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_READ, char(pageIndex & 0xFF)};
-        std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
-        DebugLog("%02X  %02X   ", command[0], command[1]);
+        std::string sendCommand = "";
+        sendCommand += NfcSdkCommon::UnsignedCharToHexString(MIFARE_ULTRALIGHT_READ);
+        sendCommand += NfcSdkCommon::UnsignedCharToHexString(pageIndex & 0xFF);
         return SendCommand(sendCommand, false, hexRespData);
     }
     return ErrorCode::ERR_TAG_PARAMETERS;
@@ -82,8 +82,9 @@ int MifareUltralightTag::WriteSinglePage(uint32_t pageIndex, const std::string& 
     }
     if ((pageIndex > 0 && pageIndex < MU_MAX_PAGE_COUNT) &&
         KITS::NfcSdkCommon::GetHexStrBytesLen(data) == MU_PAGE_SIZE) {
-        char command[TagInfo::SEND_COMMAND_HEAD_LEN_2] = {MIFARE_ULTRALIGHT_WRITE, char(pageIndex & 0xFF)};
-        std::string sendCommand(command, TagInfo::SEND_COMMAND_HEAD_LEN_2);
+        std::string sendCommand = "";
+        sendCommand += NfcSdkCommon::UnsignedCharToHexString(MIFARE_ULTRALIGHT_WRITE);
+        sendCommand += NfcSdkCommon::UnsignedCharToHexString(pageIndex & 0xFF);
         sendCommand += data;
         std::string hexRespData;
         return SendCommand(sendCommand, false, hexRespData);

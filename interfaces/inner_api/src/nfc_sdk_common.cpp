@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 #include "nfc_sdk_common.h"
-
 #include <sstream>
+#include <securec.h>
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -65,11 +66,17 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
         return;
     }
 
-    // two charactors consist of one hex byte.
-    for (uint32_t i = 0; i < (src.size() - 1); i += HEX_BYTE_LEN) {
-        std::string byte = src.substr(i, HEX_BYTE_LEN);
-        unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, HEX_VALUE));
-        bytes.push_back(value);
+    int bytesLen = src.length() / HEX_BYTE_LEN;
+    std::string strByte;
+    unsigned int srcIntValue;
+    for (int i = 0; i < bytesLen; i++) {
+        strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
+        if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
+            ErrorLog("HexStringToBytes, sscanf_s failed.");
+            bytes.clear();
+            return;
+        }
+        bytes.push_back(static_cast<unsigned char>(srcIntValue & 0xFF));
     }
 }
 
@@ -93,9 +100,13 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
     if (src.empty() || index >= (src.length() - 1)) {
         return 0;
     }
-    std::string byte = src.substr(index, HEX_BYTE_LEN);
-    unsigned char value = static_cast<unsigned char>(std::stoi(byte, 0, HEX_VALUE));
-    return value;
+    std::string strByte = src.substr(index * HEX_BYTE_LEN, HEX_BYTE_LEN);
+    unsigned int srcIntValue;
+    if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
+        ErrorLog("GetByteFromHexStr, sscanf_s failed.");
+        return 0;
+    }
+    return static_cast<unsigned char>(srcIntValue & 0xFF);
 }
 
 std::string NfcSdkCommon::IntToString(uint32_t num, bool bLittleEndian)
