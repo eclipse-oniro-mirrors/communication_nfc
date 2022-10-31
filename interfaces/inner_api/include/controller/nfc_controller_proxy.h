@@ -33,8 +33,8 @@ public:
     }
     ~NfcControllerProxy() override;
 
-    bool TurnOn() override;
-    bool TurnOff() override;
+    int TurnOn() override;
+    int TurnOff() override;
     int GetState() override;
     int IsNfcOpen(bool &isOpen) override;
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,

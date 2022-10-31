@@ -33,14 +33,14 @@ public:
     virtual int GetState() = 0;
     /**
      * @brief Turn On NFC
-     * @return true - turn on; the other
+     * @return The status code of calling function.
      */
-    virtual bool TurnOn() = 0;
+    virtual int TurnOn() = 0;
     /**
      * @brief Turn Off NFC
-     * @return true - turn off; the other
+     * @return The status code of calling function.
      */
-    virtual bool TurnOff() = 0;
+    virtual int TurnOff() = 0;
      /**
      * @brief NFC enable
      * @param isOpen The output for checking nfc is open or not.

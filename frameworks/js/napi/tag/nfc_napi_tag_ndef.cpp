@@ -23,7 +23,6 @@ namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 const int INIT_REF = 1;
 thread_local napi_ref ndefMessageRef_;       // for read and getNedfMessage NAPI
-thread_local napi_ref ndefMessageCreateRef_; // for createNdefMessage NAPI
 
 std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
 {
@@ -92,56 +91,6 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
     return params;
 }
 
-napi_value CreateNdefMessage_Constructor(napi_env env, napi_callback_info cbinfo)
-{
-    std::shared_ptr<NdefMessage> ndefMessage;
-    // napiNdefMessage is defined as a native instance that will be wrapped in the JS object
-    NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
-    size_t argc = ARGV_NUM_1;
-    napi_value argv[ARGV_NUM_1] = {0};
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
-    // check parameter number
-    if (argc != ARGV_NUM_1) {
-        ErrorLog("CreateNdefMessage, Invalid number of arguments");
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-        return CreateUndefined(env);
-    }
-
-    // check parameter data type
-    if (IsNumberArray(env, argv[ARGV_INDEX_0])) {
-        // data: number[]
-        std::vector<unsigned char> dataVec;
-        ParseBytesVector(env, dataVec, argv[ARGV_INDEX_0]);
-        std::string data = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
-                                                             dataVec.size());
-        napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(data);
-    } else if (IsObjectArray(env, argv[ARGV_INDEX_0])) {
-        // ndefRecords: NdefRecord[]
-        std::vector<std::shared_ptr<NdefRecord>> ndefRecords ;
-        ndefRecords = ParseNdefRecords(env, argv[ARGV_INDEX_0]);
-        napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
-    } else {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "data | ndefRecords", "number[] | NdefRecord[]")));
-        return CreateUndefined(env);
-    }
-
-    // wrap  data into thisVar
-    napi_status status = napi_wrap(
-        env, thisVar, napiNdefMessage,
-        [](napi_env env, void *data, void *hint) {
-            if (data) {
-                NapiNdefMessage *nfcTag = static_cast<NapiNdefMessage *>(data);
-                delete nfcTag;
-            }
-        },
-        nullptr, nullptr);
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    return thisVar;
-}
-
 napi_value NdefMessage_Constructor(napi_env env, napi_callback_info cbinfo)
 {
     size_t argc = ARGV_NUM_0;
@@ -161,35 +110,75 @@ napi_value NapiNdefTag::RegisterNdefMessageJSClass(napi_env env, napi_value expo
         DECLARE_NAPI_FUNCTION("makeExternalRecord", NapiNdefMessage::MakeExternalRecord),
         DECLARE_NAPI_FUNCTION("messageToBytes", NapiNdefMessage::MessageToBytes),
     };
-    
-    napi_value constructor_create = nullptr; // for ndefMessageCreateRef_
-    napi_value constructor = nullptr; // for ndefMessageRef_
-    // CreateNdefMessage_Constructor is for CreateNdefMessage NAPI with params to parse
-    NAPI_CALL(env,
-        napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, CreateNdefMessage_Constructor, nullptr,
-            sizeof(desc) / sizeof(desc[0]), desc, &constructor_create));
-    
+
     // NdefMessage_Constructor is for GetNdefMessage and Read NdefMessage NAPI with no params
+    napi_value constructor = nullptr;
     NAPI_CALL(env,
         napi_define_class(env, "NdefMessage", NAPI_AUTO_LENGTH, NdefMessage_Constructor, nullptr,
             sizeof(desc) / sizeof(desc[0]), desc, &constructor));
-    
-    napi_create_reference(env, constructor_create, INIT_REF, &ndefMessageCreateRef_);
     napi_create_reference(env, constructor, INIT_REF, &ndefMessageRef_);
     return exports;
 }
 
 napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 {
+    napi_value thisVar = nullptr;
     size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+
+    // unwrap from thisVar to retrieve the native instance
+    NapiNdefTag *objectInfo = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
+    NAPI_ASSERT(env, status == napi_ok, "CreateNdefMessage unwrap failed to get objectInfo");
+    NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcNdefTagPtr == nullptr) {
+        ErrorLog("CreateNdefMessage, nfcNdefTagPtr failed!");
+        return CreateUndefined(env);
+    }
+
+    // check parameter number
+    if (argc != ARGV_NUM_1) {
+        ErrorLog("CreateNdefMessage, Invalid number of arguments");
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+        return CreateUndefined(env);
+    }
+
+    // check parameter data type
+    NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
+    if (IsNumberArray(env, argv[ARGV_INDEX_0])) {
+        // data: number[]
+        std::vector<unsigned char> dataVec;
+        ParseBytesVector(env, dataVec, argv[ARGV_INDEX_0]);
+        std::string rawData = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
+                                                                dataVec.size());
+        napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(rawData);
+    } else if (IsObjectArray(env, argv[ARGV_INDEX_0])) {
+        // ndefRecords: NdefRecord[]
+        std::vector<std::shared_ptr<NdefRecord>> ndefRecords ;
+        ndefRecords = ParseNdefRecords(env, argv[ARGV_INDEX_0]);
+        napiNdefMessage->ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "data | ndefRecords", "number[] | NdefRecord[]")));
+        return CreateUndefined(env);
+    }
+
+    napi_value ndefMessage = nullptr;
     napi_value constructor = nullptr;
-    // new instance of JS object ndefMessage
-    napi_get_reference_value(env, ndefMessageCreateRef_, &constructor);
-    NAPI_CALL(env, napi_new_instance(env, constructor, 0, nullptr, &result));
-    return result;
+    napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    napi_new_instance(env, constructor, 0, nullptr, &ndefMessage);
+    napi_status status2 = napi_wrap(
+        env, ndefMessage, napiNdefMessage,
+        [](napi_env env, void *data, void *hint) {
+            if (data) {
+                NapiNdefMessage *message = static_cast<NapiNdefMessage *>(data);
+                delete message;
+            }
+        },
+        nullptr, nullptr);
+    NAPI_ASSERT(env, status2 == napi_ok, "CreateNdefMessage, failed to wrap ndefMessage");
+    return ndefMessage;
 }
 
 napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
@@ -228,12 +217,11 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
     NapiNdefTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    NAPI_ASSERT(env, status == napi_ok, "GetNdefMessage unwrap failed to get objectInfo");
 
-    napi_value result = nullptr;
     napi_value constructor = nullptr;
     napi_get_reference_value(env, ndefMessageRef_, &constructor);
-    napi_new_instance(env, constructor, 0, nullptr, &result);
+    napi_new_instance(env, constructor, 0, nullptr, &ndefMessage);
 
     // transfer
     NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
@@ -242,6 +230,10 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
         return CreateUndefined(env);
     } else {
         napiNdefMessage->ndefMessage = nfcNdefTagPtr->GetCachedNdefMsg();
+        if (napiNdefMessage->ndefMessage == nullptr) {
+            ErrorLog("GetNdefMessage ndefMessage failed!");
+            return CreateUndefined(env);
+        }
 
         napi_status status1 = napi_wrap(
             env, ndefMessage, napiNdefMessage,
@@ -253,7 +245,7 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
             },
             nullptr, nullptr);
         NAPI_ASSERT(env, status1 == napi_ok, "failed to wrap ndefMessage");
-        return result;
+        return ndefMessage;
     }
 }
 

@@ -63,9 +63,7 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    bool result = TurnOn();
-    reply.WriteInt32(result);
-    return ERR_NONE;
+    return TurnOn();
 }
 
 int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
@@ -73,9 +71,7 @@ int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
     if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    bool result = TurnOff();
-    reply.WriteInt32(result);
-    return ERR_NONE;
+    return TurnOff();
 }
 
 int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply)

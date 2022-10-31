@@ -71,7 +71,6 @@ NfcController &NfcController::GetInstance()
 // Open NFC
 int NfcController::TurnOn()
 {
-    DebugLog("NfcController::TurnOn in.");
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
@@ -81,7 +80,6 @@ int NfcController::TurnOn()
 // Close NFC
 int NfcController::TurnOff()
 {
-    DebugLog("NfcController::TurnOff in.");
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }

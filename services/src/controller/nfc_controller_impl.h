@@ -29,8 +29,8 @@ public:
     ~NfcControllerImpl() override;
 
     int GetState() override;
-    bool TurnOn() override;
-    bool TurnOff() override;
+    int TurnOn() override;
+    int TurnOff() override;
     int IsNfcOpen(bool &isOpen) override;
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type, Security::AccessToken::AccessTokenID callerToken) override;
