@@ -122,13 +122,13 @@ int MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key
     hexCmd += tagUid.substr((uidBytes - uidLast4Bytes) * HEX_BYTE_LEN, uidLast4Bytes * HEX_BYTE_LEN);
 
     // Take the last 6 bytes of the tag as part of command
-    static const int keyLast6Bytes = 6;
+    static const int expectedKeySize = 6;
     uint32_t keyBytes = NfcSdkCommon::GetHexStrBytesLen(key);
-    if (keyBytes < keyLast6Bytes) {
+    if (keyBytes != expectedKeySize) {
         ErrorLog("AuthenticateSector, key invalid.");
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
-    hexCmd += key.substr((keyBytes - keyLast6Bytes) * HEX_BYTE_LEN, keyLast6Bytes * HEX_BYTE_LEN);
+    hexCmd += key.substr(0, expectedKeySize * HEX_BYTE_LEN);
 
     std::string hexRespData;
     return SendCommand(hexCmd, false, hexRespData);
@@ -191,7 +191,7 @@ int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
     std::string hexCmd = "";
     hexCmd += NfcSdkCommon::UnsignedCharToHexString(MIFARE_INCREMENT);
     hexCmd += NfcSdkCommon::UnsignedCharToHexString(static_cast<unsigned char>(blockIndex & 0xFF));
-    hexCmd += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
+    hexCmd += NfcSdkCommon::IntToHexString(value);
 
     std::string hexRespData;
     return SendCommand(hexCmd, false, hexRespData);
@@ -214,7 +214,7 @@ int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
     std::string hexCmd = "";
     hexCmd += NfcSdkCommon::UnsignedCharToHexString(MIFARE_DECREMENT);
     hexCmd += NfcSdkCommon::UnsignedCharToHexString(static_cast<unsigned char>(blockIndex & 0xFF));
-    hexCmd += NfcSdkCommon::IntToString(value, NfcSdkCommon::IsLittleEndian());
+    hexCmd += NfcSdkCommon::IntToHexString(value);
 
     std::string hexRespData;
     return SendCommand(hexCmd, false, hexRespData);

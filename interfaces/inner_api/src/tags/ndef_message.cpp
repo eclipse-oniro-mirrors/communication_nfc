@@ -191,18 +191,14 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     unsigned char flag = (unsigned char)((bIsMB ? FLAG_MB : 0) | (bIsME ? FLAG_ME : 0)
         | (sr ? FLAG_SR : 0) | (il ? FLAG_IL : 0)) | (char)tnf;
     buffer.append(NfcSdkCommon::UnsignedCharToHexString(flag));
-    buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(rtdType),
-        NfcSdkCommon::IsLittleEndian()));
+    buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(rtdType)));
     if (sr) {
-        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload),
-            NfcSdkCommon::IsLittleEndian()));
+        buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(payload)));
     } else {
-        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(payload),
-            NfcSdkCommon::IsLittleEndian()));
+        buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(payload)));
     }
     if (il) {
-        buffer.append(NfcSdkCommon::IntToString(NfcSdkCommon::GetHexStrBytesLen(id),
-            NfcSdkCommon::IsLittleEndian()));
+        buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(id)));
     }
 
     buffer.append(rtdType);
@@ -285,6 +281,7 @@ bool NdefMessage::IsRecordLayoutLengthInvalid(RecordLayout& layout, bool isChunk
     }
     return false;
 }
+
 std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.typeLength <= 0) {
@@ -300,6 +297,7 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
     parsedDataIndex += layout.typeLength;
     return type;
 }
+
 std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.idLength <= 0) {
@@ -315,6 +313,7 @@ std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& 
     parsedDataIndex += layout.idLength;
     return id;
 }
+
 std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.payloadLength <= 0) {
@@ -330,6 +329,7 @@ std::string NdefMessage::ParseRecordPayload(RecordLayout& layout, const std::str
     parsedDataIndex += layout.payloadLength;
     return payload;
 }
+
 void NdefMessage::SaveRecordChunks(RecordLayout& layout, bool isChunkFound,
     std::vector<std::string>& chunks, char& chunkTnf, const std::string& payload)
 {
@@ -344,6 +344,7 @@ void NdefMessage::SaveRecordChunks(RecordLayout& layout, bool isChunkFound,
         chunks.push_back(payload);
     }
 }
+
 std::string NdefMessage::MergePayloadByChunks(RecordLayout& layout, bool isChunkFound,
     std::vector<std::string>& chunks, char chunkTnf, const std::string& payload)
 {
@@ -358,6 +359,7 @@ std::string NdefMessage::MergePayloadByChunks(RecordLayout& layout, bool isChunk
     }
     return payload;
 }
+
 std::shared_ptr<NdefRecord> NdefMessage::CreateNdefRecord(short tnf, const std::string& id,
     const std::string& payload, const std::string& tagRtdType)
 {
@@ -373,6 +375,7 @@ std::shared_ptr<NdefRecord> NdefMessage::CreateNdefRecord(short tnf, const std::
     ndefRecord->tagRtdType_ = tagRtdType;
     return ndefRecord;
 }
+
 bool NdefMessage::CheckTnf(short tnf, const std::string& tagRtdType, const std::string& id, const std::string& payload)
 {
     switch (tnf) {
@@ -400,6 +403,7 @@ bool NdefMessage::CheckTnf(short tnf, const std::string& tagRtdType, const std::
     }
     return false;
 }
+
 std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::string& data, bool isMbMeIgnored)
 {
     std::vector<std::shared_ptr<NdefRecord>> recordList;
