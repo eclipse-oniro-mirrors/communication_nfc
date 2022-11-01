@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_sdk_common.h"
+#include <algorithm>
 #include <sstream>
 #include <securec.h>
 #include "loghelper.h"
@@ -138,6 +139,18 @@ uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
         }
     }
     return value;
+}
+
+std::string NfcSdkCommon::IntToHexString(uint32_t num)
+{
+    std::stringstream ss;
+    ss << std::hex << num;
+    std::string result = ss.str();
+    transform(result.begin(), result.end(), result.begin(), ::toupper);
+    if (result.length() % 2 > 0) { // expend "0" if string length is odd
+        result = "0" + result;
+    }
+    return result;
 }
 }  // namespace KITS
 }  // namespace NFC
