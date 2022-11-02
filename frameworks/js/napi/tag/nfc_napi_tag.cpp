@@ -575,6 +575,24 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
     return exports;
 }
 
+napi_value RegisterNdefStaticFunctions(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_FUNCTION("createNdefMessage", NapiNdefTag::CreateNdefMessage),
+        DECLARE_NAPI_FUNCTION("makeUriRecord", NapiNdefMessage::MakeUriRecord),
+        DECLARE_NAPI_FUNCTION("makeTextRecord", NapiNdefMessage::MakeTextRecord),
+        DECLARE_NAPI_FUNCTION("makeMimeRecord", NapiNdefMessage::MakeMimeRecord),
+        DECLARE_NAPI_FUNCTION("makeExternalRecord", NapiNdefMessage::MakeExternalRecord),
+        DECLARE_NAPI_FUNCTION("messageToBytes", NapiNdefMessage::MessageToBytes),
+    };
+
+    napi_value ndef = nullptr;
+    napi_create_object(env, &ndef);
+    napi_define_properties(env, ndef, sizeof(desc) / sizeof(desc[0]), desc);
+    napi_set_named_property(env, exports, "ndef", ndef);
+    return exports;
+}
+
 napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -921,6 +939,9 @@ static napi_value InitJs(napi_env env, napi_value exports)
     RegisterMifareClassicJSClass(env, exports);
     RegisterMifareUltralightJSClass(env, exports);
     RegisterNdefFormatableJSClass(env, exports);
+
+    // register namespace 'ndef' functions
+    RegisterNdefStaticFunctions(env, exports);
 
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getNfcATag", GetNfcATag),
