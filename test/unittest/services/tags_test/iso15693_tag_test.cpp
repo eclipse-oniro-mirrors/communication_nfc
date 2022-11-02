@@ -38,6 +38,11 @@ public:
     static constexpr const auto TEST_RESPONSE_FLAGS = '0';
     static constexpr const auto TEST_DSF_ID = '1';
     static constexpr const auto TEST_ISO15693_INDEX = 0;
+    static constexpr const auto TEST_FLAG = 100;
+    static constexpr const auto TEST_BLOCK_INDEX = 101;
+    static constexpr const auto TEST_HEX_CMD_DATA = "00A40400";
+    static constexpr const auto TEST_BLOCK_NUM = 102 ;
+    static constexpr const auto TEST_HEX_RESP_DATA = "103";
     std::shared_ptr<TagInfo> tagInfo_;
 };
 
@@ -94,6 +99,74 @@ HWTEST_F(Iso15693TagTest, GetTag002, TestSize.Level1)
 {
     std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
     ASSERT_TRUE(iso15693 != nullptr);
+}
+
+/**
+ * @tc.name: ReadSingleBlock001
+ * @tc.desc: Test Iso15693Tag ReadSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, ReadSingleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
+    std::string testHexRespData = TEST_HEX_RESP_DATA;
+    int errorCode = iso15693->ReadSingleBlock(TEST_FLAG, TEST_BLOCK_INDEX, testHexRespData);
+    
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: WriteSingleBlock001
+ * @tc.desc: Test Iso15693Tag WriteSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, WriteSingleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
+    int errorCode = iso15693->WriteSingleBlock(TEST_FLAG, TEST_BLOCK_INDEX, TEST_HEX_CMD_DATA);
+    
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: LockSingleBlock001
+ * @tc.desc: Test Iso15693Tag LockSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, LockSingleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
+    int errorCode = iso15693->LockSingleBlock(TEST_FLAG, TEST_BLOCK_INDEX);
+    
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: ReadMultipleBlock001
+ * @tc.desc: Test Iso15693Tag ReadMultipleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, ReadMultipleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
+    std::string testHexRespData = TEST_HEX_RESP_DATA;
+    int errorCode = iso15693->ReadMultipleBlock(TEST_FLAG, TEST_BLOCK_INDEX, TEST_BLOCK_NUM, testHexRespData);
+    
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_PARAMETERS);
+}
+/**
+ * @tc.name: WriteMultipleBlock001
+ * @tc.desc: Test Iso15693Tag ReadSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, v001, TestSize.Level1)
+{
+    std::shared_ptr<Iso15693Tag> iso15693 = Iso15693Tag::GetTag(tagInfo_);
+    int errorCode = iso15693->WriteMultipleBlock(TEST_FLAG, TEST_BLOCK_INDEX, TEST_BLOCK_NUM, TEST_HEX_RESP_DATA);
+    
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
 }
 /**
  * @tc.name: GetRespFlags001
