@@ -105,9 +105,10 @@ public:
     static void HexStringToBytes(std::string &src, std::vector<unsigned char> &bytes);
     static unsigned char GetByteFromHexStr(const std::string src, uint32_t index);
     static uint32_t GetHexStrBytesLen(const std::string src);
-    static std::string IntToString(uint32_t num, bool bLittleEndian = true);
     static uint32_t StringToInt(std::string src, bool bLittleEndian = true);
     static std::string IntToHexString(uint32_t num);
+    static void StringToAsciiBytes(const std::string &src, std::vector<unsigned char> &bytes);
+    static std::string StringToHexString(const std::string &src);
 };
 }  // namespace KITS
 }  // namespace NFC

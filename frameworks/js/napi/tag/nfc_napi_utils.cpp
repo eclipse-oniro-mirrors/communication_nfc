@@ -356,7 +356,7 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
     napi_value rtdType;
     napi_create_string_utf8(env, ndefRecord->tagRtdType_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
     napi_set_named_property(env, result, "rtdType", rtdType);
-    DebugLog("ConvertNdefRecordToJS rtdType is %{public}s", ndefRecord->payload_.c_str());
+    DebugLog("ConvertNdefRecordToJS rtdType is %{public}s", ndefRecord->tagRtdType_.c_str());
 
     napi_value id;
     napi_create_string_utf8(env, ndefRecord->id_.c_str(), NAPI_AUTO_LENGTH, &id);

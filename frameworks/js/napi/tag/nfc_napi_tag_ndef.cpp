@@ -37,36 +37,31 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     napi_get_value_uint32(env, elementValue, reinterpret_cast<uint32_t *>(&ndefRecord->tnf_));
 
     napi_get_named_property(env, args, "rtdType", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong rtdType argument type. Array expected.");
+    if (!IsString(env, elementValue)) {
+        ErrorLog("Wrong rtdType argument type. String expected.");
         ndefRecord->tagRtdType_ = "";
     }
-    std::vector<unsigned char> rtdTypeVec;
-    ParseBytesVector(env, rtdTypeVec, elementValue);
-    ndefRecord->tagRtdType_ =
-        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(rtdTypeVec.data()),
-                                          rtdTypeVec.size());
+    std::string rtdTypeStr;
+    ParseString(env, rtdTypeStr, elementValue);
+    ndefRecord->tagRtdType_ = rtdTypeStr;
 
     napi_get_named_property(env, args, "id", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong id argument type. Array expected.");
+    if (!IsString(env, elementValue)) {
+        ErrorLog("Wrong id argument type. String expected.");
         ndefRecord->id_ = "";
     }
-    std::vector<unsigned char> idVec;
-    ParseBytesVector(env, idVec, elementValue);
-    ndefRecord->id_ =
-        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(idVec.data()), idVec.size());
+    std::string idStr;
+    ParseString(env, idStr, elementValue);
+    ndefRecord->id_ = idStr;
 
     napi_get_named_property(env, args, "payload", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong payload argument type. Array expected.");
+    if (!IsString(env, elementValue)) {
+        ErrorLog("Wrong payload argument type. String expected.");
         ndefRecord->payload_ = "";
     }
-    std::vector<unsigned char> payloadVec;
-    ParseBytesVector(env, payloadVec, elementValue);
-    ndefRecord->payload_ =
-        NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(payloadVec.data()),
-                                          payloadVec.size());
+    std::string payloadStr;
+    ParseString(env, payloadStr, elementValue);
+    ndefRecord->payload_ = payloadStr;
     return ndefRecord;
 }
 
