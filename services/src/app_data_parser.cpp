@@ -176,7 +176,7 @@ ElementName AppDataParser::GetMatchedTagKeyElement(ElementName &element)
 {
     ElementName emptyElement;
     std::vector<TagAppTechInfo>::iterator iter;
-    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); ++iter) {
         if (IsMatchedByBundleName(element, (*iter).element)) {
             return (*iter).element;
         }
@@ -188,7 +188,7 @@ ElementName AppDataParser::GetMatchedHceKeyElement(ElementName &element)
 {
     ElementName emptyElement;
     std::vector<HceAppAidInfo>::iterator iter;
-    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); iter++) {
+    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); ++iter) {
         if (IsMatchedByBundleName(element, (*iter).element)) {
             return (*iter).element;
         }
@@ -275,7 +275,7 @@ void AppDataParser::RemoveTagAppInfo(ElementName &element)
     }
     DebugLog("RemoveTagAppInfo, request app %{public}s", keyElement.GetBundleName().c_str());
     std::vector<TagAppTechInfo>::iterator iter;
-    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+    for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); ++iter) {
         // compare only bundle name to remote the app.
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveTagAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
@@ -294,7 +294,7 @@ void AppDataParser::RemoveHceAppInfo(ElementName &element)
     }
     DebugLog("RemoveHceAppInfo, app %{public}s", keyElement.GetBundleName().c_str());
     std::vector<HceAppAidInfo>::iterator iter;
-    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); iter++) {
+    for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); ++iter) {
         // compare only bundle name to remote the app.
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveHceAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
@@ -329,7 +329,7 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
 
         // parse for all installed app that can handle this technology.
         std::vector<TagAppTechInfo>::iterator iter;
-        for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); iter++) {
+        for (iter = g_tagAppAndTechMap.begin(); iter != g_tagAppAndTechMap.end(); ++iter) {
             bool appExisted = false;
             for (auto item : elements) {
                 if (IsMatchedByBundleName(item, (*iter).element)) {

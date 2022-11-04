@@ -145,8 +145,7 @@ int NfcControllerStub::HandleUnRegisterCallBack(MessageParcel &data, MessageParc
     if (exception) {
         return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
-    ret = UnRegisterCallBack(type);
+    KITS::ErrorCode ret = UnRegisterCallBack(type);
     DebugLog("OnUnRegisterCallBack::OnUnRegisterCallBack end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ERR_NONE;

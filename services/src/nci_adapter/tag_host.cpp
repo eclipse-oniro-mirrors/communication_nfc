@@ -543,7 +543,7 @@ void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFw
 
 int TagHost::GetNdefType(int protocol) const
 {
-    int ndefType = NDEF_UNKNOWN_TYPE;
+    int ndefType;
     if (NFA_PROTOCOL_T1T == protocol) {
         ndefType = NDEF_TYPE1_TAG;
     } else if (NFA_PROTOCOL_T2T == protocol) {

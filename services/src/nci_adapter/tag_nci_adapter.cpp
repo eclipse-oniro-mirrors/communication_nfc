@@ -958,7 +958,7 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
     GetTechActFromData(activated);
 
     tagActivatedProtocol_ = activated.activate_ntf.protocol;
-    GetT1tMaxMessageSize(activated);
+    t1tMaxMessageSize_ = GetT1tMaxMessageSize(activated);
     ParseSpecTagType(activated);
 
     std::unique_ptr<NCI::ITagHost> tagHost = std::make_unique<NCI::TagHost>(tagTechList_,
@@ -1111,26 +1111,28 @@ void TagNciAdapter::AbortWait()
     }
 }
 
-void TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const
+int TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const
 {
+    int t1tMaxMessageSize;
     DebugLog("GetT1tMaxMessageSize");
     if (activated.activate_ntf.protocol != NFC_PROTOCOL_T1T) {
-        t1tMaxMessageSize_ = 0;
-        return;
+        t1tMaxMessageSize = 0;
+        return t1tMaxMessageSize;
     }
     // examine the first byte of header ROM bytes
     switch (activated.params.t1t.hr[0]) {
         case RW_T1T_IS_TOPAZ96:
-            t1tMaxMessageSize_ = TOPAZ96_MAX_MESSAGE_SIZE;
+            t1tMaxMessageSize = TOPAZ96_MAX_MESSAGE_SIZE;
             break;
         case RW_T1T_IS_TOPAZ512:
-            t1tMaxMessageSize_ = TOPAZ512_MAX_MESSAGE_SIZE;
+            t1tMaxMessageSize = TOPAZ512_MAX_MESSAGE_SIZE;
             break;
         default:
             ErrorLog("GetT1tMaxMessageSize: unknown T1T HR0=%u", activated.params.t1t.hr[0]);
-            t1tMaxMessageSize_ = 0;
+            t1tMaxMessageSize = 0;
             break;
     }
+    return t1tMaxMessageSize;
 }
 
 tNFA_INTF_TYPE TagNciAdapter::GetRfInterface(int protocol) const

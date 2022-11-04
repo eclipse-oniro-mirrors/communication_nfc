@@ -68,10 +68,9 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
     }
 
     int bytesLen = src.length() / HEX_BYTE_LEN;
-    std::string strByte;
     unsigned int srcIntValue;
     for (int i = 0; i < bytesLen; i++) {
-        strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
+        std::string strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
         if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
             ErrorLog("HexStringToBytes, sscanf_s failed.");
             bytes.clear();
