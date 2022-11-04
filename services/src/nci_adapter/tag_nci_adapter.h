@@ -74,7 +74,7 @@ public:
 private:
     TagNciAdapter();
     ~TagNciAdapter();
-    void GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
+    int GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
     std::string GetUidFromData(tNFA_ACTIVATED activated) const;
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;
     bool IsTagActive() const;

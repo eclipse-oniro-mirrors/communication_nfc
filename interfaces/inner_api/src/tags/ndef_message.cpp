@@ -412,7 +412,7 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         return recordList;
     }
 
-    std::string tagRtdType, id, payload;
+    std::string tagRtdType, id;
     std::vector<std::string> chunks;
     bool isChunkFound = false;
     char chunkTnf = 0;
@@ -440,7 +440,7 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         }
 
         // parse the payload.
-        payload = ParseRecordPayload(layout, data, parsedDataIndex);
+        std::string payload = ParseRecordPayload(layout, data, parsedDataIndex);
         SaveRecordChunks(layout, isChunkFound, chunks, chunkTnf, payload);
         payload = MergePayloadByChunks(layout, isChunkFound, chunks, chunkTnf, payload);
         if (NfcSdkCommon::GetHexStrBytesLen(payload) > MAX_PAYLOAD_SIZE) {
