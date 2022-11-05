@@ -146,7 +146,7 @@ std::string NfcSdkCommon::IntToHexString(uint32_t num)
     ss << std::hex << num;
     std::string result = ss.str();
     transform(result.begin(), result.end(), result.begin(), ::toupper);
-    if (result.length() % 2 > 0) { // expend "0" if string length is odd
+    if (result.length() % HEX_BYTE_LEN > 0) { // expend "0" if string length is odd
         result = "0" + result;
     }
     return result;

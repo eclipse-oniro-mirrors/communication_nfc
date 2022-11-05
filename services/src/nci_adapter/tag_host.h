@@ -60,9 +60,9 @@ public:
     static const auto TARGET_TYPE_FELICA = 4;
     static const auto TARGET_TYPE_V = 5;
     static const auto TARGET_TYPE_NDEF = 6;
+    static const auto TARGET_TYPE_NDEF_FORMATABLE = 7;
     static const auto TARGET_TYPE_MIFARE_CLASSIC = 8;
     static const auto TARGET_TYPE_MIFARE_UL = 9;
-    static const auto TARGET_TYPE_NDEF_FORMATABLE = 10;
 
     // NfcF, Felica
     static const int SENSF_RES_LENGTH = 8;
