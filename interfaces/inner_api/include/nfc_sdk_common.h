@@ -107,6 +107,7 @@ public:
     static uint32_t GetHexStrBytesLen(const std::string src);
     static std::string IntToString(uint32_t num, bool bLittleEndian = true);
     static uint32_t StringToInt(std::string src, bool bLittleEndian = true);
+    static std::string IntToHexString(uint32_t num);
 };
 }  // namespace KITS
 }  // namespace NFC
