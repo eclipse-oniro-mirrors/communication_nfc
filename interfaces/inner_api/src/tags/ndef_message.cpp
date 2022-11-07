@@ -92,43 +92,47 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriStr
         return std::shared_ptr<NdefRecord>();
     }
 
-    std::string payLoad;
+    std::string payload = "00";
     std::string uri = uriString;
     for (size_t i = 1; i < gUriPrefix.size() - 1; i++) {
         if (!uriString.compare(0, gUriPrefix[i].size(), gUriPrefix[i])) {
-            payLoad += (i & 0xFF);
+            payload = NfcSdkCommon::UnsignedCharToHexString(i & 0xFF);
             uri = uriString.substr(gUriPrefix[i].size());
             break;
         }
     }
 
-    payLoad += uri;
+    payload += NfcSdkCommon::StringToHexString(uri);
+
     std::string id = "";
-    std::string tagRtdType = GetTagRtdType(EmRtdType::RTD_URI);
-    return CreateNdefRecord(TNF_WELL_KNOWN, id, payLoad, tagRtdType);
+    std::string tagRtdType = NfcSdkCommon::StringToHexString(GetTagRtdType(EmRtdType::RTD_URI));
+    return CreateNdefRecord(TNF_WELL_KNOWN, id, payload, tagRtdType);
 }
 
 std::shared_ptr<NdefRecord> NdefMessage::MakeTextRecord(const std::string& text, const std::string& locale)
 {
-    std::string tagRtdType = GetTagRtdType(EmRtdType::RTD_TEXT);
+    std::string tagRtdType = NfcSdkCommon::StringToHexString(GetTagRtdType(EmRtdType::RTD_TEXT));
     std::string id = "";
-    std::string payLoad = std::to_string(locale.size());
-    payLoad += locale + text;
-    return CreateNdefRecord(TNF_WELL_KNOWN, id, payLoad, tagRtdType);
+    int localeLen = locale.size() & 0xFF;
+    std::string payload = NfcSdkCommon::UnsignedCharToHexString(localeLen);
+    payload += NfcSdkCommon::StringToHexString(locale);
+    payload += NfcSdkCommon::StringToHexString(text);
+    return CreateNdefRecord(TNF_WELL_KNOWN, id, payload, tagRtdType);
 }
 
 std::shared_ptr<NdefRecord> NdefMessage::MakeMimeRecord(const std::string& mimeType, const std::string& mimeData)
 {
-    if (mimeData.empty()) {
-        ErrorLog("MakeExternalRecord, mimeData invalid.");
+    if (mimeType.empty() || mimeData.empty()) {
+        ErrorLog("MakeExternalRecord, mimeType or mimeData invalid.");
         return std::shared_ptr<NdefRecord>();
     }
     std::string id = "";
     size_t t = mimeType.find_first_of('/');
-    if (t > 0 && t < mimeType.size() - 1) {
-        return CreateNdefRecord(TNF_MIME_MEDIA, id, mimeData, mimeType);
+    if (t == 0 || t == (mimeType.size() - 1)) {
+        ErrorLog("MakeExternalRecord, mimeType should have major and minor type if '/' exists.");
+        return std::shared_ptr<NdefRecord>();
     }
-    return std::shared_ptr<NdefRecord>();
+    return CreateNdefRecord(TNF_MIME_MEDIA, id, mimeData, NfcSdkCommon::StringToHexString(mimeType));
 }
 
 std::shared_ptr<NdefRecord> NdefMessage::MakeExternalRecord(const std::string& domainName,
@@ -153,7 +157,7 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeExternalRecord(const std::string& d
         return std::shared_ptr<NdefRecord>();
     }
 
-    std::string tagRtdType = domain + ":" + service;
+    std::string tagRtdType = NfcSdkCommon::StringToHexString(domain + ":" + service);
     std::string id = "";
 
     return CreateNdefRecord(TNF_EXTERNAL_TYPE, id, externalData, tagRtdType);
