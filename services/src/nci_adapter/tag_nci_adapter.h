@@ -74,7 +74,7 @@ public:
 private:
     TagNciAdapter();
     ~TagNciAdapter();
-    void GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
+    int GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
     std::string GetUidFromData(tNFA_ACTIVATED activated) const;
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;
     bool IsTagActive() const;
@@ -109,10 +109,10 @@ private:
     static std::string receivedData_;
 
     // tag technology and protocols discovery.
-    static const uint32_t MAX_NUM_TECHNOLOGY = 10;
-    static const int MAX_TECH_VAL = TagHost::TARGET_TYPE_NDEF_FORMATABLE;
+    static const uint32_t MAX_NUM_TECHNOLOGY = 12;
+    int technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY + 1] {}; // index equals to the technology value.
+
     static std::shared_ptr<INfcNci> nciAdaptations_;
-    int technologyTimeoutsTable_[MAX_TECH_VAL + 1] {};
     std::vector<int> tagTechList_ {};           // tag type
     std::vector<int> tagRfDiscIdList_ {};       // disc id
     std::vector<int> tagActivatedProtocols_ {}; // protocol

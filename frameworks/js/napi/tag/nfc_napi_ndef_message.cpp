@@ -26,11 +26,12 @@ napi_value NapiNdefMessage::GetNdefRecords(napi_env env, napi_callback_info info
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
+    NapiNdefMessage *objectInfo = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    // transfer
+
     std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
     if (ndefMessagePtr == nullptr) {
         ErrorLog("GetNdefRecords find objectInfo failed!");
@@ -45,11 +46,9 @@ napi_value NapiNdefMessage::GetNdefRecords(napi_env env, napi_callback_info info
 
 napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
 {
-    napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
     if (argc != ARGV_NUM_1) {
@@ -68,29 +67,22 @@ napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
     }
     std::string uri = GetStringFromValue(env, argv[ARGV_INDEX_0]);
 
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    // transfer
-    std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
-    if (ndefMessagePtr == nullptr) {
-        ErrorLog("MakeUriRecord find objectInfo failed!");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeUriRecord(uri);
+    if (ndefRecord == nullptr) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
         return CreateUndefined(env);
-    } else {
-        std::shared_ptr<NdefRecord> ndefRecord = ndefMessagePtr->MakeUriRecord(uri);
-        napi_value result = nullptr;
-        ConvertNdefRecordToJS(env, result, ndefRecord);
-        return result;
     }
+    napi_value result = nullptr;
+    ConvertNdefRecordToJS(env, result, ndefRecord);
+    return result;
 }
 
 napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info)
 {
-    napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_2;
     napi_value argv[ARGV_NUM_2] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
     if (argc != ARGV_NUM_2) {
@@ -116,29 +108,22 @@ napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info
     std::string text = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string locale = GetStringFromValue(env, argv[ARGV_INDEX_1]);
 
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-    // transfer
-    std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
-    if (ndefMessagePtr == nullptr) {
-        ErrorLog("MakeTextRecord find objectInfo failed!");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeTextRecord(text, locale);
+    if (ndefRecord == nullptr) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
         return CreateUndefined(env);
-    } else {
-        std::shared_ptr<NdefRecord> ndefRecord = ndefMessagePtr->MakeTextRecord(text, locale);
-        napi_value result = nullptr;
-        ConvertNdefRecordToJS(env, result, ndefRecord);
-        return result;
     }
+    napi_value result = nullptr;
+    ConvertNdefRecordToJS(env, result, ndefRecord);
+    return result;
 }
 
 napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info)
 {
-    napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_2;
     napi_value argv[ARGV_NUM_2] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
     if (argc != ARGV_NUM_2) {
@@ -167,30 +152,22 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
     std::string mimeData = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
                                                              dataVec.size());
 
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
-    if (ndefMessagePtr == nullptr) {
-        ErrorLog("MakeMimeRecord find objectInfo failed!");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeMimeRecord(mimeType, mimeData);
+    if (ndefRecord == nullptr) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
         return CreateUndefined(env);
-    } else {
-        std::shared_ptr<NdefRecord> ndefRecord = ndefMessagePtr->MakeMimeRecord(mimeType, mimeData);
-        napi_value result = nullptr;
-        ConvertNdefRecordToJS(env, result, ndefRecord);
-        return result;
     }
+    napi_value result = nullptr;
+    ConvertNdefRecordToJS(env, result, ndefRecord);
+    return result;
 }
 
 napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info info)
 {
-    napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_3;
     napi_value argv[ARGV_NUM_3] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NapiNdefMessage *objectInfo = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     
     // check parameter number
     if (argc != ARGV_NUM_3) {
@@ -208,9 +185,9 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
         return CreateUndefined(env);
     }
     if (!IsString(env, argv[ARGV_INDEX_1])) {
-        ErrorLog("NapiNdefMessage::MakeExternalRecord, Invalid serviceName type!");
+        ErrorLog("NapiNdefMessage::MakeExternalRecord, arg type is not string!");
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "serviceName", "string")));
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "type", "string")));
         return CreateUndefined(env);
     }
     if (!IsNumberArray(env, argv[ARGV_INDEX_2])) {
@@ -220,40 +197,28 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
         return CreateUndefined(env);
     }
     std::string domainName = GetStringFromValue(env, argv[ARGV_INDEX_0]);
-    std::string serviceName = GetStringFromValue(env, argv[ARGV_INDEX_1]);
+    std::string type = GetStringFromValue(env, argv[ARGV_INDEX_1]);
     std::vector<unsigned char> dataVec;
     ParseBytesVector(env, dataVec, argv[ARGV_INDEX_2]);
     std::string externalData = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
                                                                  dataVec.size());
 
-    // unwrap from thisVar to retrieve the native instance
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    std::shared_ptr<NdefMessage> ndefMessagePtr = objectInfo->ndefMessage;
-    if (ndefMessagePtr == nullptr) {
-        ErrorLog("MakeExternalRecord find objectInfo failed!");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeExternalRecord(domainName, type, externalData);
+    if (ndefRecord == nullptr) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
         return CreateUndefined(env);
-    } else {
-        std::shared_ptr<NdefRecord> ndefRecord =
-            ndefMessagePtr->MakeExternalRecord(domainName, serviceName, externalData);
-        napi_value result = nullptr;
-        ConvertNdefRecordToJS(env, result, ndefRecord);
-        return result;
     }
+    napi_value result = nullptr;
+    ConvertNdefRecordToJS(env, result, ndefRecord);
+    return result;
 }
 
 napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info)
 {
-    napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-
-    NapiNdefMessage *objectNdefMsg = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectNdefMsg));
-    NAPI_ASSERT(env, status == napi_ok, "napi_unwrap objectNdefMsg failed");
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
     if (argc != ARGV_NUM_1) {
@@ -273,19 +238,18 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
 
     // unwrap for argument of NdefMessage.
     NapiNdefMessage *argNdefMsg = nullptr;
-    napi_status status2 = napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
-    NAPI_ASSERT(env, status2 == napi_ok, "napi_unwrap argNdefMsg failed");
+    napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
+    if (argNdefMsg != nullptr) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        return CreateUndefined(env);
+    }
 
     // parse to get the raw bytes.
     napi_value result = nullptr;
-    if (argNdefMsg != nullptr) {
-        std::shared_ptr<NdefMessage> ndefMsg = argNdefMsg->ndefMessage;
-        std::string buffer = NdefMessage::MessageToString(ndefMsg);
-        ConvertStringToNumberArray(env, result, buffer.c_str());
-    } else {
-        ErrorLog("MessageToString find argNdefMsg failed!");
-        ConvertStringToNumberArray(env, result, "");
-    }
+    std::shared_ptr<NdefMessage> ndefMsg = argNdefMsg->ndefMessage;
+    std::string buffer = NdefMessage::MessageToString(ndefMsg);
+    ConvertStringToNumberArray(env, result, buffer.c_str());
     return result;
 }
 } // namespace KITS

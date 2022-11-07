@@ -132,9 +132,8 @@ AppExecFwk::PacMap TagInfo::GetTechExtrasByTech(KITS::TagTechnology tech)
 
 std::string TagInfo::GetStringExtrasData(AppExecFwk::PacMap& extrasData, const std::string& extrasName)
 {
-    std::string value = "";
     if (extrasData.IsEmpty() || extrasName.empty()) {
-        return value;
+        return "";
     }
     return extrasData.GetStringValue(extrasName, "");
 }

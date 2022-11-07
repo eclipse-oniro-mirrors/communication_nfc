@@ -68,7 +68,6 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
     }
 
     uint32_t bytesLen = src.length() / HEX_BYTE_LEN;
-    bytes.clear();
     std::string strByte;
     unsigned int srcIntValue;
     for (uint32_t i = 0; i < bytesLen; i++) {
@@ -132,7 +131,7 @@ std::string NfcSdkCommon::IntToHexString(uint32_t num)
     ss << std::hex << num;
     std::string result = ss.str();
     transform(result.begin(), result.end(), result.begin(), ::toupper);
-    if (result.length() % 2 > 0) { // expend "0" if string length is odd
+    if (result.length() % HEX_BYTE_LEN > 0) { // expend "0" if string length is odd
         result = "0" + result;
     }
     return result;
@@ -144,7 +143,6 @@ void NfcSdkCommon::StringToAsciiBytes(const std::string &src, std::vector<unsign
         return;
     }
     uint32_t bytesLen = src.length();
-    bytes.clear();
     unsigned int srcAsciiIntVal;
     for (uint32_t i = 0; i < bytesLen; i++) {
         srcAsciiIntVal = (int) src[i];

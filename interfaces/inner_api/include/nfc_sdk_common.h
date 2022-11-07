@@ -88,9 +88,9 @@ enum class TagTechnology {
     NFC_F_TECH = 4, // Felica
     NFC_V_TECH = 5, // ISO15693
     NFC_NDEF_TECH = 6,
+    NFC_NDEF_FORMATABLE_TECH = 7,
     NFC_MIFARE_CLASSIC_TECH = 8,
-    NFC_MIFARE_ULTRALIGHT_TECH = 9,
-    NFC_NDEF_FORMATABLE_TECH = 10
+    NFC_MIFARE_ULTRALIGHT_TECH = 9
 };
 
 class NfcSdkCommon final {
