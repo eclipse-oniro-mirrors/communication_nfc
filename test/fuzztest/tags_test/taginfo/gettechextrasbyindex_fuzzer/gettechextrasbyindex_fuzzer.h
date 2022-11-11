@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GETTECHEXTRASDATA_FUZZER_H
-#define GETTECHEXTRASDATA_FUZZER_H
+#ifndef GETTECHEXTRASBYINDEX_FUZZER_H
+#define GETTECHEXTRASBYINDEX_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "gettechextrasdata_fuzzer"
+#define FUZZ_PROJECT_NAME "gettechextrasbyindex_fuzzer"
 
-#endif  // GETTECHEXTRASDATA_FUZZER_H
+#endif  // ISTECHSUPPORTED_FUZZER_H

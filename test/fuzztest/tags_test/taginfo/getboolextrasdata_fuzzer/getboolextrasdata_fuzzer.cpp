@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "gettechextrasdata_fuzzer.h"
+#include "getboolextrasdata_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -25,20 +25,8 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
     using namespace OHOS::NFC::TAG;
 
-    constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto FUZZER_TEST_UID = "0102";
     constexpr const auto FUZZER_TEST_DISC_ID = 1;
-
-    uint32_t ConvertToUint32(const uint8_t* ptr)
-    {
-        if (ptr == nullptr) {
-            return 0;
-        }
-
-        // Shift the 0th number to the left by 24 bits, shift the 1st number to the left by 16 bits,
-        // shift the 2nd number to the left by 8 bits, and not shift the 3rd number to the left
-        return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
-    }
 
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
     {
@@ -54,28 +42,25 @@ namespace OHOS {
         return std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
     }
 
-    void FuzzGetTechExtrasByTech(const uint8_t* data, size_t size)
+    void FuzzGetBoolExtrasData(const uint8_t* data, size_t size)
     {
-        TagTechnology tech = static_cast<TagTechnology>(ConvertToUint32(data));
         std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
         if (tagInfo == nullptr) {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
+        AppExecFwk::PacMap extrasData = tagInfo->GetTechExtrasByTech(TagTechnology::NFC_A_TECH);
+        std::string extrasName = NfcSdkCommon::BytesVecToHexString(data, size);
 
-        tagInfo->GetTechExtrasByTech(tech);
+        tagInfo->GetBoolExtrasData(extrasData, extrasName);
     }
 }
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < OHOS::FUZZER_THRESHOLD) {
-        return 0;
-    }
-
     /* Run your code on data */
-    OHOS::FuzzGetTechExtrasByTech(data, size);
+    OHOS::FuzzGetBoolExtrasData(data, size);
     return 0;
 }
 
