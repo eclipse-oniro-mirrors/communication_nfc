@@ -13,11 +13,7 @@
 
 import("//build/test.gni")
 
-group("fuzztest") {
+group("ndeftag_fuzztest") {
   testonly = true
-  deps = [
-    "tags_test/ndeftag:ndeftag_fuzztest",
-    "tags_test/nfca_tag:nfca_tag_fuzztest",
-    "tags_test/taginfo:taginfo_fuzztest",
-  ]
+  deps = [ "ndeftag_fuzzer:fuzztest" ]
 }
