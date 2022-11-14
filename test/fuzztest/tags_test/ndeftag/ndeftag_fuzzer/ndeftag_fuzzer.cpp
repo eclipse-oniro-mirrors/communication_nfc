@@ -36,7 +36,6 @@ namespace OHOS {
     constexpr const auto TEST_NDEF_TAG_MODE = NdefTag::EmNdefTagMode::MODE_READ_ONLY;
     constexpr const auto TEST_NDEF_MSG = "ndef";
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
-    std::shared_ptr<TagInfo> tagInfo_;
 
     uint32_t ConvertToUint32(const uint8_t* ptr)
     {
@@ -67,8 +66,12 @@ namespace OHOS {
 
         std::string tagUid = TEST_UID;
         int tagRfDiscId = TEST_DISC_ID;
-        tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
-        return tagInfo_;
+        std::shared_ptr<TagInfo> tagInfo = std::make_shared<TagInfo>(tagTechList,
+                                                                     tagTechExtras,
+                                                                     tagUid,
+                                                                     tagRfDiscId,
+                                                                     nullptr);
+        return tagInfo;
     }
 
     void FuzzGetTag(const uint8_t* data, size_t size)
@@ -78,7 +81,7 @@ namespace OHOS {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
-        NdefTag::GetTag(tagInfo_);
+        NdefTag::GetTag(tagInfo);
     }
 
     void FuzzIsEnableReadOnly(const uint8_t* data, size_t size)
@@ -88,7 +91,7 @@ namespace OHOS {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
-        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo_);
+        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
         bool canSetReadOnly = (static_cast<int>(data[0]) % 2) == 1;
         ndefTag->IsEnableReadOnly(canSetReadOnly);
     }
@@ -100,7 +103,7 @@ namespace OHOS {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
-        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo_);
+        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
         NdefTag::EmNfcForumType emNfcForumType = static_cast<NdefTag::EmNfcForumType>(ConvertToUint32(data));
         ndefTag->GetNdefTagTypeString(emNfcForumType);
     }
