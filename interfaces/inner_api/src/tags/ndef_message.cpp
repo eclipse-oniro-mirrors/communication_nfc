@@ -98,13 +98,11 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriStr
         if (!uriString.compare(0, gUriPrefix[i].size(), gUriPrefix[i])) {
             payLoad += (i & 0xFF);
             uri = uriString.substr(gUriPrefix[i].size());
-            DebugLog("prefer index .%{public}zu", i);
             break;
         }
     }
 
     payLoad += uri;
-
     std::string id = "";
     std::string tagRtdType = GetTagRtdType(EmRtdType::RTD_URI);
     return CreateNdefRecord(TNF_WELL_KNOWN, id, payLoad, tagRtdType);
