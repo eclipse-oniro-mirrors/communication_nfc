@@ -38,6 +38,17 @@ namespace OHOS {
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
     std::shared_ptr<TagInfo> tagInfo_;
 
+    uint32_t ConvertToUint32(const uint8_t* ptr)
+    {
+        if (ptr == nullptr) {
+            return 0;
+        }
+
+        // Shift the 0th number to the left by 24 bits, shift the 1st number to the left by 16 bits,
+        // shift the 2nd number to the left by 8 bits, and not shift the 3rd number to the left
+        return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    }
+
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
     {
         std::vector<int> tagTechList;
