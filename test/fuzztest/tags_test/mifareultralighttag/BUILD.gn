@@ -13,16 +13,7 @@
 
 import("//build/test.gni")
 
-group("taginfo_fuzztest") {
+group("mifareultralighttag_fuzztest") {
   testonly = true
-  deps = [
-    "getboolextrasdata_fuzzer:fuzztest",
-    "getintextrasdata_fuzzer:fuzztest",
-    "getstringextrasdata_fuzzer:fuzztest",
-    "getstringtach_fuzzer:fuzztest",
-    "gettechextrasbyindex_fuzzer:fuzztest",
-    "gettechextrasbytech_fuzzer:fuzztest",
-    "istechsupported_fuzzer:fuzztest",
-    "setconnectedtagtech_fuzzer:fuzztest",
-  ]
+  deps = [ "mifareultralighttag_fuzzer:fuzztest" ]
 }

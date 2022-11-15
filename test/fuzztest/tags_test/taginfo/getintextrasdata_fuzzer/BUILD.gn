@@ -33,7 +33,8 @@ ohos_fuzztest("GetIntExtrasDataFuzzTest") {
 
   sources = [ "getintextrasdata_fuzzer.cpp" ]
 
-  deps = [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps =
+      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
 
   external_deps = [
     "ability_base:want",
