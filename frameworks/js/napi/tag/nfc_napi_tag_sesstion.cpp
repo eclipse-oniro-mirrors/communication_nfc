@@ -133,6 +133,11 @@ napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_inf
     }
     int32_t timeoutValue = 0;
     ParseInt32(env, timeoutValue, argv[0]);
+    if (timeoutValue < 0) {
+        ErrorLog("SetSendDataTimeout, the arg must not be negative");
+        napi_get_boolean(env, false, &result);
+        return result;
+    }
     bool succ = nfcTag->SetTimeout(timeoutValue);
     napi_get_boolean(env, succ, &result);
     return result;
