@@ -13,14 +13,7 @@
 
 import("//build/test.gni")
 
-group("fuzztest") {
+group("mifareultralighttag_fuzztest") {
   testonly = true
-  deps = [
-    "tags_test/isodeptag:isodeptag_fuzztest",
-    "tags_test/mifareclassictag:mifareclassictag_fuzztest",
-    "tags_test/mifareultralighttag:mifareultralighttag_fuzztest",
-    "tags_test/ndeftag:ndeftag_fuzztest",
-    "tags_test/nfca_tag:nfca_tag_fuzztest",
-    "tags_test/taginfo:taginfo_fuzztest",
-  ]
+  deps = [ "mifareultralighttag_fuzzer:fuzztest" ]
 }
