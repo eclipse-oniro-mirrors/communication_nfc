@@ -187,6 +187,7 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
         }
     }
     isTagFieldOn_ = false;
+    TagNciAdapter::GetInstance().ResetTag();
     TagNciAdapter::GetInstance().Disconnect();
     if (callback != nullptr && isFieldChecking_ && tagRfDiscIdList_.size() > 0) {
         DebugLog("FieldCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
