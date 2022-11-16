@@ -34,7 +34,6 @@ bool NfccNciAdapter::pollingEnabled_ = false;    // is polling for tag
 bool NfccNciAdapter::isDisabling_ = false;
 bool NfccNciAdapter::readerModeEnabled_ = false;
 unsigned long NfccNciAdapter::discoveryDuration_;
-bool NfccNciAdapter::isReconnect_ = false;
 bool NfccNciAdapter::isTagActive_ = false;
 unsigned char NfccNciAdapter::curScreenState_ = NFA_SCREEN_STATE_OFF_LOCKED;
 std::shared_ptr<INfcNci> NfccNciAdapter::nciAdaptation_ = std::make_shared<NciAdaptations>();
@@ -120,33 +119,48 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
         eventData->activated.activate_ntf.intf_param.type != NFC_INTERFACE_EE_DIRECT_RF) {
         isTagActive_ = true;
         /* Is polling and is not ee direct rf */
-        if (isReconnect_) {
-            DebugLog("isReconnect, %{public}d", isReconnect_);
+        if (TagNciAdapter::GetInstance().GetIsReconnect()) {
+            DebugLog("isReconnect, %{public}d", TagNciAdapter::GetInstance().GetIsReconnect());
             TagNciAdapter::GetInstance().HandleActivatedResult();
             return;
         }
         TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
         TagNciAdapter::GetInstance().BuildTagInfo(eventData);
     }
+    if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 0) {
+        NFA_Deactivate(true);
+    }
 }
 
 void NfccNciAdapter::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
+    TagNciAdapter::GetInstance().SelectTheNextTag();
     if (eventData->deactivated.type == NFA_DEACTIVATE_TYPE_SLEEP) {
         DebugLog("Enter sleep mode");
-        isReconnect_ = true;
         return;
     }
+    TagNciAdapter::GetInstance().HandleDeactivatedResult();
     isTagActive_ = false;
-    isReconnect_ = false;
 }
 
 void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     static tNFA_STATUS status = eventData->disc_result.status;
     DebugLog("DoNfaDiscResultEvt: status = 0x%{public}X", status);
-    if (status == NFA_STATUS_OK) {
-        // do something
+    if (status != NFA_STATUS_OK) {
+        TagNciAdapter::GetInstance().SetDiscRstEvtNum(0);
+    } else {
+        TagNciAdapter::GetInstance().GetMultiTagTechsFromData(eventData->disc_result);
+        TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() + 1);
+        if (eventData->disc_result.discovery_ntf.more == NCI_DISCOVER_NTF_MORE) {
+            return;
+        }
+        if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 1) {
+            TagNciAdapter::GetInstance().SetIsMultiTag(true);
+        }
+        TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() - 1);
+        // select the first tag of multiple tags that discovered
+        TagNciAdapter::GetInstance().SelectTheFirstTag();
     }
 }
 
@@ -465,7 +479,6 @@ void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, b
 
     StartRfDiscovery(true);
     discoveryEnabled_ = true;
-    isReconnect_ = false;
     DebugLog("NfccNciAdapter::EnableDiscovery: exit");
 }
 

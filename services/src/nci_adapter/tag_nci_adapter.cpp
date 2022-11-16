@@ -92,7 +92,12 @@ TagNciAdapter::TagNciAdapter()
       isFelicaLite_(false),
       isMifareUltralight_(false),
       isMifareDESFire_(false),
-      presChkOption_(NFA_RW_PRES_CHK_DEFAULT)
+      presChkOption_(NFA_RW_PRES_CHK_DEFAULT),
+      isMultiTag_(false),
+      discRstEvtNum_(0),
+      discNtfIndex_(0),
+      multiTagTmpTechIdx_(0),
+      selectedTagIdx_(0)
 {
     ResetTimeout();
     if (NfcConfig::hasKey(NAME_PRESENCE_CHECK_ALGORITHM)) {
@@ -116,6 +121,11 @@ TagNciAdapter::~TagNciAdapter()
     isFelicaLite_ = false;
     isMifareUltralight_ = false;
     isMifareDESFire_ = false;
+    isMultiTag_ = false;
+    discRstEvtNum_ = 0;
+    discNtfIndex_ = 0;
+    multiTagTmpTechIdx_ = 0;
+    selectedTagIdx_ = 0;
 };
 
 TagNciAdapter& TagNciAdapter::GetInstance()
@@ -223,11 +233,12 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscove
             return false;
         }
         activatedEvent_.Wait(4); // this request do not have response, so no need to wait for callback
+        isReconnect_ = true;
         status = nciAdaptations_->NfaDeactivate(true);
         if (status != NFA_STATUS_OK) {
             ErrorLog("TagNciAdapter::Reselect: deactivate failed, err = 0x%{public}X", status);
-            return false;
         }
+        isReconnect_ = false;
     }
     return (status == NFA_STATUS_OK);
 }
@@ -251,6 +262,11 @@ bool TagNciAdapter::SendReselectReqIfNeed(int protocol, int tech)
     return true;
 }
 
+bool TagNciAdapter::GetIsReconnect()
+{
+    return isReconnect_;
+}
+
 bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 {
     DebugLog("TagNciAdapter::Reconnect: discId: %{public}d, protocol: %{public}d, tech: %{public}d, restart: "
@@ -270,8 +286,10 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 
     {
         NFC::SynchronizeGuard guard(deactivatedEvent_);
+        isReconnect_ = true;
         if (NFA_STATUS_OK != nciAdaptations_->NfaDeactivate(true)) {
             rfDiscoveryMutex_.unlock();
+            isReconnect_ = false;
             return false;
         }
         deactivatedEvent_.Wait(DEFAULT_TIMEOUT);
@@ -283,10 +301,12 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         if (status != NFA_STATUS_OK) {
             ErrorLog("TagNciAdapter::Reconnect: select failed, error=0x%{public}X", status);
             rfDiscoveryMutex_.unlock();
+            isReconnect_ = false;
             return false;
         }
         if (activatedEvent_.Wait(DEFAULT_TIMEOUT) == false) {
             ErrorLog("TagNciAdapter::Reconnect: Time out when select");
+            isReconnect_ = false;
             status = nciAdaptations_->NfaDeactivate(false);
             if (status != NFA_STATUS_OK) {
                 ErrorLog("TagNciAdapter::Reconnect: deactivate failed, error=0x%{public}X", status);
@@ -295,6 +315,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
             return false;
         }
     }
+    isReconnect_ = false;
     {
         NFC::SynchronizeGuard guard(activatedEvent_);
         activatedEvent_.Wait(DEFAULT_TIMEOUT);
@@ -685,6 +706,68 @@ void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize,
     checkNdefEvent_.NotifyOne();
 }
 
+bool TagNciAdapter::IsDiscTypeA(char discType) const
+{
+    if (discType == NCI_DISCOVERY_TYPE_POLL_A) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_A) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
+        return true;
+    }
+    return false;
+}
+
+bool TagNciAdapter::IsDiscTypeB(char discType) const
+{
+    if (discType == NCI_DISCOVERY_TYPE_POLL_B) {
+        return true;
+    }
+    if (discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_B) {
+        return true;
+    }
+    if (discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
+        return true;
+    }
+    return false;
+}
+
+bool TagNciAdapter::IsDiscTypeF(char discType) const
+{
+    if (discType == NCI_DISCOVERY_TYPE_POLL_F) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_F) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
+        return true;
+    }
+    return false;
+}
+
+bool TagNciAdapter::IsDiscTypeV(char discType) const
+{
+    if (discType == NCI_DISCOVERY_TYPE_POLL_V) {
+        return true;
+    }
+    if (discType == NCI_DISCOVERY_TYPE_LISTEN_ISO15693) {
+        return true;
+    }
+    return false;
+}
+
 void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
 {
     int tech[MAX_NUM_TECHNOLOGY];
@@ -693,14 +776,12 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
     } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T2T) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3A;
         // can also be mifare
-        if ((activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] == 0x04 &&
-            activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0) ||
-            activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0x18 ||
-            activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0x08) {
-            if (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0) {
-                techListIndex_++;
-                tech[techListIndex_] = TagHost::TARGET_TYPE_MIFARE_UL;
-            }
+        if (activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] == MANUFACTURER_ID_NXP &&
+            (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == SAK_MIFARE_UL_1 ||
+            activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == SAK_MIFARE_UL_2)) {
+            InfoLog("TagNciAdapter::GetTechFromData: MifareUltralight");
+            techListIndex_++;
+            tech[techListIndex_] = TagHost::TARGET_TYPE_MIFARE_UL;
         }
     } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T3BT) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3B;
@@ -710,22 +791,17 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_4;
         // A OR B
         char discType = activated.activate_ntf.rf_tech_param.mode;
-        if (discType == NCI_DISCOVERY_TYPE_POLL_A ||
-            discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
+        if (IsDiscTypeA(discType)) {
             techListIndex_++;
             tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3A;
-        } else if (discType == NCI_DISCOVERY_TYPE_POLL_B ||
-                   discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_B ||
-                   discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
+        } else if (IsDiscTypeB(discType)) {
             techListIndex_++;
             tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3B;
         }
     } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_15693) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_V;
     } else if (activated.activate_ntf.protocol == NFC_PROTOCOL_MIFARE) {
+        InfoLog("TagNciAdapter::GetTechFromData: MifareClassic");
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3A;
 
         techListIndex_++;
@@ -737,7 +813,7 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
 
     int tagRfDiscId = activated.activate_ntf.rf_disc_id;
     int tagNtfProtocol = activated.activate_ntf.protocol;
-    for (uint32_t i = 0; i < techListIndex_; i++) {
+    for (uint32_t i = multiTagTmpTechIdx_; i < techListIndex_; i++) {
         tagTechList_.push_back(tech[i]);
         tagRfDiscIdList_.push_back(tagRfDiscId);
         tagActivatedProtocols_.push_back(tagNtfProtocol);
@@ -751,24 +827,14 @@ std::string TagNciAdapter::GetUidFromData(tNFA_ACTIVATED activated) const
     std::string uid;
     tNFC_RF_TECH_PARAMS nfcRfTechParams = activated.activate_ntf.rf_tech_param;
     char discType = nfcRfTechParams.mode;
-    if (discType == NCI_DISCOVERY_TYPE_POLL_A ||
-        discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
-        discType == NCI_DISCOVERY_TYPE_LISTEN_A ||
-        discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
+    if (IsDiscTypeA(discType)) {
         int nfcid1Len = nfcRfTechParams.param.pa.nfcid1_len;
         uid = KITS::NfcSdkCommon::BytesVecToHexString(nfcRfTechParams.param.pa.nfcid1, nfcid1Len);
-    } else if (discType == NCI_DISCOVERY_TYPE_POLL_B ||
-               discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
-               discType == NCI_DISCOVERY_TYPE_LISTEN_B ||
-               discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
+    } else if (IsDiscTypeB(discType)) {
         uid = KITS::NfcSdkCommon::BytesVecToHexString(nfcRfTechParams.param.pb.nfcid0, NFC_NFCID0_MAX_LEN);
-    } else if (discType == NCI_DISCOVERY_TYPE_POLL_F ||
-               discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE ||
-               discType == NCI_DISCOVERY_TYPE_LISTEN_F ||
-               discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
+    } else if (IsDiscTypeF(discType)) {
         uid = KITS::NfcSdkCommon::BytesVecToHexString(nfcRfTechParams.param.pf.nfcid2, NFC_NFCID2_LEN);
-    } else if (discType == NCI_DISCOVERY_TYPE_POLL_V ||
-               discType == NCI_DISCOVERY_TYPE_LISTEN_ISO15693) {
+    } else if (IsDiscTypeV(discType)) {
         unsigned char* i93Uid = activated.params.i93.uid;
         unsigned char i93UidReverse[I93_UID_BYTE_LEN];
         for (int i = 0; i < I93_UID_BYTE_LEN; i++) {
@@ -803,22 +869,13 @@ void TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated)
     std::string techPoll = "";
     tNFC_RF_TECH_PARAMS nfcRfTechParams = activated.activate_ntf.rf_tech_param;
     char discType = nfcRfTechParams.mode;
-    for (uint32_t i = 0; i < techListIndex_; i++) {
-        if (discType == NCI_DISCOVERY_TYPE_POLL_A ||
-            discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
+    for (uint32_t i = multiTagTmpTechIdx_; i < techListIndex_; i++) {
+        if (IsDiscTypeA(discType)) {
             techPoll = KITS::NfcSdkCommon::BytesVecToHexString(
                 nfcRfTechParams.param.pa.sens_res, SENS_RES_LENGTH);
-        } else if (discType == NCI_DISCOVERY_TYPE_POLL_B ||
-                   discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_B ||
-                   discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
+        } else if (IsDiscTypeB(discType)) {
             techPoll = GetTechPollForTypeB(nfcRfTechParams, tagTechList_[i]);
-        } else if (discType == NCI_DISCOVERY_TYPE_POLL_F ||
-                   discType == NCI_DISCOVERY_TYPE_POLL_F_ACTIVE ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_F ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_F_ACTIVE) {
+        } else if (IsDiscTypeF(discType)) {
             unsigned char cTechPoll[F_POLL_LENGTH];
             unsigned char *sensfRes = nfcRfTechParams.param.pf.sensf_res;
 
@@ -835,8 +892,7 @@ void TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated)
                 cTechPoll[POS_NFCF_STSTEM_CODE_LOW] = static_cast<unsigned char>(*pSystemCodes);
             }
             techPoll = KITS::NfcSdkCommon::BytesVecToHexString(cTechPoll, F_POLL_LENGTH);
-        } else if (discType == NCI_DISCOVERY_TYPE_POLL_V ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_ISO15693) {
+        } else if (IsDiscTypeV(discType)) {
             unsigned char cTechPoll[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
             techPoll = KITS::NfcSdkCommon::BytesVecToHexString(cTechPoll, I93_POLL_LENGTH);
         } else {
@@ -853,19 +909,13 @@ std::string TagNciAdapter::GetTechActForIsoDep(tNFA_ACTIVATED activated,
     std::string techAct = "";
     if (tech == TagHost::TARGET_TYPE_ISO14443_4) {
         char discType = nfcRfTechParams.mode;
-        if (discType == NCI_DISCOVERY_TYPE_POLL_A ||
-            discType == NCI_DISCOVERY_TYPE_POLL_A_ACTIVE ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A ||
-            discType == NCI_DISCOVERY_TYPE_LISTEN_A_ACTIVE) {
+        if (IsDiscTypeA(discType)) {
             if (activated.activate_ntf.intf_param.type == NFC_INTERFACE_ISO_DEP) {
                 tNFC_INTF_PA_ISO_DEP paIso = activated.activate_ntf.intf_param.intf_param.pa_iso;
                 techAct = (paIso.his_byte_len > 0) ? KITS::NfcSdkCommon::BytesVecToHexString(
                     paIso.his_byte, paIso.his_byte_len) : "";
             }
-        } else if (discType == NCI_DISCOVERY_TYPE_POLL_B ||
-                   discType == NFC_DISCOVERY_TYPE_POLL_B_PRIME ||
-                   discType == NCI_DISCOVERY_TYPE_LISTEN_B ||
-                   discType == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) {
+        } else if (IsDiscTypeB(discType)) {
             if (activated.activate_ntf.intf_param.type == NFC_INTERFACE_ISO_DEP) {
                 tNFC_INTF_PB_ISO_DEP pbIso = activated.activate_ntf.intf_param.intf_param.pb_iso;
                 techAct = (pbIso.hi_info_len > 0) ? KITS::NfcSdkCommon::BytesVecToHexString(
@@ -884,7 +934,7 @@ void TagNciAdapter::GetTechActFromData(tNFA_ACTIVATED activated)
 {
     unsigned char protocol = activated.activate_ntf.protocol;
     tNFC_RF_TECH_PARAMS nfcRfTechParams = activated.activate_ntf.rf_tech_param;
-    for (uint32_t i = 0; i < techListIndex_; i++) {
+    for (uint32_t i = multiTagTmpTechIdx_; i < techListIndex_; i++) {
         std::string techAct = "";
         if (protocol == NCI_PROTOCOL_T1T) {
             techAct = KITS::NfcSdkCommon::UnsignedCharToHexString(nfcRfTechParams.param.pa.sel_rsp);
@@ -920,11 +970,11 @@ void TagNciAdapter::ParseSpecTagType(tNFA_ACTIVATED activated)
     }
     // parse for MifareUltralight, NFC Digital Protocol, see SENS_RES and SEL_RES
     if (activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
-        if ((activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] == 0x44) &&
-            (activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] == 0) &&
-            ((activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0) ||
-            (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0x04)) &&
-            (activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] == 0x04)) {
+        if ((activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] == ATQA_MIFARE_UL_0) &&
+            (activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] == ATQA_MIFARE_UL_1) &&
+            ((activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == SAK_MIFARE_UL_1) ||
+            (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == SAK_MIFARE_UL_2)) &&
+            (activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] == MANUFACTURER_ID_NXP)) {
             isMifareUltralight_ = true;
         }
     }
@@ -933,9 +983,9 @@ void TagNciAdapter::ParseSpecTagType(tNFA_ACTIVATED activated)
     if ((activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) ||
         (activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_A) ||
         (activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE)) {
-        if ((activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] == 0x44) &&
-            (activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] == 0x03) &&
-            (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == 0x20)) {
+        if ((activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] == ATQA_MIFARE_DESFIRE_0) &&
+            (activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] == ATQA_MIFARE_DESFIRE_1) &&
+            (activated.activate_ntf.rf_tech_param.param.pa.sel_rsp == SAK_MIFARE_DESFIRE)) {
             isMifareDESFire_ = true;
         }
     }
@@ -945,12 +995,14 @@ void TagNciAdapter::ParseSpecTagType(tNFA_ACTIVATED activated)
 
 void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
 {
-    DebugLog("TagNciAdapter::BuildTagInfo");
+    DebugLog("TagNciAdapter::BuildTagInfo, discRstEvtNum_ = %{public}d", discRstEvtNum_);
     if (techListIndex_ >= MAX_NUM_TECHNOLOGY) {
         return;
     }
-    techListIndex_ = 0;
-
+    if (multiTagTmpTechIdx_ < (MAX_NUM_TECHNOLOGY - 1)) {
+        techListIndex_ = multiTagTmpTechIdx_;
+    }
+    
     tNFA_ACTIVATED activated = eventData->activated;
     GetTechFromData(activated); // techListIndex_ is increased in this func
     std::string tagUid = GetUidFromData(activated);
@@ -958,12 +1010,20 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
     GetTechActFromData(activated);
 
     tagActivatedProtocol_ = activated.activate_ntf.protocol;
-    GetT1tMaxMessageSize(activated);
+    t1tMaxMessageSize_ = GetT1tMaxMessageSize(activated);
     ParseSpecTagType(activated);
 
-    std::unique_ptr<NCI::ITagHost> tagHost = std::make_unique<NCI::TagHost>(tagTechList_,
-        tagRfDiscIdList_, tagActivatedProtocols_, tagUid, tagPollBytes_, tagActivatedBytes_);
-    NfccHost::TagDiscovered(std::move(tagHost));
+    if (discRstEvtNum_ == 0) {
+        multiTagTmpTechIdx_ = 0;
+        std::unique_ptr<NCI::ITagHost> tagHost = std::make_unique<NCI::TagHost>(tagTechList_,
+            tagRfDiscIdList_, tagActivatedProtocols_, tagUid, tagPollBytes_, tagActivatedBytes_);
+        NfccHost::TagDiscovered(std::move(tagHost));
+    } else {
+        multiTagTmpTechIdx_ = techListIndex_;
+        InfoLog("TagNciAdapter::BuildTagInfo, select next tag if exists");
+    }
+    InfoLog("TagNciAdapter::BuildTagInfo, multiTagTmpTechIdx_ = %{public}d, techListIndex_ = %{public}d",
+        multiTagTmpTechIdx_, techListIndex_);
 }
 
 void TagNciAdapter::ResetTag()
@@ -977,10 +1037,16 @@ void TagNciAdapter::ResetTag()
     tagDiscIdListOfDiscResult_.clear();
     tagProtocolsOfDiscResult_.clear();
     techListIndex_ = 0;
+    multiTagTmpTechIdx_ = 0;
     tagActivatedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     isFelicaLite_ = false;
     isMifareUltralight_ = false;
     isMifareDESFire_ = false;
+    isMultiTag_ = false;
+    discRstEvtNum_ = 0;
+    discNtfIndex_ = 0;
+    multiTagTmpTechIdx_ = 0;
+    selectedTagIdx_ = 0;
     ResetTimeout();
 }
 
@@ -1111,26 +1177,28 @@ void TagNciAdapter::AbortWait()
     }
 }
 
-void TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const
+int TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const
 {
+    int t1tMaxMessageSize;
     DebugLog("GetT1tMaxMessageSize");
     if (activated.activate_ntf.protocol != NFC_PROTOCOL_T1T) {
-        t1tMaxMessageSize_ = 0;
-        return;
+        t1tMaxMessageSize = 0;
+        return t1tMaxMessageSize;
     }
     // examine the first byte of header ROM bytes
     switch (activated.params.t1t.hr[0]) {
         case RW_T1T_IS_TOPAZ96:
-            t1tMaxMessageSize_ = TOPAZ96_MAX_MESSAGE_SIZE;
+            t1tMaxMessageSize = TOPAZ96_MAX_MESSAGE_SIZE;
             break;
         case RW_T1T_IS_TOPAZ512:
-            t1tMaxMessageSize_ = TOPAZ512_MAX_MESSAGE_SIZE;
+            t1tMaxMessageSize = TOPAZ512_MAX_MESSAGE_SIZE;
             break;
         default:
             ErrorLog("GetT1tMaxMessageSize: unknown T1T HR0=%u", activated.params.t1t.hr[0]);
-            t1tMaxMessageSize_ = 0;
+            t1tMaxMessageSize = 0;
             break;
     }
+    return t1tMaxMessageSize;
 }
 
 tNFA_INTF_TYPE TagNciAdapter::GetRfInterface(int protocol) const
@@ -1157,6 +1225,103 @@ bool TagNciAdapter::IsTagActive() const
         return false;
     }
     return true;
+}
+
+void TagNciAdapter::SetIsMultiTag(bool isMultiTag)
+{
+    isMultiTag_ = isMultiTag;
+}
+
+bool TagNciAdapter::GetIsMultiTag()
+{
+    return isMultiTag_;
+}
+
+void TagNciAdapter::SetDiscRstEvtNum(uint32_t num)
+{
+    if (num < MAX_NUM_TECHNOLOGY) {
+        discRstEvtNum_ = num;
+    }
+}
+
+uint32_t TagNciAdapter::GetDiscRstEvtNum()
+{
+    return discRstEvtNum_;
+}
+
+void TagNciAdapter::GetMultiTagTechsFromData(tNFA_DISC_RESULT& discoveryData)
+{
+    uint32_t idx = discRstEvtNum_;
+    if (idx >= MAX_NUM_TECHNOLOGY) {
+        ErrorLog("TagNciAdapter::GetMultiTagTechsFromData: index error, index = %{public}d", idx);
+        return;
+    }
+    multiTagDiscId_[idx] = discoveryData.discovery_ntf.rf_disc_id;
+    multiTagDiscProtocol_[idx] = discoveryData.discovery_ntf.protocol;
+    if (discNtfIndex_ < MAX_NUM_TECHNOLOGY) {
+        discNtfIndex_++;
+    }
+    DebugLog("TagNciAdapter::GetMultiTagTechsFromData: discRstEvtNum_ = %{public}d, discNtfIndex_ = %{public}d"
+        "discId = 0x%{public}X, protocol = 0x%{public}X",
+        discRstEvtNum_, discNtfIndex_, multiTagDiscId_[idx], multiTagDiscProtocol_[idx]);
+}
+
+tNFA_STATUS TagNciAdapter::DoSelectForMultiTag(int currIdx)
+{
+    tNFA_STATUS result = NFA_STATUS_FAILED;
+    if (currIdx == -1) {
+        ErrorLog("TagNciAdapter::DoSelectForMultiTag: is NFC_DEP");
+        return result;
+    }
+    InfoLog("TagNciAdapter::DoSelectForMultiTag: protocol = 0x%{public}X", multiTagDiscProtocol_[currIdx]);
+
+    if (multiTagDiscProtocol_[currIdx] == NFA_PROTOCOL_ISO_DEP) {
+        result = NFA_Select(multiTagDiscId_[currIdx], multiTagDiscProtocol_[currIdx], NFA_INTERFACE_ISO_DEP);
+    } else if (multiTagDiscProtocol_[currIdx] == NFA_PROTOCOL_MIFARE) {
+        result = NFA_Select(multiTagDiscId_[currIdx], multiTagDiscProtocol_[currIdx], NFA_INTERFACE_MIFARE);
+    } else {
+        result = NFA_Select(multiTagDiscId_[currIdx], multiTagDiscProtocol_[currIdx], NFA_INTERFACE_FRAME);
+    }
+    return result;
+}
+
+void TagNciAdapter::SelectTheFirstTag()
+{
+    int currIdx = -1;
+    for (uint32_t i = 0; i < discNtfIndex_; i++) {
+        InfoLog("TagNciAdapter::SelectTheFirstTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
+            i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
+        if (multiTagDiscProtocol_[i] != NFA_PROTOCOL_NFC_DEP) {
+            selectedTagIdx_ = i;
+            currIdx = i;
+            break;
+        }
+    }
+    tNFA_STATUS result = DoSelectForMultiTag(currIdx);
+    InfoLog("TagNciAdapter::SelectTheFirstTag result = %{public}d", result);
+}
+
+void TagNciAdapter::SelectTheNextTag()
+{
+    if (discRstEvtNum_ == 0) {
+        ErrorLog("TagNciAdapter::SelectTheNextTag: next tag does not exist");
+        return;
+    }
+    int currIdx = -1;
+    discRstEvtNum_--;
+    for (uint32_t i = 0; i < discNtfIndex_; i++) {
+        InfoLog("TagNciAdapter::SelectTheNextTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
+            i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
+        if (multiTagDiscId_[i] != multiTagDiscId_[selectedTagIdx_] ||
+            (multiTagDiscProtocol_[i] != multiTagDiscProtocol_[selectedTagIdx_] &&
+            (multiTagDiscProtocol_[i] != NFA_PROTOCOL_NFC_DEP))) {
+            selectedTagIdx_ = i;
+            currIdx = i;
+            break;
+        }
+    }
+    tNFA_STATUS result = DoSelectForMultiTag(currIdx);
+    InfoLog("TagNciAdapter::DoSelectForMultiTag result = %{public}d", result);
 }
 }  // namespace NCI
 }  // namespace NFC

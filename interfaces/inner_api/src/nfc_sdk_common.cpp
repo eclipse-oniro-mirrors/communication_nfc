@@ -67,10 +67,10 @@ void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char>
         return;
     }
 
-    int bytesLen = src.length() / HEX_BYTE_LEN;
+    uint32_t bytesLen = src.length() / HEX_BYTE_LEN;
     std::string strByte;
     unsigned int srcIntValue;
-    for (int i = 0; i < bytesLen; i++) {
+    for (uint32_t i = 0; i < bytesLen; i++) {
         strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
         if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
             ErrorLog("HexStringToBytes, sscanf_s failed.");
@@ -110,22 +110,6 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
     return static_cast<unsigned char>(srcIntValue & 0xFF);
 }
 
-std::string NfcSdkCommon::IntToString(uint32_t num, bool bLittleEndian)
-{
-    std::stringstream ss;
-    if (bLittleEndian) {
-        for (size_t i = 0; i < SHIFT_TIME; i++) {
-            ss << char((num >> (i * SHIFT_SIZE)) & 0xFF);
-        }
-    } else {
-        for (size_t i = SHIFT_TIME; i > 0; i--) {
-            ss << char((num >> (i * SHIFT_SIZE - SHIFT_SIZE)) & 0xFF);
-        }
-    }
-
-    return ss.str();
-}
-
 uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
 {
     uint32_t value = 0;
@@ -150,6 +134,28 @@ std::string NfcSdkCommon::IntToHexString(uint32_t num)
     if (result.length() % HEX_BYTE_LEN > 0) { // expend "0" if string length is odd
         result = "0" + result;
     }
+    return result;
+}
+
+void NfcSdkCommon::StringToAsciiBytes(const std::string &src, std::vector<unsigned char> &bytes)
+{
+    if (src.empty()) {
+        return;
+    }
+    uint32_t bytesLen = src.length();
+    unsigned int srcAsciiIntVal;
+    for (uint32_t i = 0; i < bytesLen; i++) {
+        srcAsciiIntVal = static_cast<unsigned int>(src[i]);
+        bytes.push_back(static_cast<unsigned char>(srcAsciiIntVal & 0xFF));
+    }
+}
+
+std::string NfcSdkCommon::StringToHexString(const std::string &src)
+{
+    std::vector<unsigned char> bytes;
+    StringToAsciiBytes(src, bytes);
+    uint32_t len = src.length();
+    std::string result = BytesVecToHexString(&bytes[0], len);
     return result;
 }
 }  // namespace KITS
