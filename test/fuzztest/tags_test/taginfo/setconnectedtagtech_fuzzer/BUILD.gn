@@ -14,10 +14,10 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("IsTechSupportedFuzzTest") {
+ohos_fuzztest("SetConnectedTagTechFuzzTest") {
   module_out_path = "nfc/services"
 
-  fuzz_config_file = "//foundation/communication/nfc/test/fuzztest/tags_test/taginfo/istechsupported_fuzzer"
+  fuzz_config_file = "//foundation/communication/nfc/test/fuzztest/tags_test/taginfo/setconnectedtagtech_fuzzer"
 
   include_dirs = [
     "//foundation/communication/nfc/interfaces/inner_api/include",
@@ -31,7 +31,7 @@ ohos_fuzztest("IsTechSupportedFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "istechsupported_fuzzer.cpp" ]
+  sources = [ "setconnectedtagtech_fuzzer.cpp" ]
 
   deps =
       [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
@@ -48,6 +48,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":IsTechSupportedFuzzTest",
+    ":SetConnectedTagTechFuzzTest",
   ]
 }
