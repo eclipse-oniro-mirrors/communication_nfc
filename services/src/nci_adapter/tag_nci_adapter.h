@@ -48,13 +48,14 @@ public:
     void BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData);
     tNFA_STATUS Connect(int discId, int protocol, int tech);
     bool Disconnect();
+    bool GetIsReconnect();
     bool Reconnect(int discId, int protocol, int tech, bool restart);
     int Transceive(std::string& request, std::string& response);
     int GetTimeout(int technology) const;
     void ResetTimeout();
     void ResetTag();
 
-    // functions for nedf tag only.
+    // functions for ndef tag only.
     void RegisterNdefHandler();
     void ReadNdef(std::string& response);
     bool WriteNdef(std::string& ndefMessage);
@@ -71,13 +72,27 @@ public:
     void OffRfDiscLock();
 
     static void AbortWait();
+
+    // functions for multiple protocol tag
+    void SetIsMultiTag(bool isMultiTag);
+    bool GetIsMultiTag();
+    void SetDiscRstEvtNum(uint32_t num);
+    uint32_t GetDiscRstEvtNum();
+    void GetMultiTagTechsFromData(tNFA_DISC_RESULT& discoveryData);
+    void SelectTheFirstTag();
+    void SelectTheNextTag();
+
 private:
     TagNciAdapter();
     ~TagNciAdapter();
-    void GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
+    int GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
     std::string GetUidFromData(tNFA_ACTIVATED activated) const;
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;
     bool IsTagActive() const;
+    bool IsDiscTypeA(char discType) const;
+    bool IsDiscTypeB(char discType) const;
+    bool IsDiscTypeF(char discType) const;
+    bool IsDiscTypeV(char discType) const;
 
     std::string GetTechPollForTypeB(tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
     std::string GetTechActForIsoDep(tNFA_ACTIVATED activated, tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
@@ -89,6 +104,7 @@ private:
 
     bool Reselect(tNFA_INTF_TYPE rfInterface);
     bool SendReselectReqIfNeed(int protocol, int tech);
+    tNFA_STATUS DoSelectForMultiTag(int currId);
 
     // synchronized lock
     static std::mutex rfDiscoveryMutex_;
@@ -107,6 +123,18 @@ private:
     static bool isInTransceive_;
     static int t1tMaxMessageSize_;
     static std::string receivedData_;
+
+    // const values for Mifare Ultralight
+    static const int MANUFACTURER_ID_NXP = 0x04;
+    static const int SAK_MIFARE_UL_1 = 0x00;
+    static const int SAK_MIFARE_UL_2 = 0x04;
+    static const int ATQA_MIFARE_UL_0 = 0x44;
+    static const int ATQA_MIFARE_UL_1 = 0x00;
+
+    // const values for Mifare DESFire
+    static const int SAK_MIFARE_DESFIRE = 0x20;
+    static const int ATQA_MIFARE_DESFIRE_0 = 0x44;
+    static const int ATQA_MIFARE_DESFIRE_1 = 0x03;
 
     // tag technology and protocols discovery.
     static const uint32_t MAX_NUM_TECHNOLOGY = 12;
@@ -142,6 +170,16 @@ private:
     static bool isNdefFormatSuccess_;
     static unsigned short int ndefTypeHandle_;
     static std::string readNdefData;
+
+    // multiple protocol tag values
+    bool isMultiTag_;
+    uint32_t discRstEvtNum_; // number of tag, increased with the times of NFA_DISC_RESULT_EVT
+                             // and decreased while selecting next tag
+    uint32_t discNtfIndex_;
+    uint32_t multiTagTmpTechIdx_; // to store the last techlist index for the last tag
+    int selectedTagIdx_;          // to store the last selected tag index
+    int multiTagDiscId_[MAX_NUM_TECHNOLOGY];
+    int multiTagDiscProtocol_[MAX_NUM_TECHNOLOGY];
 };
 }  // namespace NCI
 }  // namespace NFC

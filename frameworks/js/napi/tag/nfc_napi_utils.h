@@ -161,7 +161,7 @@ bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
-napi_value CreateErrorMessage(napi_env env, std::string message, int32_t errorCode = 0);
+napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode = 0);
 napi_value CreateUndefined(napi_env env);
 std::string GetNapiStringValue(
     napi_env env, napi_value napiValue, const std::string &name, const std::string &defValue = "");

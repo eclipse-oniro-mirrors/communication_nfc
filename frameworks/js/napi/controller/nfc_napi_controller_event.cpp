@@ -50,7 +50,7 @@ public:
         }
 
         std::vector<RegObj>& vecObj = g_eventRegisterInfo[type];
-        for (auto& each : vecObj) {
+        for (const auto& each : vecObj) {
             auto result = [this, env = each.m_regEnv, obj] () -> napi_value {
                 return CreateResult(env, obj);
             };

@@ -187,6 +187,7 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
         }
     }
     isTagFieldOn_ = false;
+    TagNciAdapter::GetInstance().ResetTag();
     TagNciAdapter::GetInstance().Disconnect();
     if (callback != nullptr && isFieldChecking_ && tagRfDiscIdList_.size() > 0) {
         DebugLog("FieldCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
@@ -543,7 +544,7 @@ void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFw
 
 int TagHost::GetNdefType(int protocol) const
 {
-    int ndefType = NDEF_UNKNOWN_TYPE;
+    int ndefType;
     if (NFA_PROTOCOL_T1T == protocol) {
         ndefType = NDEF_TYPE1_TAG;
     } else if (NFA_PROTOCOL_T2T == protocol) {
