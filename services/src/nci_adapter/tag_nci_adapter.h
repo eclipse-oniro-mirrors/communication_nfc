@@ -48,8 +48,9 @@ public:
     void BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData);
     tNFA_STATUS Connect(int discId, int protocol, int tech);
     bool Disconnect();
-    bool GetIsReconnect();
+    bool IsReconnecting();
     bool Reconnect(int discId, int protocol, int tech, bool restart);
+    bool NfaDeactivateAndSelect(int discId, int protocol);
     int Transceive(std::string& request, std::string& response);
     int GetTimeout(int technology) const;
     void ResetTimeout();
@@ -119,7 +120,7 @@ private:
     static OHOS::NFC::SynchronizeEvent deactivatedEvent_;
 
     static bool isTagFieldOn_;
-    static bool isReconnect_;
+    static bool isReconnecting_;
     static bool isInTransceive_;
     static int t1tMaxMessageSize_;
     static std::string receivedData_;
@@ -178,8 +179,8 @@ private:
     uint32_t discNtfIndex_;
     uint32_t multiTagTmpTechIdx_; // to store the last techlist index for the last tag
     int selectedTagIdx_;          // to store the last selected tag index
-    int multiTagDiscId_[MAX_NUM_TECHNOLOGY];
-    int multiTagDiscProtocol_[MAX_NUM_TECHNOLOGY];
+    int multiTagDiscId_[MAX_NUM_TECHNOLOGY] {};
+    int multiTagDiscProtocol_[MAX_NUM_TECHNOLOGY] {};
 };
 }  // namespace NCI
 }  // namespace NFC

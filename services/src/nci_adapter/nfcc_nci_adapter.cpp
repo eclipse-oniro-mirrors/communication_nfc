@@ -119,8 +119,8 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
         eventData->activated.activate_ntf.intf_param.type != NFC_INTERFACE_EE_DIRECT_RF) {
         isTagActive_ = true;
         /* Is polling and is not ee direct rf */
-        if (TagNciAdapter::GetInstance().GetIsReconnect()) {
-            DebugLog("isReconnect, %{public}d", TagNciAdapter::GetInstance().GetIsReconnect());
+        if (TagNciAdapter::GetInstance().IsReconnecting()) {
+            DebugLog("isReconnect, %{public}d", TagNciAdapter::GetInstance().IsReconnecting());
             TagNciAdapter::GetInstance().HandleActivatedResult();
             return;
         }

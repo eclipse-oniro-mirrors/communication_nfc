@@ -71,7 +71,7 @@ bool TagNciAdapter::isTagFieldOn_ = true;
 int TagNciAdapter::connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
 int TagNciAdapter::connectedTargetType_ = TagHost::TARGET_TYPE_UNKNOWN;
 int TagNciAdapter::connectedTagDiscId_ = -1;
-bool TagNciAdapter::isReconnect_ = false;
+bool TagNciAdapter::isReconnecting_ = false;
 bool TagNciAdapter::isInTransceive_ = false;
 int TagNciAdapter::t1tMaxMessageSize_ = 0;
 std::string TagNciAdapter::receivedData_ = "";
@@ -209,7 +209,7 @@ bool TagNciAdapter::Disconnect()
     connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     connectedTagDiscId_ = -1;
     connectedTargetType_ = TagHost::TARGET_TYPE_UNKNOWN;
-    isReconnect_ = false;
+    isReconnecting_ = false;
     ResetTag();
     rfDiscoveryMutex_.unlock();
     return (status == NFA_STATUS_OK);
@@ -233,12 +233,12 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscove
             return false;
         }
         activatedEvent_.Wait(4); // this request do not have response, so no need to wait for callback
-        isReconnect_ = true;
+        isReconnecting_ = true;
         status = nciAdaptations_->NfaDeactivate(true);
         if (status != NFA_STATUS_OK) {
             ErrorLog("TagNciAdapter::Reselect: deactivate failed, err = 0x%{public}X", status);
         }
-        isReconnect_ = false;
+        isReconnecting_ = false;
     }
     return (status == NFA_STATUS_OK);
 }
@@ -262,15 +262,44 @@ bool TagNciAdapter::SendReselectReqIfNeed(int protocol, int tech)
     return true;
 }
 
-bool TagNciAdapter::GetIsReconnect()
+bool TagNciAdapter::IsReconnecting()
 {
-    return isReconnect_;
+    return isReconnecting_;
+}
+
+bool TagNciAdapter::NfaDeactivateAndSelect(int discId, int protocol)
+{
+    {
+        NFC::SynchronizeGuard guard(deactivatedEvent_);
+        tNFA_STATUS status = nciAdaptations_->NfaDeactivate(true);
+        if (status != NFA_STATUS_OK) {
+            ErrorLog("NfaDeactivateAndSelect, NfaDeactivate1 failed, status=0x%{public}X", status);
+            return false;
+        }
+        deactivatedEvent_.Wait(DEFAULT_TIMEOUT);
+    }
+    {
+        NFC::SynchronizeGuard guard(activatedEvent_);
+        tNFA_STATUS status = nciAdaptations_->NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol,
+            GetRfInterface(protocol));
+        if (status != NFA_STATUS_OK) {
+            ErrorLog("NfaDeactivateAndSelect NfaSelect failed, status=0x%{public}X", status);
+            return false;
+        }
+        if (activatedEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+            ErrorLog("NfaDeactivateAndSelect, Timeout when NfaSelect.");
+            status = nciAdaptations_->NfaDeactivate(false);
+            if (status != NFA_STATUS_OK) {
+                ErrorLog("NfaDeactivateAndSelect, NfaDeactivate2 failed, status=0x%{public}X", status);
+            }
+            return false;
+        }
+    }
+    return true;
 }
 
 bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
 {
-    DebugLog("TagNciAdapter::Reconnect: discId: %{public}d, protocol: %{public}d, tech: %{public}d, restart: "
-        "%{public}d", discId, protocol, tech, restart);
     if (!IsTagActive()) {
         return false;
     }
@@ -283,39 +312,13 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         rfDiscoveryMutex_.unlock();
         return false;
     }
-
-    {
-        NFC::SynchronizeGuard guard(deactivatedEvent_);
-        isReconnect_ = true;
-        if (NFA_STATUS_OK != nciAdaptations_->NfaDeactivate(true)) {
-            rfDiscoveryMutex_.unlock();
-            isReconnect_ = false;
-            return false;
-        }
-        deactivatedEvent_.Wait(DEFAULT_TIMEOUT);
+    isReconnecting_ = true;
+    if (!NfaDeactivateAndSelect(discId, protocol)) {
+        isReconnecting_ = false;
+        rfDiscoveryMutex_.unlock();
+        return false;
     }
-    {
-        NFC::SynchronizeGuard guard(activatedEvent_);
-        tNFA_INTF_TYPE rfInterface = GetRfInterface(protocol);
-        tNFA_STATUS status = nciAdaptations_->NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol, rfInterface);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Reconnect: select failed, error=0x%{public}X", status);
-            rfDiscoveryMutex_.unlock();
-            isReconnect_ = false;
-            return false;
-        }
-        if (activatedEvent_.Wait(DEFAULT_TIMEOUT) == false) {
-            ErrorLog("TagNciAdapter::Reconnect: Time out when select");
-            isReconnect_ = false;
-            status = nciAdaptations_->NfaDeactivate(false);
-            if (status != NFA_STATUS_OK) {
-                ErrorLog("TagNciAdapter::Reconnect: deactivate failed, error=0x%{public}X", status);
-            }
-            rfDiscoveryMutex_.unlock();
-            return false;
-        }
-    }
-    isReconnect_ = false;
+    isReconnecting_ = false;
     {
         NFC::SynchronizeGuard guard(activatedEvent_);
         activatedEvent_.Wait(DEFAULT_TIMEOUT);
@@ -631,7 +634,7 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
     rfDiscoveryMutex_.lock();
     NFC::SynchronizeGuard guard(checkNdefEvent_);
     tNFA_STATUS status = NFA_STATUS_FAILED;
-    isReconnect_ = false;
+    isReconnecting_ = false;
 
     status = nciAdaptations_->NfaRwDetectNdef();
     if (status != NFA_STATUS_OK) {
@@ -1288,7 +1291,7 @@ tNFA_STATUS TagNciAdapter::DoSelectForMultiTag(int currIdx)
 void TagNciAdapter::SelectTheFirstTag()
 {
     int currIdx = -1;
-    for (uint32_t i = 0; i < discNtfIndex_; i++) {
+    for (int i = 0; i < discNtfIndex_; i++) {
         InfoLog("TagNciAdapter::SelectTheFirstTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
             i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
         if (multiTagDiscProtocol_[i] != NFA_PROTOCOL_NFC_DEP) {
@@ -1309,7 +1312,7 @@ void TagNciAdapter::SelectTheNextTag()
     }
     int currIdx = -1;
     discRstEvtNum_--;
-    for (uint32_t i = 0; i < discNtfIndex_; i++) {
+    for (int i = 0; i < discNtfIndex_; i++) {
         InfoLog("TagNciAdapter::SelectTheNextTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
             i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
         if (multiTagDiscId_[i] != multiTagDiscId_[selectedTagIdx_] ||
