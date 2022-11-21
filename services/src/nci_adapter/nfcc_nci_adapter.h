@@ -84,7 +84,6 @@ private:
     static bool isDisabling_;
     static bool readerModeEnabled_;
     static unsigned long discoveryDuration_;
-    static bool isReconnect_;
     static bool isTagActive_;
     static unsigned char curScreenState_;
     static std::shared_ptr<INfcNci> nciAdaptation_;
