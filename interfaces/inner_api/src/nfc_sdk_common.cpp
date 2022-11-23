@@ -143,9 +143,8 @@ void NfcSdkCommon::StringToAsciiBytes(const std::string &src, std::vector<unsign
         return;
     }
     uint32_t bytesLen = src.length();
-    unsigned int srcAsciiIntVal;
     for (uint32_t i = 0; i < bytesLen; i++) {
-        srcAsciiIntVal = static_cast<unsigned int>(src[i]);
+        unsigned int srcAsciiIntVal = static_cast<unsigned int>(src[i]);
         bytes.push_back(static_cast<unsigned char>(srcAsciiIntVal & 0xFF));
     }
 }

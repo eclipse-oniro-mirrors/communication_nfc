@@ -56,7 +56,6 @@ namespace OHOS {
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_NDEF_TECH));
 
         std::vector<AppExecFwk::PacMap> tagTechExtras;
-        std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
         AppExecFwk::PacMap ndefExtrasData;
         ndefExtrasData.PutIntValue(TagInfo::NDEF_FORUM_TYPE, TEST_NDEF_FORUM_TYPE);
         ndefExtrasData.PutIntValue(TagInfo::NDEF_TAG_MODE, TEST_NDEF_TAG_MODE);

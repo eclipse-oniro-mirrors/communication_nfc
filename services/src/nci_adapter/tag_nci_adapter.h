@@ -42,13 +42,13 @@ public:
     static void HandleActivatedResult();
     static void HandleDeactivatedResult();
     static void HandleFieldCheckResult(unsigned char status);
+    static bool IsReconnecting();
     void HandleDiscResult(tNFA_CONN_EVT_DATA* eventData);
 
     // tag connection and read or write.
     void BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData);
     tNFA_STATUS Connect(int discId, int protocol, int tech);
     bool Disconnect();
-    bool IsReconnecting();
     bool Reconnect(int discId, int protocol, int tech, bool restart);
     bool NfaDeactivateAndSelect(int discId, int protocol);
     int Transceive(std::string& request, std::string& response);
@@ -76,10 +76,10 @@ public:
 
     // functions for multiple protocol tag
     void SetIsMultiTag(bool isMultiTag);
-    bool GetIsMultiTag();
+    bool GetIsMultiTag() const;
     void SetDiscRstEvtNum(uint32_t num);
-    uint32_t GetDiscRstEvtNum();
-    void GetMultiTagTechsFromData(tNFA_DISC_RESULT& discoveryData);
+    uint32_t GetDiscRstEvtNum() const;
+    void GetMultiTagTechsFromData(const tNFA_DISC_RESULT& discoveryData);
     void SelectTheFirstTag();
     void SelectTheNextTag();
 
@@ -96,7 +96,7 @@ private:
     bool IsDiscTypeV(char discType) const;
 
     std::string GetTechPollForTypeB(tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
-    std::string GetTechActForIsoDep(tNFA_ACTIVATED activated, tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
+    std::string GetTechActForIsoDep(tNFA_ACTIVATED activated, tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech) const;
     void GetTechFromData(tNFA_ACTIVATED activated);
     void GetTechPollFromData(tNFA_ACTIVATED activated);
     void GetTechActFromData(tNFA_ACTIVATED activated);
@@ -105,7 +105,7 @@ private:
 
     bool Reselect(tNFA_INTF_TYPE rfInterface);
     bool SendReselectReqIfNeed(int protocol, int tech);
-    tNFA_STATUS DoSelectForMultiTag(int currId);
+    tNFA_STATUS DoSelectForMultiTag(int currIdx);
 
     // synchronized lock
     static std::mutex rfDiscoveryMutex_;
@@ -178,7 +178,7 @@ private:
                              // and decreased while selecting next tag
     uint32_t discNtfIndex_;
     uint32_t multiTagTmpTechIdx_; // to store the last techlist index for the last tag
-    int selectedTagIdx_;          // to store the last selected tag index
+    unsigned int selectedTagIdx_;          // to store the last selected tag index
     int multiTagDiscId_[MAX_NUM_TECHNOLOGY] {};
     int multiTagDiscProtocol_[MAX_NUM_TECHNOLOGY] {};
 };
