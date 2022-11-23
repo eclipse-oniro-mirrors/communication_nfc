@@ -55,6 +55,7 @@ static const int NDEF_MODE_READ_WRITE = 2;
 static const int NDEF_MODE_UNKNOWN = 3;
 static uint8_t RW_TAG_SLP_REQ[] = {0x50, 0x00};
 static uint8_t RW_DESELECT_REQ[] = {0xC2};
+static const unsigned int INVALID_TAG_INDEX = 0xFF;
 
 std::mutex TagNciAdapter::rfDiscoveryMutex_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::transceiveEvent_;
@@ -907,7 +908,7 @@ void TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated)
 
 std::string TagNciAdapter::GetTechActForIsoDep(tNFA_ACTIVATED activated,
                                                tNFC_RF_TECH_PARAMS nfcRfTechParams,
-                                               int tech)
+                                               int tech) const
 {
     std::string techAct = "";
     if (tech == TagHost::TARGET_TYPE_ISO14443_4) {
@@ -1235,7 +1236,7 @@ void TagNciAdapter::SetIsMultiTag(bool isMultiTag)
     isMultiTag_ = isMultiTag;
 }
 
-bool TagNciAdapter::GetIsMultiTag()
+bool TagNciAdapter::GetIsMultiTag() const
 {
     return isMultiTag_;
 }
@@ -1247,12 +1248,12 @@ void TagNciAdapter::SetDiscRstEvtNum(uint32_t num)
     }
 }
 
-uint32_t TagNciAdapter::GetDiscRstEvtNum()
+uint32_t TagNciAdapter::GetDiscRstEvtNum() const
 {
     return discRstEvtNum_;
 }
 
-void TagNciAdapter::GetMultiTagTechsFromData(tNFA_DISC_RESULT& discoveryData)
+void TagNciAdapter::GetMultiTagTechsFromData(const tNFA_DISC_RESULT& discoveryData)
 {
     uint32_t idx = discRstEvtNum_;
     if (idx >= MAX_NUM_TECHNOLOGY) {
@@ -1272,7 +1273,7 @@ void TagNciAdapter::GetMultiTagTechsFromData(tNFA_DISC_RESULT& discoveryData)
 tNFA_STATUS TagNciAdapter::DoSelectForMultiTag(int currIdx)
 {
     tNFA_STATUS result = NFA_STATUS_FAILED;
-    if (currIdx == -1) {
+    if (currIdx == INVALID_TAG_INDEX) {
         ErrorLog("TagNciAdapter::DoSelectForMultiTag: is NFC_DEP");
         return result;
     }
@@ -1290,8 +1291,8 @@ tNFA_STATUS TagNciAdapter::DoSelectForMultiTag(int currIdx)
 
 void TagNciAdapter::SelectTheFirstTag()
 {
-    int currIdx = -1;
-    for (int i = 0; i < discNtfIndex_; i++) {
+    unsigned int currIdx = INVALID_TAG_INDEX;
+    for (unsigned int i = 0; i < discNtfIndex_; i++) {
         InfoLog("TagNciAdapter::SelectTheFirstTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
             i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
         if (multiTagDiscProtocol_[i] != NFA_PROTOCOL_NFC_DEP) {
@@ -1310,9 +1311,9 @@ void TagNciAdapter::SelectTheNextTag()
         ErrorLog("TagNciAdapter::SelectTheNextTag: next tag does not exist");
         return;
     }
-    int currIdx = -1;
+    unsigned int currIdx = INVALID_TAG_INDEX;
     discRstEvtNum_--;
-    for (int i = 0; i < discNtfIndex_; i++) {
+    for (unsigned int i = 0; i < discNtfIndex_; i++) {
         InfoLog("TagNciAdapter::SelectTheNextTag index = %{public}d discId = 0x%{public}X protocol = 0x%{public}X",
             i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
         if (multiTagDiscId_[i] != multiTagDiscId_[selectedTagIdx_] ||
