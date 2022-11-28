@@ -38,7 +38,6 @@ namespace OHOS {
         std::vector<int> tagTechList;
         tagTechList.push_back(static_cast<int>(TagTechnology::NFC_V_TECH));
         std::vector<AppExecFwk::PacMap> tagTechExtras;
-        std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
         AppExecFwk::PacMap iso15693ExtrasData;
         iso15693ExtrasData.PutIntValue(TagInfo::RESPONSE_FLAGS, TEST_RESPONSE_FLAGS);
         iso15693ExtrasData.PutIntValue(TagInfo::DSF_ID, TEST_DSF_ID);
