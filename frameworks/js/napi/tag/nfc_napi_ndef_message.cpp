@@ -239,7 +239,7 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
     // unwrap for argument of NdefMessage.
     NapiNdefMessage *argNdefMsg = nullptr;
     napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
-    if (argNdefMsg != nullptr) {
+    if (argNdefMsg == nullptr) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
         return CreateUndefined(env);

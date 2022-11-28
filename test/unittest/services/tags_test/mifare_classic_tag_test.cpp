@@ -61,7 +61,6 @@ void MifareClassicTagTest::SetUp()
     tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
 
     std::vector<AppExecFwk::PacMap> tagTechExtras;
-    std::shared_ptr<AppExecFwk::PacMap> tagTechExtrasData = std::make_shared<AppExecFwk::PacMap>();
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
