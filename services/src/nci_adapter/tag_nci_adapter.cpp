@@ -233,6 +233,7 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscove
             DebugLog("TagNciAdapter::Reselect: do nothing");
             return false;
         }
+        DebugLog("TagNciAdapter::Reselect: SendRawFrame seccess, status = 0x%{public}X", status);
         activatedEvent_.Wait(4); // this request do not have response, so no need to wait for callback
         isReconnecting_ = true;
         status = nciAdaptations_->NfaDeactivate(true);
