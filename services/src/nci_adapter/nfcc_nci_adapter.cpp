@@ -392,6 +392,7 @@ bool NfccNciAdapter::Initialize()
     if (isNfcEnabled_) {
         /* ungraceful */
         status = nciAdaptation_->NfaDisable(false);
+        DebugLog("NfccNciAdapter::Initialize: status = %{public}d", status);
     }
     nciAdaptation_->NfcAdaptationFinalize();
     DebugLog("NfccNciAdapter::Initialize: nfc enabled = %{public}d", isNfcEnabled_);

@@ -390,8 +390,6 @@ bool RegisterTag(NapiNfcTagSession *nfcTag, std::shared_ptr<TagInfo> nfcTaginfo)
 template<typename T, typename D>
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
 {
-    // nfcTag is defined as a native instance that will be wrapped in the JS object
-    NapiNfcTagSession *nfcTag = new T();
     size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value thisVar = nullptr;
@@ -412,9 +410,13 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     }
     // parse Taginfo parameters passed from JS
     nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
+    
+    // nfcTag is defined as a native instance that will be wrapped in the JS object
+    NapiNfcTagSession *nfcTag = new T();
     if (!RegisterTag<D>(nfcTag, nfcTaginfo)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        delete nfcTag;
         return CreateUndefined(env);
     }
 

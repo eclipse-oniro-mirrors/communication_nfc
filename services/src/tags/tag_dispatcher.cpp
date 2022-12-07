@@ -54,7 +54,7 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     if (tag->GetConnectedTech() == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
     }
-
+    DebugLog("fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
     std::string ndefMsg = tag->ReadNdef();
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     if (ndefMessage == nullptr) {
