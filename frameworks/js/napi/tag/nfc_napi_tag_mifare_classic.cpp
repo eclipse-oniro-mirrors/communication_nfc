@@ -615,7 +615,9 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
 
-    NAPI_ASSERT(env, MatchIncrementBlockParameters(env, params, paramsCount), "WriteSingleBlock type mismatch");
+    if(!MatchIncrementBlockParameters(env, params, paramsCount)){
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
