@@ -52,6 +52,7 @@ private:
     // tag field on checking
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
+    const static int DEFAULT_MOTOR_VIBRATOR_ONCE = 500; // ms
     // ndef message
     std::string lastNdefMsg_;
 };

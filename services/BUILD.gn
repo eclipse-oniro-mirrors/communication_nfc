@@ -84,6 +84,7 @@ ohos_shared_library("nfc_service") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "miscdevice:vibrator_interface_native",
     "preferences:native_preferences",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
