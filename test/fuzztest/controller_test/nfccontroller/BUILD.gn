@@ -13,17 +13,7 @@
 
 import("//build/test.gni")
 
-group("fuzztest") {
+group("nfccontroller_fuzztest") {
   testonly = true
-  deps = [
-    "controller_test/nfccontroller:nfccontroller_fuzztest",
-    "tags_test/iso15693tag:iso15693tag_fuzztest",
-    "tags_test/isodeptag:isodeptag_fuzztest",
-    "tags_test/mifareclassictag:mifareclassictag_fuzztest",
-    "tags_test/mifareultralighttag:mifareultralighttag_fuzztest",
-    "tags_test/ndefmessage:ndefmessage_fuzztest",
-    "tags_test/ndeftag:ndeftag_fuzztest",
-    "tags_test/nfca_tag:nfca_tag_fuzztest",
-    "tags_test/taginfo:taginfo_fuzztest",
-  ]
+  deps = [ "nfccontroller_fuzzer:fuzztest" ]
 }
