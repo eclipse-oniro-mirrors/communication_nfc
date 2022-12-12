@@ -18,14 +18,13 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "nfccontroller.h"
+#include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
-    //using namespace OHOS::NFC::TAG;
 
-class INfcControllerCallbackImpl : public INfcControllerCallback {
+class INfcControllerCallbackImpl : public NFC::INfcControllerCallback {
 public:
     INfcControllerCallbackImpl() {}
 
@@ -42,44 +41,29 @@ public:
     }
 };
 
-    constexpr const auto TEST_UID = "0102";
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
-    constexpr const auto TEST_HISTORICAL_BYTES = "1015";
-    constexpr const auto TEST_HILAYER_RESPONSE = "0106";
 
     void FuzzIsNfcOpen(const uint8_t* data, size_t size)
     {
         NfcController ctrl = NfcController::GetInstance();
-        bool isOpen = data % INT_TO_BOOL_DIVISOR;
-        if (ctrl == nullptr) {
-            std::cout << "ctrl is nullptr." << std::endl;
-            return;
-        }
-        ctrl->IsNfcOpen(isOpen);
+        bool isOpen = data[0] % INT_TO_BOOL_DIVISOR;
+        ctrl.IsNfcOpen(isOpen);
     }
 
     void FuzzRegListener(const uint8_t* data, size_t size)
     {
         NfcController ctrl = NfcController::GetInstance();
-        if (ctrl == nullptr) {
-            std::cout << "ctrl is nullptr." << std::endl;
-            return;
-        }
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
         sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
-        ctrl->RegListener(iNfcControllerCallbackImpl, type);
+        ctrl.RegListener(iNfcControllerCallbackImpl, type);
     }
 
     void FuzzUnregListener(const uint8_t* data, size_t size)
     {
         NfcController ctrl = NfcController::GetInstance();
-        if (ctrl == nullptr) {
-            std::cout << "ctrl is nullptr." << std::endl;
-            return;
-        }
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        ctrl->UnregListener(type);
+        ctrl.UnregListener(type);
     }
 }
 

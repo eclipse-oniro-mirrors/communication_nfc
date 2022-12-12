@@ -16,7 +16,7 @@ import("//build/test.gni")
 group("fuzztest") {
   testonly = true
   deps = [
-    "controller_test/nfccontroller",
+    "controller_test/nfccontroller:nfccontroller_fuzztest",
     "tags_test/iso15693tag:iso15693tag_fuzztest",
     "tags_test/isodeptag:isodeptag_fuzztest",
     "tags_test/mifareclassictag:mifareclassictag_fuzztest",
