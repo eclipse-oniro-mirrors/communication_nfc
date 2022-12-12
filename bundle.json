@@ -38,7 +38,9 @@
         "name": "nfc",
         "subsystem": "communication",
         "syscap": [
-            "SystemCapability.Communication.NFC.Core"
+            "SystemCapability.Communication.NFC.Core",
+            "SystemCapability.Communication.NFC.Tag",
+            "SystemCapability.Communication.NFC.CardEmulation"
         ],
         "features": [],
         "adapted_system_type": [
