@@ -72,6 +72,9 @@ enum ErrorCode : const int {
     ERR_TAG_STATE_DISCONNECTED,
     ERR_TAG_STATE_IO_FAILED,
     ERR_TAG_STATE_UNBIND,
+
+    // error for card emulation operations
+    ERR_CE_BASE = 3100300,
 };
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
