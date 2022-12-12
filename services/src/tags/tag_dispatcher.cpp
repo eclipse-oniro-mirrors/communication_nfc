@@ -21,6 +21,7 @@
 #include "ndef_message.h"
 #include "nfc_sdk_common.h"
 #include "want.h"
+#include "vibrator_agent.h"
 
 namespace OHOS {
 using TagHostMapIter = std::map<int, std::shared_ptr<NFC::NCI::ITagHost>>::iterator;
@@ -49,7 +50,10 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     DebugLog("HandleTagFound");
     static NCI::ITagHost::TagDisconnectedCallBack callback =
         std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
-
+    int ret = OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
+    if (ret) {
+        ErrorLog("HandleTagFound StartVibratorOnce failed,ret=%{public}d", ret);
+    }
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
     if (tag->GetConnectedTech() == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
