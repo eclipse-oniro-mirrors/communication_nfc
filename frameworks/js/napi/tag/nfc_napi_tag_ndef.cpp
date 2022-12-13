@@ -146,8 +146,8 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 
     if (napiNdefMessage->ndefMessage == nullptr) {
         delete napiNdefMessage;
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
 

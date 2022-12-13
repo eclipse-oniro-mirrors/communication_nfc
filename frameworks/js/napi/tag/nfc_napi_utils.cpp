@@ -555,7 +555,7 @@ bool IsObject(const napi_env &env, const napi_value &param)
     return valueType == napi_object;
 }
 
-std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
+std::string BuildErrorMessage(int &errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType)
 {
     std::string errMsg;
@@ -575,9 +575,8 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         } else {
             return "Parameter error. The parameter number is invalid.";
         }
-    } else if (errCode == INNER_ERR_TAG_PARAM_INVALID) {
-        return "The parsed parameter value of tag is mismatched with this function.";
-    } else if (errCode >= BUSI_ERR_TAG_STATE_INVALID) {
+    } else if (errCode >= ERR_TAG_BASE && errCode < ERR_CE_BASE) {
+        errCode = BUSI_ERR_TAG_STATE_INVALID;
         return "The tag running state of service is abnormal.";
     }
     return "Unknown error message";
