@@ -184,7 +184,8 @@ bool IsArray(const napi_env &env, const napi_value &param);
 bool IsNumber(const napi_env &env, const napi_value &param);
 bool IsString(const napi_env &env, const napi_value &param);
 bool IsObject(const napi_env &env, const napi_value &param);
-std::string BuildErrorMessage(int &errCode, std::string funcName, std::string forbiddenPerm,
+int BuildOutputErrorCode(int errCode);
+std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
 } // namespace KITS

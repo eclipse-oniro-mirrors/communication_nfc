@@ -219,8 +219,9 @@ static void SendDataCallback(napi_env env, napi_status status, void *data)
         ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "sendData", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "sendData", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 

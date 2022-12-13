@@ -317,8 +317,9 @@ static void AuthenticateSectorCallback(napi_env env, napi_status status, void *d
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "authenticateSector", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "authenticateSector", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -414,8 +415,9 @@ static void ReadSingleBlockCallback(napi_env env, napi_status status, void *data
         ConvertStringToNumberArray(env, callbackValue, context->value);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "readSingleBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "readSingleBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -504,8 +506,9 @@ static void WriteSingleBlockCallback(napi_env env, napi_status status, void *dat
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "writeSingleBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "writeSingleBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -597,8 +600,9 @@ static void IncrementBlockCallback(napi_env env, napi_status status, void *data)
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "incrementBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "incrementBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -687,8 +691,9 @@ static void DecrementBlockCallback(napi_env env, napi_status status, void *data)
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "decrementBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "decrementBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -777,8 +782,9 @@ static void TransferToBlockCallback(napi_env env, napi_status status, void *data
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "transferToBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "transferToBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -867,8 +873,9 @@ static void RestoreFromBlockCallback(napi_env env, napi_status status, void *dat
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "restoreFromBlock", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "restoreFromBlock", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
