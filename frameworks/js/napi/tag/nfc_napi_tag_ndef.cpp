@@ -321,8 +321,9 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
             DoAsyncCallbackOrPromise(env, context, callbackValue);
         }
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "readNdef", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "readNdef", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -408,8 +409,9 @@ static void WriteNdefCallback(napi_env env, napi_status status, void *data)
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "writeNdef", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "writeNdef", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -524,8 +526,9 @@ static void SetReadOnlyCallback(napi_env env, napi_status status, void *data)
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "setReadOnly", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "setReadOnly", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 

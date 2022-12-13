@@ -114,8 +114,9 @@ static void IsExtendedApduSupportedCallback(napi_env env, napi_status status, vo
         napi_get_boolean(env, context->value, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string msg = BuildErrorMessage(context->errorCode, "isExtendedApduSupported", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, msg);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string msg = BuildErrorMessage(errCode, "isExtendedApduSupported", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, msg);
     }
 }
 
