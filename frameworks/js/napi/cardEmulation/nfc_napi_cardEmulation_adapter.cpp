@@ -23,10 +23,17 @@ namespace KITS {
 
 napi_value IsSupported(napi_env env, napi_callback_info info)
 {
-    DebugLog("nfc_napi_cardEmulation_adapter::Issupported");
     bool isSupported = false;
     napi_value result;
     napi_get_boolean(env, isSupported, &result);
+    return result;
+}
+
+napi_value IsDefaultService(napi_env env, napi_callback_info info)
+{
+    bool isDefaultService = false;
+    napi_value result;
+    napi_get_boolean(env, isDefaultService, &result);
     return result;
 }
 }  // namespace KITS
