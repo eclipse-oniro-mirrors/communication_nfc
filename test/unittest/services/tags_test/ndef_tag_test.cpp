@@ -163,7 +163,7 @@ HWTEST_F(NdefTagTest, IsNdefWritable001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     bool writable = ndef->IsNdefWritable();
-    ASSERT_TRUE(writable);
+    ASSERT_TRUE(!writable);
 }
 /**
  * @tc.name: ReadNdef001
@@ -175,7 +175,7 @@ HWTEST_F(NdefTagTest, ReadNdef001, TestSize.Level1)
     std::shared_ptr<NdefMessage> ndefMessage;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int readNdef = ndef->ReadNdef(ndefMessage);
-    ASSERT_TRUE(readNdef == ErrorCode::ERR_TAG_PARAMETERS);
+    ASSERT_TRUE(readNdef == ErrorCode::ERR_TAG_STATE_LOST);
 }
 /**
  * @tc.name: WriteNdef001
@@ -199,7 +199,7 @@ HWTEST_F(NdefTagTest, IsEnableReadOnly001, TestSize.Level1)
     bool canSetReadOnly;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int readOnly = ndef->IsEnableReadOnly(canSetReadOnly);
-    ASSERT_TRUE(readOnly == TEST_NDEF_TAG_LENGTH);
+    ASSERT_TRUE(readOnly == ErrorCode::ERR_NONE);
 }
 /**
  * @tc.name: EnableReadOnly001
