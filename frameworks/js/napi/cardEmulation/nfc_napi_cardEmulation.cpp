@@ -62,6 +62,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
     DebugLog("Init, nfc_napi_cardEmulation");
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("isSupported", IsSupported),
+        DECLARE_NAPI_FUNCTION("isDefaultService", IsDefaultService),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
