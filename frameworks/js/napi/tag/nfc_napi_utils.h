@@ -28,10 +28,7 @@ namespace KITS {
 const static int BUSI_ERR_PERM = 201; // Permission denied.
 const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
-const static int BUSI_ERR_TAG_STATE_INVALID = 3100202; // nfc tag state invalid.
-
-// inner error define, not throw these error code to application.
-const static int INNER_ERR_TAG_PARAM_INVALID = 3100201; // nfc tag parameter values invalid.
+const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
 
 const std::string KEY_CODE = "code";
 const std::string TAG_PERM_DESC = "ohos.permission.NFC_TAG";
@@ -187,6 +184,7 @@ bool IsArray(const napi_env &env, const napi_value &param);
 bool IsNumber(const napi_env &env, const napi_value &param);
 bool IsString(const napi_env &env, const napi_value &param);
 bool IsObject(const napi_env &env, const napi_value &param);
+int BuildOutputErrorCode(int errCode);
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);

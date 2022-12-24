@@ -414,8 +414,8 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNfcTagSession *nfcTag = new T();
     if (!RegisterTag<D>(nfcTag, nfcTaginfo)) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         delete nfcTag;
         return CreateUndefined(env);
     }
