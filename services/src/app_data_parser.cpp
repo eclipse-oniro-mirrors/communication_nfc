@@ -27,6 +27,7 @@ const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST
 const std::string KEY_TAG_TECH = "tag-tech";
 const std::string KEY_PAYMENT_AID = "payment-aid";
 const std::string KEY_OHTER_AID = "other-aid";
+const std::int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser appDataParser_;
 
@@ -113,7 +114,7 @@ bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std:
         ErrorLog("action no in map!");
         return false;
     }
-    tokenID= OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenID(100, bundleName, 0); // 100 is userID
+    tokenID= OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenID(USER_ID, bundleName, 0);
     int result = OHOS::Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenID, permission_nfc);
     if (result != OHOS::Security::AccessToken::PERMISSION_GRANTED) {
         ErrorLog("bundleName %{public}s no permission %{public}s", bundleName.c_str(), permission_nfc.c_str());
