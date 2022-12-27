@@ -74,8 +74,9 @@ static void ReadMultiplePagesCallback(napi_env env, napi_status status, void *da
         ConvertStringToNumberArray(env, callbackValue, context->value);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "readMultiplePages", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "readMultiplePages", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 
@@ -171,8 +172,9 @@ static void WriteSinglePagesCallback(napi_env env, napi_status status, void *dat
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        std::string errMessage = BuildErrorMessage(context->errorCode, "writeSinglePage", TAG_PERM_DESC, "", "");
-        ThrowAsyncError(env, context, context->errorCode, errMessage);
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "writeSinglePage", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
     }
 }
 

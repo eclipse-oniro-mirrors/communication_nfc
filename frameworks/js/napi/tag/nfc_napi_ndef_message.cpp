@@ -69,8 +69,8 @@ napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeUriRecord(uri);
     if (ndefRecord == nullptr) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
     napi_value result = nullptr;
@@ -110,8 +110,8 @@ napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeTextRecord(text, locale);
     if (ndefRecord == nullptr) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
     napi_value result = nullptr;
@@ -154,8 +154,8 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeMimeRecord(mimeType, mimeData);
     if (ndefRecord == nullptr) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
     napi_value result = nullptr;
@@ -205,8 +205,8 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeExternalRecord(domainName, type, externalData);
     if (ndefRecord == nullptr) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
     napi_value result = nullptr;
@@ -240,8 +240,8 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
     NapiNdefMessage *argNdefMsg = nullptr;
     napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
     if (argNdefMsg == nullptr) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(INNER_ERR_TAG_PARAM_INVALID, "", "", "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
     }
 
