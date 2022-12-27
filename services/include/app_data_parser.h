@@ -65,6 +65,7 @@ private:
     ElementName GetMatchedHceKeyElement(ElementName &element);
     bool IsMatchedByBundleName(ElementName &src, ElementName &target);
     bool InitAppListByAction(const std::string action);
+    bool VerifyHapPermission(const std::string bundleName, const std::string action);
     bool UpdateAppListInfo(ElementName &element, const std::string action);
     void UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element);
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);

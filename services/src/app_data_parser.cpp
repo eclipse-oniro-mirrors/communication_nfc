@@ -17,6 +17,8 @@
 #include "common_event_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "accesstoken_kit.h"
+#include "permission_tools.h"
 
 namespace OHOS {
 namespace NFC {
@@ -25,6 +27,7 @@ const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST
 const std::string KEY_TAG_TECH = "tag-tech";
 const std::string KEY_PAYMENT_AID = "payment-aid";
 const std::string KEY_OHTER_AID = "other-aid";
+const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser appDataParser_;
 
@@ -96,6 +99,30 @@ void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
     RemoveHceAppInfo(element);
 }
 
+bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std::string action)
+{
+    std::string permissionNfc;
+    OHOS::Security::AccessToken::AccessTokenID tokenID;
+    std::map<std::string, std::string> permissionMap = {
+        {ACTION_TAG_FOUND, TAG_PERM},
+        {ACTION_HOST_APDU_SERVICE, CARD_EMU_PERM}
+    };
+    std::map<std::string, std::string>::iterator it = permissionMap.find(action.c_str());
+    if (it != permissionMap.end()) {
+        permissionNfc = it->second;
+    } else {
+        ErrorLog("action no in map!");
+        return false;
+    }
+    tokenID= OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenID(USER_ID, bundleName, 0);
+    int result = OHOS::Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenID, permissionNfc);
+    if (result != OHOS::Security::AccessToken::PERMISSION_GRANTED) {
+        ErrorLog("bundleName %{public}s no permission %{public}s", bundleName.c_str(), permissionNfc.c_str());
+        return false;
+    }
+    return true;
+}
+
 bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
 {
     if (bundleMgrProxy_ == nullptr) {
@@ -110,6 +137,10 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
         return false;
     }
     std::string bundleName = element.GetBundleName();
+    if (!VerifyHapPermission(bundleName, action)) {
+        ErrorLog("Hap have no permission!");
+        return false;
+    }
     AAFwk::Want want;
     want.SetAction(action);
     int32_t userId = AppExecFwk::Constants::START_USERID;
