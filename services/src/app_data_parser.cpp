@@ -27,7 +27,7 @@ const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST
 const std::string KEY_TAG_TECH = "tag-tech";
 const std::string KEY_PAYMENT_AID = "payment-aid";
 const std::string KEY_OHTER_AID = "other-aid";
-const std::int USER_ID = 100;
+const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser appDataParser_;
 
