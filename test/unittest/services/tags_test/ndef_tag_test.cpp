@@ -235,6 +235,63 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString002, TestSize.Level1)
     std::string typeString = ndef->GetNdefTagTypeString(TEST_NDEF_FORUM_TYPE_2);
     ASSERT_TRUE(typeString == "org.nfcforum.ndef.type2");
 }
+/**
+ * @tc.name: SetTimeout001
+ * @tc.desc: Test NdefTag SetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
+{
+    uint32_t timeout = 20;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    bool timeoutStatus = ndef->SetTimeout(timeout);
+    ASSERT_TRUE(timeoutStatus == true);
+}
+/**
+ * @tc.name: GetTimeout001
+ * @tc.desc: Test NdefTag GetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
+{
+    uint32_t timeout = 20;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    uint32_t timeoutValue = ndef->GetTimeout();
+    ASSERT_TRUE(timeoutValue == timeout);
+}
+/**
+ * @tc.name: GetMaxSendCommandLength001
+ * @tc.desc: Test NdefTag GetMaxSendCommandLength.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetMaxSendCommandLength001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int statusCode = ndef->GetMaxSendCommandLength();
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+}
+/**
+ * @tc.name: GetTagInfo001
+ * @tc.desc: Test NdefTag GetTagInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetTagInfo001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::weak_ptr<TagInfo> tagInfo = ndef->GetTagInfo();
+    ASSERT_TRUE(tagInfo.use_count() != 0);
+}
+/**
+ * @tc.name: IsConnected001
+ * @tc.desc: Test NdefTag IsConnected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, IsConnected001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    bool isConnected = ndef->IsConnected();
+    ASSERT_TRUE(isConnected == false);
+}
 }
 }
 }

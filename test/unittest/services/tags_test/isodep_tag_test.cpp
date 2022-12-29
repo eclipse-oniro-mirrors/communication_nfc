@@ -145,6 +145,19 @@ HWTEST_F(IsoDepTagTest, GetTagUid001, TestSize.Level1)
     std::string uid = isoDep->GetTagUid();
     ASSERT_TRUE(strcmp(uid.c_str(), TEST_UID) == 0);
 }
+/**
+ * @tc.name: IsExtendedApduSupported001
+ * @tc.desc: Test NfcBTag IsExtendedApduSupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsoDepTagTest, IsExtendedApduSupported001, TestSize.Level1)
+{
+    bool isSupported = false;
+    std::shared_ptr<IsoDepTag> isoDep = IsoDepTag::GetTag(tagInfo_);
+    int statusCode = isoDep->IsExtendedApduSupported(isSupported);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(isSupported == false);
+}
 }
 }
 }
