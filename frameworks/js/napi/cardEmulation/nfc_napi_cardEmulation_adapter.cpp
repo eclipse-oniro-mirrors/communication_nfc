@@ -29,6 +29,14 @@ napi_value IsSupported(napi_env env, napi_callback_info info)
     return result;
 }
 
+napi_value HasHceCapability(napi_env env, napi_callback_info info)
+{
+    bool hasHceCapability = false;
+    napi_value result;
+    napi_get_boolean(env, hasHceCapability, &result);
+    return result;
+}
+
 napi_value IsDefaultService(napi_env env, napi_callback_info info)
 {
     bool isDefaultService = false;

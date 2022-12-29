@@ -24,7 +24,6 @@ namespace NFC {
 namespace TAG {
 int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 {
-    int result = KITS::ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
@@ -32,21 +31,18 @@ int TagSessionProxy::Connect(int tagRfDiscId, int technology)
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(static_cast<int32_t>(technology));
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(KITS::COMMAND_CONNECT, data, option, result);
-    return result;
+    return SendRequestExpectReplyNone(KITS::COMMAND_CONNECT, data, option);
 }
 
 int TagSessionProxy::Reconnect(int tagRfDiscId)
 {
-    int result = KITS::ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(KITS::COMMAND_RECONNECT, data, option, result);
-    return result;
+    return SendRequestExpectReplyNone(KITS::COMMAND_RECONNECT, data, option);
 }
 
 void TagSessionProxy::Disconnect(int tagRfDiscId)
@@ -58,47 +54,40 @@ void TagSessionProxy::Disconnect(int tagRfDiscId)
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_ASYNC);
     SendRequestExpectReplyNone(KITS::COMMAND_DISCONNECT, data, option);
-    return;
 }
 
-bool TagSessionProxy::SetTimeout(uint32_t timeout, int technology)
+int TagSessionProxy::SetTimeout(int timeout, int technology)
 {
-    bool result = false;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return false;
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(technology);
     data.WriteInt32(timeout);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyBool(KITS::COMMAND_SET_TIMEOUT, data, option, result);
-    return result;
+    return SendRequestExpectReplyNone(KITS::COMMAND_SET_TIMEOUT, data, option);
 }
 
-uint32_t TagSessionProxy::GetTimeout(int technology)
+int TagSessionProxy::GetTimeout(int technology, int &timeout)
 {
-    int result = 0;
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return 0;
-    }
-    data.WriteInt32(technology);
-    MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(KITS::COMMAND_GET_TIMEOUT, data, option, result);
-    return static_cast<uint32_t>(result);
-}
-
-int TagSessionProxy::GetMaxTransceiveLength(int technology)
-{
-    int result = 0;
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, result);
-    return result;
+    return SendRequestExpectReplyInt(KITS::COMMAND_GET_TIMEOUT, data, option, timeout);
+}
+
+int TagSessionProxy::GetMaxTransceiveLength(int technology, int &maxSize)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
+    data.WriteInt32(technology);
+    MessageOption option(MessageOption::TF_SYNC);
+    return SendRequestExpectReplyInt(KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data, option, maxSize);
 }
 
 int TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)

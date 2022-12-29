@@ -244,8 +244,8 @@ HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
 {
     uint32_t timeout = 20;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    bool timeoutStatus = ndef->SetTimeout(timeout);
-    ASSERT_TRUE(timeoutStatus == true);
+    int statusCode = ndef->SetTimeout(timeout);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
 }
 /**
  * @tc.name: GetTimeout001
@@ -254,10 +254,12 @@ HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
  */
 HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
 {
-    uint32_t timeout = 20;
+    uint32_t experctedTimeout = 20;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    uint32_t timeoutValue = ndef->GetTimeout();
-    ASSERT_TRUE(timeoutValue == timeout);
+    int timeout = 0;
+    int statusCode = ndef->GetTimeout(timeout);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(timeout == experctedTimeout);
 }
 /**
  * @tc.name: GetMaxSendCommandLength001
@@ -267,8 +269,10 @@ HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetMaxSendCommandLength001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int statusCode = ndef->GetMaxSendCommandLength();
+    int maxSize = 0;
+    int statusCode = ndef->GetMaxSendCommandLength(maxSize);
     ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(maxSize == 0);
 }
 /**
  * @tc.name: GetTagInfo001

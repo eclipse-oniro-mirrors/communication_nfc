@@ -14,7 +14,6 @@
  */
 
 #include "nfc_napi_tag_isodep.h"
-
 #include "loghelper.h"
 
 namespace OHOS {
@@ -29,21 +28,25 @@ napi_value NapiIsoDepTag::GetHistoricalBytes(napi_env env, napi_callback_info in
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value ret = nullptr;
-    if (nfcIsoDepTagPtr == nullptr) {
-        ErrorLog("GetHistoricalBytes find objectInfo failed!");
-        ConvertStringToNumberArray(env, ret, "");
-    } else {
-        std::string historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
-        ConvertStringToNumberArray(env, ret, historicalBytes);
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetHistoricalBytes, napi_unwrap failed, object is null.");
+        ConvertStringToNumberArray(env, result, "");
+        return result;
     }
-    return ret;
+
+    std::string historicalBytes = "";
+    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcIsoDepTagPtr == nullptr) {
+        ErrorLog("GetHistoricalBytes, find objectInfo failed!");
+    } else {
+        historicalBytes = nfcIsoDepTagPtr->GetHistoricalBytes();
+    }
+    ConvertStringToNumberArray(env, result, historicalBytes);
+    return result;
 }
 
 napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info info)
@@ -53,39 +56,36 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiIsoDepTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value ret = nullptr;
-    if (nfcIsoDepTagPtr == nullptr) {
-        ErrorLog("GetHiLayerResponse find objectInfo failed!");
-        ConvertStringToNumberArray(env, ret, "");
-    } else {
-        std::string hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
-        ConvertStringToNumberArray(env, ret, hiLayerResponse);
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetHiLayerResponse, napi_unwrap failed, object is null.");
+        ConvertStringToNumberArray(env, result, "");
+        return result;
     }
-    return ret;
+
+    std::string hiLayerResponse = "";
+    IsoDepTag *nfcIsoDepTagPtr = static_cast<IsoDepTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcIsoDepTagPtr == nullptr) {
+        ErrorLog("GetHiLayerResponse, find objectInfo failed!");
+    } else {
+        hiLayerResponse = nfcIsoDepTagPtr->GetHiLayerResponse();
+    }
+    ConvertStringToNumberArray(env, result, hiLayerResponse);
+    return result;
 }
 
-static bool MatchIsExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    if (parameterCount > ARGV_NUM_1) {
+    // argments 0 or 1 is allowed.
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_function}, "callback", "function");
+    } else if (parameterCount > ARGV_NUM_1) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-        return false;
     }
-    if (parameterCount == ARGV_NUM_1) {
-        bool isTypeMatched = MatchParameters(env, parameters, {napi_function});
-        if (!isTypeMatched) {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "callback", "function")));
-        }
-        return isTypeMatched;
-    }
-    return true;
 }
 
 static void NativeIsExtendedApduSupported(napi_env env, void *data)
@@ -101,6 +101,8 @@ static void NativeIsExtendedApduSupported(napi_env env, void *data)
         context->value = isSupported;
     } else {
         ErrorLog("NativeIsExtendedApduSupported nfcIsoDepTagPtr failed!");
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
     }
     context->resolved = true;
 }
@@ -127,24 +129,16 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiIsoDepTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchIsExtendedApduSupportedParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckExtendedApduSupportedParameters(env, params, paramsCount);
     auto context = std::make_unique<CallBackContext<bool, NapiIsoDepTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
-    if (paramsCount == ARGV_NUM_1) {
-        napi_create_reference(env, params[0], DEFAULT_REF_COUNT, &context->callbackRef);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    napi_create_reference(env, params[0], DEFAULT_REF_COUNT, &context->callbackRef);
 
     context->objectInfo = objectInfoCb;
     napi_value result = HandleAsyncWork(

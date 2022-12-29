@@ -63,8 +63,10 @@ static napi_value InitJs(napi_env env, napi_value exports)
 {
     DebugLog("Init, nfc_napi_controller");
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("openNfc", OpenNfc),
-        DECLARE_NAPI_FUNCTION("closeNfc", CloseNfc),
+        DECLARE_NAPI_FUNCTION("openNfc", OpenNfc), // @deprecated since 9
+        DECLARE_NAPI_FUNCTION("enableNfc", EnableNfc),
+        DECLARE_NAPI_FUNCTION("closeNfc", CloseNfc), // @deprecated since 9
+        DECLARE_NAPI_FUNCTION("disableNfc", DisableNfc),
         DECLARE_NAPI_FUNCTION("getNfcState", GetNfcState),
         DECLARE_NAPI_FUNCTION("isNfcAvailable", IsNfcAvailable),
         DECLARE_NAPI_FUNCTION("isNfcOpen", IsNfcOpen),

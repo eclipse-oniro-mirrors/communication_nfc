@@ -29,11 +29,11 @@ public:
     int Connect();
     bool IsConnected() const;
     int Close();
-    bool SetTimeout(uint32_t timeout);
-    uint32_t GetTimeout();
+    int SetTimeout(int timeout);
+    int GetTimeout(int &timeout);
     std::string GetTagUid();
     int SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData);
-    int GetMaxSendCommandLength() const;
+    int GetMaxSendCommandLength(int &maxSize) const;
     std::weak_ptr<TagInfo> GetTagInfo() const;
 
 protected:

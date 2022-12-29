@@ -19,7 +19,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "nfc_napi_tag_sesstion.h"
-#include "nfc_napi_utils.h"
+#include "nfc_napi_tag_utils.h"
 #include "nfca_tag.h"
 
 namespace OHOS {

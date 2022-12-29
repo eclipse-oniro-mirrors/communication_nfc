@@ -117,23 +117,24 @@ void TagSession::Disconnect(int tagRfDiscId)
     }
     tag.lock()->Disconnect();
 }
-bool TagSession::SetTimeout(uint32_t timeout, int technology)
+int TagSession::SetTimeout(int timeout, int technology)
 {
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("SetTimeout, invalid technology %{public}d", technology);
-        return false;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     g_techTimeout[technology] = timeout;
-    return true;
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
-uint32_t TagSession::GetTimeout(int technology)
+int TagSession::GetTimeout(int technology, int &timeout)
 {
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("GetTimeout, invalid technology %{public}d", technology);
-        return 0;
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    return g_techTimeout[technology];
+    timeout = g_techTimeout[technology];
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 /**
  * @brief Get the TechList of the tagRfDiscId.
@@ -217,8 +218,9 @@ int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, 
     }
 
     // Check if length is within limits
-    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) >
-        static_cast<uint32_t>(GetMaxTransceiveLength(tag.lock()->GetConnectedTech()))) {
+    int maxSize = 0;
+    GetMaxTransceiveLength(tag.lock()->GetConnectedTech(), maxSize);
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > maxSize) {
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
@@ -343,9 +345,10 @@ int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
  * @param technology the tag technology
  * @return Max Transceive Length
  */
-int TagSession::GetMaxTransceiveLength(int technology)
+int TagSession::GetMaxTransceiveLength(int technology, int &maxSize)
 {
-    return g_maxTransLength[technology];
+    maxSize = g_maxTransLength[technology];
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
 int TagSession::IsSupportedApdusExtended(bool &isSupported)

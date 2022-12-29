@@ -24,6 +24,7 @@ namespace NFC {
 namespace KITS {
 
 napi_value IsSupported(napi_env env, napi_callback_info info);
+napi_value HasHceCapability(napi_env env, napi_callback_info info);
 napi_value IsDefaultService(napi_env env, napi_callback_info info);
 
 }  // namespace KITS

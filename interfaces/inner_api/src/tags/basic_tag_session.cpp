@@ -61,40 +61,42 @@ bool BasicTagSession::IsConnected() const
 
 int BasicTagSession::Close()
 {
-    // do reconnect to reset the tag's state.
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("Close, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
-    if (tagSession->Reconnect(GetTagRfDiscId()) != ErrorCode::ERR_NONE) {
-        ErrorLog("[BasicTagSession::Close] Reconnect fail!");
-    }
+    // do reconnect to reset the tag's state.
     isConnected_ = false;
     tagInfo_.lock()->SetConnectedTagTech(KITS::TagTechnology::NFC_INVALID_TECH);
-    return ErrorCode::ERR_NONE;
+
+    int statusCode = tagSession->Reconnect(GetTagRfDiscId());
+    if (statusCode == ErrorCode::ERR_NONE) {
+        isConnected_ = true;
+        SetConnectedTagTech(tagTechnology_);
+    }
+    return statusCode;
 }
 
-bool BasicTagSession::SetTimeout(uint32_t timeout)
+int BasicTagSession::SetTimeout(int timeout)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("SetTimeout, ERR_TAG_STATE_UNBIND");
-        return false;
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    bool ret = tagSession->SetTimeout(timeout, static_cast<int>(tagTechnology_));
-    return ret;
+    return tagSession->SetTimeout(timeout, static_cast<int>(tagTechnology_));
 }
 
-uint32_t BasicTagSession::GetTimeout()
+int BasicTagSession::GetTimeout(int &timeout)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("GetTimeout, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->GetTimeout(static_cast<int>(tagTechnology_));
+    return tagSession->GetTimeout(static_cast<int>(tagTechnology_), timeout);
 }
 
 std::string BasicTagSession::GetTagUid()
@@ -115,7 +117,7 @@ int BasicTagSession::SendCommand(std::string& hexCmdData, bool raw, std::string 
     return tagSession->SendRawFrame(GetTagRfDiscId(), hexCmdData, raw, hexRespData);
 }
 
-int BasicTagSession::GetMaxSendCommandLength() const
+int BasicTagSession::GetMaxSendCommandLength(int &maxSize) const
 {
     if (tagInfo_.expired() || (tagTechnology_ == KITS::TagTechnology::NFC_INVALID_TECH)) {
         ErrorLog("GetMaxSendCommandLength ERR_TAG_PARAMETERS");
@@ -126,7 +128,7 @@ int BasicTagSession::GetMaxSendCommandLength() const
         ErrorLog("GetMaxSendCommandLength ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->GetMaxTransceiveLength(static_cast<int>(tagTechnology_));
+    return tagSession->GetMaxTransceiveLength(static_cast<int>(tagTechnology_), maxSize);
 }
 
 int BasicTagSession::GetTagRfDiscId() const

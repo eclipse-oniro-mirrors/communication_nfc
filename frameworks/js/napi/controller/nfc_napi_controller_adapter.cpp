@@ -14,12 +14,11 @@
 */
 
 #include "nfc_napi_controller_adapter.h"
-
 #include <vector>
-
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
+#include "nfc_napi_ctrl_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -33,6 +32,14 @@ napi_value OpenNfc(napi_env env, napi_callback_info info)
     return result;
 }
 
+napi_value EnableNfc(napi_env env, napi_callback_info info)
+{
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    int status = nfcCtrl.TurnOn();
+    CheckNfcStatusCodeAndThrow(env, status, "enableNfc");
+    return CreateUndefined(env);
+}
+
 napi_value CloseNfc(napi_env env, napi_callback_info info)
 {
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
@@ -40,6 +47,14 @@ napi_value CloseNfc(napi_env env, napi_callback_info info)
     napi_value result;
     napi_get_boolean(env, (status == KITS::ERR_NONE), &result);
     return result;
+}
+
+napi_value DisableNfc(napi_env env, napi_callback_info info)
+{
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    int status = nfcCtrl.TurnOff();
+    CheckNfcStatusCodeAndThrow(env, status, "disableNfc");
+    return CreateUndefined(env);
 }
 
 napi_value GetNfcState(napi_env env, napi_callback_info info)

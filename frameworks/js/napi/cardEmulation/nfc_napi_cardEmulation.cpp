@@ -22,6 +22,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 const std::string FEATURE_TYPE = "FeatureType";
+const std::string CARD_TYPE = "CardType";
 
 /*
  * Module initialization function
@@ -37,6 +38,7 @@ static napi_value CreateEnumConstructor(napi_env env, napi_callback_info info)
     return thisArg;
 }
 
+// @deprecated since 9
 static napi_value CreateEnumFeatureType(napi_env env, napi_value exports)
 {
     napi_value hce = nullptr;
@@ -57,16 +59,35 @@ static napi_value CreateEnumFeatureType(napi_env env, napi_value exports)
     return exports;
 }
 
+static napi_value CreateEnumCardType(napi_env env, napi_value exports)
+{
+    napi_value payment = nullptr;
+    napi_value other = nullptr;
+    napi_create_string_utf8(env, KITS::TYPE_PAYMENT.c_str(), KITS::TYPE_PAYMENT.length(), &payment);
+    napi_create_string_utf8(env, KITS::TYPE_OHTER.c_str(), KITS::TYPE_OHTER.length(), &other);
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("PAYMENT", payment),
+        DECLARE_NAPI_STATIC_PROPERTY("OTHER", other),
+    };
+    napi_value result = nullptr;
+    napi_define_class(env, CARD_TYPE.c_str(), NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
+        sizeof(desc) / sizeof(desc[0]), desc, &result);
+    napi_set_named_property(env, exports, CARD_TYPE.c_str(), result);
+    return exports;
+}
+
 static napi_value InitJs(napi_env env, napi_value exports)
 {
     DebugLog("Init, nfc_napi_cardEmulation");
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("isSupported", IsSupported),
+        DECLARE_NAPI_FUNCTION("hasHceCapability", HasHceCapability),
         DECLARE_NAPI_FUNCTION("isDefaultService", IsDefaultService),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
     CreateEnumFeatureType(env, exports);
+    CreateEnumCardType(env, exports);
     return exports;
 }
 

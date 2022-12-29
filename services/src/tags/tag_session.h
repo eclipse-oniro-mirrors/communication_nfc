@@ -58,14 +58,15 @@ public:
      * @return true success of setting timeout value
      * @return false failure of setting timeout value
      */
-    bool SetTimeout(uint32_t timeout, int technology) override;
+    int SetTimeout(int timeout, int technology) override;
     /**
      * @brief Get the Timeout value of tag operations
      *
      * @param technology the tag technology
-     * @return uint32_t the timeout value of tag operations.
+     * @param timeout the output to read the timeout value.
+     * @return the status code of function calling.
      */
-    uint32_t GetTimeout(int technology) override;
+    int GetTimeout(int technology, int &timeout) override;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
@@ -114,7 +115,7 @@ public:
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
 
     int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
-    int GetMaxTransceiveLength(int technology) override;
+    int GetMaxTransceiveLength(int technology, int &maxSize) override;
     int IsSupportedApdusExtended(bool &isSupported) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;

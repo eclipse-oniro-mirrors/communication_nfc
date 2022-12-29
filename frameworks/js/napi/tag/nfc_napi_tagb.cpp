@@ -22,54 +22,58 @@ namespace NFC {
 namespace KITS {
 napi_value NapiNfcBTag::GetRespAppData(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNfcBTag GetRespAppData called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcBTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value ret = nullptr;
-    if (nfcBTagPtr == nullptr) {
-        ErrorLog("GetRespAppData find objectInfo failed!");
-        ConvertStringToNumberArray(env, ret, "");
-    } else {
-        std::string appData = nfcBTagPtr->GetAppData();
-        DebugLog("app data %{public}s", appData.c_str());
-        ConvertStringToNumberArray(env, ret, appData);
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetRespAppData, napi_unwrap failed, object is null.");
+        ConvertStringToNumberArray(env, result, "");
+        return result;
     }
-    return ret;
+
+    std::string appData = "";
+    NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcBTagPtr == nullptr) {
+        ErrorLog("GetRespAppData, find objectInfo failed!");
+    } else {
+        appData = nfcBTagPtr->GetAppData();
+    }
+    ConvertStringToNumberArray(env, result, appData);
+    return result;
 }
 
 napi_value NapiNfcBTag::GetRespProtocol(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNfcBTag GetRespProtocol called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcBTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetRespProtocol, napi_unwrap failed, object is null.");
+        ConvertStringToNumberArray(env, result, "");
+        return result;
+    }
 
-    // transfer
+    std::string protocol = "";
     NfcBTag *nfcBTagPtr = static_cast<NfcBTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value ret = nullptr;
     if (nfcBTagPtr == nullptr) {
         ErrorLog("GetRespProtocol find objectInfo failed!");
-        ConvertStringToNumberArray(env, ret, "");
     } else {
-        std::string protocol = nfcBTagPtr->GetProtocolInfo();
-        DebugLog("protocol info %{public}s", protocol.c_str());
-        ConvertStringToNumberArray(env, ret, protocol);
+        protocol = nfcBTagPtr->GetProtocolInfo();
     }
-    return ret;
+    ConvertStringToNumberArray(env, result, protocol);
+    return result;
 }
 } // namespace KITS
 } // namespace NFC

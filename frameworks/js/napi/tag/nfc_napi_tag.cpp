@@ -228,11 +228,7 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     // prase tech and extras data from TagInfo Js Object from app.
     napi_value technologies = GetNamedProperty(env, obj, VAR_TECH);
     napi_value extras = GetNamedProperty(env, obj, VAR_EXTRA);
-    if (!IsNumberArray(env, technologies)) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo.technology", "number[]")));
-        return CreateUndefined(env);
-    }
+    CheckArrayNumberAndThrow(env, technologies, "tagInfo.technology", "number[]");
 
     napi_value techValue = nullptr;
     napi_value extraValue = nullptr;
@@ -394,29 +390,23 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
+
     // check parameter number
-    if (argc != static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_1)) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
-        return CreateUndefined(env);
-    }
-    napi_value tagInfoJsObj = argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)];
+    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
 
     // check parameter data type
-    if (!IsObject(env, tagInfoJsObj)) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
-        return CreateUndefined(env);
-    }
+    napi_value tagInfoJsObj = argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)];
+    CheckObjectAndThrow(env, tagInfoJsObj, "tagInfo", "TagInfo");
+
     // parse Taginfo parameters passed from JS
     nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
-    
+
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNfcTagSession *nfcTag = new T();
     if (!RegisterTag<D>(nfcTag, nfcTaginfo)) {
+        delete nfcTag;
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
-        delete nfcTag;
         return CreateUndefined(env);
     }
 
@@ -430,117 +420,131 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
             }
         },
         nullptr, nullptr);
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
     return thisVar;
+}
+
+// the functions of base class for all tag sub class.
+static napi_property_descriptor g_baseClassDesc[] = {
+    DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
+    DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
+    DECLARE_NAPI_FUNCTION("connect", NapiNfcTagSession::Connect),
+    DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
+    DECLARE_NAPI_FUNCTION("resetConnection", NapiNfcTagSession::ResetConnection),
+    DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
+    DECLARE_NAPI_FUNCTION("isConnected", NapiNfcTagSession::IsConnected),
+    DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
+    DECLARE_NAPI_FUNCTION("getMaxTransmitSize", NapiNfcTagSession::GetMaxTransmitSize),
+    DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
+    DECLARE_NAPI_FUNCTION("GetTimeout", NapiNfcTagSession::GetTimeout),
+    DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
+    DECLARE_NAPI_FUNCTION("setTimeout", NapiNfcTagSession::SetTimeout),
+    DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
+    DECLARE_NAPI_FUNCTION("transmit", NapiNfcTagSession::Transmit),
+};
+
+// merge the functions of sub class and the functions of base class.
+static void MergeAllDesc(napi_property_descriptor* subDesc, size_t subSize,
+    napi_property_descriptor* allFuncDesc, size_t allDescSize)
+{
+    for (size_t i = 0; i < allDescSize; i++) {
+        if (i < subSize) {
+            allFuncDesc[i] = subDesc[i];
+        } else {
+            allFuncDesc[i] = g_baseClassDesc[i - subSize];
+        }
+    }
 }
 
 void RegisterNfcAJSClass(napi_env env)
 {
-    DebugLog("DefineNfcAJSClass begin");
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor nfcASubDesc[] = {
         DECLARE_NAPI_FUNCTION("getSak", NapiNfcATag::GetSak),
         DECLARE_NAPI_FUNCTION("getAtqa", NapiNfcATag::GetAtqa),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+
+    size_t allDescSize = (sizeof(nfcASubDesc) / sizeof(nfcASubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(nfcASubDesc, (sizeof(nfcASubDesc) / sizeof(nfcASubDesc[0])), allFuncDesc, allDescSize);
 
     // define JS class NfcATag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcATag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcATag, NfcATag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &nfcAConsRef_);
-    DebugLog("DefineNfcAJSClass end");
 }
 
 void RegisterNfcBJSClass(napi_env env)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor nfcBSubDesc[] = {
         DECLARE_NAPI_FUNCTION("getRespAppData", NapiNfcBTag::GetRespAppData),
         DECLARE_NAPI_FUNCTION("getRespProtocol", NapiNfcBTag::GetRespProtocol),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(nfcBSubDesc) / sizeof(nfcBSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(nfcBSubDesc, (sizeof(nfcBSubDesc) / sizeof(nfcBSubDesc[0])), allFuncDesc, allDescSize);
+
     // define JS class NfcBTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcBTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcBTag, NfcBTag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &nfcBConsRef_);
 }
 
 void RegisterNfcFJSClass(napi_env env)
 {
-    DebugLog("Register RegisterNfcFJSClass begin");
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor nfcFSubDesc[] = {
         DECLARE_NAPI_FUNCTION("getSystemCode", NapiNfcFTag::GetSystemCode),
         DECLARE_NAPI_FUNCTION("getPmm", NapiNfcFTag::GetPmm),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(nfcFSubDesc) / sizeof(nfcFSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(nfcFSubDesc, (sizeof(nfcFSubDesc) / sizeof(nfcFSubDesc[0])), allFuncDesc, allDescSize);
+
     // define JS class NfcFTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcFTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcFTag, NfcFTag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &nfcFConsRef_);
 }
 
 void RegisterNfcVJSClass(napi_env env)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor nfcVSubDesc[] = {
         DECLARE_NAPI_FUNCTION("getResponseFlags", NapiNfcVTag::GetResponseFlags),
         DECLARE_NAPI_FUNCTION("getDsfId", NapiNfcVTag::GetDsfId),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(nfcVSubDesc) / sizeof(nfcVSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(nfcVSubDesc, (sizeof(nfcVSubDesc) / sizeof(nfcVSubDesc[0])), allFuncDesc, allDescSize);
+
     // define JS class NfcVTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NfcVTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNfcVTag, Iso15693Tag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &nfcVConsRef_);
 }
 
 void RegisterIsoDepJSClass(napi_env env)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor isoDepSubDesc[] = {
         DECLARE_NAPI_FUNCTION("getHistoricalBytes", NapiIsoDepTag::GetHistoricalBytes),
         DECLARE_NAPI_FUNCTION("getHiLayerResponse", NapiIsoDepTag::GetHiLayerResponse),
         DECLARE_NAPI_FUNCTION("isExtendedApduSupported", NapiIsoDepTag::IsExtendedApduSupported),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(isoDepSubDesc) / sizeof(isoDepSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(isoDepSubDesc, (sizeof(isoDepSubDesc) / sizeof(isoDepSubDesc[0])), allFuncDesc, allDescSize);
+
     // define JS class IsoDepTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "IsoDepTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiIsoDepTag, IsoDepTag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &isoDepConsRef_);
 }
 
@@ -549,7 +553,7 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
     // register NdefMessage object
     NapiNdefTag::RegisterNdefMessageJSClass(env, exports);
 
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor ndefSubDesc[] = {
         DECLARE_NAPI_FUNCTION("createNdefMessage", NapiNdefTag::CreateNdefMessage),
         DECLARE_NAPI_FUNCTION("getNdefTagType", NapiNdefTag::GetNdefTagType),
         DECLARE_NAPI_FUNCTION("getNdefMessage", NapiNdefTag::GetNdefMessage),
@@ -559,20 +563,16 @@ napi_value RegisterNdefJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("canSetReadOnly", NapiNdefTag::CanSetReadOnly),
         DECLARE_NAPI_FUNCTION("setReadOnly", NapiNdefTag::SetReadOnly),
         DECLARE_NAPI_FUNCTION("getNdefTagTypeString", NapiNdefTag::GetNdefTagTypeString),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(ndefSubDesc) / sizeof(ndefSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(ndefSubDesc, (sizeof(ndefSubDesc) / sizeof(ndefSubDesc[0])), allFuncDesc, allDescSize);
 
     // define JS class NdefTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NdefTag", NAPI_AUTO_LENGTH, JS_Constructor<NapiNdefTag, NdefTag>, nullptr,
-        sizeof(desc) / sizeof(desc[0]), desc, &constructor);
+        allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &ndefConsRef_);
     return exports;
 }
@@ -597,7 +597,7 @@ napi_value RegisterNdefStaticFunctions(napi_env env, napi_value exports)
 
 napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor mcSubDesc[] = {
         DECLARE_NAPI_FUNCTION("authenticateSector", NapiMifareClassicTag::AuthenticateSector),
         DECLARE_NAPI_FUNCTION("readSingleBlock", NapiMifareClassicTag::ReadSingleBlock),
         DECLARE_NAPI_FUNCTION("writeSingleBlock", NapiMifareClassicTag::WriteSingleBlock),
@@ -612,70 +612,55 @@ napi_value RegisterMifareClassicJSClass(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isEmulatedTag", NapiMifareClassicTag::IsEmulatedTag),
         DECLARE_NAPI_FUNCTION("getBlockIndex", NapiMifareClassicTag::GetBlockIndex),
         DECLARE_NAPI_FUNCTION("getSectorIndex", NapiMifareClassicTag::GetSectorIndex),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(mcSubDesc) / sizeof(mcSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(mcSubDesc, (sizeof(mcSubDesc) / sizeof(mcSubDesc[0])), allFuncDesc, allDescSize);
 
     // define JS class MifareClassicTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "MifareClassicTag", NAPI_AUTO_LENGTH,
-        JS_Constructor<NapiMifareClassicTag, MifareClassicTag>, nullptr, sizeof(desc) / sizeof(desc[0]), desc,
-        &constructor);
+        JS_Constructor<NapiMifareClassicTag, MifareClassicTag>, nullptr, allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &mifareClassicConsRef_);
     return exports;
 }
 
 napi_value RegisterMifareUltralightJSClass(napi_env env, napi_value exports)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor muSubDesc[] = {
         DECLARE_NAPI_FUNCTION("readMultiplePages", NapiMifareUltralightTag::ReadMultiplePages),
         DECLARE_NAPI_FUNCTION("writeSinglePage", NapiMifareUltralightTag::WriteSinglePage),
         DECLARE_NAPI_FUNCTION("getType", NapiMifareUltralightTag::GetType),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(muSubDesc) / sizeof(muSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(muSubDesc, (sizeof(muSubDesc) / sizeof(muSubDesc[0])), allFuncDesc, allDescSize);
 
     // define JS class MifareUltralightTag, JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "MifareUltralightTag", NAPI_AUTO_LENGTH,
-        JS_Constructor<NapiMifareUltralightTag, MifareUltralightTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
-        desc, &constructor);
+        JS_Constructor<NapiMifareUltralightTag, MifareUltralightTag>, nullptr, allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &mifareUltralightConsRef_);
     return exports;
 }
 
 napi_value RegisterNdefFormatableJSClass(napi_env env, napi_value exports)
 {
-    napi_property_descriptor desc[] = {
+    napi_property_descriptor formatSubDesc[] = {
         DECLARE_NAPI_FUNCTION("format", NapiNdefFormatableTag::Format),
         DECLARE_NAPI_FUNCTION("formatReadOnly", NapiNdefFormatableTag::FormatReadOnly),
-        DECLARE_NAPI_FUNCTION("getTagInfo", NapiNfcTagSession::GetTagInfo),
-        DECLARE_NAPI_FUNCTION("connectTag", NapiNfcTagSession::ConnectTag),
-        DECLARE_NAPI_FUNCTION("reset", NapiNfcTagSession::Reset),
-        DECLARE_NAPI_FUNCTION("isTagConnected", NapiNfcTagSession::IsTagConnected),
-        DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
-        DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
-        DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
     };
+    size_t allDescSize = (sizeof(formatSubDesc) / sizeof(formatSubDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(formatSubDesc, (sizeof(formatSubDesc) / sizeof(formatSubDesc[0])), allFuncDesc, allDescSize);
 
     // define JS class NdefFormatableTag , JS_Constructor is the callback function
     napi_value constructor = nullptr;
     napi_define_class(env, "NdefFormatableTag ", NAPI_AUTO_LENGTH,
-        JS_Constructor<NapiNdefFormatableTag, NdefFormatableTag>, nullptr, sizeof(desc) / sizeof(desc[0]),
-        desc, &constructor);
+        JS_Constructor<NapiNdefFormatableTag, NdefFormatableTag>, nullptr, allDescSize, allFuncDesc, &constructor);
     napi_create_reference(env, constructor, INIT_REF, &ndefFormatableConsRef_);
     return exports;
 }
@@ -689,12 +674,6 @@ napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (!IsObject(env, argv[0])) {
-        ErrorLog("GetSpecificTagObj error argv type, not napi_object");
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "tagInfo", "TagInfo")));
-        return CreateUndefined(env);
-    }
 
     // new instance of JS object NfcATag
     napi_value result;
@@ -899,22 +878,15 @@ napi_value GetTagInfo(napi_env env, napi_callback_info info)
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (!IsObject(env, argv[0])) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "want", "Want")));
-        return CreateUndefined(env);
-    }
+    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
+    CheckObjectAndThrow(env, argv[0], "want", "Want");
 
     // Get parameters?: {[key: string]: any} from want.
     napi_value want = argv[0];
     napi_value parameters = nullptr;
     napi_create_object(env, &parameters);
     napi_get_named_property(env, want, "parameters", &parameters);
-    if (!IsObject(env, parameters)) {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
-        return CreateUndefined(env);
-    }
+    CheckObjectAndThrow(env, parameters, "", "");
 
     napi_value tagInfoObj = BuildTagFromWantParams(env, parameters);
     return tagInfoObj;
@@ -922,7 +894,6 @@ napi_value GetTagInfo(napi_env env, napi_callback_info info)
 
 static napi_value InitJs(napi_env env, napi_value exports)
 {
-    DebugLog("Init, nfc_napi_tag");
     // register enum types
     RegisterEnumTnfType(env, exports);
     RegisterEnumNfcForumType(env, exports);
@@ -946,10 +917,14 @@ static napi_value InitJs(napi_env env, napi_value exports)
     RegisterNdefStaticFunctions(env, exports);
 
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getNfcATag", GetNfcATag),
-        DECLARE_NAPI_FUNCTION("getNfcBTag", GetNfcBTag),
-        DECLARE_NAPI_FUNCTION("getNfcFTag", GetNfcFTag),
-        DECLARE_NAPI_FUNCTION("getNfcVTag", GetNfcVTag),
+        DECLARE_NAPI_FUNCTION("getNfcATag", GetNfcATag), // deprecated since 9
+        DECLARE_NAPI_FUNCTION("getNfcA", GetNfcATag),
+        DECLARE_NAPI_FUNCTION("getNfcBTag", GetNfcBTag), // deprecated since 9
+        DECLARE_NAPI_FUNCTION("getNfcB", GetNfcBTag),
+        DECLARE_NAPI_FUNCTION("getNfcFTag", GetNfcFTag), // deprecated since 9
+        DECLARE_NAPI_FUNCTION("getNfcF", GetNfcFTag),
+        DECLARE_NAPI_FUNCTION("getNfcVTag", GetNfcVTag), // deprecated since 9
+        DECLARE_NAPI_FUNCTION("getNfcV", GetNfcVTag),
         DECLARE_NAPI_FUNCTION("getIsoDep", GetIsoDepTag),
         DECLARE_NAPI_FUNCTION("getNdef", GetNdefTag),
         DECLARE_NAPI_FUNCTION("getMifareClassic", GetMifareClassicTag),
@@ -959,19 +934,16 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("NFC_A", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_A_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_B", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_B_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("ISO_DEP",
-                                     GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_ISODEP_TECH))),
+            GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_ISODEP_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_F", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_F_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_V", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_V_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NDEF", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("MIFARE_CLASSIC",
-                                     GetNapiValue(env,
-                                                  static_cast<int32_t>(TagTechnology::NFC_MIFARE_CLASSIC_TECH))),
+            GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_CLASSIC_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("MIFARE_ULTRALIGHT",
-                                     GetNapiValue(env,
-                                                  static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
+            GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NDEF_FORMATABLE",
-                                     GetNapiValue(env,
-                                                  static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
+            GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
