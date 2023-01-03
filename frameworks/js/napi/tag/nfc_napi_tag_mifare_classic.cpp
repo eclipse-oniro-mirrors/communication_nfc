@@ -587,9 +587,9 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
 
 static void CheckTransferToBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    if (parameterCount == ARGV_NUM_2) {
+    if (parameterCount == ARGV_NUM_1) {
         CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number");
-    } else if (parameterCount == ARGV_NUM_3) {
+    } else if (parameterCount == ARGV_NUM_2) {
         CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
             "blockIndex & callback", "number & function");
     } else {
@@ -655,9 +655,9 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
 
 static void CheckRestoreFromBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    if (parameterCount == ARGV_NUM_2) {
+    if (parameterCount == ARGV_NUM_1) {
         CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number");
-    } else if (parameterCount == ARGV_NUM_3) {
+    } else if (parameterCount == ARGV_NUM_2) {
         CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
             "blockIndex & callback", "number & function");
     } else {
