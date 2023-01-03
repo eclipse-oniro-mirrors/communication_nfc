@@ -78,9 +78,7 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
-    int ret = Connect(tagRfDiscId, tech);
-    reply.WriteInt32(ret);
-    return ERR_NONE;
+    return Connect(tagRfDiscId, tech);
 }
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
@@ -90,9 +88,7 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
     }
 
     int tagRfDiscId = data.ReadInt32();
-    int ret = Reconnect(tagRfDiscId);
-    reply.WriteInt32(ret);
-    return ERR_NONE;
+    return Reconnect(tagRfDiscId);
 }
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 {
@@ -113,8 +109,7 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
     }
     int tech = data.ReadInt32();
     int timeout = data.ReadInt32();
-    reply.WriteBool(SetTimeout(timeout, tech));
-    return ERR_NONE;
+    return SetTimeout(timeout, tech);
 }
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
@@ -122,9 +117,11 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
         ErrorLog("HandleGetTimeout, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+    int timeout = 0;
     int tech = data.ReadInt32();
-    reply.WriteInt32(GetTimeout(tech));
-    return ERR_NONE;
+    int statusCode = GetTimeout(tech, timeout);
+    reply.WriteInt32(timeout);
+    return statusCode;
 }
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
@@ -239,9 +236,11 @@ int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessagePar
         ErrorLog("HandleGetMaxTransceiveLength, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+    int maxSize = 0;
     int tech = data.ReadInt32();
-    reply.WriteInt32(GetMaxTransceiveLength(tech));
-    return ERR_NONE;
+    int statusCode = GetMaxTransceiveLength(tech, maxSize);
+    reply.WriteInt32(maxSize);
+    return statusCode;
 }
 int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageParcel& reply)
 {

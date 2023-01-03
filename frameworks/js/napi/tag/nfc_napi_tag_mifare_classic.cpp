@@ -21,6 +21,15 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
+static void CheckTagSessionAndThrow(const napi_env &env, MifareClassicTag *tagSession)
+{
+    if (tagSession == nullptr) {
+        // object null is unexpected, unknown error.
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+    }
+}
+
 napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info info)
 {
     napi_value thisVar = nullptr;
@@ -28,21 +37,25 @@ napi_value NapiMifareClassicTag::GetSectorCount(napi_env env, napi_callback_info
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetSectorCount, napi_unwrap failed, object is null.");
+        napi_create_int32(env, 0, &result);
+        return result;
+    }
 
-    // transfer
+    int sectorCount = 0;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value result = nullptr;
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorCount find objectInfo failed!");
-        napi_create_int32(env, 0, &result);
+        ErrorLog("GetSectorCount, find objectInfo failed!");
     } else {
-        int sectorCount = nfcMifareClassicTagPtr->GetSectorCount();
-        napi_create_int32(env, sectorCount, &result);
+        sectorCount = nfcMifareClassicTagPtr->GetSectorCount();
     }
+    napi_create_int32(env, sectorCount, &result);
     return result;
 }
 
@@ -53,38 +66,23 @@ napi_value NapiMifareClassicTag::GetBlockCountInSector(napi_env env, napi_callba
     size_t argc = expectedArgsCount;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value result = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
-    // check parameter number
-    if (argc != expectedArgsCount) {
-        ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Requires 1 argument.");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
-    // check parameter data type
-    if (!IsNumber(env, argv[ARGV_INDEX_0])) {
-        ErrorLog("NapiMifareClassicTag::GetBlockCountInSector, Invalid data type!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    // check parameter valid.
+    CheckArgCountAndThrow(env, argc, expectedArgsCount);
+    CheckNumberAndThrow(env, argv[ARGV_INDEX_0], "sectorIndex", "number");
 
     NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
     int32_t sectorIndex;
     ParseInt32(env, sectorIndex, argv[ARGV_INDEX_0]);
 
-    // transfer
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetBlockCountInSector find objectInfo failed!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
     int blockCountInSector = nfcMifareClassicTagPtr->GetBlockCountInSector(sectorIndex);
     napi_create_int32(env, blockCountInSector, &result);
     return result;
@@ -97,21 +95,25 @@ napi_value NapiMifareClassicTag::GetType(napi_env env, napi_callback_info info)
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetType, napi_unwrap failed, object is null.");
+        napi_create_int32(env, static_cast<int>(MifareClassicTag::EmType::TYPE_UNKNOWN), &result);
+        return result;
+    }
 
-    // transfer
-    napi_value result = nullptr;
+    MifareClassicTag::EmType mifareType = MifareClassicTag::EmType::TYPE_UNKNOWN;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetType find objectInfo failed!");
-        napi_create_int32(env, static_cast<int>(MifareClassicTag::EmType::TYPE_UNKNOWN), &result);
+        ErrorLog("GetType, find objectInfo failed!");
     } else {
-        MifareClassicTag::EmType mifareType = nfcMifareClassicTagPtr->GetMifareTagType();
-        napi_create_int32(env, static_cast<int>(mifareType), &result);
+        mifareType = nfcMifareClassicTagPtr->GetMifareTagType();
     }
+    napi_create_int32(env, static_cast<int>(mifareType), &result);
     return result;
 }
 
@@ -120,24 +122,26 @@ napi_value NapiMifareClassicTag::GetTagSize(napi_env env, napi_callback_info inf
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    napi_value result = nullptr;
-    MifareClassicTag *nfcMifareClassicTagPtr =
-        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetTagSize find objectInfo failed!");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetTagSize, napi_unwrap failed, object is null.");
         napi_create_int32(env, 0, &result);
         return result;
     }
 
-    int tagSize = nfcMifareClassicTagPtr->GetSize();
+    int tagSize = 0;
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcMifareClassicTagPtr == nullptr) {
+        ErrorLog("GetTagSize, find objectInfo failed!");
+    } else {
+        tagSize = nfcMifareClassicTagPtr->GetSize();
+    }
     napi_create_int32(env, tagSize, &result);
     return result;
 }
@@ -148,23 +152,25 @@ napi_value NapiMifareClassicTag::IsEmulatedTag(napi_env env, napi_callback_info 
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiMifareClassicTag *objectInfo = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    MifareClassicTag *nfcMifareClassicTagPtr =
-        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("IsEmulatedTag find objectInfo failed!");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("IsEmulatedTag, napi_unwrap failed, object is null.");
         napi_get_boolean(env, false, &result);
         return result;
     }
 
-    bool isEmulated = nfcMifareClassicTagPtr->IsEmulated();
+    bool isEmulated = false;
+    MifareClassicTag *nfcMifareClassicTagPtr =
+        static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcMifareClassicTagPtr == nullptr) {
+        ErrorLog("IsEmulatedTag, find objectInfo failed!");
+    } else {
+        isEmulated = nfcMifareClassicTagPtr->IsEmulated();
+    }
     napi_get_boolean(env, isEmulated, &result);
     return result;
 }
@@ -176,38 +182,22 @@ napi_value NapiMifareClassicTag::GetBlockIndex(napi_env env, napi_callback_info 
     size_t argc = expectedArgsCount;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value result = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
-    // check parameter number
-    if (argc != expectedArgsCount) {
-        ErrorLog("NapiMifareClassicTag::GetBlockIndex, Requires 1 argument.");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
-    // check parameter data type
-    if (!IsNumber(env, argv[ARGV_INDEX_0])) {
-        ErrorLog("NapiMifareClassicTag::GetBlockIndex, Invalid data type!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    // check parameter valid.
+    CheckArgCountAndThrow(env, argc, expectedArgsCount);
+    CheckNumberAndThrow(env, argv[ARGV_INDEX_0], "sectorIndex", "number");
 
-    NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
+    NapiMifareClassicTag *objectInfo = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
     int32_t sectorIndex;
     ParseInt32(env, sectorIndex, argv[ARGV_INDEX_0]);
-
-    // transfer
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetBlockIndex find objectInfo failed!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
     int blockIndex = nfcMifareClassicTagPtr->GetBlockIndexFromSector(sectorIndex);
     napi_create_int32(env, blockIndex, &result);
     return result;
@@ -220,77 +210,40 @@ napi_value NapiMifareClassicTag::GetSectorIndex(napi_env env, napi_callback_info
     size_t argc = expectedArgsCount;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value result = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
-    // check parameter number
-    if (argc != expectedArgsCount) {
-        ErrorLog("NapiMifareClassicTag::GetSectorIndex, Requires 1 argument.");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
-    // check parameter data type
-    if (!IsNumber(env, argv[ARGV_INDEX_0])) {
-        ErrorLog("NapiMifareClassicTag::GetSectorIndex, Invalid data type!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    // check parameter valid.
+    CheckArgCountAndThrow(env, argc, expectedArgsCount);
+    CheckNumberAndThrow(env, argv[ARGV_INDEX_0], "blockIndex", "number");
 
-    NapiMifareClassicTag *objectInfo = nullptr;
     // unwrap from thisVar to retrieve the native instance
+    NapiMifareClassicTag *objectInfo = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
     int32_t blockIndex;
     ParseInt32(env, blockIndex, argv[ARGV_INDEX_0]);
-
-    // transfer
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr == nullptr) {
-        ErrorLog("GetSectorIndex find objectInfo failed!");
-        napi_create_int32(env, 0, &result);
-        return result;
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
     int sectorIndex = nfcMifareClassicTagPtr->GetSectorIndexFromBlock(blockIndex);
     napi_create_int32(env, sectorIndex, &result);
     return result;
 }
 
-static bool MatchAuthenticateSectorParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckAuthenticateSectorParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_3: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object, napi_boolean});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                    "", "", "sectorIndex & key & isKeyA", "number & number[] & boolean")));
-            }
-            break;
-        }
-        case ARGV_NUM_4:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object, napi_boolean, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                    "", "", "sectorIndex & key & isKeyA & callback", "number & number[] & boolean & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_3) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_object, napi_boolean},
+            "sectorIndex & key & isKeyA", "number & number[] & boolean");
+    } else if (parameterCount == ARGV_NUM_4) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_object, napi_boolean, napi_function},
+            "sectorIndex & key & isKeyA & callback", "number & number[] & boolean & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    if (isTypeMatched) {
-        // authenticateSector(sectorIndex: number, key: number[], isKeyA: boolean)
-        isTypeMatched = IsNumberArray(env, parameters[ARGV_INDEX_1]);
-        if (!isTypeMatched) {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                "", "", "key", "number[]")));
-        }
-    }
-    return isTypeMatched;
+    CheckArrayNumberAndThrow(env, parameters[ARGV_INDEX_1], "key", "number[]");
 }
 
 static void NativeAuthenticateSector(napi_env env, void *data)
@@ -299,12 +252,9 @@ static void NativeAuthenticateSector(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->AuthenticateSector(context->sectorIndex,
-            context->key, context->bIsKeyA);
-    } else {
-        ErrorLog("NativeAuthenticateSector, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->AuthenticateSector(context->sectorIndex,
+        context->key, context->bIsKeyA);
     context->resolved = true;
 }
 
@@ -330,21 +280,16 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchAuthenticateSectorParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckAuthenticateSectorParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<bool, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->sectorIndex);
     std::vector<unsigned char> keyVec;
@@ -361,32 +306,17 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
     return result;
 }
 
-static bool MatchReadSingleBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckReadSingleBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_1: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex", "number")));
-            }
-            break;
-        }
-        case ARGV_NUM_2:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & callback", "number & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number");
+    } else if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
+            "blockIndex & callback", "number & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
 }
 
 static void NativeReadSingleBlock(napi_env env, void *data)
@@ -396,13 +326,10 @@ static void NativeReadSingleBlock(napi_env env, void *data)
 
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        std::string hexRespData = "";
-        context->errorCode = nfcMifareClassicTagPtr->ReadSingleBlock(context->blockIndex, hexRespData);
-        context->value = hexRespData;
-    } else {
-        ErrorLog("NativeReadSingleBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    std::string hexRespData = "";
+    context->errorCode = nfcMifareClassicTagPtr->ReadSingleBlock(context->blockIndex, hexRespData);
+    context->value = hexRespData;
     context->resolved = true;
 }
 
@@ -428,21 +355,16 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchReadSingleBlockParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckReadSingleBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<std::string, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     if (paramsCount == ARGV_NUM_2) {
@@ -455,32 +377,18 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
     return result;
 }
 
-static bool MatchWriteSingleBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckWriteSingleBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_2: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & data", "number & number[]")));
-            }
-            break;
-        }
-        case ARGV_NUM_3:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_object, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                    "", "", "blockIndex & data & callback", "number & number[] & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_object}, "blockIndex & data", "number & number[]");
+    } else if (parameterCount == ARGV_NUM_3) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_object, napi_function},
+            "blockIndex & data & callback", "number & number[] & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
+    CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_1], "data", "number[]");
 }
 
 static void NativeWriteSingleBlock(napi_env env, void *data)
@@ -489,11 +397,8 @@ static void NativeWriteSingleBlock(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->WriteSingleBlock(context->blockIndex, context->data);
-    } else {
-        ErrorLog("NativeWriteSingleBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->WriteSingleBlock(context->blockIndex, context->data);
     context->resolved = true;
 }
 
@@ -519,21 +424,16 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchWriteSingleBlockParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckWriteSingleBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     std::vector<unsigned char> dataVec;
@@ -549,32 +449,17 @@ napi_value NapiMifareClassicTag::WriteSingleBlock(napi_env env, napi_callback_in
     return result;
 }
 
-static bool MatchIncrementBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckIncrementBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_2: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_number});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & value", "number & number")));
-            }
-            break;
-        }
-        case ARGV_NUM_3:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_number, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                    "", "", "blockIndex & value & callback", "number & number & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_number}, "blockIndex & value", "number & number");
+    } else if (parameterCount == ARGV_NUM_3) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_number, napi_function},
+            "blockIndex & value & callback", "number & number & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
 }
 
 static void NativeIncrementBlock(napi_env env, void *data)
@@ -583,11 +468,8 @@ static void NativeIncrementBlock(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->IncrementBlock(context->blockIndex, context->incrementValue);
-    } else {
-        ErrorLog("NativeIncrementBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->IncrementBlock(context->blockIndex, context->incrementValue);
     context->resolved = true;
 }
 
@@ -613,21 +495,16 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if(!MatchIncrementBlockParameters(env, params, paramsCount)){
-        return CreateUndefined(env);
-    }
+    CheckIncrementBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     napi_get_value_int32(env, params[ARGV_INDEX_1], &context->incrementValue);
@@ -640,32 +517,17 @@ napi_value NapiMifareClassicTag::IncrementBlock(napi_env env, napi_callback_info
     return result;
 }
 
-static bool MatchDecrementBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckDecrementBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_2: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_number});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & value", "number & number")));
-            }
-            break;
-        }
-        case ARGV_NUM_3:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_number, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
-                    "", "", "blockIndex & value & callback", "number & number & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_number}, "blockIndex & value", "number & number");
+    } else if (parameterCount == ARGV_NUM_3) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_number, napi_function},
+            "blockIndex & value & callback", "number & number & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
 }
 
 static void NativeDecrementBlock(napi_env env, void *data)
@@ -674,11 +536,8 @@ static void NativeDecrementBlock(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->DecrementBlock(context->blockIndex, context->decrementValue);
-    } else {
-        ErrorLog("NativeDecrementBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->DecrementBlock(context->blockIndex, context->decrementValue);
     context->resolved = true;
 }
 
@@ -704,21 +563,16 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchDecrementBlockParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckDecrementBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     napi_get_value_int32(env, params[ARGV_INDEX_1], &context->decrementValue);
@@ -731,32 +585,17 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
     return result;
 }
 
-static bool MatchTransferToBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckTransferToBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_1: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex", "number")));
-            }
-            break;
-        }
-        case ARGV_NUM_2:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & callback", "number & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number");
+    } else if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
+            "blockIndex & callback", "number & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
 }
 
 static void NativeTransferToBlock(napi_env env, void *data)
@@ -765,11 +604,8 @@ static void NativeTransferToBlock(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->TransferToBlock(context->blockIndex);
-    } else {
-        ErrorLog("NativeTransferToBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->TransferToBlock(context->blockIndex);
     context->resolved = true;
 }
 
@@ -795,21 +631,16 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchTransferToBlockParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckTransferToBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     if (paramsCount == ARGV_NUM_2) {
@@ -822,32 +653,17 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
     return result;
 }
 
-static bool MatchRestoreFromBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckRestoreFromBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_1: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_number});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex", "number")));
-            }
-            break;
-        }
-        case ARGV_NUM_2:
-            isTypeMatched = MatchParameters(env, parameters, {napi_number, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "blockIndex & callback", "number & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number");
+    } else if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
+            "blockIndex & callback", "number & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
     }
-    return isTypeMatched;
 }
 
 static void NativeRestoreFromBlock(napi_env env, void *data)
@@ -856,11 +672,8 @@ static void NativeRestoreFromBlock(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareClassicTag *nfcMifareClassicTagPtr =
         static_cast<MifareClassicTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcMifareClassicTagPtr != nullptr) {
-        context->errorCode = nfcMifareClassicTagPtr->RestoreFromBlock(context->blockIndex);
-    } else {
-        ErrorLog("NativeRestoreFromBlock, nfcMifareClassicTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, nfcMifareClassicTagPtr);
+    context->errorCode = nfcMifareClassicTagPtr->RestoreFromBlock(context->blockIndex);
     context->resolved = true;
 }
 
@@ -886,21 +699,16 @@ napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_in
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiMifareClassicTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchRestoreFromBlockParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckRestoreFromBlockParameters(env, params, paramsCount);
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return CreateUndefined(env);
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->blockIndex);
     if (paramsCount == ARGV_NUM_2) {

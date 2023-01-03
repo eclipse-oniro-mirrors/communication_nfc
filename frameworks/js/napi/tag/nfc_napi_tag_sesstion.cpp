@@ -34,7 +34,7 @@ std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_ca
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
     if (objectInfo == nullptr) {
-        ErrorLog("ConnectTag objectInfo nullptr!");
+        ErrorLog("GetTag objectInfo nullptr!");
         return nullptr;
     }
     return objectInfo->tagSession;
@@ -133,12 +133,12 @@ napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_inf
     }
     int32_t timeoutValue = 0;
     ParseInt32(env, timeoutValue, argv[0]);
-    if (timeoutValue < 0) {
-        ErrorLog("SetSendDataTimeout, the arg must not be negative");
+    if (timeoutValue <= 0) {
+        ErrorLog("SetSendDataTimeout, the arg must be positive.");
         napi_get_boolean(env, false, &result);
         return result;
     }
-    bool succ = nfcTag->SetTimeout(timeoutValue);
+    bool succ = nfcTag->SetTimeout(timeoutValue) == ErrorCode::ERR_NONE;
     napi_get_boolean(env, succ, &result);
     return result;
 }
@@ -152,7 +152,8 @@ napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_inf
         ErrorLog("GetSendDataTimeout find objectInfo failed!");
         napi_create_int32(env, 0, &result);
     } else {
-        uint32_t timeout = nfcTag->GetTimeout();
+        int timeout = 0;
+        nfcTag->GetTimeout(timeout);
         napi_create_int32(env, timeout, &result);
     }
     return result;
@@ -167,7 +168,8 @@ napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info 
         ErrorLog("GetMaxSendLength find objectInfo failed!");
         napi_create_int32(env, 0, &result);
     } else {
-        int maxsendlen = nfcTag->GetMaxSendCommandLength();
+        int maxsendlen = 0;
+        nfcTag->GetMaxSendCommandLength(maxsendlen);
         napi_create_int32(env, maxsendlen, &result);
     }
     return result;
@@ -269,6 +271,184 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
 
     context->objectInfo = objectInfoCb;
     napi_value result = HandleAsyncWork(env, context, "SendData", NativeSendData, SendDataCallback);
+    return result;
+}
+
+static void CheckTagSessionAndThrow(napi_env env, std::shared_ptr<BasicTagSession> nfcTag)
+{
+    if (nfcTag == nullptr) {
+        // object null is unexpected, unknown error.
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+    }
+}
+
+napi_value NapiNfcTagSession::Connect(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+    CheckTagSessionAndThrow(env, nfcTag);
+    int statusCode = nfcTag->Connect();
+    CheckTagStatusCodeAndThrow(env, statusCode, "connect");
+    return CreateUndefined(env);
+}
+
+napi_value NapiNfcTagSession::ResetConnection(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+    CheckTagSessionAndThrow(env, nfcTag);
+    int statusCode = nfcTag->Close();
+    CheckTagStatusCodeAndThrow(env, statusCode, "resetConnection");
+    return CreateUndefined(env);
+}
+
+napi_value NapiNfcTagSession::IsConnected(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+
+    // IsConnected is returned by 'inner_api', not by 'service', no need to check permission.
+    bool isConnected = nfcTag != nullptr && nfcTag->IsConnected();
+    napi_get_boolean(env, isConnected, &result);
+    return result;
+}
+
+napi_value NapiNfcTagSession::SetTimeout(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, argc, argv);
+    CheckTagSessionAndThrow(env, nfcTag);
+
+    // check the arguments valid in napi.
+    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
+    CheckNumberAndThrow(env, argv[ARGV_INDEX_0], "timeout", "number");
+
+    int32_t timeoutValue = 0;
+    ParseInt32(env, timeoutValue, argv[0]);
+    if (timeoutValue <= 0) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "timeout", "positive number")));
+    }
+    int statusCode = nfcTag->SetTimeout(timeoutValue);
+    CheckTagStatusCodeAndThrow(env, statusCode, "setTimeout");
+    return CreateUndefined(env);
+}
+
+napi_value NapiNfcTagSession::GetTimeout(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+    CheckTagSessionAndThrow(env, nfcTag);
+    int timeout = 0;
+    int statusCode = nfcTag->GetTimeout(timeout);
+    CheckTagStatusCodeAndThrow(env, statusCode, "getTimeout");
+    napi_create_int32(env, timeout, &result);
+    return result;
+}
+
+napi_value NapiNfcTagSession::GetMaxTransmitSize(napi_env env, napi_callback_info info)
+{
+    napi_value argv[] = {nullptr};
+    napi_value result = nullptr;
+    std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
+    CheckTagSessionAndThrow(env, nfcTag);
+    int maxSize = 0;
+    int statusCode = nfcTag->GetMaxSendCommandLength(maxSize);
+    CheckTagStatusCodeAndThrow(env, statusCode, "getMaxTransmitSize");
+    napi_create_int32(env, maxSize, &result);
+    return result;
+}
+
+// check arguments valid for 'transmit' and throw error if invalid.
+static void CheckTransmitParametersAndThrow(napi_env env, const napi_value parameters[], size_t parameterCount)
+{
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_object}, "data", "number[]");
+    } else if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_object, napi_function},
+            "data & callback", "number[] & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+    }
+    CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_0], "data", "number[]");
+}
+
+// native function called, add the 'inner_api' calling to request to service.
+static void NativeTransmit(napi_env env, void *data)
+{
+    auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
+    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
+    BasicTagSession *nfcTagSessionPtr =
+        static_cast<BasicTagSession *>(static_cast<void *>(context->objectInfo->tagSession.get()));
+    if (nfcTagSessionPtr != nullptr) {
+        std::string hexRespData;
+        context->errorCode = nfcTagSessionPtr->SendCommand(context->dataBytes, true, hexRespData);
+        context->value = hexRespData;
+    } else {
+        ErrorLog("NativeSendData, nfcTagSessionPtr failed.");
+    }
+    context->resolved = true;
+}
+
+// the aysnc callback to check the status and throw error.
+static void TransmitCallback(napi_env env, napi_status status, void *data)
+{
+    auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
+    napi_value callbackValue = nullptr;
+    if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
+        // the return is number[].
+        ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
+        DoAsyncCallbackOrPromise(env, context, callbackValue);
+    } else {
+        int errCode = BuildOutputErrorCode(context->errorCode);
+        std::string errMessage = BuildErrorMessage(errCode, "transmit", TAG_PERM_DESC, "", "");
+        ThrowAsyncError(env, context, errCode, errMessage);
+    }
+}
+
+napi_value NapiNfcTagSession::Transmit(napi_env env, napi_callback_info info)
+{
+    // JS API define1: Transmit(data: number[]): Promise<number[]>
+    // JS API define2: Transmit(data: number[], callback: AsyncCallback<number[]>): void
+    size_t paramsCount = ARGV_NUM_2;
+    napi_value params[ARGV_NUM_2] = {0};
+    void *data = nullptr;
+    napi_value thisVar = nullptr;
+    NapiNfcTagSession *objectInfoCb = nullptr;
+    napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
+    // unwrap from thisVar to retrieve the native instance
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
+
+    CheckTransmitParametersAndThrow(env, params, paramsCount);
+    auto context = std::make_unique<NfcTagSessionContext<std::string, NapiNfcTagSession>>().release();
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+
+    // parse the params
+    int32_t hexCmdData = 0;
+    napi_value hexCmdDataValue = nullptr;
+    uint32_t arrayLength = 0;
+    std::vector<unsigned char> dataBytes = {};
+    NAPI_CALL(env, napi_get_array_length(env, params[ARGV_INDEX_0], &arrayLength));
+    for (uint32_t i = 0; i < arrayLength; ++i) {
+        NAPI_CALL(env, napi_get_element(env, params[ARGV_INDEX_0], i, &hexCmdDataValue));
+        NAPI_CALL(env, napi_get_value_int32(env, hexCmdDataValue, &hexCmdData));
+        dataBytes.push_back(hexCmdData);
+    }
+    context->dataBytes = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataBytes.data()),
+        dataBytes.size());
+    if (paramsCount == ARGV_NUM_2) {
+        napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
+    }
+
+    context->objectInfo = objectInfoCb;
+    napi_value result = HandleAsyncWork(env, context, "Transmit", NativeTransmit, TransmitCallback);
     return result;
 }
 } // namespace KITS

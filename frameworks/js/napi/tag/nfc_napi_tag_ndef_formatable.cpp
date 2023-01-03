@@ -22,32 +22,26 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
-static bool MatchFormatParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static void CheckTagSessionAndThrow(const napi_env &env, NdefFormatableTag *tagSession)
 {
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_1: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_object});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message", "NdefMessage")));
-            }
-            break;
-        }
-        case ARGV_NUM_2:
-            isTypeMatched = MatchParameters(env, parameters, {napi_object, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message & callback", "NdefMessage & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
+    if (tagSession == nullptr) {
+        // object null is unexpected, unknown error.
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
     }
-    return isTypeMatched;
+}
+
+static void CheckFormatParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+{
+    if (parameterCount == ARGV_NUM_1) {
+        CheckParametersAndThrow(env, parameters, {napi_object}, "message", "NdefMessage");
+    } else if (parameterCount == ARGV_NUM_2) {
+        CheckParametersAndThrow(env, parameters, {napi_object, napi_function},
+            "message & callback", "NdefMessage & function");
+    } else {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+    }
 }
 
 static void NativeFormat(napi_env env, void *data)
@@ -57,11 +51,8 @@ static void NativeFormat(napi_env env, void *data)
 
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (ndefFormatableTagPtr != nullptr) {
-        context->errorCode = ndefFormatableTagPtr->Format(context->msg);
-    } else {
-        ErrorLog("NativeFormat, ndefFormatableTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, ndefFormatableTagPtr);
+    context->errorCode = ndefFormatableTagPtr->Format(context->msg);
     context->resolved = true;
 }
 
@@ -87,25 +78,18 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiNdefFormatableTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchFormatParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckFormatParameters(env, params, paramsCount);
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return nullptr;
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
 
-    // parse the params
-    napi_status status1 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
-    NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
+    napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
+    CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID);
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }
@@ -115,45 +99,14 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
     return result;
 }
 
-static bool MatchFormatReadOnlyParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
-{
-    bool isTypeMatched = false;
-    switch (parameterCount) {
-        case ARGV_NUM_1: {
-            isTypeMatched = MatchParameters(env, parameters, {napi_object});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message", "NdefMessage")));
-            }
-            break;
-        }
-        case ARGV_NUM_2:
-            isTypeMatched = MatchParameters(env, parameters, {napi_object, napi_function});
-            if (!isTypeMatched) {
-                napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                    BuildErrorMessage(BUSI_ERR_PARAM, "", "", "message & callback", "NdefMessage & function")));
-            }
-            break;
-        default: {
-            napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-                BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-            return false;
-        }
-    }
-    return isTypeMatched;
-}
-
 static void NativeFormatReadOnly(napi_env env, void *data)
 {
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (ndefFormatableTagPtr != nullptr) {
-        context->errorCode = ndefFormatableTagPtr->FormatReadOnly(context->msg);
-    } else {
-        ErrorLog("NativeFormatReadOnly, ndefFormatableTagPtr failed.");
-    }
+    CheckTagSessionAndThrow(env, ndefFormatableTagPtr);
+    context->errorCode = ndefFormatableTagPtr->FormatReadOnly(context->msg);
     context->resolved = true;
 }
 
@@ -179,25 +132,18 @@ napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_inf
     void *data = nullptr;
     napi_value thisVar = nullptr;
     NapiNdefFormatableTag *objectInfoCb = nullptr;
-
     napi_get_cb_info(env, info, &paramsCount, params, &thisVar, &data);
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
 
-    if (!MatchFormatReadOnlyParameters(env, params, paramsCount)) {
-        return CreateUndefined(env);
-    }
+    CheckFormatParameters(env, params, paramsCount);
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
-    if (context == nullptr) {
-        std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
-        return nullptr;
-    }
+    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
 
-    // parse the params
-    napi_status status1 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
-    NAPI_ASSERT(env, status1 == napi_ok, "failed to get ndefMessage");
+    napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
+    CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID);
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }

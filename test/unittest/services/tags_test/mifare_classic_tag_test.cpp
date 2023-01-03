@@ -35,9 +35,16 @@ public:
 public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
+    static constexpr const auto TEST_SECTOR_INDEX = 0x1F;
+    static constexpr const auto TEST_MC_MAX_SECTOR_COUNT = 0x27;
     static constexpr const auto TEST_SAK = 0x28;
-    static constexpr const auto TEST_ATQA = "0400";
+    static constexpr const auto TEST_BLOCK_INDEX = 64;
+    static constexpr const auto VALUE = 257;
     static constexpr const auto TEST_MIFARE_CLASSIC_INDEX = 0;
+    static constexpr const auto MC_MAX_BLOCK_INDEX = 256;
+    static constexpr const auto TEST_ATQA = "0400";
+    static constexpr const auto TEST_HEX_RESP_DATA = "0401";
+    
     std::shared_ptr<TagInfo> tagInfo_;
 };
 
@@ -141,6 +148,156 @@ HWTEST_F(MifareClassicTagTest, GetTagUid001, TestSize.Level1)
     std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
     std::string uid = mifareClassic->GetTagUid();
     ASSERT_TRUE(strcmp(uid.c_str(), TEST_UID) == 0);
+}
+/**
+ * @tc.name: ReadSingleBlock001
+ * @tc.desc: Test MifareClassicTag ReadSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, ReadSingleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    std::string testHexrespdata = TEST_HEX_RESP_DATA;
+    int errorCode = mifareClassic->ReadSingleBlock(TEST_BLOCK_INDEX, testHexrespdata);
+
+    // Error code returned when the chip and tag are not connected
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+
+    // Error code returned when the data exceeds the maximum value
+    errorCode = mifareClassic->ReadSingleBlock(MC_MAX_BLOCK_INDEX, testHexrespdata);
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_PARAMETERS);
+}
+/**
+ * @tc.name: WriteSingleBlock001
+ * @tc.desc: Test MifareClassicTag WriteSingleBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, WriteSingleBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int errorCode = mifareClassic->WriteSingleBlock(TEST_BLOCK_INDEX, TEST_HEX_RESP_DATA);
+
+    // Error code returned when the chip and tag are not connected.
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: IncrementBlock001
+ * @tc.desc: Test MifareClassicTag IncrementBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, IncrementBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int errorCode = mifareClassic->IncrementBlock(TEST_BLOCK_INDEX, VALUE);
+
+    // Error code returned when the chip and tag are not connected.
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: DecrementBlock001
+ * @tc.desc: Test MifareClassicTag DecrementBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, DecrementBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int errorCode = mifareClassic->DecrementBlock(TEST_BLOCK_INDEX, VALUE);
+
+    // Error code returned when the chip and tag are not connected.
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: TransferToBlock001
+ * @tc.desc: Test MifareClassicTag TransferToBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, TransferToBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int errorCode = mifareClassic->TransferToBlock(TEST_BLOCK_INDEX);
+
+    // Error code returned when the chip and tag are not connected.
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: RestoreFromBlock001
+ * @tc.desc: Test MifareClassicTag RestoreFromBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, RestoreFromBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int errorCode = mifareClassic->RestoreFromBlock(TEST_BLOCK_INDEX);
+
+    // Error code returned when the chip and tag are not connected.
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: GetSectorCount001
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_1K);
+}
+/**
+ * @tc.name: GetBlockCountInSector001
+ * @tc.desc: Test MifareClassicTag GetBlockCountInSector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetBlockCountInSector001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+
+    // SectorIndex is between 0 and 32
+    int sectorCount = mifareClassic->GetBlockCountInSector(TEST_SECTOR_INDEX);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_BLOCK_COUNT);
+
+    // sectorIndex > 40 is invalid
+    sectorCount =  TEST_MC_MAX_SECTOR_COUNT + 1;
+    sectorCount = mifareClassic->GetBlockCountInSector(sectorCount);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_ERROR_VALUE);
+}
+/**
+ * @tc.name: GetBlockIndexFromSector001
+ * @tc.desc: Test MifareClassicTag GetBlockIndexFromSector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetBlockIndexFromSector001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+
+    // SectorIndex is between 0 and 32
+    int sectorCount = mifareClassic->GetBlockIndexFromSector(TEST_SECTOR_INDEX);
+    int expectResult = MifareClassicTag::MC_BLOCK_COUNT * TEST_SECTOR_INDEX;
+    ASSERT_TRUE(sectorCount == expectResult);
+
+    // sectorIndex > 40 is invalid
+    sectorCount =  TEST_MC_MAX_SECTOR_COUNT + 1;
+    sectorCount = mifareClassic->GetBlockIndexFromSector(sectorCount);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_ERROR_VALUE);
+}
+/**
+ * @tc.name: GetSectorIndexFromBlock001
+ * @tc.desc: Test MifareClassicTag GetSectorIndexFromBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorIndexFromBlock001, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+
+    // SectorIndex is between 0 and 128
+    int sectorCount = mifareClassic->GetSectorIndexFromBlock(TEST_BLOCK_INDEX);
+    int expectResult = TEST_BLOCK_INDEX / MifareClassicTag::MC_BLOCK_COUNT;
+    ASSERT_TRUE(sectorCount == expectResult);
+
+    // blockindex > 256 is invalid
+    int blockIndex =  MC_MAX_BLOCK_INDEX + 1;
+    sectorCount = mifareClassic->GetBlockCountInSector(blockIndex);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_ERROR_VALUE);
 }
 }
 }
