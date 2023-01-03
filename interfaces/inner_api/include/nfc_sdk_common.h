@@ -83,6 +83,12 @@ enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE, TASK_START_PO
 
 enum FeatureType { HCE = 0, UICC = 1, ESE = 2 };
 
+/** Payment type of card emulation */
+static const std::string TYPE_PAYMENT = "payment";
+
+/** Other type of card emulation */
+static const std::string TYPE_OHTER = "other";
+
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,
     NFC_A_TECH = 1,

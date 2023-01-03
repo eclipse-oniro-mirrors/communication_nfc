@@ -50,17 +50,17 @@ public:
      *
      * @param timeout the timeout value to set for tag operations
      * @param technology the tag technology
-     * @return true success of setting timeout value
-     * @return false failure of setting timeout value
+     * @return the tatus code for function calling.
      */
-    virtual bool SetTimeout(uint32_t timeout, int technology) = 0;
+    virtual int SetTimeout(int timeout, int technology) = 0;
     /**
      * @brief Get the Timeout value of tag operations
      *
      * @param technology the tag technology
-     * @return uint32_t the timeout value of tag operations.
+     * @param timeout the output argument to read the timeout.
+     * @return the tatus code for function calling.
      */
-    virtual uint32_t GetTimeout(int technology) = 0;
+    virtual int GetTimeout(int technology, int &timeout) = 0;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
@@ -126,7 +126,7 @@ public:
      * @param technology the tag technology
      * @return Max Transceive Length
      */
-    virtual int GetMaxTransceiveLength(int technology) = 0;
+    virtual int GetMaxTransceiveLength(int technology, int &maxSize) = 0;
     /**
      * @brief Checking the NfccHost whether It supported the extended Apdus
      * @param isSupported the output for checking supportting extended apdu or not.

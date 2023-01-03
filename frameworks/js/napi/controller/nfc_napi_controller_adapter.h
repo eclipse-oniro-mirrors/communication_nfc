@@ -25,8 +25,10 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-napi_value OpenNfc(napi_env env, napi_callback_info info);
-napi_value CloseNfc(napi_env env, napi_callback_info info);
+napi_value OpenNfc(napi_env env, napi_callback_info info); // @deprecated since 9
+napi_value EnableNfc(napi_env env, napi_callback_info info);
+napi_value CloseNfc(napi_env env, napi_callback_info info); // @deprecated since 9
+napi_value DisableNfc(napi_env env, napi_callback_info info);
 napi_value GetNfcState(napi_env env, napi_callback_info info);
 napi_value IsNfcAvailable(napi_env env, napi_callback_info info);
 napi_value IsNfcOpen(napi_env env, napi_callback_info info);

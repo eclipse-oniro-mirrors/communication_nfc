@@ -16,58 +16,64 @@
 #include "nfc_napi_tagf.h"
 
 #include "loghelper.h"
-#include "nfc_napi_utils.h"
+#include "nfc_napi_tag_utils.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 napi_value NapiNfcFTag::GetSystemCode(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNfcFTag GetSystemCode called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetSystemCode, napi_unwrap failed, object is null.");
+        ConvertStringToNumberArray(env, result, "");
+        return result;
+    }
 
-    // transfer
+    std::string sysCode = "";
     NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value result = nullptr;
     if (nfcFTagPtr == nullptr) {
         ErrorLog("GetSystemCode find objectInfo failed!");
-        ConvertStringToNumberArray(env, result, "");
     } else {
-        std::string sysCode = nfcFTagPtr->getSystemCode();
-        ConvertStringToNumberArray(env, result, sysCode);
+        sysCode = nfcFTagPtr->getSystemCode();
     }
+    ConvertStringToNumberArray(env, result, sysCode);
     return result;
 }
 
 napi_value NapiNfcFTag::GetPmm(napi_env env, napi_callback_info info)
 {
-    DebugLog("GetNfcFTag GetPmm called");
     napi_value thisVar = nullptr;
     std::size_t argc = ARGV_NUM_0;
     napi_value argv[] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NapiNfcFTag *objectInfo = nullptr;
+    napi_value result = nullptr;
+
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
-    NAPI_ASSERT(env, status == napi_ok, "failed to get objectInfo");
-
-    // transfer
-    NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
-    napi_value result = nullptr;
-    if (nfcFTagPtr == nullptr) {
-        ErrorLog("GetPmm find objectInfo failed!");
+    if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
+        ErrorLog("GetPmm, napi_unwrap failed, object is null.");
         ConvertStringToNumberArray(env, result, "");
-    } else {
-        std::string pmm = nfcFTagPtr->getPmm();
-        ConvertStringToNumberArray(env, result, pmm);
+        return result;
     }
+
+    std::string pmm = "";
+    NfcFTag *nfcFTagPtr = static_cast<NfcFTag *>(static_cast<void *>(objectInfo->tagSession.get()));
+    if (nfcFTagPtr == nullptr) {
+        ErrorLog("GetPmm, find objectInfo failed!");
+    } else {
+        pmm = nfcFTagPtr->getPmm();
+    }
+    ConvertStringToNumberArray(env, result, pmm);
     return result;
 }
 } // namespace KITS
