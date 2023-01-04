@@ -143,6 +143,159 @@ HWTEST_F(NdefTagTest, GetMaxTagSize001, TestSize.Level1)
     uint32_t maxTagSize = ndef->GetMaxTagSize();
     ASSERT_TRUE(maxTagSize == TEST_NDEF_TAG_LENGTH);
 }
+/**
+ * @tc.name: GetCachedNdefMsg001
+ * @tc.desc: Test NdefTag GetCachedNdefMsg.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetCachedNdefMsg001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::shared_ptr<NdefMessage> ndefMsg = ndef->GetCachedNdefMsg();
+    ASSERT_TRUE(ndefMsg == std::shared_ptr<NdefMessage>());
+}
+/**
+ * @tc.name: IsNdefWritable001
+ * @tc.desc: Test NdefTag IsNdefWritable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, IsNdefWritable001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    bool writable = ndef->IsNdefWritable();
+    ASSERT_TRUE(!writable);
+}
+/**
+ * @tc.name: ReadNdef001
+ * @tc.desc: Test NdefTag ReadNdef.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, ReadNdef001, TestSize.Level1)
+{
+    std::shared_ptr<NdefMessage> ndefMessage;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int readNdef = ndef->ReadNdef(ndefMessage);
+    ASSERT_TRUE(readNdef == ErrorCode::ERR_TAG_STATE_LOST);
+}
+/**
+ * @tc.name: WriteNdef001
+ * @tc.desc: Test NdefTag WriteNdef.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, WriteNdef001, TestSize.Level1)
+{
+    std::shared_ptr<NdefMessage> msg;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int writeNdef = ndef->WriteNdef(msg);
+    ASSERT_TRUE(writeNdef == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: IsEnableReadOnly001
+ * @tc.desc: Test NdefTag IsEnableReadOnly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, IsEnableReadOnly001, TestSize.Level1)
+{
+    bool canSetReadOnly;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int readOnly = ndef->IsEnableReadOnly(canSetReadOnly);
+    ASSERT_TRUE(readOnly == ErrorCode::ERR_NONE);
+}
+/**
+ * @tc.name: EnableReadOnly001
+ * @tc.desc: Test NdefTag EnableReadOnly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, EnableReadOnly001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int readOnly = ndef->EnableReadOnly();
+    ASSERT_TRUE(readOnly == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
+ * @tc.name: GetNdefTagTypeString001
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(TEST_NDEF_FORUM_TYPE);
+    ASSERT_TRUE(typeString == "org.nfcforum.ndef.type1");
+}
+/**
+ * @tc.name: GetNdefTagTypeString002
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString002, TestSize.Level1)
+{
+    static constexpr const auto TEST_NDEF_FORUM_TYPE_2 = NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(TEST_NDEF_FORUM_TYPE_2);
+    ASSERT_TRUE(typeString == "org.nfcforum.ndef.type2");
+}
+/**
+ * @tc.name: SetTimeout001
+ * @tc.desc: Test NdefTag SetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
+{
+    uint32_t timeout = 20;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int statusCode = ndef->SetTimeout(timeout);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+}
+/**
+ * @tc.name: GetTimeout001
+ * @tc.desc: Test NdefTag GetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
+{
+    uint32_t experctedTimeout = 20;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int timeout = 0;
+    int statusCode = ndef->GetTimeout(timeout);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(timeout == experctedTimeout);
+}
+/**
+ * @tc.name: GetMaxSendCommandLength001
+ * @tc.desc: Test NdefTag GetMaxSendCommandLength.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetMaxSendCommandLength001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int maxSize = 0;
+    int statusCode = ndef->GetMaxSendCommandLength(maxSize);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(maxSize == 0);
+}
+/**
+ * @tc.name: GetTagInfo001
+ * @tc.desc: Test NdefTag GetTagInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetTagInfo001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::weak_ptr<TagInfo> tagInfo = ndef->GetTagInfo();
+    ASSERT_TRUE(tagInfo.use_count() != 0);
+}
+/**
+ * @tc.name: IsConnected001
+ * @tc.desc: Test NdefTag IsConnected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, IsConnected001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    bool isConnected = ndef->IsConnected();
+    ASSERT_TRUE(isConnected == false);
+}
 }
 }
 }

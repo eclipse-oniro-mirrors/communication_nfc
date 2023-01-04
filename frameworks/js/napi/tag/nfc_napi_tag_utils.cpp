@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "nfc_napi_utils.h"
+#include "nfc_napi_tag_utils.h"
 #include <cstring>
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
@@ -555,7 +555,7 @@ bool IsObject(const napi_env &env, const napi_value &param)
     return valueType == napi_object;
 }
 
-int BuildOutputErrorCode(int errCode) 
+int BuildOutputErrorCode(int errCode)
 {
     if (errCode == BUSI_ERR_PERM) {
         return BUSI_ERR_PERM;
@@ -603,6 +603,72 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
     napi_create_error(env, nullptr, message, &businessError);
     napi_set_named_property(env, businessError, KEY_CODE.c_str(), code);
     return businessError;
+}
+
+void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode)
+{
+    if (status != napi_ok) {
+        napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
+    }
+}
+void CheckContextAndThrow(const napi_env &env, BaseContext *context, int errCode)
+{
+    if (context == nullptr) {
+        napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
+    }
+}
+void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
+    std::initializer_list<napi_valuetype> types, std::string argName, std::string argType)
+{
+    if (!MatchParameters(env, parameters, types)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+    }
+}
+void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+{
+    if (!IsNumberArray(env, param)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+    }
+}
+void CheckNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+{
+    if (!IsNumber(env, param)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+    }
+}
+void CheckStringAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+{
+    if (!IsString(env, param)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+    }
+}
+void CheckObjectAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+{
+    if (!IsObject(env, param)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+    }
+}
+void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount)
+{
+    if (argCount != expCount) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", "", "")));
+    }
+}
+void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, std::string funcName)
+{
+    if (statusCode == BUSI_ERR_PERM) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
+            BuildErrorMessage(BUSI_ERR_PERM, funcName, TAG_PERM_DESC, "", "")));
+    } else if (statusCode >= ErrorCode::ERR_TAG_BASE && statusCode < ErrorCode::ERR_CE_BASE) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+    }
 }
 } // namespace KITS
 } // namespace NFC

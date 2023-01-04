@@ -28,7 +28,7 @@
 #include "nfc_napi_tag_mifare_ul.h"
 #include "nfc_napi_tag_ndef.h"
 #include "nfc_napi_tag_ndef_formatable.h"
-#include "nfc_napi_utils.h"
+#include "nfc_napi_tag_utils.h"
 #include "taginfo.h"
 
 namespace OHOS {
@@ -36,7 +36,6 @@ namespace NFC {
 namespace KITS {
 napi_value RegisternfcATagObject(napi_env env, napi_value exports);
 napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref);
-void DefineNfcAJSClass(napi_env env);
 napi_value RegisternfcBTagObject(napi_env env, napi_value exports);
 napi_value RegisternfcFTagObject(napi_env env, napi_value exports);
 napi_value RegisternfcVTagObject(napi_env env, napi_value exports);

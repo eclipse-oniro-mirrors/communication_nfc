@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GETTECHEXTRASDATA_FUZZER_H
-#define GETTECHEXTRASDATA_FUZZER_H
+#ifndef BASICTAGSESSION_FUZZER_H
+#define BASICTAGSESSION_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "gettechextrasdata_fuzzer"
+#define FUZZ_PROJECT_NAME "basictagsession_fuzzer"
 
-#endif  // GETTECHEXTRASDATA_FUZZER_H
+#endif  // BASICTAGSESSION_FUZZER_H

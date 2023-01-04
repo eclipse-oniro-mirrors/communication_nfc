@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NFC_NAPI_UTILS_H_
-#define NFC_NAPI_UTILS_H_
-
+#ifndef NFC_NAPI_TAG_UTILS_H_
+#define NFC_NAPI_TAG_UTILS_H_
 #include <chrono>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -28,6 +27,7 @@ namespace KITS {
 const static int BUSI_ERR_PERM = 201; // Permission denied.
 const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
+
 const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
 
 const std::string KEY_CODE = "code";
@@ -188,6 +188,16 @@ int BuildOutputErrorCode(int errCode);
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
+void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode);
+void CheckContextAndThrow(const napi_env &env, BaseContext *context, int errCode);
+void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
+    std::initializer_list<napi_valuetype> types, std::string argName, std::string argType);
+void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
+void CheckNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
+void CheckStringAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
+void CheckObjectAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
+void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
+void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, std::string funcName);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

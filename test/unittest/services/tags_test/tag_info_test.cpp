@@ -140,6 +140,74 @@ HWTEST_F(TagInfoTest, GetTagRfDiscId001, TestSize.Level1)
     int discId = tagInfo_->GetTagRfDiscId();
     ASSERT_TRUE(discId == TEST_DISC_ID);
 }
+/**
+ * @tc.name: GetTagTechList001
+ * @tc.desc: Test NfcController GetTagTechList.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTagTechList001, TestSize.Level1)
+{
+    std::vector<int> techList_;
+    std::vector<int> techList = tagInfo_->GetTagTechList();
+    techList_ = std::move(techList);
+    ASSERT_TRUE(techList.size() == 0);
+}
+/**
+ * @tc.name: GetStringExtrasData001
+ * @tc.desc: Test NfcController GetStringExtrasData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringExtrasData001, TestSize.Level1)
+{
+    AppExecFwk::PacMap extrasData;
+    const std::string extrasName;
+    std::string stingExtras = tagInfo_->GetStringExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(stingExtras == "");
+}
+/**
+ * @tc.name: GetIntExtrasData001
+ * @tc.desc: Test NfcController GetIntExtrasData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetIntExtrasData001, TestSize.Level1)
+{
+    AppExecFwk::PacMap extrasData;
+    const std::string extrasName;
+    int inextrasData = tagInfo_->GetIntExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(inextrasData == ErrorCode::ERR_TAG_PARAMETERS);
+}
+/**
+ * @tc.name: GetBoolExtrasData001
+ * @tc.desc: Test NfcController GetBoolExtrasData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetBoolExtrasData001, TestSize.Level1)
+{
+    AppExecFwk::PacMap extrasData;
+    const std::string extrasName;
+    bool boolextrasData = tagInfo_->GetBoolExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(!boolextrasData);
+}
+/**
+ * @tc.name: GetTagSessionProxy001
+ * @tc.desc: Test NfcController GetTagSessionProxy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTagSessionProxy001, TestSize.Level1)
+{
+    OHOS::sptr<TAG::ITagSession> tagsessionProxy = tagInfo_->GetTagSessionProxy();
+    ASSERT_TRUE(tagsessionProxy != nullptr);
+}
+/**
+ * @tc.name: GetStringTach001
+ * @tc.desc: Test NfcController GetStringTach.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTach001, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTach(TEST_DISC_ID);
+    ASSERT_TRUE(stringTach == "NfcA");
+}
 }
 }
 }
