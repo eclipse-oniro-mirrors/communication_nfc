@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NFC_NAPI_CTRL_UTILS_H_
-#define NFC_NAPI_CTRL_UTILS_H_
+#ifndef NFC_NAPI_CTRL_UTILS_H
+#define NFC_NAPI_CTRL_UTILS_H
 #include <chrono>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
