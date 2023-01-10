@@ -194,10 +194,10 @@ std::string GetNapiStringValue(
 }
 std::string GetStringFromValue(napi_env env, napi_value value)
 {
-    constexpr int32_t MAX_TEXT_LENGTH = 4096;
-    char msgChars[MAX_TEXT_LENGTH] = {0};
+    constexpr int32_t maxTextLength = 4096;
+    char msgChars[maxTextLength] = {0};
     size_t msgLength = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, value, msgChars, MAX_TEXT_LENGTH, &msgLength), "");
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, value, msgChars, maxTextLength, &msgLength), "");
     if (msgLength > 0) {
         return std::string(msgChars, 0, msgLength);
     } else {
@@ -231,10 +231,10 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
 
 std::string UnwrapStringFromJS(napi_env env, napi_value arg)
 {
-    constexpr size_t MAX_TEXT_LENGTH = 1024;
-    char msgChars[MAX_TEXT_LENGTH] = {0};
+    constexpr size_t maxTextLength = 1024;
+    char msgChars[maxTextLength] = {0};
     size_t msgLength = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, arg, msgChars, MAX_TEXT_LENGTH, &msgLength), "");
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, arg, msgChars, maxTextLength, &msgLength), "");
     DebugLog("NapiUtil GetStringFromValue msgLength = %{public}zu", msgLength);
     if (msgLength > 0) {
         return std::string(msgChars, 0, msgLength);
