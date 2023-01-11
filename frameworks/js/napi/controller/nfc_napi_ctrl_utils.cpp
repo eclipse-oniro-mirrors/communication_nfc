@@ -69,7 +69,7 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
 }
 
 
-void CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, std::string funcName)
+void CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string funcName)
 {
     if (statusCode == BUSI_ERR_PERM) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,

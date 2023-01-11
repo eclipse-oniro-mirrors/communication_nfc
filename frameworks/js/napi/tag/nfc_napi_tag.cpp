@@ -444,7 +444,7 @@ static napi_property_descriptor g_baseClassDesc[] = {
 };
 
 // merge the functions of sub class and the functions of base class.
-static void MergeAllDesc(napi_property_descriptor* subDesc, size_t subSize,
+static void MergeAllDesc(const napi_property_descriptor* subDesc, size_t subSize,
     napi_property_descriptor* allFuncDesc, size_t allDescSize)
 {
     for (size_t i = 0; i < allDescSize; i++) {
