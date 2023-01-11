@@ -22,7 +22,7 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
-static void CheckTagSessionAndThrow(const napi_env &env, NdefFormatableTag *tagSession)
+static void CheckTagSessionAndThrow(const napi_env &env, const NdefFormatableTag *tagSession)
 {
     if (tagSession == nullptr) {
         // object null is unexpected, unknown error.

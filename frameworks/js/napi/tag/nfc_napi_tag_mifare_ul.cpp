@@ -21,7 +21,7 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
-static void CheckTagSessionAndThrow(const napi_env &env, MifareUltralightTag *tagSession)
+static void CheckTagSessionAndThrow(const napi_env &env, const MifareUltralightTag *tagSession)
 {
     if (tagSession == nullptr) {
         // object null is unexpected, unknown error.

@@ -116,7 +116,7 @@ bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value arg
         return false;
     }
 
-    status = napi_get_arraybuffer_info(env, args, (void **)data, &size);
+    status = napi_get_arraybuffer_info(env, args, reinterpret_cast<void **>(data), &size);
     if (status != napi_ok) {
         ErrorLog("can not get arraybuffer, error is %{public}d", status);
         (*data)[0] = 0;
@@ -163,7 +163,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     return result;
 }
 
-napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode)
+napi_value CreateErrorMessage(napi_env env, const std::string &msg, int32_t errorCode)
 {
     napi_value result = nullptr;
     napi_value message = nullptr;
@@ -229,12 +229,12 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
     return defValue;
 }
 
-std::string UnwrapStringFromJS(napi_env env, napi_value arg)
+std::string UnwrapStringFromJS(napi_env env, napi_value param)
 {
     constexpr size_t maxTextLength = 1024;
     char msgChars[maxTextLength] = {0};
     size_t msgLength = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, arg, msgChars, maxTextLength, &msgLength), "");
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, param, msgChars, maxTextLength, &msgLength), "");
     DebugLog("NapiUtil GetStringFromValue msgLength = %{public}zu", msgLength);
     if (msgLength > 0) {
         return std::string(msgChars, 0, msgLength);
@@ -405,7 +405,8 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, workName.data(), NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env,
-        napi_create_async_work(env, resource, resourceName, execute, complete, (void *)context.get(), &context->work));
+        napi_create_async_work(env, resource, resourceName, execute, complete, static_cast<void *>(context.get()),
+            &context->work));
     napi_status queueWorkStatus = napi_queue_async_work(env, context->work);
     if (queueWorkStatus == napi_ok) {
         context.release();
@@ -449,7 +450,7 @@ void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *baseContext, nap
     baseContext = nullptr;
 }
 
-void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, std::string &errMsg)
+void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, const std::string &errMsg)
 {
     napi_value businessError = CreateErrorMessage(env, errMsg, errCode);
     if (baseContext->callbackRef != nullptr) {
@@ -611,42 +612,46 @@ void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errC
         napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
     }
 }
-void CheckContextAndThrow(const napi_env &env, BaseContext *context, int errCode)
+void CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode)
 {
     if (context == nullptr) {
         napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
     }
 }
 void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
-    std::initializer_list<napi_valuetype> types, std::string argName, std::string argType)
+    std::initializer_list<napi_valuetype> types, const std::string &argName, const std::string &argType)
 {
     if (!MatchParameters(env, parameters, types)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
     }
 }
-void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType)
 {
     if (!IsNumberArray(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
     }
 }
-void CheckNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+void CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType)
 {
     if (!IsNumber(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
     }
 }
-void CheckStringAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+void CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType)
 {
     if (!IsString(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
     }
 }
-void CheckObjectAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType)
+void CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType)
 {
     if (!IsObject(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
@@ -660,7 +665,7 @@ void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount)
             "", "", "", "")));
     }
 }
-void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, std::string funcName)
+void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName)
 {
     if (statusCode == BUSI_ERR_PERM) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
