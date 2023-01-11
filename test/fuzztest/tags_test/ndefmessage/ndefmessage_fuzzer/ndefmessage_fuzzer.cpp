@@ -159,7 +159,6 @@ namespace OHOS {
         std::vector<std::shared_ptr<NdefRecord>> ndefRecords;
         std::shared_ptr<NdefRecord> ndefRecord = CreateNdefRecord(tnf, id, payload, tagRtdType);
         ndefRecords.push_back(ndefRecord);
-        std::string ndefMsgData = NfcSdkCommon::BytesVecToHexString(data, size);
         std::shared_ptr<NdefMessage> ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
         NdefMessage::MessageToString(ndefMessage);
     }

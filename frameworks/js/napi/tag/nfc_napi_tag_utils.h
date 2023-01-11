@@ -86,15 +86,13 @@ public:
     napi_value result;
     int errorCode = 0;
 
-    explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
-    {
-        env = e;
-        work = w;
-        deferred = d;
-        executeFunc = nullptr;
-        completeFunc = nullptr;
-        result = nullptr;
-    }
+    explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr):
+        env(e),
+        work(w),
+        deferred(d),
+        executeFunc(nullptr),
+        completeFunc(nullptr),
+        result(nullptr) {};
 
     AsyncContext() = delete;
 
@@ -158,7 +156,7 @@ bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
-napi_value CreateErrorMessage(napi_env env, std::string msg, int32_t errorCode = 0);
+napi_value CreateErrorMessage(napi_env env, const std::string &msg, int32_t errorCode = 0);
 napi_value CreateUndefined(napi_env env);
 std::string GetNapiStringValue(
     napi_env env, napi_value napiValue, const std::string &name, const std::string &defValue = "");
@@ -174,10 +172,10 @@ void ConvertNdefRecordVectorToJS(napi_env env, napi_value &result,
                                  std::vector<std::shared_ptr<NdefRecord>> &ndefRecords);
 void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<NdefRecord> &ndefRecord);
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
-napi_value HandleAsyncWork(napi_env env, BaseContext *context, const std::string &workName,
+napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
-void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *context, napi_value callbackValue);
-void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, std::string &errMsg);
+void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *basecontext, napi_value callbackValue);
+void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, const std::string &errMsg);
 bool IsNumberArray(const napi_env &env, const napi_value &param);
 bool IsObjectArray(const napi_env &env, const napi_value &param);
 bool IsArray(const napi_env &env, const napi_value &param);
@@ -189,15 +187,19 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
 void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode);
-void CheckContextAndThrow(const napi_env &env, BaseContext *context, int errCode);
+void CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode);
 void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
-    std::initializer_list<napi_valuetype> types, std::string argName, std::string argType);
-void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
-void CheckNumberAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
-void CheckStringAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
-void CheckObjectAndThrow(const napi_env &env, const napi_value &param, std::string argName, std::string argType);
+    std::initializer_list<napi_valuetype> types, const std::string &argName, const std::string &argType);
+void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType);
+void CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType);
+void CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType);
+void CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType);
 void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
-void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, std::string funcName);
+void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

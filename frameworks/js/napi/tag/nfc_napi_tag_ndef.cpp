@@ -24,7 +24,7 @@ static const int32_t DEFAULT_REF_COUNT = 1;
 const int INIT_REF = 1;
 thread_local napi_ref ndefMessageRef_;       // for read and getNedfMessage NAPI
 
-static void CheckTagSessionAndThrow(const napi_env &env, NdefTag *tagSession)
+static void CheckTagSessionAndThrow(const napi_env &env, const NdefTag *tagSession)
 {
     if (tagSession == nullptr) {
         // object null is unexpected, unknown error.
