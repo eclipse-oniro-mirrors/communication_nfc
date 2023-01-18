@@ -86,8 +86,8 @@ public:
     napi_value result;
     int errorCode = 0;
 
-    explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr):
-        env(e),
+    explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
+        :env(e),
         work(w),
         deferred(d),
         executeFunc(nullptr),
