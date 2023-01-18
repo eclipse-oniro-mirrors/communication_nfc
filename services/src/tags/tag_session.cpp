@@ -24,8 +24,8 @@ const std::string DUMP_END = "\n";
 
 // NFC_A = 1 ~ NDEF_FORMATABLE = 10
 const uint32_t MAX_TECH = 12;
-uint32_t g_techTimeout[MAX_TECH] = {0};
-uint32_t g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+int g_techTimeout[MAX_TECH] = {0};
+int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
 
 TagSession::TagSession(std::shared_ptr<INfcService> service)
     : nfcService_(service)
@@ -220,7 +220,7 @@ int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, 
     // Check if length is within limits
     int maxSize = 0;
     GetMaxTransceiveLength(tag.lock()->GetConnectedTech(), maxSize);
-    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > maxSize) {
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > static_cast<uint32_t>maxSize) {
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
