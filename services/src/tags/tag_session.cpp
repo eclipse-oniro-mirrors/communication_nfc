@@ -220,7 +220,7 @@ int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, 
     // Check if length is within limits
     int maxSize = 0;
     GetMaxTransceiveLength(tag.lock()->GetConnectedTech(), maxSize);
-    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > static_cast<uint32_t>maxSize) {
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > static_cast<uint32_t>(maxSize)) {
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
 
