@@ -77,15 +77,19 @@ napi_value NapiIsoDepTag::GetHiLayerResponse(napi_env env, napi_callback_info in
     return result;
 }
 
-static void CheckExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static bool CheckExtendedApduSupportedParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
     // argments 0 or 1 is allowed.
     if (parameterCount == ARGV_NUM_1) {
-        CheckParametersAndThrow(env, parameters, {napi_function}, "callback", "function");
+        if (!CheckParametersAndThrow(env, parameters, {napi_function}, "callback", "function")) {
+            return false;
+        }
     } else if (parameterCount > ARGV_NUM_1) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 
 static void NativeIsExtendedApduSupported(napi_env env, void *data)
@@ -103,6 +107,7 @@ static void NativeIsExtendedApduSupported(napi_env env, void *data)
         ErrorLog("NativeIsExtendedApduSupported nfcIsoDepTagPtr failed!");
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+        return;
     }
     context->resolved = true;
 }
@@ -133,11 +138,14 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
-
-    CheckExtendedApduSupportedParameters(env, params, paramsCount);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
+        !CheckExtendedApduSupportedParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<CallBackContext<bool, NapiIsoDepTag>>().release();
-    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
     napi_create_reference(env, params[0], DEFAULT_REF_COUNT, &context->callbackRef);
 
     context->objectInfo = objectInfoCb;

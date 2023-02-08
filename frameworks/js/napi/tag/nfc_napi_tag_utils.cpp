@@ -606,74 +606,93 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
     return businessError;
 }
 
-void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode)
+bool CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode)
 {
     if (status != napi_ok) {
         napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
+        return false;
     }
+    return true;
 }
-void CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode)
+bool CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode)
 {
     if (context == nullptr) {
         napi_throw(env, GenerateBusinessError(env, errCode, BuildErrorMessage(errCode, "", "", "", "")));
+        return false;
     }
+    return true;
 }
-void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
+bool CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
     std::initializer_list<napi_valuetype> types, const std::string &argName, const std::string &argType)
 {
     if (!MatchParameters(env, parameters, types)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
+        return false;
     }
+    return true;
 }
-void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType)
 {
     if (!IsNumberArray(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
+        return false;
     }
+    return true;
 }
-void CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType)
 {
     if (!IsNumber(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
+        return false;
     }
+    return true;
 }
-void CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType)
 {
     if (!IsString(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
+        return false;
     }
+    return true;
 }
-void CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType)
 {
     if (!IsObject(env, param)) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", argName, argType)));
+        return false;
     }
+    return true;
 }
-void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount)
+bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount)
 {
     if (argCount != expCount) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
             "", "", "", "")));
+        return false;
     }
+    return true;
 }
-void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName)
+bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName)
 {
     if (statusCode == BUSI_ERR_PERM) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
             BuildErrorMessage(BUSI_ERR_PERM, funcName, TAG_PERM_DESC, "", "")));
+        return false;
     } else if (statusCode >= ErrorCode::ERR_TAG_BASE && statusCode < ErrorCode::ERR_CE_BASE) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 } // namespace KITS
 } // namespace NFC

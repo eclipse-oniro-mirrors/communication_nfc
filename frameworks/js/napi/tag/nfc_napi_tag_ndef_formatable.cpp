@@ -22,25 +22,34 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
-static void CheckTagSessionAndThrow(const napi_env &env, const NdefFormatableTag *tagSession)
+static bool CheckTagSessionAndThrow(const napi_env &env, const NdefFormatableTag *tagSession)
 {
     if (tagSession == nullptr) {
         // object null is unexpected, unknown error.
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 
-static void CheckFormatParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static bool CheckFormatParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
     if (parameterCount == ARGV_NUM_1) {
-        CheckParametersAndThrow(env, parameters, {napi_object}, "message", "NdefMessage");
+        if (!CheckParametersAndThrow(env, parameters, {napi_object}, "message", "NdefMessage")) {
+            return false;
+        }
+        return true;
     } else if (parameterCount == ARGV_NUM_2) {
-        CheckParametersAndThrow(env, parameters, {napi_object, napi_function},
-            "message & callback", "NdefMessage & function");
+        if (!CheckParametersAndThrow(env, parameters, {napi_object, napi_function},
+            "message & callback", "NdefMessage & function")) {
+            return false;
+        }
+        return true;
     } else {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+        return false;
     }
 }
 
@@ -51,7 +60,9 @@ static void NativeFormat(napi_env env, void *data)
 
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    CheckTagSessionAndThrow(env, ndefFormatableTagPtr);
+    if (!CheckTagSessionAndThrow(env, ndefFormatableTagPtr)) {
+        return;
+    }
     context->errorCode = ndefFormatableTagPtr->Format(context->msg);
     context->resolved = true;
 }
@@ -82,14 +93,19 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
-
-    CheckFormatParameters(env, params, paramsCount);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
+        !CheckFormatParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
-    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
 
     napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
-    CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }
@@ -105,7 +121,9 @@ static void NativeFormatReadOnly(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     NdefFormatableTag *ndefFormatableTagPtr =
         static_cast<NdefFormatableTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    CheckTagSessionAndThrow(env, ndefFormatableTagPtr);
+    if (!CheckTagSessionAndThrow(env, ndefFormatableTagPtr)) {
+        return;
+    }
     context->errorCode = ndefFormatableTagPtr->FormatReadOnly(context->msg);
     context->resolved = true;
 }
@@ -136,14 +154,19 @@ napi_value NapiNdefFormatableTag::FormatReadOnly(napi_env env, napi_callback_inf
 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
-
-    CheckFormatParameters(env, params, paramsCount);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
+        !CheckFormatParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<NdefFormatableContext<int, NapiNdefFormatableTag>>().release();
-    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
 
     napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
-    CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
     if (paramsCount == ARGV_NUM_2) {
         napi_create_reference(env, params[ARGV_INDEX_1], DEFAULT_REF_COUNT, &context->callbackRef);
     }
