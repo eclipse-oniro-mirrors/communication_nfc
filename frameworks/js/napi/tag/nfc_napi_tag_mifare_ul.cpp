@@ -21,25 +21,34 @@ namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
 
-static void CheckTagSessionAndThrow(const napi_env &env, const MifareUltralightTag *tagSession)
+static bool CheckTagSessionAndThrow(const napi_env &env, const MifareUltralightTag *tagSession)
 {
     if (tagSession == nullptr) {
         // object null is unexpected, unknown error.
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 
-static void CheckReadMultiplePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static bool CheckReadMultiplePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
     if (parameterCount == ARGV_NUM_1) {
-        CheckParametersAndThrow(env, parameters, {napi_number}, "pageIndex", "number");
+        if (!CheckParametersAndThrow(env, parameters, {napi_number}, "pageIndex", "number")) {
+            return false;
+        }
+        return true;
     } else if (parameterCount == ARGV_NUM_2) {
-        CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
-            "pageIndex & callback", "number & function");
+        if (!CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
+            "pageIndex & callback", "number & function")) {
+            return false;
+        }
+        return true;
     } else {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+        return false;
     }
 }
 
@@ -49,7 +58,9 @@ static void NativeReadMultiplePages(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    CheckTagSessionAndThrow(env, nfcMifareUlTagPtr);
+    if (!CheckTagSessionAndThrow(env, nfcMifareUlTagPtr)) {
+        return;
+    }
     std::string hexRespData;
     context->errorCode = nfcMifareUlTagPtr->ReadMultiplePages(context->pageIndex, hexRespData);
     context->value = hexRespData;
@@ -82,11 +93,14 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
-
-    CheckReadMultiplePagesParameters(env, params, paramsCount);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
+        !CheckReadMultiplePagesParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<MifareUltralightContext<std::string, NapiMifareUltralightTag>>().release();
-    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
 
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);
@@ -100,18 +114,27 @@ napi_value NapiMifareUltralightTag::ReadMultiplePages(napi_env env, napi_callbac
     return result;
 }
 
-static void CheckWriteSinglePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static bool CheckWriteSinglePagesParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
     if (parameterCount == ARGV_NUM_2) {
-        CheckParametersAndThrow(env, parameters, {napi_number, napi_object}, "pageIndex & data", "number & number[]");
+        if (!CheckParametersAndThrow(env, parameters, {napi_number, napi_object}, "pageIndex & data",
+            "number & number[]") ||
+            !CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_1], "data", "number[]")) {
+            return false;
+        }
+        return true;
     } else if (parameterCount == ARGV_NUM_3) {
-        CheckParametersAndThrow(env, parameters, {napi_number, napi_object, napi_function},
-            "pageIndex & data & callback", "number & number[] & function");
+        if (!CheckParametersAndThrow(env, parameters, {napi_number, napi_object, napi_function},
+            "pageIndex & data & callback", "number & number[] & function") ||
+            !CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_1], "data", "number[]")) {
+            return false;
+        }
+        return true;
     } else {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+            return false;
     }
-    CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_1], "data", "number[]");
 }
 
 static void NativeWriteSinglePages(napi_env env, void *data)
@@ -120,7 +143,9 @@ static void NativeWriteSinglePages(napi_env env, void *data)
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
     MifareUltralightTag *nfcMifareUlTagPtr =
         static_cast<MifareUltralightTag *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    CheckTagSessionAndThrow(env, nfcMifareUlTagPtr);
+    if (!CheckTagSessionAndThrow(env, nfcMifareUlTagPtr)) {
+        return;
+    }
     context->errorCode = nfcMifareUlTagPtr->WriteSinglePage(context->pageIndex, context->data);
     context->resolved = true;
 }
@@ -151,11 +176,14 @@ napi_value NapiMifareUltralightTag::WriteSinglePage(napi_env env, napi_callback_
 
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
-
-    CheckWriteSinglePagesParameters(env, params, paramsCount);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
+        !CheckWriteSinglePagesParameters(env, params, paramsCount)) {
+        return CreateUndefined(env);
+    }
     auto context = std::make_unique<MifareUltralightContext<int, NapiMifareUltralightTag>>().release();
-    CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
 
     // parse the params
     napi_get_value_int32(env, params[ARGV_INDEX_0], &context->pageIndex);

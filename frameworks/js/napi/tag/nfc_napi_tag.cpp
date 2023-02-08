@@ -228,7 +228,9 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     // prase tech and extras data from TagInfo Js Object from app.
     napi_value technologies = GetNamedProperty(env, obj, VAR_TECH);
     napi_value extras = GetNamedProperty(env, obj, VAR_EXTRA);
-    CheckArrayNumberAndThrow(env, technologies, "tagInfo.technology", "number[]");
+    if (!CheckArrayNumberAndThrow(env, technologies, "tagInfo.technology", "number[]")) {
+        return CreateUndefined(env);
+    }
 
     napi_value techValue = nullptr;
     napi_value extraValue = nullptr;
@@ -392,11 +394,15 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
 
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1)) {
+        return CreateUndefined(env);
+    }
 
     // check parameter data type
     napi_value tagInfoJsObj = argv[static_cast<size_t>(JS_ARGV_INDEX::ARGV_INDEX_0)];
-    CheckObjectAndThrow(env, tagInfoJsObj, "tagInfo", "TagInfo");
+    if (!CheckObjectAndThrow(env, tagInfoJsObj, "tagInfo", "TagInfo")) {
+        return CreateUndefined(env);
+    }
 
     // parse Taginfo parameters passed from JS
     nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
@@ -420,7 +426,9 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
             }
         },
         nullptr, nullptr);
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID)) {
+        return CreateUndefined(env);
+    }
     return thisVar;
 }
 
@@ -878,15 +886,19 @@ napi_value GetTagInfo(napi_env env, napi_callback_info info)
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
-    CheckObjectAndThrow(env, argv[0], "want", "Want");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !CheckObjectAndThrow(env, argv[0], "want", "Want")) {
+        return CreateUndefined(env);
+    }
 
     // Get parameters?: {[key: string]: any} from want.
     napi_value want = argv[0];
     napi_value parameters = nullptr;
     napi_create_object(env, &parameters);
     napi_get_named_property(env, want, "parameters", &parameters);
-    CheckObjectAndThrow(env, parameters, "", "");
+    if (!CheckObjectAndThrow(env, parameters, "", "")) {
+        return CreateUndefined(env);
+    }
 
     napi_value tagInfoObj = BuildTagFromWantParams(env, parameters);
     return tagInfoObj;

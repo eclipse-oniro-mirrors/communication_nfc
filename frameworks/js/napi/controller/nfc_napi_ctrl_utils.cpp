@@ -68,16 +68,18 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
     return businessError;
 }
 
-
-void CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string funcName)
+bool CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string funcName)
 {
     if (statusCode == BUSI_ERR_PERM) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
             BuildErrorMessage(BUSI_ERR_PERM, funcName, NFC_PERM_DESC, "", "")));
+        return false;
     } else if (statusCode >= ErrorCode::ERR_NFC_BASE && statusCode < ErrorCode::ERR_TAG_BASE) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_NFC_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_NFC_STATE_INVALID, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 
 } // namespace KITS

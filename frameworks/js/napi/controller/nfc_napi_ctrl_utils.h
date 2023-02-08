@@ -37,7 +37,7 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
 
-void CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string funcName);
+bool CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string funcName);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
