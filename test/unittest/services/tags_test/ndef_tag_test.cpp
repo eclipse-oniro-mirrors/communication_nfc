@@ -254,7 +254,7 @@ HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
  */
 HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
 {
-    uint32_t experctedTimeout = 20;
+    int experctedTimeout = 20;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int timeout = 0;
     int statusCode = ndef->GetTimeout(timeout);
