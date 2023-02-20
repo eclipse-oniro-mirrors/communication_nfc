@@ -122,7 +122,6 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         return;
     }
 
-    InfoLog("Get the event loop, napi_env: %p", asyncEvent->env);
     uint32_t refCount = INVALID_REF_COUNT;
     napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
     work->data = asyncEvent;
