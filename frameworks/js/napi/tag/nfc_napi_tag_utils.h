@@ -186,20 +186,20 @@ int BuildOutputErrorCode(int errCode);
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
-void CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode);
-void CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode);
-void CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
+bool CheckUnwrapStatusAndThrow(const napi_env &env, napi_status status, int errCode);
+bool CheckContextAndThrow(const napi_env &env, const BaseContext *context, int errCode);
+bool CheckParametersAndThrow(const napi_env &env, const napi_value parameters[],
     std::initializer_list<napi_valuetype> types, const std::string &argName, const std::string &argType);
-void CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckArrayNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
-void CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
-void CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
-void CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+bool CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
-void CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
-void CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
+bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
+bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

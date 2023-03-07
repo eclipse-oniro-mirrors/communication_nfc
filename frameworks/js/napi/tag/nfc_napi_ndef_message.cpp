@@ -41,13 +41,15 @@ napi_value NapiNdefMessage::GetNdefRecords(napi_env env, napi_callback_info info
     return result;
 }
 
-static void CheckNdefRecordAndThrow(const napi_env &env, std::shared_ptr<NdefRecord> ndefRecord)
+static bool CheckNdefRecordAndThrow(const napi_env &env, std::shared_ptr<NdefRecord> ndefRecord)
 {
     if (ndefRecord == nullptr) {
         // ndefRecord is null, means that the input arguments can't parsed as NdefRecord
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+        return false;
     }
+    return true;
 }
 
 napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
@@ -57,12 +59,16 @@ napi_value NapiNdefMessage::MakeUriRecord(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
-    CheckStringAndThrow(env, argv[ARGV_INDEX_0], "uri", "string");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "uri", "string")) {
+        return CreateUndefined(env);
+    }
 
     std::string uri = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeUriRecord(uri);
-    CheckNdefRecordAndThrow(env, ndefRecord);
+    if (!CheckNdefRecordAndThrow(env, ndefRecord)) {
+        return CreateUndefined(env);
+    }
     napi_value result = nullptr;
     ConvertNdefRecordToJS(env, result, ndefRecord);
     return result;
@@ -75,14 +81,18 @@ napi_value NapiNdefMessage::MakeTextRecord(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_2);
-    CheckStringAndThrow(env, argv[ARGV_INDEX_0], "text", "string");
-    CheckStringAndThrow(env, argv[ARGV_INDEX_1], "locale", "string");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "text", "string") ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_1], "locale", "string")) {
+        return CreateUndefined(env);
+    }
 
     std::string text = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string locale = GetStringFromValue(env, argv[ARGV_INDEX_1]);
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeTextRecord(text, locale);
-    CheckNdefRecordAndThrow(env, ndefRecord);
+    if (!CheckNdefRecordAndThrow(env, ndefRecord)) {
+        return CreateUndefined(env);
+    }
     napi_value result = nullptr;
     ConvertNdefRecordToJS(env, result, ndefRecord);
     return result;
@@ -95,9 +105,11 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_2);
-    CheckStringAndThrow(env, argv[ARGV_INDEX_0], "mimeType", "string");
-    CheckArrayNumberAndThrow(env, argv[ARGV_INDEX_1], "mimeData", "number[]");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "mimeType", "string") ||
+        !CheckArrayNumberAndThrow(env, argv[ARGV_INDEX_1], "mimeData", "number[]")) {
+        return CreateUndefined(env);
+    }
 
     std::string mimeType = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::vector<unsigned char> dataVec;
@@ -106,7 +118,9 @@ napi_value NapiNdefMessage::MakeMimeRecord(napi_env env, napi_callback_info info
                                                              dataVec.size());
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeMimeRecord(mimeType, mimeData);
-    CheckNdefRecordAndThrow(env, ndefRecord);
+    if (!CheckNdefRecordAndThrow(env, ndefRecord)) {
+        return CreateUndefined(env);
+    }
     napi_value result = nullptr;
     ConvertNdefRecordToJS(env, result, ndefRecord);
     return result;
@@ -119,10 +133,12 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
     
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_3);
-    CheckStringAndThrow(env, argv[ARGV_INDEX_0], "domainName", "string");
-    CheckStringAndThrow(env, argv[ARGV_INDEX_1], "type", "string");
-    CheckArrayNumberAndThrow(env, argv[ARGV_INDEX_2], "externalData", "number[]");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_3) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "domainName", "string") ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_1], "type", "string") ||
+        !CheckArrayNumberAndThrow(env, argv[ARGV_INDEX_2], "externalData", "number[]")) {
+        return CreateUndefined(env);
+    }
 
     std::string domainName = GetStringFromValue(env, argv[ARGV_INDEX_0]);
     std::string type = GetStringFromValue(env, argv[ARGV_INDEX_1]);
@@ -132,7 +148,9 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
                                                                  dataVec.size());
 
     std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeExternalRecord(domainName, type, externalData);
-    CheckNdefRecordAndThrow(env, ndefRecord);
+    if (!CheckNdefRecordAndThrow(env, ndefRecord)) {
+        return CreateUndefined(env);
+    }
     napi_value result = nullptr;
     ConvertNdefRecordToJS(env, result, ndefRecord);
     return result;
@@ -145,16 +163,20 @@ napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // check parameter number
-    CheckArgCountAndThrow(env, argc, ARGV_NUM_1);
-    CheckObjectAndThrow(env, argv[ARGV_INDEX_0], "ndefMessage", "NdefMessage");
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !CheckObjectAndThrow(env, argv[ARGV_INDEX_0], "ndefMessage", "NdefMessage")) {
+        return CreateUndefined(env);
+    }
 
     // unwrap for argument of NdefMessage.
     NapiNdefMessage *argNdefMsg = nullptr;
     napi_status status = napi_unwrap(env, argv[ARGV_INDEX_0], reinterpret_cast<void **>(&argNdefMsg));
-    CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID);
+    if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_PARAM)) {
+        return CreateUndefined(env);
+    }
+    napi_value result = nullptr;
 
     // parse to get the raw bytes.
-    napi_value result = nullptr;
     std::shared_ptr<NdefMessage> ndefMsg = argNdefMsg->ndefMessage;
     std::string buffer = NdefMessage::MessageToString(ndefMsg);
     ConvertStringToNumberArray(env, result, buffer.c_str());
