@@ -24,6 +24,8 @@ using namespace OHOS::NFC;
 namespace OHOS {
 namespace NFC {
 namespace NCI {
+static const int ISO_DEP_MAX_TRANSEIVE_LENGTH = 0xFEFF;
+
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcEnableEvent_;
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcDisableEvent_;
 
@@ -594,7 +596,11 @@ int NfccNciAdapter::GetNciVersion() const
 int NfccNciAdapter::GetIsoDepMaxTransceiveLength()
 {
     DebugLog("NfccNciAdapter::GetIsoDepMaxTransceiveLength");
-    return NfcConfig::getUnsigned(NAME_ISO_DEP_MAX_TRANSCEIVE, ISO_DEP_FRAME_MAX_LEN);
+    if (NfcConfig::hasKey(NAME_ISO_DEP_MAX_TRANSCEIVE)) {
+        return NfcConfig::getUnsigned(NAME_ISO_DEP_MAX_TRANSCEIVE);
+    } else {
+        return ISO_DEP_MAX_TRANSEIVE_LENGTH;
+    }
 }
 
 bool NfccNciAdapter::RegisterT3tIdentifier(const std::string& t3tIdentifier) const
