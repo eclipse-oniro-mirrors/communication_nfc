@@ -52,6 +52,9 @@ int BasicTagSession::Connect()
 
 bool BasicTagSession::IsConnected() const
 {
+    if (!isConnected_) {
+        return false;
+    }
     KITS::TagTechnology connectedTagTech = GetConnectedTagTech();
     if ((connectedTagTech != tagTechnology_) || (connectedTagTech == KITS::TagTechnology::NFC_INVALID_TECH)) {
         return false;
