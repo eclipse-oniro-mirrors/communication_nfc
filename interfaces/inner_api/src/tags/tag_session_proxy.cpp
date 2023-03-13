@@ -31,7 +31,9 @@ int TagSessionProxy::Connect(int tagRfDiscId, int technology)
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(static_cast<int32_t>(technology));
     MessageOption option(MessageOption::TF_SYNC);
-    return SendRequestExpectReplyNone(KITS::COMMAND_CONNECT, data, option);
+    int result;
+    SendRequestExpectReplyInt(KITS::COMMAND_CONNECT, data, option, result);
+    return result;
 }
 
 int TagSessionProxy::Reconnect(int tagRfDiscId)
@@ -42,7 +44,9 @@ int TagSessionProxy::Reconnect(int tagRfDiscId)
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    return SendRequestExpectReplyNone(KITS::COMMAND_RECONNECT, data, option);
+    int result;
+    SendRequestExpectReplyInt(KITS::COMMAND_RECONNECT, data, option, result);
+    return result;
 }
 
 void TagSessionProxy::Disconnect(int tagRfDiscId)
