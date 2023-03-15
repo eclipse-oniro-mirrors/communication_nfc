@@ -444,7 +444,7 @@ static napi_property_descriptor g_baseClassDesc[] = {
     DECLARE_NAPI_FUNCTION("getMaxSendLength", NapiNfcTagSession::GetMaxSendLength),
     DECLARE_NAPI_FUNCTION("getMaxTransmitSize", NapiNfcTagSession::GetMaxTransmitSize),
     DECLARE_NAPI_FUNCTION("getSendDataTimeout", NapiNfcTagSession::GetSendDataTimeout),
-    DECLARE_NAPI_FUNCTION("GetTimeout", NapiNfcTagSession::GetTimeout),
+    DECLARE_NAPI_FUNCTION("getTimeout", NapiNfcTagSession::GetTimeout),
     DECLARE_NAPI_FUNCTION("setSendDataTimeout", NapiNfcTagSession::SetSendDataTimeout),
     DECLARE_NAPI_FUNCTION("setTimeout", NapiNfcTagSession::SetTimeout),
     DECLARE_NAPI_FUNCTION("sendData", NapiNfcTagSession::SendData),
