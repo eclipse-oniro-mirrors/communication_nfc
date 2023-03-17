@@ -78,7 +78,9 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 
     int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
-    return Connect(tagRfDiscId, tech);
+    int statusCode = Connect(tagRfDiscId, tech);
+    reply.WriteInt32(statusCode);
+    return statusCode;
 }
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
@@ -88,7 +90,9 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
     }
 
     int tagRfDiscId = data.ReadInt32();
-    return Reconnect(tagRfDiscId);
+    int statusCode = Reconnect(tagRfDiscId);
+    reply.WriteInt32(statusCode);
+    return statusCode;
 }
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 {
@@ -109,7 +113,9 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
     }
     int tech = data.ReadInt32();
     int timeout = data.ReadInt32();
-    return SetTimeout(timeout, tech);
+    int statusCode = SetTimeout(timeout, tech);
+    reply.WriteInt32(statusCode);
+    return statusCode;
 }
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
