@@ -87,7 +87,7 @@ public:
      * @param ndefMessage the NdefMessage instance read.
      * @return the error code of calling function.
      */
-    int ReadNdef(std::shared_ptr<NdefMessage> ndefMessage);
+    int ReadNdef(std::shared_ptr<NdefMessage> &ndefMessage);
     /**
      * @Description write ndef tag
      * @param msg ndef message to write
