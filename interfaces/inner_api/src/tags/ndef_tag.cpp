@@ -98,7 +98,7 @@ bool NdefTag::IsNdefWritable() const
     return (ndefTagMode_ == EmNdefTagMode::MODE_READ_WRITE);
 }
 
-int NdefTag::ReadNdef(std::shared_ptr<NdefMessage> ndefMessage)
+int NdefTag::ReadNdef(std::shared_ptr<NdefMessage> &ndefMessage)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
