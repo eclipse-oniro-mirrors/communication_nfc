@@ -296,6 +296,50 @@ HWTEST_F(NdefTagTest, IsConnected001, TestSize.Level1)
     bool isConnected = ndef->IsConnected();
     ASSERT_TRUE(isConnected == false);
 }
+/**
+ * @tc.name: GetNdefTagTypeString003
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString003, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3);
+    ASSERT_TRUE(typeString == "org.nfcforum.ndef.type3");
+}
+/**
+ * @tc.name: GetNdefTagTypeString004
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString004, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4);
+    ASSERT_TRUE(typeString == "org.nfcforum.ndef.type4");
+}
+/**
+ * @tc.name: GetNdefTagTypeString005
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString005, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::MIFARE_CLASSIC);
+    ASSERT_TRUE(typeString == "com.nxp.ndef.mifareclassic");
+}
+/**
+ * @tc.name: GetNdefTagTypeString006
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString006, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::ICODE_SLI);
+    ASSERT_TRUE(typeString == "com.nxp.ndef.icodesli");
+}
 }
 }
 }

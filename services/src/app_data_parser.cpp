@@ -352,7 +352,7 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
 {
     std::vector<ElementName> elements;
     for (size_t i = 0; i < discTechList.size(); i++) {
-        std::string discStrTech = KITS::TagInfo::GetStringTach(discTechList[i]);
+        std::string discStrTech = KITS::TagInfo::GetStringTech(discTechList[i]);
         DebugLog("GetDispatchTagAppsByTech, tag size = %{public}zu", g_tagAppAndTechMap.size());
         if (discStrTech.empty()) {
             continue;

@@ -199,14 +199,104 @@ HWTEST_F(TagInfoTest, GetTagSessionProxy001, TestSize.Level1)
     ASSERT_TRUE(tagsessionProxy != nullptr);
 }
 /**
- * @tc.name: GetStringTach001
- * @tc.desc: Test NfcController GetStringTach.
+ * @tc.name: GetStringTech001
+ * @tc.desc: Test NfcController GetStringTech.
  * @tc.type: FUNC
  */
-HWTEST_F(TagInfoTest, GetStringTach001, TestSize.Level1)
+HWTEST_F(TagInfoTest, GetStringTech001, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTach(TEST_DISC_ID);
+    std::string stringTach = tagInfo_->GetStringTech(TEST_DISC_ID);
     ASSERT_TRUE(stringTach == "NfcA");
+}
+/**
+ * @tc.name: GetStringTech002
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech002, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_B_TECH));
+    ASSERT_TRUE(stringTach == "NfcB");
+}
+/**
+ * @tc.name: GetStringTech003
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech003, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_F_TECH));
+    ASSERT_TRUE(stringTach == "NfcF");
+}
+/**
+ * @tc.name: GetStringTech004
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech004, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_V_TECH));
+    ASSERT_TRUE(stringTach == "NfcV");
+}
+/**
+ * @tc.name: GetStringTech005
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech005, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
+    ASSERT_TRUE(stringTach == "IsoDep");
+}
+/**
+ * @tc.name: GetStringTech006
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech006, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    ASSERT_TRUE(stringTach == "MifareClassic");
+}
+/**
+ * @tc.name: GetStringTech007
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech007, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    ASSERT_TRUE(stringTach == "MifareUL");
+}
+/**
+ * @tc.name: GetStringTech008
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech008, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_TECH));
+    ASSERT_TRUE(stringTach == "Ndef");
+}
+/**
+ * @tc.name: GetStringTech009
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech009, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_FORMATABLE_TECH));
+    ASSERT_TRUE(stringTach == "NdefFormatable");
+}
+/**
+ * @tc.name: GetStringTech0010
+ * @tc.desc: Test NfcController GetStringTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetStringTech0010, TestSize.Level1)
+{
+    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_INVALID_TECH));
+    ASSERT_TRUE(stringTach == "");
 }
 }
 }

@@ -74,7 +74,7 @@ std::vector<int> TagInfo::GetTagTechList() const
     return std::move(tagTechList_);
 }
 
-std::string TagInfo::GetStringTach(int tech)
+std::string TagInfo::GetStringTech(int tech)
 {
     switch (tech) {
         case static_cast<int>(TagTechnology::NFC_A_TECH):

@@ -14,10 +14,10 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 
-ohos_fuzztest("GetStringTachFuzzTest") {
+ohos_fuzztest("GetStringTechFuzzTest") {
   module_out_path = "nfc/services"
 
-  fuzz_config_file = "//foundation/communication/nfc/test/fuzztest/tags_test/taginfo/getstringtach_fuzzer"
+  fuzz_config_file = "."
 
   include_dirs = [
     "//foundation/communication/nfc/interfaces/inner_api/include",
@@ -31,7 +31,7 @@ ohos_fuzztest("GetStringTachFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "getstringtach_fuzzer.cpp" ]
+  sources = [ "getstringtech_fuzzer.cpp" ]
 
   deps =
       [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
@@ -48,6 +48,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":GetStringTachFuzzTest",
+    ":GetStringTechFuzzTest",
   ]
 }
