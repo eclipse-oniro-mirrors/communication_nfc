@@ -12,31 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef GETSTRINGTECH_FUZZER_H
+#define GETSTRINGTECH_FUZZER_H
 
-#include "getstringtach_fuzzer.h"
+#define FUZZ_PROJECT_NAME "getstringtech_fuzzer"
 
-#include <cstddef>
-#include <cstdint>
-
-#include "taginfo.h"
-#include "tag_session_proxy.h"
-
-namespace OHOS {
-    using namespace OHOS::NFC::KITS;
-    using namespace OHOS::NFC::TAG;
-
-    void FuzzGetStringTach(const uint8_t* data, size_t size)
-    {
-        int tach = static_cast<int>(data[0]);
-        NFC::KITS::TagInfo::GetStringTach(tach);
-    }
-}
-
-/* Fuzzer entry point */
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
-{
-    /* Run your code on data */
-    OHOS::FuzzGetStringTach(data, size);
-    return 0;
-}
-
+#endif  // GETSTRINGTECH_FUZZER_H

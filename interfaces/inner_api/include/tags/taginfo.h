@@ -75,7 +75,7 @@ public:
     KITS::TagTechnology GetConnectedTagTech() const;
     void SetConnectedTagTech(KITS::TagTechnology connectedTagTech);
     OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();
-    static std::string GetStringTach(int tech);
+    static std::string GetStringTech(int tech);
 private:
     int tagRfDiscId_;
     KITS::TagTechnology connectedTagTech_;
