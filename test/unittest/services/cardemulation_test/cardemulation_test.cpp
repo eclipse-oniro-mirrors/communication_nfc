@@ -52,12 +52,40 @@ void CardemulationTest::TearDown() {}
  */
 HWTEST_F(CardemulationTest, IsSupported001, TestSize.Level1)
 {
-    bool issupport = false;
+    bool isSupport = false;
     CardEmulation cardemulation = CardEmulation::GetInstance();
 
     // Supports FeatureType { HCE = 0, UICC = 1, ESE = 2 } type card emulation
-    issupport = cardemulation.IsSupported(FeatureType::UICC);
-    ASSERT_TRUE(issupport == true);
+    isSupport = cardemulation.IsSupported(FeatureType::UICC);
+    ASSERT_TRUE(isSupport == true);
+}
+/**
+ * @tc.name: IsSupporte002
+ * @tc.desc: Test CardemulationTest IsSupporte.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CardemulationTest, IsSupported002, TestSize.Level1)
+{
+    bool isSupport = false;
+    CardEmulation cardemulation = CardEmulation::GetInstance();
+
+    // Supports FeatureType { HCE = 0, UICC = 1, ESE = 2 } type card emulation
+    isSupport = cardemulation.IsSupported(FeatureType::HCE);
+    ASSERT_TRUE(isSupport == true);
+}
+/**
+ * @tc.name: IsSupporte003
+ * @tc.desc: Test CardemulationTest IsSupporte.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CardemulationTest, IsSupported003, TestSize.Level1)
+{
+    bool isSupport = false;
+    CardEmulation cardemulation = CardEmulation::GetInstance();
+
+    // Supports FeatureType { HCE = 0, UICC = 1, ESE = 2 } type card emulation
+    isSupport = cardemulation.IsSupported(FeatureType::ESE);
+    ASSERT_TRUE(isSupport == true);
 }
 }
 }

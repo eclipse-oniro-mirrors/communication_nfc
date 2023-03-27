@@ -81,6 +81,7 @@ ohos_unittest("tags_test") {
     "tags_test/iso15693_tag_test.cpp",
     "tags_test/isodep_tag_test.cpp",
     "tags_test/mifare_classic_tag_test.cpp",
+    "tags_test/ndef_formatable_tag_test.cpp",
     "tags_test/ndef_tag_test.cpp",
     "tags_test/nfca_tag_test.cpp",
     "tags_test/nfcb_tag_test.cpp",

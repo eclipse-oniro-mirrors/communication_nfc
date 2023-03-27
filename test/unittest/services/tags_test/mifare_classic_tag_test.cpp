@@ -262,6 +262,17 @@ HWTEST_F(MifareClassicTagTest, GetBlockCountInSector001, TestSize.Level1)
     ASSERT_TRUE(sectorCount == MifareClassicTag::MC_ERROR_VALUE);
 }
 /**
+ * @tc.name: GetBlockCountInSector002
+ * @tc.desc: Test MifareClassicTag GetBlockCountInSector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetBlockCountInSector002, TestSize.Level1)
+{
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetBlockCountInSector(MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_2K);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_BLOCK_COUNT_OF_4K);
+}
+/**
  * @tc.name: GetBlockIndexFromSector001
  * @tc.desc: Test MifareClassicTag GetBlockIndexFromSector.
  * @tc.type: FUNC
@@ -326,6 +337,19 @@ HWTEST_F(MifareClassicTagTest, AuthenticateSector002, TestSize.Level1)
     ASSERT_TRUE(sectorCount == ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
+ * @tc.name: AuthenticateSector003
+ * @tc.desc: Test MifareClassicTag AuthenticateSector.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, AuthenticateSector003, TestSize.Level1)
+{
+    int sectorIndex = MifareClassicTag::MC_BLOCK_COUNT;
+    bool bIsKeyA = true;
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->AuthenticateSector(sectorIndex, TEST_ATQA, bIsKeyA);
+    ASSERT_TRUE(sectorCount == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+}
+/**
  * @tc.name: GetBlockIndexFromSector002
  * @tc.desc: Test MifareClassicTag GetBlockIndexFromSector.
  * @tc.type: FUNC
@@ -359,6 +383,19 @@ HWTEST_F(MifareClassicTagTest, GetSectorIndexFromBlock003, TestSize.Level1)
     std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
     int sectorCount = mifareClassic->GetSectorIndexFromBlock(MifareClassicTag::MC_MAX_BLOCK_INDEX);
     ASSERT_TRUE(sectorCount == MifareClassicTag::MC_ERROR_VALUE);
+}
+/**
+ * @tc.name: GetSectorIndexFromBlock004
+ * @tc.desc: Test MifareClassicTag GetSectorIndexFromBlock.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorIndexFromBlock004, TestSize.Level1)
+{
+    // blockIndex is between 128 and 256
+    int blockIndex = MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_2K * MifareClassicTag::MC_BLOCK_COUNT;
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorIndexFromBlock(blockIndex);
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_2K);
 }
 }
 }
