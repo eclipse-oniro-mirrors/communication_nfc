@@ -38,6 +38,12 @@ config("nfc_config") {
 }
 
 ohos_shared_library("nfc_service") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    cfi_cross_dso = true
+    debug = false
+  }
   sources = [
     "src/app_data_parser.cpp",
     "src/common_event_handler.cpp",

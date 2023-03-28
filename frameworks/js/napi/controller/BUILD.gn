@@ -15,6 +15,12 @@ import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 
 ohos_shared_library("controller") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    cfi_cross_dso = true
+    debug = false
+  }
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
