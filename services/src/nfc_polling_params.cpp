@@ -73,17 +73,17 @@ std::string NfcPollingParams::ToString()
 {
     std::string str;
     return str.append("techMask = ")
-              .append(std::to_string(techMask_))
-              .append(", ")
-              .append("enableLowPowerPolling = ")
-              .append(std::to_string(enableLowPowerPolling_))
-              .append(", ")
-              .append("enableReaderMode = ")
-              .append(std::to_string(enableReaderMode_))
-              .append(", ")
-              .append("enableHostRouting = ")
-              .append(std::to_string(enableHostRouting_))
-              .append(".");
+        .append(std::to_string(techMask_))
+        .append(", ")
+        .append("enableLowPowerPolling = ")
+        .append(std::to_string(enableLowPowerPolling_))
+        .append(", ")
+        .append("enableReaderMode = ")
+        .append(std::to_string(enableReaderMode_))
+        .append(", ")
+        .append("enableHostRouting = ")
+        .append(std::to_string(enableHostRouting_))
+        .append(".");
 }
 }  // namespace NFC
 }  // namespace OHOS
