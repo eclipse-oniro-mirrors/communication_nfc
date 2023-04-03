@@ -193,6 +193,8 @@ bool NfcService::DoTurnOn()
     /* Start polling loop */
     StartPollingLoop(true);
 
+    CommitRouting();
+
     return true;
 }
 
@@ -426,6 +428,26 @@ void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData>
         AppDataParser::GetInstance().HandleAppRemovedEvent(data);
     } else {
         DebugLog("not need event.");
+    }
+}
+
+void NfcService::CommitRouting()
+{
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMMIT_ROUTING));
+}
+
+void NfcService::HandleCommitRouting()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (nfcState_ == KITS::STATE_OFF || nfcState_ == KITS::STATE_TURNING_OFF) {
+        DebugLog("NOT Handle CommitRouting in state off or turning off.");
+        return;
+    }
+    if (currPollingParams_->ShouldEnablePolling()) {
+        bool result = nfccHost_->CommitRouting();
+        DebugLog("HandleCommitRouting result = %{public}d", result);
+    } else {
+        DebugLog("NOT Handle CommitRouting when polling not enabled.");
     }
 }
 }  // namespace NFC

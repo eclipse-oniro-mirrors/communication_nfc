@@ -58,6 +58,8 @@ protected:
     void HandleScreenChanged(int screenState);
     // package updated
     void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
+    // commit routing
+    void HandleCommitRouting();
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
@@ -88,6 +90,8 @@ private:
     // polling
     void StartPollingLoop(bool force);
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
+    // commit routing
+    void CommitRouting();
 
 private:
     // ms wait for initialization, included firmware download.

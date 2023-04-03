@@ -18,6 +18,7 @@
 #include "nfc_config.h"
 #include "nfc_sdk_common.h"
 #include "nci_adaptations.h"
+#include "routing_manager.h"
 #include "tag_nci_adapter.h"
 
 using namespace OHOS::NFC;
@@ -30,6 +31,7 @@ OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcEnableEvent_;
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcDisableEvent_;
 
 bool NfccNciAdapter::isNfcEnabled_ = false;
+bool NfccNciAdapter::isRoutingInited_ = false;
 bool NfccNciAdapter::rfEnabled_ = false;
 bool NfccNciAdapter::discoveryEnabled_ = false;  // is polling or listening
 bool NfccNciAdapter::pollingEnabled_ = false;    // is polling for tag
@@ -383,6 +385,7 @@ bool NfccNciAdapter::Initialize()
             NciBalCe::GetInstance().InitializeCe();
             HciManager::GetInstance().Initialize();
 #endif
+            isRoutingInited_ = RoutingManager::GetInstance().Initialize();
             TagNciAdapter::GetInstance().RegisterNdefHandler();
             discoveryDuration_ = DEFAULT_DISCOVERY_DURATION;
             nciAdaptation_->NfaSetRfDiscoveryDuration((uint16_t)discoveryDuration_);
@@ -416,6 +419,7 @@ bool NfccNciAdapter::Deinitialize()
 #ifdef _NFC_SERVICE_HCE_
     NciBalCe::GetInstance().Deinitialize();
 #endif
+    RoutingManager::GetInstance().Deinitialize();
 
     if (isNfcEnabled_) {
         /* graceful */
@@ -427,6 +431,7 @@ bool NfccNciAdapter::Deinitialize()
         }
     }
     isNfcEnabled_ = false;
+    isRoutingInited_ = false;
     discoveryEnabled_ = false;
     isDisabling_ = false;
     pollingEnabled_ = false;
@@ -671,6 +676,11 @@ void NfccNciAdapter::Shutdown() const
 bool NfccNciAdapter::IsRfEbabled()
 {
     return rfEnabled_;
+}
+
+bool NfccNciAdapter::CommitRouting()
+{
+    return RoutingManager::GetInstance().CommitRouting();
 }
 }  // namespace NCI
 }  // namespace NFC

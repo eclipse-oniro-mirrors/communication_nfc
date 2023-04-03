@@ -209,19 +209,19 @@ bool NfccHost::RemoveAidRouting(std::string& aid)
 bool NfccHost::CommitRouting()
 {
     DebugLog("NfccHost::CommitRouting");
-#ifdef _NFC_SERVICE_HCE_
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::CommitRouting(): unsupported chip type");
+        return true;
+    }
     bool restart = NfccNciAdapter::GetInstance().IsRfEbabled();
     if (restart) {
         NfccNciAdapter::GetInstance().StartRfDiscovery(false);
     }
-    bool commitResult = NciBalCe::GetInstance().CommitRouting();
+    bool commitResult = NfccNciAdapter::GetInstance().CommitRouting();
     if (restart) {
         NfccNciAdapter::GetInstance().StartRfDiscovery(true);
     }
     return commitResult;
-#else
-    return true;
-#endif
 }
 
 int NfccHost::GetAidRoutingTableSize()

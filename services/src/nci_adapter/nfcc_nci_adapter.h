@@ -50,6 +50,7 @@ public:
     void SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation);
     void StartRfDiscovery(bool isStart) const;
     bool IsRfEbabled();
+    bool CommitRouting();
 
 private:
     static const tNFA_TECHNOLOGY_MASK DEFAULT_TECH_MASK =
@@ -78,6 +79,7 @@ private:
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;
     static bool isNfcEnabled_;
+    static bool isRoutingInited_;
     static bool rfEnabled_;
     static bool discoveryEnabled_;  // is polling or listening
     static bool pollingEnabled_;    // is polling for tag

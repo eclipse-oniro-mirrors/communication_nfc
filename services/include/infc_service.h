@@ -33,6 +33,7 @@ enum class NfcCommonEvent {
 
     // card emulation
     MSG_ROUTE_AID,
+    MSG_COMMIT_ROUTING,
 };
 
 enum class ScreenState {
