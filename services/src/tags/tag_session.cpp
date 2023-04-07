@@ -23,7 +23,7 @@ const std::string DUMP_LINE = "---------------------------";
 const std::string DUMP_END = "\n";
 
 // NFC_A = 1 ~ NDEF_FORMATABLE = 10
-const uint32_t MAX_TECH = 12;
+const int MAX_TECH = 12;
 int g_techTimeout[MAX_TECH] = {0};
 int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
 
