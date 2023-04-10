@@ -183,6 +183,10 @@ void CommonEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
             nfcService_.lock()->HandlePackageUpdated(event->GetSharedObject<EventFwk::CommonEventData>());
             break;
         }
+        case NfcCommonEvent::MSG_COMMIT_ROUTING: {
+            nfcService_.lock()->HandleCommitRouting();
+            break;
+        }
         default:
             ErrorLog("Unknown message received: id %{public}d", eventId);
             break;
