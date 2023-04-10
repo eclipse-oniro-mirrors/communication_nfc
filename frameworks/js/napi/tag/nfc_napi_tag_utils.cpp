@@ -396,7 +396,7 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
         NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
     }
     napi_value result = nullptr;
-    if (context->callbackRef == nullptr) {
+    if (context != nullptr && context->callbackRef == nullptr) {
         NAPI_CALL(env, napi_create_promise(env, &context->deferred, &result));
     } else {
         NAPI_CALL(env, napi_get_undefined(env, &result));
@@ -452,6 +452,10 @@ void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *baseContext, nap
 
 void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, const std::string &errMsg)
 {
+    if (baseContext == nullptr) {
+        ErrorLog("ThrowAsyncError serious error baseContext nullptr");
+        return;
+    }
     napi_value businessError = CreateErrorMessage(env, errMsg, errCode);
     if (baseContext->callbackRef != nullptr) {
         DebugLog("ThrowAsyncError for callback");
