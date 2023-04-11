@@ -21,15 +21,6 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-// Every routing table entry is matches exact
-static const int AID_MATCHING_EXACT_ONLY = 0x00;
-
-// Every routing table entry matches exact or prefix
-static const int AID_MATCHING_EXACT_OR_PREFIX = 0x01;
-
-// Every routing table entry matches a prefix
-static const int AID_MATCHING_PREFIX_ONLY = 0x02;
-
 static const uint16_t DEFAULT_SYS_CODE = 0xFEFE;
 static const uint8_t AID_ROUTE_QUAL_PREFIX = 0x10;
 static const int DEFAULT_OFF_HOST_ROUTE_DEST = 0x01;
