@@ -30,6 +30,8 @@ public:
     public:
         virtual ~INfccHostListener() {}
         virtual void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) = 0;
+        virtual void FieldActivated() = 0;
+        virtual void FieldDeactivated() = 0;
     };
 
     virtual ~INfccHost() {}

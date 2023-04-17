@@ -320,6 +320,7 @@ void NfccHost::RemoteFieldActivated()
         ErrorLog("Nfcc host listener is null");
         return;
     }
+    nfccHostListener_.lock()->FieldActivated();
 }
 
 void NfccHost::RemoteFieldDeactivated()
@@ -329,6 +330,7 @@ void NfccHost::RemoteFieldDeactivated()
         ErrorLog("Nfcc host listener is null");
         return;
     }
+    nfccHostListener_.lock()->FieldDeactivated();
 }
 
 void NfccHost::HostCardEmulationActivated(int technology)

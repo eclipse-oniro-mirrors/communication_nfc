@@ -27,6 +27,7 @@ config("nfc_config") {
     "src/nci_adapter",
     "src/tags",
     "src/utils",
+    "src/card_emulation",
     "//third_party/libnfc-nci/SN100x/src/gki/common/",
     "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
     "//third_party/libnfc-nci/SN100x/src/include",
@@ -46,6 +47,7 @@ ohos_shared_library("nfc_service") {
   }
   sources = [
     "src/app_data_parser.cpp",
+    "src/card_emulation/ce_service.cpp",
     "src/common_event_handler.cpp",
     "src/controller/nfc_controller_callback_proxy.cpp",
     "src/controller/nfc_controller_death_recipient.cpp",
