@@ -340,6 +340,64 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString006, TestSize.Level1)
     std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::ICODE_SLI);
     ASSERT_TRUE(typeString == "com.nxp.ndef.icodesli");
 }
+/**
+ * @tc.name: Connect001
+ * @tc.desc: Test NdefTag Connect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, Connect001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int connect = ndef->Connect();
+    ASSERT_TRUE(connect == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+}
+/**
+ * @tc.name: Close001
+ * @tc.desc: Test NdefTag Close.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, Close001, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int close = ndef->Close();
+    ASSERT_TRUE(close == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+}
+/**
+ * @tc.name: SendCommand001
+ * @tc.desc: Test NdefTag SendCommand.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, SendCommand001, TestSize.Level1)
+{
+    std::string hexCmdData;
+    bool raw = true;
+    std::string hexRespData;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    int sendCommand = ndef->SendCommand(hexCmdData, raw, hexRespData);
+    ASSERT_TRUE(sendCommand == ErrorCode::ERR_NONE);
+}
+/**
+ * @tc.name: GetTag003
+ * @tc.desc: Test NdefTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetTag003, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo);
+    ASSERT_TRUE(ndef == nullptr);
+}
+/**
+ * @tc.name: GetNdefTagTypeString007
+ * @tc.desc: Test NdefTag GetNdefTagTypeString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefTagTest, GetNdefTagTypeString007, TestSize.Level1)
+{
+    std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
+    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN);
+    ASSERT_TRUE(typeString == "");
+}
 }
 }
 }

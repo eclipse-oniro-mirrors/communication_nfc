@@ -195,6 +195,28 @@ HWTEST_F(NdefMessageTest, MessageToString001, TestSize.Level1)
     std::string messageToString = NdefMessage::MessageToString(ndefMessage);
     ASSERT_TRUE(messageToString == "");
 }
+/**
+ * @tc.name: NdefRecordToString001
+ * @tc.desc: Test NdefMessage NdefRecordToString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMessageTest, NdefRecordToString001, TestSize.Level1)
+{
+    std::weak_ptr<NdefRecord> record;
+    std::string buffer;
+    NdefMessage::NdefRecordToString(record, buffer, true, true);
+}
+/**
+ * @tc.name: MakeMimeRecord004
+ * @tc.desc: Test NdefMessage MakeMimeRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMessageTest, MakeMimeRecord004, TestSize.Level1)
+{
+    const std::string mimeType = "/";
+    std::shared_ptr<NdefRecord> makeMimeRecord = NdefMessage::MakeMimeRecord(mimeType, TEST_MIME_DATA);
+    ASSERT_TRUE(makeMimeRecord == std::shared_ptr<NdefRecord>());
+}
 }
 }
 }

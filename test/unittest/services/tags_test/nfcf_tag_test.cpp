@@ -103,7 +103,7 @@ HWTEST_F(NfcFTagTest, GetTag002, TestSize.Level1)
  * @tc.desc: Test NfcFTag GetTag.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcFTagTest, GetTag004, TestSize.Level1)
+HWTEST_F(NfcFTagTest, GetTag003, TestSize.Level1)
 {
     std::shared_ptr<NfcFTag> nfcF = NfcFTag::GetTag(tagInfo_);
     ASSERT_TRUE(nfcF != nullptr);
@@ -140,6 +140,17 @@ HWTEST_F(NfcFTagTest, GetTagUid001, TestSize.Level1)
     std::shared_ptr<NfcFTag> nfcF = NfcFTag::GetTag(tagInfo_);
     std::string uid = nfcF->GetTagUid();
     ASSERT_TRUE(strcmp(uid.c_str(), TEST_UID) == 0);
+}
+/**
+ * @tc.name: GetTag004
+ * @tc.desc: Test NfcFTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcFTagTest, GetTag004, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::shared_ptr<NfcFTag> nfcF = NfcFTag::GetTag(tagInfo);
+    ASSERT_TRUE(nfcF == nullptr);
 }
 }
 }
