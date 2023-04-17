@@ -34,6 +34,19 @@ enum class NfcCommonEvent {
     // card emulation
     MSG_ROUTE_AID,
     MSG_COMMIT_ROUTING,
+	
+    // field activated
+    MSG_FIELD_ACTIVATED,
+
+    // field deactivated
+    MSG_FIELD_DEACTIVATED,
+
+    // notify field on
+    MSG_NOTIFY_FIELD_ON,
+
+    // notify field off
+    MSG_NOTIFY_FIELD_OFF,
+    MSG_NOTIFY_FIELD_OFF_TIMEOUT,
 };
 
 enum class ScreenState {

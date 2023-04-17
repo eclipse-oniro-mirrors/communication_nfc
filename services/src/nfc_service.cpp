@@ -70,6 +70,7 @@ bool NfcService::Initialize()
     eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
+    ceService_ = std::make_shared<CeService>(shared_from_this());
 
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
@@ -96,6 +97,18 @@ void NfcService::OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
 {
     InfoLog("NfcService::OnTagDiscovered");
     eventHandler_->SendEvent<NCI::ITagHost>(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagHost);
+}
+
+void NfcService::FieldActivated()
+{
+    InfoLog("NfcService::FieldActivated");
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_ACTIVATED));
+}
+
+void NfcService::FieldDeactivated()
+{
+    InfoLog("NfcService::FiledDeactivated");
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED));
 }
 
 bool NfcService::IsNfcTaskReady(std::future<int>& future) const
@@ -225,7 +238,7 @@ void NfcService::DoInitialize()
 {
     // delay 5s to wait for bundle manager ready when device reboot
     sleep(5);
-    eventHandler_->Intialize(tagDispatcher_);
+    eventHandler_->Intialize(tagDispatcher_, ceService_);
     AppDataParser::GetInstance().InitAppList();
 
     DebugLog("DoInitialize start FactoryReset");

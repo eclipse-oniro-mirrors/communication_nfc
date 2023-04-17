@@ -21,6 +21,7 @@
 
 namespace OHOS {
 namespace NFC {
+
 class CommonEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
@@ -116,10 +117,11 @@ CommonEventHandler::~CommonEventHandler()
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
 }
 
-void CommonEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher)
+void CommonEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService)
 {
     DebugLog("CommonEventHandler::Intialize");
     tagDispatcher_ = tagDispatcher;
+    ceService_ = ceService;
 
     SubscribeScreenChangedEvent();
     SubscribePackageChangedEvent();
@@ -185,6 +187,26 @@ void CommonEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {
             nfcService_.lock()->HandleCommitRouting();
+            break;
+        }
+        case NfcCommonEvent::MSG_FIELD_ACTIVATED: {
+            ceService_.lock()->HandleFieldActivated();
+            break;
+        }
+        case NfcCommonEvent::MSG_FIELD_DEACTIVATED: {
+            ceService_.lock()->HandleFieldDeactivated();
+            break;
+        }
+        case NfcCommonEvent::MSG_NOTIFY_FIELD_ON: {
+            ceService_.lock()->PublishFieldOnOrOffCommonEvent(true);
+            break;
+        }
+        case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF: {
+            ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            break;
+        }
+        case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT: {
+            ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
             break;
         }
         default:

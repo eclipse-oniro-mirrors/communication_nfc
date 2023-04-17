@@ -31,7 +31,7 @@ public:
     CommonEventHandler& operator=(const CommonEventHandler&) = delete;
     CommonEventHandler(const CommonEventHandler&) = delete;
 
-    void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher);
+    void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService);
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 
     void SubscribeScreenChangedEvent();
@@ -49,6 +49,7 @@ private:
 
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher_ {};
+    std::weak_ptr<CeService> ceService_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS

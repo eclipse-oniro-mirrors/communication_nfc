@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 #include "nfc_sdk_common.h"
+
 #include <algorithm>
 #include <sstream>
 #include <securec.h>
+#include <sys/time.h>
+
 #include "loghelper.h"
 
 namespace OHOS {
@@ -156,6 +159,14 @@ std::string NfcSdkCommon::StringToHexString(const std::string &src)
     uint32_t len = src.length();
     std::string result = BytesVecToHexString(&bytes[0], len);
     return result;
+}
+
+uint64_t NfcSdkCommon::GetCurrentTime()
+{
+    constexpr int timeRate = 1000;
+    struct timeval time = {0};
+    gettimeofday(&time, NULL);
+    return (uint64_t)time.tv_sec * timeRate + (uint64_t)time.tv_usec / timeRate;
 }
 }  // namespace KITS
 }  // namespace NFC

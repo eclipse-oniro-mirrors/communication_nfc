@@ -27,11 +27,13 @@
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "access_token.h"
+#include "ce_service.h"
 
 namespace OHOS {
 namespace NFC {
 class CommonEventHandler;
 class NfcControllerImpl;
+class CeService;
 class NfcStateRegistryRecord {
 public:
     std::string type_ = "";
@@ -50,6 +52,8 @@ public:
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
     void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
+    void FieldActivated() override;
+    void FieldDeactivated() override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     void ExecuteStartPollingLoop() override;
 
@@ -108,6 +112,7 @@ private:
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_;
     OHOS::sptr<IRemoteObject> tagSessionIface_{};
     std::shared_ptr<CommonEventHandler> eventHandler_ {};
+    std::shared_ptr<CeService> ceService_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current state.
     int nfcState_;
@@ -127,6 +132,7 @@ private:
     friend class TAG::TagDispatcher;
     friend class NfcSaManager;
     friend class CommonEventHandler;
+    friend class CeService;
 };
 }  // namespace NFC
 }  // namespace OHOS
