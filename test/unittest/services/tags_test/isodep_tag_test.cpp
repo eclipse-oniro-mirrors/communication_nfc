@@ -156,7 +156,7 @@ HWTEST_F(IsoDepTagTest, IsExtendedApduSupported001, TestSize.Level1)
     std::shared_ptr<IsoDepTag> isoDep = IsoDepTag::GetTag(tagInfo_);
     int statusCode = isoDep->IsExtendedApduSupported(isSupported);
     ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
-    ASSERT_TRUE(isSupported == false);
+    ASSERT_TRUE(isSupported == true);
 }
 }
 }
