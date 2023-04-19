@@ -34,7 +34,7 @@ enum class NfcCommonEvent {
     // card emulation
     MSG_ROUTE_AID,
     MSG_COMMIT_ROUTING,
-	
+
     // field activated
     MSG_FIELD_ACTIVATED,
 
