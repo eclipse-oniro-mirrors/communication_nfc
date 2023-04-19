@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "ce_service.h"
 
 #include "accesstoken_kit.h"
@@ -69,7 +70,7 @@ void CeService::HandleFieldDeactivated()
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF), 
+        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
             FIELD_COMMON_EVENT_INTERVAL);
     }
 }
