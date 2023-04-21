@@ -682,6 +682,11 @@ bool NfccNciAdapter::CommitRouting()
 {
     return RoutingManager::GetInstance().CommitRouting();
 }
+
+bool NfccNciAdapter::ComputeRoutingParams()
+{
+    return RoutingManager::GetInstance().ComputeRoutingParams();
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

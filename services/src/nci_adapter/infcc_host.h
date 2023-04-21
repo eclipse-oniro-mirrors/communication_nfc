@@ -103,6 +103,7 @@ public:
     virtual bool AddAidRouting(std::string& aid, int route, int aidInfo) = 0;
     virtual bool RemoveAidRouting(std::string& aid) = 0;
     virtual bool CommitRouting() = 0;
+    virtual bool ComputeRoutingParams() = 0;
     virtual int GetAidRoutingTableSize() = 0;
     virtual int GetDefaultRoute() = 0;
     virtual int GetDefaultOffHostRoute() = 0;

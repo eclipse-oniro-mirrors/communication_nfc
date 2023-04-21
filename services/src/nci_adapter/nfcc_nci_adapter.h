@@ -51,6 +51,7 @@ public:
     void StartRfDiscovery(bool isStart) const;
     bool IsRfEbabled();
     bool CommitRouting();
+    bool ComputeRoutingParams();
 
 private:
     static const tNFA_TECHNOLOGY_MASK DEFAULT_TECH_MASK =

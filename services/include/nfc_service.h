@@ -64,6 +64,7 @@ protected:
     void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
     // commit routing
     void HandleCommitRouting();
+    void HandleComputeRoutingParams();
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
@@ -96,6 +97,7 @@ private:
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
     // commit routing
     void CommitRouting();
+    void ComputeRoutingParams();
 
 private:
     // ms wait for initialization, included firmware download.
