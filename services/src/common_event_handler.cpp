@@ -189,6 +189,10 @@ void CommonEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
             nfcService_.lock()->HandleCommitRouting();
             break;
         }
+        case NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS: {
+            nfcService_.lock()->HandleComputeRoutingParams();
+            break;
+        }
         case NfcCommonEvent::MSG_FIELD_ACTIVATED: {
             ceService_.lock()->HandleFieldActivated();
             break;

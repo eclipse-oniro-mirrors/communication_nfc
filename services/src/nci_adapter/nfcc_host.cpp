@@ -224,6 +224,16 @@ bool NfccHost::CommitRouting()
     return commitResult;
 }
 
+bool NfccHost::ComputeRoutingParams()
+{
+    DebugLog("NfccHost::ComputeRoutingParams");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::ComputeRoutingParams(): unsupported chip type");
+        return true;
+    }
+    return NfccNciAdapter::GetInstance().ComputeRoutingParams();
+}
+
 int NfccHost::GetAidRoutingTableSize()
 {
     DebugLog("NfccHost::GetAidRoutingTableSize");

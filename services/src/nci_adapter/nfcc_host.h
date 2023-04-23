@@ -57,6 +57,7 @@ public:
     bool AddAidRouting(std::string& aid, int route, int aidInfo) override;
     bool RemoveAidRouting(std::string& aid) override;
     bool CommitRouting() override;
+    bool ComputeRoutingParams() override;
     int GetAidRoutingTableSize() override;
     int GetDefaultRoute() override;
     int GetDefaultOffHostRoute() override;

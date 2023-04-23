@@ -32,30 +32,46 @@ public:
     bool Initialize();
     void Deinitialize();
     bool CommitRouting();
+    bool ComputeRoutingParams();
 
 private:
     RoutingManager();
     ~RoutingManager();
+
+    // update route settings
     tNFA_TECHNOLOGY_MASK UpdateEeTechRouteSetting();
+    void UpdateDefaultRoute();
+    void UpdateDefaultProtoRoute();
+    void SetOffHostNfceeTechMask();
+
+    // routing entries
+    bool ClearRoutingEntry(int type);
+    bool SetRoutingEntry(int type, int value, int route, int power);
+    void RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle,
+        tNFA_PROTOCOL_MASK protoSwitchOn, tNFA_PROTOCOL_MASK protoSwitchOff,
+        tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
+        tNFA_PROTOCOL_MASK protoScreenOff, tNFA_PROTOCOL_MASK protoSwitchOffLock);
+    void RegisterTechRoutingEntry(tNFA_HANDLE eeHandle,
+        tNFA_PROTOCOL_MASK protoSwitchOn, tNFA_PROTOCOL_MASK protoSwitchOff,
+        tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
+        tNFA_PROTOCOL_MASK protoScreenOff, tNFA_PROTOCOL_MASK protoSwitchOffLock);
+    bool IsTypeABSupportedInEe(tNFA_HANDLE eeHandle);
+    uint8_t GetProtoMaskFromTechMask(int& value);
+
+    // callbacks and event handlers
+    static void NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* eventData);
     static void NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventData);
     static void DoNfaEeRegisterEvent();
+    static void DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData);
     static void DoNfaEeDeregisterEvent(tNFA_EE_CBACK_DATA* eventData);
     static void NotifyRoutingEvent();
     static void DoNfaEeDiscoverReqEvent(tNFA_EE_CBACK_DATA* eventData);
     static void DoNfaEeAddOrRemoveAidEvent(tNFA_EE_CBACK_DATA* eventData);
     static void DoNfaEeUpdateEvent();
-    void UpdateDefaultRoute();
+    void ClearAllEvents();
+    void OnNfcDeinit();
 
 private:
-    // Every routing table entry is matches exact
-    static const int AID_MATCHING_EXACT_ONLY = 0x00;
-
-    // Every routing table entry matches exact or prefix
-    static const int AID_MATCHING_EXACT_OR_PREFIX = 0x01;
-
-    // Every routing table entry matches a prefix
-    static const int AID_MATCHING_PREFIX_ONLY = 0x02;
-
     // default routes
     int defaultOffHostRoute_;
     int defaultFelicaRoute_;
@@ -77,6 +93,7 @@ private:
     SynchronizeEvent eeRegisterEvent_;
     SynchronizeEvent eeInfoEvent_;
     SynchronizeEvent routingEvent_;
+    SynchronizeEvent eeSetModeEvent_;
 
     bool isEeInfoChanged_;
     bool isEeInfoReceived_;
@@ -87,7 +104,6 @@ private:
     uint8_t hostListenTechMask_;
 
     int offHostAidRoutingPowerState_;
-    int aidMatchingMode_;
 };
 }
 }

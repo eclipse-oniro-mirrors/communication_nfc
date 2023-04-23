@@ -206,6 +206,7 @@ bool NfcService::DoTurnOn()
     /* Start polling loop */
     StartPollingLoop(true);
 
+    ComputeRoutingParams();
     CommitRouting();
 
     return true;
@@ -462,6 +463,22 @@ void NfcService::HandleCommitRouting()
     } else {
         DebugLog("NOT Handle CommitRouting when polling not enabled.");
     }
+}
+
+void NfcService::ComputeRoutingParams()
+{
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS));
+}
+
+void NfcService::HandleComputeRoutingParams()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (nfcState_ == KITS::STATE_OFF || nfcState_ == KITS::STATE_TURNING_OFF) {
+        DebugLog("NOT Handle ComputeRoutingParams in state off or turning off.");
+        return;
+    }
+    bool result = nfccHost_->ComputeRoutingParams();
+    DebugLog("HandleComputeRoutingParams result = %{public}d", result);
 }
 }  // namespace NFC
 }  // namespace OHOS
