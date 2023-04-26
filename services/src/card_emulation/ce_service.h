@@ -26,12 +26,12 @@ class CommonEventHandler;
 
 class CeService {
 public:
-    explicit CeService(std::weak_ptr<NfcService> nfcService_);
+    explicit CeService(std::weak_ptr<NfcService> nfcService);
     ~CeService();
 
     void HandleFieldActivated();
     void HandleFieldDeactivated();
-    void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
+    static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
 
 private:
     uint64_t lastFieldOnTime_ = 0;
