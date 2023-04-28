@@ -161,8 +161,8 @@ HWTEST_F(TagInfoTest, GetStringExtrasData001, TestSize.Level1)
 {
     AppExecFwk::PacMap extrasData;
     const std::string extrasName;
-    std::string stingExtras = tagInfo_->GetStringExtrasData(extrasData, extrasName);
-    ASSERT_TRUE(stingExtras == "");
+    std::string stringExtrasData = tagInfo_->GetStringExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(stringExtrasData == "");
 }
 /**
  * @tc.name: GetIntExtrasData001
@@ -173,8 +173,8 @@ HWTEST_F(TagInfoTest, GetIntExtrasData001, TestSize.Level1)
 {
     AppExecFwk::PacMap extrasData;
     const std::string extrasName;
-    int inextrasData = tagInfo_->GetIntExtrasData(extrasData, extrasName);
-    ASSERT_TRUE(inextrasData == ErrorCode::ERR_TAG_PARAMETERS);
+    int intExtrasData = tagInfo_->GetIntExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(intExtrasData == ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
  * @tc.name: GetBoolExtrasData001
@@ -185,8 +185,8 @@ HWTEST_F(TagInfoTest, GetBoolExtrasData001, TestSize.Level1)
 {
     AppExecFwk::PacMap extrasData;
     const std::string extrasName;
-    bool boolextrasData = tagInfo_->GetBoolExtrasData(extrasData, extrasName);
-    ASSERT_TRUE(!boolextrasData);
+    bool boolExtrasData = tagInfo_->GetBoolExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(!boolExtrasData);
 }
 /**
  * @tc.name: GetTagSessionProxy001
@@ -195,8 +195,8 @@ HWTEST_F(TagInfoTest, GetBoolExtrasData001, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetTagSessionProxy001, TestSize.Level1)
 {
-    OHOS::sptr<TAG::ITagSession> tagsessionProxy = tagInfo_->GetTagSessionProxy();
-    ASSERT_TRUE(tagsessionProxy != nullptr);
+    OHOS::sptr<TAG::ITagSession> tagSessionProxy = tagInfo_->GetTagSessionProxy();
+    ASSERT_TRUE(tagSessionProxy != nullptr);
 }
 /**
  * @tc.name: GetStringTech001
@@ -205,8 +205,8 @@ HWTEST_F(TagInfoTest, GetTagSessionProxy001, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech001, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(TEST_DISC_ID);
-    ASSERT_TRUE(stringTach == "NfcA");
+    std::string stringTech = tagInfo_->GetStringTech(TEST_DISC_ID);
+    ASSERT_TRUE(stringTech == "NfcA");
 }
 /**
  * @tc.name: GetStringTech002
@@ -215,8 +215,8 @@ HWTEST_F(TagInfoTest, GetStringTech001, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech002, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_B_TECH));
-    ASSERT_TRUE(stringTach == "NfcB");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_B_TECH));
+    ASSERT_TRUE(stringTech == "NfcB");
 }
 /**
  * @tc.name: GetStringTech003
@@ -225,8 +225,8 @@ HWTEST_F(TagInfoTest, GetStringTech002, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech003, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_F_TECH));
-    ASSERT_TRUE(stringTach == "NfcF");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_F_TECH));
+    ASSERT_TRUE(stringTech == "NfcF");
 }
 /**
  * @tc.name: GetStringTech004
@@ -235,8 +235,8 @@ HWTEST_F(TagInfoTest, GetStringTech003, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech004, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_V_TECH));
-    ASSERT_TRUE(stringTach == "NfcV");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_V_TECH));
+    ASSERT_TRUE(stringTech == "NfcV");
 }
 /**
  * @tc.name: GetStringTech005
@@ -245,8 +245,8 @@ HWTEST_F(TagInfoTest, GetStringTech004, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech005, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
-    ASSERT_TRUE(stringTach == "IsoDep");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_ISODEP_TECH));
+    ASSERT_TRUE(stringTech == "IsoDep");
 }
 /**
  * @tc.name: GetStringTech006
@@ -255,8 +255,8 @@ HWTEST_F(TagInfoTest, GetStringTech005, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech006, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
-    ASSERT_TRUE(stringTach == "MifareClassic");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    ASSERT_TRUE(stringTech == "MifareClassic");
 }
 /**
  * @tc.name: GetStringTech007
@@ -265,8 +265,8 @@ HWTEST_F(TagInfoTest, GetStringTech006, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech007, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
-    ASSERT_TRUE(stringTach == "MifareUL");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    ASSERT_TRUE(stringTech == "MifareUL");
 }
 /**
  * @tc.name: GetStringTech008
@@ -275,8 +275,8 @@ HWTEST_F(TagInfoTest, GetStringTech007, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech008, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_TECH));
-    ASSERT_TRUE(stringTach == "Ndef");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_TECH));
+    ASSERT_TRUE(stringTech == "Ndef");
 }
 /**
  * @tc.name: GetStringTech009
@@ -285,8 +285,8 @@ HWTEST_F(TagInfoTest, GetStringTech008, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech009, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_FORMATABLE_TECH));
-    ASSERT_TRUE(stringTach == "NdefFormatable");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_NDEF_FORMATABLE_TECH));
+    ASSERT_TRUE(stringTech == "NdefFormatable");
 }
 /**
  * @tc.name: GetStringTech0010
@@ -295,8 +295,21 @@ HWTEST_F(TagInfoTest, GetStringTech009, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetStringTech0010, TestSize.Level1)
 {
-    std::string stringTach = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_INVALID_TECH));
-    ASSERT_TRUE(stringTach == "");
+    std::string stringTech = tagInfo_->GetStringTech(static_cast<int>(TagTechnology::NFC_INVALID_TECH));
+    ASSERT_TRUE(stringTech == "");
+}
+/**
+ * @tc.name: GetBoolExtrasData002
+ * @tc.desc: Test NfcController GetBoolExtrasData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetBoolExtrasData002, TestSize.Level1)
+{
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtras.push_back(tagTechExtrasData);
+    bool getBoolExtrasData = tagInfo_->GetBoolExtrasData(tagTechExtrasData, TEST_UID);
+    ASSERT_TRUE(getBoolExtrasData == tagTechExtrasData.GetBooleanValue(TEST_UID, false));
 }
 }
 }

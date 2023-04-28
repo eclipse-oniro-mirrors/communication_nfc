@@ -47,7 +47,10 @@ unit_test_external_deps = [
 ohos_unittest("controller_test") {
   module_out_path = "nfc/services"
 
-  sources = [ "controller_test/nfc_controller_test.cpp" ]
+  sources = [
+    "controller_test/nfc_controller_callback_stub_test.cpp",
+    "controller_test/nfc_controller_test.cpp",
+  ]
 
   configs = [ ":nfc_service_unit_test_config" ]
 

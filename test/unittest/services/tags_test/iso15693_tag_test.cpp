@@ -200,6 +200,17 @@ HWTEST_F(Iso15693TagTest, GetTagUid001, TestSize.Level1)
     std::string uid = iso15693->GetTagUid();
     ASSERT_TRUE(strcmp(uid.c_str(), TEST_UID) == 0);
 }
+/**
+ * @tc.name: GetTag003
+ * @tc.desc: Test Iso15693Tag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, GetTag003, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tag = nullptr;
+    std::shared_ptr<Iso15693Tag> getTag = Iso15693Tag::GetTag(tag);
+    ASSERT_TRUE(getTag == nullptr);
+}
 }
 }
 }
