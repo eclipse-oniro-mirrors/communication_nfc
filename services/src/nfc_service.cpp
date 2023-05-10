@@ -29,6 +29,7 @@
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
+const int ROUTING_DELAY_TIME = 500; // ms
 
 NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
     : nfccHost_(std::move(nfccHost)),
@@ -447,7 +448,7 @@ void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData>
 
 void NfcService::CommitRouting()
 {
-    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMMIT_ROUTING));
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMMIT_ROUTING), ROUTING_DELAY_TIME);
 }
 
 void NfcService::HandleCommitRouting()
@@ -467,7 +468,7 @@ void NfcService::HandleCommitRouting()
 
 void NfcService::ComputeRoutingParams()
 {
-    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS));
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS), ROUTING_DELAY_TIME);
 }
 
 void NfcService::HandleComputeRoutingParams()

@@ -551,12 +551,17 @@ uint8_t NfccNciAdapter::GetDiscovryParam(unsigned char screenState, unsigned cha
 void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
 {
     DebugLog("NfccNciAdapter::SetScreenStatus");
+    if (!IsNfcActive()) {
+        DebugLog("Do not handle Screen state change when NFC is not active");
+        return;
+    }
     unsigned char screenState = screenStateMask & NFA_SCREEN_STATE_MASK;
     if (curScreenState_ == screenState) {
         DebugLog("Screen state not changed");
         return;
     }
-    if (!IsNfcActive() || GetNciVersion() != NCI_VERSION_2_0) {
+    if (GetNciVersion() != NCI_VERSION_2_0) {
+        DebugLog("only update curScreenState when NCI version under 2.0");
         curScreenState_ = screenState;
         return;
     }
