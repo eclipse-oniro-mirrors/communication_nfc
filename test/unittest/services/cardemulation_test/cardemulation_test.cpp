@@ -46,8 +46,8 @@ void CardemulationTest::SetUp() {}
 void CardemulationTest::TearDown() {}
 
 /**
- * @tc.name: IsSupporte001
- * @tc.desc: Test CardemulationTest IsSupporte.
+ * @tc.name: IsSupported001
+ * @tc.desc: Test CardemulationTest IsSupported.
  * @tc.type: FUNC
  */
 HWTEST_F(CardemulationTest, IsSupported001, TestSize.Level1)
@@ -60,8 +60,8 @@ HWTEST_F(CardemulationTest, IsSupported001, TestSize.Level1)
     ASSERT_TRUE(isSupport == true);
 }
 /**
- * @tc.name: IsSupporte002
- * @tc.desc: Test CardemulationTest IsSupporte.
+ * @tc.name: IsSupported002
+ * @tc.desc: Test CardemulationTest IsSupported.
  * @tc.type: FUNC
  */
 HWTEST_F(CardemulationTest, IsSupported002, TestSize.Level1)
@@ -74,8 +74,8 @@ HWTEST_F(CardemulationTest, IsSupported002, TestSize.Level1)
     ASSERT_TRUE(isSupport == true);
 }
 /**
- * @tc.name: IsSupporte003
- * @tc.desc: Test CardemulationTest IsSupporte.
+ * @tc.name: IsSupported003
+ * @tc.desc: Test CardemulationTest IsSupported.
  * @tc.type: FUNC
  */
 HWTEST_F(CardemulationTest, IsSupported003, TestSize.Level1)
@@ -86,6 +86,20 @@ HWTEST_F(CardemulationTest, IsSupported003, TestSize.Level1)
     // Supports FeatureType { HCE = 0, UICC = 1, ESE = 2 } type card emulation
     isSupport = cardemulation.IsSupported(FeatureType::ESE);
     ASSERT_TRUE(isSupport == true);
+}
+/**
+ * @tc.name: IsSupported004
+ * @tc.desc: Test CardemulationTest IsSupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CardemulationTest, IsSupported004, TestSize.Level1)
+{
+    bool isSupport = true;
+    CardEmulation cardemulation = CardEmulation::GetInstance();
+
+    // card emulation is not supported
+    isSupport = cardemulation.IsSupported(static_cast<FeatureType>(ErrorCode::ERR_NFC_BASE));
+    ASSERT_TRUE(isSupport == false);
 }
 }
 }

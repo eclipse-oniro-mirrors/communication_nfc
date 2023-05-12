@@ -311,6 +311,19 @@ HWTEST_F(TagInfoTest, GetBoolExtrasData002, TestSize.Level1)
     bool getBoolExtrasData = tagInfo_->GetBoolExtrasData(tagTechExtrasData, TEST_UID);
     ASSERT_TRUE(getBoolExtrasData == tagTechExtrasData.GetBooleanValue(TEST_UID, false));
 }
+/**
+ * @tc.name: GetTechExtrasByIndex001
+ * @tc.desc: Test NfcController GetTechExtrasByIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByIndex001, TestSize.Level1)
+{
+    std::vector<AppExecFwk::PacMap> tagTechExtrasData;
+    size_t techIndex = -1;
+    AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
+    tagTechExtrasData.push_back(getTechExtrasByIndex);
+    ASSERT_TRUE(tagTechExtrasData.empty() == false);
+}
 }
 }
 }

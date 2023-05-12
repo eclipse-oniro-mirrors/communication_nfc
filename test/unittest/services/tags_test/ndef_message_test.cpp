@@ -232,6 +232,29 @@ HWTEST_F(NdefMessageTest, GetNdefRecords001, TestSize.Level1)
     std::vector<std::shared_ptr<NdefRecord>> getNdefRecords = ndefMessage.GetNdefRecords();
     ASSERT_TRUE(getNdefRecords == ndefRecords);
 }
+/**
+ * @tc.name: GetNdefMessage002
+ * @tc.desc: Test NdefMessage GetNdefMessage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMessageTest, GetNdefMessage002, TestSize.Level1)
+{
+    const std::string data = "";
+    std::shared_ptr<NdefMessage> getNdefMessage = NdefMessage::GetNdefMessage(data);
+    ASSERT_TRUE(getNdefMessage.use_count() == 0);
+}
+/**
+ * @tc.name: MessageToString002
+ * @tc.desc: Test NdefMessage MessageToString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMessageTest, MessageToString002, TestSize.Level1)
+{
+    std::vector<std::shared_ptr<NdefRecord>> ndefRecords;
+    std::shared_ptr<NdefMessage> getNdefMessage = NdefMessage::GetNdefMessage(ndefRecords);
+    std::string messageToString = NdefMessage::MessageToString(getNdefMessage);
+    ASSERT_TRUE(messageToString == "");
+}
 }
 }
 }

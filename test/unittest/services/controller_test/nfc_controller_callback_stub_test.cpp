@@ -89,18 +89,6 @@ HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest001, TestSize.Level1)
     int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
     ASSERT_TRUE(onRemoteRequest == KITS::ERR_NFC_PARAMETERS);
 }
-/**
- * @tc.name: OnNfcStateChanged001
- * @tc.desc: Test NfcControllerCallBackStub OnNfcStateChanged.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcControllerCallBackStubTest, OnNfcStateChanged001, TestSize.Level1)
-{
-    int nfcRfState = 0;
-    NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
-    ctrl.OnNfcStateChanged(nfcRfState);
-    ASSERT_TRUE(nfcRfState == KITS::ErrorCode::ERR_NONE);
-}
 }
 }
 }

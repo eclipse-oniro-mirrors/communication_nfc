@@ -241,6 +241,39 @@ HWTEST_F(NfcPublicTest, GetByteFromHexStr002, TestSize.Level1)
     unsigned char byteFromHexStr = NfcSdkCommon::GetByteFromHexStr(src, index);
     ASSERT_TRUE(byteFromHexStr == 0);
 }
+/**
+ * @tc.name: GetCurrentTime001
+ * @tc.desc: Test NfcPublic GetCurrentTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, GetCurrentTime001, TestSize.Level1)
+{
+    uint64_t getCurrentTime = NfcSdkCommon::GetCurrentTime();
+    ASSERT_TRUE(getCurrentTime != 0);
+}
+/**
+ * @tc.name: GetByteFromHexStr003
+ * @tc.desc: Test NfcPublic GetByteFromHexStr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, GetByteFromHexStr003, TestSize.Level1)
+{
+    const std::string src = TEST_DATA_ANY_HEX_STRING;
+    uint32_t index = TEST_DATA_ANY_HEX_STRING_BYTE_LEN;
+    unsigned char byteFromHexStr = NfcSdkCommon::GetByteFromHexStr(src, index);
+    ASSERT_TRUE(byteFromHexStr == 0);
+}
+/**
+ * @tc.name: IntToHexString002
+ * @tc.desc: Test NfcPublic IntToHexString.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, IntToHexString002, TestSize.Level1)
+{
+    uint32_t num = ErrorCode::ERR_NONE;
+    std::string intToStr = NfcSdkCommon::IntToHexString(num);
+    ASSERT_TRUE(intToStr == "00");
+}
 }
 }
 }
