@@ -18,9 +18,11 @@ ohos_shared_library("controller") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
+    integer_overflow = true
     cfi_cross_dso = true
     debug = false
   }
+  stack_protector_ret = true
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [

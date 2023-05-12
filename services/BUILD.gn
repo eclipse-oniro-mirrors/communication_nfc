@@ -42,9 +42,11 @@ ohos_shared_library("nfc_service") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
+    integer_overflow = true
     cfi_cross_dso = true
     debug = false
   }
+  stack_protector_ret = true
   sources = [
     "src/app_data_parser.cpp",
     "src/card_emulation/ce_service.cpp",
