@@ -37,9 +37,11 @@ ohos_shared_library("nfc_inner_kits") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
+    integer_overflow = true
     cfi_cross_dso = true
     debug = false
   }
+  stack_protector_ret = true
   sources = [
     "src/cardEmulation/cardEmulation.cpp",
     "src/controller/nfc_controller.cpp",
