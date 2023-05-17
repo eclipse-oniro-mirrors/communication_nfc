@@ -101,7 +101,8 @@ uint32_t NfcSdkCommon::GetHexStrBytesLen(const std::string src)
 unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t index)
 {
     // 2 charactors consist of one byte.
-    if (src.empty() || index >= (src.length() - 1)) {
+    if (src.empty() || (src.length() < index * HEX_BYTE_LEN + HEX_BYTE_LEN)) {
+        ErrorLog("GetByteFromHexStr, src length error.");
         return 0;
     }
     std::string strByte = src.substr(index * HEX_BYTE_LEN, HEX_BYTE_LEN);
