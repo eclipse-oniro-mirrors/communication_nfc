@@ -347,7 +347,7 @@ int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
  */
 int TagSession::GetMaxTransceiveLength(int technology, int &maxSize)
 {
-    if (technology >= MAX_TECH  || technology < 0) {
+    if (technology >= MAX_TECH || technology < 0) {
         ErrorLog("GetMaxTransceiveLength, technology not support");
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
