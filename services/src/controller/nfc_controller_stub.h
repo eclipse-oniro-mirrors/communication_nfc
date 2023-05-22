@@ -56,6 +56,7 @@ private:
     KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
 
 private:
+    std::mutex mutex_ {};
     sptr<INfcControllerCallback> callback_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };

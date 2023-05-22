@@ -111,12 +111,15 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
         }
         deathRecipient_ = dr;
 
-        callback_ = iface_cast<INfcControllerCallback>(remote);
-        if (callback_ == nullptr) {
-            callback_ = new (std::nothrow) NfcControllerCallBackProxy(remote);
-            DebugLog("create new `NfcControllerCallBackProxy`!");
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            callback_ = iface_cast<INfcControllerCallback>(remote);
+            if (callback_ == nullptr) {
+                callback_ = new (std::nothrow) NfcControllerCallBackProxy(remote);
+                DebugLog("create new `NfcControllerCallBackProxy`!");
+            }
+            ret = RegisterCallBack(callback_, type);
         }
-        ret = RegisterCallBack(callback_, type);
     } while (0);
     
     reply.WriteInt32(ret);
@@ -125,6 +128,7 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
 
 void NfcControllerStub::RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (callback_ == nullptr) {
         ErrorLog("OnRemoteDied callback_ is nullptr");
         return;
@@ -154,7 +158,7 @@ int NfcControllerStub::HandleUnRegisterCallBack(MessageParcel &data, MessageParc
 KITS::ErrorCode NfcControllerStub::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
     const std::string& type)
 {
-    return RegisterCallBack(callback_, type, IPCSkeleton::GetCallingTokenID());
+    return RegisterCallBack(callback, type, IPCSkeleton::GetCallingTokenID());
 }
 
 KITS::ErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
