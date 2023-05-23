@@ -109,10 +109,10 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
             ErrorLog("Failed to add death recipient");
             return ERR_NONE;
         }
-        deathRecipient_ = dr;
 
         {
             std::lock_guard<std::mutex> guard(mutex_);
+            deathRecipient_ = dr;
             callback_ = iface_cast<INfcControllerCallback>(remote);
             if (callback_ == nullptr) {
                 callback_ = new (std::nothrow) NfcControllerCallBackProxy(remote);
@@ -121,7 +121,7 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
             ret = RegisterCallBack(callback_, type);
         }
     } while (0);
-    
+
     reply.WriteInt32(ret);
     return ERR_NONE;
 }
