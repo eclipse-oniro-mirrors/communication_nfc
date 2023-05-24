@@ -213,7 +213,12 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     if (argc >= requireArgcWithCb) {
         napi_valuetype handler = napi_undefined;
         napi_typeof(env, argv[1], &handler);
-        NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
+        if (handler == napi_null || handler == napi_undefined) {
+            argc -= 1;
+            DebugLog("argv[1] is null or undefined, handle as no argv[1] input");
+        } else {
+            NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
+        }
     }
 
     char type[64] = {0};
