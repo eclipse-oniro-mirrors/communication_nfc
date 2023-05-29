@@ -15,7 +15,7 @@ on post-fs-data
     mkdir /data/nfc
     start nfc_service
 
-service nfc_service /system/bin/sa_main /system/profile/nfc_service.xml
+service nfc_service /system/bin/sa_main /system/profile/nfc_service.json
     class z_core
     user root
     group root shell
