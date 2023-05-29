@@ -52,10 +52,21 @@
             "components": [
                 "ipc",
                 "hiviewdfx_hilog_native",
-                "bundle_framework"
+                "bundle_framework",
+                "c_utils",
+                "napi",
+                "ability_base",
+                "samgr",
+                "ability_runtime",
+                "access_token",
+                "common_event_service",
+                "eventhandler",
+                "miscdevice",
+                "preferences",
+                "safwk"
             ],
             "third_party": [
-                "nfc-nci"
+                "libnfc-nci"
             ]
         },
         "build": {
