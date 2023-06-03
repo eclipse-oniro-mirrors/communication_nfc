@@ -28,17 +28,17 @@ public:
     std::string ToString();
 
 public:
-    void SetTechMask(int techMask);
-    int GetTechMask() const;
+    void SetTechMask(uint16_t techMask);
+    uint16_t GetTechMask() const;
     bool ShouldEnablePolling() const;
     bool ShouldEnableLowPowerPolling() const;
     bool ShouldEnableReaderMode() const;
     bool ShouldEnableHostRouting() const;
 
-    static int NFC_POLL_DEFAULT;
+    static uint16_t NFC_POLL_DEFAULT;
 
 private:
-    int techMask_;
+    uint16_t techMask_;
     bool enableLowPowerPolling_;
     bool enableReaderMode_;
     bool enableHostRouting_;

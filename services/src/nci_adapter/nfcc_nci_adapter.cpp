@@ -529,7 +529,7 @@ uint8_t NfccNciAdapter::GetDiscovryParam(unsigned char screenState, unsigned cha
 {
     // discocery parameters for SCREEN OFF_LOCKED or OFF_UNLOCKED
     if (screenState == NFA_SCREEN_STATE_OFF_LOCKED || screenState == NFA_SCREEN_STATE_OFF_UNLOCKED) {
-        return (NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_ENABLE_MASK);
+        return (NCI_POLLING_DH_DISABLE_MASK | NCI_LISTEN_DH_NFCEE_DISABLE_MASK);
     }
 
     // discocery parameters for SCREEN ON_LOCKED
