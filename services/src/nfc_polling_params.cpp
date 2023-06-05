@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace NFC {
-int NfcPollingParams::NFC_POLL_DEFAULT = -1;
+uint16_t NfcPollingParams::NFC_POLL_DEFAULT = 0xFFFF;
 
 NfcPollingParams::NfcPollingParams() : techMask_(0),
     enableLowPowerPolling_(true),
@@ -39,7 +39,7 @@ std::shared_ptr<NfcPollingParams> NfcPollingParams::GetNfcOffParameters()
     return std::make_shared<NfcPollingParams>();
 }
 
-int NfcPollingParams::GetTechMask() const
+uint16_t NfcPollingParams::GetTechMask() const
 {
     return techMask_;
 }
@@ -64,7 +64,7 @@ bool NfcPollingParams::ShouldEnableHostRouting() const
     return enableHostRouting_;
 }
 
-void NfcPollingParams::SetTechMask(int techMask)
+void NfcPollingParams::SetTechMask(uint16_t techMask)
 {
     techMask_ = techMask;
 }

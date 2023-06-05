@@ -140,14 +140,12 @@ bool RoutingManager::ComputeRoutingParams()
 {
     InfoLog("ComputeRoutingParams");
     int valueProtoIsoDep = 0x01;
-    int valueProtoNfcDep = 0x02;
 
     // route for protocol
     ClearRoutingEntry(NFA_SET_PROTO_ROUTING);
     SetRoutingEntry(NFA_SET_PROTO_ROUTING, valueProtoIsoDep,
         ((DEFAULT_PROTO_ROUTE_AND_POWER >> ROUTE_LOC_MASK) & DEFAULT_LISTEN_TECH_MASK),
         DEFAULT_PROTO_ROUTE_AND_POWER & PWR_STA_MASK);
-    SetRoutingEntry(NFA_SET_PROTO_ROUTING, valueProtoNfcDep, DEFAULT_HOST_ROUTE_DEST, PWR_STA_SWTCH_ON_SCRN_UNLCK);
 
     // route for technology
     // currently set tech F default to ese with power 0x3B
