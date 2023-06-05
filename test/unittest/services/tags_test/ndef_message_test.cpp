@@ -255,6 +255,19 @@ HWTEST_F(NdefMessageTest, MessageToString002, TestSize.Level1)
     std::string messageToString = NdefMessage::MessageToString(getNdefMessage);
     ASSERT_TRUE(messageToString == "");
 }
+/**
+ * @tc.name: MakeExternalRecord005
+ * @tc.desc: Test NdefMessage MakeExternalRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMessageTest, MakeExternalRecord005, TestSize.Level1)
+{
+    const std::string domainName = "\r\t\n";
+    const std::string serviceName = "serviceName";
+    const std::string externalData = "externalData";
+    std::shared_ptr<NdefRecord> getNdefMessage = NdefMessage::MakeExternalRecord(domainName, serviceName, externalData);
+    ASSERT_TRUE(getNdefMessage == nullptr);
+}
 }
 }
 }
