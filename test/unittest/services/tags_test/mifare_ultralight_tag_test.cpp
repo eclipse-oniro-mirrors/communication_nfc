@@ -135,6 +135,17 @@ HWTEST_F(MifareUltralightTagTest, GetType001, TestSize.Level1)
     MifareUltralightTag::EmType getType = mifareUltralight->GetType();
     ASSERT_TRUE(getType == MifareUltralightTag::TYPE_UNKNOWN);
 }
+/**
+ * @tc.name: GetTag003
+ * @tc.desc: Test MifareUltralightTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareUltralightTagTest, GetTag003, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
+    ASSERT_TRUE(mifareUltralight == nullptr);
+}
 }
 }
 }

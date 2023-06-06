@@ -123,13 +123,13 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeTextRecord(const std::string& text,
 std::shared_ptr<NdefRecord> NdefMessage::MakeMimeRecord(const std::string& mimeType, const std::string& mimeData)
 {
     if (mimeType.empty() || mimeData.empty()) {
-        ErrorLog("MakeExternalRecord, mimeType or mimeData invalid.");
+        ErrorLog("MakeMimeRecord, mimeType or mimeData invalid.");
         return std::shared_ptr<NdefRecord>();
     }
     std::string id = "";
     size_t t = mimeType.find_first_of('/');
     if (t == 0 || t == (mimeType.size() - 1)) {
-        ErrorLog("MakeExternalRecord, mimeType should have major and minor type if '/' exists.");
+        ErrorLog("MakeMimeRecord, mimeType should have major and minor type if '/' exists.");
         return std::shared_ptr<NdefRecord>();
     }
     return CreateNdefRecord(TNF_MIME_MEDIA, id, mimeData, NfcSdkCommon::StringToHexString(mimeType));

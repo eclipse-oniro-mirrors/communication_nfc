@@ -59,7 +59,7 @@ HWTEST_F(NfcControllerCallBackStubTest, RegisterCallBack001, TestSize.Level1)
 {
     const sptr<INfcControllerCallback> callBack = nullptr;
     NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
-    int registerCallBack = ctrl.RegisterCallBack(callBack);
+    KITS::ErrorCode registerCallBack = ctrl.RegisterCallBack(callBack);
     ASSERT_TRUE(registerCallBack == KITS::ERR_NFC_PARAMETERS);
 }
 /**
@@ -71,7 +71,7 @@ HWTEST_F(NfcControllerCallBackStubTest, RegisterCallBack002, TestSize.Level1)
 {
     NfcControllerCallBackStub nfcControllerCallBackStub;
     NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
-    int registerCallBack = ctrl.RegisterCallBack(&nfcControllerCallBackStub);
+    KITS::ErrorCode registerCallBack = ctrl.RegisterCallBack(&nfcControllerCallBackStub);
     ASSERT_TRUE(registerCallBack == KITS::ERR_NONE);
 }
 /**
