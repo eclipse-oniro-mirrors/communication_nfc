@@ -88,7 +88,7 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::GetNdefRecords() const
 std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriString)
 {
     if (uriString.empty()) {
-        ErrorLog("MakeExternalRecord, uriString invalid.");
+        ErrorLog("MakeUriRecord, uriString invalid.");
         return std::shared_ptr<NdefRecord>();
     }
 
