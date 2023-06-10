@@ -17,6 +17,7 @@ group("fuzztest") {
   testonly = true
   deps = [
     "controller_test/nfccontroller:nfccontroller_fuzztest",
+    "services_test/controller_test/nfccontrollerstub:nfccontrollerstub_fuzztest",
     "tags_test/basictagsession:basictagsession_fuzztest",
     "tags_test/iso15693tag:iso15693tag_fuzztest",
     "tags_test/isodeptag:isodeptag_fuzztest",
