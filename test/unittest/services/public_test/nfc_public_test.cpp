@@ -236,7 +236,7 @@ HWTEST_F(NfcPublicTest, GetHexStrBytesLen003, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, GetByteFromHexStr002, TestSize.Level1)
 {
-    const std::string src = "";
+    const std::string src = "%x";
     uint32_t index = 0;
     unsigned char byteFromHexStr = NfcSdkCommon::GetByteFromHexStr(src, index);
     ASSERT_TRUE(byteFromHexStr == 0);
@@ -273,6 +273,18 @@ HWTEST_F(NfcPublicTest, IntToHexString002, TestSize.Level1)
     uint32_t num = ErrorCode::ERR_NONE;
     std::string intToStr = NfcSdkCommon::IntToHexString(num);
     ASSERT_TRUE(intToStr == "00");
+}
+/**
+ * @tc.name: HexStringToBytes003
+ * @tc.desc: Test NfcPublic HexStringToBytes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
+{
+    std::string src = "%x";
+    std::vector<unsigned char> bytes;
+    NfcSdkCommon::HexStringToBytes(src, bytes);
+    ASSERT_TRUE(bytes.empty() == true);
 }
 }
 }
