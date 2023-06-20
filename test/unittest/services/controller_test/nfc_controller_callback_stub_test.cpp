@@ -30,6 +30,23 @@ public:
     void TearDown();
 };
 
+class INfcControllerCallbackImpl : public INfcControllerCallback {
+public:
+    INfcControllerCallbackImpl() {}
+
+    virtual ~INfcControllerCallbackImpl() {}
+
+public:
+    void OnNfcStateChanged(int nfcState) override
+    {
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
 void NfcControllerCallBackStubTest::SetUpTestCase()
 {
     std::cout << " SetUpTestCase NfcControllerCallBackStubTest." << std::endl;
@@ -69,9 +86,10 @@ HWTEST_F(NfcControllerCallBackStubTest, RegisterCallBack001, TestSize.Level1)
  */
 HWTEST_F(NfcControllerCallBackStubTest, RegisterCallBack002, TestSize.Level1)
 {
-    NfcControllerCallBackStub nfcControllerCallBackStub;
+    const sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
+        sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
     NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
-    KITS::ErrorCode registerCallBack = ctrl.RegisterCallBack(&nfcControllerCallBackStub);
+    KITS::ErrorCode registerCallBack = ctrl.RegisterCallBack(iNfcControllerCallbackImpl);
     ASSERT_TRUE(registerCallBack == KITS::ERR_NONE);
 }
 /**
