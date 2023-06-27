@@ -408,6 +408,206 @@ HWTEST_F(MifareClassicTagTest, GetTag003, TestSize.Level1)
     std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo);
     ASSERT_TRUE(mifareClassic == nullptr);
 }
+/**
+ * @tc.name: GetSectorCount002
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount002, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK01 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK01);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_1K);
+}
+/**
+ * @tc.name: GetSectorCount003
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount003, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK09 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK09);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_MINI);
+}
+/**
+ * @tc.name: GetSectorCount004
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount004, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK10 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK10);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_SECTOR_COUNT_OF_SIZE_2K);
+}
+/**
+ * @tc.name: GetSectorCount005
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount005, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK11 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK11);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_MAX_SECTOR_COUNT);
+}
+/**
+ * @tc.name: GetSectorCount006
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount006, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK18 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK18);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_MAX_SECTOR_COUNT);
+}
+/**
+ * @tc.name: GetSectorCount007
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount007, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK38 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK38);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_MAX_SECTOR_COUNT);
+}
+/**
+ * @tc.name: GetSectorCount008
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount008, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //SAK98 : SetSizeBySak Function interface input parameters
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK98);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == MifareClassicTag::MC_MAX_SECTOR_COUNT);
+}
+/**
+ * @tc.name: GetSectorCount009
+ * @tc.desc: Test MifareClassicTag GetSectorCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareClassicTagTest, GetSectorCount009, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareClassicExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    //TEST_MC_MAX_SECTOR_COUNT : SetSizeBySak Function interface error entering arguments
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_MC_MAX_SECTOR_COUNT);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareClassicExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareClassicTag> mifareClassic = MifareClassicTag::GetTag(tagInfo_);
+    int sectorCount = mifareClassic->GetSectorCount();
+    ASSERT_TRUE(sectorCount == 0);
+}
 }
 }
 }
