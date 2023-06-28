@@ -160,7 +160,7 @@ HWTEST_F(NfcControllerTest, RegListener001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
     sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
-    sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
+        sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
     ErrorCode errorCode = ctrl.RegListener(iNfcControllerCallbackImpl, TEST_NFC_STATE_CHANGE);
     ASSERT_TRUE(errorCode == ErrorCode::ERR_NONE);
 }
