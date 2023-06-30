@@ -17,6 +17,7 @@
 
 #include "cardEmulation.h"
 #include "nfc_sdk_common.h"
+#include "card_emulation/ce_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -100,6 +101,41 @@ HWTEST_F(CardemulationTest, IsSupported004, TestSize.Level1)
     // card emulation is not supported
     isSupport = cardemulation.IsSupported(static_cast<FeatureType>(ErrorCode::ERR_NFC_BASE));
     ASSERT_TRUE(isSupport == false);
+}
+
+/**
+ * @tc.name: CeService001
+ * @tc.desc: Test CeService001.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>(nullptr);
+    OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
+    bool success = true;
+    ceService->PublishFieldOnOrOffCommonEvent(true);
+    ceService->PublishFieldOnOrOffCommonEvent(false);
+    ceService->HandleFieldActivated();
+    ceService->HandleFieldDeactivated();
+    delete ceService;
+    ASSERT_TRUE(success);
+}
+
+/**
+ * @tc.name: CeService002
+ * @tc.desc: Test CeService002.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CardemulationTest, CeService002, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>(nullptr);
+    OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
+    bool success = true;
+    nfcService = nullptr; // release the NfcService, let to be expired.
+    ceService->HandleFieldActivated();
+    ceService->HandleFieldDeactivated();
+    delete ceService;
+    ASSERT_TRUE(success);
 }
 }
 }

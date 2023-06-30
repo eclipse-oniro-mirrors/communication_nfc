@@ -41,6 +41,9 @@ void NfcWatchDog::MainLoop()
         return;
     }
     // If Routing Wake Lock is held, Routing Wake Lock release. Watchdog triggered, release lock before aborting.
+    if (nfccHost_.expired()) {
+        return;
+    }
     InfoLog("Watchdog triggered, aborting.");
     nfccHost_.lock()->Abort();
 }

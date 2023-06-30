@@ -29,7 +29,6 @@ bool PermissionTools::IsGranted(std::string permission)
     } else if (Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken) ==
         Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
         result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permission);
-    } else {
     }
     return result == Security::AccessToken::PermissionState::PERMISSION_GRANTED;
 }

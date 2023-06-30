@@ -22,6 +22,8 @@ config("nfc_service_unit_test_config") {
     "//foundation/communication/nfc/interfaces/inner_api/include/controller",
     "//foundation/communication/nfc/interfaces/inner_api/include/tags",
     "//foundation/communication/nfc/interfaces/inner_api/include/cardEmulation",
+    "$NFC_SERVICE_ROOT/services/include",
+    "$NFC_SERVICE_ROOT/services/src",
   ]
 
   defines = []
@@ -38,6 +40,7 @@ unit_test_deps = [
 
 unit_test_external_deps = [
   "ability_base:want",
+  "access_token:libaccesstoken_sdk",
   "c_utils:utils",
   "hiviewdfx_hilog_native:libhilog",
   "ipc:ipc_core",
