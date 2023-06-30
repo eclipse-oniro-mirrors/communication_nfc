@@ -20,9 +20,27 @@
 #include "nfc_controller_stub.h"
 #include "nfc_controller_impl.h"
 #include "nfc_sdk_common.h"
+#include "access_token.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
+
+class INfcControllerCallbackImpl : public NFC::INfcControllerCallback {
+public:
+    INfcControllerCallbackImpl() {}
+
+    virtual ~INfcControllerCallbackImpl() {}
+
+public:
+    void OnNfcStateChanged(int nfcState) override
+    {
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
 
     static constexpr const auto DESCRIPTOR = u"ohos.nfc.INfcControllerService";
     constexpr const auto FUZZER_THRESHOLD = 4;
@@ -139,6 +157,33 @@ namespace OHOS {
         nfcCrlStub->OnRemoteRequest(COMMAND_GET_TAG_INTERFACE, data2, reply, option);
         delete nfcCrlStub;
     }
+
+    void FuzzUnregisterCallback(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        data2.WriteString(type);
+        data2.WriteInt32(0);
+        nfcCrlStub->OnRemoteRequest(COMMAND_UNREGISTER_CALLBACK, data2, reply, option);
+        delete nfcCrlStub;
+    }
+
+    void FuzzregisterCallback(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
+        sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
+        Security::AccessToken::AccessTokenID callerToken = 0;
+        nfcCrlStub->RegisterCallBack(iNfcControllerCallbackImpl, type, callerToken);
+        delete nfcCrlStub;
+    }
 }
 
 /* Fuzzer entry point */
@@ -156,6 +201,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleUnRegisterCallBack(data, size);
     OHOS::FuzzHandleIsNfcOpen(data, size);
     OHOS::FuzzHandleGetNfcTagInterface(data, size);
+    OHOS::FuzzUnregisterCallback(data, size);
+    OHOS::FuzzregisterCallback(data, size);
     return 0;
 }
 

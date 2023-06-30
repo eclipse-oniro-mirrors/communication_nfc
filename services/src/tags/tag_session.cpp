@@ -30,6 +30,10 @@ int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0,
 TagSession::TagSession(std::shared_ptr<INfcService> service)
     : nfcService_(service)
 {
+    if (service == nullptr) {
+        ErrorLog("TagSession create fail, service is nullptr");
+        return;
+    }
     nfccHost_ = service->GetNfccHost();
     tagDispatcher_ = service->GetTagDispatcher();
 }
@@ -337,6 +341,10 @@ int TagSession::FormatNdef(int tagRfDiscId, const std::string& key)
 
 int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
 {
+    if (nfccHost_.lock() == nullptr) {
+        ErrorLog("CanMakeReadOnly, nfccHost_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
     canSetReadOnly = nfccHost_.lock()->CanMakeReadOnly(ndefType);
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
@@ -357,6 +365,10 @@ int TagSession::GetMaxTransceiveLength(int technology, int &maxSize)
 
 int TagSession::IsSupportedApdusExtended(bool &isSupported)
 {
+    if (nfccHost_.lock() == nullptr) {
+        ErrorLog("IsSupportedApdusExtended, nfccHost_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
     isSupported = nfccHost_.lock()->GetExtendedLengthApdusSupported();
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
