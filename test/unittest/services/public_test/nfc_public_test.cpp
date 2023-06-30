@@ -16,6 +16,9 @@
 #include <thread>
 
 #include "nfc_sdk_common.h"
+#include "utils/preferences/nfc_pref_impl.h"
+#include "utils/permission_tools.h"
+#include "utils/synchronize_event.h"
 
 namespace OHOS {
 namespace NFC {
@@ -285,6 +288,58 @@ HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
     std::vector<unsigned char> bytes;
     NfcSdkCommon::HexStringToBytes(src, bytes);
     ASSERT_TRUE(bytes.empty() == true);
+}
+
+/**
+ * @tc.name: NfcPrefImpl001
+ * @tc.desc: Test NfcPublic NfcPrefImpl001.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
+{
+    OHOS::NFC::NfcPrefImpl *impl = new OHOS::NFC::NfcPrefImpl();
+    impl->SetString("test_key", "test_value");
+    std::string value = impl->GetString("test_key");
+    ASSERT_TRUE(value == "test_value");
+
+    impl->Delete("test_key");
+    value = impl->GetString("test_key");
+    ASSERT_TRUE(value == "");
+
+    impl->Clear();
+    value = impl->GetString("test_key");
+    delete impl;
+    ASSERT_TRUE(value == "");
+}
+
+/**
+ * @tc.name: PermissionTools001
+ * @tc.desc: Test PermissionTools001
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, PermissionTools001, TestSize.Level1)
+{
+    bool granted = PermissionTools::IsGranted("unitest.permission.nfc");
+    ASSERT_TRUE(granted == false);
+}
+
+/**
+ * @tc.name: SynchronizeEvent001
+ * @tc.desc: Test SynchronizeEvent001
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, SynchronizeEvent001, TestSize.Level1)
+{
+    OHOS::NFC::SynchronizeEvent *event = new OHOS::NFC::SynchronizeEvent();
+    bool success = true;
+    event->Start();
+    event->NotifyOne();
+    event->Wait();
+    event->Wait(1000);
+    event->End();
+    delete event;
+    ASSERT_TRUE(success == true);
+    
 }
 }
 }

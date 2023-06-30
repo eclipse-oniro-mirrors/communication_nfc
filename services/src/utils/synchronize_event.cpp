@@ -68,18 +68,15 @@ bool SynchronizeEvent::Wait(long ms)
 {
     bool retVal = false;
     struct timespec absoluteTime;
+    clock_gettime(CLOCK_MONOTONIC, &absoluteTime);
 
-    if (clock_gettime(CLOCK_MONOTONIC, &absoluteTime) == -1) {
-        DebugLog("SynchronizeEvent::wait: fail get time");
+    absoluteTime.tv_sec += ms / MILLISECOND_PER_SECOND;
+    long ns = absoluteTime.tv_nsec + ((ms % MILLISECOND_PER_SECOND) * NANOSECOND_PER_MILLISECOND);
+    if (ns > NANOSECOND_PER_SECOND) {
+        absoluteTime.tv_sec++;
+        absoluteTime.tv_nsec = ns - NANOSECOND_PER_SECOND;
     } else {
-        absoluteTime.tv_sec += ms / MILLISECOND_PER_SECOND;
-        long ns = absoluteTime.tv_nsec + ((ms % MILLISECOND_PER_SECOND) * NANOSECOND_PER_MILLISECOND);
-        if (ns > NANOSECOND_PER_SECOND) {
-            absoluteTime.tv_sec++;
-            absoluteTime.tv_nsec = ns - NANOSECOND_PER_SECOND;
-        } else {
-            absoluteTime.tv_nsec = ns;
-        }
+        absoluteTime.tv_nsec = ns;
     }
 
     int waitResult = pthread_cond_timedwait(&cond_, &lock_, &absoluteTime);
