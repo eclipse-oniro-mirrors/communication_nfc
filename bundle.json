@@ -51,7 +51,7 @@
         "deps": {
             "components": [
                 "ipc",
-                "hiviewdfx_hilog_native",
+                "hilog",
                 "bundle_framework",
                 "c_utils",
                 "napi",

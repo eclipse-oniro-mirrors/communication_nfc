@@ -42,7 +42,7 @@ unit_test_external_deps = [
   "ability_base:want",
   "access_token:libaccesstoken_sdk",
   "c_utils:utils",
-  "hiviewdfx_hilog_native:libhilog",
+  "hilog:libhilog",
   "ipc:ipc_core",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
