@@ -113,6 +113,9 @@ HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>(nullptr);
     OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
     bool success = true;
+    bool initStaus = nfcService->Initialize();
+    ASSERT_TRUE(initStaus);
+
     ceService->PublishFieldOnOrOffCommonEvent(true);
     ceService->PublishFieldOnOrOffCommonEvent(false);
     ceService->HandleFieldActivated();

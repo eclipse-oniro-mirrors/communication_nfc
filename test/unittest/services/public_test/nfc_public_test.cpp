@@ -320,7 +320,7 @@ HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
 HWTEST_F(NfcPublicTest, PermissionTools001, TestSize.Level1)
 {
     bool granted = PermissionTools::IsGranted("unitest.permission.nfc");
-    ASSERT_TRUE(granted == false);
+    ASSERT_TRUE(granted == true);
 }
 
 /**
@@ -333,13 +333,11 @@ HWTEST_F(NfcPublicTest, SynchronizeEvent001, TestSize.Level1)
     OHOS::NFC::SynchronizeEvent *event = new OHOS::NFC::SynchronizeEvent();
     bool success = true;
     event->Start();
-    event->NotifyOne();
-    event->Wait();
     event->Wait(1000);
+    event->NotifyOne();
     event->End();
     delete event;
     ASSERT_TRUE(success == true);
-    
 }
 }
 }

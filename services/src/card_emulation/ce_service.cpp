@@ -50,7 +50,7 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 
 void CeService::HandleFieldActivated()
 {
-    if (nfcService_.expired()) {
+    if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
         return;
     }
     nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
@@ -67,7 +67,7 @@ void CeService::HandleFieldActivated()
 
 void CeService::HandleFieldDeactivated()
 {
-    if (nfcService_.expired()) {
+    if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
         return;
     }
     nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
