@@ -16,6 +16,7 @@
 
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
+#include "nfc_service_ipc_interface_code.h"
 #include "permission_tools.h"
 
 namespace OHOS {
@@ -33,37 +34,37 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
     }
 
     switch (code) {
-        case KITS::COMMAND_CONNECT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT):
             return HandleConnect(data, reply);
-        case KITS::COMMAND_RECONNECT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT):
             return HandleReconnect(data, reply);
-        case KITS::COMMAND_DISCONNECT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT):
             return HandleDisconnect(data, reply);
-        case KITS::COMMAND_SET_TIMEOUT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT):
             return HandleSetTimeout(data, reply);
-        case KITS::COMMAND_GET_TIMEOUT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT):
             return HandleGetTimeout(data, reply);
-        case KITS::COMMAND_GET_TECHLIST:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST):
             return HandleGetTechList(data, reply);
-        case KITS::COMMAND_IS_PRESENT:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT):
             return HandleIsTagFieldOn(data, reply);
-        case KITS::COMMAND_IS_NDEF:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF):
             return HandleIsNdef(data, reply);
-        case KITS::COMMAND_SEND_RAW_FRAME:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME):
             return HandleSendRawFrame(data, reply);
-        case KITS::COMMAND_NDEF_READ:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ):
             return HandleNdefRead(data, reply);
-        case KITS::COMMAND_NDEF_WRITE:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE):
             return HandleNdefWrite(data, reply);
-        case KITS::COMMAND_NDEF_MAKE_READ_ONLY:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY):
             return HandleNdefMakeReadOnly(data, reply);
-        case KITS::COMMAND_FORMAT_NDEF:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF):
             return HandleFormatNdef(data, reply);
-        case KITS::COMMAND_CAN_MAKE_READ_ONLY:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY):
             return HandleCanMakeReadOnly(data, reply);
-        case KITS::COMMAND_GET_MAX_TRANSCEIVE_LENGTH:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH):
             return HandleGetMaxTransceiveLength(data, reply);
-        case KITS::COMMAND_IS_SUPPORTED_APDUS_EXTENDED:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED):
             return HandleIsSupportedApdusExtended(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

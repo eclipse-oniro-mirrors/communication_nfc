@@ -16,6 +16,7 @@
 #include "nfc_controller_callback_stub.h"
 
 #include "nfc_sdk_common.h"
+#include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
 
 namespace OHOS {
@@ -58,7 +59,7 @@ int NfcControllerCallBackStub::OnRemoteRequest(
     }
     int ret = KITS::ERR_NFC_STATE_UNBIND;
     switch (code) {
-        case KITS::COMMAND_ON_NOTIFY: {
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY): {
             ret = RemoteNfcStateChanged(data, reply);
             break;
         }

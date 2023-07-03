@@ -16,6 +16,7 @@
 #include "ipc_skeleton.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
+#include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
 #include "permission_tools.h"
 
@@ -32,19 +33,19 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
         return KITS::ERR_NFC_PARAMETERS;
     }
     switch (code) {
-        case KITS::COMMAND_GET_STATE:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE):
             return HandleGetState(data, reply);
-        case KITS::COMMAND_TURN_ON:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON):
             return HandleTurnOn(data, reply);
-        case KITS::COMMAND_TURN_OFF:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF):
             return HandleTurnOff(data, reply);
-        case KITS::COMMAND_REGISTER_CALLBACK:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK):
             return HandleRegisterCallBack(data, reply);
-        case KITS::COMMAND_UNREGISTER_CALLBACK:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK):
             return HandleUnRegisterCallBack(data, reply);
-        case KITS::COMMAND_IS_NFC_OPEN:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN):
             return HandleIsNfcOpen(data, reply);
-        case KITS::COMMAND_GET_TAG_INTERFACE:
+        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE):
             return HandleGetNfcTagInterface(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
