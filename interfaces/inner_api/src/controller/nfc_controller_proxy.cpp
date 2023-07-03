@@ -17,6 +17,7 @@
 #include "loghelper.h"
 #include "nfc_controller_callback_stub.h"
 #include "nfc_sdk_common.h"
+#include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
 namespace NFC {
@@ -33,7 +34,7 @@ int NfcControllerProxy::TurnOn()
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return SendRequestExpectReplyNone(KITS::COMMAND_TURN_ON, data, option);
+    return SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON), data, option);
 }
 
 int NfcControllerProxy::TurnOff()
@@ -44,7 +45,7 @@ int NfcControllerProxy::TurnOff()
         return KITS::ERR_NFC_PARAMETERS;
     }
     MessageOption option;
-    return SendRequestExpectReplyNone(KITS::COMMAND_TURN_OFF, data, option);
+    return SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF), data, option);
 }
 
 int NfcControllerProxy::GetState()
@@ -56,7 +57,8 @@ int NfcControllerProxy::GetState()
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int res = SendRequestExpectReplyInt(KITS::COMMAND_GET_STATE, data, option, state);
+    int res = SendRequestExpectReplyInt(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
+        data, option, state);
     if (res != ERR_NONE) {
         ErrorLog("It is failed To Get State with Res(%{public}d).", res);
         return NFC::KITS::STATE_OFF;
@@ -72,7 +74,8 @@ int NfcControllerProxy::IsNfcOpen(bool &isOpen)
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return SendRequestExpectReplyBool(KITS::COMMAND_IS_NFC_OPEN, data, option, isOpen);
+    return SendRequestExpectReplyBool(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
+        data, option, isOpen);
 }
 
 KITS::ErrorCode NfcControllerProxy::RegisterCallBack(
@@ -98,7 +101,8 @@ KITS::ErrorCode NfcControllerProxy::RegisterCallBack(
         return KITS::ERR_NFC_PARAMETERS;
     }
 
-    int error = SendRequestExpectReplyNone(KITS::COMMAND_REGISTER_CALLBACK, data, option);
+    int error = SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
+        data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
         return KITS::ERR_NFC_PARAMETERS;
@@ -120,7 +124,8 @@ KITS::ErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& type)
         return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
-    int error = SendRequestExpectReplyNone(KITS::COMMAND_UNREGISTER_CALLBACK, data, option);
+    int error = SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
+        data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
         return KITS::ERR_NFC_PARAMETERS;
@@ -138,7 +143,8 @@ OHOS::sptr<IRemoteObject> NfcControllerProxy::GetTagServiceIface()
         ErrorLog("GetTagServiceIface, Write interface token error");
         return nullptr;
     }
-    int32_t res = Remote()->SendRequest(KITS::COMMAND_GET_TAG_INTERFACE, data, reply, option);
+    int32_t res = Remote()->SendRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
+        data, reply, option);
     if (res != ERR_NONE) {
         ErrorLog("GetTagServiceIface SendRequest err %{public}d", res);
         return nullptr;
