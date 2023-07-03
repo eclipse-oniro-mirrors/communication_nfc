@@ -21,6 +21,7 @@
 #include "tag_session.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_fuzz.h"
+#include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -47,7 +48,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_CONNECT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -62,7 +64,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_RECONNECT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -77,7 +80,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_DISCONNECT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -92,7 +96,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_SET_TIMEOUT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -107,7 +112,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_GET_TIMEOUT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -122,7 +128,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_GET_TECHLIST, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -137,7 +144,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_IS_PRESENT, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -152,7 +160,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_IS_NDEF, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -167,7 +176,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_SEND_RAW_FRAME, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -182,7 +192,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_NDEF_READ, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -197,7 +208,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_NDEF_WRITE, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -212,7 +224,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_NDEF_MAKE_READ_ONLY, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -227,7 +240,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_FORMAT_NDEF, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -242,7 +256,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_CAN_MAKE_READ_ONLY, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -257,7 +272,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_GET_MAX_TRANSCEIVE_LENGTH, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH),
+            data2, reply, option);
         delete tagSession;
     }
 
@@ -272,7 +288,8 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(COMMAND_IS_SUPPORTED_APDUS_EXTENDED, data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED),
+            data2, reply, option);
         delete tagSession;
     }
 }

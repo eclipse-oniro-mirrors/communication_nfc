@@ -15,6 +15,7 @@
 
 #include "nfc_controller_callback_proxy.h"
 
+#include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
 
 namespace OHOS {
@@ -36,9 +37,11 @@ void NfcControllerCallBackProxy::OnNfcStateChanged(int nfcRfState)
     data.WriteInt32(0);
     data.WriteInt32(nfcRfState);
 
-    int error = Remote()->SendRequest(KITS::COMMAND_ON_NOTIFY, data, reply, option);
+    int error = Remote()->SendRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY),
+        data, reply, option);
     if (error != ERR_NONE) {
-        InfoLog("Set Attr %{public}d failed,error code is %{public}d", KITS::COMMAND_ON_NOTIFY, error);
+        InfoLog("Set Attr %{public}d failed,error code is %{public}d",
+            static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY), error);
         return;
     }
     int exception = reply.ReadInt32();

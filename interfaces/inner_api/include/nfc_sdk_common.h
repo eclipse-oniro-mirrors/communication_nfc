@@ -21,35 +21,6 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-// the command id defined for IPC, from kits to system ability.
-constexpr int COMMAND_ID = 100;
-constexpr int COMMAND_GET_STATE = COMMAND_ID + 1;
-constexpr int COMMAND_TURN_ON = COMMAND_ID + 2;
-constexpr int COMMAND_TURN_OFF = COMMAND_ID + 3;
-constexpr int COMMAND_ON_NOTIFY = COMMAND_ID + 4;
-constexpr int COMMAND_REGISTER_CALLBACK = COMMAND_ID + 5;
-constexpr int COMMAND_UNREGISTER_CALLBACK = COMMAND_ID + 6;
-constexpr int COMMAND_IS_NFC_OPEN = COMMAND_ID + 7;
-constexpr int COMMAND_GET_TAG_INTERFACE = COMMAND_ID + 8;
-
-constexpr int TAG_SESSION_START_ID = 200;
-constexpr int COMMAND_CONNECT = TAG_SESSION_START_ID + 1;
-constexpr int COMMAND_RECONNECT = TAG_SESSION_START_ID + 2;
-constexpr int COMMAND_DISCONNECT = TAG_SESSION_START_ID + 3;
-constexpr int COMMAND_GET_TECHLIST = TAG_SESSION_START_ID + 4;
-constexpr int COMMAND_IS_PRESENT = TAG_SESSION_START_ID + 5;
-constexpr int COMMAND_IS_NDEF = TAG_SESSION_START_ID + 6;
-constexpr int COMMAND_SEND_RAW_FRAME = TAG_SESSION_START_ID + 7;
-constexpr int COMMAND_NDEF_READ = TAG_SESSION_START_ID + 8;
-constexpr int COMMAND_NDEF_WRITE = TAG_SESSION_START_ID + 9;
-constexpr int COMMAND_NDEF_MAKE_READ_ONLY = TAG_SESSION_START_ID + 10;
-constexpr int COMMAND_FORMAT_NDEF = TAG_SESSION_START_ID + 11;
-constexpr int COMMAND_CAN_MAKE_READ_ONLY = TAG_SESSION_START_ID + 12;
-constexpr int COMMAND_GET_MAX_TRANSCEIVE_LENGTH = TAG_SESSION_START_ID + 13;
-constexpr int COMMAND_IS_SUPPORTED_APDUS_EXTENDED = TAG_SESSION_START_ID + 14;
-constexpr int COMMAND_SET_TIMEOUT = TAG_SESSION_START_ID + 15;
-constexpr int COMMAND_GET_TIMEOUT = TAG_SESSION_START_ID + 16;
-
 const static uint32_t HEX_BYTE_LEN = 2;
 const static uint32_t HEX_VALUE = 16;
 const static uint32_t HALF_BYTE_BITS = 4;
