@@ -100,7 +100,7 @@ HWTEST_F(NfcControllerCallBackStubTest, RegisterCallBack002, TestSize.Level1)
  */
 HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest001, TestSize.Level1)
 {
-    uint32_t code = static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY);
+    uint32_t code = static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
