@@ -17,10 +17,11 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "access_token.h"
 #include "nfc_controller_stub.h"
 #include "nfc_controller_impl.h"
 #include "nfc_sdk_common.h"
-#include "access_token.h"
+#include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -64,7 +65,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_GET_STATE, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -79,7 +81,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_TURN_ON, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_ON),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -94,7 +97,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_TURN_OFF, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -109,7 +113,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_REGISTER_CALLBACK, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -124,7 +129,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_UNREGISTER_CALLBACK, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -139,7 +145,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_IS_NFC_OPEN, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -154,7 +161,8 @@ public:
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        nfcCrlStub->OnRemoteRequest(COMMAND_GET_TAG_INTERFACE, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
@@ -169,7 +177,8 @@ public:
         data2.WriteInterfaceToken(DESCRIPTOR);
         data2.WriteString(type);
         data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(COMMAND_UNREGISTER_CALLBACK, data2, reply, option);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
+            data2, reply, option);
         delete nfcCrlStub;
     }
 
