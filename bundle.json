@@ -63,10 +63,13 @@
                 "eventhandler",
                 "miscdevice",
                 "preferences",
-                "safwk"
+                "safwk",
+                "drivers_interface_nfc",
+                "init"
             ],
             "third_party": [
-                "libnfc-nci"
+                "libnfc-nci",
+                "zlib"
             ]
         },
         "build": {
