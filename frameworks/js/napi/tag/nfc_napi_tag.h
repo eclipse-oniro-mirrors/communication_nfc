@@ -54,6 +54,13 @@ napi_value GetMifareClassicTag(napi_env env, napi_callback_info info);
 napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info);
 napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info);
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
+
+const std::string VAR_UID = "uid";
+const std::string VAR_TECH = "technology";
+const std::string VAR_EXTRA = "extrasData";
+const std::string VAR_RF_ID = "tagRfDiscId";
+const std::string VAR_SERVICE = "remoteTagService";
+const std::string VAR_PROFILES = "supportedProfiles";
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

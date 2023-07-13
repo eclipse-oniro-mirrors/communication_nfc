@@ -64,6 +64,8 @@ ohos_shared_library("nfc_service") {
     "src/nfc_polling_params.cpp",
     "src/nfc_sa_manager.cpp",
     "src/nfc_service.cpp",
+    "src/tags/foreground_callback_proxy.cpp",
+    "src/tags/foreground_death_recipient.cpp",
     "src/tags/tag_dispatcher.cpp",
     "src/tags/tag_session.cpp",
     "src/tags/tag_session_stub.cpp",

@@ -50,6 +50,7 @@ ohos_shared_library("nfc_inner_kits") {
     "src/nfc_basic_proxy.cpp",
     "src/nfc_sdk_common.cpp",
     "src/tags/basic_tag_session.cpp",
+    "src/tags/foreground_callback_stub.cpp",
     "src/tags/iso15693_tag.cpp",
     "src/tags/isodep_tag.cpp",
     "src/tags/mifare_classic_tag.cpp",
@@ -60,8 +61,10 @@ ohos_shared_library("nfc_inner_kits") {
     "src/tags/nfca_tag.cpp",
     "src/tags/nfcb_tag.cpp",
     "src/tags/nfcf_tag.cpp",
+    "src/tags/tag_foreground.cpp",
     "src/tags/tag_session_proxy.cpp",
     "src/tags/taginfo.cpp",
+    "src/tags/taginfo_parcelable.cpp",
   ]
 
   configs = [ ":nfc_inner_kits_config" ]

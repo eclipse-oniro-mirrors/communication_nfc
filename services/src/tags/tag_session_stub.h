@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 - 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,10 @@
 #ifndef TAG_SESSION_STUB_H
 #define TAG_SESSION_STUB_H
 
+#include "foreground_callback_proxy.h"
+
+#include "access_token.h"
+#include "iforeground_callback.h"
 #include "iremote_stub.h"
 #include "itag_session.h"
 #include "message_parcel.h"
@@ -30,6 +34,7 @@ public:
                         OHOS::MessageOption& option) override; /* [in] */
     TagSessionStub() {}
     virtual ~TagSessionStub() {}
+    void RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote);
 
 private:
     int HandleConnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
@@ -48,8 +53,13 @@ private:
     int HandleCanMakeReadOnly(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetMaxTransceiveLength(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleIsSupportedApdusExtended(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleRegForegroundDispatch(MessageParcel& data, MessageParcel& reply);
+    int HandleUnregForegroundDispatch(MessageParcel& data, MessageParcel& reply);
 
 private:
+    std::mutex mutex_ {};
+    sptr<KITS::IForegroundCallback> foregroundCallback_;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace TAG
 }  // namespace NFC

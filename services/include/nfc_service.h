@@ -18,16 +18,16 @@
 #include <future>
 #include <mutex>
 
+#include "access_token.h"
+#include "ce_service.h"
 #include "common_event_manager.h"
+#include "infc_controller_callback.h"
 #include "infc_service.h"
 #include "infcc_host.h"
 #include "itag_host.h"
 #include "nfc_controller_impl.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
-#include "infc_controller_callback.h"
-#include "access_token.h"
-#include "ce_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -39,6 +39,15 @@ public:
     std::string type_ = "";
     Security::AccessToken::AccessTokenID callerToken_ = 0;
     sptr<INfcControllerCallback> nfcStateChangeCallback_ = nullptr;
+};
+
+class ForegroundRegistryData {
+public:
+    bool isEnable_ = false;
+    uint16_t techMask_ = 0xFFFF;
+    AppExecFwk::ElementName element_;
+    Security::AccessToken::AccessTokenID callerToken_ = 0;
+    sptr<KITS::IForegroundCallback> callback_ = nullptr;
 };
 
 class NfcService final : public NCI::INfccHost::INfccHostListener,
@@ -55,7 +64,12 @@ public:
     void FieldActivated() override;
     void FieldDeactivated() override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
-    void ExecuteStartPollingLoop() override;
+    bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback) override;
+    bool DisableForegroundDispatch(AppExecFwk::ElementName element) override;
+    bool DisableForegroundByDeathRcpt() override;
+    bool IsForegroundEnabled() override;
+    void SendTagToForeground(KITS::TagInfoParcelable tagInfo) override;
 
 protected:
     // screen changed
@@ -95,6 +109,7 @@ private:
     // polling
     void StartPollingLoop(bool force);
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
+    uint16_t GetTechMaskFromTechList(std::vector<uint32_t> &discTech);
     // commit routing
     void CommitRouting();
     void ComputeRoutingParams();
@@ -121,6 +136,7 @@ private:
     int screenState_ {};
     // polling
     std::shared_ptr<NfcPollingParams> currPollingParams_;
+    ForegroundRegistryData foregroundData_;
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock

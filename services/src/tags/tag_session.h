@@ -15,6 +15,7 @@
 #ifndef TAG_SESSION_H
 #define TAG_SESSION_H
 
+#include "element_name.h"
 #include "infcc_host.h"
 #include "infc_service.h"
 #include "itag_session.h"
@@ -24,6 +25,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+using OHOS::AppExecFwk::ElementName;
 class TagSession final : public TagSessionStub {
 public:
     // Constructor/Destructor
@@ -117,6 +119,25 @@ public:
     int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
     int GetMaxTransceiveLength(int technology, int &maxSize) override;
     int IsSupportedApdusExtended(bool &isSupported) override;
+
+    /**
+     * @brief register foreground dispatch
+     *
+     * @param element the element name of the hap that request to register foreground dispatch.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @return The status code for register operation.
+     */
+    KITS::ErrorCode RegForegroundDispatch(ElementName element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) override;
+
+    /**
+     * @brief unregister foreground dispatch
+     *
+     * @param element the element name of the hap that request to unregister foreground dispatch.
+     * @return The status code for unregister operation.
+     */
+    KITS::ErrorCode UnregForegroundDispatch(ElementName element) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 private:

@@ -31,6 +31,7 @@ ohos_shared_library("tag") {
   ]
 
   sources = [
+    "nfc_napi_foreground_dispatch.cpp",
     "nfc_napi_ndef_message.cpp",
     "nfc_napi_tag.cpp",
     "nfc_napi_tag_isodep.cpp",

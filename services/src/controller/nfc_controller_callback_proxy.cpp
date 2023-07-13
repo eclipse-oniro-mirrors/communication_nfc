@@ -37,11 +37,11 @@ void NfcControllerCallBackProxy::OnNfcStateChanged(int nfcRfState)
     data.WriteInt32(0);
     data.WriteInt32(nfcRfState);
 
-    int error = Remote()->SendRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY),
+    int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY),
         data, reply, option);
     if (error != ERR_NONE) {
         InfoLog("Set Attr %{public}d failed,error code is %{public}d",
-            static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY), error);
+            NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY, error);
         return;
     }
     int exception = reply.ReadInt32();

@@ -33,19 +33,19 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
         return KITS::ERR_NFC_PARAMETERS;
     }
     switch (code) {
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE):
             return HandleGetState(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON):
             return HandleTurnOn(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF):
             return HandleTurnOff(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK):
             return HandleRegisterCallBack(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK):
             return HandleUnRegisterCallBack(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN):
             return HandleIsNfcOpen(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE):
             return HandleGetNfcTagInterface(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

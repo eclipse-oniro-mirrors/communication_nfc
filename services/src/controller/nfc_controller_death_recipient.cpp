@@ -22,20 +22,17 @@ namespace NFC {
 NfcControllerDeathRecipient::NfcControllerDeathRecipient(
     sptr<NfcControllerStub> nfcConctrolService, Security::AccessToken::AccessTokenID callerToken)
 {
-    InfoLog("NfcControllerDeathRecipient, ##callerToken=%{public}d\n", callerToken);
     nfcConctrolService_ = nfcConctrolService;
     callerToken_ = callerToken;
 }
 
 void NfcControllerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    ErrorLog("NfcControllerDeathRecipient::OnRemoteDied.");
     if (nfcConctrolService_ == nullptr) {
         ErrorLog("NfcControllerDeathRecipient nfcConctrolService_ is nullptr!");
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    InfoLog("OnRemoteDied, ##callerToken=%{public}d\n", callerToken_);
     KITS::ErrorCode ret = nfcConctrolService_->UnRegisterAllCallBack(callerToken_);
     InfoLog("OnRemoteDied, UnRegisterAllCallBack##ret=%{public}d\n", ret);
     nfcConctrolService_->RemoveNfcDeathRecipient(remote);

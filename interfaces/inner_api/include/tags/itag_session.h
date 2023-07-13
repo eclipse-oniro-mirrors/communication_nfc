@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 - 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 #ifndef I_TAG_SESSION_H
 #define I_TAG_SESSION_H
 
+#include "element_name.h"
+#include "foreground_callback_stub.h"
 #include "iremote_broker.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
@@ -134,6 +136,24 @@ public:
      */
     virtual int IsSupportedApdusExtended(bool &isSupported) = 0;
 
+    /**
+     * @brief register foreground dispatch
+     *
+     * @param element the element name of the hap that request to register foreground dispatch.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @return The status code for register operation.
+     */
+    virtual KITS::ErrorCode RegForegroundDispatch(AppExecFwk::ElementName element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) = 0;
+
+    /**
+     * @brief unregister foreground dispatch
+     *
+     * @param element the element name of the hap that request to unregister foreground dispatch.
+     * @return The status code for unregister operation.
+     */
+    virtual KITS::ErrorCode UnregForegroundDispatch(AppExecFwk::ElementName element) = 0;
 private:
 };
 }  // namespace TAG

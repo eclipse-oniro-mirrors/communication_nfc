@@ -47,18 +47,22 @@ void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
-    DebugLog("HandleTagFound");
     static NCI::ITagHost::TagDisconnectedCallBack callback =
         std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
-    int ret = OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
-    if (ret) {
-        ErrorLog("HandleTagFound StartVibratorOnce failed,ret=%{public}d", ret);
-    }
+    OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
     if (tag->GetConnectedTech() == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
     }
     DebugLog("fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
+
+    // skip ndef checking for foreground dispatch scenario
+    if (nfcService_->IsForegroundEnabled()) {
+        RegisterTagHost(tag);
+        tag->OnFieldChecking(callback, fieldOnCheckInterval_);
+        nfcService_->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
+        return 0;
+    }
     std::string ndefMsg = tag->ReadNdef();
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     if (ndefMessage == nullptr) {
@@ -68,32 +72,57 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
             return 0;
         }
     }
-
     lastNdefMsg_ = ndefMsg;
     RegisterTagHost(tag);
-    tag->OnFieldChecking(callback, DEFAULT_FIELD_ON_CHECK_DURATION);
+    tag->OnFieldChecking(callback, fieldOnCheckInterval_);
+    DispatchTag(tag);
+    return 0;
+}
 
+std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(std::shared_ptr<NCI::ITagHost> tag)
+{
     std::vector<int> techList = tag->GetTechList();
     std::string tagUid = tag->GetTagUid();
     std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
     int tagRfDiscId = tag->GetTagRfDiscId();
-    DebugLog("techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s, rfID = %{public}d",
-        techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
+    DebugLog("GetTagInfoFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
+        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
+    return std::make_shared<KITS::TagInfo>(techList, tagTechExtras, tagUid, tagRfDiscId,
+        nfcService_->GetTagServiceIface());
+}
 
-    std::shared_ptr<KITS::TagInfo> tagInfo = std::make_shared<KITS::TagInfo>(techList, tagTechExtras,
+KITS::TagInfoParcelable TagDispatcher::GetTagInfoParcelableFromTag(std::shared_ptr<NCI::ITagHost> tag)
+{
+    std::vector<int> techList = tag->GetTechList();
+    std::string tagUid = tag->GetTagUid();
+    std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
+    int tagRfDiscId = tag->GetTagRfDiscId();
+    DebugLog("GetTagInfoParcelableFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
+        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
+    KITS::TagInfoParcelable *tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
         tagUid, tagRfDiscId, nfcService_->GetTagServiceIface());
+    return *(tagInfo);
+}
+
+void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
+{
+    if (tag == nullptr) {
+        ErrorLog("DispatchTag: tag is null");
+        return;
+    }
+    std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tag);
     if (tagInfo == nullptr) {
-        ErrorLog("taginfo is null");
-        return 0;
+        ErrorLog("DispatchTag: taginfo is null");
+        return;
     }
 
     // try start ability
+    std::vector<int> techList = tag->GetTechList();
     std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);
-    InfoLog("try start ability elements size = %{public}zu", elements.size());
+    InfoLog("DispatchTag: try start ability elements size = %{public}zu", elements.size());
     if (elements.size() > 0) {
         DispatchAbility(elements[0], tagInfo);
     }
-    return 0;
 }
 
 void TagDispatcher::HandleTagDebounce()

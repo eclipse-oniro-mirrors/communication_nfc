@@ -56,7 +56,7 @@ public:
 private:
     static const tNFA_TECHNOLOGY_MASK DEFAULT_TECH_MASK =
         (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B | NFA_TECHNOLOGY_MASK_F |
-         NFA_TECHNOLOGY_MASK_V | NFA_TECHNOLOGY_MASK_A_ACTIVE);
+         NFA_TECHNOLOGY_MASK_V);
     static const int DEFAULT_DISCOVERY_DURATION = 500;
     static const int DISCOVERY_DURATION = 200;
     static const int NFA_SCREEN_POLLING_TAG_MASK = 0x10;
@@ -64,6 +64,7 @@ private:
     ~NfccNciAdapter();
     tNFA_STATUS StartPolling(tNFA_TECHNOLOGY_MASK techMask) const;
     tNFA_STATUS StopPolling() const;
+    static void DoNfaPollEnabledDisabledEvt();
     static void DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData);
     static void DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData);
     static void DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData);
@@ -79,6 +80,7 @@ private:
     std::mutex mutex_ {};
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;
+    static OHOS::NFC::SynchronizeEvent nfcStartStopPollingEvent_;
     static bool isNfcEnabled_;
     static bool isRoutingInited_;
     static bool rfEnabled_;

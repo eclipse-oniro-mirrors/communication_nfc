@@ -169,9 +169,6 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
         case KITS::TASK_INITIALIZE:
             DoInitialize();
             break;
-        case KITS::TASK_START_POLLING_LOOP:
-            StartPollingLoop(false);
-            break;
         default:
             break;
     }
@@ -230,6 +227,10 @@ bool NfcService::DoTurnOff()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
+    }
+
+    if (foregroundData_.isEnable_) {
+        DisableForegroundDispatch(foregroundData_.element_);
     }
 
     UpdateNfcState(KITS::STATE_OFF);
@@ -349,11 +350,6 @@ void NfcService::UpdateNfcState(int newState)
     }
 }
 
-void NfcService::ExecuteStartPollingLoop()
-{
-    ExecuteTask(KITS::TASK_START_POLLING_LOOP);
-}
-
 void NfcService::StartPollingLoop(bool force)
 {
     InfoLog("StartPollingLoop force = %{public}d", force);
@@ -392,7 +388,13 @@ std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenSta
     // Recompute polling parameters based on screen state
     std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
 
-    params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
+    if (foregroundData_.isEnable_) {
+        params->SetTechMask(foregroundData_.techMask_);
+        params->SetEnableReaderMode(true);
+    } else {
+        params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
+        params->SetEnableReaderMode(false);
+    }
     return params;
 }
 
@@ -480,6 +482,83 @@ void NfcService::HandleComputeRoutingParams()
     }
     bool result = nfccHost_->ComputeRoutingParams();
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
+}
+
+uint16_t NfcService::GetTechMaskFromTechList(std::vector<uint32_t> &discTech)
+{
+    uint16_t techMask = 0;
+    for (uint16_t i = 0; i < sizeof(discTech); i++) {
+        switch (discTech[i]) {
+            case static_cast<int32_t>(KITS::TagTechnology::NFC_A_TECH):
+                techMask |= NFA_TECHNOLOGY_MASK_A;
+                break;
+            case static_cast<int32_t>(KITS::TagTechnology::NFC_B_TECH):
+                techMask |= NFA_TECHNOLOGY_MASK_B;
+                break;
+            case static_cast<int32_t>(KITS::TagTechnology::NFC_F_TECH):
+                techMask |= NFA_TECHNOLOGY_MASK_F;
+                break;
+            case static_cast<int32_t>(KITS::TagTechnology::NFC_V_TECH):
+                techMask |= NFA_TECHNOLOGY_MASK_V;
+                break;
+            default:
+                break;
+        }
+    }
+    return techMask;
+}
+
+bool NfcService::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IForegroundCallback> &callback)
+{
+    if (!IsNfcEnabled()) {
+        ErrorLog("EnableForegroundDispatch: NFC not enabled, do not set foreground");
+        return false;
+    }
+    bool isDisablePolling = (discTech.size() == 0);
+    DebugLog("EnableForegroundDispatch: element: %{public}s/%{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    if (!isDisablePolling) {
+        foregroundData_.isEnable_ = true;
+        foregroundData_.techMask_ = GetTechMaskFromTechList(discTech);
+        foregroundData_.element_ = element;
+        foregroundData_.callback_ = callback;
+    }
+    StartPollingLoop(true);
+    return true;
+}
+
+bool NfcService::DisableForegroundDispatch(AppExecFwk::ElementName element)
+{
+    DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    foregroundData_.isEnable_ = false;
+    foregroundData_.techMask_ = 0xFFFF;
+    foregroundData_.callerToken_ = 0;
+    foregroundData_.callback_ = nullptr;
+
+    StartPollingLoop(true);
+    return true;
+}
+
+bool NfcService::DisableForegroundByDeathRcpt()
+{
+    return DisableForegroundDispatch(foregroundData_.element_);
+}
+
+bool NfcService::IsForegroundEnabled()
+{
+    return foregroundData_.isEnable_;
+}
+
+void NfcService::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
+{
+    if (!IsForegroundEnabled() || foregroundData_.callback_ == nullptr) {
+        ErrorLog("SendTagToForeground: invalid foreground state");
+        return;
+    }
+    DebugLog("SendTagToForeground: OnTagDiscovered, tagInfo = %{public}s", tagInfo.ToString().c_str());
+    foregroundData_.callback_->OnTagDiscovered(tagInfo);
 }
 }  // namespace NFC
 }  // namespace OHOS

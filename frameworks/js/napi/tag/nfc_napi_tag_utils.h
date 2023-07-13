@@ -16,6 +16,7 @@
 #ifndef NFC_NAPI_TAG_UTILS_H
 #define NFC_NAPI_TAG_UTILS_H
 #include <chrono>
+#include "element_name.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "ndef_message.h"
@@ -23,6 +24,8 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+using OHOS::AppExecFwk::ElementName;
+
 // business error code, throw these errors to applcation.
 const static int BUSI_ERR_PERM = 201; // Permission denied.
 const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
@@ -154,6 +157,8 @@ bool ParseString(napi_env env, std::string &param, napi_value args);
 bool ParseInt32(napi_env env, int32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
+bool ParseUInt32Vector(napi_env &env, std::vector<uint32_t> &vec, napi_value &args);
+bool ParseElementName(napi_env &env, ElementName &element, napi_value &args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
 napi_value CreateErrorMessage(napi_env env, const std::string &msg, int32_t errorCode = 0);

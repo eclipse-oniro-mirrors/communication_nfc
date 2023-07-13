@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace NFC {
-uint16_t NfcPollingParams::NFC_POLL_DEFAULT = 0xFFFF;
+uint16_t NfcPollingParams::NFC_POLL_DEFAULT = 0x3F;
 
 NfcPollingParams::NfcPollingParams() : techMask_(0),
     enableLowPowerPolling_(true),
@@ -67,6 +67,11 @@ bool NfcPollingParams::ShouldEnableHostRouting() const
 void NfcPollingParams::SetTechMask(uint16_t techMask)
 {
     techMask_ = techMask;
+}
+
+void NfcPollingParams::SetEnableReaderMode(bool isEnable)
+{
+    enableReaderMode_ = isEnable;
 }
 
 std::string NfcPollingParams::ToString()
