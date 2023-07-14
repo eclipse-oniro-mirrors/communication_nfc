@@ -33,6 +33,9 @@ public:
 public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
+    static constexpr const auto TEST_SAK = 0x28;
+    static constexpr const auto TEST_ATQA = "0400";
+    static constexpr const auto TEST_INDEX_1 = 1;
     std::shared_ptr<TagInfo> tagInfo_;
 };
 
@@ -305,9 +308,9 @@ HWTEST_F(TagInfoTest, GetStringTech0010, TestSize.Level1)
  */
 HWTEST_F(TagInfoTest, GetBoolExtrasData002, TestSize.Level1)
 {
-    std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap tagTechExtrasData;
-    tagTechExtras.push_back(tagTechExtrasData);
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     bool getBoolExtrasData = tagInfo_->GetBoolExtrasData(tagTechExtrasData, TEST_UID);
     ASSERT_TRUE(getBoolExtrasData == tagTechExtrasData.GetBooleanValue(TEST_UID, false));
 }
@@ -321,8 +324,145 @@ HWTEST_F(TagInfoTest, GetTechExtrasByIndex001, TestSize.Level1)
     std::vector<AppExecFwk::PacMap> tagTechExtrasData;
     size_t techIndex = -1;
     AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
-    tagTechExtrasData.push_back(getTechExtrasByIndex);
-    ASSERT_TRUE(tagTechExtrasData.empty() == false);
+    ASSERT_TRUE(getTechExtrasByIndex.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetTechExtrasByIndex002
+ * @tc.desc: Test NfcController GetTechExtrasByIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByIndex002, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    size_t techIndex = -1;
+    AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
+    ASSERT_TRUE(getTechExtrasByIndex.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetTechExtrasByIndex003
+ * @tc.desc: Test NfcController GetTechExtrasByIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByIndex003, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
+    tagTechList.push_back((int)TagTechnology::NFC_ISODEP_TECH);
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    size_t techIndex = -1;
+    AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
+    ASSERT_TRUE(getTechExtrasByIndex.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetTechExtrasByIndex004
+ * @tc.desc: Test NfcController GetTechExtrasByIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByIndex004, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    size_t techIndex = TEST_DISC_ID;
+    AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
+    ASSERT_TRUE(getTechExtrasByIndex.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetTechExtrasByIndex005
+ * @tc.desc: Test NfcController GetTechExtrasByIndex.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByIndex005, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    size_t techIndex = 0;
+    AppExecFwk::PacMap getTechExtrasByIndex = tagInfo_->GetTechExtrasByIndex(techIndex);
+    ASSERT_TRUE(getTechExtrasByIndex.IsEmpty() == false);
+}
+/**
+ * @tc.name: GetTechExtrasByTech001
+ * @tc.desc: Test NfcController GetTechExtrasByTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByTech001, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    AppExecFwk::PacMap getTechExtrasByTech = tagInfo_->GetTechExtrasByTech(TagTechnology::NFC_NDEF_FORMATABLE_TECH);
+    ASSERT_TRUE(getTechExtrasByTech.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetTechExtrasByTech002
+ * @tc.desc: Test NfcController GetTechExtrasByTech.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetTechExtrasByTech002, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back((int)TagTechnology::NFC_A_TECH);
+    tagTechList.push_back((int)TagTechnology::NFC_ISODEP_TECH);
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    tagTechExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    tagTechExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(tagTechExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_INDEX_1;
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    AppExecFwk::PacMap getTechExtrasByTech = tagInfo_->GetTechExtrasByTech(TagTechnology::NFC_NDEF_FORMATABLE_TECH);
+    ASSERT_TRUE(getTechExtrasByTech.IsEmpty() == true);
+}
+/**
+ * @tc.name: GetBoolExtrasData003
+ * @tc.desc: Test NfcController GetBoolExtrasData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagInfoTest, GetBoolExtrasData003, TestSize.Level1)
+{
+    AppExecFwk::PacMap extrasData;
+    extrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    extrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    const std::string extrasName = "";
+    bool boolExtrasData = tagInfo_->GetBoolExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(!boolExtrasData);
 }
 }
 }
