@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 - 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,7 +34,8 @@ int NfcControllerProxy::TurnOn()
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON), data, option);
+    return SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON),
+        data, option);
 }
 
 int NfcControllerProxy::TurnOff()
@@ -45,7 +46,8 @@ int NfcControllerProxy::TurnOff()
         return KITS::ERR_NFC_PARAMETERS;
     }
     MessageOption option;
-    return SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF), data, option);
+    return SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF),
+        data, option);
 }
 
 int NfcControllerProxy::GetState()
@@ -57,7 +59,7 @@ int NfcControllerProxy::GetState()
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int res = SendRequestExpectReplyInt(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
+    int res = SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
         data, option, state);
     if (res != ERR_NONE) {
         ErrorLog("It is failed To Get State with Res(%{public}d).", res);
@@ -74,7 +76,7 @@ int NfcControllerProxy::IsNfcOpen(bool &isOpen)
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return SendRequestExpectReplyBool(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
+    return SendRequestExpectReplyBool(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
         data, option, isOpen);
 }
 
@@ -101,7 +103,8 @@ KITS::ErrorCode NfcControllerProxy::RegisterCallBack(
         return KITS::ERR_NFC_PARAMETERS;
     }
 
-    int error = SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
         data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
@@ -124,7 +127,8 @@ KITS::ErrorCode NfcControllerProxy::UnRegisterCallBack(const std::string& type)
         return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
-    int error = SendRequestExpectReplyNone(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
         data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegisterCallBack failed, error code is %{public}d", error);
@@ -143,7 +147,7 @@ OHOS::sptr<IRemoteObject> NfcControllerProxy::GetTagServiceIface()
         ErrorLog("GetTagServiceIface, Write interface token error");
         return nullptr;
     }
-    int32_t res = Remote()->SendRequest(static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
+    int32_t res = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
         data, reply, option);
     if (res != ERR_NONE) {
         ErrorLog("GetTagServiceIface SendRequest err %{public}d", res);

@@ -44,6 +44,9 @@ protected:
     void UnregisterTagHost(int rfDiscId);
 
 private:
+    std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(std::shared_ptr<NCI::ITagHost> tag);
+    KITS::TagInfoParcelable GetTagInfoParcelableFromTag(std::shared_ptr<NCI::ITagHost> tag);
+    void DispatchTag(std::shared_ptr<NCI::ITagHost> tag);
     void TagDisconnectedCallback(int tagRfDiscId);
     std::shared_ptr<NFC::INfcService> nfcService_ {};
     // Lock

@@ -15,6 +15,7 @@
 #ifndef I_NFC_SERVICE_H
 #define I_NFC_SERVICE_H
 
+#include "element_name.h"
 #include "infcc_host.h"
 #include "tag_dispatcher.h"
 
@@ -72,9 +73,12 @@ public:
     virtual std::weak_ptr<NFC::NCI::INfccHost> GetNfccHost() = 0;
     virtual std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() = 0;
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
-    virtual void ExecuteStartPollingLoop() = 0;
-
-private:
+    virtual bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback) = 0;
+    virtual bool DisableForegroundDispatch(AppExecFwk::ElementName element) = 0;
+    virtual bool DisableForegroundByDeathRcpt() = 0;
+    virtual bool IsForegroundEnabled() = 0;
+    virtual void SendTagToForeground(KITS::TagInfoParcelable tagInfo) = 0;
 };
 }  // namespace NFC
 }  // namespace OHOS

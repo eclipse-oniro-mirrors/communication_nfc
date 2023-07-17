@@ -14,6 +14,9 @@
  */
 #ifndef TAG_SESSION_PROXY_H
 #define TAG_SESSION_PROXY_H
+
+#include "element_name.h"
+#include "iforeground_callback.h"
 #include "iremote_proxy.h"
 #include "itag_session.h"
 #include "nfc_basic_proxy.h"
@@ -21,6 +24,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+using OHOS::AppExecFwk::ElementName;
 class TagSessionProxy final : public OHOS::IRemoteProxy<ITagSession>, public NfcBasicProxy {
 public:
     explicit TagSessionProxy(const OHOS::sptr<OHOS::IRemoteObject>& remote)
@@ -46,7 +50,9 @@ public:
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
     int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
     int IsSupportedApdusExtended(bool &isSupported) override;
-private:
+    KITS::ErrorCode RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback) override;
+    KITS::ErrorCode UnregForegroundDispatch(ElementName element) override;
 };
 }  // namespace TAG
 }  // namespace NFC

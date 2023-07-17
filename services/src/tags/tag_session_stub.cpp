@@ -14,6 +14,8 @@
  */
 #include "tag_session_stub.h"
 
+#include "foreground_death_recipient.h"
+#include "ipc_skeleton.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
@@ -22,6 +24,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+using OHOS::AppExecFwk::ElementName;
 int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
                                     MessageParcel& data,   /* [in] */
                                     MessageParcel& reply,  /* [out] */
@@ -34,42 +37,47 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
     }
 
     switch (code) {
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT):
             return HandleConnect(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT):
             return HandleReconnect(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT):
             return HandleDisconnect(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT):
             return HandleSetTimeout(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT):
             return HandleGetTimeout(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST):
             return HandleGetTechList(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT):
             return HandleIsTagFieldOn(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF):
             return HandleIsNdef(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME):
             return HandleSendRawFrame(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ):
             return HandleNdefRead(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE):
             return HandleNdefWrite(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY):
             return HandleNdefMakeReadOnly(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF):
             return HandleFormatNdef(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY):
             return HandleCanMakeReadOnly(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH):
             return HandleGetMaxTransceiveLength(data, reply);
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED):
             return HandleIsSupportedApdusExtended(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_FOREGROUND):
+            return HandleRegForegroundDispatch(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND):
+            return HandleUnregForegroundDispatch(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
+
 int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -83,6 +91,7 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32(statusCode);
     return statusCode;
 }
+
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -95,6 +104,7 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32(statusCode);
     return statusCode;
 }
+
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -106,6 +116,7 @@ int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
     Disconnect(tagRfDiscId);
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -118,6 +129,7 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
     reply.WriteInt32(statusCode);
     return statusCode;
 }
+
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -130,6 +142,7 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
     reply.WriteInt32(timeout);
     return statusCode;
 }
+
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -142,6 +155,7 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32Vector(techList);
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -152,6 +166,7 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
     reply.WriteBool(IsNdef(tagRfDiscId));
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -162,6 +177,7 @@ int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
     reply.WriteBool(IsNdef(tagRfDiscId));
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -177,6 +193,7 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
     reply.WriteString(hexRespData);
     return statusCode;
 }
+
 int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -189,6 +206,7 @@ int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
     reply.WriteString(readData);
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -202,6 +220,7 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32(status);
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -213,6 +232,7 @@ int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& r
     reply.WriteInt32(NdefMakeReadOnly(tagRfDiscId));
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -225,6 +245,7 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
     reply.WriteInt32(FormatNdef(tagRfDiscId, key));
     return ERR_NONE;
 }
+
 int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -237,6 +258,7 @@ int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& re
     reply.WriteBool(canSetReadOnly);
     return statusCode;
 }
+
 int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -249,6 +271,7 @@ int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessagePar
     reply.WriteInt32(maxSize);
     return statusCode;
 }
+
 int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageParcel& reply)
 {
     if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -259,6 +282,77 @@ int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageP
     int statusCode = IsSupportedApdusExtended(isSupported);
     reply.WriteBool(isSupported);
     return statusCode;
+}
+
+void TagSessionStub::RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (foregroundCallback_ == nullptr) {
+        ErrorLog("OnRemoteDied callback_ is nullptr");
+        return;
+    }
+    auto serviceRemote = foregroundCallback_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        foregroundCallback_ = nullptr;
+        ErrorLog("on remote died");
+    }
+}
+
+int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParcel &reply)
+{
+    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleRegForegroundDispatch, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    ElementName element = (*ElementName::Unmarshalling(data));
+    std::vector<uint32_t> discTech;
+    data.ReadUInt32Vector(&discTech);
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    do {
+        sptr<IRemoteObject> remote = data.ReadRemoteObject();
+        if (remote == nullptr) {
+            DebugLog("Failed to readRemoteObject!");
+            break;
+        }
+        std::unique_ptr<ForegroundDeathRecipient> recipient
+            = std::make_unique<ForegroundDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+        if (recipient == nullptr) {
+            ErrorLog("recipient is null");
+            return ERR_NONE;
+        }
+        sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+        if ((remote->IsProxyObject()) && (!remote->AddDeathRecipient(dr))) {
+            ErrorLog("Failed to add death recipient");
+            return ERR_NONE;
+        }
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            deathRecipient_ = dr;
+            foregroundCallback_ = iface_cast<KITS::IForegroundCallback>(remote);
+            if (foregroundCallback_ == nullptr) {
+                foregroundCallback_ = new (std::nothrow) ForegroundCallbackProxy(remote);
+                DebugLog("create new `ForegroundCallbackProxy`!");
+            }
+            ret = RegForegroundDispatch(element, discTech, foregroundCallback_);
+        }
+    } while (0);
+    reply.WriteInt32(ret);
+    return ERR_NONE;
+}
+
+int TagSessionStub::HandleUnregForegroundDispatch(MessageParcel &data, MessageParcel &reply)
+{
+    InfoLog("HandleUnregForegroundDispatch");
+    ElementName element = (*ElementName::Unmarshalling(data));
+    int exception = data.ReadInt32();
+    if (exception) {
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    KITS::ErrorCode ret = UnregForegroundDispatch(element);
+    DebugLog("HandleUnregForegroundDispatch end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+    return ERR_NONE;
 }
 }  // namespace TAG
 }  // namespace NFC

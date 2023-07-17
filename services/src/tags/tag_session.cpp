@@ -19,6 +19,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+using OHOS::AppExecFwk::ElementName;
 const std::string DUMP_LINE = "---------------------------";
 const std::string DUMP_END = "\n";
 
@@ -373,6 +374,23 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
+KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IForegroundCallback> &callback)
+{
+    if (nfcService_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
+KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName element)
+{
+    if (nfcService_.lock()->DisableForegroundDispatch(element)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
 int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     std::string info = GetDumpInfo();
@@ -383,6 +401,7 @@ int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
     }
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
+
 std::string TagSession::GetDumpInfo()
 {
     std::string info;

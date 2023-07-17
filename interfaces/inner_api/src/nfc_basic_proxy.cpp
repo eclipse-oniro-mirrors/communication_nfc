@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace NFC {
-int NfcBasicProxy::SendRequestExpectReplyInt(int cmd, MessageParcel& data, MessageOption& option, int& result)
+int NfcBasicProxy::SendRequestExpectReplyInt(uint32_t cmd, MessageParcel& data, MessageOption& option, int& result)
 {
     MessageParcel reply;
     int ret = remoteObj_->SendRequest(cmd, data, reply, option);
@@ -29,7 +29,7 @@ int NfcBasicProxy::SendRequestExpectReplyInt(int cmd, MessageParcel& data, Messa
     return ret;
 }
 
-int NfcBasicProxy::SendRequestExpectReplyBool(int cmd, MessageParcel& data, MessageOption& option, bool& result)
+int NfcBasicProxy::SendRequestExpectReplyBool(uint32_t cmd, MessageParcel& data, MessageOption& option, bool& result)
 {
     MessageParcel reply;
     int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);
@@ -40,7 +40,7 @@ int NfcBasicProxy::SendRequestExpectReplyBool(int cmd, MessageParcel& data, Mess
     return ret;
 }
 
-int NfcBasicProxy::SendRequestExpectReplyNone(int cmd, MessageParcel& data, MessageOption& option)
+int NfcBasicProxy::SendRequestExpectReplyNone(uint32_t cmd, MessageParcel& data, MessageOption& option)
 {
     MessageParcel reply;
     int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);

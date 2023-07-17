@@ -29,6 +29,7 @@ static const int ISO_DEP_MAX_TRANSEIVE_LENGTH = 0xFEFF;
 
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcEnableEvent_;
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcDisableEvent_;
+OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcStartStopPollingEvent_;
 
 bool NfccNciAdapter::isNfcEnabled_ = false;
 bool NfccNciAdapter::isRoutingInited_ = false;
@@ -79,6 +80,8 @@ void NfccNciAdapter::StartRfDiscovery(bool isStart) const
     }
     if (status == NFA_STATUS_OK) {
         rfEnabled_ = isStart;
+        // wait for NFA_RF_DISCOVERY_STARTED_EVT or NFA_RF_DISCOVERY_STOPPED_EVT
+        nfcStartStopPollingEvent_.Wait();
     } else {
         DebugLog("NfccNciAdapter::StartRfDiscovery: Failed to start/stop RF discovery; error=0x%{public}X", status);
     }
@@ -91,6 +94,8 @@ tNFA_STATUS NfccNciAdapter::StartPolling(tNFA_TECHNOLOGY_MASK techMask) const
     if (status == NFA_STATUS_OK) {
         DebugLog("StartPolling: wait for enable event");
         pollingEnabled_ = true;
+        // wait for NFA_POLL_ENABLED_EVT
+        nfcStartStopPollingEvent_.Wait();
     } else {
         DebugLog("NfccNciAdapter::StartPolling: fail enable polling; error = 0x%{public}X", status);
     }
@@ -103,6 +108,8 @@ tNFA_STATUS NfccNciAdapter::StopPolling() const
     tNFA_STATUS status = nciAdaptation_->NfaDisablePolling();
     if (status == NFA_STATUS_OK) {
         pollingEnabled_ = false;
+        // wait for NFA_POLL_DISABLED_EVT
+        nfcStartStopPollingEvent_.Wait();
     } else {
         DebugLog("NfccNciAdapter::StopPolling: fail disable polling; error = 0x%{public}X", status);
     }
@@ -183,21 +190,25 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         /* whether polling successfully started */
         case NFA_POLL_ENABLED_EVT: {
             DebugLog("NfaConnectionCallback: NFA_POLL_ENABLED_EVT: status = %{public}u", eventData->status);
+            DoNfaPollEnabledDisabledEvt();
             break;
         }
         /* Listening/Polling stopped */
         case NFA_POLL_DISABLED_EVT: {
             DebugLog("NfaConnectionCallback: NFA_POLL_DISABLED_EVT: status = %{public}u", eventData->status);
+            DoNfaPollEnabledDisabledEvt();
             break;
         }
         /* RF Discovery started event */
         case NFA_RF_DISCOVERY_STARTED_EVT: {
             DebugLog("NfaConnectionCallback: NFA_RF_DISCOVERY_STARTED_EVT: status = %{public}u", eventData->status);
+            DoNfaPollEnabledDisabledEvt();
             break;
         }
         /* RF Discovery stopped event */
         case NFA_RF_DISCOVERY_STOPPED_EVT: {
             DebugLog("NfaConnectionCallback: NFA_RF_DISCOVERY_STOPPED_EVT: status = %{public}u", eventData->status);
+            DoNfaPollEnabledDisabledEvt();
             break;
         }
         /* NFC link/protocol activated */
@@ -266,6 +277,12 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
             break;
         }
     }
+}
+
+void NfccNciAdapter::DoNfaPollEnabledDisabledEvt()
+{
+    SynchronizeGuard guard(nfcStartStopPollingEvent_);
+    nfcStartStopPollingEvent_.NotifyOne();
 }
 
 void NfccNciAdapter::DoNfaDmEnableEvt(tNFA_DM_CBACK_DATA* eventData)

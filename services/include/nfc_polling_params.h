@@ -29,6 +29,7 @@ public:
 
 public:
     void SetTechMask(uint16_t techMask);
+    void SetEnableReaderMode(bool isEnable);
     uint16_t GetTechMask() const;
     bool ShouldEnablePolling() const;
     bool ShouldEnableLowPowerPolling() const;

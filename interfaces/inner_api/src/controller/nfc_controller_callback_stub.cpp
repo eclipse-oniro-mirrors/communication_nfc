@@ -59,7 +59,7 @@ int NfcControllerCallBackStub::OnRemoteRequest(
     }
     int ret = KITS::ERR_NFC_STATE_UNBIND;
     switch (code) {
-        case static_cast<int>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY): {
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY): {
             ret = RemoteNfcStateChanged(data, reply);
             break;
         }

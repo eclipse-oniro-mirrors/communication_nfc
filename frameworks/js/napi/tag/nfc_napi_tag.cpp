@@ -17,6 +17,7 @@
 #include "napi_remote_object.h"
 #include "ndef_message.h"
 #include "ndef_tag.h"
+#include "nfc_napi_foreground_dispatch.h"
 #include "nfc_sdk_common.h"
 #include "mifare_classic_tag.h"
 #include "mifare_ultralight_tag.h"
@@ -24,13 +25,6 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-const std::string VAR_UID = "uid";
-const std::string VAR_TECH = "technology";
-const std::string VAR_EXTRA = "extrasData";
-const std::string VAR_RF_ID = "tagRfDiscId";
-const std::string VAR_SERVICE = "remoteTagService";
-const std::string VAR_PROFILES = "supportedProfiles";
-
 thread_local napi_ref nfcAConsRef_;
 thread_local napi_ref nfcBConsRef_;
 thread_local napi_ref nfcFConsRef_;
@@ -956,6 +950,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NDEF_FORMATABLE",
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
+        DECLARE_NAPI_FUNCTION("registerForegroundDispatch", RegisterForegroundDispatch),
+        DECLARE_NAPI_FUNCTION("unregisterForegroundDispatch", UnregisterForegroundDispatch),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

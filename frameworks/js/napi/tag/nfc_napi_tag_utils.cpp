@@ -104,6 +104,64 @@ bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value 
     return true;
 }
 
+bool ParseUInt32Vector(napi_env& env, std::vector<uint32_t>& vec, napi_value &args)
+{
+    bool isArray = false;
+    napi_status status = napi_is_array(env, args, &isArray);
+    if (status != napi_ok || !isArray) {
+        ErrorLog("ParseUInt32Vector: not array");
+        return false;
+    }
+    uint32_t arrayLen = 0;
+    napi_get_array_length(env, args, &arrayLen);
+    for (uint32_t i = 0; i < arrayLen; i++) {
+        napi_value element = nullptr;
+        napi_get_element(env, args, i, &element);
+
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env, element, &valueType);
+        if (valueType != napi_number) {
+            ErrorLog("ParseUInt32Vector, not number!");
+            return false;
+        }
+
+        uint32_t uint32Value = 0;
+        napi_get_value_uint32(env, element, &uint32Value);
+        vec.push_back(static_cast<uint32_t>(uint32Value));
+    }
+    return true;
+}
+
+bool ParseElementName(napi_env &env, ElementName &element, napi_value &args)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, args, &valueType);
+    if (valueType != napi_object) {
+        ErrorLog("ParseElementName, not object!");
+        return false;
+    }
+    napi_value param = nullptr;
+    napi_get_named_property(env, args, "bundleName", &param);
+    std::string bundleName;
+    ParseString(env, bundleName, param);
+
+    param = nullptr;
+    napi_get_named_property(env, args, "moduleName", &param);
+    std::string moduleName;
+    ParseString(env, moduleName, param);
+
+    param = nullptr;
+    napi_get_named_property(env, args, "abilityName", &param);
+    std::string abilityName;
+    ParseString(env, abilityName, param);
+
+    DebugLog("ParseElementName: bundleName:%{public}s, moduleName:%{public}s, abilityName:%{public}s",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    ElementName elementName("", bundleName, abilityName, moduleName);
+    element = elementName;
+    return true;
+}
+
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args)
 {
     napi_status status;
