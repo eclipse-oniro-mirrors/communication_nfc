@@ -39,11 +39,6 @@ OHOS::sptr<IRemoteObject> NfcServiceFuzz::GetTagServiceIface()
     return nullptr;
 }
 
-void NfcServiceFuzz::ExecuteStartPollingLoop()
-{
-    return;
-}
-
 int NfcServiceFuzz::GetScreenState()
 {
     return 0;
@@ -60,5 +55,29 @@ std::weak_ptr<TAG::TagDispatcher> NfcServiceFuzz::GetTagDispatcher()
     return tagDispatcher;
 }
 
+bool NfcServiceFuzz::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IForegroundCallback> &callback)
+{
+    return true;
+}
+
+bool NfcServiceFuzz::DisableForegroundDispatch(AppExecFwk::ElementName element)
+{
+    return true;
+}
+
+bool NfcServiceFuzz::DisableForegroundByDeathRcpt()
+{
+    return true;
+}
+
+bool NfcServiceFuzz::IsForegroundEnabled()
+{
+    return true;
+}
+
+void NfcServiceFuzz::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
+{
+}
 }
 }

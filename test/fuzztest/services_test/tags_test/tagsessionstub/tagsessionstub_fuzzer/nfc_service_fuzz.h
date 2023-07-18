@@ -39,7 +39,12 @@ public:
     NfcServiceFuzz() {};
     virtual ~NfcServiceFuzz() {};
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
-    void ExecuteStartPollingLoop() override;
+    bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback) override;
+    bool DisableForegroundDispatch(AppExecFwk::ElementName element) override;
+    bool DisableForegroundByDeathRcpt() override;
+    bool IsForegroundEnabled() override;
+    void SendTagToForeground(KITS::TagInfoParcelable tagInfo) override;
 };
 }
 }
