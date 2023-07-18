@@ -31,7 +31,7 @@ public:
         int tagRfDiscId,
         OHOS::sptr<IRemoteObject> tagServiceIface);
     ~TagInfoParcelable();
-    
+
     virtual bool Marshalling(Parcel &parcel) const override;
     static TagInfoParcelable *Unmarshalling(Parcel &parcel);
     std::string ToString();

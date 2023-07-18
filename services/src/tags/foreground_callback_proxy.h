@@ -32,7 +32,7 @@ public:
     virtual ~ForegroundCallbackProxy() {}
 
     void OnTagDiscovered(KITS::TagInfoParcelable tagInfo) override;
-    
+
 private:
     static inline BrokerDelegator<ForegroundCallbackProxy> g_delegator;
 };
