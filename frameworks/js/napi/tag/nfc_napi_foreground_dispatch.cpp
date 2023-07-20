@@ -140,10 +140,12 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
     napi_value tagInfoObj = nullptr;
     napi_value uidValue;
     napi_value techValue;
+    napi_value rfIdValue;
     napi_create_object(env, &tagInfoObj);
 
     std::string uid = tagInfo.GetUid();
     std::vector<int> techList = tagInfo.GetTechList();
+    int rfId = tagInfo.GetDiscId();
     std::vector<unsigned char> uidBytes;
     NfcSdkCommon::HexStringToBytes(uid, uidBytes);
     BytesVectorToJS(env, uidValue, uidBytes);
@@ -153,8 +155,10 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
         napi_create_uint32(env, techList[i], &tech);
         napi_set_element(env, techValue, i, tech);
     }
+    napi_create_uint32(env, rfId, &rfIdValue);
     napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), uidValue);
     napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), techValue);
+    napi_set_named_property(env, tagInfoObj, VAR_RF_ID.c_str(), rfIdValue);
     return tagInfoObj;
 }
 
