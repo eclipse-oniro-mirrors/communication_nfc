@@ -233,8 +233,8 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
     uint32_t arrayLength = 0;
     NAPI_CALL(env, napi_get_array_length(env, technologies, &arrayLength));
     for (uint32_t i = 0; i < arrayLength; ++i) {
-        NAPI_CALL(env, napi_get_element(env, technologies, i, &techValue));
-        NAPI_CALL(env, napi_get_element(env, extras, i, &extraValue));
+        napi_get_element(env, technologies, i, &techValue);
+        napi_get_element(env, extras, i, &extraValue);
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, techValue, &valueType);
         if (valueType != napi_number) {
