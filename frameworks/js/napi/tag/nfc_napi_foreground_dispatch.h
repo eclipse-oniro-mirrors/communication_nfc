@@ -34,11 +34,9 @@ public:
     std::function<napi_value ()> packResult;
 
     explicit AsyncEventData(napi_env e, napi_ref r, std::function<napi_value ()> v)
-    {
-        env = e;
-        callbackRef = r;
-        packResult = v;
-    }
+        :env(e),
+        callbackRef(r),
+        packResult(v) {};
 
     AsyncEventData() = delete;
     virtual ~AsyncEventData() {}
@@ -49,14 +47,12 @@ public:
     RegObj() : regEnv(0), regHandlerRef(nullptr) {}
 
     explicit RegObj(const napi_env &env, const napi_ref &ref)
-    {
-        regEnv = env;
-        regHandlerRef = ref;
-    }
+        :regEnv(env),
+        regHandlerRef(ref) {};
 
     ~RegObj() {}
 
-    bool IsEmpty() { return (regEnv == 0) || (regHandlerRef == nullptr); }
+    bool IsEmpty() const { return (regEnv == 0) || (regHandlerRef == nullptr); }
 
     void Clear()
     {
@@ -79,7 +75,7 @@ public:
 private:
     ErrorCode RegisterForegroundEvents(ElementName &element, std::vector<uint32_t> &discTech);
     ErrorCode UnregisterForegroundEvents(ElementName &element);
-    void DeleteRegisterObj(const napi_env &env, RegObj &vecRegObjs, napi_value &handler);
+    void DeleteRegisterObj(const napi_env &env, RegObj &regObj, napi_value &handler);
 
     static bool isEvtRegistered;
 };

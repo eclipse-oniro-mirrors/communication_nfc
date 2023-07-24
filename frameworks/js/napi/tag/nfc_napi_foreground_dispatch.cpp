@@ -35,7 +35,7 @@ bool ForegroundEventRegister::isEvtRegistered = false;
 class NapiEvent {
 public:
     napi_value CreateResult(const napi_env &env, TagInfoParcelable tagInfo);
-    bool IsForegroundRegistered();
+    static bool IsForegroundRegistered();
     void EventNotify(AsyncEventData *asyncEvent);
 
     template<typename T>
@@ -46,7 +46,7 @@ public:
             ErrorLog("CheckAndNotify: not registered.");
             return;
         }
-        RegObj& regObj = g_eventRegInfo;
+        const RegObj& regObj = g_eventRegInfo;
         auto result = [this, env = regObj.regEnv, obj] () -> napi_value {
             return CreateResult(env, obj);
         };
