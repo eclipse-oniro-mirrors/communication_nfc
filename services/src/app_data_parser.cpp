@@ -22,8 +22,6 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
-const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
 const std::string KEY_TAG_TECH = "tag-tech";
 const std::string KEY_PAYMENT_AID = "payment-aid";
 const std::string KEY_OHTER_AID = "other-aid";
@@ -75,8 +73,8 @@ void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
         return;
     }
     DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s", bundleName.c_str());
-    UpdateAppListInfo(element, ACTION_TAG_FOUND);
-    UpdateAppListInfo(element, ACTION_HOST_APDU_SERVICE);
+    UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
+    UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
 }
 
 void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -104,14 +102,14 @@ bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std:
     std::string permissionNfc;
     OHOS::Security::AccessToken::AccessTokenID tokenID;
     std::map<std::string, std::string> permissionMap = {
-        {ACTION_TAG_FOUND, TAG_PERM},
-        {ACTION_HOST_APDU_SERVICE, CARD_EMU_PERM}
+        {KITS::ACTION_TAG_FOUND, TAG_PERM},
+        {KITS::ACTION_HOST_APDU_SERVICE, CARD_EMU_PERM}
     };
     std::map<std::string, std::string>::iterator it = permissionMap.find(action.c_str());
     if (it != permissionMap.end()) {
         permissionNfc = it->second;
     } else {
-        ErrorLog("action no in map!");
+        ErrorLog("VerifyHapPermission, action no in map!");
         return false;
     }
     tokenID= OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenID(USER_ID, bundleName, 0);
@@ -123,40 +121,52 @@ bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std:
     return true;
 }
 
-bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
+void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<AbilityInfo> &abilityInfos,
+    std::vector<ExtensionAbilityInfo> &extensionInfos)
 {
     if (bundleMgrProxy_ == nullptr) {
         bundleMgrProxy_ = GetBundleMgrProxy();
     }
     if (bundleMgrProxy_ == nullptr) {
-        ErrorLog("UpdateAppListInfo, bundleMgrProxy_ is nullptr.");
-        return false;
+        ErrorLog("QueryAbilityInfos, bundleMgrProxy_ is nullptr.");
+        return;
     }
-    if (action.compare(ACTION_TAG_FOUND) != 0 && action.compare(ACTION_HOST_APDU_SERVICE) != 0) {
+    AAFwk::Want want;
+    want.SetAction(action);
+    want.SetType("*/*"); // skip the type, matched action only.
+    bool withDefault = false;
+    auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
+    if (!bundleMgrProxy_->ImplicitQueryInfos(want, abilityInfoFlag, USER_ID, withDefault, abilityInfos, extensionInfos)) {
+        WarnLog("QueryAbilityInfos, query none for action %{public}s", action.c_str());
+        return;
+    }
+}
+
+bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
+{
+    if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0) {
         ErrorLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
         return false;
     }
     std::string bundleName = element.GetBundleName();
     if (!VerifyHapPermission(bundleName, action)) {
-        ErrorLog("Hap have no permission!");
+        ErrorLog("Hap have no permission for action = %{public}s", action.c_str());
         return false;
     }
-    AAFwk::Want want;
-    want.SetAction(action);
-    int32_t userId = AppExecFwk::Constants::START_USERID;
+
+    // query the applications infos that're matched with the acitons.
     std::vector<AbilityInfo> abilityInfos;
-    if (!bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos)) {
-        WarnLog("UpdateAppListInfo, query none for action %{public}s", action.c_str());
-        return false;
-    }
+    std::vector<ExtensionAbilityInfo> extensionAbilityInfos;
+    QueryAbilityInfos(action, abilityInfos, extensionAbilityInfos);
     for (auto& abilityInfo : abilityInfos) {
         if (bundleName.empty() || bundleName.compare(abilityInfo.bundleName) != 0) {
             continue;
         }
-        if (action.compare(ACTION_TAG_FOUND) == 0) {
+        if (action.compare(KITS::ACTION_TAG_FOUND) == 0) {
             UpdateTagAppList(abilityInfo, element);
         }
-        if (action.compare(ACTION_HOST_APDU_SERVICE) == 0) {
+        if (action.compare(KITS::ACTION_HOST_APDU_SERVICE) == 0) {
             UpdateHceAppList(abilityInfo, element);
         }
     }
@@ -165,25 +175,17 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
 
 bool AppDataParser::InitAppListByAction(const std::string action)
 {
-    if (!bundleMgrProxy_) {
-        ErrorLog("InitAppListByAction, bundleMgrProxy_ is nullptr.");
-        return false;
-    }
-    AAFwk::Want want;
-    want.SetAction(action);
-    int32_t userId = AppExecFwk::Constants::START_USERID;
+    // query the applications infos that're matched with the acitons.
     std::vector<AbilityInfo> abilityInfos;
-    if (!bundleMgrProxy_->QueryAllAbilityInfos(want, userId, abilityInfos)) {
-        ErrorLog("InitAppListByAction, query none for action %{public}s", action.c_str());
-        return false;
-    }
-    if (ACTION_TAG_FOUND.compare(action) == 0) {
+    std::vector<ExtensionAbilityInfo> extensionAbilityInfos;
+    QueryAbilityInfos(action, abilityInfos, extensionAbilityInfos);
+    if (KITS::ACTION_TAG_FOUND.compare(action) == 0) {
         for (auto& abilityInfo : abilityInfos) {
             ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
                 abilityInfo.moduleName);
             UpdateTagAppList(abilityInfo, element);
         }
-    } else if (ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
+    } else if (KITS::ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
         for (auto& abilityInfo : abilityInfos) {
             ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
                 abilityInfo.moduleName);
@@ -246,6 +248,28 @@ void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &elem
             DebugLog("UpdateTagAppList from customizeData, push tech %{public}s", data.value.c_str());
         }
     }
+    for (auto& uri : abilityInfo.skillUri) {
+        if (uri.type.empty()) {
+            continue;
+        }
+        // format example: "type": "tag-tech/NfcA"
+        auto pos = uri.type.find("/");
+        if (pos == std::string::npos) {
+            ErrorLog("UpdateTagAppList from skillUri, separator not found %{public}s", uri.type.c_str());
+            continue;
+        }
+        std::string tech = uri.type.substr(0, pos);
+        if (KEY_TAG_TECH.compare(tech) != 0) {
+            ErrorLog("UpdateTagAppList KEY_TAG_TECH for %{public}s", tech.c_str());
+            continue;
+        }
+        std::string nfcType = uri.type.substr(pos + 1, uri.type.size());
+        if (std::find(valueList.begin(), valueList.end(), nfcType) == valueList.end()) {
+            valueList.emplace_back(nfcType);
+            DebugLog("UpdateTagAppList from skillUri, push tech %{public}s", nfcType.c_str());
+        }
+    }
+
     if (valueList.empty()) {
         DebugLog("UpdateTagAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
             element.GetAbilityName().c_str());
@@ -342,8 +366,8 @@ void AppDataParser::InitAppList()
         ErrorLog("InitAppList, bundleMgrProxy_ is nullptr.");
         return;
     }
-    InitAppListByAction(ACTION_TAG_FOUND);
-    InitAppListByAction(ACTION_HOST_APDU_SERVICE);
+    InitAppListByAction(KITS::ACTION_TAG_FOUND);
+    InitAppListByAction(KITS::ACTION_HOST_APDU_SERVICE);
     DebugLog("InitAppList, tag size %{public}zu, hce size %{public}zu", g_tagAppAndTechMap.size(),
         g_hceAppAndAidMap.size());
 }

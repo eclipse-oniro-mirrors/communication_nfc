@@ -37,7 +37,8 @@ public:
     int HandleTagFound(std::shared_ptr<NCI::ITagHost> tag);
     void HandleTagDebounce();
     std::weak_ptr<NCI::ITagHost> FindTagHost(int rfDiscId);
-    void DispatchAbility(ElementName &element, std::shared_ptr<KITS::TagInfo> tagInfo);
+    void DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo);
+    void DispatchAbilitySingleApp(ElementName &element, std::shared_ptr<KITS::TagInfo> tagInfo);
 protected:
     std::shared_ptr<NCI::ITagHost> FindAndRemoveTagHost(int rfDiscId);
     void RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag);
@@ -56,6 +57,10 @@ private:
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
     const static int DEFAULT_MOTOR_VIBRATOR_ONCE = 500; // ms
+
+    // there is only single tag application matched to be dispatched.
+    const static int TAG_APP_MATCHED_SIZE_SINGLE = 1;
+
     // ndef message
     std::string lastNdefMsg_;
 };

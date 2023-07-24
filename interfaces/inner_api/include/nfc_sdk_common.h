@@ -60,6 +60,12 @@ static const std::string TYPE_PAYMENT = "payment";
 /** Other type of card emulation */
 static const std::string TYPE_OHTER = "other";
 
+/** Action for tag application declared */
+const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
+
+/** Action for HCE application declared */
+const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
+
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,
     NFC_A_TECH = 1,

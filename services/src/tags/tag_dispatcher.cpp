@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -116,12 +116,17 @@ void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
         return;
     }
 
-    // try start ability
+    // select the matched applications, try start ability
     std::vector<int> techList = tag->GetTechList();
     std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);
     InfoLog("DispatchTag: try start ability elements size = %{public}zu", elements.size());
-    if (elements.size() > 0) {
-        DispatchAbility(elements[0], tagInfo);
+    if (elements.size() == 0) {
+        return;
+    }
+    if (elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) {
+        DispatchAbilitySingleApp(elements[0], tagInfo);
+    } else {
+        DispatchAbilityMultiApp(tagInfo);
     }
 }
 
@@ -170,24 +175,17 @@ void TagDispatcher::UnregisterTagHost(int rfDiscId)
     InfoLog("UnregisterTagHost, rfDiscId: %{public}d", rfDiscId);
 }
 
-void TagDispatcher::DispatchAbility(ElementName &element,
-    std::shared_ptr<KITS::TagInfo> tagInfo)
+static void SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want &want)
 {
-    if (element.GetBundleName().empty() || tagInfo == nullptr) {
-        ErrorLog("DispatchAbility element or tagInfo is null");
+    // put extra data for all included technology, extra data used by 3rd party applications.
+    if (tagInfo == nullptr) {
+        ErrorLog("SetWantExtraParam tagInfo is null");
         return;
     }
-
-    InfoLog("DispatchAbility for app %{public}s, ability = %{public}s", element.GetBundleName().c_str(),
-        element.GetAbilityName().c_str());
-    AAFwk::Want want;
-    want.SetElement(element);
     want.SetParam("uid", tagInfo->GetTagUid());
     want.SetParam("technology", tagInfo->GetTagTechList());
     want.SetParam("tagRfDiscId", tagInfo->GetTagRfDiscId());
-    want.SetParam("remoteTagService", nfcService_->GetTagServiceIface());
 
-    // put extra data for all included technology
     std::vector<int> techList = tagInfo->GetTagTechList();
     for (size_t i = 0; i < techList.size(); i++) {
         AppExecFwk::PacMap extra = tagInfo->GetTechExtrasByIndex(i);
@@ -215,12 +213,68 @@ void TagDispatcher::DispatchAbility(ElementName &element,
             want.SetParam(KITS::TagInfo::NDEF_FORUM_TYPE, extra.GetIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, 0));
             want.SetParam(KITS::TagInfo::NDEF_TAG_LENGTH, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, 0));
             want.SetParam(KITS::TagInfo::NDEF_TAG_MODE, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_MODE, 0));
-        } else {
         }
+    }
+}
+
+void TagDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo)
+{
+    if (tagInfo == nullptr) {
+        ErrorLog("DispatchAbilityMultiApp tagInfo is null");
+        return;
+    }
+
+    InfoLog("DispatchAbilityMultiApp for app");
+    AAFwk::Want want;
+    want.SetParam("remoteTagService", nfcService_->GetTagServiceIface());
+    SetWantExtraParam(tagInfo, want);
+
+    // pull multi app page by skill.uris
+    want.SetAction(KITS::ACTION_TAG_FOUND);
+
+    std::vector<std::string> techArray;
+    const std::string tagTechStr = "tag-tech/"; // exmaple: "tag-tech/NfcA"
+    for (const auto& tagTech : tagInfo->GetTagTechList()) {
+        if (tagTech < static_cast<int>(TagTechnology::NFC_A_TECH) || 
+            tagTech > static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+            WarnLog("DispatchAbilityMultiApp tagTech(%{public}d) out of range. ", tagTech);
+            continue;
+        }
+        techArray.push_back(tagTechStr + KITS::TagInfo::GetStringTech(tagTech));
+    }
+    want.SetParam(AAFwk::Want::PARAM_ABILITY_URITYPES, techArray);
+
+    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+        ErrorLog("DispatchAbilityMultiApp AbilityManagerClient is null");
+        return;
     }
 
     AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
-    InfoLog("DispatchAbility call StartAbility end ");
+    InfoLog("DispatchAbilityMultiApp call StartAbility end.");
+}
+
+void TagDispatcher::DispatchAbilitySingleApp(ElementName &element,
+    std::shared_ptr<KITS::TagInfo> tagInfo)
+{
+    if (element.GetBundleName().empty()) {
+        ErrorLog("DispatchAbilitySingleApp element empty");
+        return;
+    }
+
+    InfoLog("DispatchAbilitySingleApp for app %{public}s, ability = %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+    AAFwk::Want want;
+    want.SetElement(element);
+    want.SetParam("remoteTagService", nfcService_->GetTagServiceIface());
+    SetWantExtraParam(tagInfo, want);
+
+    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+        ErrorLog("DispatchAbilitySingleApp AbilityManagerClient is null");
+        return;
+    }
+
+    AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    InfoLog("DispatchAbilitySingleApp call StartAbility end.");
 }
 }  // namespace TAG
 }  // namespace NFC
