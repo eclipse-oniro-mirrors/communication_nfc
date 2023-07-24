@@ -134,9 +134,89 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         tmpAfterWorkCb);
 }
 
+static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable &tagInfo)
+{
+    uint32_t length = tagInfo.GetTechExtrasDataList().size();
+    napi_value extrasData;
+    napi_create_array_with_length(env, length, &extrasData);
+    
+    // parse extra data for this technology
+    napi_value propValue;
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value eachElement;
+        napi_create_object(env, &eachElement);
+        AppExecFwk::PacMap extra = tagInfo.GetTechExtrasDataList()[i];
+        int technology = tagInfo.GetTechList()[i];
+        if (technology == static_cast<int>(TagTechnology::NFC_A_TECH)) {
+            // for NFCA, parse extra SAK and ATQA
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::SAK, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::SAK, propValue);
+
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::ATQA, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::ATQA, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_B_TECH)) {
+            // parse app data and protocol info of nfcb.
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::APP_DATA, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::APP_DATA, propValue);
+
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::PROTOCOL_INFO, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::PROTOCOL_INFO, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_F_TECH)) {
+            // parse pmm and sc of nfcf
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::NFCF_PMM, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NFCF_PMM, propValue);
+
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::NFCF_SC, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NFCF_SC, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_V_TECH)) {
+            // parse response flag and dsf id of nfcv.
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::RESPONSE_FLAGS, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::RESPONSE_FLAGS, propValue);
+
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::DSF_ID, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::DSF_ID, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+            // for ISODEP, parse extra HistoryBytes and HilayerResponse
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::HISTORICAL_BYTES, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::HISTORICAL_BYTES, propValue);
+
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::HILAYER_RESPONSE, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::HILAYER_RESPONSE, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+            napi_get_boolean(env, extra.GetBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, false), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, propValue);
+        } else if (technology == static_cast<int>(TagTechnology::NFC_NDEF_TECH)) {
+            // parse ndef message/type/max size/read mode for ndef tag
+            napi_create_string_utf8(env, extra.GetStringValue(KITS::TagInfo::NDEF_MSG, "").c_str(),
+                NAPI_AUTO_LENGTH, &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_MSG, propValue);
+
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_FORUM_TYPE, propValue);
+
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_TAG_LENGTH, propValue);
+
+            napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::NDEF_TAG_MODE, 0), &propValue);
+            napi_set_named_property(env, eachElement, KITS::TagInfo::NDEF_TAG_MODE, propValue);
+        } else {
+            // set extrasData[i] empty if no tech matches to keep one-to-one mapping of techList and extras
+        }
+        napi_set_element(env, extrasData, i, eachElement);
+    }
+    napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
+}
+
 napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInfo)
 {
-    // build tagInfo Js Object, with member uid and technology only.
+    // build tagInfo Js Object
     napi_value tagInfoObj = nullptr;
     napi_value uidValue;
     napi_value techValue;
@@ -159,6 +239,9 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
     napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), uidValue);
     napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), techValue);
     napi_set_named_property(env, tagInfoObj, VAR_RF_ID.c_str(), rfIdValue);
+
+    // set extras data from taginfo parcelable to taginfo js object
+    SetTagExtraData(env, tagInfoObj, tagInfo);
     return tagInfoObj;
 }
 
