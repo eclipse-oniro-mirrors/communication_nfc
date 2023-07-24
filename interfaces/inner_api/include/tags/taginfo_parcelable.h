@@ -38,6 +38,7 @@ public:
     std::string GetUid();
     std::vector<int> GetTechList();
     int GetDiscId();
+    std::vector<AppExecFwk::PacMap> GetTechExtrasDataList();
 
 private:
     int tagRfDiscId_;

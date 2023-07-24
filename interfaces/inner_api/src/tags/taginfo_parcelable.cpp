@@ -94,6 +94,11 @@ int TagInfoParcelable::GetDiscId()
     return tagRfDiscId_;
 }
 
+std::vector<AppExecFwk::PacMap> TagInfoParcelable::GetTechExtrasDataList()
+{
+    return tagTechExtrasData_;
+}
+
 std::string TagInfoParcelable::ToString()
 {
     std::string res = "tagTechList: [";
