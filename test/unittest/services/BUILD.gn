@@ -41,6 +41,7 @@ unit_test_deps = [
 unit_test_external_deps = [
   "ability_base:want",
   "access_token:libaccesstoken_sdk",
+  "bundle_framework:appexecfwk_core",
   "c_utils:utils",
   "hilog:libhilog",
   "ipc:ipc_core",
@@ -126,7 +127,10 @@ ohos_unittest("public_test") {
 ohos_unittest("services_test") {
   module_out_path = "nfc/services"
 
-  sources = [ "services_test/nfc_polling_params_test.cpp" ]
+  sources = [
+    "services_test/app_data_parser_test.cpp",
+    "services_test/nfc_polling_params_test.cpp",
+  ]
 
   configs = [ ":nfc_service_unit_test_config" ]
 
