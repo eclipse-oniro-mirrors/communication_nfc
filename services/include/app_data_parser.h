@@ -29,6 +29,7 @@
 namespace OHOS {
 namespace NFC {
 using AppExecFwk::AbilityInfo;
+using AppExecFwk::ExtensionAbilityInfo;
 using OHOS::AppExecFwk::ElementName;
 class AppDataParser {
 public:
@@ -65,6 +66,8 @@ private:
     ElementName GetMatchedHceKeyElement(ElementName &element);
     bool IsMatchedByBundleName(ElementName &src, ElementName &target);
     bool InitAppListByAction(const std::string action);
+    void QueryAbilityInfos(const std::string action, std::vector<AbilityInfo> &abilityInfos,
+        std::vector<ExtensionAbilityInfo> &extensionInfos);
     bool VerifyHapPermission(const std::string bundleName, const std::string action);
     bool UpdateAppListInfo(ElementName &element, const std::string action);
     void UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element);
