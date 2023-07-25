@@ -66,13 +66,17 @@ bool NfccNciAdapter::IsTagActive() const
 
 void NfccNciAdapter::SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation)
 {
+    if (nciAdaptation == nullptr) {
+        WarnLog("SetNciAdaptation, invalid arg.");
+        return;
+    }
     nciAdaptation_ = nciAdaptation;
 }
 
 void NfccNciAdapter::StartRfDiscovery(bool isStart) const
 {
     DebugLog("NfccNciAdapter::StartRfDiscovery: isStart= %{public}d", isStart);
-    tNFA_STATUS status;
+    tNFA_STATUS status = NFA_STATUS_FAILED;
     if (isStart) {
         status = nciAdaptation_->NfaStartRfDiscovery();
     } else {
@@ -118,11 +122,15 @@ tNFA_STATUS NfccNciAdapter::StopPolling() const
 
 void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
+    if (eventData == nullptr) {
+        WarnLog("DoNfaActivatedEvt, invalid arg.");
+        return;
+    }
     if (isDisabling_) {
         return;
     }
     if (eventData->activated.activate_ntf.protocol == NCI_PROTOCOL_NFC_DEP) {
-        DebugLog("Is peer to peer");
+        WarnLog("Is peer to peer");
         return;
     }
 
@@ -376,8 +384,7 @@ void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_
 bool NfccNciAdapter::Initialize()
 {
     DebugLog("NfccNciAdapter::Initialize");
-    tNFA_STATUS status;
-    std::lock_guard<std::mutex> lock(mutex_);
+    tNFA_STATUS status = NFA_STATUS_FAILED;
     if (isNfcEnabled_) {
         DebugLog("NfccNciAdapter::Initialize: already enabled");
         return isNfcEnabled_;
@@ -429,7 +436,6 @@ bool NfccNciAdapter::Deinitialize()
         return NFA_STATUS_OK;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
     tNFA_STATUS status = NFA_STATUS_OK;
     isDisabling_ = true;
 
@@ -461,7 +467,6 @@ bool NfccNciAdapter::Deinitialize()
 void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccNciAdapter::EnableDiscovery");
-    std::lock_guard<std::mutex> lock(mutex_);
     if (!IsNfcActive()) {
         ErrorLog("NfccNciAdapter::EnableDiscovery: Nfc not initialized.");
         return;
@@ -510,7 +515,6 @@ void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, b
 void NfccNciAdapter::DisableDiscovery()
 {
     DebugLog("NfccNciAdapter::DisableDiscovery");
-    std::lock_guard<std::mutex> lock(mutex_);
     if (!IsNfcActive()) {
         ErrorLog("NfccNciAdapter::DisableDiscovery: Nfc not initialized.");
         return;
@@ -531,15 +535,18 @@ void NfccNciAdapter::DisableDiscovery()
 
 bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
-    DebugLog("NfccNciAdapter::SendRawFrame");
-    std::lock_guard<std::mutex> lock(mutex_);
+    if (nciAdaptation_ == nullptr) {
+        ErrorLog("NfccNciAdapter::SendRawFrame invalid state.");
+        return false;
+    }
     uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(rawData);
     uint8_t data[length];
     for (uint32_t i = 0; i < length; i++) {
         data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(rawData, i);
     }
-    nciAdaptation_->NfaSendRawFrame(data, length, 0);
-    return true;
+    tNFA_STATUS status = nciAdaptation_->NfaSendRawFrame(data, length, 0);
+    InfoLog("SendRawFrame status = %{public}d", status);
+    return status == NFA_STATUS_OK;
 }
 
 uint8_t NfccNciAdapter::GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask)
@@ -584,7 +591,7 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
     }
 
     // set power state for screen state.
-    tNFA_STATUS status;
+    tNFA_STATUS status = NFA_STATUS_FAILED;
     if (curScreenState_ == NFA_SCREEN_STATE_OFF_LOCKED || curScreenState_ == NFA_SCREEN_STATE_OFF_UNLOCKED ||
         curScreenState_ == NFA_SCREEN_STATE_ON_LOCKED || curScreenState_ == NFA_SCREEN_STATE_UNKNOWN) {
         status = nciAdaptation_->NfcSetPowerSubStateForScreenState(screenState);
@@ -633,16 +640,12 @@ int NfccNciAdapter::GetIsoDepMaxTransceiveLength()
 bool NfccNciAdapter::RegisterT3tIdentifier(const std::string& t3tIdentifier) const
 {
     DebugLog("NfccNciAdapter::RegisterT3tIdentifier");
-    if (t3tIdentifier.empty()) {
-    }
-    return false;
+    return true;
 }
 
 void NfccNciAdapter::DeregisterT3tIdentifier(int handle) const
 {
     DebugLog("NfccNciAdapter::DeregisterT3tIdentifier");
-    if (handle < 0) {
-    }
 }
 
 void NfccNciAdapter::ClearT3tIdentifiersCache()
@@ -670,7 +673,6 @@ void NfccNciAdapter::Abort()
 bool NfccNciAdapter::CheckFirmware()
 {
     DebugLog("NfccNciAdapter::CheckFirmware");
-    std::lock_guard<std::mutex> lock(mutex_);
     nciAdaptation_->NfcAdaptationInitialize();
     nciAdaptation_->NfcAdaptationDownloadFirmware();
     nciAdaptation_->NfcAdaptationFinalize();

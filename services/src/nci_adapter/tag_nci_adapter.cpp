@@ -205,7 +205,7 @@ bool TagNciAdapter::Disconnect()
     rfDiscoveryMutex_.lock();
     tNFA_STATUS status = nciAdaptations_->NfaDeactivate(false);
     if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::Disconnect: deactivate failed; error = 0x%{public}X", status);
+        WarnLog("TagNciAdapter::Disconnect: deactivate failed; error = 0x%{public}X", status);
     }
     connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     connectedTagDiscId_ = -1;
@@ -1057,6 +1057,10 @@ void TagNciAdapter::ResetTag()
 
 void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
 {
+    if (eventData == nullptr) {
+        WarnLog("HandleDiscResult invalid eventData.");
+        return;
+    }
     tNFC_RESULT_DEVT& discoveryNtf = eventData->disc_result.discovery_ntf;
     DebugLog("TagNciAdapter::HandleDiscResult, discId: %{public}d, protocol: %{public}d",
         discoveryNtf.rf_disc_id, discoveryNtf.protocol);

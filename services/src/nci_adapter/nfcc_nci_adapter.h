@@ -27,6 +27,8 @@ namespace NCI {
 class NfccNciAdapter final {
 public:
     static NfccNciAdapter& GetInstance();
+    ~NfccNciAdapter();
+
     static int GetIsoDepMaxTransceiveLength();
     static void ClearT3tIdentifiersCache();
     static int GetLfT3tMax();
@@ -61,7 +63,7 @@ private:
     static const int DISCOVERY_DURATION = 200;
     static const int NFA_SCREEN_POLLING_TAG_MASK = 0x10;
     NfccNciAdapter();
-    ~NfccNciAdapter();
+
     tNFA_STATUS StartPolling(tNFA_TECHNOLOGY_MASK techMask) const;
     tNFA_STATUS StopPolling() const;
     static void DoNfaPollEnabledDisabledEvt();
@@ -77,7 +79,6 @@ private:
     static void NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData);
     static uint8_t GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask);
 
-    std::mutex mutex_ {};
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcStartStopPollingEvent_;
