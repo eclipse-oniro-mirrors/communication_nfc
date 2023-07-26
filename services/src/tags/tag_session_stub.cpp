@@ -317,10 +317,6 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
         }
         std::unique_ptr<ForegroundDeathRecipient> recipient
             = std::make_unique<ForegroundDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
-        if (recipient == nullptr) {
-            ErrorLog("recipient is null");
-            return ERR_NONE;
-        }
         sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
         if ((remote->IsProxyObject()) && (!remote->AddDeathRecipient(dr))) {
             ErrorLog("Failed to add death recipient");
