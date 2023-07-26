@@ -71,8 +71,6 @@ static void ReleaseAfterWorkCb(uv_work_t *work, AsyncEventData *asyncData,
     }
     delete asyncData;
     delete work;
-    asyncData = nullptr;
-    work = nullptr;
 }
 
 static void AfterWorkCb(uv_work_t *work, int status)
@@ -139,7 +137,7 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
     uint32_t length = tagInfo.GetTechExtrasDataList().size();
     napi_value extrasData;
     napi_create_array_with_length(env, length, &extrasData);
-    
+
     // parse extra data for this technology
     napi_value propValue;
     for (uint32_t i = 0; i < length; i++) {
