@@ -46,6 +46,7 @@ struct NapiNfcTagSession {
     static napi_value Transmit(napi_env env, napi_callback_info info);
     static napi_value GetMaxTransmitSize(napi_env env, napi_callback_info info);
     std::shared_ptr<BasicTagSession> tagSession = nullptr;
+    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 };
 
 template<typename T, typename D>

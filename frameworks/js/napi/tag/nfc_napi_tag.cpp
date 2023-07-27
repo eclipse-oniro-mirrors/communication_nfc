@@ -34,7 +34,6 @@ thread_local napi_ref ndefConsRef_;
 thread_local napi_ref mifareClassicConsRef_;
 thread_local napi_ref mifareUltralightConsRef_;
 thread_local napi_ref ndefFormatableConsRef_;
-std::shared_ptr<TagInfo> nfcTaginfo;
 const int INIT_REF = 1;
 
 static napi_value EnumConstructor(napi_env env, napi_callback_info info)
@@ -373,9 +372,9 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
 }
 
 template<typename T>
-bool RegisterTag(NapiNfcTagSession *nfcTag, std::shared_ptr<TagInfo> nfcTaginfo)
+bool RegisterTag(NapiNfcTagSession *nfcTag)
 {
-    nfcTag->tagSession = T::GetTag(nfcTaginfo);
+    nfcTag->tagSession = T::GetTag(nfcTag->tagInfo);
     return nfcTag->tagSession != nullptr ? true : false;
 }
 
@@ -398,12 +397,12 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
         return CreateUndefined(env);
     }
 
-    // parse Taginfo parameters passed from JS
-    nfcTaginfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
-
     // nfcTag is defined as a native instance that will be wrapped in the JS object
     NapiNfcTagSession *nfcTag = new T();
-    if (!RegisterTag<D>(nfcTag, nfcTaginfo)) {
+
+    // parse Taginfo parameters passed from JS
+    nfcTag->tagInfo = BuildNativeTagFromJsObj(env, tagInfoJsObj);
+    if (!RegisterTag<D>(nfcTag)) {
         delete nfcTag;
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
