@@ -475,11 +475,11 @@ void NfcService::ComputeRoutingParams()
 
 void NfcService::HandleComputeRoutingParams()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcState_ == KITS::STATE_OFF || nfcState_ == KITS::STATE_TURNING_OFF) {
-        DebugLog("NOT Handle ComputeRoutingParams in state off or turning off.");
+    if (!IsNfcEnabled()) {
+        ErrorLog("HandleComputeRoutingParams: NFC not enabled, do not Compute Routing Params");
         return;
     }
+    std::lock_guard<std::mutex> lock(mutex_);
     bool result = nfccHost_->ComputeRoutingParams();
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
 }
