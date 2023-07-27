@@ -106,7 +106,7 @@ std::string TagInfoParcelable::ToString()
         res += "]";
         return res;
     }
-    for (int i = 0; i < tagTechList_.size() - 1; i++) {
+    for (uint32_t i = 0; i < tagTechList_.size() - 1; i++) {
         res += std::to_string(tagTechList_[i]);
         res += ", ";
     }
