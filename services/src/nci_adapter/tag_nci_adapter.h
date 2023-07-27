@@ -31,8 +31,8 @@ namespace NCI {
 class TagNciAdapter final {
 public:
     static TagNciAdapter& GetInstance();
+    ~TagNciAdapter();
     void SetNciAdaptations(std::shared_ptr<INfcNci> nciAdaptations);
-
     static void HandleSelectResult();
     static void HandleTranceiveData(unsigned char status, unsigned char* data, int dataLen);
     static void HandleReadComplete(unsigned char status);
@@ -85,7 +85,6 @@ public:
 
 private:
     TagNciAdapter();
-    ~TagNciAdapter();
     int GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const;
     std::string GetUidFromData(tNFA_ACTIVATED activated) const;
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;

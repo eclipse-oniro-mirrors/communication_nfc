@@ -83,6 +83,10 @@ void NfccHost::DisableDiscovery()
 bool NfccHost::SendRawFrame(std::string& rawData)
 {
     DebugLog("NfccHost::SendRawFrame");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::SendRawFrame(): unsupported chip type");
+        return true;
+    }
     return NfccNciAdapter::GetInstance().SendRawFrame(rawData);
 }
 
@@ -119,19 +123,30 @@ bool NfccHost::SetSecureNfc(bool secure)
 int NfccHost::GetIsoDepMaxTransceiveLength()
 {
     DebugLog("NfccHost::GetIsoDepMaxTransceiveLength");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::GetIsoDepMaxTransceiveLength(): unsupported chip type");
+        return 0;
+    }
     return NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength();
 }
 
 int NfccHost::RegisterT3tIdentifier(std::string& t3tIdentifier)
 {
     DebugLog("NfccHost::RegisterT3tIdentifier");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::RegisterT3tIdentifier(): unsupported chip type");
+        return 0;
+    }
     return NfccNciAdapter::GetInstance().RegisterT3tIdentifier(t3tIdentifier);
 }
 
 void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
 {
     DebugLog("NfccHost::DeregisterT3tIdentifier");
-    // get handle from mT3tIdentifiers
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::DeregisterT3tIdentifier(): unsupported chip type");
+        return;
+    }
     if (!t3tIdentifier.empty()) {
         int handle = -1;
         NfccNciAdapter::GetInstance().DeregisterT3tIdentifier(handle);
@@ -141,48 +156,80 @@ void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
 void NfccHost::ClearT3tIdentifiersCache()
 {
     DebugLog("NfccHost::ClearT3tIdentifiersCache");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::ClearT3tIdentifiersCache(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().ClearT3tIdentifiersCache();
 }
 
 int NfccHost::GetLfT3tMax()
 {
     DebugLog("NfccHost::GetLfT3tMax");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::GetLfT3tMax(): unsupported chip type");
+        return 0;
+    }
     return NfccNciAdapter::GetInstance().GetLfT3tMax();
 }
 
 int NfccHost::GetLastError()
 {
     DebugLog("NfccHost::GetLastError");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::GetLastError(): unsupported chip type");
+        return 0;
+    }
     return NfccNciAdapter::GetInstance().GetLastError();
 }
 
 void NfccHost::Abort()
 {
     DebugLog("NfccHost::Abort");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::Abort(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().Abort();
 }
 
 bool NfccHost::CheckFirmware()
 {
     DebugLog("NfccHost::CheckFirmware");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::CheckFirmware(): unsupported chip type");
+        return true;
+    }
     return NfccNciAdapter::GetInstance().CheckFirmware();
 }
 
 void NfccHost::Dump(int fd)
 {
     DebugLog("NfccHost::Dump");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::Dump(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().Dump(fd);
 }
 
 void NfccHost::FactoryReset()
 {
     DebugLog("NfccHost::FactoryReset");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::FactoryReset(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().FactoryReset();
 }
 
 void NfccHost::Shutdown()
 {
     DebugLog("NfccHost::Shutdown");
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::Shutdown(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().Shutdown();
 }
 
@@ -308,6 +355,10 @@ bool NfccHost::CanMakeReadOnly(int ndefType)
 
 bool NfccHost::GetExtendedLengthApdusSupported()
 {
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::GetExtendedLengthApdusSupported(): unsupported chip type");
+        return true;
+    }
     if (NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength() > ISO_DEP_FRAME_MAX_LEN) {
         return true;
     }
@@ -316,6 +367,10 @@ bool NfccHost::GetExtendedLengthApdusSupported()
 
 void NfccHost::SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation)
 {
+    if (!NfcChipTypeParser::IsSn110()) {
+        WarnLog("NfccHost::SetNciAdaptation(): unsupported chip type");
+        return;
+    }
     NfccNciAdapter::GetInstance().SetNciAdaptation(nciAdaptation);
 #ifdef _NFC_SERVICE_HCE_
     NciBalCe::GetInstance().SetNciAdaptation(nciAdaptation);

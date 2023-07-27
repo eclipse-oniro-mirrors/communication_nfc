@@ -47,6 +47,10 @@ void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
+    if (tag == nullptr || nfcService_ == nullptr) {
+        ErrorLog("HandleTagFound, invalid state.");
+        return 0;
+    }
     static NCI::ITagHost::TagDisconnectedCallBack callback =
         std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
     OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
@@ -68,7 +72,7 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     if (ndefMessage == nullptr) {
         if (!tag->Reconnect()) {
             tag->Disconnect();
-            ErrorLog("bad connection, tag disconnected");
+            ErrorLog("HandleTagFound bad connection, tag disconnected");
             return 0;
         }
     }
@@ -235,7 +239,7 @@ void TagDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagIn
     std::vector<std::string> techArray;
     const std::string tagTechStr = "tag-tech/"; // exmaple: "tag-tech/NfcA"
     for (const auto& tagTech : tagInfo->GetTagTechList()) {
-        if (tagTech < static_cast<int>(TagTechnology::NFC_A_TECH) || 
+        if (tagTech < static_cast<int>(TagTechnology::NFC_A_TECH) ||
             tagTech > static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
             WarnLog("DispatchAbilityMultiApp tagTech(%{public}d) out of range. ", tagTech);
             continue;
