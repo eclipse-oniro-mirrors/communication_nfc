@@ -162,7 +162,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleSendRawFrame(const uint8_t* data, size_t size)
@@ -178,7 +177,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleNdefRead(const uint8_t* data, size_t size)
@@ -194,7 +192,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleNdefWrite(const uint8_t* data, size_t size)
@@ -210,7 +207,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleNdefMakeReadOnly(const uint8_t* data, size_t size)
@@ -226,7 +222,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleFormatNdef(const uint8_t* data, size_t size)
@@ -242,7 +237,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleCanMakeReadOnly(const uint8_t* data, size_t size)
@@ -258,7 +252,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleGetMaxTransceiveLength(const uint8_t* data, size_t size)
@@ -275,7 +268,6 @@ namespace OHOS {
         tagSession->OnRemoteRequest(
             static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleIsSupportedApdusExtended(const uint8_t* data, size_t size)
@@ -292,7 +284,6 @@ namespace OHOS {
         tagSession->OnRemoteRequest(
             static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED),
             data2, reply, option);
-        delete tagSession;
     }
 }
 
