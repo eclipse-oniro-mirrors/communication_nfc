@@ -14,6 +14,7 @@
  */
 #include "routing_manager.h"
 
+#include <unistd.h>
 #include "nfa_api.h"
 #include "nfc_config.h"
 #include "loghelper.h"
@@ -32,6 +33,7 @@ static const std::vector<uint8_t> DEFAULT_UICC_ROUTE_DEST = {0x02, 0x03};
 static const tNFA_EE_PWR_STATE DEFAULT_SYS_CODE_PWR_STA = 0x00;
 static const tNFA_HANDLE DEFAULT_SYS_CODE_ROUTE_DEST = 0xC0;
 static const int MAX_NUM_OF_EE = 5;
+static const int EE_INFO_WAITE_INTERVAL = 100 * 1000; // ms for usleep
 
 // power state masks
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
@@ -71,14 +73,17 @@ bool RoutingManager::Initialize()
             ErrorLog("Initialize: fail ee register; error=0x%{public}X", status);
             return false;
         }
-        eeRegisterEvent_.Wait();
+        eeRegisterEvent_.Wait(); // wait for NFA_EE_REGISTER_EVT
     }
+
+    // NFA_EE_REGISTER_EVT and NFA_EE_DISCOVER_REQ_EVT may come at the same time
+    // wait 100ms here to avoid timing issue in executing eeInfoEvent_
+    usleep(EE_INFO_WAITE_INTERVAL);
     if ((defaultOffHostRoute_ != 0) || (defaultFelicaRoute_ != 0)) {
-        // Wait for EE info if needed
         SynchronizeEvent guard(eeInfoEvent_);
         if (!isEeInfoReceived_) {
             InfoLog("Initialize: Waiting for EE info");
-            eeInfoEvent_.Wait();
+            eeInfoEvent_.Wait(); // wait for NFA_EE_DISCOVER_REQ_EVT if eeinfo not received
         }
     }
     seTechMask_ = UpdateEeTechRouteSetting();
