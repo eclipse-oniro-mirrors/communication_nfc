@@ -67,7 +67,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleTurnOn(const uint8_t* data, size_t size)
@@ -83,7 +82,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_ON),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleTurnOff(const uint8_t* data, size_t size)
@@ -99,7 +97,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleRegisterCallBack(const uint8_t* data, size_t size)
@@ -115,7 +112,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleUnRegisterCallBack(const uint8_t* data, size_t size)
@@ -131,7 +127,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleIsNfcOpen(const uint8_t* data, size_t size)
@@ -147,7 +142,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzHandleGetNfcTagInterface(const uint8_t* data, size_t size)
@@ -163,7 +157,6 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzUnregisterCallback(const uint8_t* data, size_t size)
@@ -179,7 +172,6 @@ public:
         data2.WriteInt32(0);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
             data2, reply, option);
-        delete nfcCrlStub;
     }
 
     void FuzzregisterCallback(const uint8_t* data, size_t size)
@@ -191,7 +183,6 @@ public:
         sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
         Security::AccessToken::AccessTokenID callerToken = 0;
         nfcCrlStub->RegisterCallBack(iNfcControllerCallbackImpl, type, callerToken);
-        delete nfcCrlStub;
     }
 }
 
