@@ -50,7 +50,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_CONNECT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleReconnect(const uint8_t* data, size_t size)
@@ -66,7 +65,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_RECONNECT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleDisconnect(const uint8_t* data, size_t size)
@@ -82,7 +80,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleSetTimeout(const uint8_t* data, size_t size)
@@ -98,7 +95,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleGetTimeout(const uint8_t* data, size_t size)
@@ -114,7 +110,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleGetTechList(const uint8_t* data, size_t size)
@@ -130,7 +125,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleIsTagFieldOn(const uint8_t* data, size_t size)
@@ -146,7 +140,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT),
             data2, reply, option);
-        delete tagSession;
     }
 
     void FuzzHandleIsNdef(const uint8_t* data, size_t size)
