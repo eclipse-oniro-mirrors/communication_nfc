@@ -56,7 +56,7 @@ void TagHostTest::TearDown()
     tag_ = nullptr;
 }
 
-void callback1(int tagRfDiscId)
+void Callback1(int tagRfDiscId)
 {}
 
 /**
@@ -94,7 +94,7 @@ HWTEST_F(TagHostTest, RemoveTechTest001, TestSize.Level1)
     int tagRfDiscId = tag_->GetTagRfDiscId();
     EXPECT_EQ(tagRfDiscId, 0);
     int fieldOnCheckInterval = 125;
-    static std::function<void(int)> callback = std::bind(callback1, std::placeholders::_1);
+    static std::function<void(int)> callback = std::bind(Callback1, std::placeholders::_1);
     tag_->OnFieldChecking(callback, fieldOnCheckInterval);
     fieldOnCheckInterval = 0;
     tag_->OnFieldChecking(callback, fieldOnCheckInterval);

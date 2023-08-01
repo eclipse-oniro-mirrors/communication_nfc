@@ -147,6 +147,7 @@ ohos_unittest("services_tags_test") {
 
   sources = [
     "services_tags_test/nfc_service_tdd.cpp",
+    "services_tags_test/tag_dispatcher_test.cpp",
     "services_tags_test/tag_session_stub_test.cpp",
     "services_tags_test/tag_session_test.cpp",
   ]
