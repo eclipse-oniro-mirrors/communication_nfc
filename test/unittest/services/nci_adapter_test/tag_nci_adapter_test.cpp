@@ -19,6 +19,7 @@
 #include "nfc_service.h"
 #include "tag_host.h"
 #include "tag_nci_adapter.h"
+#include "nci_adaptations.h"
 
 namespace OHOS {
 namespace NFC {
@@ -36,6 +37,17 @@ public:
     static const int DEFAULT_TIMEOUT = 1000;
     static const int ISO14443_3A_DEFAULT_TIMEOUT = 618;   // NfcA
     static const uint32_t MAX_NUM_TECHNOLOGY = 12;
+    // const values for Mifare Ultralight
+    static const int MANUFACTURER_ID_NXP = 0x04;
+    static const int SAK_MIFARE_UL_1 = 0x00;
+    static const int SAK_MIFARE_UL_2 = 0x04;
+    static const int ATQA_MIFARE_UL_0 = 0x44;
+    static const int ATQA_MIFARE_UL_1 = 0x00;
+
+    // const values for Mifare DESFire
+    static const int SAK_MIFARE_DESFIRE = 0x20;
+    static const int ATQA_MIFARE_DESFIRE_0 = 0x44;
+    static const int ATQA_MIFARE_DESFIRE_1 = 0x03;
 };
 
 void TagNciAdapterTest::SetUp()
@@ -172,6 +184,99 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest005, TestSize.Level1)
 
     adapterObj.SetDiscRstEvtNum(TagHost::TARGET_TYPE_ISO14443_3A);
     EXPECT_TRUE(adapterObj.GetDiscRstEvtNum() == TagHost::TARGET_TYPE_ISO14443_3A);
+}
+
+/**
+ * @tc.name: TagNciAdapterTest006
+ * @tc.desc: Test HandleDiscResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagNciAdapterTest, TagNciAdapterTest006, TestSize.Level1)
+{
+    NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
+    std::shared_ptr<INfcNci> nciAdaptations = std::make_shared<NciAdaptations>();
+    adapterObj.SetNciAdaptations(nciAdaptations);
+    adapterObj.HandleDiscResult(nullptr);
+    tNFA_CONN_EVT_DATA eventData;
+    tNFC_RESULT_DEVT discoveryNtf;
+    discoveryNtf.more = NCI_DISCOVER_NTF_MORE;
+    discoveryNtf.protocol = NFA_PROTOCOL_NFC_DEP;
+    eventData.disc_result.discovery_ntf = discoveryNtf;
+    adapterObj.HandleDiscResult(&eventData);
+
+    discoveryNtf.more = NCI_DISCOVER_NTF_LAST;
+    discoveryNtf.protocol = NFA_PROTOCOL_ISO_DEP;
+    eventData.disc_result.discovery_ntf = discoveryNtf;
+    adapterObj.HandleDiscResult(&eventData);
+}
+
+/**
+ * @tc.name: TagNciAdapterTest007
+ * @tc.desc: Test HandleDiscResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagNciAdapterTest, TagNciAdapterTest007, TestSize.Level1)
+{
+    NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
+    std::vector<uint16_t> systemCode = {0x88B4, 0, 0};
+    tNFA_CONN_EVT_DATA eventData;
+    tNFA_ACTIVATED activated;
+    activated.activate_ntf.protocol = NCI_PROTOCOL_T1T;
+    activated.params.t3t.num_system_codes = 1;
+    activated.params.t3t.p_system_codes = &systemCode[0];
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_A;
+    activated.activate_ntf.rf_tech_param.param.pa.sel_rsp = 0004;
+    activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] = ATQA_MIFARE_UL_0;
+    activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] = ATQA_MIFARE_UL_1;
+    activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] = MANUFACTURER_ID_NXP;
+    eventData.activated = activated;
+    adapterObj.SetDiscRstEvtNum(1);
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_T2T;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_T3BT;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_T3T;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+}
+
+/**
+ * @tc.name: TagNciAdapterTest008
+ * @tc.desc: Test HandleDiscResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagNciAdapterTest, TagNciAdapterTest008, TestSize.Level1)
+{
+    NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
+    std::vector<uint16_t> systemCode = {0x88B4, 0, 0};
+    tNFA_CONN_EVT_DATA eventData;
+    tNFA_ACTIVATED activated;
+    activated.activate_ntf.protocol = NCI_PROTOCOL_ISO_DEP;
+    activated.params.t3t.num_system_codes = 1;
+    activated.params.t3t.p_system_codes = &systemCode[0];
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_A;
+    activated.activate_ntf.rf_tech_param.param.pa.sel_rsp = 0004;
+    activated.activate_ntf.rf_tech_param.param.pa.sens_res[0] = ATQA_MIFARE_UL_0;
+    activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] = ATQA_MIFARE_UL_1;
+    activated.activate_ntf.rf_tech_param.param.pa.nfcid1[0] = MANUFACTURER_ID_NXP;
+    adapterObj.SetDiscRstEvtNum(1);
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_B;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_F;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_V;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
 }
 }
 }
