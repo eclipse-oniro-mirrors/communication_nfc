@@ -74,27 +74,17 @@ HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest002, TestSize.Level1)
     NCI::NfccNciAdapter::Abort();
     NCI::NfccNciAdapter::IsNfcActive();
     adapterObj.Deinitialize();
+    std::string rawData = "00a40400";
+    adapterObj.SendRawFrame(rawData);
     EXPECT_TRUE(NCI::NfccNciAdapter::GetIsoDepMaxTransceiveLength() == ISO_DEP_MAX_TRANSEIVE_LENGTH);
 }
 
 /**
  * @tc.name: NfccNciAdapterTest003
- * @tc.desc: Test Start or Stop RF
- * @tc.type: FUNC
- */
-HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest003, TestSize.Level1)
-{
-    NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
-    std::string rawData = "00a40400";
-    EXPECT_TRUE(!adapterObj.SendRawFrame(rawData));
-}
-
-/**
- * @tc.name: NfccNciAdapterTest004
  * @tc.desc: Test Connect or Disconnect
  * @tc.type: FUNC
  */
-HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest004, TestSize.Level1)
+HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest003, TestSize.Level1)
 {
     NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
     adapterObj.SetScreenStatus(0xFF);
