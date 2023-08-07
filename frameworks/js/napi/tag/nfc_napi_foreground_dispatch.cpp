@@ -28,8 +28,6 @@ constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 
 static std::shared_mutex g_regInfoMutex;
 static RegObj g_eventRegInfo;
-static ElementName g_eventRegElement;
-static std::vector<uint32_t> g_eventRegDiscTech;
 bool ForegroundEventRegister::isEvtRegistered = false;
 
 class NapiEvent {
@@ -76,10 +74,8 @@ static void ReleaseAfterWorkCb(uv_work_t *work, AsyncEventData *asyncData,
 static void AfterWorkCb(uv_work_t *work, int status)
 {
     AsyncEventData *asyncData = static_cast<AsyncEventData *>(work->data);
-    InfoLog("AfterWorkCb, env: %{private}p, status: %{public}d", asyncData->env, status);
-    napi_value handler = nullptr;
+    InfoLog("AfterWorkCb, status: %{public}d", status);
     napi_handle_scope scope = nullptr;
-    napi_value jsEvent = nullptr;
     uint32_t refCount = INVALID_REF_COUNT;
     napi_open_handle_scope(asyncData->env, &scope);
     if (scope == nullptr) {
@@ -88,16 +84,21 @@ static void AfterWorkCb(uv_work_t *work, int status)
         return;
     }
 
-    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
-    if (handler == nullptr) {
-        ErrorLog("AfterWorkCb: handler is nullptr");
+    napi_value callback = nullptr;
+    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &callback);
+    if (callback == nullptr) {
+        ErrorLog("AfterWorkCb: callback is nullptr");
         ReleaseAfterWorkCb(work, asyncData, scope,  refCount);
         return;
     }
-    napi_value undefine;
-    napi_get_undefined(asyncData->env, &undefine);
-    jsEvent = asyncData->packResult();
-    if (napi_call_function(asyncData->env, nullptr, handler, 1, &jsEvent, &undefine) != napi_ok) {
+
+    // build result arg for async callback in an array {error, tagInfo}
+    napi_value resArgs[ARGV_INDEX_2];
+    napi_get_undefined(asyncData->env, &resArgs[ARGV_INDEX_0]);
+    resArgs[ARGV_INDEX_1] = asyncData->packResult();
+    napi_value returnVal;
+    napi_get_undefined(asyncData->env, &returnVal);
+    if (napi_call_function(asyncData->env, nullptr, callback, ARGV_INDEX_2, resArgs, &returnVal) != napi_ok) {
         DebugLog("AfterWorkCb: Report event to Js failed");
     }
     ReleaseAfterWorkCb(work, asyncData, scope,  refCount);
@@ -300,19 +301,19 @@ ForegroundEventRegister& ForegroundEventRegister::GetInstance()
 void ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     std::vector<uint32_t> &discTech, napi_value handler)
 {
-    InfoLog("ForegroundEventRegister::Register event");
+    InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered);
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     if (!isEvtRegistered) {
         if (RegisterForegroundEvents(element, discTech) != KITS::ERR_NONE) {
+            ErrorLog("ForegroundEventRegister::Register, reg event failed");
             return;
         }
         isEvtRegistered = true;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
-    RegObj regObj(env, handlerRef);
+    RegObj regObj(env, handlerRef, element, discTech);
     g_eventRegInfo = regObj;
-    g_eventRegDiscTech = discTech;
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
         napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
@@ -322,49 +323,33 @@ void ForegroundEventRegister::Register(const napi_env &env, ElementName &element
 void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &regObj, napi_value &handler)
 {
     if (env == regObj.regEnv) {
-        napi_value handlerTemp = nullptr;
-        napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
-        bool isEqual = false;
-        if (handlerTemp == nullptr) {
-            DebugLog("handlerTemp is null");
-        }
-        if (handler == nullptr) {
-            DebugLog("handler is null");
-        }
-        napi_strict_equals(regObj.regEnv, handlerTemp, handler, &isEqual);
-        DebugLog("Delete register isEqual = %{public}d", isEqual);
-        if (isEqual) {
-            uint32_t refCount = INVALID_REF_COUNT;
-            napi_reference_unref(regObj.regEnv, regObj.regHandlerRef, &refCount);
-            InfoLog("delete ref, regEnv: %{private}p, regHandlerRef: %{private}p, refCount: %{public}d",
-                regObj.regEnv, regObj.regHandlerRef, refCount);
-            if (refCount == 0) {
-                napi_delete_reference(regObj.regEnv, regObj.regHandlerRef);
-            }
-            DebugLog("Delete register object ref.");
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_unref(regObj.regEnv, regObj.regHandlerRef, &refCount);
+        InfoLog("ForegroundEventRegister::DeleteRegisterObj: delete ref, refCount: %{public}d", refCount);
+        if (refCount == 0) {
+            napi_delete_reference(regObj.regEnv, regObj.regHandlerRef);
+            DebugLog("ForegroundEventRegister::DeleteRegisterObj: ref obj deleted.");
         }
     }
 }
 
 void ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
 {
-    InfoLog("ForegroundEventRegister::Unregister");
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     if (!g_eventRegInfo.IsEmpty()) {
-        DebugLog("Unregister type not registered!");
         if (UnregisterForegroundEvents(element) != KITS::ERR_NONE) {
-            ErrorLog("UnRegisterNfcEvents failed.");
+            ErrorLog("ForegroundEventRegister::Unregister, unreg event failed.");
+            return;
         }
-        return;
     }
     if (handler != nullptr) {
         DeleteRegisterObj(env, g_eventRegInfo, handler);
     }
     if (!g_eventRegInfo.IsEmpty()) {
         g_eventRegInfo.Clear();
-        g_eventRegDiscTech.clear();
         isEvtRegistered = false;
     }
+    InfoLog("ForegroundEventRegister::Unregister, isEvtRegistered = %{public}d", isEvtRegistered);
 }
 
 napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)

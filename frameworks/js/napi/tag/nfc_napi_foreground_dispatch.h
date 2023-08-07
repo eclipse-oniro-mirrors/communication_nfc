@@ -44,11 +44,13 @@ public:
 
 class RegObj {
 public:
-    RegObj() : regEnv(0), regHandlerRef(nullptr) {}
+    RegObj() : regEnv(0), regHandlerRef(nullptr), regElement(), regDiscTech() {}
 
-    explicit RegObj(const napi_env &env, const napi_ref &ref)
+    explicit RegObj(const napi_env &env, const napi_ref &ref, ElementName &element, std::vector<uint32_t> &discTech)
         :regEnv(env),
-        regHandlerRef(ref) {};
+        regHandlerRef(ref),
+        regElement(element),
+        regDiscTech(discTech) {};
 
     ~RegObj() {}
 
@@ -58,10 +60,14 @@ public:
     {
         regEnv = 0;
         regHandlerRef = nullptr;
+        regElement.ClearElement(&regElement);
+        regDiscTech.clear();
     }
 
     napi_env regEnv;
     napi_ref regHandlerRef;
+    ElementName regElement;
+    std::vector<uint32_t> regDiscTech;
 };
 
 class ForegroundEventRegister {
