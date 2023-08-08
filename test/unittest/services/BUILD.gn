@@ -86,6 +86,7 @@ ohos_unittest("tags_test") {
   module_out_path = "nfc/services"
 
   sources = [
+    "tags_test/foreground_callback_stub_test.cpp",
     "tags_test/iso15693_tag_test.cpp",
     "tags_test/isodep_tag_test.cpp",
     "tags_test/mifare_classic_tag_test.cpp",
@@ -97,6 +98,7 @@ ohos_unittest("tags_test") {
     "tags_test/nfcb_tag_test.cpp",
     "tags_test/nfcf_tag_test.cpp",
     "tags_test/tag_info_test.cpp",
+    "tags_test/taginfo_parcelable_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
