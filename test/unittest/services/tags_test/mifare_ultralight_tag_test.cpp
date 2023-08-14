@@ -108,8 +108,8 @@ HWTEST_F(MifareUltralightTagTest, ReadMultiplePages001, TestSize.Level1)
     uint32_t pageIndex = MifareUltralightTag::MU_PAGE_SIZE;
     std::string hexRespData;
     std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo_);
-    int readMultiplePages = mifareUltralight->ReadMultiplePages(pageIndex, hexRespData);
-    ASSERT_TRUE(readMultiplePages == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+    int result = mifareUltralight->ReadMultiplePages(pageIndex, hexRespData);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
 }
 /**
  * @tc.name: WriteSinglePage001
@@ -121,8 +121,8 @@ HWTEST_F(MifareUltralightTagTest, WriteSinglePage001, TestSize.Level1)
     uint32_t pageIndex = MifareUltralightTag::MU_PAGE_SIZE;
     const std::string hexRespData;
     std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo_);
-    int writeSinglePage = mifareUltralight->WriteSinglePage(pageIndex, hexRespData);
-    ASSERT_TRUE(writeSinglePage == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+    int result = mifareUltralight->WriteSinglePage(pageIndex, hexRespData);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
 }
 /**
  * @tc.name: GetType001
