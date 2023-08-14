@@ -62,8 +62,8 @@ HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch001, TestSize.Level1)
 {
     const sptr<KITS::IForegroundCallback> callback;
     std::shared_ptr<ForegroundCallbackStub> foregroundCallbackStub = std::make_shared<ForegroundCallbackStub>();
-    KITS::ErrorCode regForegroundDispatch = foregroundCallbackStub->RegForegroundDispatch(callback);
-    ASSERT_TRUE(regForegroundDispatch == KITS::ERR_NFC_PARAMETERS);
+    KITS::ErrorCode result = foregroundCallbackStub->RegForegroundDispatch(callback);
+    ASSERT_TRUE(result == KITS::ERR_NFC_PARAMETERS);
 }
 /**
  * @tc.name: RegForegroundDispatch002
@@ -74,8 +74,8 @@ HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch002, TestSize.Level1)
 {
     const sptr<KITS::IForegroundCallback> callback = new TAG::ForegroundCallbackStub();
     std::shared_ptr<ForegroundCallbackStub> foregroundCallbackStub = std::make_shared<ForegroundCallbackStub>();
-    KITS::ErrorCode regForegroundDispatch = foregroundCallbackStub->RegForegroundDispatch(callback);
-    ASSERT_TRUE(regForegroundDispatch == KITS::ERR_NONE);
+    KITS::ErrorCode result = foregroundCallbackStub->RegForegroundDispatch(callback);
+    ASSERT_TRUE(result == KITS::ERR_NONE);
 }
 }
 }

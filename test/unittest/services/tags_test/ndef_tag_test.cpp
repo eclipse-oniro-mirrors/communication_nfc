@@ -174,8 +174,8 @@ HWTEST_F(NdefTagTest, ReadNdef001, TestSize.Level1)
 {
     std::shared_ptr<NdefMessage> ndefMessage;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int readNdef = ndef->ReadNdef(ndefMessage);
-    ASSERT_TRUE(readNdef == ErrorCode::ERR_TAG_STATE_LOST);
+    int result = ndef->ReadNdef(ndefMessage);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_LOST);
 }
 /**
  * @tc.name: WriteNdef001
@@ -186,8 +186,8 @@ HWTEST_F(NdefTagTest, WriteNdef001, TestSize.Level1)
 {
     std::shared_ptr<NdefMessage> msg;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int writeNdef = ndef->WriteNdef(msg);
-    ASSERT_TRUE(writeNdef == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+    int result = ndef->WriteNdef(msg);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
 }
 /**
  * @tc.name: IsEnableReadOnly001
@@ -198,8 +198,8 @@ HWTEST_F(NdefTagTest, IsEnableReadOnly001, TestSize.Level1)
 {
     bool canSetReadOnly;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int readOnly = ndef->IsEnableReadOnly(canSetReadOnly);
-    ASSERT_TRUE(readOnly == ErrorCode::ERR_NONE);
+    int result = ndef->IsEnableReadOnly(canSetReadOnly);
+    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
 }
 /**
  * @tc.name: EnableReadOnly001
@@ -209,8 +209,8 @@ HWTEST_F(NdefTagTest, IsEnableReadOnly001, TestSize.Level1)
 HWTEST_F(NdefTagTest, EnableReadOnly001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int readOnly = ndef->EnableReadOnly();
-    ASSERT_TRUE(readOnly == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
+    int result = ndef->EnableReadOnly();
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_DISCONNECTED);
 }
 /**
  * @tc.name: GetNdefTagTypeString001
@@ -348,8 +348,8 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString006, TestSize.Level1)
 HWTEST_F(NdefTagTest, Connect001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int connect = ndef->Connect();
-    ASSERT_TRUE(connect == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    int result = ndef->Connect();
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: Close001
@@ -359,8 +359,8 @@ HWTEST_F(NdefTagTest, Connect001, TestSize.Level1)
 HWTEST_F(NdefTagTest, Close001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int close = ndef->Close();
-    ASSERT_TRUE(close == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    int result = ndef->Close();
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: SendCommand001
@@ -373,8 +373,8 @@ HWTEST_F(NdefTagTest, SendCommand001, TestSize.Level1)
     bool raw = true;
     std::string hexRespData;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    int sendCommand = ndef->SendCommand(hexCmdData, raw, hexRespData);
-    ASSERT_TRUE(sendCommand == ErrorCode::ERR_NONE);
+    int result = ndef->SendCommand(hexCmdData, raw, hexRespData);
+    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
 }
 /**
  * @tc.name: GetTag003

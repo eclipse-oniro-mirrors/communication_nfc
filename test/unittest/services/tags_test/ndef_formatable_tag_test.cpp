@@ -107,8 +107,8 @@ HWTEST_F(NdefFormatableTagTest, Format001, TestSize.Level1)
 {
     std::weak_ptr<NdefMessage> firstMessage;
     std::shared_ptr<NdefFormatableTag> ndefFor = NdefFormatableTag::GetTag(tagInfo_);
-    int forMat = ndefFor->Format(firstMessage);
-    ASSERT_TRUE(forMat == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    int result = ndefFor->Format(firstMessage);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: FormatReadOnly001
@@ -119,8 +119,8 @@ HWTEST_F(NdefFormatableTagTest, FormatReadOnly001, TestSize.Level1)
 {
     std::weak_ptr<NdefMessage> firstMessage;
     std::shared_ptr<NdefFormatableTag> ndefFor = NdefFormatableTag::GetTag(tagInfo_);
-    int formatReadonly = ndefFor->FormatReadOnly(firstMessage);
-    ASSERT_TRUE(formatReadonly == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    int result = ndefFor->FormatReadOnly(firstMessage);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: GetTag003

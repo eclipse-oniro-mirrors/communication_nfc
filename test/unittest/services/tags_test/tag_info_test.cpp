@@ -176,8 +176,8 @@ HWTEST_F(TagInfoTest, GetIntExtrasData001, TestSize.Level1)
 {
     AppExecFwk::PacMap extrasData;
     const std::string extrasName;
-    int intExtrasData = tagInfo_->GetIntExtrasData(extrasData, extrasName);
-    ASSERT_TRUE(intExtrasData == ErrorCode::ERR_TAG_PARAMETERS);
+    int result = tagInfo_->GetIntExtrasData(extrasData, extrasName);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
  * @tc.name: GetBoolExtrasData001
