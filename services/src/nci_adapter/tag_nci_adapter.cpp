@@ -881,25 +881,25 @@ void TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated)
         } else if (IsDiscTypeB(discType)) {
             techPoll = GetTechPollForTypeB(nfcRfTechParams, tagTechList_[i]);
         } else if (IsDiscTypeF(discType)) {
-            unsigned char cTechPoll[F_POLL_LENGTH];
+            unsigned char fTechPoll[F_POLL_LENGTH];
             unsigned char *sensfRes = nfcRfTechParams.param.pf.sensf_res;
 
             // save the pmm value.
             for (int j = 0; j < SENSF_RES_LENGTH; j++) {
-                cTechPoll[j] = static_cast<unsigned char>(sensfRes[j + SENSF_RES_LENGTH]);
+                fTechPoll[j] = static_cast<unsigned char>(sensfRes[j + SENSF_RES_LENGTH]);
             }
 
             // save the system code.
             if (activated.params.t3t.num_system_codes > 0) {
                 unsigned short *pSystemCodes = activated.params.t3t.p_system_codes;
-                cTechPoll[POS_NFCF_STSTEM_CODE_HIGH] =
+                fTechPoll[POS_NFCF_STSTEM_CODE_HIGH] =
                     static_cast<unsigned char>(*pSystemCodes >> SYSTEM_CODE_SHIFT);
-                cTechPoll[POS_NFCF_STSTEM_CODE_LOW] = static_cast<unsigned char>(*pSystemCodes);
+                fTechPoll[POS_NFCF_STSTEM_CODE_LOW] = static_cast<unsigned char>(*pSystemCodes);
             }
-            techPoll = KITS::NfcSdkCommon::BytesVecToHexString(cTechPoll, F_POLL_LENGTH);
+            techPoll = KITS::NfcSdkCommon::BytesVecToHexString(fTechPoll, F_POLL_LENGTH);
         } else if (IsDiscTypeV(discType)) {
-            unsigned char cTechPoll[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
-            techPoll = KITS::NfcSdkCommon::BytesVecToHexString(cTechPoll, I93_POLL_LENGTH);
+            unsigned char vTechPoll[2] = {activated.params.i93.afi, activated.params.i93.dsfid};
+            techPoll = KITS::NfcSdkCommon::BytesVecToHexString(vTechPoll, I93_POLL_LENGTH);
         } else {
             techPoll = "";
         }
