@@ -62,6 +62,7 @@ bool TagHost::Connect(int technology)
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
     bool result = false;
+    bool reResult = false;
     tNFA_STATUS status;
     for (std::size_t i = 0; i < technologyList_.size(); i++) {
         if (technology != technologyList_[i]) {
@@ -74,8 +75,8 @@ bool TagHost::Connect(int technology)
                 status = TagNciAdapter::GetInstance().Connect(tagRfDiscIdList_[i],
                     tagActivatedProtocols_[i], tagTechList_[i]);
             } else {
-                bool reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i],
-                    tagActivatedProtocols_[i], tagTechList_[i], false);
+                reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i],
+                    tagTechList_[i], false);
                 status = reResult ? NFA_STATUS_OK : NFA_STATUS_FAILED;
             }
         } else {
@@ -83,8 +84,8 @@ bool TagHost::Connect(int technology)
                 // special for ndef
                 i = 0;
             }
-            bool reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i],
-                tagActivatedProtocols_[i], tagTechList_[i], false);
+            reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i],
+                tagTechList_[i], false);
             status = reResult ? NFA_STATUS_OK : NFA_STATUS_FAILED;
         }
         if (status == NFA_STATUS_OK) {

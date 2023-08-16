@@ -181,16 +181,16 @@ bool AppDataParser::InitAppListByAction(const std::string action)
     std::vector<ExtensionAbilityInfo> extensionAbilityInfos;
     QueryAbilityInfos(action, abilityInfos, extensionAbilityInfos);
     if (KITS::ACTION_TAG_FOUND.compare(action) == 0) {
-        for (auto& abilityInfo : abilityInfos) {
-            ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
-                abilityInfo.moduleName);
-            UpdateTagAppList(abilityInfo, element);
+        for (auto& tagAbilityInfo : abilityInfos) {
+            ElementName element(tagAbilityInfo.deviceId, tagAbilityInfo.bundleName, tagAbilityInfo.name,
+                tagAbilityInfo.moduleName);
+            UpdateTagAppList(tagAbilityInfo, element);
         }
     } else if (KITS::ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
-        for (auto& abilityInfo : abilityInfos) {
-            ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
-                abilityInfo.moduleName);
-            UpdateHceAppList(abilityInfo, element);
+        for (auto& hceAbilityInfo : abilityInfos) {
+            ElementName element(hceAbilityInfo.deviceId, hceAbilityInfo.bundleName, hceAbilityInfo.name,
+                hceAbilityInfo.moduleName);
+            UpdateHceAppList(hceAbilityInfo, element);
         }
     } else {
         WarnLog("InitAppListByAction,unknown action = %{public}s", action.c_str());
