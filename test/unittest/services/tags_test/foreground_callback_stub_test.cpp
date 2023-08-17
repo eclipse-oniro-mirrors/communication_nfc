@@ -72,9 +72,12 @@ HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch001, TestSize.Level1)
  */
 HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch002, TestSize.Level1)
 {
+    MessageParcel data;
+    KITS::TagInfoParcelable tagInfo = *(KITS::TagInfoParcelable::Unmarshalling(data));
     const sptr<KITS::IForegroundCallback> callback = new TAG::ForegroundCallbackStub();
     std::shared_ptr<ForegroundCallbackStub> foregroundCallbackStub = std::make_shared<ForegroundCallbackStub>();
     KITS::ErrorCode result = foregroundCallbackStub->RegForegroundDispatch(callback);
+    foregroundCallbackStub->OnTagDiscovered(tagInfo);
     ASSERT_TRUE(result == KITS::ERR_NONE);
 }
 }
