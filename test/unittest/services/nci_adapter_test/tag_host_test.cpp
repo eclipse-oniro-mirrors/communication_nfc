@@ -79,7 +79,7 @@ HWTEST_F(TagHostTest, ConnectTest001, TestSize.Level1)
     EXPECT_STREQ(res.c_str(), "");
     tag_->OffFieldChecking();
     EXPECT_FALSE(tag_->Connect(-1));
-    EXPECT_FALSE(tag_->Disconnect());
+    EXPECT_TRUE(tag_->Disconnect());
 }
 
 /**

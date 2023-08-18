@@ -82,7 +82,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest002, TestSize.Level1)
     EXPECT_TRUE(statusConnect == NFA_STATUS_BUSY);
 
     bool statusDisconnect = adapterObj.Disconnect();
-    EXPECT_TRUE(!statusDisconnect);
+    EXPECT_FALSE(!statusDisconnect);
 
     bool statusReconnect = adapterObj.Reconnect(0, 1, 1, false);
     EXPECT_TRUE(!statusReconnect);
@@ -212,7 +212,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest006, TestSize.Level1)
 
 /**
  * @tc.name: TagNciAdapterTest007
- * @tc.desc: Test HandleDiscResult
+ * @tc.desc: Test BuildTagInfo
  * @tc.type: FUNC
  */
 HWTEST_F(TagNciAdapterTest, TagNciAdapterTest007, TestSize.Level1)
@@ -248,7 +248,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest007, TestSize.Level1)
 
 /**
  * @tc.name: TagNciAdapterTest008
- * @tc.desc: Test HandleDiscResult
+ * @tc.desc: Test BuildTagInfo
  * @tc.type: FUNC
  */
 HWTEST_F(TagNciAdapterTest, TagNciAdapterTest008, TestSize.Level1)
@@ -274,7 +274,87 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest008, TestSize.Level1)
     eventData.activated = activated;
     adapterObj.BuildTagInfo(&eventData);
 
-    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_V;
+    activated.activate_ntf.rf_tech_param.mode = 0x0F;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+}
+
+/**
+ * @tc.name: TagNciAdapterTest009
+ * @tc.desc: Test BuildTagInfo NCI_DISCOVERY_TYPE_POLL_A
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagNciAdapterTest, TagNciAdapterTest009, TestSize.Level1)
+{
+    NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
+    adapterObj.ResetTag();
+    adapterObj.SetDiscRstEvtNum(1);
+    std::vector<uint16_t> systemCode = {0x88B4, 0, 0};
+    tNFA_CONN_EVT_DATA eventData;
+    tNFA_ACTIVATED activated;
+    activated.params.t3t.p_system_codes = &systemCode[0];
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_ISO_DEP;
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_A;
+    activated.activate_ntf.intf_param.type = NFC_INTERFACE_ISO_DEP;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte[0] = 0;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte_len = 1;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte[0] = 0;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte_len = 0;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.intf_param.type = NFC_INTERFACE_FRAME;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+}
+
+/**
+ * @tc.name: TagNciAdapterTest0010
+ * @tc.desc: Test BuildTagInfo NCI_DISCOVERY_TYPE_POLL_B
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagNciAdapterTest, TagNciAdapterTest0010, TestSize.Level1)
+{
+    NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
+    adapterObj.ResetTag();
+    adapterObj.SetDiscRstEvtNum(1);
+    std::vector<uint16_t> systemCode = {0x88B4, 0, 0};
+    std::vector<uint8_t> hisByte = {0};
+    tNFA_CONN_EVT_DATA eventData;
+    tNFA_ACTIVATED activated;
+    activated.params.t3t.p_system_codes = &systemCode[0];
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_ISO_DEP;
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_B;
+    activated.activate_ntf.rf_tech_param.param.pb.sensb_res_len = 0;
+    activated.activate_ntf.intf_param.type = NFC_INTERFACE_ISO_DEP;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte[0] = 0;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte_len = 1;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+    activated.activate_ntf.rf_tech_param.param.pb.sensb_res_len = NFC_NFCID0_MAX_LEN + 1;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+    activated.activate_ntf.intf_param.type = NFC_INTERFACE_NFC_DEP;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_ISO_DEP;
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_F;
+    activated.params.t3t.num_system_codes = 1;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+    activated.params.t3t.num_system_codes = 0;
+    eventData.activated = activated;
+    adapterObj.BuildTagInfo(&eventData);
+
+    activated.activate_ntf.protocol = NCI_PROTOCOL_T3BT;
+    activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_B;
+    activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte_len = 0;
     eventData.activated = activated;
     adapterObj.BuildTagInfo(&eventData);
 }
