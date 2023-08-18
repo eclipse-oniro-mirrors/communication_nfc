@@ -68,7 +68,6 @@
                 "init"
             ],
             "third_party": [
-                "libnfc-nci",
                 "zlib"
             ]
         },
@@ -82,7 +81,6 @@
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
                 ],
                 "service_group": [
-                    "//third_party/libnfc-nci/SN100x:nfc-nci",
                     "//foundation/communication/nfc/sa_profile:nfc_profile",
                     "//foundation/communication/nfc/services:nfc_service"
                 ]

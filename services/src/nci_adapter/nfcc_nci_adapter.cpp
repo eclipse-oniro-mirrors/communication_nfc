@@ -17,7 +17,7 @@
 #include "loghelper.h"
 #include "nfc_config.h"
 #include "nfc_sdk_common.h"
-#include "nci_adaptations.h"
+#include "nfc_nci_adaptor.h"
 #include "routing_manager.h"
 #include "tag_nci_adapter.h"
 
@@ -41,7 +41,7 @@ bool NfccNciAdapter::readerModeEnabled_ = false;
 unsigned long NfccNciAdapter::discoveryDuration_;
 bool NfccNciAdapter::isTagActive_ = false;
 unsigned char NfccNciAdapter::curScreenState_ = NFA_SCREEN_STATE_OFF_LOCKED;
-std::shared_ptr<INfcNci> NfccNciAdapter::nciAdaptation_ = std::make_shared<NciAdaptations>();
+std::shared_ptr<INfcNci> NfccNciAdapter::nciAdaptation_ = nullptr;
 
 NfccNciAdapter::NfccNciAdapter() = default;
 
@@ -78,9 +78,9 @@ void NfccNciAdapter::StartRfDiscovery(bool isStart) const
     DebugLog("NfccNciAdapter::StartRfDiscovery: isStart= %{public}d", isStart);
     tNFA_STATUS status = NFA_STATUS_FAILED;
     if (isStart) {
-        status = nciAdaptation_->NfaStartRfDiscovery();
+        status = NfcNciAdaptor::GetInstance().NfaStartRfDiscovery();
     } else {
-        status = nciAdaptation_->NfaStopRfDiscovery();
+        status = NfcNciAdaptor::GetInstance().NfaStopRfDiscovery();
     }
     if (status == NFA_STATUS_OK) {
         rfEnabled_ = isStart;
@@ -94,7 +94,7 @@ void NfccNciAdapter::StartRfDiscovery(bool isStart) const
 tNFA_STATUS NfccNciAdapter::StartPolling(tNFA_TECHNOLOGY_MASK techMask) const
 {
     DebugLog("NfccNciAdapter::StartPolling, techMask = 0x%{public}02X", techMask);
-    tNFA_STATUS status = nciAdaptation_->NfaEnablePolling(techMask);
+    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaEnablePolling(techMask);
     if (status == NFA_STATUS_OK) {
         DebugLog("StartPolling: wait for enable event");
         pollingEnabled_ = true;
@@ -109,7 +109,7 @@ tNFA_STATUS NfccNciAdapter::StartPolling(tNFA_TECHNOLOGY_MASK techMask) const
 tNFA_STATUS NfccNciAdapter::StopPolling() const
 {
     DebugLog("NfccNciAdapter::StopPolling");
-    tNFA_STATUS status = nciAdaptation_->NfaDisablePolling();
+    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaDisablePolling();
     if (status == NFA_STATUS_OK) {
         pollingEnabled_ = false;
         // wait for NFA_POLL_DISABLED_EVT
@@ -147,7 +147,7 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
         TagNciAdapter::GetInstance().BuildTagInfo(eventData);
     }
     if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 0) {
-        NFA_Deactivate(true);
+        NfcNciAdaptor::GetInstance().NfaDeactivate(true);
     }
 }
 
@@ -324,7 +324,7 @@ void NfccNciAdapter::DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData)
     pollingEnabled_ = false;
 
     if (IsNfcActive()) {
-        nciAdaptation_->NfaDisable(FALSE);
+        NfcNciAdaptor::GetInstance().NfaDisable(FALSE);
         isDisabling_ = true;
     } else {
         isNfcEnabled_ = false;
@@ -390,13 +390,13 @@ bool NfccNciAdapter::Initialize()
         return isNfcEnabled_;
     }
 
-    nciAdaptation_->NfcAdaptationInitialize();  // start GKI, NCI task, NFC task
+    NfcNciAdaptor::GetInstance().NfcAdaptationInitialize();  // start GKI, NCI task, NFC task
     {
         SynchronizeGuard guard(nfcEnableEvent_);
-        tHAL_NFC_ENTRY* halFuncEntries = nciAdaptation_->NfcAdaptationGetHalEntryFuncs();
+        tHAL_NFC_ENTRY* halFuncEntries = NfcNciAdaptor::GetInstance().NfcAdaptationGetHalEntryFuncs();
 
-        nciAdaptation_->NfaInit(halFuncEntries);
-        status = nciAdaptation_->NfaEnable(NfcDeviceManagementCallback, NfcConnectionCallback);
+        NfcNciAdaptor::GetInstance().NfaInit(halFuncEntries);
+        status = NfcNciAdaptor::GetInstance().NfaEnable(NfcDeviceManagementCallback, NfcConnectionCallback);
         if (status == NFA_STATUS_OK) {
             nfcEnableEvent_.Wait();
         }
@@ -412,7 +412,7 @@ bool NfccNciAdapter::Initialize()
             isRoutingInited_ = RoutingManager::GetInstance().Initialize();
             TagNciAdapter::GetInstance().RegisterNdefHandler();
             discoveryDuration_ = DEFAULT_DISCOVERY_DURATION;
-            nciAdaptation_->NfaSetRfDiscoveryDuration((uint16_t)discoveryDuration_);
+            NfcNciAdaptor::GetInstance().NfaSetRfDiscoveryDuration((uint16_t)discoveryDuration_);
             DebugLog("NfccNciAdapter::Initialize: nfc enabled = %{public}d", isNfcEnabled_);
             return isNfcEnabled_;
         }
@@ -420,10 +420,10 @@ bool NfccNciAdapter::Initialize()
     ErrorLog("NfccNciAdapter::Initialize: fail nfa enable; error = %{public}d", status);
     if (isNfcEnabled_) {
         /* ungraceful */
-        status = nciAdaptation_->NfaDisable(false);
+        status = NfcNciAdaptor::GetInstance().NfaDisable(false);
         DebugLog("NfccNciAdapter::Initialize: status = %{public}d", status);
     }
-    nciAdaptation_->NfcAdaptationFinalize();
+    NfcNciAdaptor::GetInstance().NfcAdaptationFinalize();
     DebugLog("NfccNciAdapter::Initialize: nfc enabled = %{public}d", isNfcEnabled_);
     return isNfcEnabled_;
 }
@@ -446,7 +446,7 @@ bool NfccNciAdapter::Deinitialize()
 
     if (isNfcEnabled_) {
         /* graceful */
-        status = nciAdaptation_->NfaDisable(true);
+        status = NfcNciAdaptor::GetInstance().NfaDisable(true);
         if (status == NFA_STATUS_OK) {
             DebugLog("NfccNciAdapter::Deinitialize: wait for completion");
         } else {
@@ -459,7 +459,7 @@ bool NfccNciAdapter::Deinitialize()
     isDisabling_ = false;
     pollingEnabled_ = false;
 
-    nciAdaptation_->NfcAdaptationFinalize();
+    NfcNciAdaptor::GetInstance().NfcAdaptationFinalize();
     DebugLog("NfccNciAdapter::Deinitialize: exit");
     return (status == NFA_STATUS_OK);
 }
@@ -491,12 +491,12 @@ void NfccNciAdapter::EnableDiscovery(uint16_t techMask, bool enableReaderMode, b
         if (pollingEnabled_) {
             if (enableReaderMode && !readerModeEnabled_) {
                 readerModeEnabled_ = true;
-                nciAdaptation_->NfaDisableListening();
-                nciAdaptation_->NfaSetRfDiscoveryDuration(DISCOVERY_DURATION);
+                NfcNciAdaptor::GetInstance().NfaDisableListening();
+                NfcNciAdaptor::GetInstance().NfaSetRfDiscoveryDuration(DISCOVERY_DURATION);
             } else if (!enableReaderMode && readerModeEnabled_) {
                 readerModeEnabled_ = false;
-                nciAdaptation_->NfaEnableListening();
-                nciAdaptation_->NfaSetRfDiscoveryDuration(DISCOVERY_DURATION);
+                NfcNciAdaptor::GetInstance().NfaEnableListening();
+                NfcNciAdaptor::GetInstance().NfaSetRfDiscoveryDuration(DISCOVERY_DURATION);
             }
         }
     } else {
@@ -544,7 +544,7 @@ bool NfccNciAdapter::SendRawFrame(std::string& rawData)
     for (uint32_t i = 0; i < length; i++) {
         data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(rawData, i);
     }
-    tNFA_STATUS status = nciAdaptation_->NfaSendRawFrame(data, length, 0);
+    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(data, length, 0);
     InfoLog("SendRawFrame status = %{public}d", status);
     return status == NFA_STATUS_OK;
 }
@@ -594,7 +594,7 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
     tNFA_STATUS status = NFA_STATUS_FAILED;
     if (curScreenState_ == NFA_SCREEN_STATE_OFF_LOCKED || curScreenState_ == NFA_SCREEN_STATE_OFF_UNLOCKED ||
         curScreenState_ == NFA_SCREEN_STATE_ON_LOCKED || curScreenState_ == NFA_SCREEN_STATE_UNKNOWN) {
-        status = nciAdaptation_->NfcSetPowerSubStateForScreenState(screenState);
+        status = NfcNciAdaptor::GetInstance().NfcSetPowerSubStateForScreenState(screenState);
         if (status != NFA_STATUS_OK) {
             ErrorLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
             return;
@@ -602,7 +602,7 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
     }
 
     uint8_t discParam = GetDiscovryParam(screenState, screenStateMask);
-    status = nciAdaptation_->NfcSetConfig(NCI_PARAM_ID_CON_DISCOVERY_PARAM,
+    status = NfcNciAdaptor::GetInstance().NfcSetConfig(NCI_PARAM_ID_CON_DISCOVERY_PARAM,
         NCI_PARAM_LEN_CON_DISCOVERY_PARAM, &discParam);
     if (status != NFA_STATUS_OK) {
         ErrorLog("NFA_SetConfig fail, error=0x%{public}X", status);
@@ -610,7 +610,7 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
     }
 
     if (curScreenState_ == NFA_SCREEN_STATE_ON_UNLOCKED) {
-        status = nciAdaptation_->NfcSetPowerSubStateForScreenState(screenState);
+        status = NfcNciAdaptor::GetInstance().NfcSetPowerSubStateForScreenState(screenState);
         if (status != NFA_STATUS_OK) {
             ErrorLog("NFA_SetPowerSubStateForScreenState fail, error=0x%{public}X", status);
             return;
@@ -623,15 +623,15 @@ void NfccNciAdapter::SetScreenStatus(unsigned char screenStateMask) const
 int NfccNciAdapter::GetNciVersion() const
 {
     DebugLog("NfccNciAdapter::GetNciVersion");
-    unsigned char version = nciAdaptation_->NfcGetNciVersion();
+    unsigned char version = NfcNciAdaptor::GetInstance().NfcGetNciVersion();
     return version;
 }
 
 int NfccNciAdapter::GetIsoDepMaxTransceiveLength()
 {
     DebugLog("NfccNciAdapter::GetIsoDepMaxTransceiveLength");
-    if (NfcConfig::hasKey(NAME_ISO_DEP_MAX_TRANSCEIVE)) {
-        return NfcConfig::getUnsigned(NAME_ISO_DEP_MAX_TRANSCEIVE);
+    if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_ISO_DEP_MAX_TRANSCEIVE)) {
+        return NfcNciAdaptor::GetInstance().NfcConfigGetUnsigned(NAME_ISO_DEP_MAX_TRANSCEIVE);
     } else {
         return ISO_DEP_MAX_TRANSEIVE_LENGTH;
     }
@@ -673,28 +673,28 @@ void NfccNciAdapter::Abort()
 bool NfccNciAdapter::CheckFirmware()
 {
     DebugLog("NfccNciAdapter::CheckFirmware");
-    nciAdaptation_->NfcAdaptationInitialize();
-    nciAdaptation_->NfcAdaptationDownloadFirmware();
-    nciAdaptation_->NfcAdaptationFinalize();
+    NfcNciAdaptor::GetInstance().NfcAdaptationInitialize();
+    NfcNciAdaptor::GetInstance().NfcAdaptationDownloadFirmware();
+    NfcNciAdaptor::GetInstance().NfcAdaptationFinalize();
     return true;
 }
 
 void NfccNciAdapter::Dump(int fd) const
 {
     DebugLog("NfccNciAdapter::Dump, fd=%{public}d", fd);
-    nciAdaptation_->NfcAdaptationDump(fd);
+    NfcNciAdaptor::GetInstance().NfcAdaptationDump(fd);
 }
 
 void NfccNciAdapter::FactoryReset() const
 {
     DebugLog("NfccNciAdapter::FactoryReset");
-    nciAdaptation_->NfcAdaptationFactoryReset();
+    NfcNciAdaptor::GetInstance().NfcAdaptationFactoryReset();
 }
 
 void NfccNciAdapter::Shutdown() const
 {
     DebugLog("NfccNciAdapter::Shutdown");
-    nciAdaptation_->NfcAdaptationDeviceShutdown();
+    NfcNciAdaptor::GetInstance().NfcAdaptationDeviceShutdown();
 }
 
 bool NfccNciAdapter::IsRfEbabled()

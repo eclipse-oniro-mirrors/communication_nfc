@@ -72,7 +72,7 @@ public:
     virtual void NfcAdaptationDump(int fd) = 0;
     virtual void NfcAdaptationFactoryReset() = 0;
     virtual void NfcAdaptationDeviceShutdown() = 0;
-    virtual tNFA_STATUS NfcHciRegister(char* appName, tNFA_HCI_CBACK* cback, bool sendConnEvts) = 0;
+    virtual tNFA_STATUS NfcHciRegister(std::string appName, tNFA_HCI_CBACK* cback, bool sendConnEvts) = 0;
     virtual tNFA_STATUS NfcEeGetInfo(uint8_t* numNfcee, tNFA_EE_INFO* info) = 0;
     virtual tNFA_STATUS NfcEeRegister(tNFA_EE_CBACK* cback) = 0;
     virtual tNFA_STATUS NfcEeDeregister(tNFA_EE_CBACK* cback) = 0;
@@ -104,6 +104,14 @@ public:
                                              tNFA_CONN_CBACK* connCback) = 0;
     virtual tNFA_STATUS NfcSetPowerSubStateForScreenState(uint8_t screenState) = 0;
     virtual tNFA_STATUS NfcSetConfig(tNFA_PMID paramId, uint8_t length, uint8_t* data) = 0;
+    virtual bool NfcConfigHasKey(const std::string& key) = 0;
+    virtual unsigned NfcConfigGetUnsigned(const std::string& key) = 0;
+    virtual unsigned NfcConfigGetUnsignedWithDefaultValue(const std::string& key, unsigned defaultValue) = 0;
+    virtual void NfcConfigGetBytes(const std::string& key, std::vector<uint8_t>& value) = 0;
+    virtual tNFA_STATUS NfaCeConfigureUiccListenTech(tNFA_HANDLE eeHandle, tNFA_TECHNOLOGY_MASK techMask) = 0;
+    virtual tNFA_STATUS NfaEeAddSystemCodeRouting(uint16_t systemCode,
+                                                  tNFA_HANDLE eeHandle,
+                                                  tNFA_EE_PWR_STATE powerState) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

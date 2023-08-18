@@ -55,12 +55,13 @@ ohos_shared_library("nfc_service") {
     "src/controller/nfc_controller_death_recipient.cpp",
     "src/controller/nfc_controller_impl.cpp",
     "src/controller/nfc_controller_stub.cpp",
-    "src/nci_adapter/nci_adaptations.cpp",
+    "src/nci_adapter/nfc_nci_adaptor.cpp",
     "src/nci_adapter/nfcc_host.cpp",
     "src/nci_adapter/nfcc_nci_adapter.cpp",
     "src/nci_adapter/routing_manager.cpp",
     "src/nci_adapter/tag_host.cpp",
     "src/nci_adapter/tag_nci_adapter.cpp",
+    "src/nci_adapter/vendor_ext_service.cpp",
     "src/nfc_polling_params.cpp",
     "src/nfc_sa_manager.cpp",
     "src/nfc_service.cpp",
@@ -81,8 +82,6 @@ ohos_shared_library("nfc_service") {
   deps = [
     "etc/init:etc",
     "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
-    "//third_party/libnfc-nci/SN100x:nfc-nci",
-    "//third_party/libnfc-nci/SN100x/utils:nfcutils",
   ]
 
   external_deps = [
