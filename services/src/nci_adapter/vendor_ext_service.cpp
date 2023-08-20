@@ -24,40 +24,44 @@ namespace NCI {
 VendorExtService::VendorExtService() {}
 VendorExtService::~VendorExtService() {}
 
-static void* g_pLibHandle = nullptr;
-static VendorExtService::GET_CHIP_TYPE pFuncHandle = nullptr;
+static void* g_pVendorExtLibHandle = nullptr;
+static VendorExtService::GET_CHIP_TYPE g_pGetChipFuncHandle = nullptr;
 
 bool VendorExtService::OnStartExtService(void)
 {
-    if (g_pLibHandle) return true;
+    if (g_pVendorExtLibHandle) {
+        return true;
+    }
     const char* pChLibName = "/vendor/lib64/libvendor_ext_nfc_service.z.so";
-    g_pLibHandle = dlopen(pChLibName, RTLD_LAZY | RTLD_LOCAL);
-    if (!g_pLibHandle) {
+    g_pVendorExtLibHandle = dlopen(pChLibName, RTLD_LAZY | RTLD_LOCAL);
+    if (!g_pVendorExtLibHandle) {
         ErrorLog("%{public}s: cannot open library %{public}s, %{public}s", __func__, pChLibName, dlerror());
         return false;
     }
     const char* symbol = "GetChipType";
-    pFuncHandle = (GET_CHIP_TYPE)dlsym(g_pLibHandle, symbol);
-    if (!pFuncHandle) {
+    g_pGetChipFuncHandle = (GET_CHIP_TYPE)dlsym(g_pVendorExtLibHandle, symbol);
+    if (!g_pGetChipFuncHandle) {
         ErrorLog("%{public}s: cannot find symbol %{public}s, %{public}s", __func__, symbol, dlerror());
-        OnStopExtService();
-        return false;
     }
     return true;
 }
 
 std::string VendorExtService::GetNfcChipType(void)
 {
-    static std::string chipType = pFuncHandle();
+    if (!g_pGetChipFuncHandle) {
+        ErrorLog("%{public}s: cannt find symbol GetNfcChipType.", __func__);
+        return std::string();
+    }
+    static std::string chipType = g_pGetChipFuncHandle();
     return chipType;
 }
 
 void VendorExtService::OnStopExtService(void)
 {
-    pFuncHandle = nullptr;
-    if (g_pLibHandle) {
-        dlclose(g_pLibHandle);
-        g_pLibHandle = nullptr;
+    g_pGetChipFuncHandle = nullptr;
+    if (g_pVendorExtLibHandle) {
+        dlclose(g_pVendorExtLibHandle);
+        g_pVendorExtLibHandle = nullptr;
     }
 }
 

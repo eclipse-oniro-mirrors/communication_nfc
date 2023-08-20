@@ -19,7 +19,7 @@
 #include "nfc_service.h"
 #include "tag_host.h"
 #include "tag_nci_adapter.h"
-#include "nci_adaptations.h"
+#include "nfc_nci_adaptor.h"
 
 namespace OHOS {
 namespace NFC {
@@ -194,7 +194,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest005, TestSize.Level1)
 HWTEST_F(TagNciAdapterTest, TagNciAdapterTest006, TestSize.Level1)
 {
     NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
-    std::shared_ptr<INfcNci> nciAdaptations = std::make_shared<NciAdaptations>();
+    std::shared_ptr<INfcNci> nciAdaptations = std::make_shared<NfcNciAdaptor>();
     adapterObj.SetNciAdaptations(nciAdaptations);
     adapterObj.HandleDiscResult(nullptr);
     tNFA_CONN_EVT_DATA eventData;

@@ -67,7 +67,7 @@ bool RoutingManager::Initialize()
     {
         SynchronizeEvent guard(eeRegisterEvent_);
         InfoLog("Initialize: try ee register");
-        status = NfcNciAdaptor::GetInstance().NfaEeRegister(NfaEeCallback);
+        status = NfcNciAdaptor::GetInstance().NfcEeRegister(NfaEeCallback);
         if (status != NFA_STATUS_OK) {
             ErrorLog("Initialize: fail ee register; error=0x%{public}X", status);
             return false;
@@ -88,14 +88,14 @@ bool RoutingManager::Initialize()
     seTechMask_ = UpdateEeTechRouteSetting();
 
     // Set the host-routing Tech
-    status = NfcNciAdaptor::GetInstance().NfaCeSetIsoDepListenTech(
+    status = NfcNciAdaptor::GetInstance().NfcCeSetIsoDepListenTech(
         hostListenTechMask_ & (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B));
     if (status != NFA_STATUS_OK) {
         ErrorLog("Initialize: Failed to configure CE IsoDep technologies");
     }
 
     // Regrister AID routed to the host with an AID length of 0
-    status = NfcNciAdaptor::GetInstance().NfaCeRegisterAidOnDH(NULL, 0, NfaCeStackCallback);
+    status = NfcNciAdaptor::GetInstance().NfcCeRegisterAidOnDH(NULL, 0, NfaCeStackCallback);
     if (status != NFA_STATUS_OK) {
         ErrorLog("Initialize: failed to register null AID to DH");
     }
@@ -113,14 +113,14 @@ void RoutingManager::UpdateDefaultProtoRoute()
     tNFA_STATUS status = NFA_STATUS_FAILED;
     if (defaultIsoDepRoute_ != NFC_DH_ID &&
         IsTypeABSupportedInEe(defaultIsoDepRoute_ | NFA_HANDLE_GROUP_EE)) {
-        status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultProtoRouting(defaultIsoDepRoute_, protoMask);
-        status = NfcNciAdaptor::GetInstance().NfaEeSetDefaultProtoRouting(
+        status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultProtoRouting(defaultIsoDepRoute_, protoMask);
+        status = NfcNciAdaptor::GetInstance().NfcEeSetDefaultProtoRouting(
             defaultIsoDepRoute_, protoMask, isSecureNfcEnabled_ ? 0 : protoMask, 0,
             isSecureNfcEnabled_ ? 0 : protoMask, isSecureNfcEnabled_ ? 0 : protoMask,
             isSecureNfcEnabled_ ? 0 : protoMask);
     } else {
-        status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultProtoRouting(NFC_DH_ID, protoMask);
-        status = NfcNciAdaptor::GetInstance().NfaEeSetDefaultProtoRouting(
+        status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultProtoRouting(NFC_DH_ID, protoMask);
+        status = NfcNciAdaptor::GetInstance().NfcEeSetDefaultProtoRouting(
             NFC_DH_ID, protoMask, 0, 0, isSecureNfcEnabled_ ? 0 : protoMask, 0, 0);
     }
     if (status != NFA_STATUS_OK) {
@@ -249,7 +249,7 @@ void RoutingManager::RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle,
     tNFA_STATUS status = NFA_STATUS_FAILED;
     {
         SynchronizeEvent guard(routingEvent_);
-        status = NfcNciAdaptor::GetInstance().NfaEeSetDefaultProtoRouting(eeHandle, protoSwitchOn,
+        status = NfcNciAdaptor::GetInstance().NfcEeSetDefaultProtoRouting(eeHandle, protoSwitchOn,
             isSecureNfcEnabled_ ? 0 : protoSwitchOff,
             isSecureNfcEnabled_ ? 0 : protoBatteryOn,
             isSecureNfcEnabled_ ? 0 : protoScreenLock,
@@ -272,7 +272,7 @@ void RoutingManager::RegisterTechRoutingEntry(tNFA_HANDLE eeHandle,
     tNFA_STATUS status = NFA_STATUS_FAILED;
     {
         SynchronizeEvent guard(routingEvent_);
-        status = NfcNciAdaptor::GetInstance().NfaEeSetDefaultTechRouting(eeHandle, protoSwitchOn,
+        status = NfcNciAdaptor::GetInstance().NfcEeSetDefaultTechRouting(eeHandle, protoSwitchOn,
             isSecureNfcEnabled_ ? 0 : protoSwitchOff,
             isSecureNfcEnabled_ ? 0 : protoBatteryOn,
             isSecureNfcEnabled_ ? 0 : protoScreenLock,
@@ -293,7 +293,7 @@ bool RoutingManager::ClearRoutingEntry(int type)
     tNFA_STATUS status = NFA_STATUS_FAILED;
     SynchronizeEvent guard(routingEvent_);
     if (type & NFA_SET_TECH_ROUTING) {
-        status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultTechRouting(NFA_EE_HANDLE_DH,
+        status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultTechRouting(NFA_EE_HANDLE_DH,
             (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B | NFA_TECHNOLOGY_MASK_F));
         if (status == NFA_STATUS_OK) {
             routingEvent_.Wait();
@@ -301,14 +301,14 @@ bool RoutingManager::ClearRoutingEntry(int type)
     }
     if (type & NFA_SET_PROTO_ROUTING) {
         {
-            status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultProtoRouting(ROUTE_LOC_ESE_ID,
+            status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultProtoRouting(ROUTE_LOC_ESE_ID,
                 (NFA_PROTOCOL_MASK_ISO_DEP | NFC_PROTOCOL_MASK_ISO7816));
             if (status == NFA_STATUS_OK) {
                 routingEvent_.Wait();
             }
         }
         {
-            status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultProtoRouting(NFA_EE_HANDLE_DH,
+            status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultProtoRouting(NFA_EE_HANDLE_DH,
                 (NFA_PROTOCOL_MASK_ISO_DEP | NFC_PROTOCOL_MASK_ISO7816));
             if (status == NFA_STATUS_OK) {
                 routingEvent_.Wait();
@@ -327,7 +327,7 @@ bool RoutingManager::IsTypeABSupportedInEe(tNFA_HANDLE eeHandle)
         ErrorLog("IsTypeABSupportedInEe, memset_s error");
         return rst;
     }
-    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaEeGetInfo(&numEe, eeInfo);
+    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfcEeGetInfo(&numEe, eeInfo);
     InfoLog("IsTypeABSupportedInEe, NFA_EeGetInfo status = %{public}d", status);
     if (status != NFA_STATUS_OK) {
         return rst;
@@ -374,7 +374,7 @@ void RoutingManager::UpdateDefaultRoute()
         if (!isSecureNfcEnabled_) {
             powerState = (defaultEe_ != 0x00) ? offHostAidRoutingPowerState_ : DEFAULT_PWR_STA_HOST;
         }
-        status = NfcNciAdaptor::GetInstance().NfaEeAddAidRouting(
+        status = NfcNciAdaptor::GetInstance().NfcEeAddAidRouting(
             defaultEe_, 0, NULL, powerState, AID_ROUTE_QUAL_PREFIX);
         if (status == NFA_STATUS_OK) {
             InfoLog("UpdateDefaultRoute: Succeed to register zero length AID");
@@ -398,7 +398,7 @@ void RoutingManager::OnNfcDeinit()
         ErrorLog("OnNfcDeinit, memset_s error");
         return;
     }
-    status = NfcNciAdaptor::GetInstance().NfaEeGetInfo(&numEe, eeInfo);
+    status = NfcNciAdaptor::GetInstance().NfcEeGetInfo(&numEe, eeInfo);
     if (status != NFA_STATUS_OK) {
         ErrorLog("OnNfcDeinit: fail get info; error=0x%{public}X", status);
         return;
@@ -414,7 +414,7 @@ void RoutingManager::OnNfcDeinit()
                 InfoLog("OnNfcDeinit: Handle: 0x%{public}04x Change Status Active to Inactive",
                     eeInfo[i].ee_handle);
                 SynchronizeEvent guard(eeSetModeEvent_);
-                status = NfcNciAdaptor::GetInstance().NfaEeModeSet(eeInfo[i].ee_handle, NFA_EE_MD_DEACTIVATE);
+                status = NfcNciAdaptor::GetInstance().NfcEeModeSet(eeInfo[i].ee_handle, NFA_EE_MD_DEACTIVATE);
                 if (status == NFA_STATUS_OK) {
                     eeSetModeEvent_.Wait();
                 } else {
@@ -498,12 +498,12 @@ tNFA_TECHNOLOGY_MASK RoutingManager::UpdateEeTechRouteSetting()
             }
 
             // clear default tech routing before setting new power state
-            status = NfcNciAdaptor::GetInstance().NfaEeClearDefaultTechRouting(eeHandle, seTechMask);
+            status = NfcNciAdaptor::GetInstance().NfcEeClearDefaultTechRouting(eeHandle, seTechMask);
             if (status != NFA_STATUS_OK) {
                 ErrorLog("UpdateEeTechRouteSetting: NFA_EeClearDefaultTechRouting failed.");
             }
-              
-            status = NfcNciAdaptor::GetInstance().NfaEeSetDefaultTechRouting(
+
+            status = NfcNciAdaptor::GetInstance().NfcEeSetDefaultTechRouting(
                 eeHandle, seTechMask, isSecureNfcEnabled_ ? 0 : seTechMask, 0,
                 isSecureNfcEnabled_ ? 0 : seTechMask, isSecureNfcEnabled_ ? 0 : seTechMask,
                 isSecureNfcEnabled_ ? 0 : seTechMask);
@@ -525,7 +525,7 @@ bool RoutingManager::CommitRouting()
     }
     {
         SynchronizeEvent guard(eeUpdateEvent_);
-        status = NfcNciAdaptor::GetInstance().NfaEeUpdateNow();
+        status = NfcNciAdaptor::GetInstance().NfcEeUpdateNow();
         if (status == NFA_STATUS_OK) {
             eeUpdateEvent_.Wait();  // wait for NFA_EE_UPDATED_EVT
         }

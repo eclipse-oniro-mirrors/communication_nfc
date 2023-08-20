@@ -18,7 +18,8 @@
 #include "loghelper.h"
 #include "ndef_tag.h"
 #include "nfcc_nci_adapter.h"
-#include "nfc_chip_type_parser.h"
+#include "vendor_ext_service.h"
+#include "nfc_nci_adaptor.h"
 
 namespace OHOS {
 namespace NFC {
@@ -43,8 +44,8 @@ NfccHost::~NfccHost()
 bool NfccHost::Initialize()
 {
     DebugLog("NfccHost::Initialize");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::Initialize(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     return NfccNciAdapter::GetInstance().Initialize();
@@ -53,8 +54,8 @@ bool NfccHost::Initialize()
 bool NfccHost::Deinitialize()
 {
     DebugLog("NfccHost::Deinitialize");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::Deinitialize(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     return NfccNciAdapter::GetInstance().Deinitialize();
@@ -63,8 +64,8 @@ bool NfccHost::Deinitialize()
 void NfccHost::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool enableHostRouting, bool restart)
 {
     DebugLog("NfccHost::EnableDiscovery");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::EnableDiscovery(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().EnableDiscovery(techMask, enableReaderMode, enableHostRouting, restart);
@@ -73,8 +74,8 @@ void NfccHost::EnableDiscovery(uint16_t techMask, bool enableReaderMode, bool en
 void NfccHost::DisableDiscovery()
 {
     DebugLog("NfccHost::DisableDiscovery");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::DisableDiscovery(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().DisableDiscovery();
@@ -83,8 +84,8 @@ void NfccHost::DisableDiscovery()
 bool NfccHost::SendRawFrame(std::string& rawData)
 {
     DebugLog("NfccHost::SendRawFrame");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::SendRawFrame(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     return NfccNciAdapter::GetInstance().SendRawFrame(rawData);
@@ -93,8 +94,8 @@ bool NfccHost::SendRawFrame(std::string& rawData)
 bool NfccHost::SetScreenStatus(unsigned char screenStateMask)
 {
     DebugLog("NfccHost::SetScreenStatus");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::SetScreenStatus(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     NfccNciAdapter::GetInstance().SetScreenStatus(screenStateMask);
@@ -104,8 +105,8 @@ bool NfccHost::SetScreenStatus(unsigned char screenStateMask)
 int NfccHost::GetNciVersion()
 {
     DebugLog("NfccHost::GetNciVersion");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::GetNciVersion(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return 0;
     }
     return NfccNciAdapter::GetInstance().GetNciVersion();
@@ -123,8 +124,8 @@ bool NfccHost::SetSecureNfc(bool secure)
 int NfccHost::GetIsoDepMaxTransceiveLength()
 {
     DebugLog("NfccHost::GetIsoDepMaxTransceiveLength");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::GetIsoDepMaxTransceiveLength(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return 0;
     }
     return NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength();
@@ -133,8 +134,8 @@ int NfccHost::GetIsoDepMaxTransceiveLength()
 int NfccHost::RegisterT3tIdentifier(std::string& t3tIdentifier)
 {
     DebugLog("NfccHost::RegisterT3tIdentifier");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::RegisterT3tIdentifier(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return 0;
     }
     return NfccNciAdapter::GetInstance().RegisterT3tIdentifier(t3tIdentifier);
@@ -143,8 +144,8 @@ int NfccHost::RegisterT3tIdentifier(std::string& t3tIdentifier)
 void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
 {
     DebugLog("NfccHost::DeregisterT3tIdentifier");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::DeregisterT3tIdentifier(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     if (!t3tIdentifier.empty()) {
@@ -156,8 +157,8 @@ void NfccHost::DeregisterT3tIdentifier(std::string& t3tIdentifier)
 void NfccHost::ClearT3tIdentifiersCache()
 {
     DebugLog("NfccHost::ClearT3tIdentifiersCache");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::ClearT3tIdentifiersCache(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().ClearT3tIdentifiersCache();
@@ -166,8 +167,8 @@ void NfccHost::ClearT3tIdentifiersCache()
 int NfccHost::GetLfT3tMax()
 {
     DebugLog("NfccHost::GetLfT3tMax");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::GetLfT3tMax(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return 0;
     }
     return NfccNciAdapter::GetInstance().GetLfT3tMax();
@@ -176,8 +177,8 @@ int NfccHost::GetLfT3tMax()
 int NfccHost::GetLastError()
 {
     DebugLog("NfccHost::GetLastError");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::GetLastError(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return 0;
     }
     return NfccNciAdapter::GetInstance().GetLastError();
@@ -186,8 +187,8 @@ int NfccHost::GetLastError()
 void NfccHost::Abort()
 {
     DebugLog("NfccHost::Abort");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::Abort(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().Abort();
@@ -196,8 +197,8 @@ void NfccHost::Abort()
 bool NfccHost::CheckFirmware()
 {
     DebugLog("NfccHost::CheckFirmware");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::CheckFirmware(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     return NfccNciAdapter::GetInstance().CheckFirmware();
@@ -206,8 +207,8 @@ bool NfccHost::CheckFirmware()
 void NfccHost::Dump(int fd)
 {
     DebugLog("NfccHost::Dump");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::Dump(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().Dump(fd);
@@ -216,8 +217,8 @@ void NfccHost::Dump(int fd)
 void NfccHost::FactoryReset()
 {
     DebugLog("NfccHost::FactoryReset");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::FactoryReset(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().FactoryReset();
@@ -226,8 +227,8 @@ void NfccHost::FactoryReset()
 void NfccHost::Shutdown()
 {
     DebugLog("NfccHost::Shutdown");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::Shutdown(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().Shutdown();
@@ -256,8 +257,8 @@ bool NfccHost::RemoveAidRouting(std::string& aid)
 bool NfccHost::CommitRouting()
 {
     DebugLog("NfccHost::CommitRouting");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::CommitRouting(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     bool restart = NfccNciAdapter::GetInstance().IsRfEbabled();
@@ -274,8 +275,8 @@ bool NfccHost::CommitRouting()
 bool NfccHost::ComputeRoutingParams()
 {
     DebugLog("NfccHost::ComputeRoutingParams");
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::ComputeRoutingParams(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     return NfccNciAdapter::GetInstance().ComputeRoutingParams();
@@ -355,8 +356,8 @@ bool NfccHost::CanMakeReadOnly(int ndefType)
 
 bool NfccHost::GetExtendedLengthApdusSupported()
 {
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::GetExtendedLengthApdusSupported(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return true;
     }
     if (NfccNciAdapter::GetInstance().GetIsoDepMaxTransceiveLength() > ISO_DEP_FRAME_MAX_LEN) {
@@ -367,8 +368,8 @@ bool NfccHost::GetExtendedLengthApdusSupported()
 
 void NfccHost::SetNciAdaptation(std::shared_ptr<INfcNci> nciAdaptation)
 {
-    if (!NfcChipTypeParser::IsSn110()) {
-        WarnLog("NfccHost::SetNciAdaptation(): unsupported chip type");
+    if (!NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        WarnLog("%{public}s: cannot get symbol.", __func__);
         return;
     }
     NfccNciAdapter::GetInstance().SetNciAdaptation(nciAdaptation);

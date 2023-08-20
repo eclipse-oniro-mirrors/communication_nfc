@@ -26,6 +26,7 @@ public:
     explicit NfcNciAdaptor();
     ~NfcNciAdaptor() override;
     static tNFA_PROPRIETARY_CFG* pNfaProprietaryCfg;
+    bool IsNciFuncSymbolFound();
     void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) override;
     tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) override;
     tNFA_STATUS NfaDisable(bool graceful) override;
@@ -122,7 +123,7 @@ public:
     typedef tNFA_STATUS (*NFA_STOP_RF_DISCOVERY)(void);
     typedef tNFA_STATUS (*NFA_SET_RF_DISCOVERY_DURATION)(uint16_t discoveryPeriodMs);
     typedef tNFA_STATUS (*NFA_SELECT)(uint8_t rfDiscId, tNFA_NFC_PROTOCOL protocol, tNFA_INTF_TYPE rfInterface);
-    typedef tNFA_STATUS (*NFA_DEACTIVE)(bool sleepMode);
+    typedef tNFA_STATUS (*NFA_DEACTIVATE)(bool sleepMode);
     typedef tNFA_STATUS (*NFA_SEND_RAW_FRAME)(uint8_t* rawData, uint16_t dataLen, uint16_t presenceCheckStartDelay);
     typedef tNFA_STATUS (*NFA_REGISTER_NDEF_TYPE_HANDLER)(bool handleWholeMessage,
                                                           tNFA_TNF tnf,
@@ -195,6 +196,7 @@ public:
 private:
     void Init();
     bool initialized_ = false;
+    bool isNciFuncSymbolFound_ = false;
 };
 }  // namespace NCI
 }  // namespace NFC
