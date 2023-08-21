@@ -34,6 +34,7 @@ public:
 public:
     static constexpr const auto TEST_MIME_TYPE = "mimeType";
     static constexpr const auto TEST_MIME_DATA = "mimeData";
+    static const int SHORT_RECORD_SIZE = 513;
 };
 
 void NdefMessageTest::SetUpTestCase()
@@ -63,8 +64,30 @@ void NdefMessageTest::TearDown()
  */
 HWTEST_F(NdefMessageTest, GetNdefMessage001, TestSize.Level1)
 {
-    std::vector<std::shared_ptr<NdefRecord>> ndefRecords;
-    std::shared_ptr<NdefMessage> getNdefMessage = NdefMessage::GetNdefMessage(ndefRecords);
+    std::string ndefMessage = "90010100001100001201010000020000000000";
+    std::shared_ptr<NdefMessage> getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "DA060F01";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "CA060001";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "9000003501010000460000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "B5000016000017010000470000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "97000097010000470000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "B90100010001380000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "B90100010001360100";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "B40000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "E00000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "B1010001150000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "C60000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ASSERT_TRUE(getNdefMessage != nullptr);
 }
 /**
@@ -202,10 +225,20 @@ HWTEST_F(NdefMessageTest, MessageToString001, TestSize.Level1)
  */
 HWTEST_F(NdefMessageTest, NdefRecordToString001, TestSize.Level1)
 {
-    std::weak_ptr<NdefRecord> record;
+    std::shared_ptr<NdefRecord> record = std::make_shared<NdefRecord>();
+    record->tnf_ = 0x00;
+    record->payload_ = "00000000";
     std::string buffer = "";
     NdefMessage::NdefRecordToString(record, buffer, true, true);
-    ASSERT_TRUE(buffer == "");
+    ASSERT_TRUE(buffer.size() > 0);
+
+    std::string payload(SHORT_RECORD_SIZE, '0');
+    record->tnf_ = 0x01;
+    record->id_ = "";
+    record->payload_ = payload;
+    buffer = "";
+    NdefMessage::NdefRecordToString(record, buffer, true, true);
+    ASSERT_TRUE(buffer.size() > 0);
 }
 /**
  * @tc.name: MakeMimeRecord004
