@@ -103,12 +103,12 @@ void NfcNciAdaptor::Init()
 {
     VendorExtService::OnStartExtService();
     std::string chipType = VendorExtService::GetNfcChipType();
-    std::string pVendorLibName = std::string("/system/lib64/libnfc_nci") + std::string("_")
+    std::string pVendorLibName = std::string("libnfc_nci") + std::string("_")
                                                             + chipType + std::string(".z.so");
     g_pLibHandle = dlopen(pVendorLibName.c_str(), RTLD_LAZY | RTLD_LOCAL);
     if (!g_pLibHandle) {
         WarnLog("%{public}s: cannot open vendor library: %{public}s", __func__, dlerror());
-        std::string pDefaultLibName = "/system/lib64/libnfc-nci.z.so";
+        std::string pDefaultLibName = "libnfc-nci.z.so";
         g_pLibHandle = dlopen(pDefaultLibName.c_str(), RTLD_LAZY | RTLD_LOCAL);
         if (!g_pLibHandle) {
             ErrorLog("%{public}s: cannot open default library: %{public}s", __func__, dlerror());

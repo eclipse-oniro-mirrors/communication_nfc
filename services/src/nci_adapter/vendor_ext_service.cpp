@@ -32,7 +32,7 @@ bool VendorExtService::OnStartExtService(void)
     if (g_pVendorExtLibHandle) {
         return true;
     }
-    const char* pChLibName = "/vendor/lib64/libvendor_ext_nfc_service.z.so";
+    const char* pChLibName = "libvendor_ext_nfc_service.z.so";
     g_pVendorExtLibHandle = dlopen(pChLibName, RTLD_LAZY | RTLD_LOCAL);
     if (!g_pVendorExtLibHandle) {
         ErrorLog("%{public}s: cannot open library %{public}s, %{public}s", __func__, pChLibName, dlerror());
