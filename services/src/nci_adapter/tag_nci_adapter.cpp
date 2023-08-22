@@ -53,6 +53,7 @@ static const int NDEF_FORMATTABLE_2ND = 0xAF;
 static const int NDEF_MODE_READ_ONLY = 1;
 static const int NDEF_MODE_READ_WRITE = 2;
 static const int NDEF_MODE_UNKNOWN = 3;
+static const int WAIT_TIME_FOR_NO_RSP = 4;
 static uint8_t RW_TAG_SLP_REQ[] = {0x50, 0x00};
 static uint8_t RW_DESELECT_REQ[] = {0xC2};
 static const unsigned int INVALID_TAG_INDEX = 0xFF;
@@ -234,8 +235,8 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscove
             DebugLog("TagNciAdapter::Reselect: do nothing");
             return false;
         }
-        DebugLog("TagNciAdapter::Reselect: SendRawFrame seccess, status = 0x%{public}X", status);
-        activatedEvent_.Wait(4); // this request do not have response, so no need to wait for callback
+        DebugLog("TagNciAdapter::Reselect: SendRawFrame success, status = 0x%{public}X", status);
+        activatedEvent_.Wait(WAIT_TIME_FOR_NO_RSP); // this request do not have response, so no need to wait for callback
         isReconnecting_ = true;
         status = NfcNciAdaptor::GetInstance().NfaDeactivate(true);
         if (status != NFA_STATUS_OK) {
