@@ -70,8 +70,6 @@ HWTEST_F(NdefMessageTest, GetNdefMessage001, TestSize.Level1)
     getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ndefMessage = "CA060001";
     getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
-    ndefMessage = "9000003501010000460000";
-    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ndefMessage = "B5000016000017010000470000";
     getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ndefMessage = "97000097010000470000";
@@ -87,6 +85,8 @@ HWTEST_F(NdefMessageTest, GetNdefMessage001, TestSize.Level1)
     ndefMessage = "B1010001150000";
     getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ndefMessage = "C60000";
+    getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
+    ndefMessage = "9000003501010000460000";
     getNdefMessage = NdefMessage::GetNdefMessage(ndefMessage);
     ASSERT_TRUE(getNdefMessage != nullptr);
 }
