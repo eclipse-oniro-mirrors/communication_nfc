@@ -138,7 +138,6 @@ HWTEST_F(TagDispatcherTest, HandleTagFound002, TestSize.Level1)
  */
 HWTEST_F(TagDispatcherTest, HandleTagFound003, TestSize.Level1)
 {
-    AppExecFwk::ElementName element;
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap tagTechExtrasData;
     AppExecFwk::PacMap isoDepExtrasData;
@@ -152,9 +151,51 @@ HWTEST_F(TagDispatcherTest, HandleTagFound003, TestSize.Level1)
     std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
     std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
     tagDispatcher->DispatchAbilityMultiApp(tagInfo);
-    tagDispatcher->DispatchAbilitySingleApp(element, tagInfo);
     int handleTagFound = tagDispatcher->HandleTagFound(tag);
     ASSERT_TRUE(handleTagFound == TEST_INDEX_1);
+}
+/**
+ * @tc.name: DispatchAbilitySingleApp001
+ * @tc.desc: Test TagSession DispatchAbilitySingleApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, DispatchAbilitySingleApp001, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    AppExecFwk::PacMap isoDepExtrasData;
+    tagTechExtras.push_back(tagTechExtrasData);
+    tagTechExtras.push_back(isoDepExtrasData);
+    int tagRfDiscId = TEST_INDEX_2;
+    std::shared_ptr<KITS::TagInfo> tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid,
+        tagRfDiscId, nullptr);
+    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->DispatchAbilitySingleApp(element, tagInfo);
+    ASSERT_TRUE(element.GetBundleName() == "");
+}
+/**
+ * @tc.name: DispatchAbilitySingleApp002
+ * @tc.desc: Test TagSession DispatchAbilitySingleApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, DispatchAbilitySingleApp002, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    element.SetBundleName(KITS::ACTION_TAG_FOUND);
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    AppExecFwk::PacMap isoDepExtrasData;
+    tagTechExtras.push_back(tagTechExtrasData);
+    tagTechExtras.push_back(isoDepExtrasData);
+    int tagRfDiscId = TEST_INDEX_2;
+    std::shared_ptr<KITS::TagInfo> tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid,
+        tagRfDiscId, nullptr);
+    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->DispatchAbilitySingleApp(element, tagInfo);
+    ASSERT_TRUE(element.GetBundleName() == "ohos.nfc.tag.action.TAG_FOUND");
 }
 }
 }
