@@ -61,23 +61,51 @@ void AppDataParserTest::TearDown()
  */
 HWTEST_F(AppDataParserTest, GetTechMask001, TestSize.Level1)
 {
+    AAFwk::Want want;
+    want.SetAction(KITS::ACTION_TAG_FOUND);
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
+    const std::shared_ptr<EventFwk::CommonEventData> mdata =
+        std::make_shared<EventFwk::CommonEventData>(data);
     AppDataParser parser = AppDataParser::GetInstance();
     parser.HandleAppAddOrChangedEvent(nullptr);
+    parser.HandleAppAddOrChangedEvent(mdata);
 
     parser.HandleAppRemovedEvent(nullptr);
+    parser.HandleAppRemovedEvent(mdata);
 
     parser.InitAppList();
 
     // no given tag technologies
     std::vector<int> discTechList;
     ASSERT_TRUE(parser.GetDispatchTagAppsByTech(discTechList).size() == 0);
+}
+/**
+ * @tc.name: GetTechMask002
+ * @tc.desc: Test AppDataParser GetTechMask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, GetTechMask002, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    element.SetBundleName(KITS::ACTION_TAG_FOUND);
+    AAFwk::Want want;
+    want.SetElement(element);
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
+    const std::shared_ptr<EventFwk::CommonEventData> mdata =
+        std::make_shared<EventFwk::CommonEventData>(data);
+    AppDataParser parser = AppDataParser::GetInstance();
+    parser.HandleAppAddOrChangedEvent(mdata);
 
+    parser.HandleAppRemovedEvent(mdata);
+
+    std::vector<int> discTechList;
     // no app installed, or has app installed to matched with the given tag technologies.
     discTechList.push_back(static_cast<int>(KITS::TagTechnology::NFC_A_TECH));
     discTechList.push_back(static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
     ASSERT_TRUE(parser.GetDispatchTagAppsByTech(discTechList).size() >= 0);
 }
-
 }
 }
 }
