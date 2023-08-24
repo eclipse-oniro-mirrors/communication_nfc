@@ -236,7 +236,9 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscove
             return false;
         }
         DebugLog("TagNciAdapter::Reselect: SendRawFrame success, status = 0x%{public}X", status);
-        activatedEvent_.Wait(WAIT_TIME_FOR_NO_RSP); // this request do not have response, so no need to wait for callback
+
+        // this request do not have response, so no need to wait for callback
+        activatedEvent_.Wait(WAIT_TIME_FOR_NO_RSP);
         isReconnecting_ = true;
         status = NfcNciAdaptor::GetInstance().NfaDeactivate(true);
         if (status != NFA_STATUS_OK) {
