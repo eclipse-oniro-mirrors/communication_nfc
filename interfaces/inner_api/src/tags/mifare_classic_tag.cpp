@@ -136,7 +136,7 @@ int MifareClassicTag::AuthenticateSector(int sectorIndex, const std::string& key
 
 int MifareClassicTag::ReadSingleBlock(uint32_t blockIndex, std::string &hexRespData)
 {
-    if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX)) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("ReadSingleBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -157,7 +157,7 @@ int MifareClassicTag::WriteSingleBlock(uint32_t blockIndex, const std::string& h
         ErrorLog("WriteSingleBlock, connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX)) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("WriteSingleBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -180,7 +180,7 @@ int MifareClassicTag::IncrementBlock(uint32_t blockIndex, int value)
         ErrorLog("IncrementBlock, connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX)) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("IncrementBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -203,7 +203,7 @@ int MifareClassicTag::DecrementBlock(uint32_t blockIndex, int value)
         ErrorLog("DecrementBlock, connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("DecrementBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -226,7 +226,7 @@ int MifareClassicTag::TransferToBlock(uint32_t blockIndex)
         ErrorLog("TransferToBlock, connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("TransferToBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -244,7 +244,7 @@ int MifareClassicTag::RestoreFromBlock(uint32_t blockIndex)
         ErrorLog("RestoreFromBlock, connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if (blockIndex < 0 || blockIndex >= MC_MAX_BLOCK_INDEX) {
+    if (blockIndex >= MC_MAX_BLOCK_INDEX) {
         ErrorLog("RestoreFromBlock, blockIndex = %{public}d invalid", blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
