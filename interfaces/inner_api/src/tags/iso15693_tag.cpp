@@ -51,7 +51,7 @@ int Iso15693Tag::ReadSingleBlock(uint32_t flag, uint32_t blockIndex, std::string
         ErrorLog("[Iso15693Tag::ReadSingleBlock] connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
+    if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::ReadSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -69,7 +69,7 @@ int Iso15693Tag::WriteSingleBlock(uint32_t flag, uint32_t blockIndex, const std:
         ErrorLog("[Iso15693Tag::WriteSingleBlock] connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
+    if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::WriteSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -89,7 +89,7 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
         ErrorLog("[Iso15693Tag::LockSingleBlock] connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
+    if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::LockSingleBlock] flag= %{public}d blockIndex= %{public}d err", flag, blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -105,8 +105,8 @@ int Iso15693Tag::LockSingleBlock(uint32_t flag, uint32_t blockIndex)
 
 int Iso15693Tag::ReadMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t blockNum, std::string &hexRespData)
 {
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
-        (blockNum < 0 || blockNum >= ISO15693_MAX_BLOCK_INDEX) || !IsConnected()) {
+    if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
+        (blockNum >= ISO15693_MAX_BLOCK_INDEX) || !IsConnected()) {
         ErrorLog(
             "[Iso15693Tag::ReadMultipleBlock] flag= %{public}d blockIndex= %{public}d "
             "blockNum=%{public}d err", flag, blockIndex, blockNum);
@@ -127,7 +127,7 @@ int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t
         ErrorLog("[Iso15693Tag::WriteMultipleBlock] connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    if ((flag < 0 || flag >= ISO15693_MAX_FLAG_COUNT) || (blockIndex < 0 || blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
+    if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
         (blockNum <= 0 || blockNum > ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::WriteMultipleBlock] flag=%{public}d blockIndex= %{public}d err", flag, blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
