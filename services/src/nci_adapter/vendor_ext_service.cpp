@@ -38,7 +38,7 @@ bool VendorExtService::OnStartExtService(void)
         ErrorLog("%{public}s: cannot open library %{public}s, %{public}s", __func__, pChLibName, dlerror());
         return false;
     }
-    const char* symbol = "GetChipType";
+    const char* symbol = "GetChipTypeByService";
     g_pGetChipFuncHandle = (GET_CHIP_TYPE)dlsym(g_pVendorExtLibHandle, symbol);
     if (!g_pGetChipFuncHandle) {
         ErrorLog("%{public}s: cannot find symbol %{public}s, %{public}s", __func__, symbol, dlerror());
