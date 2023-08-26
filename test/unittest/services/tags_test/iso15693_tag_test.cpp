@@ -211,6 +211,25 @@ HWTEST_F(Iso15693TagTest, GetTag003, TestSize.Level1)
     std::shared_ptr<Iso15693Tag> getTag = Iso15693Tag::GetTag(tag);
     ASSERT_TRUE(getTag == nullptr);
 }
+/**
+ * @tc.name: GetTag004
+ * @tc.desc: Test Iso15693Tag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(Iso15693TagTest, GetTag004, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_V_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap iso15693ExtrasData;
+    tagTechExtras.push_back(iso15693ExtrasData);
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<Iso15693Tag> getTag = Iso15693Tag::GetTag(tagInfo);
+    ASSERT_TRUE(getTag != nullptr);
+}
 }
 }
 }

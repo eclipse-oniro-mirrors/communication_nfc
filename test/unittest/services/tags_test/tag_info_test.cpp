@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "nfc_sdk_common.h"
+#include "nfc_controller.h"
 #include "taginfo.h"
 #include "tag_session_proxy.h"
 
@@ -63,7 +64,8 @@ void TagInfoTest::SetUp()
     tagTechExtras.push_back(isoDepExtrasData);
     std::string tagUid = TEST_UID;
     int tagRfDiscId = TEST_DISC_ID;
-    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
+    tagInfo_ = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, iface);
 }
 
 void TagInfoTest::TearDown()
