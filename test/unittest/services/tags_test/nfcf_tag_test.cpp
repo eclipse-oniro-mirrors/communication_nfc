@@ -152,6 +152,24 @@ HWTEST_F(NfcFTagTest, GetTag004, TestSize.Level1)
     std::shared_ptr<NfcFTag> nfcF = NfcFTag::GetTag(tagInfo);
     ASSERT_TRUE(nfcF == nullptr);
 }
+/**
+ * @tc.name: GetTag005
+ * @tc.desc: Test NfcFTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcFTagTest, GetTag005, TestSize.Level1)
+{
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_F_TECH));
+
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    std::string tagUid = TEST_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<NfcFTag> nfcF = NfcFTag::GetTag(tagInfo);
+    ASSERT_TRUE(nfcF != nullptr);
+}
 }
 }
 }

@@ -36,6 +36,7 @@ public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
     static constexpr const auto TEST_SAK = 0x36;
+    static constexpr const auto TEST_MANUFACTURER_UID = "04";
     static constexpr const auto TEST_ATQA = "0400";
     static constexpr const auto TEST_MIFARE_ULTRALIGHT_INDEX = 0;
     std::shared_ptr<TagInfo> tagInfo_;
@@ -145,6 +146,104 @@ HWTEST_F(MifareUltralightTagTest, GetTag003, TestSize.Level1)
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
     ASSERT_TRUE(mifareUltralight == nullptr);
+}
+/**
+ * @tc.name: GetTag004
+ * @tc.desc: Test MifareUltralightTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareUltralightTagTest, GetTag004, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareUltralightExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareUltralightExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = "";
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
+    ASSERT_TRUE(mifareUltralight != nullptr);
+}
+/**
+ * @tc.name: GetTag005
+ * @tc.desc: Test MifareUltralightTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareUltralightTagTest, GetTag005, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareUltralightExtrasData;
+    AppExecFwk::PacMap nfcAExtrasData;
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareUltralightExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_MANUFACTURER_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
+    ASSERT_TRUE(mifareUltralight != nullptr);
+}
+/**
+ * @tc.name: GetTag006
+ * @tc.desc: Test MifareUltralightTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareUltralightTagTest, GetTag006, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareUltralightExtrasData;
+    mifareUltralightExtrasData.PutBooleanValue(TagInfo::MIFARE_ULTRALIGHT_C_TYPE, true);
+    AppExecFwk::PacMap nfcAExtrasData;
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareUltralightExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_MANUFACTURER_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
+    ASSERT_TRUE(mifareUltralight != nullptr);
+}
+/**
+ * @tc.name: GetTag007
+ * @tc.desc: Test MifareUltralightTag GetTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MifareUltralightTagTest, GetTag007, TestSize.Level1)
+{
+    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH));
+    tagTechList.push_back(static_cast<int>(TagTechnology::NFC_A_TECH));
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap mifareUltralightExtrasData;
+    mifareUltralightExtrasData.PutBooleanValue(TagInfo::MIFARE_ULTRALIGHT_C_TYPE, false);
+    AppExecFwk::PacMap nfcAExtrasData;
+    nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
+    tagTechExtras.push_back(mifareUltralightExtrasData);
+    tagTechExtras.push_back(nfcAExtrasData);
+    std::string tagUid = TEST_MANUFACTURER_UID;
+    int tagRfDiscId = TEST_DISC_ID;
+    tagInfo = std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
+    std::shared_ptr<MifareUltralightTag> mifareUltralight = MifareUltralightTag::GetTag(tagInfo);
+    ASSERT_TRUE(mifareUltralight != nullptr);
 }
 }
 }
