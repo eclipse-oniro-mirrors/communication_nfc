@@ -1,0 +1,50 @@
+# Copyright (C) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+domain: NFC
+
+OPERATION_FAILED:
+  __BASE: {type: FAULT, level: CRITICAL, desc: record when NFC functions fail}
+  MAIN_ERROR_CODE: {type: INT16, desc: refer to different types of failed events}
+  SUB_ERROR_CODE: {type: INT16, desc: refer to different reasons of failed events}
+  CURRENT_DEFAULT_ROUTE: {type: INT16, desc: current default route}
+  CURRENT_SCREEN_STATE: {type: INT16, desc: current status of screen}
+  CURRENT_NFC_STATE: {type: INT16, desc: current status of NFC}
+  CURRENT_PASSIVE_LISTEN_STATE: {type: INT16, desc: current status of passive listen}
+  CURRENT_FIRMWARE_VERSION: {type: STRING, desc: current version of firmware}
+  APP_PACKAGE_NAME: {type: STRING, desc: app triggered by current event}
+
+OPEN_AND_CLOSE:
+  __BASE: {type: STATISTIC, level: MINOR, desc: record the event of opening and closing NFC}
+  OPEN_REQUEST_CNT: {type: INT16, desc: count when open NFC}
+  OPEN_FAILED_CNT: {type: INT16, desc: count when fail to open NFC}
+  CLOSE_REQUEST_CNT: {type: INT16, desc: count when close NFC}
+  CLOSE_FAILED_CNT: {type: INT16, desc: count when fail to close NFC}
+
+TAG_FOUND:
+  __BASE: {type: STATISTIC, level: MINOR, desc: record the event and types when NFC tag found}
+  TAG_FOUND_CNT: {type: INT16, desc: count when NFC tag found}
+  TAG_FOUND_TYPE_A: {type: INT16, desc: count when the found NFC tag is type A}
+  TAG_FOUND_TYPE_B: {type: INT16, desc: count when the found NFC tag is type B}
+  TAG_FOUND_TYPE_F: {type: INT16, desc: count when the found NFC tag is type F}
+  TAG_FOUND_TYPE_V: {type: INT16, desc: count when the found NFC tag is type V}
+
+PASSIVE_LISTEN:
+  __BASE: {type: STATISTIC, level: MINOR, desc: record the event of turning on NFC passive listen mode}
+  PASSIVE_LISTEN_REQUEST_CNT: {type: INT16, desc: count when turn on NFC passive listen mode}
+  PASSIVE_LISTEN_FAILED_CNT: {type: INT16, desc: count when fail to turn on NFC passive listen mode}
+
+FIRMWARE_UPDATE:
+  __BASE: {type: STATISTIC, level: MINOR, desc: record the event of updating firmware}
+  FIRMWARE_UPDATE_REQUEST_CNT: {type: INT16, desc: count when update firmware}
+  FIRMWARE_UPDATE_FAILED_CNT: {type: INT16, desc: count when fail to update firmware}
