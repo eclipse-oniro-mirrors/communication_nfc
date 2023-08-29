@@ -88,6 +88,15 @@ HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest003, TestSize.Level1)
 {
     NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
     adapterObj.SetScreenStatus(0xFF);
+    if (NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
+        adapterObj.Initialize();
+    }
+    adapterObj.SetScreenStatus(0xFF);
+    adapterObj.SetScreenStatus(0xFF);
+    adapterObj.SetScreenStatus(0xF0);
+    adapterObj.SetScreenStatus(0xF2);
+    adapterObj.SetScreenStatus(0xF4);
+    adapterObj.SetScreenStatus(0xF8);
     adapterObj.GetNciVersion();
     std::string t3tIdentifier = "00a4";
     EXPECT_TRUE(adapterObj.RegisterT3tIdentifier(t3tIdentifier));

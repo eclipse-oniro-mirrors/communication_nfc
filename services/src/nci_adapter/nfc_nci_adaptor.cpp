@@ -123,7 +123,7 @@ void NfcNciAdaptor::Init()
     if (g_pLibHandle) {
         const char* pChFuncName = "NfaInit";
         nfaInitFuncHandle = (NFA_INIT)dlsym(g_pLibHandle, pChFuncName);
-        if (nfaInitFuncHandle) {
+        if (nfaInitFuncHandle && !chipType.empty()) {
             isNciFuncSymbolFound_ = true;
         }
     }
