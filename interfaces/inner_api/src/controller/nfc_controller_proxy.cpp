@@ -22,7 +22,8 @@
 namespace OHOS {
 namespace NFC {
 const std::string NFC_INTERFACE_TOKEN = "ohos.nfc.INfcController";
-static NfcControllerCallBackStub* g_nfcControllerCallbackStub = new NfcControllerCallBackStub;
+static sptr<NfcControllerCallBackStub> g_nfcControllerCallbackStub =
+    sptr<NfcControllerCallBackStub>(new (std::nothrow) NfcControllerCallBackStub());
 
 NfcControllerProxy ::~NfcControllerProxy() {}
 
@@ -87,7 +88,10 @@ KITS::ErrorCode NfcControllerProxy::RegisterCallBack(
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-
+    if (g_nfcControllerCallbackStub == nullptr) {
+        ErrorLog("%{public}s:g_nfcControllerCallbackStub is nullptr", __func__);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
     g_nfcControllerCallbackStub->RegisterCallBack(callback);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");

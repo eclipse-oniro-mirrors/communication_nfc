@@ -89,14 +89,33 @@ public:
      * @return OHOS::sptr<IRemoteObject> the remote object of tag service.
      */
     OHOS::sptr<IRemoteObject> GetTagServiceIface();
+
+    void OnRemoteDied(const wptr<IRemoteObject> &remoteObject);
+
 private:
-    static void InitNfcController();
+    class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+        public:
+            explicit NfcServiceDeathRecipient(NfcController &client) : client_(client) {}
+            ~NfcServiceDeathRecipient() override = default;
+            void OnRemoteDied(const wptr<IRemoteObject> &remoteObject) override
+            {
+                client_.OnRemoteDied(remoteObject);
+            }
+        private:
+            NfcController &client_;
+    };
+
+private:
+    static void InitNfcRemoteSA();
 
 private:
     static bool initialized_;
     static std::shared_ptr<NfcControllerProxy> nfcControllerProxy_;
     static std::weak_ptr<OHOS::NFC::INfcControllerService> nfcControllerService_;
     static std::mutex mutex_;
+    static bool remoteDied_;
+    static sptr<IRemoteObject> remote_;
+    static sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };
 } // namespace KITS
 } // namespace NFC

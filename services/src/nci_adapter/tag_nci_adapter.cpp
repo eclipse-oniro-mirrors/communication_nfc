@@ -1012,7 +1012,7 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
     if (multiTagTmpTechIdx_ < (MAX_NUM_TECHNOLOGY - 1)) {
         techListIndex_ = multiTagTmpTechIdx_;
     }
-    
+
     tNFA_ACTIVATED activated = eventData->activated;
     GetTechFromData(activated); // techListIndex_ is increased in this func
     std::string tagUid = GetUidFromData(activated);

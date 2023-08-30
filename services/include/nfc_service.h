@@ -100,6 +100,7 @@ private:
     bool DoTurnOn();
     bool DoTurnOff();
     void DoInitialize();
+    static void UnloadNfcSa();
 
     // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
@@ -144,6 +145,7 @@ private:
     std::future<int> future_ {};
     std::unique_ptr<std::thread> task_ {};
     std::unique_ptr<std::thread> rootTask_ {};
+    static uint32_t unloadStaSaTimerId;
 
     friend class NfcWatchDog;
     friend class NfcControllerImpl;

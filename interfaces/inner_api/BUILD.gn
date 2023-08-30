@@ -48,6 +48,7 @@ ohos_shared_library("nfc_inner_kits") {
     "src/controller/nfc_controller_callback_stub.cpp",
     "src/controller/nfc_controller_proxy.cpp",
     "src/nfc_basic_proxy.cpp",
+    "src/nfc_sa_client.cpp",
     "src/nfc_sdk_common.cpp",
     "src/tags/basic_tag_session.cpp",
     "src/tags/foreground_callback_stub.cpp",

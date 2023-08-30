@@ -25,8 +25,10 @@
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
+#include "nfc_sdk_common.h"
+#include "nfc_sa_client.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace NFC {
@@ -54,7 +56,7 @@ class RegObj {
 public:
     RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {
     }
-    
+
     explicit RegObj(const napi_env& env, const napi_ref& ref)
     {
         m_regEnv = env;
@@ -68,27 +70,39 @@ public:
     napi_ref m_regHanderRef;
 };
 
+class NfcNapiAbilityStatusChange : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void Init(int32_t systemAbilityId);
+};
 
 class EventRegister {
 public:
-    EventRegister() {
+    EventRegister()
+    {
+        mSaStatusListener_ = std::make_shared<NfcNapiAbilityStatusChange>();
+        mSaStatusListener_->Init(NFC_MANAGER_SYS_ABILITY_ID);
     }
-    ~EventRegister() {
+    ~EventRegister()
+    {
+        mSaStatusListener_ = nullptr;
     }
 
     static EventRegister& GetInstance();
 
     void Register(const napi_env& env, const std::string& type, napi_value handler);
     void Unregister(const napi_env& env, const std::string& type, napi_value handler);
+    ErrorCode RegisterNfcStateChangedEvents(const std::string& type);
 
 private:
-    ErrorCode RegisterNfcStateChangedEvents(const std::string& type);
     ErrorCode UnRegisterNfcEvents(const std::string& type);
     bool IsEventSupport(const std::string& type);
     void DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs, napi_value& handler);
     void DeleteAllRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs);
 
     static bool isEventRegistered;
+    std::shared_ptr<NfcNapiAbilityStatusChange> mSaStatusListener_;
 };
 
 napi_value On(napi_env env, napi_callback_info cbinfo);
