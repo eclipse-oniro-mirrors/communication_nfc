@@ -25,7 +25,7 @@ public:
     static NfcNciAdaptor& GetInstance();
     explicit NfcNciAdaptor();
     ~NfcNciAdaptor() override;
-    static tNFA_PROPRIETARY_CFG* pNfaProprietaryCfg;
+    static tNFA_PROPRIETARY_CFG** pNfaProprietaryCfg;
     bool IsNciFuncSymbolFound();
     void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) override;
     tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) override;

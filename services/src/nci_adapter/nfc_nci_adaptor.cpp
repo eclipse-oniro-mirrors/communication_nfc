@@ -134,8 +134,8 @@ bool NfcNciAdaptor::IsNciFuncSymbolFound()
     return isNciFuncSymbolFound_;
 }
 
-tNFA_PROPRIETARY_CFG* NfcNciAdaptor::pNfaProprietaryCfg =
-                                    (tNFA_PROPRIETARY_CFG*)dlsym(g_pLibHandle, "pNfaProprietaryCfg");
+tNFA_PROPRIETARY_CFG** NfcNciAdaptor::pNfaProprietaryCfg =
+                                    (tNFA_PROPRIETARY_CFG**)dlsym(g_pLibHandle, "pNfaProprietaryCfg");
 
 void NfcNciAdaptor::NfaInit(tHAL_NFC_ENTRY* halEntryTbl)
 {
