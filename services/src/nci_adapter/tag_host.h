@@ -22,29 +22,29 @@
 #ifdef NCI_PROTOCOL_MIFARE
 #undef NCI_PROTOCOL_MIFARE
 #endif
-#define NCI_PROTOCOL_MIFARE (NfcNciAdaptor::pNfaProprietaryCfg->pro_protocol_mfc)
+#define NCI_PROTOCOL_MIFARE ((*NfcNciAdaptor::pNfaProprietaryCfg)->pro_protocol_mfc)
 
 #ifdef NCI_PROTOCOL_15693
 #undef NCI_PROTOCOL_15693
 #endif
-#define NCI_PROTOCOL_15693 (NfcNciAdaptor::pNfaProprietaryCfg->pro_protocol_15693)
+#define NCI_PROTOCOL_15693 ((*NfcNciAdaptor::pNfaProprietaryCfg)->pro_protocol_15693)
 
 #ifdef NCI_PROTOCOL_B_PRIME
 #undef NCI_PROTOCOL_B_PRIME
 #endif
-#define NCI_PROTOCOL_B_PRIME (NfcNciAdaptor::pNfaProprietaryCfg->pro_protocol_b_prime)
+#define NCI_PROTOCOL_B_PRIME ((*NfcNciAdaptor::pNfaProprietaryCfg)->pro_protocol_b_prime)
 
 #ifdef NCI_DISCOVERY_TYPE_POLL_B_PRIME
 #undef NCI_DISCOVERY_TYPE_POLL_B_PRIME
 #endif
 #define NCI_DISCOVERY_TYPE_POLL_B_PRIME \
-    (NfcNciAdaptor::pNfaProprietaryCfg->pro_discovery_b_prime_poll)
+    ((*NfcNciAdaptor::pNfaProprietaryCfg)->pro_discovery_b_prime_poll)
 
 #ifdef NCI_DISCOVERY_TYPE_LISTEN_B_PRIME
 #undef NCI_DISCOVERY_TYPE_LISTEN_B_PRIME
 #endif
 #define NCI_DISCOVERY_TYPE_LISTEN_B_PRIME \
-    (NfcNciAdaptor::pNfaProprietaryCfg->pro_discovery_b_prime_listen)
+    ((*NfcNciAdaptor::pNfaProprietaryCfg)->pro_discovery_b_prime_listen)
 
 #ifdef NFC_PROTOCOL_T5T
 #undef NFC_PROTOCOL_T5T
