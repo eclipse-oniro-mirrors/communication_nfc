@@ -109,7 +109,8 @@ int TagSessionProxy::GetMaxTransceiveLength(int technology, int &maxSize)
 
 int TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
 {
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;

@@ -22,14 +22,17 @@
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
+#include "nfc_timer.h"
 #include "want.h"
 #include "utils/preferences/nfc_pref_impl.h"
 #include "tag_session.h"
+#include "iservice_registry.h"
 
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
 const int ROUTING_DELAY_TIME = 500; // ms
+uint32_t NfcService::unloadStaSaTimerId{0};
 
 NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
     : nfccHost_(std::move(nfccHost)),
@@ -82,6 +85,22 @@ bool NfcService::Initialize()
     // NFC ROOT
     ExecuteTask(KITS::TASK_INITIALIZE);
     return true;
+}
+
+void NfcService::UnloadNfcSa()
+{
+    DebugLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        ErrorLog("%{public}s: get system ability manager failed!", __func__);
+        return;
+    }
+    int32_t ret = samgr->UnloadSystemAbility(KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    if (ret != ERR_NONE) {
+        ErrorLog("%{public}s: Failed to unload system ability, SA Id = [%{public}d], ret = [%{public}d].",
+            __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID, ret);
+    }
 }
 
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
@@ -199,6 +218,11 @@ bool NfcService::DoTurnOn()
 
     UpdateNfcState(KITS::STATE_ON);
 
+    if (unloadStaSaTimerId != 0) {
+        NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
+        unloadStaSaTimerId = 0;
+    }
+
     nfccHost_->SetScreenStatus(screenState_);
 
     /* Start polling loop */
@@ -234,6 +258,12 @@ bool NfcService::DoTurnOff()
     }
 
     UpdateNfcState(KITS::STATE_OFF);
+    TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+    if (unloadStaSaTimerId != 0) {
+        NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
+        unloadStaSaTimerId = 0;
+    }
+    NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
     return result;
 }
 
@@ -401,6 +431,15 @@ std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenSta
 int NfcService::GetNfcState()
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    // 5min later unload nfc_service, if nfc state is off
+    if (nfcState_ == KITS::STATE_OFF) {
+        TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+        if (unloadStaSaTimerId != 0) {
+            NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
+            unloadStaSaTimerId = 0;
+        }
+        NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
+    }
     return nfcState_;
 }
 

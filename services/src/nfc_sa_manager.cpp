@@ -22,7 +22,7 @@ namespace NFC {
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<NfcSaManager>::GetInstance().get());
 
-NfcSaManager::NfcSaManager() : SystemAbility(NFC_MANAGER_SYS_ABILITY_ID, true) {}
+NfcSaManager::NfcSaManager() : SystemAbility(NFC_MANAGER_SYS_ABILITY_ID, false) {}
 
 NfcSaManager::~NfcSaManager()
 {
@@ -52,13 +52,11 @@ bool NfcSaManager::Init()
     if (!registerToService_) {
         nfcService_ = std::make_shared<NfcService>();
         nfcService_->Initialize();
-
-        sptr<ISystemAbilityManager> systemAbilityMgr =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemAbilityMgr && (systemAbilityMgr->AddSystemAbility(NFC_MANAGER_SYS_ABILITY_ID,
-            nfcService_->nfcControllerImpl_) == 0)) {
+        bool ret = Publish(nfcService_->nfcControllerImpl_);
+        if (ret) {
+            InfoLog("NfcSaManager::Init Add System Ability SUCCESS!");
         } else {
-            InfoLog("NfcSaManager::Init Add System Ability failed!");
+            ErrorLog("NfcSaManager::Init Add System Ability FAILED!");
             return false;
         }
         AddSystemAbilityListener(COMMON_EVENT_SERVICE_ID);

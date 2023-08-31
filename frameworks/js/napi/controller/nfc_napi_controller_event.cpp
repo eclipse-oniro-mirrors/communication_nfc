@@ -15,6 +15,7 @@
 
 #include "nfc_napi_controller_event.h"
 #include <uv.h>
+#include "iservice_registry.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
@@ -392,6 +393,29 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         }
         isEventRegistered = false;
     }
+}
+
+void NfcNapiAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
+    if (g_eventRegisterInfo.find(EVENT_NFC_STATE_CHANGE) != g_eventRegisterInfo.end()) {
+        InfoLog("%{public}s g_eventRegisterInfo is not null, systemAbilityId = %{public}d", __func__, systemAbilityId);
+        EventRegister::GetInstance().RegisterNfcStateChangedEvents(EVENT_NFC_STATE_CHANGE);
+    } else {
+        WarnLog("%{public}s g_eventRegisterInfo is null", __func__);
+    }
+}
+
+void NfcNapiAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    DebugLog("%{public}s, systemAbilityId = %{public}d", __func__, systemAbilityId);
+}
+
+void NfcNapiAbilityStatusChange::Init(int32_t systemAbilityId)
+{
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
+    InfoLog("%{public}s, systemAbilityId = %{public}d, ret = %{public}d", __func__, systemAbilityId, ret);
 }
 }  // namespace KITS
 }  // namespace NFC
