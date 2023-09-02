@@ -22,6 +22,7 @@
 #include "nfc_sdk_common.h"
 #include "want.h"
 #include "vibrator_agent.h"
+#include "nfc_hisysevent.h"
 
 namespace OHOS {
 using TagHostMapIter = std::map<int, std::shared_ptr<NFC::NCI::ITagHost>>::iterator;
@@ -122,6 +123,32 @@ void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
 
     // select the matched applications, try start ability
     std::vector<int> techList = tag->GetTechList();
+    // Record types of read tags.
+    int tagFoundCnt = 0;
+    int typeATagFoundCnt = 0;
+    int typeBTagFoundCnt = 0;
+    int typeFTagFoundCnt = 0;
+    int typeVTagFoundCnt = 0;
+    for (size_t i = 0; i < techList.size(); i++) {
+        std::string discStrTech = KITS::TagInfo::GetStringTech(techList[i]);
+        if (discStrTech.compare("NfcA") == 0) {
+            tagFoundCnt++;
+            typeATagFoundCnt++;
+        } else if (discStrTech.compare("NfcB") == 0) {
+            tagFoundCnt++;
+            typeBTagFoundCnt++;
+        } else if (discStrTech.compare("NfcF") == 0) {
+            tagFoundCnt++;
+            typeFTagFoundCnt++;
+        } else if (discStrTech.compare("NfcV") == 0) {
+            tagFoundCnt++;
+            typeVTagFoundCnt++;
+        } else {
+            tagFoundCnt++;
+        }
+    }
+    WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt, typeBTagFoundCnt, typeFTagFoundCnt, typeVTagFoundCnt);
+
     std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);
     InfoLog("DispatchTag: try start ability elements size = %{public}zu", elements.size());
     if (elements.size() == 0) {

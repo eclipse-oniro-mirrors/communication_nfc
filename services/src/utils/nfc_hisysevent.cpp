@@ -55,25 +55,39 @@ void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                              int typeBCnt, int typeFCnt, int typeVCnt)
 {
     WriteEvent("TAG_FOUND", HiviewDFX::HiSysEvent::EventType::STATISTIC,
-               "TAG_FOUND_CNT", tagFoundCnt,
-               "TAG_FOUND_TYPE_A", typeACnt,
-               "TAG_FOUND_TYPE_B", typeBCnt,
-               "TAG_FOUND_TYPE_F", typeFCnt,
-               "TAG_FOUND_TYPE_V", typeVCnt);
+               "TOTAL_TAG_FOUND_CNT", tagFoundCnt,
+               "TYPE_A_TAG_FOUND", typeACnt,
+               "TYPE_B_TAG_FOUND", typeBCnt,
+               "TYPE_F_TAG_FOUND", typeFCnt,
+               "TYPE_V_TAG_FOUND", typeVCnt);
 }
 
 void WritePassiveListenHiSysEvent(int requestCnt, int failCnt)
 {
     WriteEvent("PASSIVE_LISTEN", HiviewDFX::HiSysEvent::EventType::STATISTIC,
-               "PASSIVE_LISTEN_REQUEST_CNT", requestCnt,
-               "PASSIVE_LISTEN_FAILED_CNT", failCnt);
+               "REQUEST_PASSIVE_LISTEN_CNT", requestCnt,
+               "FAILED_PASSIVE_LISTEN_CNT", failCnt);
 }
 
 void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
 {
     WriteEvent("FIRMWARE_UPDATE", HiviewDFX::HiSysEvent::EventType::STATISTIC,
-               "FIRMWARE_UPDATE_REQUEST_CNT", requestCnt,
-               "FIRMWARE_UPDATE_FAILED_CNT", failCnt);
+               "REQUEST_FIRMWARE_UPDATE_CNT", requestCnt,
+               "FAILED_FIRMWARE_UPDATE_CNT", failCnt);
+}
+
+NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+{
+    NfcFailedParams nfcFailedParams;
+    nfcFailedParams.mainErrorCode = mainErrorCode;
+    nfcFailedParams.subErrorCode = subErrorCode;
+    nfcFailedParams.defaultRoute = 0;
+    nfcFailedParams.screenState = 0;
+    nfcFailedParams.nfcState = 0;
+    nfcFailedParams.passiveListenState = 0;
+    nfcFailedParams.version = "VERSION";
+    nfcFailedParams.appPackageName = "APPNAME";
+    return &nfcFailedParams;
 }
 }  // namespace NFC
 }  // namespace OHOS
