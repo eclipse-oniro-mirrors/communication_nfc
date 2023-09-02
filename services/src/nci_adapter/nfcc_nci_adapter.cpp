@@ -20,6 +20,7 @@
 #include "nfc_nci_adaptor.h"
 #include "routing_manager.h"
 #include "tag_nci_adapter.h"
+#include "vendor_ext_service.h"
 
 using namespace OHOS::NFC;
 namespace OHOS {
@@ -375,10 +376,16 @@ void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_
         }
         
         default: {
+            VendorExtService::VendorEventCallback(dmEvent, 0, (char *)(eventData->p_vs_evt_data));
             DebugLog("NfaDeviceManagementCallback: unknown event %{public}d", dmEvent);
             break;
         }
     }
+}
+
+void NfccNciAdapter::PrivateNciCallback(uint8_t event, uint16_t paramLen, uint8_t *param)
+{
+    VendorExtService::VendorEventCallback(event, paramLen, (char *)param);
 }
 
 bool NfccNciAdapter::Initialize()
@@ -401,6 +408,8 @@ bool NfccNciAdapter::Initialize()
             nfcEnableEvent_.Wait();
         }
     }
+
+    NfcNciAdaptor::GetInstance().NfaRegVSCback(true, PrivateNciCallback);
 
     if (status == NFA_STATUS_OK) {
         // sIsNfaEnabled indicates whether stack started successfully
@@ -460,6 +469,7 @@ bool NfccNciAdapter::Deinitialize()
     pollingEnabled_ = false;
 
     NfcNciAdaptor::GetInstance().NfcAdaptationFinalize();
+    NfcNciAdaptor::GetInstance().NfaRegVSCback(false, PrivateNciCallback);
     DebugLog("NfccNciAdapter::Deinitialize: exit");
     return (status == NFA_STATUS_OK);
 }

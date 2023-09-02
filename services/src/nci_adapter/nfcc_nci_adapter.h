@@ -77,6 +77,7 @@ private:
     static void DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData);
     static void DoNfaDmNfccTimeoutEvt(tNFA_DM_CBACK_DATA* eventData);
     static void NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData);
+    static void PrivateNciCallback(uint8_t event, uint16_t paramLen, uint8_t *param);
     static uint8_t GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask);
 
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;

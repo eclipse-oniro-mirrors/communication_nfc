@@ -28,8 +28,10 @@ public:
     static std::string chipType;
     static bool OnStartExtService(void);
     static std::string GetNfcChipType(void);
+    static void VendorEventCallback(uint8_t dmEvent, uint16_t dataLen, const char* eventData);
     static void OnStopExtService(void);
     typedef const char* (*GET_CHIP_TYPE)();
+    typedef void (*VENDOR_NFC_EVENT_CALLBACK)(uint8_t dmEvent, uint16_t dataLen, const char* eventData);
 };
 
 } // namespace NCI

@@ -32,6 +32,7 @@ public:
     virtual void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) = 0;
     virtual tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) = 0;
     virtual tNFA_STATUS NfaDisable(bool graceful) = 0;
+    virtual tNFA_STATUS NfaRegVSCback(bool isRegster, tNFA_VSC_CBACK* vsCback) = 0;
     virtual tNFA_STATUS NfaEnablePolling(tNFA_TECHNOLOGY_MASK pollMask) = 0;
     virtual tNFA_STATUS NfaDisablePolling(void) = 0;
     virtual tNFA_STATUS NfaEnableListening(void) = 0;

@@ -26,6 +26,7 @@ VendorExtService::~VendorExtService() {}
 
 static void* g_pVendorExtLibHandle = nullptr;
 static VendorExtService::GET_CHIP_TYPE g_pGetChipFuncHandle = nullptr;
+static VendorExtService::VENDOR_NFC_EVENT_CALLBACK g_pVendorCallbackFuncHandle = nullptr;
 
 bool VendorExtService::OnStartExtService(void)
 {
@@ -43,6 +44,12 @@ bool VendorExtService::OnStartExtService(void)
     if (!g_pGetChipFuncHandle) {
         ErrorLog("%{public}s: cannot find symbol %{public}s, %{public}s", __func__, symbol, dlerror());
     }
+
+    const char* eventCallbackSymbol = "VendorNfcEventCallback";
+    g_pVendorCallbackFuncHandle = (VENDOR_NFC_EVENT_CALLBACK)dlsym(g_pVendorExtLibHandle, eventCallbackSymbol);
+    if (!g_pVendorCallbackFuncHandle) {
+        ErrorLog("%{public}s: cannot find symbol %{public}s, %{public}s", __func__, eventCallbackSymbol, dlerror());
+    }
     return true;
 }
 
@@ -54,6 +61,15 @@ std::string VendorExtService::GetNfcChipType(void)
     }
     static std::string chipType = g_pGetChipFuncHandle();
     return chipType;
+}
+
+void VendorExtService::VendorEventCallback(uint8_t dmEvent, uint16_t dataLen, const char* eventData)
+{
+    if (!g_pVendorCallbackFuncHandle) {
+        ErrorLog("%{public}s: cannt find symbol VendorNfcEventCallback.", __func__);
+        return;
+    }
+    g_pVendorCallbackFuncHandle(dmEvent, dataLen, eventData);
 }
 
 void VendorExtService::OnStopExtService(void)
