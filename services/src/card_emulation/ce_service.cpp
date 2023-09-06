@@ -97,6 +97,7 @@ void CeService::NotifyWalletFieldEvent(std::string event)
     AAFwk::Want want;
     want.SetAction(ACTION_WALLET_SWIPE_CARD);
     want.SetParam("event", event);
+    want.SetParam("ability.params.backToOtherMissionStack", true);
 
     if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
         ErrorLog("AbilityManagerClient is null");
