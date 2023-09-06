@@ -65,7 +65,8 @@
                 "preferences",
                 "safwk",
                 "drivers_interface_nfc",
-                "init"
+                "init",
+                "hisysevent"
             ],
             "third_party": [
                 "libnfc-nci",
@@ -104,6 +105,7 @@
             ]
         },
         "hisysevent_config": [
+            "//foundation/communication/nfc/hisysevent.yaml"
         ]
     }
 }
