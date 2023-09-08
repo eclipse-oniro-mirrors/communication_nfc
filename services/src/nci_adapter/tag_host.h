@@ -138,6 +138,7 @@ public:
     void OnFieldChecking(TagDisconnectedCallBack callback, int delayedMs) override;
     void OffFieldChecking() override;
 
+    void SetTimeout(int timeout, int technology) override;
 private:
     AppExecFwk::PacMap ParseTechExtras(int index);
     void FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs);

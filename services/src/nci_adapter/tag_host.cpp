@@ -214,6 +214,12 @@ void TagHost::OffFieldChecking()
     isFieldChecking_ = false;
 }
 
+void TagHost::SetTimeout(int timeout, int technology)
+{
+    DebugLog("TagHost::SetTimeout");
+    TagNciAdapter::GetInstance().SetTimeout(timeout, technology);
+}
+
 std::vector<int> TagHost::GetTechList()
 {
     for (std::vector<int>::iterator it = tagTechList_.begin(); it != tagTechList_.end(); ++it) {

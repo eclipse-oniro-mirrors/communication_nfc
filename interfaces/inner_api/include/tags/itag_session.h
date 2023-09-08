@@ -54,7 +54,7 @@ public:
      * @param technology the tag technology
      * @return the tatus code for function calling.
      */
-    virtual int SetTimeout(int timeout, int technology) = 0;
+    virtual int SetTimeout(int tagRfDiscId, int timeout, int technology) = 0;
     /**
      * @brief Get the Timeout value of tag operations
      *

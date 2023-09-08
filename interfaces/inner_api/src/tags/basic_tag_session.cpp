@@ -89,7 +89,7 @@ int BasicTagSession::SetTimeout(int timeout)
         ErrorLog("SetTimeout, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->SetTimeout(timeout, static_cast<int>(tagTechnology_));
+    return tagSession->SetTimeout(GetTagRfDiscId(), timeout, static_cast<int>(tagTechnology_));
 }
 
 int BasicTagSession::GetTimeout(int &timeout)

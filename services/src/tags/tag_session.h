@@ -60,7 +60,7 @@ public:
      * @return true success of setting timeout value
      * @return false failure of setting timeout value
      */
-    int SetTimeout(int timeout, int technology) override;
+    int SetTimeout(int tagRfDiscId, int timeout, int technology) override;
     /**
      * @brief Get the Timeout value of tag operations
      *
