@@ -49,6 +49,7 @@ ohos_shared_library("nfc_service") {
   stack_protector_ret = true
   sources = [
     "src/app_data_parser.cpp",
+    "src/card_emulation/app_state_aware.cpp",
     "src/card_emulation/ce_service.cpp",
     "src/common_event_handler.cpp",
     "src/controller/nfc_controller_callback_proxy.cpp",

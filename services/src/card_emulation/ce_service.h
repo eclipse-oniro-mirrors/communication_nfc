@@ -34,7 +34,6 @@ public:
     static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
 
 private:
-    bool IsWalletProcessExist();
     void NotifyWalletFieldEvent(std::string event);
 
 private:

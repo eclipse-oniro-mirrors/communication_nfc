@@ -22,6 +22,7 @@
 #include "iservice_registry.h"
 #include "app_mgr_interface.h"
 #include "loghelper.h"
+#include "app_state_aware.h"
 
 namespace OHOS {
 namespace NFC {
@@ -54,43 +55,11 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
     EventFwk::CommonEventManager::PublishCommonEvent(data);
 }
 
-bool CeService::IsWalletProcessExist()
-{
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient == nullptr) {
-        ErrorLog("samgrClient is null");
-        return false;
-    }
-
-    sptr<AppExecFwk::IAppMgr> appMgrProxy =
-        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
-    if (appMgrProxy == nullptr) {
-        ErrorLog("appMgrProxy is null");
-        return false;
-    }
-
-    std::vector<AppExecFwk::RunningProcessInfo> runningList;
-    int result = appMgrProxy->GetAllRunningProcesses(runningList);
-    if (result != ERR_OK) {
-        ErrorLog("GetAllRunningProcesses failed");
-        return false;
-    }
-
-    for (AppExecFwk::RunningProcessInfo info : runningList) {
-        for (std::string bundleName : info.bundleNames) {
-            if (bundleName == WALLET_BUNDLE_NAME) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 void CeService::NotifyWalletFieldEvent(std::string event)
 {
     InfoLog("%{public}s", event.c_str());
-    if (IsWalletProcessExist()) {
-        InfoLog("Wallet Exist, return");
+    if (AppStateAware::GetInstance()->IsForegroundApp(WALLET_BUNDLE_NAME)) {
+        InfoLog("Wallet is in foreground, return");
         return;
     }
 
