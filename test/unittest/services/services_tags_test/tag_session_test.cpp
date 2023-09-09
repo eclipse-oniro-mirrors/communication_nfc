@@ -284,7 +284,7 @@ HWTEST_F(TagSessionTest, SetTimeout001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = -1;
-    int result = tagSession->SetTimeout(timeout, technology);
+    int result = tagSession->SetTimeout(TEST_DISC_ID, timeout, technology);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
@@ -299,7 +299,7 @@ HWTEST_F(TagSessionTest, SetTimeout002, TestSize.Level1)
     int timeout = 0;
     int technology = MAX_TECH;
     tagSession->Disconnect(technology);
-    int result = tagSession->SetTimeout(timeout, technology);
+    int result = tagSession->SetTimeout(TEST_DISC_ID, timeout, technology);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
@@ -314,7 +314,7 @@ HWTEST_F(TagSessionTest, SetTimeout003, TestSize.Level1)
     int timeout = 0;
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
     tagSession->Disconnect(technology);
-    int result = tagSession->SetTimeout(timeout, technology);
+    int result = tagSession->SetTimeout(TEST_DISC_ID, timeout, technology);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NONE);
 }
 /**
