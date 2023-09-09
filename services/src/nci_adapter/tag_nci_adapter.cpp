@@ -265,7 +265,7 @@ bool TagNciAdapter::SendReselectReqIfNeed(int protocol, int tech)
     } else {
         return Reselect(NFA_INTERFACE_ISO_DEP);
     }
-    return true;
+    return false;
 }
 
 bool TagNciAdapter::IsReconnecting()
@@ -310,11 +310,7 @@ bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
         return false;
     }
     rfDiscoveryMutex_.lock();
-    if (connectedProtocol_ == protocol && !restart) {
-        rfDiscoveryMutex_.unlock();
-        return true;
-    }
-    if (!SendReselectReqIfNeed(protocol, tech)) {
+    if (SendReselectReqIfNeed(protocol, tech)) {
         rfDiscoveryMutex_.unlock();
         return false;
     }
@@ -468,6 +464,15 @@ void TagNciAdapter::ResetTagFieldOnFlag()
 {
     DebugLog("TagNciAdapter::ResetTagFieldOnFlag");
     isTagFieldOn_ = true;
+}
+
+void TagNciAdapter::SetTimeout(int& timeout, int& technology)
+{
+    if (technology > 0 && technology <= MAX_NUM_TECHNOLOGY) {
+        technologyTimeoutsTable_[technology] = timeout;
+    } else {
+        WarnLog("TagNciAdapter::SetTimeout, Unknown technology");
+    }
 }
 
 int TagNciAdapter::GetTimeout(int technology) const

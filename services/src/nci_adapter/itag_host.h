@@ -70,6 +70,8 @@ public:
     virtual bool IsTagFieldOn() = 0;
     virtual void OnFieldChecking(TagDisconnectedCallBack callback, int delayedMs) = 0;
     virtual void OffFieldChecking() = 0;
+
+    virtual void SetTimeout(int timeout, int technology) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

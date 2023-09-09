@@ -123,9 +123,10 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
         ErrorLog("HandleSetTimeout, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+    int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
     int timeout = data.ReadInt32();
-    int statusCode = SetTimeout(timeout, tech);
+    int statusCode = SetTimeout(tagRfDiscId, timeout, tech);
     reply.WriteInt32(statusCode);
     return statusCode;
 }

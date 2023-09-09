@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 #include "tag_session.h"
+
 #include "itag_host.h"
 #include "loghelper.h"
+#include "tag_nci_adapter.h"
 
 namespace OHOS {
 namespace NFC {
@@ -122,13 +124,26 @@ void TagSession::Disconnect(int tagRfDiscId)
     }
     tag.lock()->Disconnect();
 }
-int TagSession::SetTimeout(int timeout, int technology)
+int TagSession::SetTimeout(int tagRfDiscId, int timeout, int technology)
 {
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("SetTimeout, invalid technology %{public}d", technology);
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
+    // Check if NFC is enabled
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("SetTimeout, IsTagFieldOn error");
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
+
+    /* find the tag in the hmap */
+    std::weak_ptr<NCI::ITagHost> tag = tagDispatcher_.lock()->FindTagHost(tagRfDiscId);
+    if (tag.expired()) {
+        ErrorLog("SetTimeout, tagRfDiscId not found");
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
     g_techTimeout[technology] = timeout;
+    tag.lock()->SetTimeout(timeout, technology);
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 

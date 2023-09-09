@@ -69,12 +69,13 @@ void TagSessionProxy::Disconnect(int tagRfDiscId)
         data, option);
 }
 
-int TagSessionProxy::SetTimeout(int timeout, int technology)
+int TagSessionProxy::SetTimeout(int tagRfDiscId, int timeout, int technology)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
+    data.WriteInt32(tagRfDiscId);
     data.WriteInt32(technology);
     data.WriteInt32(timeout);
     MessageOption option(MessageOption::TF_SYNC);
