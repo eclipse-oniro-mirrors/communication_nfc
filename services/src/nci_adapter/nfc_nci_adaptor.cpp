@@ -77,7 +77,35 @@ static NfcNciAdaptor::NFC_CONFIG_GET_BYTES nfcConfigGetBytesFuncHandle;
 static NfcNciAdaptor::NFA_CE_CONFIGURE_UICC_LISTEN_TECH nfaCeConfigureUiccListenTechFuncHandle;
 static NfcNciAdaptor::NFA_EE_ADD_SYSTEM_CODE_ROUTING nfaEeAddSystemCodeRoutingFuncHandle;
 
+// mifare function handles
+static NfcNciAdaptor::EXTNS_INIT extnsInitFuncHandle;
+static NfcNciAdaptor::EXTNS_CLOSE extnsCloseFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_INIT extnsMfcInitFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_CHECK_NDEF extnsMfcCheckNDefFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_READ_NDEF extnsMfcReadNDefFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_PRESENCE_CHECK extnsMfcPresenceCheckFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_WRITE_NDEF extnsMfcWriteNDefFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_FORMAT_TAG extnsMfcFormatTagFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_DISCONNECT extnsMfcDisconnectFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_ACTIVATED extnsMfcActivatedFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_TRANSCEIVE extnsMfcTransceiveFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_REGISTER_NDEF_TYPE_HANDLER extnsMfcRegisterNDefTypeHandlerFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_CALLBACK extnsMfcCallBackFuncHandle;
+static NfcNciAdaptor::EXTNS_MFC_SET_READONLY extnsMfcSetReadOnlyFuncHandle;
+static NfcNciAdaptor::EXTNS_SET_CONNECT_FLAG extnsSetConnectFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_GET_CONNECT_FLAG extnsGetConnectFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_SET_DEACTIVATE_FLAG extnsSetDeactivateFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_GET_DEACTIVATE_FLAG extnsGetDeactivateFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_SET_CALLBACK_FLAG extnsSetCallBackFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_GET_CALLBACK_FLAG extnsGetCallBackFlagFuncHandle;
+static NfcNciAdaptor::EXTNS_CHECK_MFC_RESPONSE extnsCheckMfcResponseFuncHandle;
+static NfcNciAdaptor::MFC_PRESENCE_CHECK_RESULT mfcPresenceCheckResultFuncHandle;
+static NfcNciAdaptor::MFC_RESET_PRESENCE_CHECK_STATUS mfcResetPresenceCheckStatusFuncHandle;
+static NfcNciAdaptor::EXTNS_GET_PRESENCE_CHECK_STATUS extnsGetPresenceCheckStatusFuncHandle;
+
 static void* g_pLibHandle = nullptr;
+static void* g_pExtMifareLibHandle = nullptr;
+static const std::string EXT_MIFARE_LIB_NAME = "libnfc_ext_mifare.z.so";
 static NfcNciAdaptor nciAdaptor_;
 
 NfcNciAdaptor& NfcNciAdaptor::GetInstance()
@@ -96,6 +124,7 @@ NfcNciAdaptor::NfcNciAdaptor()
 NfcNciAdaptor::~NfcNciAdaptor()
 {
     g_pLibHandle = nullptr;
+    g_pExtMifareLibHandle = nullptr;
     VendorExtService::OnStopExtService();
 }
 
@@ -119,6 +148,13 @@ void NfcNciAdaptor::Init()
         InfoLog("%{public}s: successfully open vendor library", __func__);
     }
 
+    g_pExtMifareLibHandle = dlopen(EXT_MIFARE_LIB_NAME.c_str(), RTLD_LAZY | RTLD_LOCAL);
+    if (!g_pExtMifareLibHandle) {
+        ErrorLog("%{public}s: cannot open mifare library: %{public}s", __func__, dlerror());
+    } else {
+        InfoLog("%{public}s: open mifare library success", __func__);
+    }
+
     // has found the lib, load the NfaInit to check symbols exist or not.
     if (g_pLibHandle) {
         const char* pChFuncName = "NfaInit";
@@ -127,11 +163,25 @@ void NfcNciAdaptor::Init()
             isNciFuncSymbolFound_ = true;
         }
     }
+    if (g_pExtMifareLibHandle) {
+        const char* pChFuncName = "EXTNS_Init";
+        extnsInitFuncHandle = (EXTNS_INIT)dlsym(g_pExtMifareLibHandle, pChFuncName);
+        if (extnsInitFuncHandle && !chipType.empty()) {
+            isExtMifareFuncSymbolFound_ = true;
+        } else {
+            ErrorLog("%{public}s: isExtMifareFuncSymbolFound_ = false", __func__);
+        }
+    }
 }
 
 bool NfcNciAdaptor::IsNciFuncSymbolFound()
 {
     return isNciFuncSymbolFound_;
+}
+
+bool NfcNciAdaptor::IsExtMifareFuncSymbolFound()
+{
+    return isExtMifareFuncSymbolFound_;
 }
 
 tNFA_PROPRIETARY_CFG** NfcNciAdaptor::pNfaProprietaryCfg =
@@ -760,6 +810,271 @@ tNFA_STATUS NfcNciAdaptor::NfaEeAddSystemCodeRouting(uint16_t systemCode,
     return nfaEeAddSystemCodeRoutingFuncHandle(systemCode, eeHandle, powerState);
 }
 
+tNFA_STATUS NfcNciAdaptor::ExtnsInit(tNFA_DM_CBACK* p_dm_cback, tNFA_CONN_CBACK* p_conn_cback)
+{
+    const char* pChFuncName = "EXTNS_Init";
+    extnsInitFuncHandle = (EXTNS_INIT)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsInitFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsInitFuncHandle(p_dm_cback, p_conn_cback);
+}
+
+void NfcNciAdaptor::ExtnsClose(void)
+{
+    const char* pChFuncName = "EXTNS_Close";
+    extnsCloseFuncHandle = (EXTNS_CLOSE)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsCloseFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    extnsCloseFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcInit(tNFA_ACTIVATED &activationData)
+{
+    const char* pChFuncName = "EXTNS_MfcInit";
+    extnsMfcInitFuncHandle = (EXTNS_MFC_INIT)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcInitFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcInitFuncHandle(activationData);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcCheckNDef(void)
+{
+    const char* pChFuncName = "EXTNS_MfcCheckNDef";
+    extnsMfcCheckNDefFuncHandle = (EXTNS_MFC_CHECK_NDEF)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcCheckNDefFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcCheckNDefFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcReadNDef(void)
+{
+    const char* pChFuncName = "EXTNS_MfcReadNDef";
+    extnsMfcReadNDefFuncHandle = (EXTNS_MFC_READ_NDEF)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcReadNDefFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcReadNDefFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcPresenceCheck(void)
+{
+    const char* pChFuncName = "EXTNS_MfcPresenceCheck";
+    extnsMfcPresenceCheckFuncHandle = (EXTNS_MFC_PRESENCE_CHECK)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcPresenceCheckFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcPresenceCheckFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcWriteNDef(uint8_t* pBuf, uint32_t len)
+{
+    const char* pChFuncName = "EXTNS_MfcWriteNDef";
+    extnsMfcWriteNDefFuncHandle = (EXTNS_MFC_WRITE_NDEF)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcWriteNDefFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcWriteNDefFuncHandle(pBuf, len);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcFormatTag(uint8_t* key, uint8_t len)
+{
+    const char* pChFuncName = "EXTNS_MfcFormatTag";
+    extnsMfcFormatTagFuncHandle = (EXTNS_MFC_FORMAT_TAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcFormatTagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcFormatTagFuncHandle(key, len);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcDisconnect(void)
+{
+    const char* pChFuncName = "EXTNS_MfcDisconnect";
+    extnsMfcDisconnectFuncHandle = (EXTNS_MFC_DISCONNECT)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcDisconnectFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcDisconnectFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcActivated(void)
+{
+    const char* pChFuncName = "EXTNS_MfcActivated";
+    extnsMfcActivatedFuncHandle = (EXTNS_MFC_ACTIVATED)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcActivatedFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcActivatedFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcTransceive(uint8_t* p_data, uint32_t len)
+{
+    const char* pChFuncName = "EXTNS_MfcTransceive";
+    extnsMfcTransceiveFuncHandle = (EXTNS_MFC_TRANSCEIVE)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcTransceiveFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcTransceiveFuncHandle(p_data, len);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcRegisterNDefTypeHandler(tNFA_NDEF_CBACK* ndefHandlerCallback)
+{
+    const char* pChFuncName = "EXTNS_MfcRegisterNDefTypeHandler";
+    extnsMfcRegisterNDefTypeHandlerFuncHandle =
+        (EXTNS_MFC_REGISTER_NDEF_TYPE_HANDLER)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcRegisterNDefTypeHandlerFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcRegisterNDefTypeHandlerFuncHandle(ndefHandlerCallback);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcCallBack(uint8_t* buf, uint32_t buflen)
+{
+    const char* pChFuncName = "EXTNS_MfcCallBack";
+    extnsMfcCallBackFuncHandle = (EXTNS_MFC_CALLBACK)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcCallBackFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcCallBackFuncHandle(buf, buflen);
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsMfcSetReadOnly(uint8_t* key, uint8_t len)
+{
+    const char* pChFuncName = "EXTNS_MfcSetReadOnly";
+    extnsMfcSetReadOnlyFuncHandle = (EXTNS_MFC_SET_READONLY)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsMfcSetReadOnlyFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsMfcSetReadOnlyFuncHandle(key, len);
+}
+
+void NfcNciAdaptor::ExtnsSetConnectFlag(bool flagval)
+{
+    const char* pChFuncName = "EXTNS_SetConnectFlag";
+    extnsSetConnectFlagFuncHandle = (EXTNS_SET_CONNECT_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsSetConnectFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    extnsSetConnectFlagFuncHandle(flagval);
+}
+
+bool NfcNciAdaptor::ExtnsGetConnectFlag(void)
+{
+    const char* pChFuncName = "EXTNS_GetConnectFlag";
+    extnsGetConnectFlagFuncHandle = (EXTNS_GET_CONNECT_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsGetConnectFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return false;
+    }
+    return extnsGetConnectFlagFuncHandle();
+}
+
+void NfcNciAdaptor::ExtnsSetDeactivateFlag(bool flagval)
+{
+    const char* pChFuncName = "EXTNS_SetDeactivateFlag";
+    extnsSetDeactivateFlagFuncHandle = (EXTNS_SET_DEACTIVATE_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsSetDeactivateFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    extnsSetDeactivateFlagFuncHandle(flagval);
+}
+
+bool NfcNciAdaptor::ExtnsGetDeactivateFlag(void)
+{
+    const char* pChFuncName = "EXTNS_GetDeactivateFlag";
+    extnsGetDeactivateFlagFuncHandle = (EXTNS_GET_DEACTIVATE_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsGetDeactivateFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return false;
+    }
+    return extnsGetDeactivateFlagFuncHandle();
+}
+
+void NfcNciAdaptor::ExtnsSetCallBackFlag(bool flagval)
+{
+    const char* pChFuncName = "EXTNS_SetCallBackFlag";
+    extnsSetCallBackFlagFuncHandle = (EXTNS_SET_CALLBACK_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsSetCallBackFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    extnsSetCallBackFlagFuncHandle(flagval);
+}
+
+bool NfcNciAdaptor::ExtnsGetCallBackFlag(void)
+{
+    const char* pChFuncName = "EXTNS_GetCallBackFlag";
+    extnsGetCallBackFlagFuncHandle = (EXTNS_GET_CALLBACK_FLAG)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsGetCallBackFlagFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return false;
+    }
+    return extnsGetCallBackFlagFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsCheckMfcResponse(uint8_t** sTransceiveData,
+                                                 uint32_t* sTransceiveDataLen)
+{
+    const char* pChFuncName = "EXTNS_CheckMfcResponse";
+    extnsCheckMfcResponseFuncHandle = (EXTNS_CHECK_MFC_RESPONSE)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsCheckMfcResponseFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsCheckMfcResponseFuncHandle(sTransceiveData, sTransceiveDataLen);
+}
+
+void NfcNciAdaptor::MfcPresenceCheckResult(tNFA_STATUS status)
+{
+    const char* pChFuncName = "MfcPresenceCheckResult";
+    mfcPresenceCheckResultFuncHandle = (MFC_PRESENCE_CHECK_RESULT)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!mfcPresenceCheckResultFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    mfcPresenceCheckResultFuncHandle(status);
+}
+
+void NfcNciAdaptor::MfcResetPresenceCheckStatus(void)
+{
+    const char* pChFuncName = "MfcResetPresenceCheckStatus";
+    mfcResetPresenceCheckStatusFuncHandle = (MFC_RESET_PRESENCE_CHECK_STATUS)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!mfcResetPresenceCheckStatusFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return;
+    }
+    mfcResetPresenceCheckStatusFuncHandle();
+}
+
+tNFA_STATUS NfcNciAdaptor::ExtnsGetPresenceCheckStatus(void)
+{
+    const char* pChFuncName = "EXTNS_GetPresenceCheckStatus";
+    extnsGetPresenceCheckStatusFuncHandle = (EXTNS_GET_PRESENCE_CHECK_STATUS)dlsym(g_pExtMifareLibHandle, pChFuncName);
+    if (!extnsGetPresenceCheckStatusFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return extnsGetPresenceCheckStatusFuncHandle();
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

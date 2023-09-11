@@ -27,6 +27,7 @@ public:
     ~NfcNciAdaptor() override;
     static tNFA_PROPRIETARY_CFG** pNfaProprietaryCfg;
     bool IsNciFuncSymbolFound();
+    bool IsExtMifareFuncSymbolFound();
     void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) override;
     tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) override;
     tNFA_STATUS NfaDisable(bool graceful) override;
@@ -111,6 +112,31 @@ public:
     tNFA_STATUS NfaEeAddSystemCodeRouting(uint16_t systemCode,
                                           tNFA_HANDLE eeHandle,
                                           tNFA_EE_PWR_STATE powerState) override;
+    tNFA_STATUS ExtnsInit(tNFA_DM_CBACK* p_dm_cback, tNFA_CONN_CBACK* p_conn_cback);
+    void ExtnsClose(void);
+    tNFA_STATUS ExtnsMfcInit(tNFA_ACTIVATED &activationData);
+    tNFA_STATUS ExtnsMfcCheckNDef(void);
+    tNFA_STATUS ExtnsMfcReadNDef(void);
+    tNFA_STATUS ExtnsMfcPresenceCheck(void);
+    tNFA_STATUS ExtnsMfcWriteNDef(uint8_t* pBuf, uint32_t len);
+    tNFA_STATUS ExtnsMfcFormatTag(uint8_t* key, uint8_t len);
+    tNFA_STATUS ExtnsMfcDisconnect(void);
+    tNFA_STATUS ExtnsMfcActivated(void);
+    tNFA_STATUS ExtnsMfcTransceive(uint8_t* p_data, uint32_t len);
+    tNFA_STATUS ExtnsMfcRegisterNDefTypeHandler(tNFA_NDEF_CBACK* ndefHandlerCallback);
+    tNFA_STATUS ExtnsMfcCallBack(uint8_t* buf, uint32_t buflen);
+    tNFA_STATUS ExtnsMfcSetReadOnly(uint8_t* key, uint8_t len);
+    void ExtnsSetConnectFlag(bool flagval);
+    bool ExtnsGetConnectFlag(void);
+    void ExtnsSetDeactivateFlag(bool flagval);
+    bool ExtnsGetDeactivateFlag(void);
+    void ExtnsSetCallBackFlag(bool flagval);
+    bool ExtnsGetCallBackFlag(void);
+    tNFA_STATUS ExtnsCheckMfcResponse(uint8_t** sTransceiveData,
+                                      uint32_t* sTransceiveDataLen);
+    void MfcPresenceCheckResult(tNFA_STATUS status);
+    void MfcResetPresenceCheckStatus(void);
+    tNFA_STATUS ExtnsGetPresenceCheckStatus(void);
 
     typedef void (*NFA_INIT)(tHAL_NFC_ENTRY* halEntryTbl);
     typedef tNFA_STATUS (*NFA_ENABLE)(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback);
@@ -192,11 +218,39 @@ public:
     typedef tNFA_STATUS (*NFA_EE_ADD_SYSTEM_CODE_ROUTING)(uint16_t systemCode,
                                                           tNFA_HANDLE eeHandle,
                                                           tNFA_EE_PWR_STATE powerState);
+    
+    // interface define for nfc_ext_mifare
+    typedef tNFA_STATUS (*EXTNS_INIT)(tNFA_DM_CBACK* p_dm_cback, tNFA_CONN_CBACK* p_conn_cback);
+    typedef void (*EXTNS_CLOSE)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_INIT)(tNFA_ACTIVATED &activationData);
+    typedef tNFA_STATUS (*EXTNS_MFC_CHECK_NDEF)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_READ_NDEF)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_PRESENCE_CHECK)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_WRITE_NDEF)(uint8_t* pBuf, uint32_t len);
+    typedef tNFA_STATUS (*EXTNS_MFC_FORMAT_TAG)(uint8_t* key, uint8_t len);
+    typedef tNFA_STATUS (*EXTNS_MFC_DISCONNECT)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_ACTIVATED)(void);
+    typedef tNFA_STATUS (*EXTNS_MFC_TRANSCEIVE)(uint8_t* p_data, uint32_t len);
+    typedef tNFA_STATUS (*EXTNS_MFC_REGISTER_NDEF_TYPE_HANDLER)(tNFA_NDEF_CBACK* ndefHandlerCallback);
+    typedef tNFA_STATUS (*EXTNS_MFC_CALLBACK)(uint8_t* buf, uint32_t buflen);
+    typedef tNFA_STATUS (*EXTNS_MFC_SET_READONLY)(uint8_t* key, uint8_t len);
+    typedef void (*EXTNS_SET_CONNECT_FLAG)(bool flagval);
+    typedef bool (*EXTNS_GET_CONNECT_FLAG)(void);
+    typedef void (*EXTNS_SET_DEACTIVATE_FLAG)(bool flagval);
+    typedef bool (*EXTNS_GET_DEACTIVATE_FLAG)(void);
+    typedef void (*EXTNS_SET_CALLBACK_FLAG)(bool flagval);
+    typedef bool (*EXTNS_GET_CALLBACK_FLAG)(void);
+    typedef tNFA_STATUS (*EXTNS_CHECK_MFC_RESPONSE)(uint8_t** sTransceiveData,
+                                                    uint32_t* sTransceiveDataLen);
+    typedef void (*MFC_PRESENCE_CHECK_RESULT)(tNFA_STATUS status);
+    typedef void (*MFC_RESET_PRESENCE_CHECK_STATUS)(void);
+    typedef tNFA_STATUS (*EXTNS_GET_PRESENCE_CHECK_STATUS)(void);
 
 private:
     void Init();
     bool initialized_ = false;
     bool isNciFuncSymbolFound_ = false;
+    bool isExtMifareFuncSymbolFound_ = false;
 };
 }  // namespace NCI
 }  // namespace NFC

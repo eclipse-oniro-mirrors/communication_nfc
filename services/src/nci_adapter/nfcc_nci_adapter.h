@@ -68,6 +68,7 @@ private:
     tNFA_STATUS StopPolling() const;
     static void DoNfaPollEnabledDisabledEvt();
     static void DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData);
+    static void DoNfaSelectResultEvt();
     static void DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData);
     static void DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData);
     static void DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData);
