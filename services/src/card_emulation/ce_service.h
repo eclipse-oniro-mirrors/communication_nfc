@@ -34,7 +34,7 @@ public:
     static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
 
 private:
-    void NotifyWalletFieldEvent(std::string event);
+    static void NotifyWalletFieldEvent(std::string event);
 
 private:
     uint64_t lastFieldOnTime_ = 0;
