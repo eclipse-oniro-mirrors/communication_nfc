@@ -127,10 +127,9 @@ inline bool AppStateAware::ValidateAppStateData(const AppExecFwk::AppStateData &
     return appStateData.uid > 0 && appStateData.bundleName.length() > 0;
 }
 
-bool AppStateAware::IsForegroundApp(std::string &bundleName)
+bool AppStateAware::IsForegroundApp(std::string bundleName)
 {
     return bundleName == foregroundAppBundleName_;
 }
-
 } // namespace NFC
 } // namespace OHOS
