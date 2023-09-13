@@ -48,6 +48,7 @@ ohos_shared_library("nfc_inner_kits") {
     "src/controller/nfc_controller_callback_stub.cpp",
     "src/controller/nfc_controller_proxy.cpp",
     "src/nfc_basic_proxy.cpp",
+    "src/nfc_data_share_impl.cpp",
     "src/nfc_sa_client.cpp",
     "src/nfc_sdk_common.cpp",
     "src/tags/basic_tag_session.cpp",
@@ -76,7 +77,11 @@ ohos_shared_library("nfc_inner_kits") {
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:dataobs_manager",
     "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
