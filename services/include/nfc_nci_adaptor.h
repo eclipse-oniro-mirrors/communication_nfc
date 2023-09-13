@@ -30,6 +30,7 @@ public:
     void NfaInit(tHAL_NFC_ENTRY* halEntryTbl) override;
     tNFA_STATUS NfaEnable(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback) override;
     tNFA_STATUS NfaDisable(bool graceful) override;
+    tNFA_STATUS NfaRegVSCback(bool isRegster, tNFA_VSC_CBACK* vsCback) override;
     tNFA_STATUS NfaEnablePolling(tNFA_TECHNOLOGY_MASK pollMask) override;
     tNFA_STATUS NfaDisablePolling(void) override;
     tNFA_STATUS NfaEnableListening(void) override;
@@ -115,6 +116,7 @@ public:
     typedef void (*NFA_INIT)(tHAL_NFC_ENTRY* halEntryTbl);
     typedef tNFA_STATUS (*NFA_ENABLE)(tNFA_DM_CBACK* dmCback, tNFA_CONN_CBACK* connCback);
     typedef tNFA_STATUS (*NFA_DISABLE)(bool graceful);
+    typedef tNFA_STATUS (*NFA_REG_VSC_CBACK)(bool isRegster, tNFA_VSC_CBACK* vsCback);
     typedef tNFA_STATUS (*NFA_ENABLE_POLLING)(tNFA_TECHNOLOGY_MASK pollMask);
     typedef tNFA_STATUS (*NFA_DISABLE_POLLING)(void);
     typedef tNFA_STATUS (*NFA_ENABLE_LISTENING)(void);

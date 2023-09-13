@@ -26,6 +26,7 @@ namespace NCI {
 static NfcNciAdaptor::NFA_INIT nfaInitFuncHandle;
 static NfcNciAdaptor::NFA_ENABLE nfaEnableFuncHandle;
 static NfcNciAdaptor::NFA_DISABLE nfaDisableFuncHandle;
+static NfcNciAdaptor::NFA_REG_VSC_CBACK nfaRegVSFuncHandle;
 static NfcNciAdaptor::NFA_ENABLE_POLLING nfaEnablePollingFuncHandle;
 static NfcNciAdaptor::NFA_DISABLE_POLLING nfaDisablePollingFuncHandle;
 static NfcNciAdaptor::NFA_ENABLE_LISTENING nfaEnableListeningFuncHandle;
@@ -168,6 +169,17 @@ tNFA_STATUS NfcNciAdaptor::NfaDisable(bool graceful)
         return NFA_STATUS_FAILED;
     }
     return nfaDisableFuncHandle(graceful);
+}
+
+tNFA_STATUS NfcNciAdaptor::NfaRegVSCback(bool isRegster, tNFA_VSC_CBACK *vsCback)
+{
+    const char* pChFuncName = "NfaRegVSCback";
+    nfaRegVSFuncHandle = (NFA_REG_VSC_CBACK)dlsym(g_pLibHandle, pChFuncName);
+    if (!nfaRegVSFuncHandle) {
+        ErrorLog("cannot find function %{public}s: %{public}s", pChFuncName, dlerror());
+        return NFA_STATUS_FAILED;
+    }
+    return nfaRegVSFuncHandle(isRegster, vsCback);
 }
 
 tNFA_STATUS NfcNciAdaptor::NfaEnablePolling(tNFA_TECHNOLOGY_MASK pollMask)

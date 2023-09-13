@@ -17,12 +17,7 @@
 
 #include "accesstoken_kit.h"
 #include "common_event_handler.h"
-#include "ability_manager_client.h"
-#include "system_ability_definition.h"
-#include "iservice_registry.h"
-#include "app_mgr_interface.h"
 #include "loghelper.h"
-#include "app_state_aware.h"
 
 namespace OHOS {
 namespace NFC {
@@ -31,8 +26,6 @@ const int FIELD_COMMON_EVENT_INTERVAL = 1000;
 const int DEACTIVATE_TIMEOUT = 6000;
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
-const std::string ACTION_WALLET_SWIPE_CARD = "action.com.huawei.hmos.wallet.SWIPE_CARD";
-const std::string WALLET_BUNDLE_NAME = "com.huawei.hmos.wallet";
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService) : nfcService_(nfcService)
 {
@@ -55,27 +48,6 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
     EventFwk::CommonEventManager::PublishCommonEvent(data);
 }
 
-void CeService::NotifyWalletFieldEvent(std::string event)
-{
-    InfoLog("%{public}s", event.c_str());
-    if (AppStateAware::GetInstance()->IsForegroundApp(WALLET_BUNDLE_NAME)) {
-        InfoLog("Wallet is in foreground, return");
-        return;
-    }
-
-    AAFwk::Want want;
-    want.SetAction(ACTION_WALLET_SWIPE_CARD);
-    want.SetParam("event", event);
-    want.SetParam("ability.params.backToOtherMissionStack", true);
-
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
-        ErrorLog("AbilityManagerClient is null");
-        return;
-    }
-    AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
-    InfoLog("call wallet StartAbility end");
-}
-
 void CeService::HandleFieldActivated()
 {
     if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
@@ -90,7 +62,6 @@ void CeService::HandleFieldActivated()
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOnTime_ = currentTime;
         nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
-        NotifyWalletFieldEvent(COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED);
     }
 }
 
