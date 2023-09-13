@@ -27,7 +27,7 @@ public:
     static AppStateAware *GetInstance();
     bool SubscribeAppState();
     bool UnSubscribeAppState();
-    bool IsForegroundApp(std::string &bundleName);
+    bool IsForegroundApp(std::string bundleName);
 
 private:
     AppStateAware();
