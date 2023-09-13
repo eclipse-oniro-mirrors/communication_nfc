@@ -1,0 +1,58 @@
+/*
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef NFC_DATA_SHARE_IMPL_H
+#define NFC_DATA_SHARE_IMPL_H
+
+#include <singleton.h>
+
+#include "datashare_helper.h"
+#include "nfc_sdk_common.h"
+#include "uri.h"
+
+namespace OHOS {
+namespace NFC {
+const std::string NFC_DATA_URI_ID =
+    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=data_key_nfc_state";
+const std::string NFC_DATA_ABILITY_PREFIX = "datashare://";
+const std::string NFC_DATA_URI = NFC_DATA_ABILITY_PREFIX + NFC_DATA_URI_ID;
+const static std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
+const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
+const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
+static const int INVALID_VALUE = -1;
+class NfcDataShareImpl : public DelayedSingleton<NfcDataShareImpl> {
+public:
+    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.INfcState");
+    NfcDataShareImpl();
+    ~NfcDataShareImpl();
+    KITS::ErrorCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+    KITS::ErrorCode UnregisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+    KITS::ErrorCode GetValue(Uri &uri, const std::string &column, int32_t &value);
+    KITS::ErrorCode SetValue(Uri &uri, const std::string &column, int &value);
+    std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
+
+private:
+    void Initialize();
+
+    sptr<IRemoteObject> remoteObj_;
+    std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
+};
+
+class INfcState : public IRemoteBroker {
+public:
+    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.INfcState");
+};
+} // NFC
+} // OHOS
+#endif // NFC_DATA_SHARE_IMPL_H

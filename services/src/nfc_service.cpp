@@ -18,6 +18,7 @@
 #include "common_event_handler.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
+#include "nfc_data_share_impl.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
@@ -358,6 +359,11 @@ void NfcService::UpdateNfcState(int newState)
     }
     NfcPrefImpl::GetInstance().SetInt(PREF_KEY_STATE, newState);
 
+    if (newState == KITS::STATE_OFF || newState == KITS::STATE_ON) {
+        Uri nfcEnableUri(NFC_DATA_URI);
+        DelayedSingleton<NfcDataShareImpl>::GetInstance()->
+            SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, newState);
+    }
     // noitfy the common event for nfc state changed.
     AAFwk::Want want;
     want.SetAction(KITS::COMMON_EVENT_NFC_ACTION_STATE_CHANGED);

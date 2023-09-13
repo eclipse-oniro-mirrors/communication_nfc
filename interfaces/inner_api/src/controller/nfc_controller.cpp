@@ -16,11 +16,12 @@
 
 #include "loghelper.h"
 #include "nfc_controller_callback_stub.h"
+#include "nfc_sa_client.h"
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#include "nfc_sa_client.h"
+#include "nfc_state_change_callback.h"
 
 namespace OHOS {
 namespace NFC {
@@ -32,6 +33,7 @@ sptr<IRemoteObject> NfcController::remote_;
 bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
+static sptr<NfcStateChangeCallback> dataRdbObserver_;
 
 NfcController::NfcController()
 {
@@ -73,7 +75,6 @@ NfcController &NfcController::GetInstance()
 {
     DebugLog("NfcController::GetInstance in.");
     static NfcController instance;
-    InitNfcRemoteSA();
     return instance;
 }
 
@@ -101,6 +102,7 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 // Open NFC
 int NfcController::TurnOn()
 {
+    InitNfcRemoteSA();
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
@@ -110,6 +112,7 @@ int NfcController::TurnOn()
 // Close NFC
 int NfcController::TurnOff()
 {
+    InitNfcRemoteSA();
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
@@ -119,10 +122,15 @@ int NfcController::TurnOff()
 // get NFC state
 int NfcController::GetNfcState()
 {
-    if (nfcControllerService_.expired()) {
-        return NfcState::STATE_OFF;
+    int state = NfcState::STATE_OFF;
+    Uri nfcEnableUri(NFC_DATA_URI);
+    DelayedSingleton<NfcDataShareImpl>::GetInstance()->
+        GetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, state);
+    if (state == NfcState::STATE_ON) {
+        InfoLog("%{public}s: nfc is On, reInitNfcRemoteSA.", __func__);
+        InitNfcRemoteSA();
     }
-    return nfcControllerService_.lock()->GetState();
+    return state;
 }
 
 // check whether NFC is supported
@@ -134,10 +142,8 @@ bool NfcController::IsNfcAvailable()
 // check whether NFC is enabled
 int NfcController::IsNfcOpen(bool &isOpen)
 {
-    if (nfcControllerService_.expired()) {
-        return ErrorCode::ERR_NFC_STATE_UNBIND;
-    }
-    return nfcControllerService_.lock()->IsNfcOpen(isOpen);
+    isOpen = (GetNfcState() == NfcState::STATE_ON);
+    return ErrorCode::ERR_NONE;
 }
 
 // register NFC state change callback
@@ -145,18 +151,28 @@ ErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callbac
     const std::string& type)
 {
     DebugLog("NfcController::RegListener");
-    return nfcControllerService_.lock()->RegisterCallBack(callback, type);
+    Uri nfcEnableUri(NFC_DATA_URI);
+    if (dataRdbObserver_ == nullptr) {
+        dataRdbObserver_ = sptr<NfcStateChangeCallback>(new (std::nothrow) NfcStateChangeCallback(callback));
+    }
+    return DelayedSingleton<NfcDataShareImpl>::GetInstance()->RegisterDataObserver(nfcEnableUri, dataRdbObserver_);
 }
 
 // unregister NFC state change
 ErrorCode NfcController::UnregListener(const std::string& type)
 {
     DebugLog("NfcController::UnregListener");
-    return nfcControllerService_.lock()->UnRegisterCallBack(type);
+    if (dataRdbObserver_ == nullptr) {
+        ErrorLog("NfcController::UnregListener dataRdbObserver_ is nullptr.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    Uri nfcEnableUri(NFC_DATA_URI);
+    return DelayedSingleton<NfcDataShareImpl>::GetInstance()->UnregisterDataObserver(nfcEnableUri, dataRdbObserver_);
 }
 
 OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 {
+    InitNfcRemoteSA();
     return nfcControllerService_.lock()->GetTagServiceIface();
 }
 }  // namespace KITS
