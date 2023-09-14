@@ -42,20 +42,22 @@ public:
     static void HandleActivatedResult();
     static void HandleDeactivatedResult();
     static void HandleFieldCheckResult(unsigned char status);
+    static void HandleSetReadOnlyResult(tNFA_STATUS status);
     static bool IsReconnecting();
     void HandleDiscResult(tNFA_CONN_EVT_DATA* eventData);
 
     // tag connection and read or write.
     void BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData);
-    tNFA_STATUS Connect(int discId, int protocol, int tech);
+    tNFA_STATUS Connect(int idx);
     bool Disconnect();
     bool Reconnect(int discId, int protocol, int tech, bool restart);
-    bool NfaDeactivateAndSelect(int discId, int protocol);
     int Transceive(std::string& request, std::string& response);
-    void SetTimeout(int& timeout, int& technology);
+    void SetTimeout(const int timeout, const int technology);
     int GetTimeout(int technology) const;
     void ResetTimeout();
     void ResetTag();
+    void SetCurrRfInterface(int rfInterface);
+    void SetCurrRfProtocol(int protocol);
 
     // functions for ndef tag only.
     void RegisterNdefHandler();
@@ -72,6 +74,7 @@ public:
     void ResetTagFieldOnFlag();
     void OnRfDiscLock();
     void OffRfDiscLock();
+    bool IsTagDeactivating();
 
     static void AbortWait();
 
@@ -95,6 +98,7 @@ private:
     bool IsDiscTypeF(char discType) const;
     bool IsDiscTypeV(char discType) const;
 
+    static bool IsMifareConnected();
     std::string GetTechPollForTypeB(tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech);
     std::string GetTechActForIsoDep(tNFA_ACTIVATED activated, tNFC_RF_TECH_PARAMS nfcRfTechParams, int tech) const;
     void GetTechFromData(tNFA_ACTIVATED activated);
@@ -103,6 +107,7 @@ private:
     void ParseSpecTagType(tNFA_ACTIVATED activated);
     static void NdefCallback(unsigned char event, tNFA_NDEF_EVT_DATA* eventData);
 
+    bool NfaDeactivateAndSelect(int discId, int protocol, tNFA_INTF_TYPE rfInterface);
     bool Reselect(tNFA_INTF_TYPE rfInterface);
     bool SendReselectReqIfNeed(int protocol, int tech);
     tNFA_STATUS DoSelectForMultiTag(int currIdx);
@@ -118,12 +123,14 @@ private:
     static OHOS::NFC::SynchronizeEvent selectEvent_;
     static OHOS::NFC::SynchronizeEvent activatedEvent_;
     static OHOS::NFC::SynchronizeEvent deactivatedEvent_;
+    static OHOS::NFC::SynchronizeEvent setReadOnlyEvent_;
 
     static bool isTagFieldOn_;
     static bool isReconnecting_;
     static bool isInTransceive_;
     static int t1tMaxMessageSize_;
     static std::string receivedData_;
+    static bool isWaitingDeactRst_;
 
     // const values for Mifare Ultralight
     static const int MANUFACTURER_ID_NXP = 0x04;
@@ -140,20 +147,22 @@ private:
     // tag technology and protocols discovery.
     static const uint32_t MAX_NUM_TECHNOLOGY = 12;
     int technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY + 1] {}; // index equals to the technology value.
-
+    std::vector<std::string> tagPollBytes_ {};
+    std::vector<std::string> tagActivatedBytes_ {};
+    std::vector<int> tagDiscIdListOfDiscResult_ {}; // disc id
+    std::vector<int> tagProtocolsOfDiscResult_ {};  // protocol
+    uint32_t techListIndex_;                        // current tech list index
     static std::shared_ptr<INfcNci> nciAdaptations_;
+
+    // tag technology and protocol data for tag connection.
     std::vector<int> tagTechList_ {};           // tag type
     std::vector<int> tagRfDiscIdList_ {};       // disc id
     std::vector<int> tagActivatedProtocols_ {}; // protocol
-    std::vector<std::string> tagPollBytes_ {};
-    std::vector<std::string> tagActivatedBytes_ {};
-    uint32_t techListIndex_;                             // current tech list index
-    std::vector<int> tagDiscIdListOfDiscResult_ {}; // disc id
-    std::vector<int> tagProtocolsOfDiscResult_ {};  // protocol
     int tagActivatedProtocol_;
     static int connectedProtocol_;
     static int connectedTargetType_;
-    static int connectedTagDiscId_;
+    static int connectedTechIdx_;
+    static int connectedRfIface_;
 
     // spec tag type
     bool isFelicaLite_;
