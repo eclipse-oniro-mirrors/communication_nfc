@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 #include "tag_host.h"
+
 #include <thread>
+#include <unistd.h>
 #include "loghelper.h"
 #include "nfa_api.h"
 #include "nfc_sdk_common.h"
@@ -72,8 +74,7 @@ bool TagHost::Connect(int technology)
         if (connectedTagDiscId_ != tagRfDiscIdList_[i]) {
             if (connectedTagDiscId_ == INVALID_VALUE) {
                 // first connect
-                status = TagNciAdapter::GetInstance().Connect(tagRfDiscIdList_[i],
-                    tagActivatedProtocols_[i], tagTechList_[i]);
+                status = TagNciAdapter::GetInstance().Connect(i);
             } else {
                 reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i],
                     tagTechList_[i], false);
@@ -173,11 +174,7 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
 {
     DebugLog("FieldCheckingThread::Start Field Checking");
     while (isFieldChecking_) {
-        NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
-        bool isNotify = fieldCheckWatchDog_.Wait(delayedMs);
-        if (isNotify || !isTagFieldOn_) {
-            break;
-        }
+        sleep(delayedMs);
         if (isPauseFieldChecking_) {
             continue;
         }

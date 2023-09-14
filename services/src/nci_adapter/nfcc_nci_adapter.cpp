@@ -127,24 +127,36 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
         WarnLog("DoNfaActivatedEvt, invalid arg.");
         return;
     }
-    if (isDisabling_) {
-        return;
-    }
     if (eventData->activated.activate_ntf.protocol == NCI_PROTOCOL_NFC_DEP) {
-        WarnLog("Is peer to peer");
+        WarnLog("DoNfaActivatedEvt: Is peer to peer");
         return;
     }
+    if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
+        && NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag()) {
+        DebugLog("DoNfaActivatedEvt: is mifare connect tag");
+        isTagActive_ = true;
+        TagNciAdapter::GetInstance().HandleActivatedResult();
+        return;
+    }
+    isTagActive_ = true;
+    if (isDisabling_) {
+        WarnLog("DoNfaActivatedEvt: is disabling.");
+        return;
+    }
+    if (TagNciAdapter::GetInstance().IsReconnecting()) {
+        DebugLog("DoNfaActivatedEvt: IsReconnecting.");
+        isTagActive_ = true;
+        TagNciAdapter::GetInstance().HandleActivatedResult();
+        return;
+    }
+    TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
 
     if (eventData->activated.activate_ntf.rf_tech_param.mode < NCI_DISCOVERY_TYPE_LISTEN_A &&
         eventData->activated.activate_ntf.intf_param.type != NFC_INTERFACE_EE_DIRECT_RF) {
-        isTagActive_ = true;
         /* Is polling and is not ee direct rf */
-        if (TagNciAdapter::GetInstance().IsReconnecting()) {
-            DebugLog("isReconnect, %{public}d", TagNciAdapter::GetInstance().IsReconnecting());
-            TagNciAdapter::GetInstance().HandleActivatedResult();
-            return;
-        }
-        TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
+        isTagActive_ = true;
+        TagNciAdapter::GetInstance().SetCurrRfInterface(eventData->activated.activate_ntf.intf_param.type);
+        TagNciAdapter::GetInstance().SetCurrRfProtocol(eventData->activated.activate_ntf.protocol);
         TagNciAdapter::GetInstance().BuildTagInfo(eventData);
     }
     if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 0) {
@@ -155,12 +167,31 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 void NfccNciAdapter::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     TagNciAdapter::GetInstance().SelectTheNextTag();
-    if (eventData->deactivated.type == NFA_DEACTIVATE_TYPE_SLEEP) {
-        DebugLog("Enter sleep mode");
+    if (eventData->deactivated.type != NFA_DEACTIVATE_TYPE_SLEEP) {
+        DebugLog("DoNfaDeactivatedEvt: not sleep mode");
+        isTagActive_ = false;
+        TagNciAdapter::GetInstance().HandleDeactivatedResult();
+        TagNciAdapter::GetInstance().SetDiscRstEvtNum(0);
+        if (!TagNciAdapter::GetInstance().IsReconnecting()) {
+            TagNciAdapter::GetInstance().AbortWait();
+        }
         return;
+    } else if (TagNciAdapter::GetInstance().IsTagDeactivating()) {
+        DebugLog("DoNfaDeactivatedEvt: tag deactivating");
+        isTagActive_ = false;
+        TagNciAdapter::GetInstance().HandleDeactivatedResult();
+    } else if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
+        && NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag()) {
+        DebugLog("DoNfaDeactivatedEvt: mifare tag deactivating");
+        isTagActive_ = false;
+        TagNciAdapter::GetInstance().HandleDeactivatedResult();
+    } else if (!TagNciAdapter::GetInstance().IsReconnecting()) {
+        DebugLog("DoNfaDeactivatedEvt: no reconnecting");
+        isTagActive_ = false;
+        TagNciAdapter::GetInstance().HandleDeactivatedResult();
+    } else {
+        DebugLog("DoNfaDeactivatedEvt: do nothing");
     }
-    TagNciAdapter::GetInstance().HandleDeactivatedResult();
-    isTagActive_ = false;
 }
 
 void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
@@ -182,6 +213,11 @@ void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
         // select the first tag of multiple tags that discovered
         TagNciAdapter::GetInstance().SelectTheFirstTag();
     }
+}
+
+void NfccNciAdapter::DoNfaSelectResultEvt()
+{
+    TagNciAdapter::GetInstance().HandleSelectResult();
 }
 
 void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
@@ -239,7 +275,7 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         }
         case NFA_SELECT_RESULT_EVT: {
             DebugLog("NfaConnectionCallback: NFA_SELECT_RESULT_EVT: status = 0x%{public}X", eventData->status);
-            TagNciAdapter::GetInstance().HandleSelectResult();
+            DoNfaSelectResultEvt();
             break;
         }
         /* Data message received (for non-NDEF reads) */
@@ -374,7 +410,13 @@ void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_
                      eventData->power_mode.status);
             break;
         }
-        
+
+        case NFA_SET_TAG_RO_EVT: {
+            DebugLog("NfaDeviceManagementCallback: NFA_SET_TAG_RO_EVT; status = 0x%{public}X", eventData->status);
+            TagNciAdapter::GetInstance().HandleSetReadOnlyResult(eventData->status);
+            break;
+        }
+
         default: {
             VendorExtService::VendorEventCallback(dmEvent, 0, (char *)(eventData->p_vs_evt_data));
             DebugLog("NfaDeviceManagementCallback: unknown event %{public}d", dmEvent);
@@ -407,6 +449,9 @@ bool NfccNciAdapter::Initialize()
         if (status == NFA_STATUS_OK) {
             nfcEnableEvent_.Wait();
         }
+        if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()) {
+            NfcNciAdaptor::GetInstance().ExtnsInit(NfcDeviceManagementCallback, NfcConnectionCallback);
+        }
     }
 
     NfcNciAdaptor::GetInstance().NfaRegVSCback(true, PrivateNciCallback);
@@ -429,6 +474,9 @@ bool NfccNciAdapter::Initialize()
     ErrorLog("NfccNciAdapter::Initialize: fail nfa enable; error = %{public}d", status);
     if (isNfcEnabled_) {
         /* ungraceful */
+        if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()) {
+            NfcNciAdaptor::GetInstance().ExtnsClose();
+        }
         status = NfcNciAdaptor::GetInstance().NfaDisable(false);
         DebugLog("NfccNciAdapter::Initialize: status = %{public}d", status);
     }
@@ -455,6 +503,9 @@ bool NfccNciAdapter::Deinitialize()
 
     if (isNfcEnabled_) {
         /* graceful */
+        if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()) {
+            NfcNciAdaptor::GetInstance().ExtnsClose();
+        }
         status = NfcNciAdaptor::GetInstance().NfaDisable(true);
         if (status == NFA_STATUS_OK) {
             DebugLog("NfccNciAdapter::Deinitialize: wait for completion");
