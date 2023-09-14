@@ -21,6 +21,7 @@
 #include "routing_manager.h"
 #include "tag_nci_adapter.h"
 #include "vendor_ext_service.h"
+#include "nfc_hisysevent.h"
 
 using namespace OHOS::NFC;
 namespace OHOS {
@@ -85,10 +86,17 @@ void NfccNciAdapter::StartRfDiscovery(bool isStart) const
     }
     if (status == NFA_STATUS_OK) {
         rfEnabled_ = isStart;
+        // Start passive listen success, record event
+        WritePassiveListenHiSysEvent(DEFAULT_COUNT, NOT_COUNT);
         // wait for NFA_RF_DISCOVERY_STARTED_EVT or NFA_RF_DISCOVERY_STOPPED_EVT
         nfcStartStopPollingEvent_.Wait();
     } else {
         DebugLog("NfccNciAdapter::StartRfDiscovery: Failed to start/stop RF discovery; error=0x%{public}X", status);
+        // Start passive listen fail, record events
+        WritePassiveListenHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT);
+        NfcFailedParams* nfcFailedParams = BuildFailedParams(
+            MainErrorCode::PASSIVE_LISTEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
+        WriteNfcFailedHiSysEvent(nfcFailedParams);
     }
 }
 

@@ -28,6 +28,7 @@
 #include "utils/preferences/nfc_pref_impl.h"
 #include "tag_session.h"
 #include "iservice_registry.h"
+#include "nfc_hisysevent.h"
 
 namespace OHOS {
 namespace NFC {
@@ -209,6 +210,11 @@ bool NfcService::DoTurnOn()
         UpdateNfcState(KITS::STATE_OFF);
         // Routing Wake Lock release
         nfcWatchDog.Cancel();
+        // Do turn on failed, openRequestCnt and openFailedCnt = 1, others = 0
+        WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT, NOT_COUNT, NOT_COUNT);
+        // Record failed event
+        NfcFailedParams* nfcFailedParams = BuildFailedParams(MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
+        WriteNfcFailedHiSysEvent(nfcFailedParams);
         return false;
     }
     // Routing Wake Lock release
@@ -231,7 +237,8 @@ bool NfcService::DoTurnOn()
 
     ComputeRoutingParams();
     CommitRouting();
-
+    // Do turn on success, openRequestCnt = 1, others = 0
+    WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
     return true;
 }
 
@@ -265,6 +272,8 @@ bool NfcService::DoTurnOff()
         unloadStaSaTimerId = 0;
     }
     NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
+    // Do turn off success, closeRequestCnt = 1, others = 0
+    WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
     return result;
 }
 

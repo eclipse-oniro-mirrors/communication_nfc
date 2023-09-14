@@ -35,6 +35,9 @@ enum SubErrorCode {
     NCI_RESP_ERROR = 2
 };
 
+const int DEFAULT_COUNT = 1;
+const int NOT_COUNT = 0;
+
 typedef struct {
     MainErrorCode mainErrorCode;
     SubErrorCode subErrorCode;
@@ -53,6 +56,7 @@ void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                              int typeBCnt, int typeFCnt, int typeVCnt);
 void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
 void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
+NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
 }  // namespace NFC
 }  // namespace OHOS
 #endif
