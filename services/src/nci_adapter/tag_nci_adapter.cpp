@@ -466,7 +466,7 @@ void TagNciAdapter::ResetTagFieldOnFlag()
     isTagFieldOn_ = true;
 }
 
-void TagNciAdapter::SetTimeout(int& timeout, int& technology)
+void TagNciAdapter::SetTimeout(const int timeout, const int technology)
 {
     if (technology > 0 && technology <= MAX_NUM_TECHNOLOGY) {
         technologyTimeoutsTable_[technology] = timeout;
