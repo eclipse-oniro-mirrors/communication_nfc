@@ -52,7 +52,7 @@ public:
     bool Reconnect(int discId, int protocol, int tech, bool restart);
     bool NfaDeactivateAndSelect(int discId, int protocol);
     int Transceive(std::string& request, std::string& response);
-    void SetTimeout(int& timeout, int& technology);
+    void SetTimeout(const int timeout, const int technology);
     int GetTimeout(int technology) const;
     void ResetTimeout();
     void ResetTag();
