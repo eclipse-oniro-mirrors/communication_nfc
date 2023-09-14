@@ -112,7 +112,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest002, TestSize.Level1)
 {
     NCI::TagNciAdapter adapterObj = NCI::TagNciAdapter::GetInstance();
 
-    tNFA_STATUS statusConnect = adapterObj.Connect(0, 1, 1);
+    tNFA_STATUS statusConnect = adapterObj.Connect(0);
     EXPECT_TRUE(statusConnect == NFA_STATUS_BUSY);
 
     bool statusDisconnect = adapterObj.Disconnect();
@@ -122,10 +122,6 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest002, TestSize.Level1)
     EXPECT_TRUE(!statusReconnect);
 
     EXPECT_TRUE(!NCI::TagNciAdapter::IsReconnecting());
-
-    EXPECT_TRUE(!adapterObj.NfaDeactivateAndSelect(0, 1));
-    EXPECT_TRUE(!adapterObj.NfaDeactivateAndSelect(0, NFA_PROTOCOL_ISO_DEP));
-    EXPECT_TRUE(!adapterObj.NfaDeactivateAndSelect(0, NFA_PROTOCOL_MIFARE));
 
     adapterObj.ResetTag();
     EXPECT_TRUE(!NCI::TagNciAdapter::IsReconnecting());
