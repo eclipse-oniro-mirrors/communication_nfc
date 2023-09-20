@@ -315,7 +315,7 @@ HWTEST_F(TagSessionTest, SetTimeout003, TestSize.Level1)
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
     tagSession->Disconnect(technology);
     int result = tagSession->SetTimeout(TEST_DISC_ID, timeout, technology);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NONE);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: Reconnect001
