@@ -213,7 +213,8 @@ bool NfcService::DoTurnOn()
         // Do turn on failed, openRequestCnt and openFailedCnt = 1, others = 0
         WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT, NOT_COUNT, NOT_COUNT);
         // Record failed event
-        NfcFailedParams* nfcFailedParams = BuildFailedParams(MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
+        NfcFailedParams* nfcFailedParams = BuildFailedParams(
+            MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
         WriteNfcFailedHiSysEvent(nfcFailedParams);
         return false;
     }
@@ -368,11 +369,8 @@ void NfcService::UpdateNfcState(int newState)
     }
     NfcPrefImpl::GetInstance().SetInt(PREF_KEY_STATE, newState);
 
-    if (newState == KITS::STATE_OFF || newState == KITS::STATE_ON) {
-        Uri nfcEnableUri(NFC_DATA_URI);
-        DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-            SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, newState);
-    }
+    Uri nfcEnableUri(NFC_DATA_URI);
+    DelayedSingleton<NfcDataShareImpl>::GetInstance()->SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, newState);
     // noitfy the common event for nfc state changed.
     AAFwk::Want want;
     want.SetAction(KITS::COMMON_EVENT_NFC_ACTION_STATE_CHANGED);
