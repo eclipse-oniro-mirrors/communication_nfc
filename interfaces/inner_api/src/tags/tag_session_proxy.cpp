@@ -26,7 +26,6 @@ namespace OHOS {
 namespace NFC {
 namespace TAG {
 using OHOS::AppExecFwk::ElementName;
-static ForegroundCallbackStub* g_foregroundCallbackStub = new ForegroundCallbackStub;
 
 int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 {
@@ -269,7 +268,7 @@ KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName element, std:
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
 
-    g_foregroundCallbackStub->RegForegroundDispatch(callback);
+    ForegroundCallbackStub::GetInstance().RegForegroundDispatch(callback);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("RegForegroundDispatch: Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
@@ -282,7 +281,7 @@ KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName element, std:
         ErrorLog("RegForegroundDispatch: Write discTech error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (!data.WriteRemoteObject(g_foregroundCallbackStub->AsObject())) {
+    if (!data.WriteRemoteObject(ForegroundCallbackStub::GetInstance().AsObject())) {
         ErrorLog("RegForegroundDispatch: WriteRemoteObject failed!");
         return KITS::ERR_NFC_PARAMETERS;
     }
