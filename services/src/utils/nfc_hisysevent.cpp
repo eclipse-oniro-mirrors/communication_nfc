@@ -78,7 +78,7 @@ void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
 
 NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
 {
-    NfcFailedParams nfcFailedParams;
+    static NfcFailedParams nfcFailedParams;
     nfcFailedParams.mainErrorCode = mainErrorCode;
     nfcFailedParams.subErrorCode = subErrorCode;
     nfcFailedParams.defaultRoute = 0;
