@@ -737,6 +737,7 @@ int NfccNciAdapter::GetLastError()
 void NfccNciAdapter::Abort()
 {
     DebugLog("NfccNciAdapter::Abort");
+    abort();
 }
 
 bool NfccNciAdapter::CheckFirmware()
