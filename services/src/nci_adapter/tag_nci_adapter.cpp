@@ -487,9 +487,9 @@ bool TagNciAdapter::IsTagFieldOn()
         return true;
     }
 
-    tNFA_STATUS status = NFA_STATUS_FAILED;
     if (IsMifareConnected()) {
         ErrorLog("TagNciAdapter::IsTagFieldOn: is mifare");
+        tNFA_STATUS status = NFA_STATUS_FAILED;
         status = NfcNciAdaptor::GetInstance().ExtnsMfcPresenceCheck();
         if (status == NFA_STATUS_OK) {
             return NfcNciAdaptor::GetInstance().ExtnsGetPresenceCheckStatus();
