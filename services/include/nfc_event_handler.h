@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_EVENT_HANDLER_H
-#define COMMON_EVENT_HANDLER_H
-
+#ifndef NFC_EVENT_HANDLER_H
+#define NFC_EVENT_HANDLER_H
 #include "common_event_manager.h"
 #include "event_handler.h"
 #include "infcc_host.h"
@@ -23,13 +22,13 @@
 
 namespace OHOS {
 namespace NFC {
-class CommonEventHandler final : public AppExecFwk::EventHandler {
+class NfcEventHandler final : public AppExecFwk::EventHandler {
 public:
-    explicit CommonEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
+    explicit NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
                                 std::weak_ptr<NfcService> servcie);
-    ~CommonEventHandler();
-    CommonEventHandler& operator=(const CommonEventHandler&) = delete;
-    CommonEventHandler(const CommonEventHandler&) = delete;
+    ~NfcEventHandler();
+    NfcEventHandler& operator=(const NfcEventHandler&) = delete;
+    NfcEventHandler(const NfcEventHandler&) = delete;
 
     void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService);
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
@@ -53,4 +52,4 @@ private:
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // COMMON_EVENT_HANDLER_H
+#endif  // NFC_EVENT_HANDLER_H

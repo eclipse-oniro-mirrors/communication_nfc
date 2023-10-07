@@ -21,9 +21,6 @@
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
 #include "element_name.h"
-#include "loghelper.h"
-#include "nfc_service.h"
-#include "system_ability.h"
 #include "want.h"
 
 namespace OHOS {
@@ -77,4 +74,4 @@ private:
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // COMMON_EVENT_HANDLER_H
+#endif  // NFC_EVENT_HANDLER_H

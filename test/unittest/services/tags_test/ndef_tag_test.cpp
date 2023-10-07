@@ -35,7 +35,7 @@ public:
 public:
     static constexpr const auto TEST_UID = "0102";
     static constexpr const auto TEST_DISC_ID = 1;
-    static constexpr const auto TEST_NDEF_FORUM_TYPE = NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1;
+    static constexpr const auto TEST_NDEF_FORUM_TYPE = EmNfcForumType::NFC_FORUM_TYPE_1;
     static constexpr const auto TEST_NDEF_TAG_MODE = NdefTag::EmNdefTagMode::MODE_READ_ONLY;
     static constexpr const auto TEST_NDEF_MSG = "ndef";
     static constexpr const auto TEST_NDEF_INDEX = 0;
@@ -107,7 +107,7 @@ HWTEST_F(NdefTagTest, GetTag002, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagType001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    NdefTag::EmNfcForumType ndefTagType = ndef->GetNdefTagType();
+    EmNfcForumType ndefTagType = ndef->GetNdefTagType();
     ASSERT_TRUE(ndefTagType == TEST_NDEF_FORUM_TYPE);
 }
 /**
@@ -230,7 +230,7 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString001, TestSize.Level1)
  */
 HWTEST_F(NdefTagTest, GetNdefTagTypeString002, TestSize.Level1)
 {
-    static constexpr const auto TEST_NDEF_FORUM_TYPE_2 = NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2;
+    static constexpr const auto TEST_NDEF_FORUM_TYPE_2 = EmNfcForumType::NFC_FORUM_TYPE_2;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     std::string typeString = ndef->GetNdefTagTypeString(TEST_NDEF_FORUM_TYPE_2);
     ASSERT_TRUE(typeString == "org.nfcforum.ndef.type2");
@@ -304,7 +304,7 @@ HWTEST_F(NdefTagTest, IsConnected001, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagTypeString003, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3);
+    std::string typeString = ndef->GetNdefTagTypeString(EmNfcForumType::NFC_FORUM_TYPE_3);
     ASSERT_TRUE(typeString == "org.nfcforum.ndef.type3");
 }
 /**
@@ -315,7 +315,7 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString003, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagTypeString004, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4);
+    std::string typeString = ndef->GetNdefTagTypeString(EmNfcForumType::NFC_FORUM_TYPE_4);
     ASSERT_TRUE(typeString == "org.nfcforum.ndef.type4");
 }
 /**
@@ -326,7 +326,7 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString004, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagTypeString005, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::MIFARE_CLASSIC);
+    std::string typeString = ndef->GetNdefTagTypeString(EmNfcForumType::MIFARE_CLASSIC);
     ASSERT_TRUE(typeString == "com.nxp.ndef.mifareclassic");
 }
 /**
@@ -337,7 +337,7 @@ HWTEST_F(NdefTagTest, GetNdefTagTypeString005, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagTypeString006, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::ICODE_SLI);
+    std::string typeString = ndef->GetNdefTagTypeString(EmNfcForumType::ICODE_SLI);
     ASSERT_TRUE(typeString == "com.nxp.ndef.icodesli");
 }
 /**
@@ -395,7 +395,7 @@ HWTEST_F(NdefTagTest, GetTag003, TestSize.Level1)
 HWTEST_F(NdefTagTest, GetNdefTagTypeString007, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
-    std::string typeString = ndef->GetNdefTagTypeString(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN);
+    std::string typeString = ndef->GetNdefTagTypeString(EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN);
     ASSERT_TRUE(typeString == "");
 }
 }

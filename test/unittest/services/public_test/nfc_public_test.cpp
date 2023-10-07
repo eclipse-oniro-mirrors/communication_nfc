@@ -16,8 +16,8 @@
 #include <thread>
 
 #include "nfc_sdk_common.h"
-#include "utils/preferences/nfc_pref_impl.h"
-#include "utils/permission_tools.h"
+#include "nfc_database_helper.h"
+#include "permission_tools.h"
 #include "utils/synchronize_event.h"
 
 namespace OHOS {
@@ -297,7 +297,7 @@ HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
 {
-    OHOS::NFC::NfcPrefImpl *impl = new OHOS::NFC::NfcPrefImpl();
+    OHOS::NFC::NfcDatabaseHelper *impl = new OHOS::NFC::NfcDatabaseHelper();
     impl->SetString("test_key", "test_value");
     std::string value = impl->GetString("test_key");
     ASSERT_TRUE(value == "test_value");

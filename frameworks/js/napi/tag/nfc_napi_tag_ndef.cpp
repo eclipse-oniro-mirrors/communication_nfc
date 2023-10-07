@@ -192,11 +192,11 @@ napi_value NapiNdefTag::GetNdefTagType(napi_env env, napi_callback_info info)
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfo));
     if (status != napi_ok || objectInfo == nullptr || objectInfo->tagSession == nullptr) {
         ErrorLog("GetNdefTagType, napi_unwrap failed, object is null.");
-        napi_create_int32(env, NdefTag::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN, &result);
+        napi_create_int32(env, EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN, &result);
         return result;
     }
 
-    NdefTag::EmNfcForumType nfcForumType = NdefTag::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN;
+    EmNfcForumType nfcForumType = EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN;
     NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
     if (nfcNdefTagPtr == nullptr) {
         ErrorLog("GetNdefTagType, find objectInfo failed!");
@@ -598,7 +598,7 @@ napi_value NapiNdefTag::GetNdefTagTypeString(napi_env env, napi_callback_info in
     }
     napi_value ret = nullptr;
     std::string ndefTagType =
-        nfcNdefTagPtr->GetNdefTagTypeString(static_cast<NdefTag::EmNfcForumType>(type));
+        nfcNdefTagPtr->GetNdefTagTypeString(static_cast<EmNfcForumType>(type));
     napi_create_string_utf8(env, ndefTagType.c_str(), NAPI_AUTO_LENGTH, &ret);
     return ret;
 }

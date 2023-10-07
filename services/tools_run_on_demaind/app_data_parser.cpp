@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 #include "app_data_parser.h"
-#include "common_event_handler.h"
+#include "accesstoken_kit.h"
 #include "common_event_manager.h"
 #include "iservice_registry.h"
+#include "loghelper.h"
+#include "nfc_sdk_common.h"
 #include "system_ability_definition.h"
-#include "accesstoken_kit.h"
+#include "taginfo.h"
 #include "permission_tools.h"
 
 namespace OHOS {
@@ -27,7 +29,7 @@ const std::string KEY_PAYMENT_AID = "payment-aid";
 const std::string KEY_OHTER_AID = "other-aid";
 const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
-static AppDataParser appDataParser_;
+static AppDataParser g_appDataParser;
 
 AppDataParser::AppDataParser()
 {
@@ -41,7 +43,7 @@ AppDataParser::~AppDataParser()
 
 AppDataParser& AppDataParser::GetInstance()
 {
-    return appDataParser_;
+    return g_appDataParser;
 }
 
 sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()

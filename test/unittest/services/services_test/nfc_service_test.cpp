@@ -18,7 +18,7 @@
 #include "nfc_service.h"
 #include <unistd.h>
 #include "app_data_parser.h"
-#include "common_event_handler.h"
+#include "nfc_event_handler.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_polling_params.h"
@@ -26,7 +26,7 @@
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
 #include "want.h"
-#include "utils/preferences/nfc_pref_impl.h"
+#include "nfc_database_helper.h"
 #include "tag_session.h"
 
 namespace OHOS {

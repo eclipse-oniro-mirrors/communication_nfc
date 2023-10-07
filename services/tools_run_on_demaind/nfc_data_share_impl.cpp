@@ -49,28 +49,6 @@ std::shared_ptr<DataShare::DataShareHelper> NfcDataShareImpl::CreateDataShareHel
     return DataShare::DataShareHelper::Creator(remoteObj_, KITS::NFC_DATA_URI);
 }
 
-KITS::ErrorCode NfcDataShareImpl::RegisterDataObserver(
-    const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
-{
-    if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
-    }
-    dataShareHelper_->RegisterObserver(uri, dataObserver);
-    return KITS::ERR_NONE;
-}
-
-KITS::ErrorCode NfcDataShareImpl::UnregisterDataObserver(
-    const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
-{
-    if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
-    }
-    dataShareHelper_->UnregisterObserver(uri, dataObserver);
-    return KITS::ERR_NONE;
-}
-
 KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     if (dataShareHelper_ == nullptr) {
@@ -89,14 +67,43 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
     int32_t columnIndex;
     rows->GetColumnIndex(KITS::NFC_DATA_COLUMN_VALUE, columnIndex);
     std::string valueStr;
-    int32_t ret = rows->GetString(columnIndex, valueStr);
-    if (ret != KITS::ERR_NONE) {
+    int32_t result = rows->GetString(columnIndex, valueStr);
+    if (result != KITS::ERR_NONE) {
         ErrorLog("%{public}s: can't get value.", __func__);
         return KITS::ERR_NFC_DATABASE_RW;
     }
     rows->Close();
     value = atoi(valueStr.c_str());
     InfoLog("%{public}s: success, value = %{public}d.", __func__, value);
+    return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, int &value)
+{
+    if (dataShareHelper_ == nullptr) {
+        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
+    }
+    int oldVal = 0;
+    int errorCode = GetValue(uri, column, oldVal);
+    DataShare::DataShareValueObject keyObj(column);
+    DataShare::DataShareValueObject valueObj(std::to_string(value));
+    DataShare::DataShareValuesBucket bucket;
+    bucket.Put(KITS::NFC_DATA_COLUMN_VALUE, valueObj);
+    bucket.Put(KITS::NFC_DATA_COLUMN_KEYWORD, keyObj);
+    int32_t result;
+    if (errorCode != KITS::ERR_NONE) {
+        result = dataShareHelper_->Insert(uri, bucket);
+    } else {
+        DataShare::DataSharePredicates predicates;
+        predicates.EqualTo(KITS::NFC_DATA_COLUMN_KEYWORD, column);
+        result = dataShareHelper_->Update(uri, predicates, bucket);
+    }
+    // INVALID_VALUE is -1 DataShare's errorCode
+    if (result == INVALID_VALUE) {
+        ErrorLog("%{public}s: can't set value.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
+    }
     return KITS::ERR_NONE;
 }
 } // NFC

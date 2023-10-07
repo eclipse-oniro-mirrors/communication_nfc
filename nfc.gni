@@ -11,4 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NFC_SERVICE_ROOT = "//foundation/communication/nfc"
+NFC_DIR = "//foundation/communication/nfc"

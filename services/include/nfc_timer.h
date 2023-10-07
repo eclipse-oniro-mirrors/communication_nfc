@@ -14,10 +14,8 @@
  */
 #ifndef NFC_TIMER_H
 #define NFC_TIMER_H
-
-#include <functional>
-
 #include "timer.h"
+#include <functional>
 #include "common_timer_errors.h"
 
 namespace OHOS {

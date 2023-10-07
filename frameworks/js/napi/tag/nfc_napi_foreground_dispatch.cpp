@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_napi_foreground_dispatch.h"
-
+#include <mutex>
 #include <uv.h>
 #include "nfc_napi_tag.h"
 #include "nfc_sdk_common.h"
@@ -25,8 +25,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
-
-static std::shared_mutex g_regInfoMutex;
+static std::mutex g_mutex {};
 static RegObj g_eventRegInfo;
 bool ForegroundEventRegister::isEvtRegistered = false;
 
@@ -39,7 +38,7 @@ public:
     template<typename T>
     void CheckAndNotify(const T& obj)
     {
-        std::shared_lock<std::shared_mutex> guard(g_regInfoMutex);
+        std::lock_guard<std::mutex> lock(g_mutex);
         if (!IsForegroundRegistered()) {
             ErrorLog("CheckAndNotify: not registered.");
             return;
@@ -302,7 +301,7 @@ void ForegroundEventRegister::Register(const napi_env &env, ElementName &element
     std::vector<uint32_t> &discTech, napi_value handler)
 {
     InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered);
-    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
+    std::lock_guard<std::mutex> lock(g_mutex);
     if (!isEvtRegistered) {
         if (RegisterForegroundEvents(element, discTech) != KITS::ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Register, reg event failed");
@@ -335,7 +334,7 @@ void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &reg
 
 void ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
 {
-    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
+    std::lock_guard<std::mutex> lock(g_mutex);
     if (!g_eventRegInfo.IsEmpty()) {
         if (UnregisterForegroundEvents(element) != KITS::ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Unregister, unreg event failed.");

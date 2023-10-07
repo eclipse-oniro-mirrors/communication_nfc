@@ -15,20 +15,20 @@
 #include "nfc_service.h"
 #include <unistd.h>
 #include "app_data_parser.h"
-#include "common_event_handler.h"
+#include "nfc_event_handler.h"
 #include "loghelper.h"
-#include "nfc_controller.h"
-#include "nfc_data_share_impl.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
 #include "nfc_timer.h"
 #include "want.h"
-#include "utils/preferences/nfc_pref_impl.h"
+#include "nfc_database_helper.h"
 #include "tag_session.h"
 #include "iservice_registry.h"
 #include "nfc_hisysevent.h"
+#include "infc_controller_callback.h"
+#include "nfc_event_publisher.h"
 
 namespace OHOS {
 namespace NFC {
@@ -73,7 +73,7 @@ bool NfcService::Initialize()
 
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
-    eventHandler_ = std::make_shared<CommonEventHandler>(runner, shared_from_this());
+    eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
     ceService_ = std::make_shared<CeService>(shared_from_this());
@@ -288,8 +288,7 @@ void NfcService::DoInitialize()
     DebugLog("DoInitialize start FactoryReset");
     nfccHost_->FactoryReset();
 
-    int lastState = NfcPrefImpl::GetInstance().GetInt(PREF_KEY_STATE);
-    if (lastState == KITS::STATE_ON) {
+    if (NfcDatabaseHelper::GetInstance().GetNfcState() == KITS::STATE_ON) {
         DoTurnOn();
     }
 }
@@ -367,17 +366,8 @@ void NfcService::UpdateNfcState(int newState)
         }
         nfcState_ = newState;
     }
-    NfcPrefImpl::GetInstance().SetInt(PREF_KEY_STATE, newState);
-
-    Uri nfcEnableUri(NFC_DATA_URI);
-    DelayedSingleton<NfcDataShareImpl>::GetInstance()->SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, newState);
-    // noitfy the common event for nfc state changed.
-    AAFwk::Want want;
-    want.SetAction(KITS::COMMON_EVENT_NFC_ACTION_STATE_CHANGED);
-    want.SetParam(KITS::NFC_EXTRA_STATE, newState);
-    EventFwk::CommonEventData data;
-    data.SetWant(want);
-    EventFwk::CommonEventManager::PublishCommonEvent(data);
+    NfcDatabaseHelper::GetInstance().UpdateNfcState(newState);
+    NfcEventPublisher::PublishNfcStateChanged(newState);
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);

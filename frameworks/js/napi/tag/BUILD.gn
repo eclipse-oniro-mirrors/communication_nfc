@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("../../../../nfc.gni")
 
 ohos_shared_library("tag") {
   sanitize = {
@@ -26,8 +27,9 @@ ohos_shared_library("tag") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
-    "//foundation/communication/nfc/interfaces/inner_api/include",
-    "//foundation/communication/nfc/interfaces/inner_api/include/tags",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/include",
+    "$NFC_DIR/interfaces/inner_api/include/tags",
   ]
 
   sources = [
@@ -47,8 +49,10 @@ ohos_shared_library("tag") {
     "nfc_napi_tagv.cpp",
   ]
 
-  deps =
-      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps = [
+    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+  ]
 
   external_deps = [
     "ability_base:want",

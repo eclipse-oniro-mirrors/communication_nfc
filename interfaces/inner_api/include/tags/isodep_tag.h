@@ -50,7 +50,7 @@ public:
      * @param isSupported the output for checking supportting extended apdu or not.
      * @return the error code of calling function.
      */
-    int IsExtendedApduSupported(bool &isSupported) const;
+    int IsExtendedApduSupported(bool &isSupported);
 
 private:
     std::string historicalBytes_ {};

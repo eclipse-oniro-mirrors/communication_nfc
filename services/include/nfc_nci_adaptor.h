@@ -14,7 +14,6 @@
  */
 #ifndef NFC_NCI_ADAPTOR_H
 #define NFC_NCI_ADAPTOR_H
-
 #include "infc_nci.h"
 
 namespace OHOS {

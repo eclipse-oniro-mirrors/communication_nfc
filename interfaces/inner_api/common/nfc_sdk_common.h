@@ -14,7 +14,6 @@
  */
 #ifndef NFC_SDK_COMMON_H
 #define NFC_SDK_COMMON_H
-
 #include <string>
 #include <vector>
 
@@ -47,6 +46,9 @@ enum ErrorCode : const int {
 
     // error for card emulation operations
     ERR_CE_BASE = 3100300,
+
+    // error for nfc database operations
+    ERR_NFC_DATABASE_RW = 3100400,
 };
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };
@@ -54,6 +56,10 @@ enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING
 enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE };
 
 enum FeatureType { HCE = 0, UICC = 1, ESE = 2 };
+
+/** NFC state changed for common event notification */
+const std::string COMMON_EVENT_NFC_ACTION_STATE_CHANGED = "usual.event.nfc.action.ADAPTER_STATE_CHANGED";
+const std::string NFC_EXTRA_STATE = "ohos.nfc.extra.ADAPTER_STATE";
 
 /** Payment type of card emulation */
 static const std::string TYPE_PAYMENT = "payment";
@@ -67,6 +73,19 @@ const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 /** Action for HCE application declared */
 const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
 
+/** Database key for nfc state. */
+const std::string NFC_DATA_URI_ID =
+    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=data_key_nfc_state";
+const std::string NFC_DATA_ABILITY_PREFIX = "datashare://";
+const std::string NFC_DATA_URI = NFC_DATA_ABILITY_PREFIX + NFC_DATA_URI_ID;
+const std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
+const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
+const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
+
+/** NFC filed on/off common event */
+const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
+const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
+
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,
     NFC_A_TECH = 1,
@@ -78,6 +97,16 @@ enum class TagTechnology {
     NFC_NDEF_FORMATABLE_TECH = 7,
     NFC_MIFARE_CLASSIC_TECH = 8,
     NFC_MIFARE_ULTRALIGHT_TECH = 9
+};
+
+enum EmNfcForumType {
+    NFC_FORUM_TYPE_UNKNOWN = 0,
+    NFC_FORUM_TYPE_1 = 1,
+    NFC_FORUM_TYPE_2 = 2,
+    NFC_FORUM_TYPE_3 = 3,
+    NFC_FORUM_TYPE_4 = 4,
+    MIFARE_CLASSIC = 101,
+    ICODE_SLI = 102
 };
 
 class NfcSdkCommon final {

@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "permission_tools.h"
-
 #include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 

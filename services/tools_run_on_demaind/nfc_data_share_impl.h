@@ -14,7 +14,6 @@
  */
 #ifndef NFC_DATA_SHARE_IMPL_H
 #define NFC_DATA_SHARE_IMPL_H
-
 #include <singleton.h>
 #include "datashare_helper.h"
 #include "nfc_sdk_common.h"
@@ -22,6 +21,9 @@
 
 namespace OHOS {
 namespace NFC {
+const static std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
+const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
+const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
 static const int INVALID_VALUE = -1;
 
 class NfcDataShareImpl : public DelayedSingleton<NfcDataShareImpl> {
@@ -29,8 +31,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"nfc.INfcState");
     NfcDataShareImpl();
     ~NfcDataShareImpl();
-    KITS::ErrorCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-    KITS::ErrorCode UnregisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+
     KITS::ErrorCode GetValue(Uri &uri, const std::string &column, int32_t &value);
     KITS::ErrorCode SetValue(Uri &uri, const std::string &column, int &value);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();

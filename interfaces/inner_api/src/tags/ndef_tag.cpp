@@ -45,7 +45,7 @@ std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
     return std::make_shared<NdefTag>(tag);
 }
 
-NdefTag::EmNfcForumType NdefTag::GetNdefTagType() const
+EmNfcForumType NdefTag::GetNdefTagType() const
 {
     return nfcForumType_;
 }

@@ -94,10 +94,10 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriStr
 
     std::string payload = "00";
     std::string uri = uriString;
-    for (size_t i = 1; i < gUriPrefix.size() - 1; i++) {
-        if (!uriString.compare(0, gUriPrefix[i].size(), gUriPrefix[i])) {
+    for (size_t i = 1; i < g_uriPrefix.size() - 1; i++) {
+        if (!uriString.compare(0, g_uriPrefix[i].size(), g_uriPrefix[i])) {
             payload = NfcSdkCommon::UnsignedCharToHexString(i & 0xFF);
-            uri = uriString.substr(gUriPrefix[i].size());
+            uri = uriString.substr(g_uriPrefix[i].size());
             break;
         }
     }

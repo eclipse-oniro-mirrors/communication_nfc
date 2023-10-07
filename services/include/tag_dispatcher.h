@@ -16,20 +16,18 @@
 #define TAG_DISPATCH_H
 #include <map>
 #include <mutex>
-#include "ability_info.h"
-#include "element_name.h"
+#include "infc_service.h"
 #include "itag_host.h"
 #include "taginfo.h"
+#include "taginfo_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
 class INfcService;
 namespace TAG {
-using AppExecFwk::AbilityInfo;
-using OHOS::AppExecFwk::ElementName;
 class TagDispatcher final {
 public:
-    explicit TagDispatcher(std::shared_ptr<NFC::INfcService> nfcService);
+    explicit TagDispatcher(std::shared_ptr<INfcService> nfcService);
     ~TagDispatcher();
     TagDispatcher(const TagDispatcher&) = delete;
     TagDispatcher& operator=(const TagDispatcher&) = delete;
@@ -37,8 +35,7 @@ public:
     int HandleTagFound(std::shared_ptr<NCI::ITagHost> tag);
     void HandleTagDebounce();
     std::weak_ptr<NCI::ITagHost> FindTagHost(int rfDiscId);
-    void DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo);
-    void DispatchAbilitySingleApp(ElementName &element, std::shared_ptr<KITS::TagInfo> tagInfo);
+
 protected:
     std::shared_ptr<NCI::ITagHost> FindAndRemoveTagHost(int rfDiscId);
     void RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag);
@@ -49,17 +46,13 @@ private:
     KITS::TagInfoParcelable GetTagInfoParcelableFromTag(std::shared_ptr<NCI::ITagHost> tag);
     void DispatchTag(std::shared_ptr<NCI::ITagHost> tag);
     void TagDisconnectedCallback(int tagRfDiscId);
-    std::shared_ptr<NFC::INfcService> nfcService_ {};
-    // Lock
+    std::shared_ptr<INfcService> nfcService_ {};
     std::mutex mutex_ {};
     std::map<int, std::shared_ptr<NCI::ITagHost>> tagHostMap_ {};
+
     // tag field on checking
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
-    const static int DEFAULT_MOTOR_VIBRATOR_ONCE = 500; // ms
-
-    // there is only single tag application matched to be dispatched.
-    const static int TAG_APP_MATCHED_SIZE_SINGLE = 1;
 
     // ndef message
     std::string lastNdefMsg_;

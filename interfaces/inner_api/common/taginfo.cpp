@@ -14,11 +14,9 @@
  */
 #include "taginfo.h"
 #include "loghelper.h"
-#include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
 #include "refbase.h"
-#include "tag_session_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -32,12 +30,8 @@ TagInfo::TagInfo(std::vector<int> tagTechList,
     tagRfDiscId_ = tagRfDiscId;
     tagUid_ = tagUid;
     tagTechList_ = std::move(tagTechList);
-    tagServiceIface_ = tagServiceIface;
     tagTechExtrasData_ = std::move(tagTechExtrasData);
     connectedTagTech_ = KITS::TagTechnology::NFC_INVALID_TECH;
-    if (tagServiceIface != nullptr) {
-        tagSessionProxy_ = new TAG::TagSessionProxy(tagServiceIface);
-    }
 }
 
 TagInfo::~TagInfo()
@@ -56,17 +50,6 @@ bool TagInfo::IsTechSupported(KITS::TagTechnology tech)
         }
     }
     return false;
-}
-
-OHOS::sptr<TAG::ITagSession> TagInfo::GetTagSessionProxy()
-{
-    if (tagSessionProxy_ == nullptr) {
-        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
-        if (iface != nullptr) {
-            tagSessionProxy_ = new TAG::TagSessionProxy(iface);
-        }
-    }
-    return tagSessionProxy_;
 }
 
 std::vector<int> TagInfo::GetTagTechList() const

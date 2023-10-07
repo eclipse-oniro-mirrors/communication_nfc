@@ -87,11 +87,11 @@ static napi_value RegisterEnumNfcForumType(napi_env env, napi_value exports)
     napi_value type3 = nullptr;
     napi_value type4 = nullptr;
     napi_value typeMc = nullptr;
-    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1), &type1);
-    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2), &type2);
-    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_3), &type3);
-    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::NFC_FORUM_TYPE_4), &type4);
-    napi_create_int32(env, static_cast<int32_t>(NdefTag::EmNfcForumType::MIFARE_CLASSIC), &typeMc);
+    napi_create_int32(env, static_cast<int32_t>(EmNfcForumType::NFC_FORUM_TYPE_1), &type1);
+    napi_create_int32(env, static_cast<int32_t>(EmNfcForumType::NFC_FORUM_TYPE_2), &type2);
+    napi_create_int32(env, static_cast<int32_t>(EmNfcForumType::NFC_FORUM_TYPE_3), &type3);
+    napi_create_int32(env, static_cast<int32_t>(EmNfcForumType::NFC_FORUM_TYPE_4), &type4);
+    napi_create_int32(env, static_cast<int32_t>(EmNfcForumType::MIFARE_CLASSIC), &typeMc);
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_1", type1),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_FORUM_TYPE_2", type2),

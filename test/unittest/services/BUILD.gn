@@ -12,18 +12,19 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("../../nfc.gni")
+import("../../../nfc.gni")
 
 config("nfc_service_unit_test_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//foundation/communication/nfc/interfaces/inner_api/include",
-    "//foundation/communication/nfc/interfaces/inner_api/include/controller",
-    "//foundation/communication/nfc/interfaces/inner_api/include/tags",
-    "//foundation/communication/nfc/interfaces/inner_api/include/cardEmulation",
-    "$NFC_SERVICE_ROOT/services/include",
-    "$NFC_SERVICE_ROOT/services/src",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/include",
+    "$NFC_DIR/interfaces/inner_api/include/controller",
+    "$NFC_DIR/interfaces/inner_api/include/tags",
+    "$NFC_DIR/interfaces/inner_api/include/cardEmulation",
+    "$NFC_DIR/services/include",
+    "$NFC_DIR/services/src",
   ]
 
   defines = []
@@ -33,8 +34,10 @@ config("nfc_service_unit_test_config") {
 }
 
 unit_test_deps = [
-  "$NFC_SERVICE_ROOT/services:nfc_service",
-  "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
+  "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+  "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+  "$NFC_DIR/services:nfc_service",
+  "$NFC_DIR/services/tools_run_on_demaind:nfc_tools_on_demaind",
   "//third_party/googletest:gtest_main",
 ]
 

@@ -52,7 +52,7 @@ std::string IsoDepTag::GetHiLayerResponse() const
     return hiLayerResponse_;
 }
 
-int IsoDepTag::IsExtendedApduSupported(bool &isSupported) const
+int IsoDepTag::IsExtendedApduSupported(bool &isSupported)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (!tagSession) {
