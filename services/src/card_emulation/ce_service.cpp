@@ -12,20 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "ce_service.h"
-
-#include "accesstoken_kit.h"
-#include "common_event_handler.h"
-#include "loghelper.h"
+#include "nfc_event_publisher.h"
+#include "nfc_event_handler.h"
 
 namespace OHOS {
 namespace NFC {
-
 const int FIELD_COMMON_EVENT_INTERVAL = 1000;
 const int DEACTIVATE_TIMEOUT = 6000;
-const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
-const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService) : nfcService_(nfcService)
 {
@@ -37,15 +31,7 @@ CeService::~CeService()
 
 void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 {
-    AAFwk::Want want;
-    if (isFieldOn) {
-        want.SetAction(COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED);
-    } else {
-        want.SetAction(COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED);
-    }
-    EventFwk::CommonEventData data;
-    data.SetWant(want);
-    EventFwk::CommonEventManager::PublishCommonEvent(data);
+    NfcEventPublisher::PublishNfcFieldStateChanged(isFieldOn);
 }
 
 void CeService::HandleFieldActivated()

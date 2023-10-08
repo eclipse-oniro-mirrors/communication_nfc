@@ -13,17 +13,18 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-import("../../../../../nfc.gni")
+import("../../../../../../nfc.gni")
 
 ohos_fuzztest("TagSessionStubFuzzTest") {
   module_out_path = "nfc/services"
 
-  fuzz_config_file = "$NFC_SERVICE_ROOT/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstub_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstub_fuzzer"
 
   include_dirs = [
-    "$NFC_SERVICE_ROOT/services/include",
-    "$NFC_SERVICE_ROOT/services/src/tags",
-    "$NFC_SERVICE_ROOT/interfaces/inner_api/include",
+    "$NFC_DIR/services/include",
+    "$NFC_DIR/services/src/tags",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/include",
   ]
 
   cflags = [
@@ -39,8 +40,9 @@ ohos_fuzztest("TagSessionStubFuzzTest") {
   ]
 
   deps = [
-    "$NFC_SERVICE_ROOT/interfaces/inner_api:nfc_inner_kits",
-    "$NFC_SERVICE_ROOT/services:nfc_service",
+    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/services:nfc_service",
   ]
 
   external_deps = [

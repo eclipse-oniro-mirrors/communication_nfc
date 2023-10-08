@@ -14,7 +14,6 @@
  */
 #ifndef PERMISSION_TOOLS_H
 #define PERMISSION_TOOLS_H
-
 #include <string>
 
 namespace OHOS {

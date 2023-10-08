@@ -13,15 +13,17 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../../../nfc.gni")
 
 ohos_fuzztest("MifareUltralightTagFuzzTest") {
   module_out_path = "nfc/services"
 
-  fuzz_config_file = "//foundation/communication/nfc/test/fuzztest/tags_test/mifareultralighttag/mifareultralighttag_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/mifareultralighttag/mifareultralighttag_fuzzer"
 
   include_dirs = [
-    "//foundation/communication/nfc/interfaces/inner_api/include",
-    "//foundation/communication/nfc/interfaces/inner_api/include/tags",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/include",
+    "$NFC_DIR/interfaces/inner_api/include/tags",
   ]
 
   cflags = [
@@ -33,8 +35,10 @@ ohos_fuzztest("MifareUltralightTagFuzzTest") {
 
   sources = [ "mifareultralighttag_fuzzer.cpp" ]
 
-  deps =
-      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps = [
+    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+  ]
 
   external_deps = [
     "ability_base:want",

@@ -23,16 +23,6 @@ namespace NFC {
 namespace KITS {
 class NdefTag final : public BasicTagSession {
 public:
-    enum EmNfcForumType {
-        NFC_FORUM_TYPE_UNKNOWN = 0,
-        NFC_FORUM_TYPE_1 = 1,
-        NFC_FORUM_TYPE_2 = 2,
-        NFC_FORUM_TYPE_3 = 3,
-        NFC_FORUM_TYPE_4 = 4,
-        MIFARE_CLASSIC = 101,
-        ICODE_SLI = 102
-    };
-
     const std::string STRING_NFC_FORUM_TYPE_1 = "org.nfcforum.ndef.type1";
     const std::string STRING_NFC_FORUM_TYPE_2 = "org.nfcforum.ndef.type2";
     const std::string STRING_NFC_FORUM_TYPE_3 = "org.nfcforum.ndef.type3";

@@ -45,7 +45,7 @@ struct RecordLayout {
 
 // URI charactor code defined by NFC Forum
 static const size_t MAX_URI_CODE_NUM = 0x24;
-static std::array<std::string, MAX_URI_CODE_NUM> gUriPrefix = {
+static std::array<std::string, MAX_URI_CODE_NUM> g_uriPrefix = {
     "",                            // NFC Forum define value: 0x00
     "http://www.",                 // NFC Forum define value: 0x01
     "https://www.",                // NFC Forum define value: 0x02
@@ -125,7 +125,7 @@ public:
         RTD_RESERVED,
     };
 public:
-    NdefMessage(std::vector<std::shared_ptr<NdefRecord>> ndefRecords);
+    explicit NdefMessage(std::vector<std::shared_ptr<NdefRecord>> ndefRecords);
     ~NdefMessage();
 
     /**

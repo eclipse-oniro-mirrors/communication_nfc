@@ -12,8 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "common_event_handler.h"
-
+#include "nfc_event_handler.h"
 #include "common_event_support.h"
 #include "itag_host.h"
 #include "loghelper.h"
@@ -21,8 +20,7 @@
 
 namespace OHOS {
 namespace NFC {
-
-class CommonEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
+class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
         const EventFwk::CommonEventSubscribeInfo& subscribeInfo);
@@ -36,7 +34,7 @@ private:
     std::weak_ptr<AppExecFwk::EventHandler> eventHandler_ {};
 };
 
-CommonEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
+NfcEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
     nfcService_(nfcService),
@@ -44,7 +42,7 @@ CommonEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<N
 {
 }
 
-void CommonEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
+void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
 {
     std::string action = data.GetWant().GetAction();
     if (action.empty()) {
@@ -65,7 +63,7 @@ void CommonEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::C
         static_cast<int64_t>(screenState), static_cast<int64_t>(0));
 }
 
-class CommonEventHandler::PackageChangedReceiver : public EventFwk::CommonEventSubscriber {
+class NfcEventHandler::PackageChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit PackageChangedReceiver(std::weak_ptr<NfcService> nfcService,
         const EventFwk::CommonEventSubscribeInfo& subscribeInfo);
@@ -79,7 +77,7 @@ private:
     std::weak_ptr<AppExecFwk::EventHandler> eventHandler_ {};
 };
 
-CommonEventHandler::PackageChangedReceiver::PackageChangedReceiver(std::weak_ptr<NfcService> nfcService,
+NfcEventHandler::PackageChangedReceiver::PackageChangedReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
     nfcService_(nfcService),
@@ -87,9 +85,9 @@ CommonEventHandler::PackageChangedReceiver::PackageChangedReceiver(std::weak_ptr
 {
 }
 
-void CommonEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
+void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
 {
-    DebugLog("CommonEventHandler::PackageChangedReceiver");
+    DebugLog("NfcEventHandler::PackageChangedReceiver");
     std::string action = data.GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");
@@ -105,21 +103,21 @@ void CommonEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::
     }
 }
 
-CommonEventHandler::CommonEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
-                                       std::weak_ptr<NfcService> servcie)
+NfcEventHandler::NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner,
+                                 std::weak_ptr<NfcService> servcie)
     : EventHandler(runner), nfcService_(servcie)
 {
 }
 
-CommonEventHandler::~CommonEventHandler()
+NfcEventHandler::~NfcEventHandler()
 {
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(screenSubscriber_);
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
 }
 
-void CommonEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService)
+void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService)
 {
-    DebugLog("CommonEventHandler::Intialize");
+    DebugLog("NfcEventHandler::Intialize");
     tagDispatcher_ = tagDispatcher;
     ceService_ = ceService;
 
@@ -127,7 +125,7 @@ void CommonEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatch
     SubscribePackageChangedEvent();
 }
 
-void CommonEventHandler::SubscribeScreenChangedEvent()
+void NfcEventHandler::SubscribeScreenChangedEvent()
 {
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON);
@@ -144,7 +142,7 @@ void CommonEventHandler::SubscribeScreenChangedEvent()
     }
 }
 
-void CommonEventHandler::SubscribePackageChangedEvent()
+void NfcEventHandler::SubscribePackageChangedEvent()
 {
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
@@ -162,7 +160,7 @@ void CommonEventHandler::SubscribePackageChangedEvent()
     }
 }
 
-void CommonEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     if (event == nullptr) {
         ErrorLog("event is nullptr");

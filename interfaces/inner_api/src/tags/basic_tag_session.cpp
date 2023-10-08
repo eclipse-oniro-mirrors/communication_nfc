@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 #include "basic_tag_session.h"
-
 #include "loghelper.h"
+#include "nfc_controller.h"
 #include "nfc_sdk_common.h"
+#include "tag_session_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -25,13 +26,15 @@ BasicTagSession::BasicTagSession(std::weak_ptr<TagInfo> tagInfo, KITS::TagTechno
 {
 }
 
-OHOS::sptr<TAG::ITagSession> BasicTagSession::GetTagSessionProxy() const
+OHOS::sptr<TAG::ITagSession> BasicTagSession::GetTagSessionProxy()
 {
-    if (tagInfo_.expired()) {
-        ErrorLog("[BasicTagSession::GetTagSessionProxy] tag is null.");
-        return nullptr;
+    if (tagSessionProxy_ == nullptr) {
+        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
+        if (iface != nullptr) {
+            tagSessionProxy_ = new TAG::TagSessionProxy(iface);
+        }
     }
-    return tagInfo_.lock()->GetTagSessionProxy();
+    return tagSessionProxy_;
 }
 
 int BasicTagSession::Connect()
@@ -120,7 +123,7 @@ int BasicTagSession::SendCommand(std::string& hexCmdData, bool raw, std::string 
     return tagSession->SendRawFrame(GetTagRfDiscId(), hexCmdData, raw, hexRespData);
 }
 
-int BasicTagSession::GetMaxSendCommandLength(int &maxSize) const
+int BasicTagSession::GetMaxSendCommandLength(int &maxSize)
 {
     if (tagInfo_.expired() || (tagTechnology_ == KITS::TagTechnology::NFC_INVALID_TECH)) {
         ErrorLog("GetMaxSendCommandLength ERR_TAG_PARAMETERS");

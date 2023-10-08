@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("../../../../nfc.gni")
 
 ohos_shared_library("controller") {
   sanitize = {
@@ -26,8 +27,8 @@ ohos_shared_library("controller") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
-    "//foundation/communication/nfc/interfaces/inner_api/include",
-    "//foundation/communication/nfc/interfaces/inner_api/include/controller",
+    "$NFC_DIR/interfaces/inner_api/include",
+    "$NFC_DIR/interfaces/inner_api/include/controller",
   ]
 
   sources = [
@@ -37,8 +38,7 @@ ohos_shared_library("controller") {
     "nfc_napi_ctrl_utils.cpp",
   ]
 
-  deps =
-      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps = [ "$NFC_DIR/interfaces/inner_api:nfc_inner_kits" ]
 
   external_deps = [
     "c_utils:utils",

@@ -14,9 +14,6 @@
  */
 #ifndef TAG_INFO_PARCELABLE_H
 #define TAG_INFO_PARCELABLE_H
-
-#include "nfc_basic_proxy.h"
-#include "nfc_sdk_common.h"
 #include "pac_map.h"
 #include "parcel.h"
 
@@ -32,7 +29,7 @@ public:
         OHOS::sptr<IRemoteObject> tagServiceIface);
     ~TagInfoParcelable();
 
-    virtual bool Marshalling(Parcel &parcel) const override;
+    bool Marshalling(Parcel &parcel) const override;
     static TagInfoParcelable *Unmarshalling(Parcel &parcel);
     std::string ToString();
     std::string GetUid();

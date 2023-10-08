@@ -14,10 +14,8 @@
  */
 #ifndef NFC_SERVICE_H
 #define NFC_SERVICE_H
-
 #include <future>
 #include <mutex>
-
 #include "access_token.h"
 #include "ce_service.h"
 #include "common_event_manager.h"
@@ -31,7 +29,7 @@
 
 namespace OHOS {
 namespace NFC {
-class CommonEventHandler;
+class NfcEventHandler;
 class NfcControllerImpl;
 class CeService;
 class NfcStateRegistryRecord {
@@ -129,7 +127,7 @@ private:
 
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_;
     OHOS::sptr<IRemoteObject> tagSessionIface_{};
-    std::shared_ptr<CommonEventHandler> eventHandler_ {};
+    std::shared_ptr<NfcEventHandler> eventHandler_ {};
     std::shared_ptr<CeService> ceService_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     // save current state.
@@ -151,7 +149,7 @@ private:
     friend class NfcControllerImpl;
     friend class TAG::TagDispatcher;
     friend class NfcSaManager;
-    friend class CommonEventHandler;
+    friend class NfcEventHandler;
     friend class CeService;
 };
 }  // namespace NFC

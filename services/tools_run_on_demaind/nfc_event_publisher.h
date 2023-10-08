@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,31 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef CE_SERVICE_H
-#define CE_SERVICE_H
-#include "nfc_service.h"
+#ifndef NFC_EVENT_PUBLISHER
+#define NFC_EVENT_PUBLISHER
 
 namespace OHOS {
 namespace NFC {
-class NfcService;
-class NfcEventHandler;
-class CeService {
+class NfcEventPublisher {
 public:
-    explicit CeService(std::weak_ptr<NfcService> nfcService);
-    ~CeService();
-
-    void HandleFieldActivated();
-    void HandleFieldDeactivated();
-    static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
-
-private:
-    uint64_t lastFieldOnTime_ = 0;
-    uint64_t lastFieldOffTime_ = 0;
-
-    std::weak_ptr<NfcService> nfcService_ {};
-
-    friend class NfcService;
+    static void PublishNfcStateChanged(int newState);
+    static void PublishNfcFieldStateChanged(bool isFiledOn);
 };
 } // NFC
 } // OHOS
-#endif
+#endif // NFC_EVENT_PUBLISHER

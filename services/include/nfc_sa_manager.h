@@ -14,8 +14,7 @@
  */
 #ifndef NFC_SA_MANAGER_H
 #define NFC_SA_MANAGER_H
-
-#include "common_event_handler.h"
+#include "nfc_event_handler.h"
 #include "iservice_registry.h"
 #include "nfc_controller_impl.h"
 #include "nfc_service.h"

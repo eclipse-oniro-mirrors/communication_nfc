@@ -14,13 +14,17 @@
  */
 #ifndef I_NFC_SERVICE_H
 #define I_NFC_SERVICE_H
-
 #include "element_name.h"
+#include "iforeground_callback.h"
 #include "infcc_host.h"
 #include "tag_dispatcher.h"
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
+    class TagDispatcher;
+}
+
 enum class NfcCommonEvent {
     // tags found
     MSG_TAG_FOUND = 0,

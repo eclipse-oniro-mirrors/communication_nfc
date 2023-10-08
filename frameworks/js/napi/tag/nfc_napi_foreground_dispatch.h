@@ -21,7 +21,7 @@
 #include "napi/native_node_api.h"
 #include "nfc_napi_tag_utils.h"
 #include "nfc_sdk_common.h"
-#include "tags/iforeground_callback.h"
+#include "iforeground_callback.h"
 
 namespace OHOS {
 namespace NFC {

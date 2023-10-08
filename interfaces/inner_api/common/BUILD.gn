@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Copyright (C) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,16 +25,10 @@ config("nfc_inner_kits_config") {
 config("nfc_inner_kits_public_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [
-    "common",
-    "include",
-    "include/controller",
-    "include/tags",
-    "include/cardEmulation",
-  ]
+  include_dirs = []
 }
 
-ohos_shared_library("nfc_inner_kits") {
+ohos_shared_library("nfc_inner_kits_common") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -44,44 +38,23 @@ ohos_shared_library("nfc_inner_kits") {
   }
   stack_protector_ret = true
   sources = [
-    "src/cardEmulation/cardEmulation.cpp",
-    "src/controller/nfc_controller.cpp",
-    "src/controller/nfc_controller_callback_stub.cpp",
-    "src/controller/nfc_controller_proxy.cpp",
-    "src/nfc_basic_proxy.cpp",
-    "src/nfc_data_share_impl.cpp",
-    "src/nfc_sa_client.cpp",
-    "src/tags/basic_tag_session.cpp",
-    "src/tags/foreground_callback_stub.cpp",
-    "src/tags/iso15693_tag.cpp",
-    "src/tags/isodep_tag.cpp",
-    "src/tags/mifare_classic_tag.cpp",
-    "src/tags/mifare_ultralight_tag.cpp",
-    "src/tags/ndef_formatable_tag.cpp",
-    "src/tags/ndef_tag.cpp",
-    "src/tags/nfca_tag.cpp",
-    "src/tags/nfcb_tag.cpp",
-    "src/tags/nfcf_tag.cpp",
-    "src/tags/tag_foreground.cpp",
-    "src/tags/tag_session_proxy.cpp",
+    "ndef_message.cpp",
+    "nfc_sdk_common.cpp",
+    "taginfo.cpp",
+    "taginfo_parcelable.cpp",
   ]
 
   configs = [ ":nfc_inner_kits_config" ]
 
   public_configs = [ ":nfc_inner_kits_public_config" ]
 
-  deps = [ "common:nfc_inner_kits_common" ]
+  deps = []
 
   external_deps = [
     "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:dataobs_manager",
     "c_utils:utils",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
 
   part_name = "nfc"

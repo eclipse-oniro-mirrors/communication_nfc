@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFC_PREF_IMPL_H
-#define NFC_PREF_IMPL_H
+#ifndef NFC_DATABASE_HELPER_H
+#define NFC_DATABASE_HELPER_H
 #include "preferences.h"
 #include "preferences_helper.h"
 
 namespace OHOS {
 namespace NFC {
 const static std::string PREF_KEY_STATE = "pref_key_nfc_state";
-class NfcPrefImpl {
+class NfcDatabaseHelper {
 public:
-    NfcPrefImpl();
-    ~NfcPrefImpl();
-    static NfcPrefImpl& GetInstance();
+    NfcDatabaseHelper();
+    ~NfcDatabaseHelper();
+    static NfcDatabaseHelper& GetInstance();
 
     void SetString(const std::string& key, const std::string& value);
     std::string GetString(const std::string& key);
@@ -33,6 +33,9 @@ public:
     void Clear();
     void Delete(const std::string& key);
 
+    void UpdateNfcState(int newState);
+    int GetNfcState();
+
 private:
     std::shared_ptr<NativePreferences::Preferences> GetPreference(const std::string& fileName);
     int errCode_;
@@ -40,4 +43,4 @@ private:
 };
 } // NFC
 } // OHOS
-#endif // NFC_PREF_IMPL_H
+#endif // NFC_DATABASE_HELPER_H

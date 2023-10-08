@@ -14,7 +14,6 @@
  */
 #ifndef NFC_POLLING_PARAMS_H
 #define NFC_POLLING_PARAMS_H
-
 #include <memory>
 
 namespace OHOS {

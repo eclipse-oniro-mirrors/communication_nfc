@@ -17,7 +17,6 @@
 #define OHOS_FOREGROUND_DISPATCH_STUB_H
 
 #include <shared_mutex>
-
 #include "nfc_sdk_common.h"
 #include "iforeground_callback.h"
 #include "iremote_object.h"

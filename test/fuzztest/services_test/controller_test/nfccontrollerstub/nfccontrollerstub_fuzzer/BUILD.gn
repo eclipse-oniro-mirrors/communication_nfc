@@ -13,16 +13,17 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-import("../../../../../nfc.gni")
+import("../../../../../../nfc.gni")
 
 ohos_fuzztest("NfcControllerStubFuzzTest") {
   module_out_path = "nfc/services"
 
-  fuzz_config_file = "$NFC_SERVICE_ROOT/test/fuzztest/services_test/controller_test/nfccontrollerstub/nfccontrollerstub_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/controller_test/nfccontrollerstub/nfccontrollerstub_fuzzer"
 
   include_dirs = [
-    "$NFC_SERVICE_ROOT/services/src/controller",
-    "$NFC_SERVICE_ROOT/interfaces/inner_api/include",
+    "$NFC_DIR/services/src/controller",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/include",
   ]
 
   cflags = [
@@ -35,8 +36,9 @@ ohos_fuzztest("NfcControllerStubFuzzTest") {
   sources = [ "nfccontrollerstub_fuzzer.cpp" ]
 
   deps = [
-    "$NFC_SERVICE_ROOT/interfaces/inner_api:nfc_inner_kits",
-    "$NFC_SERVICE_ROOT/services:nfc_service",
+    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/services:nfc_service",
   ]
 
   external_deps = [

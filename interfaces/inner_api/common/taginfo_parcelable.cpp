@@ -14,8 +14,6 @@
  */
 #include "taginfo_parcelable.h"
 #include "loghelper.h"
-#include "nfc_controller.h"
-#include "nfc_sdk_common.h"
 #include "parcel.h"
 #include "refbase.h"
 

@@ -32,7 +32,7 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto TEST_UID = "0102";
     constexpr const auto TEST_DISC_ID = 1;
-    constexpr const auto TEST_NDEF_FORUM_TYPE = NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1;
+    constexpr const auto TEST_NDEF_FORUM_TYPE = EmNfcForumType::NFC_FORUM_TYPE_1;
     constexpr const auto TEST_NDEF_TAG_MODE = NdefTag::EmNdefTagMode::MODE_READ_ONLY;
     constexpr const auto TEST_NDEF_MSG = "ndef";
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
@@ -103,7 +103,7 @@ namespace OHOS {
             return;
         }
         std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
-        NdefTag::EmNfcForumType emNfcForumType = static_cast<NdefTag::EmNfcForumType>(ConvertToUint32(data));
+        EmNfcForumType emNfcForumType = static_cast<EmNfcForumType>(ConvertToUint32(data));
         ndefTag->GetNdefTagTypeString(emNfcForumType);
     }
 }

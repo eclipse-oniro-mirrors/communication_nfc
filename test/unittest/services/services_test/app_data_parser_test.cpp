@@ -14,16 +14,14 @@
  */
 #include <gtest/gtest.h>
 #include <thread>
-
 #include "app_data_parser.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
-const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
-const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
 class AppDataParserTest : public testing::Test {
 public:
     static void SetUpTestCase();

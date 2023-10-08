@@ -193,16 +193,7 @@ HWTEST_F(TagInfoTest, GetBoolExtrasData001, TestSize.Level1)
     bool boolExtrasData = tagInfo_->GetBoolExtrasData(extrasData, extrasName);
     ASSERT_TRUE(!boolExtrasData);
 }
-/**
- * @tc.name: GetTagSessionProxy001
- * @tc.desc: Test NfcController GetTagSessionProxy.
- * @tc.type: FUNC
- */
-HWTEST_F(TagInfoTest, GetTagSessionProxy001, TestSize.Level1)
-{
-    OHOS::sptr<TAG::ITagSession> tagSessionProxy = tagInfo_->GetTagSessionProxy();
-    ASSERT_TRUE(tagSessionProxy != nullptr);
-}
+
 /**
  * @tc.name: GetStringTech001
  * @tc.desc: Test NfcController GetStringTech.

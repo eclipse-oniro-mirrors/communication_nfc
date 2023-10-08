@@ -12,27 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOREGROUND_DEATH_RECIPIENT_H
-#define FOREGROUND_DEATH_RECIPIENT_H
-#include <unistd.h>
-#include <ipc_object_stub.h>
-#include "tag_session_stub.h"
-#include "access_token.h"
+#ifndef OHOS_I_FOREGROUND_CALLBACK_H
+#define OHOS_I_FOREGROUND_CALLBACK_H
+
+#include <iremote_broker.h>
+#include <string>
+#include <string_ex.h>
+
+#include "message_parcel.h"
+#include "message_option.h"
+#include "taginfo_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
-class ForegroundDeathRecipient : public IRemoteObject::DeathRecipient {
+namespace KITS {
+class IForegroundCallback : public IRemoteBroker {
 public:
-    explicit ForegroundDeathRecipient(sptr<TAG::TagSessionStub> tagSession,
-        Security::AccessToken::AccessTokenID callerToken);
-    ~ForegroundDeathRecipient() = default;
-    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    virtual void OnTagDiscovered(TagInfoParcelable taginfo) = 0; // std::shared_ptr<NdefMessage> msg
 
-private:
-    sptr<TAG::TagSessionStub> tagSession_ = nullptr;
-    Security::AccessToken::AccessTokenID callerToken_;
-    std::mutex mutex_;
+public:
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.IForegroundCallback");
 };
+}  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // FOREGROUND_DEATH_RECIPIENT_H
+#endif
+

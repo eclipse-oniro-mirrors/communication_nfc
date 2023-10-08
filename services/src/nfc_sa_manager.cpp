@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "nfc_sa_manager.h"
-
 #include "loghelper.h"
 #include "system_ability_definition.h"
 

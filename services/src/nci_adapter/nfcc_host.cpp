@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 #include "nfcc_host.h"
-
 #include "infcc_host.h"
 #include "loghelper.h"
-#include "ndef_tag.h"
 #include "nfcc_nci_adapter.h"
 #include "vendor_ext_service.h"
 #include "nfc_nci_adaptor.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -350,8 +349,8 @@ int NfccHost::GetDefaultIsoDepRouteDestination()
 
 bool NfccHost::CanMakeReadOnly(int ndefType)
 {
-    return ndefType == KITS::NdefTag::EmNfcForumType::NFC_FORUM_TYPE_1 ||
-        ndefType == KITS::NdefTag::EmNfcForumType::NFC_FORUM_TYPE_2;
+    return ndefType == KITS::EmNfcForumType::NFC_FORUM_TYPE_1 ||
+        ndefType == KITS::EmNfcForumType::NFC_FORUM_TYPE_2;
 }
 
 bool NfccHost::GetExtendedLengthApdusSupported()

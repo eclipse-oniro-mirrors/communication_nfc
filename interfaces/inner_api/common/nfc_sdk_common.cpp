@@ -119,11 +119,11 @@ uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
     uint32_t value = 0;
     if (bLittleEndian) {
         for (size_t i = SHIFT_TIME; i > 0; i--) {
-            value += (uint32_t)(src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE);
+            value += static_cast<uint32_t>((src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE));
         }
     } else {
         for (size_t i = 0; i < SHIFT_TIME; i++) {
-            value += (uint32_t)(src.at(i)) << (i * SHIFT_SIZE);
+            value += static_cast<uint32_t>((src.at(i)) << (i * SHIFT_SIZE));
         }
     }
     return value;
@@ -166,8 +166,8 @@ uint64_t NfcSdkCommon::GetCurrentTime()
 {
     constexpr int timeRate = 1000;
     struct timeval time = {0};
-    gettimeofday(&time, NULL);
-    return (uint64_t)time.tv_sec * timeRate + (uint64_t)time.tv_usec / timeRate;
+    gettimeofday(&time, nullptr);
+    return static_cast<uint64_t>(time.tv_sec * timeRate + static_cast<uint64_t>(time.tv_usec / timeRate));
 }
 }  // namespace KITS
 }  // namespace NFC

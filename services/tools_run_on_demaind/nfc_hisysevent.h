@@ -12,10 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NFC_HISYSEVENT_H
 #define NFC_HISYSEVENT_H
-
 #include <string>
 
 namespace OHOS {

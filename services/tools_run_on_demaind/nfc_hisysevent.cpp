@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "nfc_hisysevent.h"
 #include "hisysevent.h"
 #include "loghelper.h"
@@ -78,7 +77,7 @@ void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
 
 NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
 {
-    static NfcFailedParams nfcFailedParams;
+    NfcFailedParams nfcFailedParams;
     nfcFailedParams.mainErrorCode = mainErrorCode;
     nfcFailedParams.subErrorCode = subErrorCode;
     nfcFailedParams.defaultRoute = 0;

@@ -14,9 +14,6 @@
  */
 #ifndef TAG_INFO_H
 #define TAG_INFO_H
-
-#include "itag_session.h"
-#include "nfc_basic_proxy.h"
 #include "nfc_sdk_common.h"
 #include "pac_map.h"
 #include "parcel.h"
@@ -44,6 +41,7 @@ public:
     static constexpr const auto NDEF_FORUM_TYPE = "NdefForumType";
     static constexpr const auto NDEF_TAG_LENGTH = "NdefTagLength";
     static constexpr const auto NDEF_TAG_MODE = "NdefTagMode";
+
     // MifareUltralight
     static constexpr const auto MIFARE_ULTRALIGHT_C_TYPE = "MifareUltralightC";
     // Iso15693
@@ -74,7 +72,6 @@ public:
     int GetTagRfDiscId() const;
     KITS::TagTechnology GetConnectedTagTech() const;
     void SetConnectedTagTech(KITS::TagTechnology connectedTagTech);
-    OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();
     static std::string GetStringTech(int tech);
 private:
     int tagRfDiscId_;
@@ -82,12 +79,6 @@ private:
     std::string tagUid_;
     std::vector<int> tagTechList_;
     std::vector<AppExecFwk::PacMap> tagTechExtrasData_;
-
-    OHOS::sptr<IRemoteObject> tagServiceIface_;
-    OHOS::sptr<TAG::ITagSession> tagSessionProxy_;
-    friend class BasicTagSession;
-    friend class NdefTag;
-    friend class NdefFormatableTag;
 };
 }  // namespace KITS
 }  // namespace NFC

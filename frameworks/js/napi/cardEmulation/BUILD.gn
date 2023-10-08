@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("../../../../nfc.gni")
 
 ohos_shared_library("cardemulation") {
   sanitize = {
@@ -26,8 +27,8 @@ ohos_shared_library("cardemulation") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
-    "//foundation/communication/nfc/interfaces/inner_api/include",
-    "//foundation/communication/nfc/interfaces/inner_api/include/cardEmulation",
+    "$NFC_DIR/interfaces/inner_api/include",
+    "$NFC_DIR/interfaces/inner_api/include/cardEmulation",
     "//base/notification/common_event_service/frameworks/core/include",
   ]
 
@@ -36,8 +37,7 @@ ohos_shared_library("cardemulation") {
     "nfc_napi_cardEmulation_adapter.cpp",
   ]
 
-  deps =
-      [ "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits" ]
+  deps = [ "$NFC_DIR/interfaces/inner_api:nfc_inner_kits" ]
 
   external_deps = [
     "c_utils:utils",

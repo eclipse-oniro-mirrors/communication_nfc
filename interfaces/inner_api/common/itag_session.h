@@ -14,9 +14,8 @@
  */
 #ifndef I_TAG_SESSION_H
 #define I_TAG_SESSION_H
-
 #include "element_name.h"
-#include "foreground_callback_stub.h"
+#include "iforeground_callback.h"
 #include "iremote_broker.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
