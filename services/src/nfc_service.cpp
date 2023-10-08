@@ -280,16 +280,15 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
-    // delay 5s to wait for bundle manager ready when device reboot
-    sleep(5);
     eventHandler_->Intialize(tagDispatcher_, ceService_);
     AppDataParser::GetInstance().InitAppList();
 
     DebugLog("DoInitialize start FactoryReset");
     nfccHost_->FactoryReset();
 
-    if (NfcDatabaseHelper::GetInstance().GetNfcState() == KITS::STATE_ON) {
-        DoTurnOn();
+    int lastState = NfcPrefImpl::GetInstance().GetInt(PREF_KEY_STATE);
+    if (lastState == KITS::STATE_ON) {
+        ExecuteTask(KITS::TASK_TURN_ON);
     }
 }
 
