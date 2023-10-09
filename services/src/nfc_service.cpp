@@ -286,7 +286,7 @@ void NfcService::DoInitialize()
     DebugLog("DoInitialize start FactoryReset");
     nfccHost_->FactoryReset();
 
-    int lastState = NfcPrefImpl::GetInstance().GetInt(PREF_KEY_STATE);
+    int lastState = NfcDatabaseHelper::GetInstance().GetInt(PREF_KEY_STATE);
     if (lastState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
     }
