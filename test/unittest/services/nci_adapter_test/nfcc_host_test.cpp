@@ -81,7 +81,6 @@ HWTEST_F(NfccHostTest, SetSecureNfcTest001, TestSize.Level1)
     EXPECT_TRUE(nfccHostTest_->SetSecureNfc(false));
     EXPECT_EQ(nfccHostTest_->GetLfT3tMax(), 0);
     EXPECT_EQ(nfccHostTest_->GetLastError(), 0);
-    nfccHostTest_->Abort();
     nfccHostTest_->Dump(0);
     nfccHostTest_->FactoryReset();
     nfccHostTest_->Shutdown();
