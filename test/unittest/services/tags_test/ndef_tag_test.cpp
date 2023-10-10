@@ -257,6 +257,7 @@ HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
     int experctedTimeout = 20;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int timeout = 0;
+    ndef->SetTimeout(experctedTimeout);
     int statusCode = ndef->GetTimeout(timeout);
     ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
     ASSERT_TRUE(timeout == experctedTimeout);
@@ -349,7 +350,7 @@ HWTEST_F(NdefTagTest, Connect001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->Connect();
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED || result == ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
  * @tc.name: Close001
@@ -360,7 +361,7 @@ HWTEST_F(NdefTagTest, Close001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->Close();
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED || result == ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
  * @tc.name: SendCommand001

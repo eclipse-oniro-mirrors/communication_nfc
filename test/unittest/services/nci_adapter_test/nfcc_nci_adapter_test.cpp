@@ -71,7 +71,6 @@ HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest002, TestSize.Level1)
     NCI::NfccNciAdapter::ClearT3tIdentifiersCache();
     EXPECT_TRUE(NCI::NfccNciAdapter::GetLfT3tMax() == 0);
     EXPECT_TRUE(NCI::NfccNciAdapter::GetLastError() == 0);
-    NCI::NfccNciAdapter::Abort();
     NCI::NfccNciAdapter::IsNfcActive();
     adapterObj.Deinitialize();
     std::string rawData = "00a40400";
