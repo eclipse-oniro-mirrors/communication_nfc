@@ -28,6 +28,7 @@ void NfcEventPublisher::PublishNfcStateChanged(int newState)
     want.SetParam(KITS::NFC_EXTRA_STATE, newState);
     EventFwk::CommonEventData data;
     data.SetWant(want);
+    data.SetCode(newState);
     EventFwk::CommonEventManager::PublishCommonEvent(data);
 }
 
