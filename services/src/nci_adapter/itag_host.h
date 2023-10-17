@@ -64,6 +64,7 @@ public:
     virtual bool FormatNdef(const std::string& key) = 0;
     virtual bool SetNdefReadOnly() = 0;
     virtual bool IsNdefMsgContained(std::vector<int>& ndefInfo) = 0;
+    virtual std::string FindNdefTech() = 0;
 
     // functions for checking the tag field on or not.
     virtual bool FieldOnCheckingThread() = 0;

@@ -80,6 +80,8 @@ private:
     static void NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_DATA* eventData);
     static void PrivateNciCallback(uint8_t event, uint16_t paramLen, uint8_t *param);
     static uint8_t GetDiscovryParam(unsigned char screenState, unsigned char screenStateMask);
+    static bool IsDiscTypeListen(tNFC_ACTIVATE_DEVT& actNtf);
+    static void HandleDiscNtf(tNFC_RESULT_DEVT* discNtf);
 
     static OHOS::NFC::SynchronizeEvent nfcEnableEvent_;
     static OHOS::NFC::SynchronizeEvent nfcDisableEvent_;

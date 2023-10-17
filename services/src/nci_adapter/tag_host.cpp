@@ -32,15 +32,16 @@ TagHost::TagHost(const std::vector<int>& tagTechList,
                  const std::vector<int>& tagActivatedProtocols,
                  const std::string& tagUid,
                  const std::vector<std::string>& tagPollBytes,
-                 const std::vector<std::string>& tagActivatedBytes)
+                 const std::vector<std::string>& tagActivatedBytes,
+                 const int connectedTechIndex)
     : tagTechList_(std::move(tagTechList)),
       tagRfDiscIdList_(std::move(tagRfDiscIdList)),
-      tagActivatedProtocols_(std::move(tagActivatedProtocols)),
+      tagRfProtocols_(std::move(tagActivatedProtocols)),
       tagUid_(tagUid),
       tagPollBytes_(std::move(tagPollBytes)),
       tagActivatedBytes_(std::move(tagActivatedBytes)),
       connectedTagDiscId_(INVALID_VALUE),
-      connectedTechIndex_(INVALID_VALUE),
+      connectedTechIndex_(connectedTechIndex),
       isTagFieldOn_(true),
       isFieldChecking_(false),
       isPauseFieldChecking_(false),
@@ -53,43 +54,34 @@ TagHost::~TagHost()
     tagTechList_.clear();
     technologyList_.clear();
     tagRfDiscIdList_.clear();
-    tagActivatedProtocols_.clear();
+    tagRfProtocols_.clear();
     tagPollBytes_.clear();
     tagActivatedBytes_.clear();
 }
 
 bool TagHost::Connect(int technology)
 {
-    DebugLog("TagHost::Connect");
+    DebugLog("TagHost::Connect tech = %{public}d", technology);
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
+    tNFA_STATUS status = NFA_STATUS_FAILED;
     bool result = false;
-    bool reResult = false;
-    tNFA_STATUS status;
-    for (std::size_t i = 0; i < technologyList_.size(); i++) {
-        if (technology != technologyList_[i]) {
+    for (std::size_t i = 0; i < tagTechList_.size(); i++) {
+        if (technology != tagTechList_[i]) {
             continue;
         }
         // try connect the tag
         if (connectedTagDiscId_ != tagRfDiscIdList_[i]) {
-            if (connectedTagDiscId_ == INVALID_VALUE) {
-                // first connect
-                status = TagNciAdapter::GetInstance().Connect(i);
-            } else {
-                reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i],
-                    tagTechList_[i], false);
-                status = reResult ? NFA_STATUS_OK : NFA_STATUS_FAILED;
-            }
+            status = TagNciAdapter::GetInstance().Connect(i);
         } else {
             if (technology == static_cast<int>(KITS::TagTechnology::NFC_NDEF_TECH)) {
                 // special for ndef
                 i = 0;
             }
-            reResult = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i],
-                tagTechList_[i], false);
-            status = reResult ? NFA_STATUS_OK : NFA_STATUS_FAILED;
+            status = TagNciAdapter::GetInstance().Connect(i);
         }
         if (status == NFA_STATUS_OK) {
+            DebugLog("TagHost::Connect, connected to index = %{public}lu", i);
             connectedTagDiscId_ = tagRfDiscIdList_[i];
             connectedTechIndex_ = static_cast<int>(i);
             isTagFieldOn_ = true;
@@ -122,12 +114,12 @@ bool TagHost::Reconnect()
 {
     DebugLog("TagHost::Reconnect");
     if (connectedTechIndex_ == INVALID_VALUE) {
+        ErrorLog("TagHost::Reconnect invalid tech index");
         return true;
     }
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[connectedTechIndex_],
-        tagActivatedProtocols_[connectedTechIndex_], tagTechList_[connectedTechIndex_], false);
+    bool result = TagNciAdapter::GetInstance().Reconnect();
     ResumeFieldChecking();
     DebugLog("TagHost::Reconnect exit, result = %{public}d", result);
     return result;
@@ -162,23 +154,28 @@ bool TagHost::IsTagFieldOn()
 
 void TagHost::PauseFieldChecking()
 {
+    DebugLog("TagHost::PauseFieldChecking");
     isPauseFieldChecking_ = true;
 }
 
 void TagHost::ResumeFieldChecking()
 {
+    DebugLog("TagHost::ResumeFieldChecking");
     isPauseFieldChecking_ = false;
 }
 
 void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs)
 {
-    DebugLog("FieldCheckingThread::Start Field Checking");
     while (isFieldChecking_) {
-        sleep(delayedMs);
+        NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
         if (isPauseFieldChecking_) {
+            // only wait when checking is paused
+            fieldCheckWatchDog_.Wait(delayedMs);
             continue;
         }
+        fieldCheckWatchDog_.Wait(delayedMs);
         bool result = TagNciAdapter::GetInstance().IsTagFieldOn();
+        DebugLog("FieldCheckingThread::is tag field on = %{public}d", result);
         if (!result) {
             DebugLog("FieldCheckingThread::Tag lost...");
             break;
@@ -445,12 +442,12 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
 std::vector<AppExecFwk::PacMap> TagHost::GetTechExtrasData()
 {
     DebugLog("TagHost::GetTechExtrasData, tech len.%{public}zu", tagTechList_.size());
-    techExtras_.clear();
+    tagTechExtras_.clear();
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
         AppExecFwk::PacMap extra = ParseTechExtras(i);
-        techExtras_.push_back(extra);
+        tagTechExtras_.push_back(extra);
     }
-    return techExtras_;
+    return tagTechExtras_;
 }
 
 int TagHost::GetTagRfDiscId()
@@ -476,57 +473,65 @@ std::string TagHost::ReadNdef()
     DebugLog("TagHost::ReadNdef");
     PauseFieldChecking();
     std::string response = "";
-    this->AddNdefTech();
     std::lock_guard<std::mutex> lock(mutex_);
     TagNciAdapter::GetInstance().ReadNdef(response);
     ResumeFieldChecking();
     return response;
 }
 
-void TagHost::AddNdefTech()
+std::string TagHost::FindNdefTech()
 {
     if (addNdefTech_) {
-        return;
+        return "";
     }
     addNdefTech_ = true;
-    DebugLog("TagHost::AddNdefTech");
-    std::lock_guard<std::mutex> lock(mutex_);
+    DebugLog("TagHost::FindNdefTech");
     bool foundFormat = false;
     int formatHandle = 0;
     int formatLibNfcType = 0;
     uint32_t index = tagTechList_.size();
+    std::string ndefMsg = "";
     for (uint32_t i = 0; i < index; i++) {
-        TagNciAdapter::GetInstance().Reconnect(tagRfDiscIdList_[i], tagActivatedProtocols_[i], tagTechList_[i], false);
-
+        for (uint32_t j = 0; j < i; j++) {
+            if (tagRfDiscIdList_[j] == tagRfDiscIdList_[i]) {
+                continue;
+            }
+        }
+        if (!Connect(tagTechList_[i])) {
+            continue;
+        }
         if (!foundFormat) {
-            if (TagNciAdapter::GetInstance().IsNdefFormattable()) {
+            if (TagNciAdapter::GetInstance().IsNdefFormattable()) { // no need to pause and resume
                 formatHandle = tagRfDiscIdList_[i];
-                formatLibNfcType = tagActivatedProtocols_[i];
+                formatLibNfcType = tagRfProtocols_[i];
                 foundFormat = true;
             }
             Reconnect();
         }
         std::vector<int> ndefInfo;
-        if (TagNciAdapter::GetInstance().IsNdefMsgContained(ndefInfo)) {
+        if (IsNdefMsgContained(ndefInfo)) {
             if (ndefInfo.size() < NDEF_INFO_SIZE) {
-                WarnLog("TagHost::AddNdefTech, invalid size = %{public}zu", ndefInfo.size());
-                return;
+                WarnLog("TagHost::FindNdefTech, invalid size = %{public}zu", ndefInfo.size());
+                return "";
             }
             DebugLog("Add ndef tag info, index: %{public}d", index);
             // parse extras data for ndef tech.
             AppExecFwk::PacMap pacMap;
-            std::string ndefMsg = "";
-            TagNciAdapter::GetInstance().ReadNdef(ndefMsg);
-            pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
-            pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagActivatedProtocols_[i]));
-            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
-                GetNdefType(tagActivatedProtocols_[i]));
-            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[NDEF_SIZE_INDEX]);
-            pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[NDEF_MODE_INDEX]);
-            DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
+            ndefMsg = ReadNdef();
 
-            AddNdefTechToTagInfo(TARGET_TYPE_NDEF, tagRfDiscIdList_[i], tagActivatedProtocols_[i], pacMap);
-            foundFormat = false;
+            if (ndefMsg.size() > 0) {
+                pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
+                pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagRfProtocols_[i]));
+                DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_FORUM_TYPE: %{public}d",
+                    GetNdefType(tagRfProtocols_[i]));
+                pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_LENGTH, ndefInfo[NDEF_SIZE_INDEX]);
+                pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[NDEF_MODE_INDEX]);
+                DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
+
+                AddNdefTechToTagInfo(TARGET_TYPE_NDEF, tagRfDiscIdList_[i], tagRfProtocols_[i], pacMap);
+                foundFormat = false;
+                Reconnect();
+            }
             break;
         }
     }
@@ -535,6 +540,7 @@ void TagHost::AddNdefTech()
         AppExecFwk::PacMap pacMap;
         AddNdefTechToTagInfo(TARGET_TYPE_NDEF_FORMATABLE, formatHandle, formatLibNfcType, pacMap);
     }
+    return ndefMsg;
 }
 
 void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFwk::PacMap pacMap)
@@ -542,7 +548,7 @@ void TagHost::AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFw
     InfoLog("AddNdefTechToTagInfo: tech = %{public}d", tech);
     tagTechList_.push_back(tech);
     tagRfDiscIdList_.push_back(discId);
-    tagActivatedProtocols_.push_back(actProto);
+    tagRfProtocols_.push_back(actProto);
     ndefExtras_ = pacMap; // techExtras_ will be handled in ParseTechExtras()
 }
 

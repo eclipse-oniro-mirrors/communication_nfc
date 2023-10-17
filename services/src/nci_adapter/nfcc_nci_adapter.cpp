@@ -129,98 +129,166 @@ tNFA_STATUS NfccNciAdapter::StopPolling() const
     return status;
 }
 
+bool NfccNciAdapter::IsDiscTypeListen(tNFC_ACTIVATE_DEVT& actNtf)
+{
+    return ((actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_A) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_B) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_F) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_A_ACTIVE) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_F_ACTIVE) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_ISO15693) ||
+            (actNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_LISTEN_B_PRIME) ||
+            (actNtf.intf_param.type == NFC_INTERFACE_EE_DIRECT_RF));
+}
+
 void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     if (eventData == nullptr) {
         WarnLog("DoNfaActivatedEvt, invalid arg.");
         return;
     }
-    if (eventData->activated.activate_ntf.protocol == NCI_PROTOCOL_NFC_DEP) {
-        WarnLog("DoNfaActivatedEvt: Is peer to peer");
+    uint8_t actProto = (tNFA_INTF_TYPE)eventData->activated.activate_ntf.protocol;
+    if (actProto == NFC_PROTOCOL_T5T && TagNciAdapter::GetInstance().GetDiscRstEvtNum()) {
+        // protocol T5T only support single protocol detection
+        DebugLog("DoNfaActivatedEvt, NFC_PROTOCOL_T5T not support multi tag.");
+        TagNciAdapter::GetInstance().SetDiscRstEvtNum(0);
+    }
+#if (NXP_EXTNS == TRUE)
+    TagNciAdapter::GetInstance().isIsoDepDhReqFailed_ = false;
+#endif
+
+    // sync activated iface and proto
+    if ((actProto != NFA_PROTOCOL_NFC_DEP) && !IsDiscTypeListen(eventData->activated.activate_ntf)) {
+        TagNciAdapter::GetInstance().SetCurrRfInterface(
+            (tNFA_INTF_TYPE)eventData->activated.activate_ntf.intf_param.type);
+        TagNciAdapter::GetInstance().SetCurrRfProtocol(actProto);
+#if (NXP_EXTNS == TRUE)
+        uint8_t mode = eventData->activated.activate_ntf.rf_tech_param.mode;
+        TagNciAdapter::GetInstance().SetCurrRfMode(mode);
+        if (mode == NFC_DISCOVERY_TYPE_POLL_B || mode == NFC_DISCOVERY_TYPE_POLL_B_PRIME) {
+            TagNciAdapter::GetInstance().SetNfcID0ForTypeB(
+                eventData->activated.activate_ntf.rf_tech_param.param.pb.nfcid0);
+        }
+#endif
+    }
+
+#if (NXP_EXTNS == TRUE)
+    //clear MulitProto Mifare Tag state on single proto tag activation
+    if (!TagNciAdapter::GetInstance().GetIsMultiTag() &&
+        TagNciAdapter::GetInstance().IsMultiMFCTag()) {
+        TagNciAdapter::GetInstance().ClearMultiMFCTagState();
+    }
+#endif
+
+    // handle ActivatedResult for Mifare tag
+    if (NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag() == true) {
+        TagNciAdapter::GetInstance().SetTagActivated();
+        TagNciAdapter::GetInstance().SetConnectStatus(true);
         return;
     }
-    if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
-        && NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag()) {
-        DebugLog("DoNfaActivatedEvt: is mifare connect tag");
-        isTagActive_ = true;
-        TagNciAdapter::GetInstance().HandleActivatedResult();
+
+    // handle ActivationResult for normal tags
+    if (isDisabling_ || !isNfcEnabled_) {
         return;
     }
     isTagActive_ = true;
-    if (isDisabling_) {
-        WarnLog("DoNfaActivatedEvt: is disabling.");
+#if (NXP_EXTNS != TRUE)
+    TagNciAdapter::GetInstance().SetTagActivated();
+#endif
+    if (TagNciAdapter::GetInstance().IsSwitchingRfIface()) {
+#if (NXP_EXTNS == TRUE)
+        if (TagNciAdapter::GetInstance().IsExpectedActRfProtocol(actProto)) {
+            TagNciAdapter::GetInstance().SetTagActivated();
+        }
+#endif
+        TagNciAdapter::GetInstance().SetConnectStatus(true);
         return;
     }
-    if (TagNciAdapter::GetInstance().IsReconnecting()) {
-        DebugLog("DoNfaActivatedEvt: IsReconnecting.");
-        isTagActive_ = true;
-        TagNciAdapter::GetInstance().HandleActivatedResult();
-        return;
-    }
+#if (NXP_EXTNS == TRUE)
+    TagNciAdapter::GetInstance().SetTagActivated();
+#endif
     TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
 
-    if (eventData->activated.activate_ntf.rf_tech_param.mode < NCI_DISCOVERY_TYPE_LISTEN_A &&
-        eventData->activated.activate_ntf.intf_param.type != NFC_INTERFACE_EE_DIRECT_RF) {
-        /* Is polling and is not ee direct rf */
-        isTagActive_ = true;
-        TagNciAdapter::GetInstance().SetCurrRfInterface(eventData->activated.activate_ntf.intf_param.type);
-        TagNciAdapter::GetInstance().SetCurrRfProtocol(eventData->activated.activate_ntf.protocol);
-        TagNciAdapter::GetInstance().BuildTagInfo(eventData);
-    }
-    if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 0) {
-        NfcNciAdaptor::GetInstance().NfaDeactivate(true);
+    if (actProto == NFA_PROTOCOL_NFC_DEP) {
+        // we do not support peer to peer
+    } else {
+        TagNciAdapter::GetInstance().HandleActivatedResult(eventData);
+        if (TagNciAdapter::GetInstance().GetDiscRstEvtNum()) {
+            // do deactivate to sleep and wait for reselect for multi tag
+            NfcNciAdaptor::GetInstance().NfaDeactivate(true);
+        }
+        // skipped notify secureelement
     }
 }
 
 void NfccNciAdapter::DoNfaDeactivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 {
+    tNFA_DEACTIVATE_TYPE type = eventData->deactivated.type;
+    TagNciAdapter::GetInstance().SetTagDeactivated((type == NFA_DEACTIVATE_TYPE_SLEEP));
     TagNciAdapter::GetInstance().SelectTheNextTag();
     if (eventData->deactivated.type != NFA_DEACTIVATE_TYPE_SLEEP) {
-        DebugLog("DoNfaDeactivatedEvt: not sleep mode");
         isTagActive_ = false;
-        TagNciAdapter::GetInstance().HandleDeactivatedResult();
+#if (NXP_EXTNS == TRUE)
         TagNciAdapter::GetInstance().SetDiscRstEvtNum(0);
-        if (!TagNciAdapter::GetInstance().IsReconnecting()) {
+#endif
+        TagNciAdapter::GetInstance().ResetTagFieldOnFlag();
+#if (NXP_EXTNS == TRUE)
+        if (!TagNciAdapter::GetInstance().IsSwitchingRfIface()) {
+            TagNciAdapter::GetInstance().HandleDeactivatedResult(type);
             TagNciAdapter::GetInstance().AbortWait();
         }
-        return;
+#else
+        TagNciAdapter::GetInstance().HandleDeactivatedResult(type);
+        TagNciAdapter::GetInstance().AbortWait();
+#endif
+        TagNciAdapter::GetInstance().SetIsMultiTag(false);
     } else if (TagNciAdapter::GetInstance().IsTagDeactivating()) {
-        DebugLog("DoNfaDeactivatedEvt: tag deactivating");
-        isTagActive_ = false;
-        TagNciAdapter::GetInstance().HandleDeactivatedResult();
-    } else if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
-        && NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag()) {
-        DebugLog("DoNfaDeactivatedEvt: mifare tag deactivating");
-        isTagActive_ = false;
-        TagNciAdapter::GetInstance().HandleDeactivatedResult();
-    } else if (!TagNciAdapter::GetInstance().IsReconnecting()) {
-        DebugLog("DoNfaDeactivatedEvt: no reconnecting");
-        isTagActive_ = false;
-        TagNciAdapter::GetInstance().HandleDeactivatedResult();
-    } else {
-        DebugLog("DoNfaDeactivatedEvt: do nothing");
+        TagNciAdapter::GetInstance().SetDeactivatedStatus();
+    } else if (NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag()) {
+        TagNciAdapter::GetInstance().SetDeactivatedStatus();
     }
+    // skipped special process for Secure Element transaction
 }
 
 void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
 {
     static tNFA_STATUS status = eventData->disc_result.status;
     DebugLog("DoNfaDiscResultEvt: status = 0x%{public}X", status);
-    if (status != NFA_STATUS_OK) {
+#if (NXP_EXTNS == TRUE)
+    static uint8_t prev_more_val = 0x00;
+    uint8_t cur_more_val = eventData->disc_result.discovery_ntf.more;
+    bool isMoreValid = true;
+    if((cur_more_val == 0x01) && (prev_more_val != 0x02)) {
+        ErrorLog("DoNfaDiscResultEvt: invalid more value");
+        isMoreValid = false;
+    } else {
+        DebugLog("DoNfaDiscResultEvt: valid more value");
+        isMoreValid = true;
+        prev_more_val = cur_more_val;
+    }
+#endif
+    if (!isMoreValid) {
         TagNciAdapter::GetInstance().SetDiscRstEvtNum(0);
     } else {
-        TagNciAdapter::GetInstance().GetMultiTagTechsFromData(eventData->disc_result);
-        TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() + 1);
-        if (eventData->disc_result.discovery_ntf.more == NCI_DISCOVER_NTF_MORE) {
-            return;
-        }
-        if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 1) {
-            TagNciAdapter::GetInstance().SetIsMultiTag(true);
-        }
-        TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() - 1);
-        // select the first tag of multiple tags that discovered
-        TagNciAdapter::GetInstance().SelectTheFirstTag();
+        TagNciAdapter::GetInstance().HandleDiscResult(eventData);
+        HandleDiscNtf(&eventData->disc_result.discovery_ntf);
     }
+}
+
+void NfccNciAdapter::HandleDiscNtf(tNFC_RESULT_DEVT* discNtf)
+{
+    // skipped special process for SAK28 multitag
+    TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() + 1);
+    if (discNtf->more == NCI_DISCOVER_NTF_MORE) {
+        // there is more discovery notification coming
+        return;
+    }
+    if (TagNciAdapter::GetInstance().GetDiscRstEvtNum() > 1) {
+        TagNciAdapter::GetInstance().SetIsMultiTag(true);
+    }
+    TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() - 1);
+    // select the first tag of multiple tags that is discovered
+    TagNciAdapter::GetInstance().SelectTheFirstTag();
 }
 
 void NfccNciAdapter::DoNfaSelectResultEvt()
@@ -325,6 +393,11 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
                                                                eventData->ndef_detect.max_size);
             break;
         }
+        case NFA_SET_TAG_RO_EVT: {
+            DebugLog("NfaDeviceManagementCallback: NFA_SET_TAG_RO_EVT; status = 0x%{public}X", eventData->status);
+            TagNciAdapter::GetInstance().HandleSetReadOnlyResult(eventData->status);
+            break;
+        }
         default: {
             DebugLog("NfaConnectionCallback: unknown event %{public}u", connEvent);
             break;
@@ -416,12 +489,6 @@ void NfccNciAdapter::NfcDeviceManagementCallback(uint8_t dmEvent, tNFA_DM_CBACK_
         case NFA_DM_SET_POWER_SUB_STATE_EVT: {
             DebugLog("NfaDeviceManagementCallback: NFA_DM_SET_POWER_SUB_STATE_EVT; status=0x%{public}X",
                      eventData->power_mode.status);
-            break;
-        }
-
-        case NFA_SET_TAG_RO_EVT: {
-            DebugLog("NfaDeviceManagementCallback: NFA_SET_TAG_RO_EVT; status = 0x%{public}X", eventData->status);
-            TagNciAdapter::GetInstance().HandleSetReadOnlyResult(eventData->status);
             break;
         }
 

@@ -109,7 +109,8 @@ public:
             const std::vector<int>& tagActivatedProtocols,
             const std::string& uid,
             const std::vector<std::string>& tagPollBytes,
-            const std::vector<std::string>& tagActivatedBytes);
+            const std::vector<std::string>& tagActivatedBytes,
+            const int connectedTechIndex);
     ~TagHost() override;
     bool Connect(int technology) override;
     bool Disconnect() override;
@@ -124,13 +125,14 @@ public:
     std::string GetTagUid() override;
     int GetTagRfDiscId() override;
 
-    // functions for nedf tag only.
+    // functions for ndef tag only.
     std::string ReadNdef() override;
     bool WriteNdef(std::string& data) override;
     bool IsNdefFormatable() override;
     bool FormatNdef(const std::string& key) override;
     bool SetNdefReadOnly() override;
     bool IsNdefMsgContained(std::vector<int>& ndefInfo) override;
+    std::string FindNdefTech() override;
 
     // functions for checking the tag field on or not.
     bool FieldOnCheckingThread() override;
@@ -144,7 +146,6 @@ private:
     void FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs);
     void PauseFieldChecking();
     void ResumeFieldChecking();
-    void AddNdefTech();
     void AddNdefTechToTagInfo(int tech, int discId, int actProto, AppExecFwk::PacMap pacMap);
     int GetNdefType(int protocol) const;
     bool IsUltralightC();
@@ -158,22 +159,25 @@ private:
 
     static OHOS::NFC::SynchronizeEvent fieldCheckWatchDog_;
     std::mutex mutex_ {};
-    /* NFC-A NFC-B NFC-F NFC-V... */
+
+    // tag datas for tag dispatcher
     std::vector<int> tagTechList_;
-    std::vector<AppExecFwk::PacMap> techExtras_;
+    std::vector<AppExecFwk::PacMap> tagTechExtras_;
     std::vector<int> tagRfDiscIdList_;
-    std::vector<int> tagActivatedProtocols_;
+    std::vector<int> tagRfProtocols_;
     std::string tagUid_;
     std::vector<std::string> tagPollBytes_;
     std::vector<std::string> tagActivatedBytes_;
-    int connectedTagDiscId_;
-    int connectedTechIndex_;
+
+    // tag connection datas
+    int connectedTagDiscId_; // multiproto card can have different values
+    int connectedTechIndex_; // index to find value in arrays of tag data
     volatile bool isTagFieldOn_;
     volatile bool isFieldChecking_;
     volatile bool isPauseFieldChecking_;
     bool addNdefTech_;
-    /* IsoDep Felica ISO15693... */
     std::vector<int> technologyList_ {};
+
     /* NDEF */
     static const int NDEF_INFO_SIZE = 2; // includes size + mode;
     static const int NDEF_SIZE_INDEX = 0;
