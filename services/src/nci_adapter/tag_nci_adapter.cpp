@@ -151,7 +151,7 @@ TagNciAdapter::TagNciAdapter()
         NfcNciAdaptor::GetInstance().NfcConfigGetBytes(NAME_NXP_NON_STD_CARD_TIMEDIFF, nonStdTimeDiff);
         for (uint8_t i = 0; i < nonStdTimeDiff.size(); i++) {
             multiTagTimeDiff_.push_back(nonStdTimeDiff.at(i) * TIME_MUL_100MS);
-            DebugLog("TagNciAdapter::TagNciAdapter: timediff[%{public}d] = %{public}d", i, nonStdTimeDiff.at(i));    
+            DebugLog("TagNciAdapter::TagNciAdapter: timediff[%{public}d] = %{public}d", i, nonStdTimeDiff.at(i));
         }
     } else {
         DebugLog("TagNciAdapter::TagNciAdapter:timediff not configured, use default");
@@ -537,8 +537,6 @@ void TagNciAdapter::SetCurrRfMode(uint8_t type)
         connectedType_ = TagHost::TARGET_TYPE_ISO14443_3A;
     } else if (type == NFC_DISCOVERY_TYPE_POLL_B || type == NFC_DISCOVERY_TYPE_POLL_B_PRIME) {
         connectedType_ = TagHost::TARGET_TYPE_ISO14443_3B;
-    } else {
-        // connectedType_ = type;
     }
 }
 
@@ -547,7 +545,7 @@ void TagNciAdapter::SetNfcID0ForTypeB(uint8_t* nfcID0)
     DebugLog("TagNciAdapter::SetNfcID0ForTypeB: nfcID0 = %{public}X%{public}X%{public}X%{public}X",
         nfcID0[0], nfcID0[1], nfcID0[2], nfcID0[3]);
     int nfcId0Len = 4;
-    int err = memcpy_s(nfcID0_, 4, &nfcID0[0], nfcId0Len);
+    int err = memcpy_s(nfcID0_, nfcId0Len, &nfcID0[0], nfcId0Len);
     if (err != 0) {
         ErrorLog("TagNciAdapter::SetNfcID0ForTypeB: memcpy_s error: %{public}d", err);
     }
@@ -678,8 +676,8 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
             receivedData_.clear();
             if (IsMifareConnected() && isLegacyMifareReader_) {
                 ErrorLog("TagNciAdapter::Transceive: is mifare");
-                status = NfcNciAdaptor::GetInstance().ExtnsMfcTransceive(static_cast<uint8_t *>(requestInCharVec.data()),
-                    length);
+                status = NfcNciAdaptor::GetInstance().ExtnsMfcTransceive(
+                    static_cast<uint8_t *>(requestInCharVec.data()), length);
             } else {
                 status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(static_cast<uint8_t *>(requestInCharVec.data()),
                     length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
@@ -1540,7 +1538,6 @@ void TagNciAdapter::ResetTag()
     //  special data
 #if (NXP_EXTNS == TRUE)
     NfcNciAdaptor::GetInstance().ExtnsSetConnectFlag(false);
-    // mLastKovioUidLen = 0;
 #endif
 }
 

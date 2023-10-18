@@ -258,7 +258,7 @@ void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
     static uint8_t prev_more_val = 0x00;
     uint8_t cur_more_val = eventData->disc_result.discovery_ntf.more;
     bool isMoreValid = true;
-    if((cur_more_val == 0x01) && (prev_more_val != 0x02)) {
+    if ((cur_more_val == 0x01) && (prev_more_val != 0x02)) {
         ErrorLog("DoNfaDiscResultEvt: invalid more value");
         isMoreValid = false;
     } else {

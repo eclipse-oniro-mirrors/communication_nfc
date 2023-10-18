@@ -518,7 +518,6 @@ std::string TagHost::FindNdefTech()
             // parse extras data for ndef tech.
             AppExecFwk::PacMap pacMap;
             ndefMsg = ReadNdef();
-
             if (ndefMsg.size() > 0) {
                 pacMap.PutStringValue(KITS::TagInfo::NDEF_MSG, ndefMsg);
                 pacMap.PutIntValue(KITS::TagInfo::NDEF_FORUM_TYPE, GetNdefType(tagRfProtocols_[i]));

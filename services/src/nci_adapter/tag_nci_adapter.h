@@ -55,6 +55,8 @@ public:
     static void HandleFieldCheckResult(unsigned char status);
     static void HandleSetReadOnlyResult(tNFA_STATUS status);
     static bool IsReconnecting();
+    static void BuildTagInfo(tNFA_ACTIVATED activated);
+    
     void HandleDiscResult(tNFA_CONN_EVT_DATA* eventData);
     void SetDeactivatedStatus();
     void SetConnectStatus(bool isStatusOk);
@@ -119,7 +121,6 @@ public:
    
 private:
     TagNciAdapter();
-    static void BuildTagInfo(tNFA_ACTIVATED activated);
     static int GetT1tMaxMessageSize(tNFA_ACTIVATED activated);
     static std::string GetUidFromData(tNFA_ACTIVATED activated);
     tNFA_INTF_TYPE GetRfInterface(int protocol) const;
@@ -189,8 +190,8 @@ private:
 
     // tag technology data for tag host and nfcservice.
     static std::vector<int> tagTechList_;
-    static std::vector<int> tagRfDiscIdList_;           // disc id 
-    static std::vector<int> tagRfProtocols_;            // protoco
+    static std::vector<int> tagRfDiscIdList_;           // disc id
+    static std::vector<int> tagRfProtocols_;            // protocol
     static std::vector<std::string> tagPollBytes_;
     static std::vector<std::string> tagActivatedBytes_; // current tech list index
 
@@ -237,7 +238,7 @@ private:
     unsigned int selectedTagIdx_;          // to store the last selected tag index
     std::vector<int> multiTagDiscId_ {};
     std::vector<int> multiTagDiscProtocol_ {};
-    static uint32_t techListIndex_;             // current tech list index 
+    static uint32_t techListIndex_;             // current tech list index
 
     // special vals for special tags
     uint8_t nfcID0_[4] {}; // Type B
