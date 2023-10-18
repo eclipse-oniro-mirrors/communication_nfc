@@ -12,3 +12,4 @@
 # limitations under the License.
 
 NFC_DIR = "//foundation/communication/nfc"
+fuzz_module_out_path = "nfc/nfc"
