@@ -16,7 +16,7 @@ import("//build/test.gni")
 import("../../../../../nfc.gni")
 
 ohos_fuzztest("NfcControllerFuzzTest") {
-  module_out_path = "nfc/services"
+  module_out_path = fuzz_module_out_path
 
   fuzz_config_file = "$NFC_DIR/test/fuzztest/controller_test/nfccontroller/nfccontroller_fuzzer"
 
