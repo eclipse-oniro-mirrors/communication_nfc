@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "tag_nci_adapter.h"
 
+#include <unistd.h>
 #include "loghelper.h"
 #include "nfc_nci_adaptor.h"
 #include "nfc_brcm_defs.h"
@@ -22,11 +23,17 @@
 #include "nfcc_host.h"
 #include "nfcc_nci_adapter.h"
 #include "rw_int.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
 static const int DEFAULT_TIMEOUT = 1000;
+static const int READ_NDEF_TIMEOUT = 5000;
+static const int CHECK_NDEF_TIMEOUT = 3000;
+static const int RETRY_RECONNECT_TIMEOUT = 500;
+static const int T2TA_HALT_PICC_TIMEOUT = 10 * 1000; // US, 10S
+static const int ISO3B_HALT_PICC_TIMEOUT = 100;
 static const int ISO14443_3A_DEFAULT_TIMEOUT = 618;   // NfcA
 static const int ISO14443_3B_DEFAULT_TIMEOUT = 1000;  // NfcB
 static const int ISO14443_4_DEFAULT_TIMEOUT = 618;    // ISO-DEP
@@ -55,8 +62,17 @@ static const int NDEF_MODE_READ_WRITE = 2;
 static const int NDEF_MODE_UNKNOWN = 3;
 static const int WAIT_TIME_FOR_NO_RSP = 4;
 static uint8_t RW_TAG_SLP_REQ[] = {0x50, 0x00};
+#if (NXP_EXTNS == FALSE)
 static uint8_t RW_DESELECT_REQ[] = {0xC2};
+#endif
 static const unsigned int INVALID_TAG_INDEX = 0xFF;
+static uint8_t MIFARE_RESPONSE_LEN = 0x10;  // Mifare response len
+static uint8_t T2T_ACK_RESPONSE = 0x0A; // T2T ack response
+static uint32_t TIME_MUL_100MS = 100; // ms
+static uint8_t MIN_FWI = 0;  // min waiting time integer for protocol frame
+static uint8_t MAX_FWI = 14; // max waiting time integer for protocol frame
+static uint8_t NON_STD_CARD_SAK = 0x13;
+static std::basic_string<uint8_t> receivedData_;
 
 std::mutex TagNciAdapter::rfDiscoveryMutex_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::transceiveEvent_;
@@ -69,17 +85,19 @@ OHOS::NFC::SynchronizeEvent TagNciAdapter::selectEvent_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::activatedEvent_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::deactivatedEvent_;
 OHOS::NFC::SynchronizeEvent TagNciAdapter::setReadOnlyEvent_;
+OHOS::NFC::SynchronizeEvent TagNciAdapter::reconnectEvent_;
 
+uint32_t TagNciAdapter::techListIndex_ = 0;
 bool TagNciAdapter::isTagFieldOn_ = true;
 bool TagNciAdapter::isWaitingDeactRst_ = false;
 int TagNciAdapter::connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
-int TagNciAdapter::connectedTargetType_ = TagHost::TARGET_TYPE_UNKNOWN;
+int TagNciAdapter::connectedType_ = TagHost::TARGET_TYPE_UNKNOWN;
 int TagNciAdapter::connectedTechIdx_ = 0;
 int TagNciAdapter::connectedRfIface_ = NFA_INTERFACE_ISO_DEP;
 bool TagNciAdapter::isReconnecting_ = false;
+bool TagNciAdapter::isReconnected_ = false;
 bool TagNciAdapter::isInTransceive_ = false;
 int TagNciAdapter::t1tMaxMessageSize_ = 0;
-std::string TagNciAdapter::receivedData_ = "";
 int TagNciAdapter::lastNdefCheckedStatus_ = NFA_STATUS_FAILED;
 bool TagNciAdapter::isNdefCapable_ = false;
 int TagNciAdapter::lastCheckedNdefSize_ = 0;
@@ -87,28 +105,63 @@ int TagNciAdapter::lastCheckedNdefMaxSize_ = 0;
 int TagNciAdapter::lastCheckedNdefMode_ = NDEF_MODE_UNKNOWN;
 bool TagNciAdapter::isNdefWriteSuccess_ = false;
 bool TagNciAdapter::isNdefFormatSuccess_ = false;
+bool TagNciAdapter::isNdefReadTimeOut_ = false;
+bool TagNciAdapter::isNdefReading_ = false;
+bool TagNciAdapter::isNdefChecking_ = false;
+bool TagNciAdapter::isLegacyMifareReader_ = true;
+bool TagNciAdapter::isMfcTransRspErr_ = false;
+bool TagNciAdapter::isTransceiveTimeout_ = false;
+bool TagNciAdapter::isMultiTag_ = false;
+bool TagNciAdapter::isFelicaLite_ = false;
+bool TagNciAdapter::isMifareUltralight_ = false;
+bool TagNciAdapter::isMifareDESFire_ = false;
+uint32_t TagNciAdapter::discRstEvtNum_ = 0;
+uint32_t TagNciAdapter::multiTagTmpTechIdx_ = 0;
 unsigned short int TagNciAdapter::ndefTypeHandle_ = NFA_HANDLE_INVALID;
 std::string TagNciAdapter::readNdefData = "";
+std::vector<int> TagNciAdapter::tagTechList_ = std::vector<int>();
+std::vector<int> TagNciAdapter::tagRfDiscIdList_ = std::vector<int>();
+std::vector<int> TagNciAdapter::tagRfProtocols_ = std::vector<int>();
+std::vector<std::string> TagNciAdapter::tagPollBytes_ = std::vector<std::string>();
+std::vector<std::string> TagNciAdapter::tagActivatedBytes_ = std::vector<std::string>();
+int TagNciAdapter::technologyTimeoutsTable_[MAX_NUM_TECHNOLOGY + 1] = {0};
 std::shared_ptr<INfcNci> TagNciAdapter::nciAdaptations_ = nullptr;
 
+uint8_t firstUid[NCI_NFCID1_MAX_LEN] = {0};
+
 TagNciAdapter::TagNciAdapter()
-    : techListIndex_(0),
-      tagActivatedProtocol_(NCI_PROTOCOL_UNKNOWN),
-      isFelicaLite_(false),
-      isMifareUltralight_(false),
-      isMifareDESFire_(false),
-      presChkOption_(NFA_RW_PRES_CHK_DEFAULT),
-      isMultiTag_(false),
-      discRstEvtNum_(0),
+    : presChkOption_(NFA_RW_PRES_CHK_DEFAULT),
       discNtfIndex_(0),
-      multiTagTmpTechIdx_(0),
-      selectedTagIdx_(0)
+      selectedTagIdx_(0),
+      isSkipNdefRead_(false),
+      isMultiProtoMFC_(false)
 {
     ResetTimeout();
+    ResetTag();
     if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_PRESENCE_CHECK_ALGORITHM)) {
         presChkOption_ = NfcNciAdaptor::GetInstance().NfcConfigGetUnsigned(NAME_PRESENCE_CHECK_ALGORITHM);
+    }
+    if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_LEGACY_MIFARE_READER)) {
+        isLegacyMifareReader_ = (NfcNciAdaptor::GetInstance().NfcConfigGetUnsigned(NAME_LEGACY_MIFARE_READER) != 0);
     } else {
-        presChkOption_ = NFA_RW_PRES_CHK_ISO_DEP_NAK; // to be removed when read config from hdiimpl enabled
+        isLegacyMifareReader_ = true;
+    }
+    if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_NXP_NON_STD_CARD_TIMEDIFF)) {
+        std::vector<uint8_t> nonStdTimeDiff;
+        NfcNciAdaptor::GetInstance().NfcConfigGetBytes(NAME_NXP_NON_STD_CARD_TIMEDIFF, nonStdTimeDiff);
+        for (uint8_t i = 0; i < nonStdTimeDiff.size(); i++) {
+            multiTagTimeDiff_.push_back(nonStdTimeDiff.at(i) * TIME_MUL_100MS);
+            DebugLog("TagNciAdapter::TagNciAdapter: timediff[%{public}d] = %{public}d", i, nonStdTimeDiff.at(i));
+        }
+    } else {
+        DebugLog("TagNciAdapter::TagNciAdapter:timediff not configured, use default");
+        multiTagTimeDiff_.push_back(100); // default time diff for Mifare Tag
+        multiTagTimeDiff_.push_back(300); // default time diff for ISODEP
+    }
+    if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_NXP_SUPPORT_NON_STD_CARD)) {
+        isMultiTagSupported_ = (NfcNciAdaptor::GetInstance().NfcConfigGetUnsigned(NAME_LEGACY_MIFARE_READER) != 0);
+    } else {
+        isMultiTagSupported_ = false;
     }
 }
 
@@ -116,13 +169,14 @@ TagNciAdapter::~TagNciAdapter()
 {
     tagTechList_.clear();
     tagRfDiscIdList_.clear();
-    tagActivatedProtocols_.clear();
+    tagRfProtocols_.clear();
     tagPollBytes_.clear();
     tagActivatedBytes_.clear();
-    tagDiscIdListOfDiscResult_.clear();
-    tagProtocolsOfDiscResult_.clear();
+    multiTagDiscId_.clear();
+    multiTagDiscProtocol_.clear();
+    receivedData_.clear();
     techListIndex_ = 0;
-    tagActivatedProtocol_ = NCI_PROTOCOL_UNKNOWN;
+    connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     isFelicaLite_ = false;
     isMifareUltralight_ = false;
     isMifareDESFire_ = false;
@@ -131,6 +185,7 @@ TagNciAdapter::~TagNciAdapter()
     discNtfIndex_ = 0;
     multiTagTmpTechIdx_ = 0;
     selectedTagIdx_ = 0;
+    isMultiProtoMFC_ = false;
 };
 
 TagNciAdapter& TagNciAdapter::GetInstance()
@@ -175,47 +230,50 @@ void TagNciAdapter::RegisterNdefHandler()
     DebugLog("TagNciAdapter::RegisterNdefHandler");
     ndefTypeHandle_ = NFA_HANDLE_INVALID;
     NfcNciAdaptor::GetInstance().NfaRegisterNDefTypeHandler(true, NFA_TNF_DEFAULT, (unsigned char*)"", 0, NdefCallback);
+    if (isLegacyMifareReader_) {
+        NfcNciAdaptor::GetInstance().ExtnsMfcRegisterNDefTypeHandler(NdefCallback);
+    }
 }
 
 tNFA_STATUS TagNciAdapter::Connect(int idx)
 {
+    if (idx >= MAX_NUM_TECHNOLOGY) {
+        return NFA_STATUS_FAILED;
+    }
     if (!IsTagActive()) {
-        return NFA_STATUS_BUSY;
+        return NFA_STATUS_FAILED;
     }
+    connectedType_ = tagTechList_[idx];
+    connectedProtocol_ = tagRfProtocols_[idx];
     int discId = tagRfDiscIdList_[idx];
-    int tech = tagTechList_[idx];
     connectedTechIdx_ = idx;
-    connectedProtocol_ = tagActivatedProtocols_[idx];
-    tNFA_INTF_TYPE rfInterface = GetRfInterface(connectedProtocol_);
-    DebugLog("TagNciAdapter::Connect: discId: %{public}d, protocol: %{public}d, tech: %{public}d",
-        discId, connectedProtocol_, tech);
-    
-    if (tech != connectedTargetType_) {
-        connectedTargetType_ = tech;
-        return (Reconnect(discId, connectedProtocol_, tech, true) ? NFA_STATUS_OK : NFA_STATUS_FAILED);
+    InfoLog("TagNciAdapter::Connect: index: %{public}d, discId: %{public}d, "
+        "targetProto_: %{public}d, targetType_: %{public}d",
+        idx, discId, connectedProtocol_, connectedType_);
+#if (NXP_EXTNS == TRUE)
+    if (connectedProtocol_ == NFC_PROTOCOL_T3BT) {
+        return NFA_STATUS_FAILED;
     }
-
-    connectedTargetType_ = tech;
-    NFC::SynchronizeGuard guard(selectEvent_);
-    rfDiscoveryMutex_.lock();
-    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaSelect(
-        (uint8_t)discId, (tNFA_NFC_PROTOCOL)connectedProtocol_, rfInterface);
-    if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::Connect: select fail; error = 0x%{public}X", status);
-        rfDiscoveryMutex_.unlock();
-        return status;
+#endif
+    if (connectedProtocol_ != NFC_PROTOCOL_ISO_DEP && connectedProtocol_ != NFC_PROTOCOL_MIFARE) {
+        DebugLog("TagNciAdapter::Connect: do nothing for non ISO_DEP");
+        return NFA_STATUS_OK;
     }
-    if (selectEvent_.Wait(DEFAULT_TIMEOUT) == false) {
-        ErrorLog("TagNciAdapter::Connect: Time out when select");
-        status = NfcNciAdaptor::GetInstance().NfaDeactivate(false);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Connect: deactivate failed, error = 0x%{public}X", status);
+    if (connectedType_ == TagHost::TARGET_TYPE_ISO14443_3A || connectedType_ == TagHost::TARGET_TYPE_ISO14443_3B) {
+#if (NXP_EXTNS != TRUE)
+        if (connectedProtocol_ != NFC_PROTOCOL_MIFARE)
+#endif
+        {
+            DebugLog("TagNciAdapter::Connect: switch rf interface to frame");
+            return (Reselect(NFA_INTERFACE_FRAME, true) ? NFA_STATUS_OK : NFA_STATUS_FAILED);
         }
-        rfDiscoveryMutex_.unlock();
-        return NFA_STATUS_TIMEOUT;  // time out
+    } else if (connectedType_ == TagHost::TARGET_TYPE_MIFARE_CLASSIC) {
+        DebugLog("TagNciAdapter::Connect: switch rf interface to mifare classic");
+        return (Reselect(NFA_INTERFACE_MIFARE, true) ? NFA_STATUS_OK : NFA_STATUS_FAILED);
+    } else {
+        DebugLog("TagNciAdapter::Connect: switch rf interface to ISODEP");
+        return (Reselect(NFA_INTERFACE_ISO_DEP, true) ? NFA_STATUS_OK : NFA_STATUS_FAILED);
     }
-    rfDiscoveryMutex_.unlock();
-    return NFA_STATUS_OK;
 }
 
 bool TagNciAdapter::Disconnect()
@@ -228,7 +286,7 @@ bool TagNciAdapter::Disconnect()
     }
     connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
     connectedTechIdx_ = 0;
-    connectedTargetType_ = TagHost::TARGET_TYPE_UNKNOWN;
+    connectedType_ = TagHost::TARGET_TYPE_UNKNOWN;
     connectedRfIface_ = NFA_INTERFACE_ISO_DEP;
     isReconnecting_ = false;
     ResetTag();
@@ -236,85 +294,226 @@ bool TagNciAdapter::Disconnect()
     return (status == NFA_STATUS_OK);
 }
 
-bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface) // should set rfDiscoveryMutex_ outer when called
+tNFA_STATUS TagNciAdapter::SendRawFrameForHaltPICC()
 {
-    DebugLog("TagNciAdapter::Reselect: target interface: %{public}d, connectedRfIface_ = %{public}d"
-        "connectedProtocol_ = %{public}d", rfInterface, connectedRfIface_, connectedProtocol_);
-    tNFA_STATUS status = NFA_STATUS_FAILED;
-    if ((connectedRfIface_ == NFA_INTERFACE_FRAME) &&
-        (NfccNciAdapter::GetInstance().GetNciVersion() >= NCI_VERSION_2_0)) {
-        NFC::SynchronizeGuard guard(activatedEvent_);
-        if (connectedProtocol_ == NFA_PROTOCOL_T2T) {
-            status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(RW_TAG_SLP_REQ, sizeof(RW_TAG_SLP_REQ), 0);
-        } else if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP) {
-            status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(RW_DESELECT_REQ, sizeof(RW_DESELECT_REQ), 0);
+    tNFA_STATUS status = NFA_STATUS_OK;
+    NFC::SynchronizeGuard guard(reconnectEvent_);
+#if (NXP_EXTNS == TRUE)
+    // skipped SRD
+    if (connectedProtocol_ == NFA_PROTOCOL_T2T ||
+        (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP && connectedType_ == TagHost::TARGET_TYPE_ISO14443_3A)) {
+        status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(RW_TAG_SLP_REQ, sizeof(RW_TAG_SLP_REQ), 0);
+        usleep(T2TA_HALT_PICC_TIMEOUT);
+    } else if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP && connectedType_ == TagHost::TARGET_TYPE_ISO14443_3B) {
+        uint8_t haltPiccBHead = 0x50;
+        uint8_t rawHaltRqB[5] = {haltPiccBHead, nfcID0_[0], nfcID0_[1], nfcID0_[2], nfcID0_[3]};
+        isInTransceive_ = true;
+        NFC::SynchronizeGuard guard(transceiveEvent_);
+        status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(rawHaltRqB, sizeof(rawHaltRqB), 0);
+        if (status != NFA_STATUS_OK) {
+            ErrorLog("TagNciAdapter::SendRawFrameForHaltPICC: send rawHaltRqB error= %{public}d", status);
         } else {
-            DebugLog("TagNciAdapter::Reselect: do nothing");
-            return false;
+            if (transceiveEvent_.Wait(ISO3B_HALT_PICC_TIMEOUT) == false) {
+                status = NFA_STATUS_FAILED;
+                ErrorLog("TagNciAdapter::SendRawFrameForHaltPICC: send rawHaltRqB timeout");
+            }
         }
-        DebugLog("TagNciAdapter::Reselect: SendRawFrame success, status = 0x%{public}X", status);
-
-        // this request do not have response, so no need to wait for callback
-        activatedEvent_.Wait(WAIT_TIME_FOR_NO_RSP);
+        isInTransceive_ = false;
     }
-
-    // deactivate
-    {
-        NFC::SynchronizeGuard guard(deactivatedEvent_);
-        isReconnecting_ = true;
-        isWaitingDeactRst_ = true;
-        status = NfcNciAdaptor::GetInstance().NfaDeactivate(true);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Reselect: deactivate failed, err = 0x%{public}X", status);
-            isReconnecting_ = false;
-            return false;
-        }
-        if (!deactivatedEvent_.Wait(DEFAULT_TIMEOUT)) {
-            ErrorLog("TagNciAdapter::Reselect: deactivate timeout");
-        }
+#else
+    if (connectedProtocol_ == NFA_PROTOCOL_T2T) {
+        status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(RW_TAG_SLP_REQ, sizeof(RW_TAG_SLP_REQ), 0);
+    } else if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP) {
+        status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(RW_DESELECT_REQ, sizeof(RW_DESELECT_REQ), 0);
     }
-
-    // reselect
-    {
-        NFC::SynchronizeGuard guard(activatedEvent_);
-        status = NfcNciAdaptor::GetInstance().NfaSelect(tagRfDiscIdList_[connectedTechIdx_],
-                                                        tagActivatedProtocols_[connectedTechIdx_],
-                                                        rfInterface);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Reselect: reselect failed");
-            status = NfcNciAdaptor::GetInstance().NfaDeactivate(false);
-            isReconnecting_ = false;
-            return true;
-        }
-        if (!activatedEvent_.Wait(DEFAULT_TIMEOUT)) {
-            ErrorLog("TagNciAdapter::Reselect: reselect timeout");
-            isReconnecting_ = false;
-            return true;
-        }
+#endif
+    reconnectEvent_.Wait(WAIT_TIME_FOR_NO_RSP);
+    if (status != NFA_STATUS_OK) {
+        ErrorLog("TagNciAdapter::Reselect: halt for iface frame error = %{public}d", status);
     }
-    return (status == NFA_STATUS_OK);
+    return status;
 }
 
-bool TagNciAdapter::SendReselectReqIfNeed(int protocol, int tech)
+bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface, bool isSwitchingIface)
 {
-    DebugLog("TagNciAdapter::SendReselectReqIfNeed: protocol = %{public}d, tech = %{public}d",
-        protocol, tech);
-    if (protocol != NCI_PROTOCOL_ISO_DEP && protocol != NCI_PROTOCOL_MIFARE) {
-        DebugLog("TagNciAdapter::SendReselectReqIfNeed: do nothing for non isodep protocol");
-        return false;
+    ErrorLog("TagNciAdapter::Reselect: target interface = %{public}d, connected RfIface_ = %{public}d, "
+             "connectedProtocol_ = %{public}d", rfInterface, connectedRfIface_, connectedProtocol_);
+    rfDiscoveryMutex_.lock();
+    if (isSwitchingIface && (rfInterface == connectedRfIface_)) {
+        rfDiscoveryMutex_.unlock();
+        return true;
     }
-
-    if (tech == TagHost::TARGET_TYPE_ISO14443_3A || tech == TagHost::TARGET_TYPE_ISO14443_3B) {
-        if (protocol == NCI_PROTOCOL_ISO_DEP) {
-            return Reselect(NFA_INTERFACE_ISO_DEP);
+    tNFA_STATUS status = NFA_STATUS_OK;
+    do {
+        if (isNdefReadTimeOut_) {
+            ErrorLog("TagNciAdapter::Reselect: ndef read timeout");
+            status = NFA_STATUS_FAILED;
+            break;
         }
-        return Reselect(NFA_INTERFACE_FRAME);
-    } else if (tech == TagHost::TARGET_TYPE_MIFARE_CLASSIC) {
-        return Reselect(NFA_INTERFACE_MIFARE);
-    } else {
-        return Reselect(NFA_INTERFACE_ISO_DEP);
-    }
-    return false;
+
+        // send halt request for interface frame
+        if ((connectedRfIface_ == NFA_INTERFACE_FRAME) &&
+            (NfccNciAdapter::GetInstance().GetNciVersion() >= NCI_VERSION_2_0)) {
+            status = SendRawFrameForHaltPICC();
+            if (status != NFA_STATUS_OK) {
+                ErrorLog("TagNciAdapter::Reselect: SendRawFrameForHaltPICC error status = %{public}d", status);
+                break;
+            }
+        }
+
+        // deactive to sleep, contains special process for cashbee
+        {
+            NFC::SynchronizeGuard guard(reconnectEvent_);
+            isWaitingDeactRst_ = true;
+#if (NXP_EXTNS == TRUE)
+            if (isCashbee_) {
+                InfoLog("TagNciAdapter::Reselect, Deactivate to IDLE for cashbee");
+                status = NfcNciAdaptor::GetInstance().NfaStopRfDiscovery();
+                if (status != NFA_STATUS_OK) {
+                    ErrorLog("TagNciAdapter::Reselect: Deactivate to IDLE for cashbee failed, status = %{public}d",
+                        status);
+                    break;
+                }
+            } else {
+                // skipped reset state for secureelement field on
+#endif
+                status = NfcNciAdaptor::GetInstance().NfaDeactivate(true);
+                if (status != NFA_STATUS_OK) {
+                    ErrorLog("TagNciAdapter::Reselect: deactivate to SLEEP failed, status = %{public}d", status);
+                    break;
+                }
+            }
+            if (reconnectEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+                ErrorLog("TagNciAdapter::Reselect: deactivate to SLEEP timeout");
+            }
+        }
+#if (NXP_EXTNS == TRUE)
+        if (tagState_ == IDLE) {
+            InfoLog("TagNciAdapter::Reselect: tagState_ is IDLE state");
+            if (connectedProtocol_ == NFC_PROTOCOL_ISO_DEP) {
+                if (connectedType_ == NFC_DISCOVERY_TYPE_POLL_A) {
+                    isCashbee_ = true;
+                    InfoLog("TagNciAdapter::Reselect: CashBee Detected");
+                }
+            }
+        }
+
+        if (!isCashbee_) {
+#endif
+            if (tagState_ != SLEEP) {
+                ErrorLog("TagNciAdapter::Reselect, tagState_ is not sleep");
+                status = NFA_STATUS_FAILED;
+                break;
+            }
+#if (NXP_EXTNS == TRUE)
+        }
+#endif
+        // do reselect, contains special process for cashbee
+        isWaitingDeactRst_ = false;
+        {
+            NFC::SynchronizeGuard guard(reconnectEvent_);
+            isReconnecting_ = true;
+            isSwitchingRfIface_ = true;
+#if (NXP_EXTNS == TRUE)
+            if (isCashbee_) {
+                InfoLog("TagNciAdapter::Reselect: Start RF discovery for cash bee");
+                if (!isIsoDepDhReqFailed_) {
+                    status = NfcNciAdaptor::GetInstance().NfaStartRfDiscovery();
+                    if (status != NFA_STATUS_OK) {
+                        ErrorLog("TagNciAdapter::Reselect: start rf disc for cash bee failed, status = %{public}d",
+                            status);
+                        break;
+                    }
+                }
+            } else {
+#endif
+                DebugLog("TagNciAdapter::Reselect:select interface %{public}u", rfInterface);
+                status = NfcNciAdaptor::GetInstance().NfaSelect(tagRfDiscIdList_[connectedTechIdx_],
+                                                                tagRfProtocols_[connectedTechIdx_],
+                                                                rfInterface);
+                if (status != NFA_STATUS_OK) {
+                    ErrorLog("TagNciAdapter::Reselect, NFA_Select failed, status = %{public}d", status);
+                    status = NfcNciAdaptor::GetInstance().NfaDeactivate(false);
+                    if (status != NFA_STATUS_OK) {
+                        ErrorLog("TagNciAdapter::Reselect: deactivate failed; status = %{public}d", status);
+                    }
+                    break;
+                }
+            }
+
+            // check reconnection
+            isReconnected_ = false;
+            if (reconnectEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+                ErrorLog("TagNciAdapter::Reselect: select timeout");
+#if (NXP_EXTNS == TRUE)
+                if (!isCashbee_) {
+                    status = NfcNciAdaptor::GetInstance().NfaDeactivate(false);
+                    if (status != NFA_STATUS_OK)
+                        ErrorLog("TagNciAdapter::Reselect: deactivate after select timeout failed, "
+                                 "status = %{public}d", status);
+                }
+#endif
+                break;
+            }
+        }
+
+        // Retry in case of Generic error
+        int retry = 0;
+        if (!isReconnected_) {
+            ErrorLog("TagNciAdapter::Reselect retry: waiting for Card to be activated");
+            isReconnecting_ = true;
+#if (NXP_EXTNS == TRUE)
+            if (IsMultiMFCTag() && isMultiTagSupported_) {
+                isMultiProtoMFC_ = true;
+            } else {
+#endif
+                do {
+                    NFC::SynchronizeGuard guard(reconnectEvent_);
+                    if (!reconnectEvent_.Wait(RETRY_RECONNECT_TIMEOUT)) {
+                        ErrorLog("TagNciAdapter::Reselect: connect waiting retry timeout");
+                    }
+                    retry++;
+                    ErrorLog("TagNciAdapter::Reselect:connect waiting retry "
+                        "cnt = %{public}d, connect succ = %{public}d", retry, isReconnected_);
+                } while (isReconnected_ == false && retry < 3);
+#if (NXP_EXTNS == TRUE)
+            }
+            if (discRstEvtNum_) {
+                discRstEvtNum_ = 0;
+            }
+#endif
+        }
+        InfoLog("TagNciAdapter::Reselect: select completed; isReconnected_= %{public}d", isReconnected_);
+        if (tagState_ != ACTIVE) {
+            ErrorLog("TagNciAdapter::Reselect: tag is not active");
+#if (NXP_EXTNS == TRUE)
+            HandleDeactivatedResult(0);
+#endif
+            status = NFA_STATUS_FAILED;
+            if (!isReconnected_ && retry >= 3) { // 3 connect retry times
+                AbortWait();
+            }
+            break;
+        }
+#if (NXP_EXTNS == TRUE)
+        if (isCashbee_) {
+            isCashbee_ = false;
+        }
+#endif
+        if (isReconnected_) {
+            status = NFA_STATUS_OK; // success
+#if (NXP_EXTNS != TRUE)
+            connectedRfIface_ = rfInterface;
+#endif
+        } else {
+            status = NFA_STATUS_FAILED;
+        }
+    } while (0);
+    isReconnecting_ = false;
+    isWaitingDeactRst_ = false;
+    isSwitchingRfIface_ = false;
+    rfDiscoveryMutex_.unlock();
+    return (status == NFA_STATUS_OK) ? true : false;
 }
 
 bool TagNciAdapter::IsReconnecting()
@@ -332,60 +531,130 @@ void TagNciAdapter::SetCurrRfProtocol(int protocol)
     connectedProtocol_ = protocol;
 }
 
-bool TagNciAdapter::NfaDeactivateAndSelect(int discId, int protocol, tNFA_INTF_TYPE rfInterface)
+void TagNciAdapter::SetCurrRfMode(uint8_t type)
 {
-    DebugLog("TagNciAdapter::discId: 0x%{public}X, protocol: 0x%{public}X, rfInterface: 0x%{public}X",
-        discId, protocol, rfInterface);
-    {
-        NFC::SynchronizeGuard guard(deactivatedEvent_);
-        isWaitingDeactRst_ = true;
-        tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaDeactivate(true);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("NfaDeactivateAndSelect, NfaDeactivate1 failed, status=0x%{public}X", status);
-            return false;
-        }
-        if (!deactivatedEvent_.Wait(DEFAULT_TIMEOUT)) {
-            ErrorLog("NfaDeactivateAndSelect, NfaDeactivate1 timeout");
-        }
+    if (type == NFC_DISCOVERY_TYPE_POLL_A || type == NFC_DISCOVERY_TYPE_POLL_A_ACTIVE) {
+        connectedType_ = TagHost::TARGET_TYPE_ISO14443_3A;
+    } else if (type == NFC_DISCOVERY_TYPE_POLL_B || type == NFC_DISCOVERY_TYPE_POLL_B_PRIME) {
+        connectedType_ = TagHost::TARGET_TYPE_ISO14443_3B;
     }
-    {
-        NFC::SynchronizeGuard guard(activatedEvent_);
-        tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaSelect((uint8_t)discId, (tNFA_NFC_PROTOCOL)protocol,
-            rfInterface);
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("NfaDeactivateAndSelect NfaSelect failed, status=0x%{public}X", status);
-            return false;
-        }
-        if (activatedEvent_.Wait(DEFAULT_TIMEOUT) == false) {
-            ErrorLog("NfaDeactivateAndSelect, Timeout when NfaSelect.");
-            status = NfcNciAdaptor::GetInstance().NfaDeactivate(false);
-            if (status != NFA_STATUS_OK) {
-                ErrorLog("NfaDeactivateAndSelect, NfaDeactivate2 failed, status=0x%{public}X", status);
-            }
-            return false;
-        }
+}
+
+void TagNciAdapter::SetNfcID0ForTypeB(uint8_t* nfcID0)
+{
+    DebugLog("TagNciAdapter::SetNfcID0ForTypeB: nfcID0 = %{public}X%{public}X%{public}X%{public}X",
+        nfcID0[0], nfcID0[1], nfcID0[2], nfcID0[3]);
+    int nfcId0Len = 4;
+    int err = memcpy_s(nfcID0_, nfcId0Len, &nfcID0[0], nfcId0Len);
+    if (err != 0) {
+        ErrorLog("TagNciAdapter::SetNfcID0ForTypeB: memcpy_s error: %{public}d", err);
+    }
+}
+
+bool TagNciAdapter::IsMultiMFCTag()
+{
+    return isMultiTag_ && (connectedProtocol_ == NFC_PROTOCOL_MIFARE);
+}
+
+void TagNciAdapter::ClearMultiMFCTagState()
+{
+    isSkipNdefRead_ = false;
+    isMultiProtoMFC_ = false;
+    lastTagFoundTime_ = 0;
+}
+
+void TagNciAdapter::SetTagActivated()
+{
+    isNdefReadTimeOut_ = false;
+    tagState_ = ACTIVE;
+}
+
+void TagNciAdapter::SetTagDeactivated(bool isSleep)
+{
+    tagState_ = (isSleep ? SLEEP : IDLE);
+    isNdefReadTimeOut_ = false;
+}
+
+TagNciAdapter::TagState TagNciAdapter::GetTagState()
+{
+    return tagState_;
+}
+
+bool TagNciAdapter::IsSwitchingRfIface()
+{
+    return isSwitchingRfIface_;
+}
+
+bool TagNciAdapter::IsExpectedActRfProtocol(int protocol)
+{
+    InfoLog("IsExpectedActRfProtocol: currentProtocol = %{public}d, targetProtocol = %{public}d",
+            connectedProtocol_, protocol);
+    if (connectedProtocol_ != NFC_PROTOCOL_UNKNOWN && connectedProtocol_ != protocol) {
+        NfcNciAdaptor::GetInstance().NfaDeactivate(false);
+        return false;
     }
     return true;
 }
 
-bool TagNciAdapter::Reconnect(int discId, int protocol, int tech, bool restart)
+bool TagNciAdapter::Reconnect()
 {
-    if (!IsTagActive()) {
+    if (tagState_ != ACTIVE) {
+        ErrorLog("TagNciAdapter::Reconnect, tag not active");
         return false;
     }
-    rfDiscoveryMutex_.lock();
-    if (SendReselectReqIfNeed(protocol, tech)) {
-        rfDiscoveryMutex_.unlock();
-        return true;
+    // return for TARGET_TYPE_KOVIO_BARCODE
+    // this is only supported for type 2 or 4 (ISO_DEP) tags
+    if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP) {
+        return Reselect(NFA_INTERFACE_ISO_DEP, false);
+    } else if (connectedProtocol_ == NFA_PROTOCOL_T2T) {
+        return Reselect(NFA_INTERFACE_FRAME, false);
+    } else if (connectedProtocol_ == NFC_PROTOCOL_MIFARE) {
+        return Reselect(NFA_INTERFACE_MIFARE, false);
     }
-    isReconnecting_ = true;
-    if (!NfaDeactivateAndSelect(discId, protocol, GetRfInterface(protocol))) {
-        isReconnecting_ = false;
-        rfDiscoveryMutex_.unlock();
-        return false;
+    return false;
+}
+
+/**
+ * See NFC Digital Protocol Technical Specification(2010-11-17)
+ * Chapter 9 (Type 2 Tag platform), section 9.6 (READ).
+*/
+bool TagNciAdapter::IsT2TNackRsp(const uint8_t* response, uint32_t responseLen)
+{
+    if (responseLen == 1) {
+        return (response[0] != T2T_ACK_RESPONSE);
     }
-    rfDiscoveryMutex_.unlock();
-    return true;
+    return false;
+}
+
+tNFA_STATUS TagNciAdapter::HandleMfcTransceiveData(std::string& response)
+{
+    tNFA_STATUS status = NFA_STATUS_FAILED;
+    uint32_t len = static_cast<uint32_t>(receivedData_.size());
+    uint8_t* data = (uint8_t*)receivedData_.data();
+    bool shouldReconnect = false;
+
+    if (isLegacyMifareReader_) {
+        status = NfcNciAdaptor::GetInstance().ExtnsCheckMfcResponse(&data, &len) == NFA_STATUS_FAILED;
+        ErrorLog("TagNciAdapter::HandleMfcTransceiveData: status: %{public}d, isMfcTransRspErr_: %{public}d",
+                 status, isMfcTransRspErr_);
+        shouldReconnect = (status == NFA_STATUS_FAILED || isMfcTransRspErr_);
+    } else {
+        shouldReconnect = ((len == 1) && (data[0] != 0x00));
+    }
+
+    if (shouldReconnect) {
+        Reconnect();
+    } else {
+        if (len != 0) {
+            if (len == MIFARE_RESPONSE_LEN && data[0] != T2T_ACK_RESPONSE && isMfcTransRspErr_) {
+                int err = (MIFARE_RESPONSE_LEN << 8) | data[0]; // 8 means offset one byte
+                ErrorLog("TagNciAdapter::HandleMfcTransceiveData: rspProtocolErrData: %{public}d", err);
+            }
+            response = KITS::NfcSdkCommon::BytesVecToHexString(data, len);
+            status = NFA_STATUS_OK;
+        }
+    }
+    return status;
 }
 
 int TagNciAdapter::Transceive(std::string& request, std::string& response)
@@ -395,84 +664,82 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
     }
     tNFA_STATUS status = NFA_STATUS_FAILED;
     isInTransceive_ = true;
-    bool retry = false;
+    isTransceiveTimeout_ = false;
+    bool wait = true;
     do {
-        NFC::SynchronizeGuard guard(transceiveEvent_);
-        uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(request);
-        std::vector<unsigned char> requestInCharVec;
-        KITS::NfcSdkCommon::HexStringToBytes(request, requestInCharVec);
-        InfoLog("TagNciAdapter::Transceive: requestLen = %{public}d", length);
-        receivedData_ = "";
-        if (IsMifareConnected()) {
-            ErrorLog("TagNciAdapter::Transceive: is mifare");
-            status = NfcNciAdaptor::GetInstance().ExtnsMfcTransceive(static_cast<uint8_t *>(requestInCharVec.data()),
-                length);
-        } else {
-            status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(static_cast<uint8_t *>(requestInCharVec.data()),
-                length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
+        {
+            NFC::SynchronizeGuard guard(transceiveEvent_);
+            uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(request);
+            std::vector<unsigned char> requestInCharVec;
+            KITS::NfcSdkCommon::HexStringToBytes(request, requestInCharVec);
+            InfoLog("TagNciAdapter::Transceive: requestLen = %{public}d", length);
+            receivedData_.clear();
+            if (IsMifareConnected() && isLegacyMifareReader_) {
+                ErrorLog("TagNciAdapter::Transceive: is mifare");
+                status = NfcNciAdaptor::GetInstance().ExtnsMfcTransceive(
+                    static_cast<uint8_t *>(requestInCharVec.data()), length);
+            } else {
+                status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(static_cast<uint8_t *>(requestInCharVec.data()),
+                    length, NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
+            }
+            if (status != NFA_STATUS_OK) {
+                ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
+                break;
+            }
+            int transceiveTimeout = GetTimeout(connectedType_);
+            wait = transceiveEvent_.Wait(transceiveTimeout);
         }
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
-            break;
-        }
-        int transceiveTimeout = GetTimeout(connectedTargetType_);
-        bool wait = transceiveEvent_.Wait(transceiveTimeout);
-        if (!wait) {
-            ErrorLog("TagNciAdapter::Transceive: wait response timeout");
+        if (!wait || isTransceiveTimeout_) {
+            ErrorLog("TagNciAdapter::Transceive: wait response timeout transceiveTimeout: %{public}d,"
+                "wait: %{public}d, isTimeout: %{public}d", GetTimeout(connectedType_), wait, isTransceiveTimeout_);
             status = NFA_STATUS_TIMEOUT;
             break;
         }
-        response = receivedData_;
-        InfoLog("TagNciAdapter::Transceive: rsp len = %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(response));
-
-        // not auth
-        if (retry) {
-            retry = false;
-        } else if (connectedProtocol_ == NFA_PROTOCOL_MIFARE &&
-            KITS::NfcSdkCommon::GetByteFromHexStr(request, 0) != 0x60 &&
-            KITS::NfcSdkCommon::GetByteFromHexStr(request, 0) != 0x61 &&
-            KITS::NfcSdkCommon::GetHexStrBytesLen(response) == 1 &&
-            KITS::NfcSdkCommon::GetByteFromHexStr(response, 0) != 0x00) {
-            DebugLog("NFA_PROTOCOL_MIFARE retry");
-            retry = true;
+        if (tagState_ != ACTIVE) {
+            ErrorLog("TagNciAdapter::Transceive, tag not active");
+            status = NFA_STATUS_FAILED;
+            break;
         }
-
-        if (!retry) {
-            if (connectedProtocol_ == NFA_PROTOCOL_MIFARE &&
-                KITS::NfcSdkCommon::GetHexStrBytesLen(response) == 1 &&
-                KITS::NfcSdkCommon::GetByteFromHexStr(response, 0) != 0x00) {
-                DebugLog("Ready to reconnect");
-                Reconnect(tagRfDiscIdList_[connectedTechIdx_], NFA_PROTOCOL_MIFARE, TagHost::TARGET_TYPE_MIFARE_CLASSIC,
-                    true);
+        if (receivedData_.size() > 0) {
+            if (connectedProtocol_ == NFA_PROTOCOL_T2T && IsT2TNackRsp(receivedData_.data(), receivedData_.size())) {
+                // Do reconnect for mifareUL tag when it responses NACK and enters HALT state
+                InfoLog("TagNciAdapter::Transceive:try reconnect for T2T NACK");
+                Reconnect();
+            } else if (IsMifareConnected()) {
+                status = HandleMfcTransceiveData(response);
+            } else {
+                response = KITS::NfcSdkCommon::BytesVecToHexString(receivedData_.data(), receivedData_.size());
             }
         }
-    } while (retry);
+    } while (0);
     isInTransceive_ = false;
+    InfoLog("TagNciAdapter::Transceive: exit rsp len = %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(response));
     return status;
 }
 
 void TagNciAdapter::HandleTranceiveData(unsigned char status, unsigned char* data, int dataLen)
 {
-    if (IsMifareConnected()) {
+    if (IsMifareConnected() && isLegacyMifareReader_) {
         InfoLog("TagNciAdapter::HandleTranceiveData: is mifare");
+        isMfcTransRspErr_ = (dataLen == 2 && data[0] == MIFARE_RESPONSE_LEN && data[1] != T2T_ACK_RESPONSE);
         if (!NfcNciAdaptor::GetInstance().ExtnsGetCallBackFlag()) {
             ErrorLog("TagNciAdapter::HandleTranceiveData: ExtnsGetCallBackFlag is false");
             NfcNciAdaptor::GetInstance().ExtnsMfcCallBack(data, dataLen);
             return;
         }
     }
+    if (!isInTransceive_) {
+        ErrorLog("TagNciAdapter::HandleTranceiveData: not in transceive");
+        return;
+    }
     NFC::SynchronizeGuard guard(transceiveEvent_);
     if (status == NFA_STATUS_OK || status == NFA_STATUS_CONTINUE) {
-        uint32_t len = static_cast<uint32_t>(dataLen);
-        if (IsMifareConnected()) {
-            InfoLog("TagNciAdapter::HandleTranceiveData: ExtnsCheckMfcResponse");
-            NfcNciAdaptor::GetInstance().ExtnsCheckMfcResponse(&data, &len);
-        }
-        receivedData_ = KITS::NfcSdkCommon::BytesVecToHexString(data, len);
+        receivedData_.append(data, dataLen);
     }
     if (status == NFA_STATUS_OK) {
         transceiveEvent_.NotifyOne();
     }
+    DebugLog("TagNciAdapter::HandleTranceiveData: status = %{public}d", status);
 }
 
 bool TagNciAdapter::IsTagFieldOn()
@@ -483,29 +750,51 @@ bool TagNciAdapter::IsTagFieldOn()
     if (isInTransceive_) {
         return true;
     }
-    if (!rfDiscoveryMutex_.try_lock()) {
-        return true;
-    }
-
     tNFA_STATUS status = NFA_STATUS_FAILED;
-    if (IsMifareConnected()) {
+
+#if (NXP_EXTNS == TRUE)
+    if (tagRfProtocols_[0] == NFA_PROTOCOL_T3BT) {
+        uint8_t t3btPresenceCheckCmd[] = {0xB2};
+        NFC::SynchronizeGuard guard(transceiveEvent_);
+        isTransceiveTimeout_ = false;
+        isInTransceive_ = true;
+        status = NfcNciAdaptor::GetInstance().NfaSendRawFrame(t3btPresenceCheckCmd, sizeof(t3btPresenceCheckCmd),
+                                                              NFA_DM_DEFAULT_PRESENCE_CHECK_START_DELAY);
+        if (status != NFA_STATUS_OK) {
+            ErrorLog("TagNciAdapter::IsTagFieldOn, send t3bt cmd failed; status = %{public}d, "
+                "continue to do normal presence check", status);
+        } else {
+            if (!transceiveEvent_.Wait(GetTimeout(TagHost::TARGET_TYPE_ISO14443_3B)) || isTransceiveTimeout_) {
+                isTagFieldOn_ = false;
+                ErrorLog("TagNciAdapter::IsTagFieldOn, send t3bt cmd timeout");
+            } else {
+                isTagFieldOn_ = true;
+            }
+            return isTagFieldOn_;
+        }
+    }
+#else
+    if (IsMifareConnected() && isLegacyMifareReader_) {
         ErrorLog("TagNciAdapter::IsTagFieldOn: is mifare");
         status = NfcNciAdaptor::GetInstance().ExtnsMfcPresenceCheck();
         if (status == NFA_STATUS_OK) {
-            return NfcNciAdaptor::GetInstance().ExtnsGetPresenceCheckStatus();
+            status = NfcNciAdaptor::GetInstance().ExtnsGetPresenceCheckStatus();
         }
+        isTagFieldOn_ = (status == NFA_STATUS_OK);
+        rfDiscoveryMutex_.unlock();
+        return isTagFieldOn_;
     }
+#endif
     {
         NFC::SynchronizeGuard guard(filedCheckEvent_);
         tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaRwPresenceCheck(presChkOption_);
         if (status == NFA_STATUS_OK) {
             if (filedCheckEvent_.Wait(DEFAULT_TIMEOUT) == false) {
-                DebugLog("filed on check timeout...");
+                ErrorLog("filed on check timeout...");
                 isTagFieldOn_ = false;
             }
         }
     }
-    rfDiscoveryMutex_.unlock();
     return isTagFieldOn_;
 }
 
@@ -530,37 +819,59 @@ void TagNciAdapter::HandleSelectResult()
     }
 }
 
-void TagNciAdapter::HandleActivatedResult()
+void TagNciAdapter::HandleActivatedResult(tNFA_CONN_EVT_DATA* eventData)
 {
-    DebugLog("TagNciAdapter::HandleActivatedResult");
+    if (eventData->activated.activate_ntf.rf_tech_param.mode >= NCI_DISCOVERY_TYPE_LISTEN_A || //not poll mode
+        eventData->activated.activate_ntf.intf_param.type == NFC_INTERFACE_EE_DIRECT_RF) {     // is EE direct rf
+        return;
+    }
+    // skipped clear non std data and same kovio detection
+    tNFA_ACTIVATED& activated = eventData->activated;
+    connectedProtocol_ = activated.activate_ntf.protocol;
+    t1tMaxMessageSize_ = GetT1tMaxMessageSize(activated);
+    GetTechFromData(activated);
+    BuildTagInfo(activated);
+}
+
+void TagNciAdapter::SetConnectStatus(bool isStatusOk)
+{
+    DebugLog("TagNciAdapter::SetConnectStatus");
     if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
         && NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag()) {
-        DebugLog("TagNciAdapter::HandleActivatedResult:ExtnsMfcActivated");
+        DebugLog("TagNciAdapter::SetConnectStatus: ExtnsMfcActivated");
         NfcNciAdaptor::GetInstance().ExtnsMfcActivated();
         NfcNciAdaptor::GetInstance().ExtnsSetConnectFlag(false);
     }
-    {
-        NFC::SynchronizeGuard guard(activatedEvent_);
-        if (isReconnecting_) {
-            isReconnecting_ = false;
-        }
-        activatedEvent_.NotifyOne();
+    if (isReconnecting_) {
+        isReconnected_ = isStatusOk;
+        isReconnecting_ = false;
+        NFC::SynchronizeGuard guard(reconnectEvent_);
+        reconnectEvent_.NotifyOne();
     }
 }
 
-void TagNciAdapter::HandleDeactivatedResult()
+void TagNciAdapter::HandleDeactivatedResult(tNFA_DEACTIVATE_TYPE deactType)
 {
     DebugLog("TagNciAdapter::HandleDeactivatedResult");
+    connectedProtocol_ = NFC_PROTOCOL_UNKNOWN;
+#if (NXP_EXTNS == TRUE)
+    if (deactType == NFA_DEACTIVATE_TYPE_DISCOVERY) {
+        // clear Activation Params
+    }
+#endif
+}
+
+void TagNciAdapter::SetDeactivatedStatus()
+{
     if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
         && NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag()) {
-        DebugLog("TagNciAdapter::HandleDeactivatedResult mifare deactivate");
+        DebugLog("TagNciAdapter::SetDeactivatedStatus mifare deactivate");
         NfcNciAdaptor::GetInstance().ExtnsMfcDisconnect();
         NfcNciAdaptor::GetInstance().ExtnsSetDeactivateFlag(false);
     }
     {
-        NFC::SynchronizeGuard guard(deactivatedEvent_);
-        isWaitingDeactRst_ = false;
-        deactivatedEvent_.NotifyOne();
+        NFC::SynchronizeGuard guard(reconnectEvent_);
+        reconnectEvent_.NotifyOne();
     }
 }
 
@@ -570,8 +881,9 @@ void TagNciAdapter::ResetTagFieldOnFlag()
     isTagFieldOn_ = true;
 }
 
-void TagNciAdapter::SetTimeout(const int timeout, const int technology)
+void TagNciAdapter::SetTimeout(int& timeout, int& technology)
 {
+    DebugLog("SetTimeout timeout: %{public}d, tech: %{public}d", timeout, technology);
     if (technology > 0 && technology <= MAX_NUM_TECHNOLOGY) {
         technologyTimeoutsTable_[technology] = timeout;
     } else {
@@ -628,20 +940,31 @@ void TagNciAdapter::ReadNdef(std::string& response)
 {
     DebugLog("TagNciAdapter::ReadNdef");
     if (!IsTagActive()) {
-        ErrorLog("ReadNdef, IsTagActive failed");
+        ErrorLog("TagNciAdapter::ReadNdef, IsTagActive failed");
         return;
     }
-    rfDiscoveryMutex_.lock();
     readNdefData = "";
-    NFC::SynchronizeGuard guard(readNdefEvent_);
     if (lastCheckedNdefSize_ > 0) {
-        tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaRwReadNdef();
-        if (status != NFA_STATUS_OK) {
-            ErrorLog("ReadNdef, Read ndef fail");
-            return;
+        {
+            NFC::SynchronizeGuard guard(readNdefEvent_);
+            isNdefReading_ = true;
+            tNFA_STATUS status = NFA_STATUS_FAILED;
+            if (IsMifareConnected()) {
+                status = NfcNciAdaptor::GetInstance().ExtnsMfcReadNDef();
+            } else {
+                status = NfcNciAdaptor::GetInstance().NfaRwReadNdef();
+            }
+            if (status != NFA_STATUS_OK) {
+                isNdefReading_ = false;
+                return;
+            }
+            if (!readNdefEvent_.Wait(READ_NDEF_TIMEOUT)) { // NFA_READ_CPLT_EVT will notify this
+                ErrorLog("TagNciAdapter::ReadNdef, readNdefEvent_ timeout!");
+                isNdefReading_ = false;
+                return;
+            }
         }
-        readNdefEvent_.Wait();
-
+        isNdefReading_ = false;
         if (KITS::NfcSdkCommon::GetHexStrBytesLen(readNdefData) > 0) {
             response = readNdefData;
         }
@@ -652,10 +975,14 @@ void TagNciAdapter::ReadNdef(std::string& response)
 
 void TagNciAdapter::HandleReadComplete(unsigned char status)
 {
-    DebugLog("TagNciAdapter::HandleReadComplete");
+    DebugLog("TagNciAdapter::HandleReadComplete, isNdefReading_ = %{public}d", isNdefReading_);
+    if (!isNdefReading_) {
+        return;
+    }
     NFC::SynchronizeGuard guard(readNdefEvent_);
     if (status != NFA_STATUS_OK) {
         ErrorLog("Read ndef fail");
+        isNdefReadTimeOut_ = true;
         readNdefData = "";
     }
     readNdefEvent_.NotifyOne();
@@ -753,18 +1080,36 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
     if (!IsTagActive()) {
         return false;
     }
+    // special for MULTI MFC and t3tB
+    if (connectedProtocol_ == NFA_PROTOCOL_T3BT || (isMultiProtoMFC_ && isSkipNdefRead_)) {
+        ClearMultiMFCTagState();
+        ndefInfo.push_back(0);
+        ndefInfo.push_back(NDEF_MODE_READ_ONLY);
+        InfoLog("TagNciAdapter:: ReadNdef, skip ndef read for NFA_PROTOCOL_T3BT or MultiProtoMFC");
+        return false;
+    }
+
+    // special for kovio
+
+    // special for mifare
+    if (connectedProtocol_ == NFC_PROTOCOL_MIFARE) {
+        Reconnect();
+    }
     rfDiscoveryMutex_.lock();
     NFC::SynchronizeGuard guard(checkNdefEvent_);
     tNFA_STATUS status = NFA_STATUS_FAILED;
-    isReconnecting_ = false;
-
-    status = NfcNciAdaptor::GetInstance().NfaRwDetectNdef();
+    isNdefChecking_ = true;
+    if (IsMifareConnected()) {
+        status = NfcNciAdaptor::GetInstance().ExtnsMfcCheckNDef();
+    } else {
+        status = NfcNciAdaptor::GetInstance().NfaRwDetectNdef();
+    }
     if (status != NFA_STATUS_OK) {
         ErrorLog("NFA_RwDetectNDef failed, status: %{public}d", status);
         rfDiscoveryMutex_.unlock();
         return false;
     }
-    if (checkNdefEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+    if (checkNdefEvent_.Wait(CHECK_NDEF_TIMEOUT) == false) {
         ErrorLog("TagNciAdapter::IsNdefMsgContained time out");
         rfDiscoveryMutex_.unlock();
         return false;
@@ -779,6 +1124,10 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
         ndefInfo.push_back(lastCheckedNdefMode_);
     }
     rfDiscoveryMutex_.unlock();
+
+    if (connectedProtocol_ == NFC_PROTOCOL_MIFARE) {
+        Reconnect();
+    }
     return isNdefCapable_;
 }
 
@@ -831,7 +1180,7 @@ void TagNciAdapter::HandleNdefCheckResult(unsigned char status, int currentSize,
     checkNdefEvent_.NotifyOne();
 }
 
-bool TagNciAdapter::IsDiscTypeA(char discType) const
+bool TagNciAdapter::IsDiscTypeA(char discType)
 {
     if (discType == NCI_DISCOVERY_TYPE_POLL_A) {
         return true;
@@ -848,7 +1197,7 @@ bool TagNciAdapter::IsDiscTypeA(char discType) const
     return false;
 }
 
-bool TagNciAdapter::IsDiscTypeB(char discType) const
+bool TagNciAdapter::IsDiscTypeB(char discType)
 {
     if (discType == NCI_DISCOVERY_TYPE_POLL_B) {
         return true;
@@ -865,7 +1214,7 @@ bool TagNciAdapter::IsDiscTypeB(char discType) const
     return false;
 }
 
-bool TagNciAdapter::IsDiscTypeF(char discType) const
+bool TagNciAdapter::IsDiscTypeF(char discType)
 {
     if (discType == NCI_DISCOVERY_TYPE_POLL_F) {
         return true;
@@ -882,7 +1231,7 @@ bool TagNciAdapter::IsDiscTypeF(char discType) const
     return false;
 }
 
-bool TagNciAdapter::IsDiscTypeV(char discType) const
+bool TagNciAdapter::IsDiscTypeV(char discType)
 {
     if (discType == NCI_DISCOVERY_TYPE_POLL_V) {
         return true;
@@ -908,12 +1257,27 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
             techListIndex_++;
             tech[techListIndex_] = TagHost::TARGET_TYPE_MIFARE_UL;
         }
-    } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T3BT) {
+    }
+#if (NXP_EXTNS == TRUE)
+    else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T3BT) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3B;
-    } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T3T) {
+    }
+#endif
+    else if (activated.activate_ntf.protocol == NCI_PROTOCOL_T3T) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_FELICA;
     } else if (activated.activate_ntf.protocol == NCI_PROTOCOL_ISO_DEP) {
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_4;
+        if ((activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) ||
+            (activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A_ACTIVE)) {
+            // get frame Waiting time Integer(fwi) from activated data
+            uint8_t fwi = activated.activate_ntf.intf_param.intf_param.pa_iso.fwi;
+            if (fwi >= MIN_FWI && fwi <= MAX_FWI) {
+                // 2^MIN_FWI * 256 * 16 * 1000 / 13560000 is approximately 618
+                int fwt = (1 << (fwi - MIN_FWI)) * 618;
+                InfoLog("TagNciAdapter::GetTechFromData timeout = %{public}d, fwi = %{public}0#x", fwt, fwi);
+                SetTimeout(fwt, tech[techListIndex_]);
+            }
+        }
         // A OR B
         char discType = activated.activate_ntf.rf_tech_param.mode;
         if (IsDiscTypeA(discType)) {
@@ -927,6 +1291,7 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
         tech[techListIndex_] = TagHost::TARGET_TYPE_V;
     } else if (activated.activate_ntf.protocol == NFC_PROTOCOL_MIFARE) {
         InfoLog("TagNciAdapter::GetTechFromData: MifareClassic");
+        NfcNciAdaptor::GetInstance().ExtnsMfcInit(activated);
         tech[techListIndex_] = TagHost::TARGET_TYPE_ISO14443_3A;
 
         techListIndex_++;
@@ -941,13 +1306,13 @@ void TagNciAdapter::GetTechFromData(tNFA_ACTIVATED activated)
     for (uint32_t i = multiTagTmpTechIdx_; i < techListIndex_; i++) {
         tagTechList_.push_back(tech[i]);
         tagRfDiscIdList_.push_back(tagRfDiscId);
-        tagActivatedProtocols_.push_back(tagNtfProtocol);
+        tagRfProtocols_.push_back(tagNtfProtocol);
         InfoLog("GetTechFromData: index = %{public}d, tech = %{public}d, RfDiscId = %{public}d, protocol = %{public}d",
                 i, tech[i], tagRfDiscId, tagNtfProtocol);
     }
 }
 
-std::string TagNciAdapter::GetUidFromData(tNFA_ACTIVATED activated) const
+std::string TagNciAdapter::GetUidFromData(tNFA_ACTIVATED activated)
 {
     std::string uid;
     tNFC_RF_TECH_PARAMS nfcRfTechParams = activated.activate_ntf.rf_tech_param;
@@ -1029,7 +1394,7 @@ void TagNciAdapter::GetTechPollFromData(tNFA_ACTIVATED activated)
 
 std::string TagNciAdapter::GetTechActForIsoDep(tNFA_ACTIVATED activated,
                                                tNFC_RF_TECH_PARAMS nfcRfTechParams,
-                                               int tech) const
+                                               int tech)
 {
     std::string techAct = "";
     if (tech == TagHost::TARGET_TYPE_ISO14443_4) {
@@ -1118,30 +1483,19 @@ void TagNciAdapter::ParseSpecTagType(tNFA_ACTIVATED activated)
         isFelicaLite_, isMifareUltralight_, isMifareDESFire_);
 }
 
-void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
+void TagNciAdapter::BuildTagInfo(tNFA_ACTIVATED activated)
 {
     DebugLog("TagNciAdapter::BuildTagInfo, discRstEvtNum_ = %{public}d", discRstEvtNum_);
-    if (techListIndex_ >= MAX_NUM_TECHNOLOGY) {
-        return;
-    }
-    if (multiTagTmpTechIdx_ < (MAX_NUM_TECHNOLOGY - 1)) {
-        techListIndex_ = multiTagTmpTechIdx_;
-    }
-
-    tNFA_ACTIVATED activated = eventData->activated;
-    GetTechFromData(activated); // techListIndex_ is increased in this func
     std::string tagUid = GetUidFromData(activated);
     GetTechPollFromData(activated);
     GetTechActFromData(activated);
-
-    tagActivatedProtocol_ = activated.activate_ntf.protocol;
-    t1tMaxMessageSize_ = GetT1tMaxMessageSize(activated);
     ParseSpecTagType(activated);
 
     if (discRstEvtNum_ == 0) {
         multiTagTmpTechIdx_ = 0;
         std::unique_ptr<NCI::ITagHost> tagHost = std::make_unique<NCI::TagHost>(tagTechList_,
-            tagRfDiscIdList_, tagActivatedProtocols_, tagUid, tagPollBytes_, tagActivatedBytes_);
+            tagRfDiscIdList_, tagRfProtocols_, tagUid, tagPollBytes_, tagActivatedBytes_,
+            connectedTechIdx_);
         NfccHost::TagDiscovered(std::move(tagHost));
     } else {
         multiTagTmpTechIdx_ = techListIndex_;
@@ -1154,25 +1508,78 @@ void TagNciAdapter::BuildTagInfo(const tNFA_CONN_EVT_DATA* eventData)
 void TagNciAdapter::ResetTag()
 {
     DebugLog("TagNciAdapter::ResetTag");
+    // tag data
     tagTechList_.clear();
     tagRfDiscIdList_.clear();
-    tagActivatedProtocols_.clear();
+    tagRfProtocols_.clear();
     tagPollBytes_.clear();
     tagActivatedBytes_.clear();
-    tagDiscIdListOfDiscResult_.clear();
-    tagProtocolsOfDiscResult_.clear();
+    multiTagDiscId_.clear();
+    multiTagDiscProtocol_.clear();
+
+    // disc idxes
     techListIndex_ = 0;
     multiTagTmpTechIdx_ = 0;
-    tagActivatedProtocol_ = NCI_PROTOCOL_UNKNOWN;
-    isFelicaLite_ = false;
-    isMifareUltralight_ = false;
-    isMifareDESFire_ = false;
-    isMultiTag_ = false;
     discRstEvtNum_ = 0;
     discNtfIndex_ = 0;
     multiTagTmpTechIdx_ = 0;
     selectedTagIdx_ = 0;
+
+    // connection datas
+    connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
+
+    isFelicaLite_ = false;
+    isMifareUltralight_ = false;
+    isMifareDESFire_ = false;
+    isMultiTag_ = false;
+
     ResetTimeout();
+
+    //  special data
+#if (NXP_EXTNS == TRUE)
+    NfcNciAdaptor::GetInstance().ExtnsSetConnectFlag(false);
+#endif
+}
+
+bool TagNciAdapter::IsTagDetectedInTimeDiff(uint32_t timeDiff)
+{
+    return true;
+}
+
+void TagNciAdapter::SetMultiTagData(tNFC_RESULT_DEVT& discNtf)
+{
+    if (!isMultiTagSupported_) {
+        WarnLog("TagNciAdapter::SetMultiTagData: not supported");
+        return;
+    }
+    if (discNtf.rf_tech_param.param.pa.sel_rsp == NON_STD_CARD_SAK) {
+        InfoLog("TagNciAdapter::SetMultiTagData: sak 13 tag detechted, set protocol to ISODEP");
+        multiTagDiscProtocol_[discRstEvtNum_] = NFC_PROTOCOL_ISO_DEP;
+    } else {
+        if (discNtf.protocol == NFC_PROTOCOL_MIFARE) {
+            if (isMultiProtoMFC_ && IsTagDetectedInTimeDiff(multiTagTimeDiff_[0])) { // 0 for Mifare
+                isSkipNdefRead_ = true;
+            } else {
+                ClearMultiMFCTagState();
+            }
+        } else if (discNtf.protocol == NFC_PROTOCOL_ISO_DEP) {
+            if (isIsoDepDhReqFailed_ && IsTagDetectedInTimeDiff(multiTagTimeDiff_[1])) { // 1 for ISODEP
+                isSkipIsoDepAct_ = true;
+            } else {
+                ClearMultiMFCTagState();
+            }
+        } else if (discNtf.more == NCI_DISCOVER_NTF_LAST) {
+            bool isMFCDetected = false;
+            for (int i = 0; i < techListIndex_; i++) {
+                if (tagRfProtocols_[i] == NFC_PROTOCOL_MIFARE) {
+                    isMFCDetected = true;
+                }
+            }
+            if (!isMFCDetected) {
+                ClearMultiMFCTagState();
+            }
+        }
+    }
 }
 
 void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
@@ -1181,43 +1588,63 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         WarnLog("HandleDiscResult invalid eventData.");
         return;
     }
+    if (eventData->disc_result.status != NFA_STATUS_OK) {
+        ErrorLog("TagNciAdapter::HandleDiscResult, status error: %{public}d", eventData->disc_result.status);
+        return;
+    }
     tNFC_RESULT_DEVT& discoveryNtf = eventData->disc_result.discovery_ntf;
-    DebugLog("TagNciAdapter::HandleDiscResult, discId: %{public}d, protocol: %{public}d",
-        discoveryNtf.rf_disc_id, discoveryNtf.protocol);
+    DebugLog("TagNciAdapter::HandleDiscResult, discId: %{public}d, protocol: %{public}d, discNtfIndex_: %{public}d",
+        discoveryNtf.rf_disc_id, discoveryNtf.protocol, discNtfIndex_);
+    uint8_t nfcID2[NCI_NFCID1_MAX_LEN] = {0};
+    errno_t err = EOK;
 
-    tagDiscIdListOfDiscResult_.push_back(discoveryNtf.rf_disc_id);
-    tagProtocolsOfDiscResult_.push_back(discoveryNtf.protocol);
+    if (discoveryNtf.rf_disc_id == 1) { // first UID
+        (void)memset_s(nfcID1_, sizeof(nfcID1_), 0, sizeof(nfcID1_));
+        if (discoveryNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+            err = memcpy_s(nfcID1_, sizeof(nfcID1_), discoveryNtf.rf_tech_param.param.pa.nfcid1,
+                           discoveryNtf.rf_tech_param.param.pa.nfcid1_len);
+            if (err != EOK) {
+                ErrorLog("TagNciAdapter::HandleDiscResult, memcpy nfcid1 error: %{public}d", err);
+            }
+        }
+    } else if (discoveryNtf.rf_disc_id == 2) { // second UID
+        if (discoveryNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+            err = memcpy_s(nfcID2, sizeof(nfcID2), discoveryNtf.rf_tech_param.param.pa.nfcid1,
+                           discoveryNtf.rf_tech_param.param.pa.nfcid1_len);
+            if (err != EOK) {
+                ErrorLog("TagNciAdapter::HandleDiscResult, memcpy nfcid2 error: %{public}d", err);
+            }
+        }
+    }
+    if (discNtfIndex_ >= MAX_NUM_TECHNOLOGY) {
+        ErrorLog("TagNciAdapter::HandleDiscResult, invalid discNtfIndex_: %{public}d", discNtfIndex_);
+        return;
+    }
+    discNtfIndex_++;
+    multiTagDiscId_.push_back(discoveryNtf.rf_disc_id);
+    multiTagDiscProtocol_.push_back(discoveryNtf.protocol);
+#if (NXP_EXTNS == TRUE)
+    SetMultiTagData(discoveryNtf);
+#endif
     if (discoveryNtf.more == NCI_DISCOVER_NTF_MORE) {
         return;
     }
-
-    uint32_t index = MAX_NUM_TECHNOLOGY;
-    for (std::size_t i = 0; i < tagProtocolsOfDiscResult_.size(); i++) {
-        if (tagProtocolsOfDiscResult_[i] != NFA_PROTOCOL_NFC_DEP) {
-            index = i;
-            break;
+    for (int i = 0; i < discNtfIndex_; i++) {
+        InfoLog("TagNciAdapter::HandleDiscResult, index: %{public}d, discId: %{public}d, protocl: %{public}d",
+                i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
+    }
+    if (discoveryNtf.rf_disc_id > 2) {
+        InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has more than 2 uids");
+    } else if (discoveryNtf.rf_disc_id == 2) {
+        if (memcmp(nfcID1_, nfcID2, sizeof(nfcID1_)) == 0) {
+            InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has 2 same uids");
+            isMultiTag_ = false;
+        } else {
+            InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has 2 different uids");
         }
+    } else {
+        InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has 1 uid");
     }
-
-    if (index >= MAX_NUM_TECHNOLOGY) {
-        DebugLog("Has technology NFA_PROTOCOL_NFC_DEP only, don't handle it.");
-        return;
-    }
-
-    // get the rf interface based on the found technology.
-    int foundProto = tagProtocolsOfDiscResult_[index];
-    tNFA_INTF_TYPE rfInterface = GetRfInterface(foundProto);
-
-    // select the rf interface.
-    rfDiscoveryMutex_.lock();
-    tNFA_STATUS status = NfcNciAdaptor::GetInstance().NfaSelect(
-        (uint8_t)tagDiscIdListOfDiscResult_[index], (tNFA_NFC_PROTOCOL)foundProto, rfInterface);
-    if (status != NFA_STATUS_OK) {
-        ErrorLog("TagNciAdapter::HandleDiscResult: NfaSelect error = 0x%{public}X", status);
-    }
-    connectedProtocol_ = foundProto;
-    connectedTechIdx_ = index;
-    rfDiscoveryMutex_.unlock();
 }
 
 void TagNciAdapter::OnRfDiscLock()
@@ -1240,14 +1667,14 @@ bool TagNciAdapter::IsNdefFormattable()
     DebugLog("check IsNdefFormattable");
     const int IDX_NDEF_FORMAT_1ST = 7;
     const int IDX_NDEF_FORMAT_2ND = 8;
-    if (tagActivatedProtocol_ == NFA_PROTOCOL_T1T || tagActivatedProtocol_ == NFA_PROTOCOL_T5T ||
-        tagActivatedProtocol_ == NFC_PROTOCOL_MIFARE) {
+    if (connectedProtocol_ == NFA_PROTOCOL_T1T || connectedProtocol_ == NFA_PROTOCOL_T5T ||
+        connectedProtocol_ == NFC_PROTOCOL_MIFARE) {
         return true;
-    } else if (tagActivatedProtocol_ == NFA_PROTOCOL_T2T) {
+    } else if (connectedProtocol_ == NFA_PROTOCOL_T2T) {
         return isMifareUltralight_;
-    } else if (tagActivatedProtocol_ == NFA_PROTOCOL_T3T) {
+    } else if (connectedProtocol_ == NFA_PROTOCOL_T3T) {
         return isFelicaLite_;
-    } else if (tagActivatedProtocol_ == NFA_PROTOCOL_ISO_DEP && isMifareDESFire_) {
+    } else if (connectedProtocol_ == NFA_PROTOCOL_ISO_DEP && isMifareDESFire_) {
         std::string hexRequest = "9060000000";
         std::string response;
         Transceive(hexRequest, response);
@@ -1305,10 +1732,10 @@ void TagNciAdapter::AbortWait()
     }
     connectedRfIface_ = NFA_INTERFACE_ISO_DEP;
     connectedProtocol_ = NFC_PROTOCOL_UNKNOWN;
-    connectedTargetType_ = TagHost::TARGET_TYPE_UNKNOWN;
+    connectedType_ = TagHost::TARGET_TYPE_UNKNOWN;
 }
 
-int TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated) const
+int TagNciAdapter::GetT1tMaxMessageSize(tNFA_ACTIVATED activated)
 {
     int t1tMaxMessageSize;
     DebugLog("GetT1tMaxMessageSize");
@@ -1355,12 +1782,16 @@ bool TagNciAdapter::IsTagActive() const
         DebugLog("Tag already deactive");
         return false;
     }
+    if (tagState_ != ACTIVE) {
+        DebugLog("tagState_ not ACTIVE");
+        return false;
+    }
     return true;
 }
 
 void TagNciAdapter::SetIsMultiTag(bool isMultiTag)
 {
-    isMultiTag_ = isMultiTag;
+    isMultiTag_ = isMultiTag && isMultiTagSupported_;
 }
 
 bool TagNciAdapter::GetIsMultiTag() const

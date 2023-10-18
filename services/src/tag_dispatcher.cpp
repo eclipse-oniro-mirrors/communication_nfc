@@ -65,7 +65,7 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
         nfcService_->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
         return 0;
     }
-    std::string ndefMsg = tag->ReadNdef();
+    std::string ndefMsg = tag->FindNdefTech();
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     if (ndefMessage == nullptr) {
         if (!tag->Reconnect()) {
