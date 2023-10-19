@@ -283,9 +283,6 @@ void NfcService::DoInitialize()
     eventHandler_->Intialize(tagDispatcher_, ceService_);
     AppDataParser::GetInstance().InitAppList();
 
-    DebugLog("DoInitialize start FactoryReset");
-    nfccHost_->FactoryReset();
-
     int lastState = NfcDatabaseHelper::GetInstance().GetInt(PREF_KEY_STATE);
     if (lastState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
