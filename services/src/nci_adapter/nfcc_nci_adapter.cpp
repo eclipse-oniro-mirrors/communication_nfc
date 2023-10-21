@@ -29,6 +29,15 @@ namespace NFC {
 namespace NCI {
 static const int ISO_DEP_MAX_TRANSEIVE_LENGTH = 0xFEFF;
 
+// values for SAK28 issue
+static unsigned int g_isoMifareBitMap = 0;
+static bool g_isIsoMifareFlag = false;
+static int isoMifareUid[NCI_NFCID1_MAX_LEN];
+const uint8_t NCI_RF_DISCOVER_NTF_FIRST_ID = 0x01;
+const uint8_t NCI_RF_DISCOVER_NTF_SECOND_ID = 0x02;
+const unsigned int FLAG_MULTI_TAG_ISO_DEP = 0x01;
+const unsigned int FLAG_MULTI_TAG_MIFARE = 0x02;
+
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcEnableEvent_;
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcDisableEvent_;
 OHOS::NFC::SynchronizeEvent NfccNciAdapter::nfcStartStopPollingEvent_;
@@ -156,6 +165,13 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 #if (NXP_EXTNS == TRUE)
     TagNciAdapter::GetInstance().isIsoDepDhReqFailed_ = false;
 #endif
+    // logic for SAK28 issue
+    if (g_isIsoMifareFlag) {
+        InfoLog("DoNfaActivatedEvt(SAK28) - ISOMIFARE data cleanup");
+        g_isIsoMifareFlag = false;
+        g_isoMifareBitMap = 0;
+        (void)memset_s(isoMifareUid, sizeof(isoMifareUid), 0, sizeof(isoMifareUid));
+    }
 
     // sync activated iface and proto
     if ((actProto != NFA_PROTOCOL_NFC_DEP) && !IsDiscTypeListen(eventData->activated.activate_ntf)) {
@@ -277,7 +293,47 @@ void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
 
 void NfccNciAdapter::HandleDiscNtf(tNFC_RESULT_DEVT* discNtf)
 {
-    // skipped special process for SAK28 multitag
+    // logic for SAK28 issue
+    if (discNtf->rf_disc_id == NCI_RF_DISCOVER_NTF_FIRST_ID) {
+        (void)memset_s(isoMifareUid, sizeof(isoMifareUid), 0, sizeof(isoMifareUid));
+        g_isoMifareBitMap = 0;
+        errno_t err = EOK;
+        if (discNtf->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+            err = memcpy_s(isoMifareUid, sizeof(isoMifareUid),
+                           discNtf->rf_tech_param.param.pa.nfcid1,
+                           discNtf->rf_tech_param.param.pa.nfcid1_len);
+            if (err != EOK) {
+                ErrorLog("HandleDiscNtf:(SAK28) memcpy_s first uid failed, err = %{public}d", err);
+            }
+            if (discNtf->protocol == NFC_PROTOCOL_ISO_DEP) {
+                g_isoMifareBitMap |= FLAG_MULTI_TAG_ISO_DEP;
+            } else if (discNtf->protocol == NFC_PROTOCOL_MIFARE) {
+                g_isoMifareBitMap |= FLAG_MULTI_TAG_MIFARE;
+            }
+        }
+    } else if (discNtf->rf_disc_id == NCI_RF_DISCOVER_NTF_SECOND_ID) {
+        if (discNtf->rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
+            if (memcmp(isoMifareUid, discNtf->rf_tech_param.param.pa.nfcid1,
+                       discNtf->rf_tech_param.param.pa.nfcid1_len) == 0) {
+                InfoLog("HandleDiscNtf:(SAK28) multicard with same uid");
+                if (discNtf->protocol == NFC_PROTOCOL_ISO_DEP) {
+                    g_isoMifareBitMap |= FLAG_MULTI_TAG_ISO_DEP;
+                } else if (discNtf->protocol == NFC_PROTOCOL_MIFARE) {
+                    g_isoMifareBitMap |= FLAG_MULTI_TAG_MIFARE;
+                }
+            }
+        }
+    }
+    InfoLog("HandleDiscNtf:(SAK28) g_isoMifareBitMap = 0x%{public}02X, g_isIsoMifareFlag = %{public}d",
+            g_isoMifareBitMap, g_isIsoMifareFlag);
+    if ((g_isoMifareBitMap & FLAG_MULTI_TAG_ISO_DEP) && (g_isoMifareBitMap & FLAG_MULTI_TAG_MIFARE) &&
+         g_isIsoMifareFlag && readerModeEnabled_ == false) {
+        InfoLog("HandleDiscNtf:(SAK28) same tag discovered twice, skip Mifare detection");
+        g_isoMifareBitMap = 0;
+        TagNciAdapter::GetInstance().SetSkipMifareInterface();
+    }
+
+    // logic for normal tag
     TagNciAdapter::GetInstance().SetDiscRstEvtNum(TagNciAdapter::GetInstance().GetDiscRstEvtNum() + 1);
     if (discNtf->more == NCI_DISCOVER_NTF_MORE) {
         // there is more discovery notification coming
@@ -303,6 +359,15 @@ void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
         curStatus = eventData->status;
     }
     TagNciAdapter::GetInstance().HandleFieldCheckResult(curStatus);
+
+    // logic for SAK28 issue
+    if (curStatus != NFA_STATUS_OK) {
+        if ((g_isoMifareBitMap & FLAG_MULTI_TAG_ISO_DEP) && (g_isoMifareBitMap & FLAG_MULTI_TAG_MIFARE)) {
+            InfoLog("DoNfaPresenceEvt:(SAK28) set g_isIsoMifareFlag");
+            g_isIsoMifareFlag = true;
+        }
+        g_isoMifareBitMap = 0;
+    }
 }
 
 void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData)
@@ -403,6 +468,12 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
             break;
         }
     }
+}
+
+/* method for SAK28 issue */
+void NfccNciAdapter::SendActEvtForSak28Tag(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData)
+{
+    NfcConnectionCallback(connEvent, eventData);
 }
 
 void NfccNciAdapter::DoNfaPollEnabledDisabledEvt()

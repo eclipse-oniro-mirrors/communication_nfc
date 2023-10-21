@@ -246,7 +246,8 @@ napi_value ParseTechAndExtraFromJsTagInfo(napi_env env, napi_value obj,
 
         // parse extra data for this technology
         AppExecFwk::PacMap pacMap;
-        if (intTech == static_cast<int>(TagTechnology::NFC_A_TECH)) {
+        if (intTech == static_cast<int>(TagTechnology::NFC_A_TECH) ||
+            intTech == static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
             // for NFCA, parse extra SAK and ATQA
             napi_get_named_property(env, extraValue, KITS::TagInfo::SAK, &extraKeyValue);
             int32_t sak = 0;
