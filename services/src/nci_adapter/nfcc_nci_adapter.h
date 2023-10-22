@@ -55,6 +55,9 @@ public:
     bool CommitRouting();
     bool ComputeRoutingParams();
 
+    // method for SAK28 issue
+    void SendActEvtForSak28Tag(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData);
+
 private:
     static const tNFA_TECHNOLOGY_MASK DEFAULT_TECH_MASK =
         (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B | NFA_TECHNOLOGY_MASK_F |

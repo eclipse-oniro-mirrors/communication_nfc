@@ -26,8 +26,13 @@ NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         ErrorLog("NfcATag::NfcATag extra data invalid");
         return;
     }
-
-    sak_ = tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
+    if (tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
+        AppExecFwk::PacMap mifareExtra = tag.lock()->GetTechExtrasByTech(
+            KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
+        sak_ = tag.lock()->GetIntExtrasData(mifareExtra, TagInfo::SAK);
+        InfoLog("NfcATag::NfcATag mifare tech found, sak_ (0x%{public}x)", sak_);
+    }
+    sak_ |= tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
     atqa_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
     InfoLog("NfcATag::NfcATag sak_ (0x%{public}x), atqa_(%{public}s)", sak_, atqa_.c_str());
 }

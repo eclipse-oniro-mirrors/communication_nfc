@@ -43,6 +43,12 @@ public:
 #else
     enum TagState { IDLE, SLEEP, ACTIVE };
 #endif
+    typedef struct MultiTagParams {
+        tNFC_RESULT_DEVT discNtf;
+        tNFC_INTF_PARAMS intfParam;
+        bool isSkipIsoDepAct = false;
+    } MultiTagParams;
+
     void SetNciAdaptations(std::shared_ptr<INfcNci> nciAdaptations);
     static void HandleSelectResult();
     static void HandleTranceiveData(unsigned char status, unsigned char* data, int dataLen);
@@ -116,6 +122,9 @@ public:
     bool IsSwitchingRfIface();
     bool IsExpectedActRfProtocol(int protocol);
 
+    /* method for SAK28 issue */
+    static void SetSkipMifareInterface();
+
     // multiple protocol tag special status
     bool isIsoDepDhReqFailed_ = false;
    
@@ -151,6 +160,11 @@ private:
     bool SendReselectReqIfNeed(int protocol, int tech);
     tNFA_STATUS DoSelectForMultiTag(int currIdx);
     tNFA_STATUS SendRawFrameForHaltPICC();
+
+    // methods for SAK28 issue
+    static void ClearNonStdTagData();
+    static bool SkipProtoActivateIfNeed(tNFC_PROTOCOL protocol);
+    static void SetNonStdTagData();
 
     // synchronized lock
     static std::mutex rfDiscoveryMutex_;
@@ -235,7 +249,7 @@ private:
                                     // and decreased while selecting next tag
     uint32_t discNtfIndex_;
     static uint32_t multiTagTmpTechIdx_; // to store the last techlist index for the last tag
-    unsigned int selectedTagIdx_;          // to store the last selected tag index
+    static int selectedTagIdx_;          // to store the last selected tag index
     std::vector<int> multiTagDiscId_ {};
     std::vector<int> multiTagDiscProtocol_ {};
     static uint32_t techListIndex_;             // current tech list index
@@ -249,11 +263,11 @@ private:
     static bool isMfcTransRspErr_;
     long lastTagFoundTime_ = 0;
     bool isMultiTagSupported_ = false;
-    bool isSkipIsoDepAct_ = false;
 
     // timeout and time diffs
     static int technologyTimeoutsTable_[]; // index equals to the technology value
     std::vector<uint32_t> multiTagTimeDiff_ {};
+    static bool isSkipMifareActive_;
 };
 }  // namespace NCI
 }  // namespace NFC
