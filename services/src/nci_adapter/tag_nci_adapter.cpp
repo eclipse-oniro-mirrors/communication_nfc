@@ -718,7 +718,7 @@ int TagNciAdapter::Transceive(std::string& request, std::string& response)
                 // Do reconnect for mifareUL tag when it responses NACK and enters HALT state
                 InfoLog("TagNciAdapter::Transceive:try reconnect for T2T NACK");
                 Reconnect();
-            } else if (IsMifareConnected()) {
+            } else if (IsMifareConnected() && isLegacyMifareReader_) {
                 status = HandleMfcTransceiveData(response);
             } else {
                 response = KITS::NfcSdkCommon::BytesVecToHexString(receivedData_.data(), receivedData_.size());
@@ -907,8 +907,9 @@ void TagNciAdapter::HandleDeactivatedResult(tNFA_DEACTIVATE_TYPE deactType)
 
 void TagNciAdapter::SetDeactivatedStatus()
 {
-    if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
-        && NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag()) {
+    if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound() &&
+        NfcNciAdaptor::GetInstance().ExtnsGetDeactivateFlag() &&
+        isLegacyMifareReader_) {
         DebugLog("TagNciAdapter::SetDeactivatedStatus mifare deactivate");
         NfcNciAdaptor::GetInstance().ExtnsMfcDisconnect();
         NfcNciAdaptor::GetInstance().ExtnsSetDeactivateFlag(false);
@@ -993,7 +994,7 @@ void TagNciAdapter::ReadNdef(std::string& response)
             NFC::SynchronizeGuard guard(readNdefEvent_);
             isNdefReading_ = true;
             tNFA_STATUS status = NFA_STATUS_FAILED;
-            if (IsMifareConnected()) {
+            if (IsMifareConnected() && isLegacyMifareReader_) {
                 status = NfcNciAdaptor::GetInstance().ExtnsMfcReadNDef();
             } else {
                 status = NfcNciAdaptor::GetInstance().NfaRwReadNdef();
@@ -1143,7 +1144,7 @@ bool TagNciAdapter::IsNdefMsgContained(std::vector<int>& ndefInfo)
     NFC::SynchronizeGuard guard(checkNdefEvent_);
     tNFA_STATUS status = NFA_STATUS_FAILED;
     isNdefChecking_ = true;
-    if (IsMifareConnected()) {
+    if (IsMifareConnected() && isLegacyMifareReader_) {
         status = NfcNciAdaptor::GetInstance().ExtnsMfcCheckNDef();
     } else {
         status = NfcNciAdaptor::GetInstance().NfaRwDetectNdef();
