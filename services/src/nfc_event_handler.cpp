@@ -13,9 +13,14 @@
  * limitations under the License.
  */
 #include "nfc_event_handler.h"
+
+#include "ce_service.h"
 #include "common_event_support.h"
 #include "itag_host.h"
 #include "loghelper.h"
+#include "nfc_service.h"
+#include "nfc_polling_manager.h"
+#include "nfc_routing_manager.h"
 #include "want.h"
 
 namespace OHOS {
@@ -104,8 +109,8 @@ void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::Com
 }
 
 NfcEventHandler::NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner,
-                                 std::weak_ptr<NfcService> servcie)
-    : EventHandler(runner), nfcService_(servcie)
+                                 std::weak_ptr<NfcService> service)
+    : EventHandler(runner), nfcService_(service)
 {
 }
 
@@ -115,11 +120,16 @@ NfcEventHandler::~NfcEventHandler()
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
 }
 
-void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService)
+void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
+                                std::weak_ptr<CeService> ceService,
+                                std::weak_ptr<NfcPollingManager> nfcPollingManager,
+                                std::weak_ptr<NfcRoutingManager> nfcRoutingManager)
 {
     DebugLog("NfcEventHandler::Intialize");
     tagDispatcher_ = tagDispatcher;
     ceService_ = ceService;
+    nfcPollingManager_ = nfcPollingManager;
+    nfcRoutingManager_ = nfcRoutingManager;
 
     SubscribeScreenChangedEvent();
     SubscribePackageChangedEvent();
@@ -176,19 +186,19 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             tagDispatcher_.lock()->HandleTagDebounce();
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
-            nfcService_.lock()->HandleScreenChanged(event->GetParam());
+            nfcPollingManager_.lock()->HandleScreenChanged(event->GetParam());
             break;
         }
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
-            nfcService_.lock()->HandlePackageUpdated(event->GetSharedObject<EventFwk::CommonEventData>());
+            nfcPollingManager_.lock()->HandlePackageUpdated(event->GetSharedObject<EventFwk::CommonEventData>());
             break;
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {
-            nfcService_.lock()->HandleCommitRouting();
+            nfcRoutingManager_.lock()->HandleCommitRouting();
             break;
         }
         case NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS: {
-            nfcService_.lock()->HandleComputeRoutingParams();
+            nfcRoutingManager_.lock()->HandleComputeRoutingParams();
             break;
         }
         case NfcCommonEvent::MSG_FIELD_ACTIVATED: {

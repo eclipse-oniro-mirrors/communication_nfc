@@ -16,8 +16,130 @@
 
 namespace OHOS {
 namespace NFC {
+RunOnDemaindManager::RunOnDemaindManager()
+{}
+
+RunOnDemaindManager::~RunOnDemaindManager()
+{}
+
+void RunOnDemaindManager::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    RunOnDemaindProxy::GetInstance().HandleAppAddOrChangedEvent(data);
+}
+
+void RunOnDemaindManager::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    RunOnDemaindProxy::GetInstance().HandleAppRemovedEvent(data);
+}
+
+void RunOnDemaindManager::InitAppList()
+{
+    RunOnDemaindProxy::GetInstance().InitAppList();
+}
+
+std::vector<ElementName> RunOnDemaindManager::GetDispatchTagAppsByTech(std::vector<int> discTechList)
+{
+    return RunOnDemaindProxy::GetInstance().GetDispatchTagAppsByTech(discTechList);
+}
+
+KITS::ErrorCode RunOnDemaindManager::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
+{
+    return RunOnDemaindProxy::GetInstance().NfcDataGetValue(uri, column, value);
+}
+
+KITS::ErrorCode RunOnDemaindManager::NfcDataSetValue(Uri &uri, const std::string &column, int &value)
+{
+    return RunOnDemaindProxy::GetInstance().NfcDataSetValue(uri, column, value);
+}
+
+void RunOnDemaindManager::NfcDataSetString(const std::string& key, const std::string& value)
+{
+    RunOnDemaindProxy::GetInstance().NfcDataSetString(key, value);
+}
+
+std::string RunOnDemaindManager::NfcDataGetString(const std::string& key)
+{
+    return RunOnDemaindProxy::GetInstance().NfcDataGetString(key);
+}
+
+void RunOnDemaindManager::NfcDataSetInt(const std::string& key, const int value)
+{
+    RunOnDemaindProxy::GetInstance().NfcDataSetInt(key, value);
+}
+
+int RunOnDemaindManager::NfcDataGetInt(const std::string& key)
+{
+    return RunOnDemaindProxy::GetInstance().NfcDataGetInt(key);
+}
+
+void RunOnDemaindManager::NfcDataClear()
+{
+    RunOnDemaindProxy::GetInstance().NfcDataClear();
+}
+
+void RunOnDemaindManager::NfcDataDelete(const std::string& key)
+{
+    RunOnDemaindProxy::GetInstance().NfcDataDelete(key);
+}
+
+void RunOnDemaindManager::UpdateNfcState(int newState)
+{
+    RunOnDemaindProxy::GetInstance().UpdateNfcState(newState);
+}
+
 void RunOnDemaindManager::PublishNfcStateChanged(int newState)
 {
+    RunOnDemaindProxy::GetInstance().PublishNfcStateChanged(newState);
+}
+
+void RunOnDemaindManager::PublishNfcFieldStateChanged(bool isFieldOn)
+{
+    RunOnDemaindProxy::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
+}
+
+void RunOnDemaindManager::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
+{
+    RunOnDemaindProxy::GetInstance().WriteNfcFailedHiSysEvent(failedParams);
+}
+
+void RunOnDemaindManager::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
+                                                      int closeRequestCnt, int closeFailCnt)
+{
+    RunOnDemaindProxy::GetInstance().WriteOpenAndCloseHiSysEvent(openRequestCnt, openFailCnt,
+        closeRequestCnt, closeFailCnt);
+}
+
+void RunOnDemaindManager::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
+                                                  int typeBCnt, int typeFCnt, int typeVCnt)
+{
+    RunOnDemaindProxy::GetInstance().WriteTagFoundHiSysEvent(tagFoundCnt, typeACnt,
+        typeBCnt, typeFCnt, typeVCnt);
+}
+
+void RunOnDemaindManager::WritePassiveListenHiSysEvent(int requestCnt, int failCnt)
+{
+    RunOnDemaindProxy::GetInstance().WritePassiveListenHiSysEvent(requestCnt, failCnt);
+}
+
+void RunOnDemaindManager::WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
+{
+    RunOnDemaindProxy::GetInstance().WriteFirmwareUpdateHiSysEvent(requestCnt, failCnt);
+}
+
+NfcFailedParams* RunOnDemaindManager::BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+{
+    return RunOnDemaindProxy::GetInstance().BuildFailedParams(mainErrorCode, subErrorCode);
+}
+
+bool RunOnDemaindManager::IsGranted(std::string permission)
+{
+    return RunOnDemaindProxy::GetInstance().IsGranted(permission);
+}
+
+void RunOnDemaindManager::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo,
+                                             OHOS::sptr<IRemoteObject> tagServiceIface)
+{
+    RunOnDemaindProxy::GetInstance().DispatchTagAbility(tagInfo, tagServiceIface);
 }
 } // NFC
 } // OHOS

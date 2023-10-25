@@ -13,34 +13,36 @@
  * limitations under the License.
  */
 #include "nfc_service.h"
+
 #include <unistd.h>
+
 #include "app_data_parser.h"
-#include "nfc_event_handler.h"
+#include "infc_controller_callback.h"
+#include "iservice_registry.h"
 #include "loghelper.h"
+#include "nfc_event_publisher.h"
+#include "nfc_database_helper.h"
+#include "nfc_event_handler.h"
+#include "nfc_hisysevent.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
+#include "nfc_timer.h"
 #include "nfc_watch_dog.h"
 #include "nfcc_host.h"
-#include "nfc_timer.h"
-#include "want.h"
-#include "nfc_database_helper.h"
 #include "tag_session.h"
-#include "iservice_registry.h"
-#include "nfc_hisysevent.h"
-#include "infc_controller_callback.h"
-#include "nfc_event_publisher.h"
+#include "run_on_demaind_manager.h"
+#include "want.h"
 
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
-const int ROUTING_DELAY_TIME = 500; // ms
 uint32_t NfcService::unloadStaSaTimerId{0};
 
 NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
     : nfccHost_(std::move(nfccHost)),
-    nfcControllerImpl_(nullptr),
     eventHandler_(nullptr),
     tagDispatcher_(nullptr),
+    nfcControllerImpl_(nullptr),
     nfcState_(KITS::STATE_OFF)
 {
 }
@@ -48,6 +50,8 @@ NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
 NfcService::~NfcService()
 {
     nfcControllerImpl_ = nullptr;
+    nfcPollingManager_ = nullptr;
+    nfcRoutingManager_ = nullptr;
     if (task_ && task_->joinable()) {
         task_->join();
     }
@@ -59,6 +63,16 @@ NfcService::~NfcService()
 std::weak_ptr<NfcService> NfcService::GetInstance() const
 {
     return nfcService_;
+}
+
+std::weak_ptr<NfcPollingManager> NfcService::GetNfcPollingManager()
+{
+    return nfcPollingManager_;
+}
+
+std::weak_ptr<NfcRoutingManager> NfcService::GetNfcRoutingManager()
+{
+    return nfcRoutingManager_;
 }
 
 bool NfcService::Initialize()
@@ -75,13 +89,15 @@ bool NfcService::Initialize()
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
     eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
-    tagSessionIface_ = new TAG::TagSession(shared_from_this());
     ceService_ = std::make_shared<CeService>(shared_from_this());
+    nfcPollingManager_ = std::make_shared<NfcPollingManager>(nfccHost_, shared_from_this());
+    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nfccHost_, shared_from_this());
+    tagSessionIface_ = new TAG::TagSession(shared_from_this());
 
     // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
 
-    currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
+    nfcPollingManager_->ResetCurrPollingParams();
 
     runner->Run();
     // NFC ROOT
@@ -211,11 +227,12 @@ bool NfcService::DoTurnOn()
         // Routing Wake Lock release
         nfcWatchDog.Cancel();
         // Do turn on failed, openRequestCnt and openFailedCnt = 1, others = 0
-        WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT, NOT_COUNT, NOT_COUNT);
+        RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
+            NOT_COUNT, NOT_COUNT);
         // Record failed event
-        NfcFailedParams* nfcFailedParams = BuildFailedParams(
+        NfcFailedParams* nfcFailedParams = RunOnDemaindManager::GetInstance().BuildFailedParams(
             MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        WriteNfcFailedHiSysEvent(nfcFailedParams);
+        RunOnDemaindManager::GetInstance().WriteNfcFailedHiSysEvent(nfcFailedParams);
         return false;
     }
     // Routing Wake Lock release
@@ -234,12 +251,12 @@ bool NfcService::DoTurnOn()
     nfccHost_->SetScreenStatus(screenState_);
 
     /* Start polling loop */
-    StartPollingLoop(true);
+    nfcPollingManager_->StartPollingLoop(true);
 
-    ComputeRoutingParams();
-    CommitRouting();
+    nfcRoutingManager_->ComputeRoutingParams();
+    nfcRoutingManager_->CommitRouting();
     // Do turn on success, openRequestCnt = 1, others = 0
-    WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
+    RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
     return true;
 }
 
@@ -257,13 +274,10 @@ bool NfcService::DoTurnOff()
 
     nfcWatchDog.Cancel();
 
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
-    }
+    nfcPollingManager_->ResetCurrPollingParams();
 
-    if (foregroundData_.isEnable_) {
-        DisableForegroundDispatch(foregroundData_.element_);
+    if (nfcPollingManager_->IsForegroundEnabled()) {
+        nfcPollingManager_->DisableForegroundDispatch(nfcPollingManager_->GetForegroundData()->element_);
     }
 
     UpdateNfcState(KITS::STATE_OFF);
@@ -274,16 +288,16 @@ bool NfcService::DoTurnOff()
     }
     NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
     // Do turn off success, closeRequestCnt = 1, others = 0
-    WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
+    RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
     return result;
 }
 
 void NfcService::DoInitialize()
 {
-    eventHandler_->Intialize(tagDispatcher_, ceService_);
-    AppDataParser::GetInstance().InitAppList();
+    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_);
+    RunOnDemaindManager::GetInstance().InitAppList();
 
-    int lastState = NfcDatabaseHelper::GetInstance().GetInt(PREF_KEY_STATE);
+    int lastState = RunOnDemaindManager::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
     if (lastState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
     }
@@ -362,8 +376,8 @@ void NfcService::UpdateNfcState(int newState)
         }
         nfcState_ = newState;
     }
-    NfcDatabaseHelper::GetInstance().UpdateNfcState(newState);
-    NfcEventPublisher::PublishNfcStateChanged(newState);
+    RunOnDemaindManager::GetInstance().UpdateNfcState(newState);
+    RunOnDemaindManager::GetInstance().PublishNfcStateChanged(newState);
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);
@@ -377,54 +391,6 @@ void NfcService::UpdateNfcState(int newState)
             record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
         }
     }
-}
-
-void NfcService::StartPollingLoop(bool force)
-{
-    InfoLog("StartPollingLoop force = %{public}d", force);
-    if (!IsNfcEnabled()) {
-        return;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nfccHost_);
-    pollingWatchDog.Run();
-    // Compute new polling parameters
-    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
-    InfoLog("newParams: %{public}s", newParams->ToString().c_str());
-    InfoLog("currParams: %{public}s", currPollingParams_->ToString().c_str());
-    if (force || !(newParams == currPollingParams_)) {
-        if (newParams->ShouldEnablePolling()) {
-            bool shouldRestart = currPollingParams_->ShouldEnablePolling();
-            InfoLog("StartPollingLoop shouldRestart = %{public}d", shouldRestart);
-
-            nfccHost_->EnableDiscovery(newParams->GetTechMask(),
-                                       newParams->ShouldEnableReaderMode(),
-                                       newParams->ShouldEnableHostRouting(),
-                                       shouldRestart || force);
-        } else {
-            nfccHost_->DisableDiscovery();
-        }
-        currPollingParams_ = newParams;
-    } else {
-        InfoLog("StartPollingLoop: polling params equal, not updating");
-    }
-    pollingWatchDog.Cancel();
-}
-
-std::shared_ptr<NfcPollingParams> NfcService::GetPollingParameters(int screenState)
-{
-    // Recompute polling parameters based on screen state
-    std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
-
-    if (foregroundData_.isEnable_) {
-        params->SetTechMask(foregroundData_.techMask_);
-        params->SetEnableReaderMode(true);
-    } else {
-        params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
-        params->SetEnableReaderMode(false);
-    }
-    return params;
 }
 
 int NfcService::GetNfcState()
@@ -458,145 +424,6 @@ bool NfcService::IsNfcEnabled()
     std::lock_guard<std::mutex> lock(mutex_);
     DebugLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
-}
-
-void NfcService::HandleScreenChanged(int screenState)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    screenState_ = screenState;
-    DebugLog("Screen changed screenState %{public}d", screenState_);
-    nfccHost_->SetScreenStatus(screenState_);
-}
-
-void NfcService::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    std::string action = data->GetWant().GetAction();
-    if (action.empty()) {
-        ErrorLog("action is empty");
-        return;
-    }
-    if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
-        (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
-        AppDataParser::GetInstance().HandleAppAddOrChangedEvent(data);
-    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        AppDataParser::GetInstance().HandleAppRemovedEvent(data);
-    } else {
-        DebugLog("not need event.");
-    }
-}
-
-void NfcService::CommitRouting()
-{
-    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMMIT_ROUTING), ROUTING_DELAY_TIME);
-}
-
-void NfcService::HandleCommitRouting()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcState_ == KITS::STATE_OFF || nfcState_ == KITS::STATE_TURNING_OFF) {
-        DebugLog("NOT Handle CommitRouting in state off or turning off.");
-        return;
-    }
-    if (currPollingParams_->ShouldEnablePolling()) {
-        bool result = nfccHost_->CommitRouting();
-        DebugLog("HandleCommitRouting result = %{public}d", result);
-    } else {
-        DebugLog("NOT Handle CommitRouting when polling not enabled.");
-    }
-}
-
-void NfcService::ComputeRoutingParams()
-{
-    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS), ROUTING_DELAY_TIME);
-}
-
-void NfcService::HandleComputeRoutingParams()
-{
-    if (!IsNfcEnabled()) {
-        ErrorLog("HandleComputeRoutingParams: NFC not enabled, do not Compute Routing Params");
-        return;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
-    bool result = nfccHost_->ComputeRoutingParams();
-    DebugLog("HandleComputeRoutingParams result = %{public}d", result);
-}
-
-uint16_t NfcService::GetTechMaskFromTechList(std::vector<uint32_t> &discTech)
-{
-    uint16_t techMask = 0;
-    for (uint16_t i = 0; i < sizeof(discTech); i++) {
-        switch (discTech[i]) {
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_A_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_A;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_B_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_B;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_F_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_F;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_V_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_V;
-                break;
-            default:
-                break;
-        }
-    }
-    return techMask;
-}
-
-bool NfcService::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
-{
-    if (!IsNfcEnabled()) {
-        ErrorLog("EnableForegroundDispatch: NFC not enabled, do not set foreground");
-        return false;
-    }
-    bool isDisablePolling = (discTech.size() == 0);
-    DebugLog("EnableForegroundDispatch: element: %{public}s/%{public}s",
-        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (!isDisablePolling) {
-        foregroundData_.isEnable_ = true;
-        foregroundData_.techMask_ = GetTechMaskFromTechList(discTech);
-        foregroundData_.element_ = element;
-        foregroundData_.callback_ = callback;
-    }
-    StartPollingLoop(true);
-    return true;
-}
-
-bool NfcService::DisableForegroundDispatch(AppExecFwk::ElementName element)
-{
-    DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
-        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    foregroundData_.isEnable_ = false;
-    foregroundData_.techMask_ = 0xFFFF;
-    foregroundData_.callerToken_ = 0;
-    foregroundData_.callback_ = nullptr;
-
-    StartPollingLoop(true);
-    return true;
-}
-
-bool NfcService::DisableForegroundByDeathRcpt()
-{
-    return DisableForegroundDispatch(foregroundData_.element_);
-}
-
-bool NfcService::IsForegroundEnabled()
-{
-    return foregroundData_.isEnable_;
-}
-
-void NfcService::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
-{
-    if (!IsForegroundEnabled() || foregroundData_.callback_ == nullptr) {
-        ErrorLog("SendTagToForeground: invalid foreground state");
-        return;
-    }
-    DebugLog("SendTagToForeground: OnTagDiscovered, tagInfo = %{public}s", tagInfo.ToString().c_str());
-    foregroundData_.callback_->OnTagDiscovered(tagInfo);
 }
 }  // namespace NFC
 }  // namespace OHOS

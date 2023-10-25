@@ -15,6 +15,7 @@
 #include "ce_service.h"
 #include "nfc_event_publisher.h"
 #include "nfc_event_handler.h"
+#include "run_on_demaind_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -31,7 +32,7 @@ CeService::~CeService()
 
 void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 {
-    NfcEventPublisher::PublishNfcFieldStateChanged(isFieldOn);
+    RunOnDemaindManager::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
 }
 
 void CeService::HandleFieldActivated()

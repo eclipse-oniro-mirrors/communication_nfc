@@ -47,14 +47,17 @@ typedef struct {
     std::string appPackageName;
 } NfcFailedParams;
 
-void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
-void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
-                                 int closeRequestCnt, int closeFailCnt);
-void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
-                             int typeBCnt, int typeFCnt, int typeVCnt);
-void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
-void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
-NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+class NfcHisysEvent{
+public:
+    static void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
+    static void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
+                                            int closeRequestCnt, int closeFailCnt);
+    static void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
+                                        int typeBCnt, int typeFCnt, int typeVCnt);
+    static void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
+    static void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
+    static NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+};
 }  // namespace NFC
 }  // namespace OHOS
 #endif

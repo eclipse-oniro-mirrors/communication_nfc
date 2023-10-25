@@ -39,12 +39,8 @@ public:
     NfcServiceImpl() {};
     virtual ~NfcServiceImpl() {};
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
-    bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
-        const sptr<KITS::IForegroundCallback> &callback) override;
-    bool DisableForegroundDispatch(AppExecFwk::ElementName element) override;
-    bool DisableForegroundByDeathRcpt() override;
-    bool IsForegroundEnabled() override;
-    void SendTagToForeground(KITS::TagInfoParcelable tagInfo) override;
+    std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
+    std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
 };
 }
 }

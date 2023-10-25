@@ -39,6 +39,7 @@ TagSession::TagSession(std::shared_ptr<INfcService> service)
     }
     nfccHost_ = service->GetNfccHost();
     tagDispatcher_ = service->GetTagDispatcher();
+    nfcPollingManager_ = service->GetNfcPollingManager();
 }
 
 TagSession::~TagSession()
@@ -392,7 +393,11 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
 KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
-    if (nfcService_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
+    if (nfcPollingManager_.expired()) {
+        ErrorLog("RegForegroundDispatch:nfcPollingManager_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
+    if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -400,7 +405,11 @@ KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName element, std::vect
 
 KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName element)
 {
-    if (nfcService_.lock()->DisableForegroundDispatch(element)) {
+    if (nfcPollingManager_.expired()) {
+        ErrorLog("UnregForegroundDispatch:nfcPollingManager_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
+    if (nfcPollingManager_.lock()->DisableForegroundDispatch(element)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
