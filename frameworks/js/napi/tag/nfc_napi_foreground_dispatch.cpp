@@ -145,7 +145,8 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
         napi_create_object(env, &eachElement);
         AppExecFwk::PacMap extra = tagInfo.GetTechExtrasDataList()[i];
         int technology = tagInfo.GetTechList()[i];
-        if (technology == static_cast<int>(TagTechnology::NFC_A_TECH)) {
+        if (technology == static_cast<int>(TagTechnology::NFC_A_TECH) ||
+            technology == static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
             // for NFCA, parse extra SAK and ATQA
             napi_create_uint32(env, extra.GetIntValue(KITS::TagInfo::SAK, 0), &propValue);
             napi_set_named_property(env, eachElement, KITS::TagInfo::SAK, propValue);

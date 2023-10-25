@@ -299,16 +299,18 @@ void TagHost::DoTargetTypeIso144433b(AppExecFwk::PacMap &pacMap, int index)
         return;
     }
 
-    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) < NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) {
+    if (KITS::NfcSdkCommon::GetHexStrBytesLen(poll) <
+        (NCI_APP_DATA_LENGTH + NCI_PROTOCOL_INFO_LENGTH) * KITS::HEX_BYTE_LEN) {
         DebugLog("DoTargetTypeIso144433b poll.len: %{public}d", KITS::NfcSdkCommon::GetHexStrBytesLen(poll));
         return;
     }
 
-    std::string appData = poll.substr(0, NCI_APP_DATA_LENGTH);
+    std::string appData = poll.substr(0, (NCI_APP_DATA_LENGTH * KITS::HEX_BYTE_LEN));
     pacMap.PutStringValue(KITS::TagInfo::APP_DATA, appData);
     DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B APP_DATA: %{public}s", appData.c_str());
 
-    std::string protoInfo = poll.substr(NCI_APP_DATA_LENGTH, NCI_PROTOCOL_INFO_LENGTH);
+    std::string protoInfo = poll.substr((NCI_APP_DATA_LENGTH * KITS::HEX_BYTE_LEN),
+                                        (NCI_PROTOCOL_INFO_LENGTH * KITS::HEX_BYTE_LEN));
     pacMap.PutStringValue(KITS::TagInfo::PROTOCOL_INFO, protoInfo);
     DebugLog("ParseTechExtras::TARGET_TYPE_ISO14443_3B PROTOCOL_INFO: %{public}s", protoInfo.c_str());
 }
@@ -387,6 +389,7 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(int index)
     DebugLog("ParseTechExtras::targetType: %{public}d", targetType);
     switch (targetType) {
         case TARGET_TYPE_MIFARE_CLASSIC:
+            DoTargetTypeIso144433a(pacMap, index);
             break;
 
         case TARGET_TYPE_ISO14443_3A: {
