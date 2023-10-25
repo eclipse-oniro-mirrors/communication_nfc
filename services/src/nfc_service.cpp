@@ -24,6 +24,7 @@
 #include "nfc_database_helper.h"
 #include "nfc_event_handler.h"
 #include "nfc_hisysevent.h"
+#include "nfc_nci_adaptor.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_timer.h"
@@ -424,6 +425,13 @@ bool NfcService::IsNfcEnabled()
     std::lock_guard<std::mutex> lock(mutex_);
     DebugLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
+}
+
+void NfcService::HandleShutdown()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    DebugLog("device is shutting down");
+    NCI::NfcNciAdaptor::GetInstance().NfcAdaptationDeviceShutdown();
 }
 }  // namespace NFC
 }  // namespace OHOS
