@@ -66,12 +66,12 @@ static uint8_t RW_TAG_SLP_REQ[] = {0x50, 0x00};
 static uint8_t RW_DESELECT_REQ[] = {0xC2};
 #endif
 static const unsigned int INVALID_TAG_INDEX = 0xFF;
-static uint8_t MIFARE_RESPONSE_LEN = 0x10;  // Mifare response len
-static uint8_t T2T_ACK_RESPONSE = 0x0A; // T2T ack response
-static uint32_t TIME_MUL_100MS = 100; // ms
-static uint8_t MIN_FWI = 0;  // min waiting time integer for protocol frame
-static uint8_t MAX_FWI = 14; // max waiting time integer for protocol frame
-static uint8_t NON_STD_CARD_SAK = 0x13;
+static const uint8_t MIFARE_RESPONSE_LEN = 0x10;  // Mifare response len
+static const uint8_t T2T_ACK_RESPONSE = 0x0A; // T2T ack response
+static const uint32_t TIME_MUL_100MS = 100; // ms
+static const uint8_t MIN_FWI = 0;  // min waiting time integer for protocol frame
+static const uint8_t MAX_FWI = 14; // max waiting time integer for protocol frame
+static const uint8_t NON_STD_CARD_SAK = 0x13;
 static std::basic_string<uint8_t> receivedData_;
 
 std::mutex TagNciAdapter::rfDiscoveryMutex_;
@@ -475,7 +475,7 @@ bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface, bool isSwitchingIface)
                     retry++;
                     ErrorLog("TagNciAdapter::Reselect:connect waiting retry "
                         "cnt = %{public}d, connect succ = %{public}d", retry, isReconnected_);
-                } while (isReconnected_ == false && retry < 3);
+                } while (isReconnected_ == false && retry < 3);  // 3 represents the number of retries that occur
 #if (NXP_EXTNS == TRUE)
             }
             if (discRstEvtNum_) {
@@ -1570,7 +1570,7 @@ void TagNciAdapter::SetMultiTagData(tNFC_RESULT_DEVT& discNtf)
             }
         } else if (discNtf.more == NCI_DISCOVER_NTF_LAST) {
             bool isMFCDetected = false;
-            for (int i = 0; i < techListIndex_; i++) {
+            for (uint32_t i = 0; i < techListIndex_; i++) {
                 if (tagRfProtocols_[i] == NFC_PROTOCOL_MIFARE) {
                     isMFCDetected = true;
                 }
@@ -1607,7 +1607,7 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
                 ErrorLog("TagNciAdapter::HandleDiscResult, memcpy nfcid1 error: %{public}d", err);
             }
         }
-    } else if (discoveryNtf.rf_disc_id == 2) { // second UID
+    } else if (discoveryNtf.rf_disc_id == 2) {  // 2 represents the second uid
         if (discoveryNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
             err = memcpy_s(nfcID2, sizeof(nfcID2), discoveryNtf.rf_tech_param.param.pa.nfcid1,
                            discoveryNtf.rf_tech_param.param.pa.nfcid1_len);
@@ -1629,13 +1629,13 @@ void TagNciAdapter::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
     if (discoveryNtf.more == NCI_DISCOVER_NTF_MORE) {
         return;
     }
-    for (int i = 0; i < discNtfIndex_; i++) {
+    for (uint32_t i = 0; i < discNtfIndex_; i++) {
         InfoLog("TagNciAdapter::HandleDiscResult, index: %{public}d, discId: %{public}d, protocl: %{public}d",
                 i, multiTagDiscId_[i], multiTagDiscProtocol_[i]);
     }
     if (discoveryNtf.rf_disc_id > 2) {
         InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has more than 2 uids");
-    } else if (discoveryNtf.rf_disc_id == 2) {
+    } else if (discoveryNtf.rf_disc_id == 2) { // this multiTag has 2 uids
         if (memcmp(nfcID1_, nfcID2, sizeof(nfcID1_)) == 0) {
             InfoLog("TagNciAdapter::HandleDiscResult, this multiTag has 2 same uids");
             isMultiTag_ = false;
