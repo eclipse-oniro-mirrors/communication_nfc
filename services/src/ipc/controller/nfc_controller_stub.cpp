@@ -19,6 +19,7 @@
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
 #include "permission_tools.h"
+#include "run_on_demaind_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -61,7 +62,7 @@ int NfcControllerStub::HandleGetState(MessageParcel& data, MessageParcel& reply)
 
 int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     return TurnOn();
@@ -69,7 +70,7 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 
 int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::SYS_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     return TurnOff();

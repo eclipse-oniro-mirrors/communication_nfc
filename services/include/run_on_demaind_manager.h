@@ -14,12 +14,52 @@
  */
 #ifndef RUN_ON_DEMAIND_MANAGER_H
 #define RUN_ON_DEMAIND_MANAGER_H
+#include "run_on_demaind_proxy.h"
 
 namespace OHOS {
 namespace NFC {
 class RunOnDemaindManager {
 public:
+    RunOnDemaindManager();
+    ~RunOnDemaindManager();
+
+    static RunOnDemaindManager &GetInstance()
+    {
+        static RunOnDemaindManager instance;
+        return instance;
+    }
+
+    void HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    void InitAppList();
+    std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
+
+    KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);
+    KITS::ErrorCode NfcDataSetValue(Uri &uri, const std::string &column, int &value);
+
+    void NfcDataSetString(const std::string& key, const std::string& value);
+    std::string NfcDataGetString(const std::string& key);
+    void NfcDataSetInt(const std::string& key, const int value);
+    int NfcDataGetInt(const std::string& key);
+    void NfcDataClear();
+    void NfcDataDelete(const std::string& key);
+    void UpdateNfcState(int newState);
+
     void PublishNfcStateChanged(int newState);
+    void PublishNfcFieldStateChanged(bool isFieldOn);
+
+    void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
+    void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
+                                     int closeRequestCnt, int closeFailCnt);
+    void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
+                                 int typeBCnt, int typeFCnt, int typeVCnt);
+    void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
+    void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
+    NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+
+    bool IsGranted(std::string permission);
+
+    void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
 };
 } // NFC
 } // OHOS

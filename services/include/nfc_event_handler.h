@@ -17,20 +17,26 @@
 #include "common_event_manager.h"
 #include "event_handler.h"
 #include "infcc_host.h"
-#include "nfc_service.h"
 #include "tag_dispatcher.h"
 
 namespace OHOS {
 namespace NFC {
+class NfcService;
+class CeService;
+class NfcPollingManager;
+class NfcRoutingManager;
 class NfcEventHandler final : public AppExecFwk::EventHandler {
 public:
     explicit NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
-                                std::weak_ptr<NfcService> servcie);
+                             std::weak_ptr<NfcService> service);
     ~NfcEventHandler();
     NfcEventHandler& operator=(const NfcEventHandler&) = delete;
     NfcEventHandler(const NfcEventHandler&) = delete;
 
-    void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher, std::weak_ptr<CeService> ceService);
+    void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
+                   std::weak_ptr<CeService> ceService,
+                   std::weak_ptr<NfcPollingManager> nfcPollingManager,
+                   std::weak_ptr<NfcRoutingManager> nfcRoutingManager);
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 
     void SubscribeScreenChangedEvent();
@@ -49,6 +55,8 @@ private:
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     std::weak_ptr<CeService> ceService_ {};
+    std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
+    std::weak_ptr<NfcRoutingManager> nfcRoutingManager_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS

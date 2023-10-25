@@ -13,13 +13,17 @@
  * limitations under the License.
  */
 #include "tag_dispatcher.h"
+
 #include <functional>
+
 #include "app_data_parser.h"
 #include "itag_host.h"
 #include "loghelper.h"
 #include "ndef_message.h"
 #include "nfc_sdk_common.h"
 #include "nfc_hisysevent.h"
+#include "nfc_service.h"
+#include "run_on_demaind_manager.h"
 #include "tag_ability_dispatcher.h"
 
 namespace OHOS {
@@ -46,7 +50,7 @@ void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
 
 int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
 {
-    if (tag == nullptr || nfcService_ == nullptr) {
+    if (tag == nullptr || nfcService_ == nullptr || nfcService_->GetNfcPollingManager().expired()) {
         ErrorLog("HandleTagFound, invalid state.");
         return 0;
     }
@@ -59,10 +63,10 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     DebugLog("fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
 
     // skip ndef checking for foreground dispatch scenario
-    if (nfcService_->IsForegroundEnabled()) {
+    if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
         RegisterTagHost(tag);
         tag->OnFieldChecking(callback, fieldOnCheckInterval_);
-        nfcService_->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
+        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
         return 0;
     }
     std::string ndefMsg = tag->FindNdefTech();
@@ -77,6 +81,10 @@ int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
     lastNdefMsg_ = ndefMsg;
     RegisterTagHost(tag);
     tag->OnFieldChecking(callback, fieldOnCheckInterval_);
+    if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
+        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
+        return 0;
+    }
     DispatchTag(tag);
     return 0;
 }
@@ -144,10 +152,11 @@ void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
             tagFoundCnt++;
         }
     }
-    WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt, typeBTagFoundCnt, typeFTagFoundCnt, typeVTagFoundCnt);
+    RunOnDemaindManager::GetInstance().WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt,
+        typeBTagFoundCnt, typeFTagFoundCnt, typeVTagFoundCnt);
 
     // start application ability for tag found.
-    TagAbilityDispatcher::DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
+    RunOnDemaindManager::GetInstance().DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
 }
 
 void TagDispatcher::HandleTagDebounce()

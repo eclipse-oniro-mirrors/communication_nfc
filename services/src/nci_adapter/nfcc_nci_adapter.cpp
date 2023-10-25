@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 #include "nfcc_nci_adapter.h"
-#include "nfcc_host.h"
+
 #include "loghelper.h"
 #include "nfc_config.h"
-#include "nfc_sdk_common.h"
+#include "nfcc_host.h"
+#include "nfc_hisysevent.h"
 #include "nfc_nci_adaptor.h"
+#include "nfc_sdk_common.h"
 #include "routing_manager.h"
 #include "tag_nci_adapter.h"
 #include "vendor_ext_service.h"
-#include "nfc_hisysevent.h"
+#include "run_on_demaind_manager.h"
 
 using namespace OHOS::NFC;
 namespace OHOS {
@@ -87,16 +89,16 @@ void NfccNciAdapter::StartRfDiscovery(bool isStart) const
     if (status == NFA_STATUS_OK) {
         rfEnabled_ = isStart;
         // Start passive listen success, record event
-        WritePassiveListenHiSysEvent(DEFAULT_COUNT, NOT_COUNT);
+        RunOnDemaindManager::GetInstance().WritePassiveListenHiSysEvent(DEFAULT_COUNT, NOT_COUNT);
         // wait for NFA_RF_DISCOVERY_STARTED_EVT or NFA_RF_DISCOVERY_STOPPED_EVT
         nfcStartStopPollingEvent_.Wait();
     } else {
         DebugLog("NfccNciAdapter::StartRfDiscovery: Failed to start/stop RF discovery; error=0x%{public}X", status);
         // Start passive listen fail, record events
-        WritePassiveListenHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT);
-        NfcFailedParams* nfcFailedParams = BuildFailedParams(
+        RunOnDemaindManager::GetInstance().WritePassiveListenHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT);
+        NfcFailedParams* nfcFailedParams = RunOnDemaindManager::GetInstance().BuildFailedParams(
             MainErrorCode::PASSIVE_LISTEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        WriteNfcFailedHiSysEvent(nfcFailedParams);
+        RunOnDemaindManager::GetInstance().WriteNfcFailedHiSysEvent(nfcFailedParams);
     }
 }
 

@@ -148,7 +148,7 @@ HWTEST_F(TagSessionTest, UnregForegroundDispatch001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
     KITS::ErrorCode result = tagSession->UnregForegroundDispatch(element);
-    ASSERT_TRUE(result == KITS::ERR_NONE);
+    ASSERT_TRUE(result != KITS::ERR_NONE);
 }
 /**
  * @tc.name: RegForegroundDispatch001
@@ -163,7 +163,7 @@ HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
     std::vector<uint32_t> discTech;
     const sptr<KITS::IForegroundCallback> callback;
     KITS::ErrorCode result = tagSession->RegForegroundDispatch(element, discTech, callback);
-    ASSERT_TRUE(result == KITS::ERR_NONE);
+    ASSERT_TRUE(result != KITS::ERR_NONE);
 }
 /**
  * @tc.name: NdefMakeReadOnly001

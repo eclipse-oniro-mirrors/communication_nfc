@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 #include "nfc_nci_adaptor.h"
-#include "vendor_ext_service.h"
+
+#include <dlfcn.h>
+
 #include "loghelper.h"
 #include "nfa_api.h"
 #include "nfc_hal_api.h"
-#include <dlfcn.h>
+#include "vendor_ext_service.h"
 
 namespace OHOS {
 namespace NFC {

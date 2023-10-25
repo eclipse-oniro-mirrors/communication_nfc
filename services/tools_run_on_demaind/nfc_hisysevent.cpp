@@ -27,7 +27,7 @@ static void WriteEvent(const std::string& eventType, HiviewDFX::HiSysEvent::Even
     }
 }
 
-void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
+void NfcHisysEvent::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
 {
     WriteEvent("OPERATION_FAILED", HiviewDFX::HiSysEvent::EventType::FAULT,
                "MAIN_ERROR_CODE", static_cast<int>(failedParams->mainErrorCode),
@@ -40,7 +40,7 @@ void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
                "APP_PACKAGE_NAME", failedParams->appPackageName);
 }
 
-void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
+void NfcHisysEvent::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                  int closeRequestCnt, int closeFailCnt)
 {
     WriteEvent("OPEN_AND_CLOSE", HiviewDFX::HiSysEvent::EventType::STATISTIC,
@@ -50,7 +50,7 @@ void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                "CLOSE_FAILED_CNT", closeFailCnt);
 }
 
-void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
+void NfcHisysEvent::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                              int typeBCnt, int typeFCnt, int typeVCnt)
 {
     WriteEvent("TAG_FOUND", HiviewDFX::HiSysEvent::EventType::STATISTIC,
@@ -61,21 +61,21 @@ void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                "TYPE_V_TAG_FOUND", typeVCnt);
 }
 
-void WritePassiveListenHiSysEvent(int requestCnt, int failCnt)
+void NfcHisysEvent::WritePassiveListenHiSysEvent(int requestCnt, int failCnt)
 {
     WriteEvent("PASSIVE_LISTEN", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "REQUEST_PASSIVE_LISTEN_CNT", requestCnt,
                "FAILED_PASSIVE_LISTEN_CNT", failCnt);
 }
 
-void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
+void NfcHisysEvent::WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
 {
     WriteEvent("FIRMWARE_UPDATE", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "REQUEST_FIRMWARE_UPDATE_CNT", requestCnt,
                "FAILED_FIRMWARE_UPDATE_CNT", failCnt);
 }
 
-NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+NfcFailedParams* NfcHisysEvent::BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
 {
     NfcFailedParams nfcFailedParams;
     nfcFailedParams.mainErrorCode = mainErrorCode;

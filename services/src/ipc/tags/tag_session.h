@@ -21,6 +21,7 @@
 #include "itag_session.h"
 #include "tag_dispatcher.h"
 #include "tag_session_stub.h"
+#include "nfc_polling_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -145,6 +146,8 @@ private:
     std::weak_ptr<NFC::INfcService> nfcService_ {};
     std::weak_ptr<NCI::INfccHost> nfccHost_ {};
     std::weak_ptr<TagDispatcher> tagDispatcher_ {};
+    // polling manager
+    std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
 };
 }  // namespace TAG
 }  // namespace NFC

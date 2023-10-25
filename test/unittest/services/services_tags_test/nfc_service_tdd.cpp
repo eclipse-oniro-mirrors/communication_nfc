@@ -55,29 +55,16 @@ std::weak_ptr<TAG::TagDispatcher> NfcServiceImpl::GetTagDispatcher()
     return tagDispatcher;
 }
 
-bool NfcServiceImpl::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
+std::weak_ptr<NfcPollingManager> NfcServiceImpl::GetNfcPollingManager()
 {
-    return true;
+    std::shared_ptr<NfcPollingManager> nfcPollingManager = nullptr;
+    return nfcPollingManager;
 }
 
-bool NfcServiceImpl::DisableForegroundDispatch(AppExecFwk::ElementName element)
+std::weak_ptr<NfcRoutingManager> NfcServiceImpl::GetNfcRoutingManager()
 {
-    return true;
-}
-
-bool NfcServiceImpl::DisableForegroundByDeathRcpt()
-{
-    return true;
-}
-
-bool NfcServiceImpl::IsForegroundEnabled()
-{
-    return true;
-}
-
-void NfcServiceImpl::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
-{
+    std::shared_ptr<NfcRoutingManager> nfcRoutingManager = nullptr;
+    return nfcRoutingManager;
 }
 }
 }

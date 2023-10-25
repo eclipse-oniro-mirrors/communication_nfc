@@ -39,6 +39,18 @@ OHOS::sptr<IRemoteObject> NfcServiceFuzz::GetTagServiceIface()
     return nullptr;
 }
 
+std::weak_ptr<NfcPollingManager> NfcServiceFuzz::GetNfcPollingManager()
+{
+    std::shared_ptr<NfcPollingManager> nfcPollingManager = nullptr;
+    return nfcPollingManager;
+}
+
+std::weak_ptr<NfcRoutingManager> NfcServiceFuzz::GetNfcRoutingManager()
+{
+    std::shared_ptr<NfcRoutingManager> nfcRoutingManager = nullptr;
+    return nfcRoutingManager;
+}
+
 int NfcServiceFuzz::GetScreenState()
 {
     return 0;
@@ -53,31 +65,6 @@ std::weak_ptr<TAG::TagDispatcher> NfcServiceFuzz::GetTagDispatcher()
 {
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher = std::make_shared<TAG::TagDispatcher>(nullptr);
     return tagDispatcher;
-}
-
-bool NfcServiceFuzz::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
-{
-    return true;
-}
-
-bool NfcServiceFuzz::DisableForegroundDispatch(AppExecFwk::ElementName element)
-{
-    return true;
-}
-
-bool NfcServiceFuzz::DisableForegroundByDeathRcpt()
-{
-    return true;
-}
-
-bool NfcServiceFuzz::IsForegroundEnabled()
-{
-    return true;
-}
-
-void NfcServiceFuzz::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
-{
 }
 }
 }

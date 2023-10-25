@@ -18,7 +18,6 @@
 #include "infc_controller_callback.h"
 #include "nfc_controller_stub.h"
 #include "nfc_sdk_common.h"
-#include "nfc_service.h"
 
 namespace OHOS {
 namespace NFC {

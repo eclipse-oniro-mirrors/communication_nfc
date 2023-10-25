@@ -20,6 +20,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "permission_tools.h"
+#include "run_on_demaind_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -80,7 +81,7 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
 
 int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleConnect, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -94,7 +95,7 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleReconnect, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -107,7 +108,7 @@ int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleDisconnect, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -119,7 +120,7 @@ int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleSetTimeout, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -133,7 +134,7 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
 
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleGetTimeout, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -146,7 +147,7 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
 
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleGetTechList, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -159,7 +160,7 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleIsTagFieldOn, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -170,7 +171,7 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
 
 int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleIsNdef, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -181,7 +182,7 @@ int TagSessionStub::HandleIsNdef(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleSendRawFrame, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -197,7 +198,7 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
 
 int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefRead, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -210,7 +211,7 @@ int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefWrite, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -224,7 +225,7 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefMakeReadOnly, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -236,7 +237,7 @@ int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& r
 
 int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleFormatNdef, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -249,7 +250,7 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleCanMakeReadOnly, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -262,7 +263,7 @@ int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& re
 
 int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleGetMaxTransceiveLength, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -275,7 +276,7 @@ int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessagePar
 
 int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageParcel& reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleIsSupportedApdusExtended, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -302,7 +303,7 @@ void TagSessionStub::RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote
 
 int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParcel &reply)
 {
-    if (!PermissionTools::IsGranted(OHOS::NFC::TAG_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleRegForegroundDispatch, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
