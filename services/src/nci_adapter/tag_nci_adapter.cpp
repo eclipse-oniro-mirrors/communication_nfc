@@ -32,7 +32,7 @@ static const int DEFAULT_TIMEOUT = 1000;
 static const int READ_NDEF_TIMEOUT = 5000;
 static const int CHECK_NDEF_TIMEOUT = 3000;
 static const int RETRY_RECONNECT_TIMEOUT = 500;
-static const int T2TA_HALT_PICC_TIMEOUT = 10 * 1000; // US, 10S
+static const int T2TA_HALT_PICC_TIMEOUT = 10 * 1000; // us, 10S
 static const int ISO3B_HALT_PICC_TIMEOUT = 100;
 static const int ISO14443_3A_DEFAULT_TIMEOUT = 618;   // NfcA
 static const int ISO14443_3B_DEFAULT_TIMEOUT = 1000;  // NfcB
@@ -152,6 +152,7 @@ TagNciAdapter::TagNciAdapter()
     } else {
         isLegacyMifareReader_ = true;
     }
+    DebugLog("TagNciAdapter::TagNciAdapter: isLegacyMifareReader_ = %{public}d", isLegacyMifareReader_);
     if (NfcNciAdaptor::GetInstance().NfcConfigHasKey(NAME_NXP_NON_STD_CARD_TIMEDIFF)) {
         std::vector<uint8_t> nonStdTimeDiff;
         NfcNciAdaptor::GetInstance().NfcConfigGetBytes(NAME_NXP_NON_STD_CARD_TIMEDIFF, nonStdTimeDiff);
@@ -760,6 +761,9 @@ bool TagNciAdapter::IsTagFieldOn()
     if (!IsTagActive()) {
         return false;
     }
+    if (isInTransceive_ && IsMifareConnected()) {
+        return true;
+    }
     tNFA_STATUS status = NFA_STATUS_FAILED;
 #if (NXP_EXTNS == TRUE)
     if (tagRfProtocols_[0] == NFA_PROTOCOL_T3BT) {
@@ -779,8 +783,10 @@ bool TagNciAdapter::IsTagFieldOn()
             } else {
                 isTagFieldOn_ = true;
             }
+            isInTransceive_ = false;
             return isTagFieldOn_;
         }
+        isInTransceive_ = false;
     }
 #else
     if (IsMifareConnected() && isLegacyMifareReader_) {
@@ -881,7 +887,7 @@ void TagNciAdapter::SetConnectStatus(bool isStatusOk)
 {
     DebugLog("TagNciAdapter::SetConnectStatus");
     if (NfcNciAdaptor::GetInstance().IsExtMifareFuncSymbolFound()
-        && NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag()) {
+        && NfcNciAdaptor::GetInstance().ExtnsGetConnectFlag() && isLegacyMifareReader_) {
         DebugLog("TagNciAdapter::SetConnectStatus: ExtnsMfcActivated");
         NfcNciAdaptor::GetInstance().ExtnsMfcActivated();
         NfcNciAdaptor::GetInstance().ExtnsSetConnectFlag(false);

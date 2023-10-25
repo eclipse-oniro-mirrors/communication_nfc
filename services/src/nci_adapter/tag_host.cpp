@@ -174,6 +174,10 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
             continue;
         }
         fieldCheckWatchDog_.Wait(delayedMs);
+        if (isPauseFieldChecking_) {
+            // if field checking is paused in this interval, no checking this time
+            continue;
+        }
         bool result = TagNciAdapter::GetInstance().IsTagFieldOn();
         DebugLog("FieldCheckingThread::is tag field on = %{public}d", result);
         if (!result) {
