@@ -45,6 +45,7 @@ TagHost::TagHost(const std::vector<int>& tagTechList,
       isTagFieldOn_(true),
       isFieldChecking_(false),
       isPauseFieldChecking_(false),
+      isSkipNextFieldChecking_(false),
       addNdefTech_(false)
 {
 }
@@ -156,12 +157,14 @@ void TagHost::PauseFieldChecking()
 {
     DebugLog("TagHost::PauseFieldChecking");
     isPauseFieldChecking_ = true;
+    isSkipNextFieldChecking_ = true;
 }
 
 void TagHost::ResumeFieldChecking()
 {
     DebugLog("TagHost::ResumeFieldChecking");
     isPauseFieldChecking_ = false;
+    isSkipNextFieldChecking_ = true;
 }
 
 void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int delayedMs)
@@ -169,13 +172,15 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
     while (isFieldChecking_) {
         NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
         if (isPauseFieldChecking_) {
+            isSkipNextFieldChecking_ = false;
+
             // only wait when checking is paused
             fieldCheckWatchDog_.Wait(delayedMs);
             continue;
         }
         fieldCheckWatchDog_.Wait(delayedMs);
-        if (isPauseFieldChecking_) {
-            // if field checking is paused in this interval, no checking this time
+        if (isSkipNextFieldChecking_) {
+            // if field checking is paused or resumed in this interval, no checking this time
             continue;
         }
         bool result = TagNciAdapter::GetInstance().IsTagFieldOn();
