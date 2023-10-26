@@ -175,6 +175,7 @@ private:
     volatile bool isTagFieldOn_;
     volatile bool isFieldChecking_;
     volatile bool isPauseFieldChecking_;
+    volatile bool isSkipNextFieldChecking_;
     bool addNdefTech_;
     std::vector<int> technologyList_ {};
 
