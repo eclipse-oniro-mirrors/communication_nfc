@@ -48,7 +48,7 @@ ohos_shared_library("nfc_service") {
     cfi_cross_dso = true
     debug = false
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/card_emulation/ce_service.cpp",
     "src/ipc/controller/nfc_controller_callback_proxy.cpp",
