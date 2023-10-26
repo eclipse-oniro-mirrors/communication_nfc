@@ -54,6 +54,9 @@ enum class NfcCommonEvent {
     // notify field off
     MSG_NOTIFY_FIELD_OFF,
     MSG_NOTIFY_FIELD_OFF_TIMEOUT,
+
+    // device shutdown
+    MSG_SHUTDOWN,
 };
 
 enum class ScreenState {

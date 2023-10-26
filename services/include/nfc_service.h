@@ -82,6 +82,9 @@ private:
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID callerToken);
 
+    // shutdown event
+    void HandleShutdown();
+
 private:
     // ms wait for initialization, included firmware download.
     static constexpr const int WAIT_MS_INIT = 90 * 1000;

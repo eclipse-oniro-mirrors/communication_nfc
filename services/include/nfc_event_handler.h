@@ -41,16 +41,20 @@ public:
 
     void SubscribeScreenChangedEvent();
     void SubscribePackageChangedEvent();
+    void SubscribeShutdownEvent();
 
 protected:
     // Screen Changed Receiver
     class ScreenChangedReceiver;
-    // Package Changed Receiver；
+    // Package Changed Receiver
     class PackageChangedReceiver;
+    // Shutdown Event Receiver
+    class ShutdownEventReceiver;
 
 private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> screenSubscriber_ {};
     std::shared_ptr<EventFwk::CommonEventSubscriber> pkgSubscriber_ {};
+    std::shared_ptr<EventFwk::CommonEventSubscriber> shutdownSubscriber_ {};
 
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher_ {};

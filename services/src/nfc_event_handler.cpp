@@ -108,6 +108,42 @@ void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::Com
     }
 }
 
+class NfcEventHandler::ShutdownEventReceiver : public EventFwk::CommonEventSubscriber {
+public:
+    explicit ShutdownEventReceiver(std::weak_ptr<NfcService> nfcService,
+        const EventFwk::CommonEventSubscribeInfo& subscribeInfo);
+    ~ShutdownEventReceiver()
+    {
+    }
+    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
+
+private:
+    std::weak_ptr<NfcService> nfcService_ {};
+    std::weak_ptr<AppExecFwk::EventHandler> eventHandler_ {};
+};
+
+NfcEventHandler::ShutdownEventReceiver::ShutdownEventReceiver(std::weak_ptr<NfcService> nfcService,
+    const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
+    : EventFwk::CommonEventSubscriber(subscribeInfo),
+    nfcService_(nfcService),
+    eventHandler_(nfcService.lock()->eventHandler_)
+{
+}
+
+void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
+{
+    DebugLog("NfcEventHandler::ShutdownEventReceiver");
+    std::string action = data.GetWant().GetAction();
+    if (action.empty()) {
+        ErrorLog("action is empty");
+        return;
+    }
+    if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN) == 0) {
+        eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SHUTDOWN),
+                                        static_cast<int64_t>(0));
+    }
+}
+
 NfcEventHandler::NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner,
                                  std::weak_ptr<NfcService> service)
     : EventHandler(runner), nfcService_(service)
@@ -118,6 +154,7 @@ NfcEventHandler::~NfcEventHandler()
 {
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(screenSubscriber_);
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
+    EventFwk::CommonEventManager::UnSubscribeCommonEvent(shutdownSubscriber_);
 }
 
 void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
@@ -133,6 +170,7 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
 
     SubscribeScreenChangedEvent();
     SubscribePackageChangedEvent();
+    SubscribeShutdownEvent();
 }
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
@@ -167,6 +205,22 @@ void NfcEventHandler::SubscribePackageChangedEvent()
 
     if (!EventFwk::CommonEventManager::SubscribeCommonEvent(pkgSubscriber_)) {
         ErrorLog("Subscribe package changed event fail");
+    }
+}
+
+void NfcEventHandler::SubscribeShutdownEvent()
+{
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    shutdownSubscriber_ = std::make_shared<ShutdownEventReceiver>(nfcService_, subscribeInfo);
+    if (shutdownSubscriber_ == nullptr) {
+        ErrorLog("Create shutdown subscriber failed");
+        return;
+    }
+
+    if (!EventFwk::CommonEventManager::SubscribeCommonEvent(shutdownSubscriber_)) {
+        ErrorLog("Subscribe shutdown event fail");
     }
 }
 
@@ -219,6 +273,10 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT: {
             ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            break;
+        }
+        case NfcCommonEvent::MSG_SHUTDOWN: {
+            nfcService_.lock()->HandleShutdown();
             break;
         }
         default:
