@@ -116,8 +116,8 @@ public:
 
 public:
     static bool IsLittleEndian();
-    static std::string BytesVecToHexString(const unsigned char* charArray, uint32_t length);
-    static std::string UnsignedCharToHexString(const unsigned char charArray);
+    static std::string BytesVecToHexString(const unsigned char* src, uint32_t length);
+    static std::string UnsignedCharToHexString(const unsigned char src);
     static void HexStringToBytes(std::string &src, std::vector<unsigned char> &bytes);
     static unsigned char GetByteFromHexStr(const std::string src, uint32_t index);
     static uint32_t GetHexStrBytesLen(const std::string src);

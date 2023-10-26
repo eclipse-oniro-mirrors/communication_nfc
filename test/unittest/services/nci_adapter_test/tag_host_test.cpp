@@ -31,7 +31,7 @@ std::string tagUid = "5B7FCFA9";
 std::vector<std::string> tagPollBytes = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B",
     "0C", "0D", "0E", "0F", "10", "11"};
 std::vector<std::string> tagActivatedBytes = tagPollBytes;
-int connectedTechIndex = 0;
+int g_connectedTechIndex = 0;
 
 class TagHostTest : public testing::Test {
 public:
@@ -47,10 +47,10 @@ void TagHostTest::SetUp()
 {
     tag_ = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        connectedTechIndex);
+        g_connectedTechIndex);
     std::shared_ptr<NCI::ITagHost> tag = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        connectedTechIndex);
+        g_connectedTechIndex);
     tag = nullptr;
 }
 
@@ -118,14 +118,14 @@ HWTEST_F(TagHostTest, GetTechExtrasDataTest001, TestSize.Level1)
     tagActivatedBytes.clear();
     tag_ = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        connectedTechIndex);
+        g_connectedTechIndex);
     tag_->GetTechExtrasData();
     tagTechList = {1, 2, 3, 4, 5, 6};
     tagPollBytes = {"00", "01", "02", "03", "04", "05", "06"};
     tagActivatedBytes = tagPollBytes;
     tag_ = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        connectedTechIndex);
+        g_connectedTechIndex);
     tag_->GetTechExtrasData();
     EXPECT_FALSE(tag_->GetConnectedTech() == static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
 }

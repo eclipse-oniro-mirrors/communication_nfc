@@ -273,16 +273,16 @@ void NfccNciAdapter::DoNfaDiscResultEvt(tNFA_CONN_EVT_DATA* eventData)
     static tNFA_STATUS status = eventData->disc_result.status;
     DebugLog("DoNfaDiscResultEvt: status = 0x%{public}X", status);
 #if (NXP_EXTNS == TRUE)
-    static uint8_t prev_more_val = 0x00;
-    uint8_t cur_more_val = eventData->disc_result.discovery_ntf.more;
+    static uint8_t prevMoreVal = 0x00;
+    uint8_t curMoreVal = eventData->disc_result.discovery_ntf.more;
     bool isMoreValid = true;
-    if ((cur_more_val == 0x01) && (prev_more_val != 0x02)) {
+    if ((curMoreVal == 0x01) && (prevMoreVal != 0x02)) {
         ErrorLog("DoNfaDiscResultEvt: invalid more value");
         isMoreValid = false;
     } else {
         DebugLog("DoNfaDiscResultEvt: valid more value");
         isMoreValid = true;
-        prev_more_val = cur_more_val;
+        prevMoreVal = curMoreVal;
     }
 #endif
     if (!isMoreValid) {
