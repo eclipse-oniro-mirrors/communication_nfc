@@ -42,7 +42,7 @@ ohos_shared_library("nfc_inner_kits") {
     cfi_cross_dso = true
     debug = false
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/cardEmulation/cardEmulation.cpp",
     "src/controller/nfc_controller.cpp",

@@ -36,7 +36,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     cfi_cross_dso = true
     debug = false
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   sources = [
     "ndef_message.cpp",
     "nfc_sdk_common.cpp",

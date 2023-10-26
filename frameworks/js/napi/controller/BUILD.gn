@@ -23,7 +23,7 @@ ohos_shared_library("controller") {
     cfi_cross_dso = true
     debug = false
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [

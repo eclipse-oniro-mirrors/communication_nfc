@@ -31,7 +31,7 @@ ohos_shared_library("nfc_tools_on_demaind") {
     cfi_cross_dso = true
     debug = false
   }
-  stack_protector_ret = true
+  branch_protector_ret = "pac_ret"
   sources = [
     "app_data_parser.cpp",
     "nfc_data_share_impl.cpp",
