@@ -95,6 +95,10 @@ uint16_t NfcPollingManager::GetTechMaskFromTechList(std::vector<uint32_t> &discT
 void NfcPollingManager::StartPollingLoop(bool force)
 {
     InfoLog("StartPollingLoop force = %{public}d", force);
+    if (nfcService_.expired()) {
+        ErrorLog("StartPollingLoop: nfcService_ is nullptr.");
+        return;
+    }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("StartPollingLoop: NFC not enabled, do not Compute Routing Params.");
         return;
@@ -155,6 +159,10 @@ void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
 bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
+    if (nfcService_.expired()) {
+        ErrorLog("EnableForegroundDispatch: nfcService_ is nullptr.");
+        return false;
+    }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("EnableForegroundDispatch: NFC not enabled, do not set foreground");
         return false;

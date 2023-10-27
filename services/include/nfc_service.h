@@ -104,8 +104,6 @@ private:
     int nfcState_;
     // save screen state
     int screenState_ {};
-    // current polling params
-    std::shared_ptr<NfcPollingParams> currPollingParams_ {};
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock

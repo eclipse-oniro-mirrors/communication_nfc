@@ -250,6 +250,7 @@ std::string GetNapiStringValue(
         return defValue;
     }
 }
+
 std::string GetStringFromValue(napi_env env, napi_value value)
 {
     constexpr int32_t maxTextLength = 4096;
