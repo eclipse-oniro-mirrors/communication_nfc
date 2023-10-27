@@ -74,7 +74,6 @@ ohos_shared_library("nfc_service") {
     "src/nfc_service.cpp",
     "src/run_on_demaind_manager.cpp",
     "src/tag_dispatcher.cpp",
-    "src/utils/nfc_chip_type_parser.cpp",
     "src/utils/nfc_timer.cpp",
     "src/utils/nfc_watch_dog.cpp",
     "src/utils/synchronize_event.cpp",
