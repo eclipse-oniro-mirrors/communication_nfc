@@ -51,7 +51,7 @@ void NfcHisysEvent::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFail
 }
 
 void NfcHisysEvent::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
-                             int typeBCnt, int typeFCnt, int typeVCnt)
+                                            int typeBCnt, int typeFCnt, int typeVCnt)
 {
     WriteEvent("TAG_FOUND", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "TOTAL_TAG_FOUND_CNT", tagFoundCnt,
