@@ -23,14 +23,17 @@ NfcDatabaseHelper::NfcDatabaseHelper()
     fileName_ = "/data/nfc/nfc_preferences.xml";
     errCode_ = 0;
 }
+
 NfcDatabaseHelper::~NfcDatabaseHelper()
 {
 }
+
 NfcDatabaseHelper& NfcDatabaseHelper::GetInstance()
 {
     static NfcDatabaseHelper sNfcPrefImpl;
     return sNfcPrefImpl;
 }
+
 std::shared_ptr<NativePreferences::Preferences> NfcDatabaseHelper::GetPreference(const std::string& fileName)
 {
     DebugLog("Getting preference from distributed data management system");

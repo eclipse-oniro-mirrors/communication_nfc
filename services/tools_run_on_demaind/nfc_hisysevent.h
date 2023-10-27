@@ -47,7 +47,7 @@ typedef struct {
     std::string appPackageName;
 } NfcFailedParams;
 
-class NfcHisysEvent{
+class NfcHisysEvent {
 public:
     static void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
     static void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,

@@ -55,6 +55,7 @@ std::string RunOnDemaindProxy::NfcDataGetString(const std::string& key)
 {
     return NfcDatabaseHelper::GetInstance().GetString(key);
 }
+
 void RunOnDemaindProxy::NfcDataSetInt(const std::string& key, const int value)
 {
     NfcDatabaseHelper::GetInstance().SetInt(key, value);
@@ -79,6 +80,7 @@ void RunOnDemaindProxy::UpdateNfcState(int newState)
 {
     NfcDatabaseHelper::GetInstance().UpdateNfcState(newState);
 }
+
 void RunOnDemaindProxy::PublishNfcStateChanged(int newState)
 {
     NfcEventPublisher::PublishNfcStateChanged(newState);

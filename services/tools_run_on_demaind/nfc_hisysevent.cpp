@@ -41,7 +41,7 @@ void NfcHisysEvent::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams
 }
 
 void NfcHisysEvent::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
-                                 int closeRequestCnt, int closeFailCnt)
+                                                int closeRequestCnt, int closeFailCnt)
 {
     WriteEvent("OPEN_AND_CLOSE", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "OPEN_REQUEST_CNT", openRequestCnt,

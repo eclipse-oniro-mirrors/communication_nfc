@@ -136,8 +136,8 @@ ohos_unittest("services_test") {
 
   sources = [
     "services_test/app_data_parser_test.cpp",
+    "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
-    "services_test/nfc_service_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
