@@ -75,8 +75,8 @@ public:
     int Transceive(std::string& request, std::string& response);
     static void SetTimeout(int& timeout, int& technology);
     int GetTimeout(int technology) const;
-    void ResetTimeout();
-    void ResetTag();
+    static void ResetTimeout();
+    static void ResetTag();
 
     // functions for ndef tag only.
     void RegisterNdefHandler();
@@ -247,11 +247,11 @@ private:
     static bool isMultiTag_;
     static uint32_t discRstEvtNum_; // number of tag, increased with the times of NFA_DISC_RESULT_EVT
                                     // and decreased while selecting next tag
-    uint32_t discNtfIndex_;
+    static uint32_t discNtfIndex_;
     static uint32_t multiTagTmpTechIdx_; // to store the last techlist index for the last tag
     static int selectedTagIdx_;          // to store the last selected tag index
-    std::vector<int> multiTagDiscId_ {};
-    std::vector<int> multiTagDiscProtocol_ {};
+    static std::vector<int> multiTagDiscId_;
+    static std::vector<int> multiTagDiscProtocol_;
     static uint32_t techListIndex_;             // current tech list index
 
     // special vals for special tags

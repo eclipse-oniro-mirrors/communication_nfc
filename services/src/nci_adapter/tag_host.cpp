@@ -107,6 +107,7 @@ bool TagHost::Disconnect()
         NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
         fieldCheckWatchDog_.NotifyOne();
     }
+    OffFieldChecking();
     DebugLog("TagHost::Disconnect exit, result = %{public}d", result);
     return result;
 }
@@ -205,6 +206,8 @@ void TagHost::OnFieldChecking(TagDisconnectedCallBack callback, int delayedMs)
     DebugLog("TagHost::OnFieldChecking");
     isTagFieldOn_ = true;
     isFieldChecking_ = true;
+    isSkipNextFieldChecking_ = false;
+    isPauseFieldChecking_ = false;
     if (delayedMs <= 0) {
         delayedMs = DEFAULT_PRESENCE_CHECK_WATCH_DOG_TIMEOUT;
     }
@@ -215,6 +218,7 @@ void TagHost::OffFieldChecking()
 {
     DebugLog("TagHost::OffFieldChecking");
     isFieldChecking_ = false;
+    isSkipNextFieldChecking_ = true;
 }
 
 void TagHost::SetTimeout(int timeout, int technology)
