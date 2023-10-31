@@ -122,8 +122,11 @@ bool TagNciAdapter::isFelicaLite_ = false;
 bool TagNciAdapter::isMifareUltralight_ = false;
 bool TagNciAdapter::isMifareDESFire_ = false;
 uint32_t TagNciAdapter::discRstEvtNum_ = 0;
+uint32_t TagNciAdapter::discNtfIndex_ = 0;
 uint32_t TagNciAdapter::multiTagTmpTechIdx_ = 0;
 int TagNciAdapter::selectedTagIdx_ = 0;
+std::vector<int> TagNciAdapter::multiTagDiscId_ = std::vector<int>();
+std::vector<int> TagNciAdapter::multiTagDiscProtocol_ = std::vector<int>();
 unsigned short int TagNciAdapter::ndefTypeHandle_ = NFA_HANDLE_INVALID;
 std::string TagNciAdapter::readNdefData = "";
 std::vector<int> TagNciAdapter::tagTechList_ = std::vector<int>();
@@ -138,7 +141,6 @@ uint8_t firstUid[NCI_NFCID1_MAX_LEN] = {0};
 
 TagNciAdapter::TagNciAdapter()
     : presChkOption_(NFA_RW_PRES_CHK_DEFAULT),
-      discNtfIndex_(0),
       isSkipNdefRead_(false),
       isMultiProtoMFC_(false)
 {
@@ -350,7 +352,7 @@ tNFA_STATUS TagNciAdapter::SendRawFrameForHaltPICC()
 
 bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface, bool isSwitchingIface)
 {
-    ErrorLog("TagNciAdapter::Reselect: target interface = %{public}d, connected RfIface_ = %{public}d, "
+    InfoLog("TagNciAdapter::Reselect: target interface = %{public}d, connected RfIface_ = %{public}d, "
              "connectedProtocol_ = %{public}d", rfInterface, connectedRfIface_, connectedProtocol_);
     rfDiscoveryMutex_.lock();
     if (isSwitchingIface && (rfInterface == connectedRfIface_)) {
@@ -762,6 +764,7 @@ bool TagNciAdapter::IsTagFieldOn()
         return false;
     }
     if (isInTransceive_ && IsMifareConnected()) {
+        DebugLog("TagNciAdapter::IsTagFieldOn, mifare in transceive");
         return true;
     }
     tNFA_STATUS status = NFA_STATUS_FAILED;
@@ -909,6 +912,7 @@ void TagNciAdapter::HandleDeactivatedResult(tNFA_DEACTIVATE_TYPE deactType)
         // clear Activation Params
     }
 #endif
+    ResetTag();
 }
 
 void TagNciAdapter::SetDeactivatedStatus()
@@ -1577,7 +1581,6 @@ void TagNciAdapter::ResetTag()
     multiTagTmpTechIdx_ = 0;
     discRstEvtNum_ = 0;
     discNtfIndex_ = 0;
-    multiTagTmpTechIdx_ = 0;
     selectedTagIdx_ = 0;
 
     // connection datas
@@ -1972,7 +1975,7 @@ void TagNciAdapter::SelectTheFirstTag()
 void TagNciAdapter::SelectTheNextTag()
 {
     if (discRstEvtNum_ == 0) {
-        ErrorLog("TagNciAdapter::SelectTheNextTag: next tag does not exist");
+        InfoLog("TagNciAdapter::SelectTheNextTag: next tag does not exist");
         return;
     }
     unsigned int currIdx = INVALID_TAG_INDEX;
