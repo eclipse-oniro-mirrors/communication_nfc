@@ -173,13 +173,14 @@ void TagHost::FieldCheckingThread(TagHost::TagDisconnectedCallBack callback, int
     while (isFieldChecking_) {
         NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
         if (isPauseFieldChecking_) {
-            isSkipNextFieldChecking_ = false;
-
             // only wait when checking is paused
             fieldCheckWatchDog_.Wait(delayedMs);
             continue;
+        } else {
+            isSkipNextFieldChecking_ = false;
         }
         fieldCheckWatchDog_.Wait(delayedMs);
+        DebugLog("TagHost::FieldCheckingThread, isSkipNextFieldChecking_ = %{public}d", isSkipNextFieldChecking_);
         if (isSkipNextFieldChecking_) {
             // if field checking is paused or resumed in this interval, no checking this time
             continue;

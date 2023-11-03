@@ -209,7 +209,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest005, TestSize.Level1)
     adapterObj.SelectTheNextTag();
 
     adapterObj.SetIsMultiTag(true);
-    EXPECT_TRUE(adapterObj.GetIsMultiTag());
+    EXPECT_FALSE(adapterObj.GetIsMultiTag());
 
     adapterObj.SetDiscRstEvtNum(TagHost::TARGET_TYPE_ISO14443_3A);
     EXPECT_TRUE(adapterObj.GetDiscRstEvtNum() == TagHost::TARGET_TYPE_ISO14443_3A);

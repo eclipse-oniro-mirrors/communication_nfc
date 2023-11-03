@@ -70,6 +70,8 @@ void MifareClassicTagTest::SetUp()
     std::vector<AppExecFwk::PacMap> tagTechExtras;
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, TEST_SAK);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -422,6 +424,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount002, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK01 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK01);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK01);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -447,6 +451,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount003, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK09 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK09);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK09);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -472,6 +478,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount004, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK10 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK10);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK10);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -497,6 +505,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount005, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK11 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK11);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK11);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -522,6 +532,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount006, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK18 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK18);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK18);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -547,6 +559,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount007, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK38 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK38);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK38);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
@@ -572,6 +586,8 @@ HWTEST_F(MifareClassicTagTest, GetSectorCount008, TestSize.Level1)
     AppExecFwk::PacMap mifareClassicExtrasData;
     AppExecFwk::PacMap nfcAExtrasData;
     //SAK98 : SetSizeBySak Function interface input parameters
+    mifareClassicExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK98);
+    mifareClassicExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     nfcAExtrasData.PutIntValue(TagInfo::SAK, KITS::MifareClassicTag::SAK98);
     nfcAExtrasData.PutStringValue(TagInfo::ATQA, TEST_ATQA);
     tagTechExtras.push_back(mifareClassicExtrasData);
