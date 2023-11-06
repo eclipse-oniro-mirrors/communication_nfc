@@ -64,7 +64,7 @@ std::string NfcSdkCommon::UnsignedCharToHexString(const unsigned char src)
     return result;
 }
 
-void NfcSdkCommon::HexStringToBytes(std::string &src, std::vector<unsigned char> &bytes)
+void NfcSdkCommon::HexStringToBytes(const std::string &src, std::vector<unsigned char> &bytes)
 {
     if (src.empty()) {
         return;

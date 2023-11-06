@@ -23,6 +23,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_service_tdd.h"
+#include "nfc_service.h"
 #include "permission_tools.h"
 #include "tag_session.h"
 #include "tag_session_stub.h"
@@ -72,7 +73,7 @@ void TagSessionStubTest::TearDown()
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -88,7 +89,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest001, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest002, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -104,7 +105,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest002, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest003, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -120,7 +121,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest003, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest004, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -136,7 +137,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest004, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest005, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -152,7 +153,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest005, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest006, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -168,7 +169,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest006, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest007, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -184,7 +185,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest007, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest008, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -200,7 +201,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest008, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest009, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -216,7 +217,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest009, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest010, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -232,7 +233,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest010, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest011, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -248,7 +249,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest011, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest012, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -264,7 +265,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest012, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest013, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -280,7 +281,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest013, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest014, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -296,7 +297,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest014, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest015, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -312,7 +313,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest015, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest016, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -328,7 +329,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest016, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest017, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -344,7 +345,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest017, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest018, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;
@@ -360,7 +361,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest018, TestSize.Level1)
  */
 HWTEST_F(TagSessionStubTest, OnRemoteRequest019, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     MessageParcel data;
     MessageParcel reply;

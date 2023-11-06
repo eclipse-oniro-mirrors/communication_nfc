@@ -14,7 +14,6 @@
  */
 #ifndef NFC_CONTROLLER_IMPL_H
 #define NFC_CONTROLLER_IMPL_H
-
 #include "infc_controller_callback.h"
 #include "nfc_controller_stub.h"
 #include "nfc_sdk_common.h"
@@ -38,9 +37,12 @@ public:
     KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+
 private:
     std::string GetDumpInfo();
-    std::weak_ptr<NfcService> nfcService_;
+
+private:
+    std::weak_ptr<NfcService> nfcService_ = {};
     std::mutex mutex_ {};
 };
 }  // namespace NFC

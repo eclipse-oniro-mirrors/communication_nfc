@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFCSERVICE_TDDER_H
-#define NFCSERVICE_TDDER_H
-
+#ifndef NFC_SERVICE_TDD_H
+#define NFC_SERVICE_TDD_H
 #include "infc_service.h"
 
 namespace OHOS {
@@ -27,13 +26,6 @@ private:
     int GetNfcState() override;
     int GetScreenState() override;
     int GetNciVersion() override;
-    std::weak_ptr<NCI::INfccHost> GetNfccHost() override
-    {
-        return nfccHost_;
-    }
-private:
-    // NCI
-    std::shared_ptr<NCI::INfccHost> nfccHost_ {};
 
 public:
     NfcServiceImpl() {};

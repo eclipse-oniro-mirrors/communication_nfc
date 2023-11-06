@@ -14,19 +14,17 @@
  */
 #ifndef NFC_WATCH_DOG_H
 #define NFC_WATCH_DOG_H
-
 #include <condition_variable>
 #include <mutex>
 #include <string>
 #include <thread>
-
-#include "infcc_host.h"
+#include "nci_nfcc_proxy.h"
 
 namespace OHOS {
 namespace NFC {
 class NfcWatchDog final {
 public:
-    NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::INfccHost> nfccHost);
+    NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::NciNfccProxy> nfccProxy);
     ~NfcWatchDog();
     void Cancel();
     void Run();
@@ -42,7 +40,7 @@ private:
     volatile bool canceled_ {false};
     std::unique_ptr<std::thread> thread_ {};
 
-    std::weak_ptr<NCI::INfccHost> nfccHost_;
+    std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy_;
 };
 }  // namespace NFC
 }  // namespace OHOS

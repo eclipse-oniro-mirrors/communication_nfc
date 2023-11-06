@@ -16,46 +16,41 @@
 #define TAG_DISPATCH_H
 #include <map>
 #include <mutex>
-#include "infc_service.h"
-#include "itag_host.h"
+#include "nci_tag_proxy.h"
+#include "nfc_service.h"
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
-class INfcService;
+class NfcService;
 namespace TAG {
 class TagDispatcher final {
 public:
-    explicit TagDispatcher(std::shared_ptr<INfcService> nfcService);
+    explicit TagDispatcher(std::shared_ptr<NfcService> nfcService);
     ~TagDispatcher();
     TagDispatcher(const TagDispatcher&) = delete;
     TagDispatcher& operator=(const TagDispatcher&) = delete;
 
-    int HandleTagFound(std::shared_ptr<NCI::ITagHost> tag);
+    void HandleTagFound(uint32_t rfDiscId);
     void HandleTagDebounce();
-    std::weak_ptr<NCI::ITagHost> FindTagHost(int rfDiscId);
-
-protected:
-    std::shared_ptr<NCI::ITagHost> FindAndRemoveTagHost(int rfDiscId);
-    void RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag);
-    void UnregisterTagHost(int rfDiscId);
+    void HandleTagLost(uint32_t rfDiscId);
 
 private:
-    std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(std::shared_ptr<NCI::ITagHost> tag);
-    KITS::TagInfoParcelable GetTagInfoParcelableFromTag(std::shared_ptr<NCI::ITagHost> tag);
-    void DispatchTag(std::shared_ptr<NCI::ITagHost> tag);
-    void TagDisconnectedCallback(int tagRfDiscId);
-    std::shared_ptr<INfcService> nfcService_ {};
-    std::mutex mutex_ {};
-    std::map<int, std::shared_ptr<NCI::ITagHost>> tagHostMap_ {};
+    std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(uint32_t rfDiscId);
+    KITS::TagInfoParcelable GetTagInfoParcelableFromTag(uint32_t rfDiscId);
+    void DispatchTag(uint32_t rfDiscId);
+
+private:
+    std::shared_ptr<NfcService> nfcService_ {};
+    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
 
     // tag field on checking
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
 
     // ndef message
-    std::string lastNdefMsg_;
+    std::string lastNdefMsg_ {};
 };
 }  // namespace TAG
 }  // namespace NFC

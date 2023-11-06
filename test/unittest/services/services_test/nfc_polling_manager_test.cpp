@@ -24,7 +24,6 @@
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
-#include "nfcc_host.h"
 #include "want.h"
 #include "nfc_database_helper.h"
 #include "tag_session.h"
@@ -41,7 +40,6 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<NCI::INfccHost> nfccHost_ {};
     std::shared_ptr<NfcService> nfcService_ {};
 };
 
@@ -72,9 +70,10 @@ void NfcPollingManagerTest::TearDown()
  */
 HWTEST_F(NfcPollingManagerTest, IsForegroundEnabled001, TestSize.Level1)
 {
-    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager = std::make_shared<NFC::NfcPollingManager>(nfccHost_,
-        nfcService_);
-    bool enable = nfcPollingManager->IsForegroundEnabled();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool enable = nfcPollingManager.lock()->IsForegroundEnabled();
     ASSERT_TRUE(enable == false);
 }
 /**
@@ -84,9 +83,10 @@ HWTEST_F(NfcPollingManagerTest, IsForegroundEnabled001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, DisableForegroundByDeathRcpt001, TestSize.Level1)
 {
-    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager = std::make_shared<NFC::NfcPollingManager>(nfccHost_,
-        nfcService_);
-    bool disable = nfcPollingManager->DisableForegroundByDeathRcpt();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool disable = nfcPollingManager.lock()->DisableForegroundByDeathRcpt();
     ASSERT_TRUE(disable == true);
 }
 /**
@@ -97,9 +97,10 @@ HWTEST_F(NfcPollingManagerTest, DisableForegroundByDeathRcpt001, TestSize.Level1
 HWTEST_F(NfcPollingManagerTest, DisableForegroundDispatch001, TestSize.Level1)
 {
     AppExecFwk::ElementName element;
-    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager = std::make_shared<NFC::NfcPollingManager>(nfccHost_,
-        nfcService_);
-    bool disable = nfcPollingManager->DisableForegroundDispatch(element);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool disable = nfcPollingManager.lock()->DisableForegroundDispatch(element);
     ASSERT_TRUE(disable == true);
 }
 /**
@@ -112,9 +113,10 @@ HWTEST_F(NfcPollingManagerTest, EnableForegroundDispatch001, TestSize.Level1)
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech = {1, 2, 4, 5, 10};
     const sptr<KITS::IForegroundCallback> callback = nullptr;
-    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager = std::make_shared<NFC::NfcPollingManager>(nfccHost_,
-        nfcService_);
-    bool enable = nfcPollingManager->EnableForegroundDispatch(element, discTech, callback);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool enable = nfcPollingManager.lock()->EnableForegroundDispatch(element, discTech, callback);
     ASSERT_TRUE(enable == false);
 }
 }

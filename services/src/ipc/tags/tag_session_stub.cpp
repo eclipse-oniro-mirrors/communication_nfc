@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "tag_session_stub.h"
-
 #include "foreground_death_recipient.h"
 #include "ipc_skeleton.h"
 #include "loghelper.h"
@@ -153,7 +152,7 @@ int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)
     }
 
     int tagRfDiscId = data.ReadInt32();
-    std::vector<int32_t> techList = GetTechList(tagRfDiscId);
+    std::vector<int> techList = GetTechList(tagRfDiscId);
     reply.WriteInt32Vector(techList);
     return ERR_NONE;
 }

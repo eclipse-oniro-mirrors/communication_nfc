@@ -13,15 +13,13 @@
  * limitations under the License.
  */
 #include "nfc_watch_dog.h"
-
 #include <chrono>
-
 #include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
-NfcWatchDog::NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::INfccHost> nfccHost)
-    : threadName_(threadName), timeout_(timeout), canceled_(false), thread_(nullptr), nfccHost_(nfccHost)
+NfcWatchDog::NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::NciNfccProxy> nfccProxy)
+    : threadName_(threadName), timeout_(timeout), canceled_(false), thread_(nullptr), nciNfccProxy_(nfccProxy)
 {
 }
 
@@ -41,11 +39,11 @@ void NfcWatchDog::MainLoop()
         return;
     }
     // If Routing Wake Lock is held, Routing Wake Lock release. Watchdog triggered, release lock before aborting.
-    if (nfccHost_.expired()) {
+    if (nciNfccProxy_.expired()) {
         return;
     }
     InfoLog("Watchdog triggered, aborting.");
-    nfccHost_.lock()->Abort();
+    nciNfccProxy_.lock()->Abort();
 }
 
 void NfcWatchDog::Run()

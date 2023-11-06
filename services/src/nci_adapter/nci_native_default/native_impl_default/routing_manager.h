@@ -14,13 +14,15 @@
  */
 #ifndef ROUTING_MANAGER_H
 #define ROUTING_MANAGER_H
-
 #include <memory>
 #include <string>
-
+#include "ndef_utils.h"
 #include "nfa_api.h"
-#include "infc_nci.h"
-#include "infcc_host.h"
+#include "nfa_ce_api.h"
+#include "nfa_ee_api.h"
+#include "nfa_hci_api.h"
+#include "nfa_rw_api.h"
+#include "nfc_hal_api.h"
 #include "synchronize_event.h"
 
 namespace OHOS {
@@ -58,33 +60,35 @@ private:
     bool IsTypeABSupportedInEe(tNFA_HANDLE eeHandle);
     uint8_t GetProtoMaskFromTechMask(int& value);
 
-    // callbacks and event handlers
-    static void NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* eventData);
-    static void NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventData);
-    static void DoNfaEeRegisterEvent();
-    static void DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData);
-    static void DoNfaEeDeregisterEvent(tNFA_EE_CBACK_DATA* eventData);
-    static void NotifyRoutingEvent();
-    static void DoNfaEeDiscoverReqEvent(tNFA_EE_CBACK_DATA* eventData);
-    static void DoNfaEeAddOrRemoveAidEvent(tNFA_EE_CBACK_DATA* eventData);
-    static void DoNfaEeUpdateEvent();
+    void DoNfaEeRegisterEvent();
+    void DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData);
+    void DoNfaEeDeregisterEvent(tNFA_EE_CBACK_DATA* eventData);
+    void NotifyRoutingEvent();
+    void DoNfaEeDiscoverReqEvent(tNFA_EE_CBACK_DATA* eventData);
+    void DoNfaEeAddOrRemoveAidEvent(tNFA_EE_CBACK_DATA* eventData);
+    void DoNfaEeUpdateEvent();
     void ClearAllEvents();
     void OnNfcDeinit();
+    void DoNfaEeRegisterEvt(); // NFA_EE_REGISTER_EVT
+
+    // static callback functions regiter to nci stack.
+    static void NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventData);
+    static void NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* eventData);
 
 private:
     // default routes
-    int defaultOffHostRoute_;
-    int defaultFelicaRoute_;
-    int defaultIsoDepRoute_;
-    int defaultEe_;
+    int defaultOffHostRoute_ = 0;
+    int defaultFelicaRoute_ = 0;
+    int defaultIsoDepRoute_ = 0;
+    int defaultEe_ = 0;
 
     // system code params
-    int defaultSysCode_;
+    int defaultSysCode_ = 0;
     tNFA_EE_PWR_STATE defaultSysCodePowerstate_;
     tNFA_HANDLE defaultSysCodeRoute_;
 
-    std::vector<uint8_t> offHostRouteUicc_;
-    std::vector<uint8_t> offHostRouteEse_;
+    std::vector<uint8_t> offHostRouteUicc_ {};
+    std::vector<uint8_t> offHostRouteEse_ {};
 
     tNFA_TECHNOLOGY_MASK seTechMask_;
     tNFA_EE_DISCOVER_REQ eeInfo_;
@@ -95,15 +99,13 @@ private:
     SynchronizeEvent routingEvent_;
     SynchronizeEvent eeSetModeEvent_;
 
-    bool isEeInfoChanged_;
-    bool isEeInfoReceived_;
-    bool isSecureNfcEnabled_;
-    bool isDeinitializing_;
-    bool isAidRoutingConfigured_;
-
-    uint8_t hostListenTechMask_;
-
-    int offHostAidRoutingPowerState_;
+    bool isEeInfoChanged_ = false;
+    bool isEeInfoReceived_ = false;
+    bool isSecureNfcEnabled_ = false;
+    bool isDeinitializing_ = false;
+    bool isAidRoutingConfigured_ = false;
+    uint8_t hostListenTechMask_ = 0;
+    int offHostAidRoutingPowerState_ = 0;
 };
 }
 }

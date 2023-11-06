@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "nfc_timer.h"
-
 #include "loghelper.h"
 
 namespace OHOS {

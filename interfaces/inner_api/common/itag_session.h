@@ -129,7 +129,7 @@ public:
      */
     virtual int GetMaxTransceiveLength(int technology, int &maxSize) = 0;
     /**
-     * @brief Checking the NfccHost whether It supported the extended Apdus
+     * @brief Checking the NFCC whether It supported the extended Apdus
      * @param isSupported the output for checking supportting extended apdu or not.
      * @return the error code of calling function.
      */

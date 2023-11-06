@@ -16,7 +16,6 @@
 
 #include "ce_service.h"
 #include "common_event_support.h"
-#include "itag_host.h"
 #include "loghelper.h"
 #include "nfc_service.h"
 #include "nfc_polling_manager.h"
@@ -234,10 +233,13 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     DebugLog("NFC common event handler receive a message of %{public}d", eventId);
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
-            tagDispatcher_.lock()->HandleTagFound(event->GetSharedObject<NCI::ITagHost>());
+            tagDispatcher_.lock()->HandleTagFound(event->GetParam());
             break;
         case NfcCommonEvent::MSG_TAG_DEBOUNCE:
             tagDispatcher_.lock()->HandleTagDebounce();
+            break;
+        case NfcCommonEvent::MSG_TAG_LOST:
+            tagDispatcher_.lock()->HandleTagLost(event->GetParam());
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
             nfcPollingManager_.lock()->HandleScreenChanged(event->GetParam());

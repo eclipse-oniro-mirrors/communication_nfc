@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef FOREGROUND_CALLBACK_PROXY_H
 #define FOREGROUND_CALLBACK_PROXY_H
-
-#include "message_parcel.h"
 #include "iforeground_callback.h"
 #include "iremote_proxy.h"
+#include "message_parcel.h"
 #include "nfc_sdk_common.h"
 #include "taginfo_parcelable.h"
 

@@ -14,10 +14,8 @@
  */
 #ifndef TAG_SESSION_STUB_H
 #define TAG_SESSION_STUB_H
-
-#include "foreground_callback_proxy.h"
-
 #include "access_token.h"
+#include "foreground_callback_proxy.h"
 #include "iforeground_callback.h"
 #include "iremote_stub.h"
 #include "itag_session.h"

@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 #include "nfc_controller_impl.h"
-
-#include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -34,7 +33,7 @@ NfcControllerImpl::~NfcControllerImpl()
 
 int NfcControllerImpl::GetState()
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     return nfcService_.lock()->GetNfcState();
@@ -42,7 +41,7 @@ int NfcControllerImpl::GetState()
 
 int NfcControllerImpl::TurnOn()
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
@@ -51,7 +50,7 @@ int NfcControllerImpl::TurnOn()
 
 int NfcControllerImpl::TurnOff()
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
@@ -60,7 +59,7 @@ int NfcControllerImpl::TurnOff()
 
 int NfcControllerImpl::IsNfcOpen(bool &isOpen)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     isOpen = nfcService_.lock()->IsNfcEnabled();
@@ -70,7 +69,7 @@ int NfcControllerImpl::IsNfcOpen(bool &isOpen)
 KITS::ErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
     const std::string& type, Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     if (!nfcService_.lock()->SetRegisterCallBack(callback, type, callerToken)) {
@@ -82,7 +81,7 @@ KITS::ErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCal
 KITS::ErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
     Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     if (!nfcService_.lock()->RemoveRegisterCallBack(type, callerToken)) {
@@ -93,7 +92,7 @@ KITS::ErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
 
 KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     if (!nfcService_.lock()->RemoveAllRegisterCallBack(callerToken)) {
@@ -104,7 +103,7 @@ KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::
 
 OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return nullptr;
     }
     return nfcService_.lock()->GetTagServiceIface();
@@ -112,7 +111,7 @@ OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
 
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
     std::string info = GetDumpInfo();

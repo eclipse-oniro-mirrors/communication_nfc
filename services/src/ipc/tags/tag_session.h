@@ -14,11 +14,10 @@
  */
 #ifndef TAG_SESSION_H
 #define TAG_SESSION_H
-
 #include "element_name.h"
-#include "infcc_host.h"
-#include "infc_service.h"
 #include "itag_session.h"
+#include "nfc_service.h"
+#include "nci_tag_proxy.h"
 #include "tag_dispatcher.h"
 #include "tag_session_stub.h"
 #include "nfc_polling_manager.h"
@@ -30,7 +29,7 @@ using OHOS::AppExecFwk::ElementName;
 class TagSession final : public TagSessionStub {
 public:
     // Constructor/Destructor
-    explicit TagSession(std::shared_ptr<NFC::INfcService> service);
+    explicit TagSession(std::shared_ptr<NFC::NfcService> service);
     ~TagSession() override;
     TagSession(const TagSession&) = delete;
     TagSession& operator=(const TagSession&) = delete;
@@ -141,11 +140,11 @@ public:
     KITS::ErrorCode UnregForegroundDispatch(ElementName element) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+
 private:
     std::string GetDumpInfo();
-    std::weak_ptr<NFC::INfcService> nfcService_ {};
-    std::weak_ptr<NCI::INfccHost> nfccHost_ {};
-    std::weak_ptr<TagDispatcher> tagDispatcher_ {};
+    std::weak_ptr<NFC::NfcService> nfcService_ {};
+    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
 };

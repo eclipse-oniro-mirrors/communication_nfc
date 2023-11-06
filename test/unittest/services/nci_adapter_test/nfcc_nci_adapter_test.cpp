@@ -14,12 +14,8 @@
  */
 #include <gtest/gtest.h>
 #include <thread>
-
-#include "nfcc_host.h"
 #include "nfc_service.h"
-#include "tag_host.h"
 #include "nfcc_nci_adapter.h"
-#include "nfc_nci_adaptor.h"
 
 namespace OHOS {
 namespace NFC {
@@ -53,10 +49,6 @@ void NfccNciAdapterTest::TearDown()
 HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest001, TestSize.Level1)
 {
     NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
-    std::shared_ptr<INfcNci> nciAdaptation;
-    adapterObj.SetNciAdaptation(nullptr);
-    nciAdaptation = std::make_shared<NfcNciAdaptor>();
-    adapterObj.SetNciAdaptation(nciAdaptation);
     EXPECT_TRUE(!adapterObj.IsTagActive());
 }
 
@@ -68,14 +60,13 @@ HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest001, TestSize.Level1)
 HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest002, TestSize.Level1)
 {
     NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
-    NCI::NfccNciAdapter::ClearT3tIdentifiersCache();
-    EXPECT_TRUE(NCI::NfccNciAdapter::GetLfT3tMax() == 0);
-    EXPECT_TRUE(NCI::NfccNciAdapter::GetLastError() == 0);
-    NCI::NfccNciAdapter::IsNfcActive();
+    NCI::NfccNciAdapter::GetInstance().ClearT3tIdentifiersCache();
+    EXPECT_TRUE(NCI::NfccNciAdapter::GetInstance().GetLfT3tMax() == 0);
+    NCI::NfccNciAdapter::GetInstance().IsNfcActive();
     adapterObj.Deinitialize();
     std::string rawData = "00a40400";
     adapterObj.SendRawFrame(rawData);
-    EXPECT_TRUE(NCI::NfccNciAdapter::GetIsoDepMaxTransceiveLength() == ISO_DEP_MAX_TRANSEIVE_LENGTH);
+    EXPECT_TRUE(NCI::NfccNciAdapter::GetInstance().GetLastError() == 0);
 }
 
 /**
@@ -87,9 +78,7 @@ HWTEST_F(NfccNciAdapterTest, NfccNciAdapterTest003, TestSize.Level1)
 {
     NCI::NfccNciAdapter adapterObj = NCI::NfccNciAdapter::GetInstance();
     adapterObj.SetScreenStatus(0xFF);
-    if (NfcNciAdaptor::GetInstance().IsNciFuncSymbolFound()) {
-        adapterObj.Initialize();
-    }
+    adapterObj.Initialize();
     adapterObj.SetScreenStatus(0xFF);
     adapterObj.SetScreenStatus(0xFF);
     adapterObj.SetScreenStatus(0xF0);

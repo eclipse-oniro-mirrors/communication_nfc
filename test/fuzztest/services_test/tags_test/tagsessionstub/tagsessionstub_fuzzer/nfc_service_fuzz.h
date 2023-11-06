@@ -27,13 +27,6 @@ private:
     int GetNfcState() override;
     int GetScreenState() override;
     int GetNciVersion() override;
-    std::weak_ptr<NCI::INfccHost> GetNfccHost() override
-    {
-        return nfccHost_;
-    }
-private:
-    // NCI
-    std::shared_ptr<NCI::INfccHost> nfccHost_ {};
 
 public:
     NfcServiceFuzz() {};

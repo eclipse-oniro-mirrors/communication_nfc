@@ -19,8 +19,9 @@ config("nfc_config") {
   visibility = [ ":*" ]
 
   defines = [ "DEBUG" ]
-
-  cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
+  if (nfc_use_vendor_nci_native) {
+    defines += [ "USE_VENDOR_NCI_NATIVE" ]
+  }
 
   include_dirs = [
     "include",
@@ -29,15 +30,15 @@ config("nfc_config") {
     "src/nci_adapter",
     "src/utils",
     "src/card_emulation",
-    "//third_party/libnfc-nci/SN100x/src/gki/common/",
-    "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
-    "//third_party/libnfc-nci/SN100x/src/include",
-    "//third_party/libnfc-nci/SN100x/src/nfa/include",
-    "//third_party/libnfc-nci/SN100x/src/nfc/include",
-    "//third_party/libnfc-nci/SN100x/utils/include",
     "$NFC_DIR/interfaces/inner_api/common",
     "tools_run_on_demaind",
   ]
+
+  if (nfc_use_vendor_nci_native) {
+    include_dirs += [ "src/nci_adapter/nci_native_vendor" ]
+  } else {
+    include_dirs += [ "src/nci_adapter/nci_native_default" ]
+  }
 }
 
 ohos_shared_library("nfc_service") {
@@ -59,13 +60,9 @@ ohos_shared_library("nfc_service") {
     "src/ipc/tags/foreground_death_recipient.cpp",
     "src/ipc/tags/tag_session.cpp",
     "src/ipc/tags/tag_session_stub.cpp",
-    "src/nci_adapter/nfc_nci_adaptor.cpp",
-    "src/nci_adapter/nfcc_host.cpp",
-    "src/nci_adapter/nfcc_nci_adapter.cpp",
-    "src/nci_adapter/routing_manager.cpp",
-    "src/nci_adapter/tag_host.cpp",
-    "src/nci_adapter/tag_nci_adapter.cpp",
-    "src/nci_adapter/vendor_ext_service.cpp",
+    "src/nci_adapter/nci_ce_proxy.cpp",
+    "src/nci_adapter/nci_nfcc_proxy.cpp",
+    "src/nci_adapter/nci_tag_proxy.cpp",
     "src/nfc_event_handler.cpp",
     "src/nfc_polling_manager.cpp",
     "src/nfc_polling_params.cpp",
@@ -76,7 +73,6 @@ ohos_shared_library("nfc_service") {
     "src/tag_dispatcher.cpp",
     "src/utils/nfc_timer.cpp",
     "src/utils/nfc_watch_dog.cpp",
-    "src/utils/synchronize_event.cpp",
   ]
 
   public_configs = [ ":nfc_config" ]
@@ -86,6 +82,12 @@ ohos_shared_library("nfc_service") {
     "etc/init:etc",
     "tools_run_on_demaind:nfc_tools_on_demaind",
   ]
+
+  if (nfc_use_vendor_nci_native) {
+    deps += [ "src/nci_adapter/nci_native_vendor:nfc_nci_native_vendor" ]
+  } else {
+    deps += [ "src/nci_adapter/nci_native_default:nfc_nci_native_default" ]
+  }
 
   external_deps = [
     "ability_base:want",

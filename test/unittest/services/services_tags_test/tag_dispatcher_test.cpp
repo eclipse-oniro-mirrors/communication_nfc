@@ -24,7 +24,6 @@
 #include "nfc_service_tdd.h"
 #include "permission_tools.h"
 #include "tag_dispatcher.h"
-#include "tag_host.h"
 #include "tag_session.h"
 #include "tag_ability_dispatcher.h"
 
@@ -42,6 +41,7 @@ std::vector<std::string> tagPollBytes = {"00", "01", "02", "03", "04", "05", "06
     "0C", "0D", "0E", "0F", "10", "11"};
 std::vector<std::string> tagActivatedBytes = tagPollBytes;
 int g_connectedTechIndex = 0;
+static const int g_testTagRfId = 1;
 
 class TagDispatcherTest : public testing::Test {
 public:
@@ -75,49 +75,17 @@ void TagDispatcherTest::TearDown()
 }
 
 /**
- * @tc.name: FindTagHost001
- * @tc.desc: Test TagSession FindTagHost.
- * @tc.type: FUNC
- */
-HWTEST_F(TagDispatcherTest, FindTagHost001, TestSize.Level1)
-{
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
-    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-    int rfDiscId = TEST_INDEX_2;
-    tagDispatcher->HandleTagDebounce();
-    std::weak_ptr<NCI::ITagHost> findTagHost = tagDispatcher->FindTagHost(rfDiscId);
-    ASSERT_TRUE(findTagHost.use_count() == TEST_INDEX_1);
-}
-/**
- * @tc.name: FindTagHost002
- * @tc.desc: Test TagSession FindTagHost.
- * @tc.type: FUNC
- */
-HWTEST_F(TagDispatcherTest, FindTagHost002, TestSize.Level1)
-{
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
-    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-    int rfDiscId = TEST_INDEX_1;
-    std::shared_ptr<NCI::ITagHost> tag = std::make_shared<NCI::TagHost>(
-        tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        g_connectedTechIndex);
-    int handleTagFound = tagDispatcher->HandleTagFound(tag);
-    std::weak_ptr<NCI::ITagHost> findTagHost = tagDispatcher->FindTagHost(rfDiscId);
-    ASSERT_TRUE(findTagHost.use_count() == handleTagFound);
-}
-/**
  * @tc.name: HandleTagFound001
  * @tc.desc: Test TagSession HandleTagFound.
  * @tc.type: FUNC
  */
 HWTEST_F(TagDispatcherTest, HandleTagFound001, TestSize.Level1)
 {
-    std::shared_ptr<NCI::ITagHost> tag = nullptr;
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-    int handleTagFound = tagDispatcher->HandleTagFound(tag);
-    ASSERT_TRUE(handleTagFound == TEST_INDEX_1);
+    tagDispatcher->HandleTagFound(g_testTagRfId);
 }
+
 /**
  * @tc.name: HandleTagFound002
  * @tc.desc: Test TagSession HandleTagFound.
@@ -125,37 +93,10 @@ HWTEST_F(TagDispatcherTest, HandleTagFound001, TestSize.Level1)
  */
 HWTEST_F(TagDispatcherTest, HandleTagFound002, TestSize.Level1)
 {
-    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
-    std::shared_ptr<NCI::ITagHost> tag = std::make_shared<NCI::TagHost>(
-        tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
-        g_connectedTechIndex);
-    std::shared_ptr<INfcService> service = nullptr;
-    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-    int handleTagFound = tagDispatcher->HandleTagFound(tag);
-    ASSERT_TRUE(handleTagFound == TEST_INDEX_1);
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(nullptr);
+    tagDispatcher->HandleTagFound(g_testTagRfId);
 }
-/**
- * @tc.name: HandleTagFound003
- * @tc.desc: Test TagSession HandleTagFound.
- * @tc.type: FUNC
- */
-HWTEST_F(TagDispatcherTest, HandleTagFound003, TestSize.Level1)
-{
-    std::vector<AppExecFwk::PacMap> tagTechExtras;
-    AppExecFwk::PacMap tagTechExtrasData;
-    AppExecFwk::PacMap isoDepExtrasData;
-    tagTechExtras.push_back(tagTechExtrasData);
-    tagTechExtras.push_back(isoDepExtrasData);
-    int tagRfDiscId = TEST_INDEX_2;
-    std::shared_ptr<KITS::TagInfo> tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid,
-        tagRfDiscId, nullptr);
-    std::shared_ptr<NCI::ITagHost> tag = std::make_shared<NCI::TagHost>(tagTechList, tagRfDiscIdList,
-        tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes, g_connectedTechIndex);
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
-    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-    int handleTagFound = tagDispatcher->HandleTagFound(tag);
-    ASSERT_TRUE(handleTagFound == TEST_INDEX_1);
-}
+
 /**
  * @tc.name: DispatchAbilitySingleApp001
  * @tc.desc: Test TagSession DispatchAbilitySingleApp.
