@@ -353,7 +353,7 @@ tNFA_STATUS TagNciAdapter::SendRawFrameForHaltPICC()
 bool TagNciAdapter::Reselect(tNFA_INTF_TYPE rfInterface, bool isSwitchingIface)
 {
     InfoLog("TagNciAdapter::Reselect: target interface = %{public}d, connected RfIface_ = %{public}d, "
-             "connectedProtocol_ = %{public}d", rfInterface, connectedRfIface_, connectedProtocol_);
+            "connectedProtocol_ = %{public}d", rfInterface, connectedRfIface_, connectedProtocol_);
     rfDiscoveryMutex_.lock();
     if (isSwitchingIface && (rfInterface == connectedRfIface_)) {
         rfDiscoveryMutex_.unlock();
@@ -1868,7 +1868,7 @@ uint32_t TagNciAdapter::GetDiscRstEvtNum() const
 void TagNciAdapter::GetMultiTagTechsFromData(const tNFA_DISC_RESULT& discoveryData)
 {
     uint32_t idx = discRstEvtNum_;
-    if (idx >= MAX_NUM_TECHNOLOGY) {
+    if (idx >= MAX_NUM_TECHNOLOGY || idx >= multiTagDiscProtocol_.size() || idx >= multiTagDiscId_.size()) {
         ErrorLog("TagNciAdapter::GetMultiTagTechsFromData: index error, index = %{public}d", idx);
         return;
     }

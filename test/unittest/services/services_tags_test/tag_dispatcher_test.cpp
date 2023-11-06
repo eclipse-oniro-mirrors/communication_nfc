@@ -103,7 +103,7 @@ HWTEST_F(TagDispatcherTest, FindTagHost002, TestSize.Level1)
         g_connectedTechIndex);
     int handleTagFound = tagDispatcher->HandleTagFound(tag);
     std::weak_ptr<NCI::ITagHost> findTagHost = tagDispatcher->FindTagHost(rfDiscId);
-    ASSERT_TRUE(findTagHost.use_count() != handleTagFound);
+    ASSERT_TRUE(findTagHost.use_count() == handleTagFound);
 }
 /**
  * @tc.name: HandleTagFound001
