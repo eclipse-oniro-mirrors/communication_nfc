@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("../../../nfc.gni")
 
 config("nfc_inner_kits_config") {
   visibility = [ ":*" ]
@@ -25,7 +26,7 @@ config("nfc_inner_kits_config") {
 config("nfc_inner_kits_public_config") {
   visibility = [ ":*" ]
 
-  include_dirs = []
+  include_dirs = [ "$NFC_DIR/interfaces/inner_api/common" ]
 }
 
 ohos_shared_library("nfc_inner_kits_common") {
