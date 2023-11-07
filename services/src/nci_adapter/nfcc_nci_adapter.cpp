@@ -349,9 +349,9 @@ void NfccNciAdapter::HandleDiscNtf(tNFC_RESULT_DEVT* discNtf)
     TagNciAdapter::GetInstance().SelectTheFirstTag();
 }
 
-void NfccNciAdapter::DoNfaSelectResultEvt()
+void NfccNciAdapter::DoNfaSelectResultEvt(unsigned char status)
 {
-    TagNciAdapter::GetInstance().HandleSelectResult();
+    TagNciAdapter::GetInstance().HandleSelectResult(status);
 }
 
 void NfccNciAdapter::DoNfaPresenceEvt(tNFA_CONN_EVT_DATA* eventData)
@@ -418,7 +418,7 @@ void NfccNciAdapter::NfcConnectionCallback(uint8_t connEvent, tNFA_CONN_EVT_DATA
         }
         case NFA_SELECT_RESULT_EVT: {
             DebugLog("NfaConnectionCallback: NFA_SELECT_RESULT_EVT: status = 0x%{public}X", eventData->status);
-            DoNfaSelectResultEvt();
+            DoNfaSelectResultEvt(eventData->status);
             break;
         }
         /* Data message received (for non-NDEF reads) */
