@@ -139,7 +139,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest003, TestSize.Level1)
 
     NCI::TagNciAdapter::HandleFieldCheckResult(NFA_STATUS_OK);
 
-    NCI::TagNciAdapter::HandleSelectResult();
+    NCI::TagNciAdapter::HandleSelectResult(0);
     NCI::TagNciAdapter::HandleDeactivatedResult(0);
     adapterObj.ResetTagFieldOnFlag();
 

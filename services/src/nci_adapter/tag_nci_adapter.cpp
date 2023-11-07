@@ -100,6 +100,7 @@ int TagNciAdapter::connectedProtocol_ = NCI_PROTOCOL_UNKNOWN;
 int TagNciAdapter::connectedType_ = TagHost::TARGET_TYPE_UNKNOWN;
 int TagNciAdapter::connectedTechIdx_ = 0;
 int TagNciAdapter::connectedRfIface_ = NFA_INTERFACE_ISO_DEP;
+bool TagNciAdapter::isSwitchingRfIface_ = false;
 bool TagNciAdapter::isReconnecting_ = false;
 bool TagNciAdapter::isReconnected_ = false;
 bool TagNciAdapter::isInTransceive_ = false;
@@ -828,12 +829,19 @@ bool TagNciAdapter::IsTagDeactivating()
     return isWaitingDeactRst_;
 }
 
-void TagNciAdapter::HandleSelectResult()
+void TagNciAdapter::HandleSelectResult(unsigned char status)
 {
     DebugLog("TagNciAdapter::HandleSelectResult");
     {
         NFC::SynchronizeGuard guard(selectEvent_);
         selectEvent_.NotifyOne();
+    }
+    if (status != NFA_STATUS_OK) {
+        if (isSwitchingRfIface_) {
+            SetConnectStatus(false);
+        }
+        ErrorLog("TagNciAdapter::HandleSelectResult error: %{public}d", status);
+        NfcNciAdaptor::GetInstance().NfaDeactivate(false);
     }
 }
 

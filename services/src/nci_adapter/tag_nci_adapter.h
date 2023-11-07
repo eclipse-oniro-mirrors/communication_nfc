@@ -50,7 +50,7 @@ public:
     } MultiTagParams;
 
     void SetNciAdaptations(std::shared_ptr<INfcNci> nciAdaptations);
-    static void HandleSelectResult();
+    static void HandleSelectResult(unsigned char status);
     static void HandleTranceiveData(unsigned char status, unsigned char* data, int dataLen);
     static void HandleReadComplete(unsigned char status);
     static void HandleWriteComplete(unsigned char status);
@@ -65,7 +65,7 @@ public:
     
     void HandleDiscResult(tNFA_CONN_EVT_DATA* eventData);
     void SetDeactivatedStatus();
-    void SetConnectStatus(bool isStatusOk);
+    static void SetConnectStatus(bool isStatusOk);
 
     // tag connection and read or write.
     // interfaces for nfc host
@@ -220,7 +220,7 @@ private:
 
     // data for updating connection status
     int targetType_;
-    bool isSwitchingRfIface_ = false;
+    static bool isSwitchingRfIface_;
 
     // spec tag type
     static bool isFelicaLite_;
