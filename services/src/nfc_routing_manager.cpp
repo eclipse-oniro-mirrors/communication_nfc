@@ -22,9 +22,9 @@ namespace NFC {
 // ms wait for setting the routing table.
 const int ROUTING_DELAY_TIME = 500; // ms
 NfcRoutingManager::NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
-                                     std::weak_ptr<NCI::INfccHost> nfccHost,
+                                     std::weak_ptr<NCI::NciCeProxy> nciCeProxy,
                                      std::weak_ptr<NfcService> nfcService)
-    : eventHandler_(eventHandler), nfccHost_(nfccHost), nfcService_(nfcService)
+    : eventHandler_(eventHandler), nciCeProxy_(nciCeProxy), nfcService_(nfcService)
 {}
 
 NfcRoutingManager::~NfcRoutingManager()
@@ -52,7 +52,7 @@ void NfcRoutingManager::HandleCommitRouting()
         return;
     }
     if (currPollingParams->ShouldEnablePolling()) {
-        bool result = nfccHost_.lock()->CommitRouting();
+        bool result = nciCeProxy_.lock()->CommitRouting();
         DebugLog("HandleCommitRouting: result = %{public}d", result);
     } else {
         ErrorLog("HandleCommitRouting: NOT Handle CommitRouting when polling not enabled.");
@@ -71,7 +71,7 @@ void NfcRoutingManager::HandleComputeRoutingParams()
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = nfccHost_.lock()->ComputeRoutingParams();
+    bool result = nciCeProxy_.lock()->ComputeRoutingParams();
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
 }
 } // namespace NFC

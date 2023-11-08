@@ -14,9 +14,8 @@
  */
 #include <gtest/gtest.h>
 #include <thread>
-
-#include "tag_host.h"
 #include "nfc_service.h"
+#include "tag_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -25,8 +24,8 @@ using namespace testing::ext;
 using namespace OHOS::NFC::NCI;
 
 std::vector<int> tagTechList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-std::vector<int> tagRfDiscIdList = {0, 1, 2};
-std::vector<int> tagActivatedProtocols = {0x04};
+std::vector<uint32_t> tagRfDiscIdList = {0, 1, 2};
+std::vector<uint32_t> tagActivatedProtocols = {0x04};
 std::string tagUid = "5B7FCFA9";
 std::vector<std::string> tagPollBytes = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B",
     "0C", "0D", "0E", "0F", "10", "11"};
@@ -40,7 +39,7 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<NCI::ITagHost> tag_;
+    std::shared_ptr<TagHost> tag_;
 };
 
 void TagHostTest::SetUp()
@@ -48,7 +47,7 @@ void TagHostTest::SetUp()
     tag_ = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
         g_connectedTechIndex);
-    std::shared_ptr<NCI::ITagHost> tag = std::make_shared<TagHost>(
+    std::shared_ptr<NCI::TagHost> tag = std::make_shared<TagHost>(
         tagTechList, tagRfDiscIdList, tagActivatedProtocols, tagUid, tagPollBytes, tagActivatedBytes,
         g_connectedTechIndex);
     tag = nullptr;
@@ -58,9 +57,6 @@ void TagHostTest::TearDown()
 {
     tag_ = nullptr;
 }
-
-void Callback1(int tagRfDiscId)
-{}
 
 /**
  * @tc.name: ConnectTest001
@@ -80,7 +76,7 @@ HWTEST_F(TagHostTest, ConnectTest001, TestSize.Level1)
     std::string res = "";
     tag_->Transceive(req, res);
     EXPECT_STREQ(res.c_str(), "");
-    tag_->OffFieldChecking();
+    tag_->StopFieldChecking();
     EXPECT_FALSE(tag_->Connect(-1));
     EXPECT_TRUE(tag_->Disconnect());
 }
@@ -97,10 +93,9 @@ HWTEST_F(TagHostTest, RemoveTechTest001, TestSize.Level1)
     int tagRfDiscId = tag_->GetTagRfDiscId();
     EXPECT_EQ(tagRfDiscId, 0);
     int fieldOnCheckInterval = 125;
-    static std::function<void(int)> callback = std::bind(Callback1, std::placeholders::_1);
-    tag_->OnFieldChecking(callback, fieldOnCheckInterval);
+    tag_->StartFieldOnChecking(fieldOnCheckInterval);
     fieldOnCheckInterval = 0;
-    tag_->OnFieldChecking(callback, fieldOnCheckInterval);
+    tag_->StartFieldOnChecking(fieldOnCheckInterval);
 }
 
 /**
@@ -147,7 +142,7 @@ HWTEST_F(TagHostTest, ReadNdefTest001, TestSize.Level1)
     EXPECT_FALSE(tag_->FormatNdef(key));
     EXPECT_FALSE(tag_->IsNdefFormatable());
     std::vector<int> ndefInfo;
-    EXPECT_FALSE(tag_->IsNdefMsgContained(ndefInfo));
+    EXPECT_FALSE(tag_->DetectNdefInfo(ndefInfo));
 }
 }
 }

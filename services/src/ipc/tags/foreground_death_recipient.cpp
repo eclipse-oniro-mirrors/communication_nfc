@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "foreground_death_recipient.h"
-
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 

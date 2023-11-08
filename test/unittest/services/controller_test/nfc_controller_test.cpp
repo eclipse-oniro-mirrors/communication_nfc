@@ -222,7 +222,7 @@ HWTEST_F(NfcControllerTest, NfcControllerImpl001, TestSize.Level1)
     delete impl;
 
     // fd = 0 is invalid, so experted return is ERR_NFC_PARAMETERS
-    std::shared_ptr<NFC::NfcService> nfcService2 = std::make_shared<NFC::NfcService>(nullptr);
+    std::shared_ptr<NFC::NfcService> nfcService2 = std::make_shared<NFC::NfcService>();
     sptr<NFC::NfcControllerImpl> impl2 = new NFC::NfcControllerImpl(nfcService2);
     ASSERT_TRUE(impl2->Dump(0, args) == ErrorCode::ERR_NFC_PARAMETERS);
     delete impl2;

@@ -110,7 +110,7 @@ HWTEST_F(CardemulationTest, IsSupported004, TestSize.Level1)
  */
 HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
 {
-    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>(nullptr);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
     OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
     bool success = true;
     bool initStaus = nfcService->Initialize();
@@ -131,7 +131,7 @@ HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
  */
 HWTEST_F(CardemulationTest, CeService002, TestSize.Level1)
 {
-    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>(nullptr);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
     OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
     bool success = true;
     nfcService = nullptr; // release the NfcService, let to be expired.

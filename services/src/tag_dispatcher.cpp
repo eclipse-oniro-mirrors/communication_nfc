@@ -13,114 +13,108 @@
  * limitations under the License.
  */
 #include "tag_dispatcher.h"
-
 #include <functional>
-
 #include "app_data_parser.h"
-#include "itag_host.h"
 #include "loghelper.h"
 #include "ndef_message.h"
-#include "nfc_sdk_common.h"
 #include "nfc_hisysevent.h"
-#include "nfc_service.h"
+#include "nfc_sdk_common.h"
 #include "run_on_demaind_manager.h"
 #include "tag_ability_dispatcher.h"
 
 namespace OHOS {
-using TagHostMapIter = std::map<int, std::shared_ptr<NFC::NCI::ITagHost>>::iterator;
 namespace NFC {
 namespace TAG {
 using OHOS::NFC::KITS::TagTechnology;
-TagDispatcher::TagDispatcher(std::shared_ptr<NFC::INfcService> nfcService)
+TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
     : nfcService_(nfcService),
     lastNdefMsg_("")
 {
+    if (nfcService_) {
+        nciTagProxy_ = nfcService_->GetNciTagProxy();
+    }
 }
 
 TagDispatcher::~TagDispatcher()
 {
-    std::lock_guard<std::mutex> guard(mutex_);
 }
 
-void TagDispatcher::TagDisconnectedCallback(int tagRfDiscId)
+void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 {
-    UnregisterTagHost(tagRfDiscId);
-    InfoLog("Tag disconnected");
-}
-
-int TagDispatcher::HandleTagFound(std::shared_ptr<NCI::ITagHost> tag)
-{
-    if (tag == nullptr || nfcService_ == nullptr || nfcService_->GetNfcPollingManager().expired()) {
+    if (nfcService_ == nullptr || nciTagProxy_.expired() || nfcService_->GetNfcPollingManager().expired()) {
         ErrorLog("HandleTagFound, invalid state.");
-        return 0;
+        return;
     }
-    static NCI::ITagHost::TagDisconnectedCallBack callback =
-        std::bind(&TagDispatcher::TagDisconnectedCallback, this, std::placeholders::_1);
+
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
-    if (tag->GetConnectedTech() == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+    if (nciTagProxy_.lock()->GetConnectedTech(tagDiscId) == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
     }
-    DebugLog("fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
+    DebugLog("HandleTagFound fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
 
-    std::string ndefMsg = tag->FindNdefTech();
+    // skip ndef checking for foreground dispatch scenario
+    if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
+        nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
+        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+        return;
+    }
+    std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     if (ndefMessage == nullptr) {
-        if (!tag->Reconnect()) {
-            tag->Disconnect();
+        if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
+            nciTagProxy_.lock()->Disconnect(tagDiscId);
             ErrorLog("HandleTagFound bad connection, tag disconnected");
-            return 0;
+            return;
         }
     }
     lastNdefMsg_ = ndefMsg;
-    RegisterTagHost(tag);
-    tag->OnFieldChecking(callback, fieldOnCheckInterval_);
+    nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
     if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
-        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tag));
-        return 0;
+        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+        return;
     }
-    DispatchTag(tag);
-    return 0;
+    DispatchTag(tagDiscId);
 }
 
-std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(std::shared_ptr<NCI::ITagHost> tag)
+
+void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
 {
-    std::vector<int> techList = tag->GetTechList();
-    std::string tagUid = tag->GetTagUid();
-    std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
-    int tagRfDiscId = tag->GetTagRfDiscId();
+    InfoLog("HandleTagLost, tagDiscId: %{public}d", tagDiscId);
+}
+
+std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDiscId)
+{
+    std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
+    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
+    std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
     DebugLog("GetTagInfoFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
-        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
-    return std::make_shared<KITS::TagInfo>(techList, tagTechExtras, tagUid, tagRfDiscId,
+        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagDiscId);
+    return std::make_shared<KITS::TagInfo>(techList, tagTechExtras, tagUid, tagDiscId,
         nfcService_->GetTagServiceIface());
 }
 
-KITS::TagInfoParcelable TagDispatcher::GetTagInfoParcelableFromTag(std::shared_ptr<NCI::ITagHost> tag)
+KITS::TagInfoParcelable TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagDiscId)
 {
-    std::vector<int> techList = tag->GetTechList();
-    std::string tagUid = tag->GetTagUid();
-    std::vector<AppExecFwk::PacMap> tagTechExtras = tag->GetTechExtrasData();
-    int tagRfDiscId = tag->GetTagRfDiscId();
+    std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
+    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
+    std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
     DebugLog("GetTagInfoParcelableFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
-        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagRfDiscId);
+        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagDiscId);
     KITS::TagInfoParcelable *tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
-        tagUid, tagRfDiscId, nfcService_->GetTagServiceIface());
+        tagUid, tagDiscId, nfcService_->GetTagServiceIface());
     return *(tagInfo);
 }
 
-void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
+void TagDispatcher::DispatchTag(uint32_t tagDiscId)
 {
-    if (tag == nullptr) {
-        ErrorLog("DispatchTag: tag is null");
-        return;
-    }
-    std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tag);
+    std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tagDiscId);
     if (tagInfo == nullptr) {
         ErrorLog("DispatchTag: taginfo is null");
         return;
     }
 
     // select the matched applications, try start ability
-    std::vector<int> techList = tag->GetTechList();
+    std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     // Record types of read tags.
     int tagFoundCnt = 0;
     int typeATagFoundCnt = 0;
@@ -155,46 +149,6 @@ void TagDispatcher::DispatchTag(std::shared_ptr<NCI::ITagHost> tag)
 void TagDispatcher::HandleTagDebounce()
 {
     DebugLog("HandleTagDebounce, unimplimentation...");
-}
-
-std::weak_ptr<NCI::ITagHost> TagDispatcher::FindTagHost(int rfDiscId)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
-    if (tagHost == tagHostMap_.end()) {
-        WarnLog("FindTagHost, rfDiscId: %{public}d not found", rfDiscId);
-        return std::shared_ptr<NCI::ITagHost>();
-    }
-    return tagHost->second;
-}
-
-std::shared_ptr<NCI::ITagHost> TagDispatcher::FindAndRemoveTagHost(int rfDiscId)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    TagHostMapIter tagHost = tagHostMap_.find(rfDiscId);
-    std::shared_ptr<NCI::ITagHost> temp = nullptr;
-    if (tagHost == tagHostMap_.end()) {
-        WarnLog("FindAndRemoveTagHost, rfDiscId: %{public}d not found", rfDiscId);
-    } else {
-        temp = tagHost->second;
-        tagHostMap_.erase(rfDiscId);
-        InfoLog("FindAndRemoveTagHost, rfDiscId: %{public}d removed", rfDiscId);
-    }
-    return temp;
-}
-
-void TagDispatcher::RegisterTagHost(std::shared_ptr<NCI::ITagHost> tag)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    tagHostMap_.insert(make_pair(tag->GetTagRfDiscId(), tag));
-    InfoLog("RegisterTagHost, rfDiscId: %{public}d", tag->GetTagRfDiscId());
-}
-
-void TagDispatcher::UnregisterTagHost(int rfDiscId)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    tagHostMap_.erase(rfDiscId);
-    InfoLog("UnregisterTagHost, rfDiscId: %{public}d", rfDiscId);
 }
 }  // namespace TAG
 }  // namespace NFC

@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 #include "synchronize_event.h"
-
 #include <cerrno>
 #include <cstring>
-
 #include "loghelper.h"
 
 namespace OHOS {

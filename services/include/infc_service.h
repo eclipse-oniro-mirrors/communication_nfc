@@ -16,7 +16,6 @@
 #define I_NFC_SERVICE_H
 #include "element_name.h"
 #include "iforeground_callback.h"
-#include "infcc_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,6 +29,7 @@ enum class NfcCommonEvent {
     // tags found
     MSG_TAG_FOUND = 0,
     MSG_TAG_DEBOUNCE,
+    MSG_TAG_LOST,
 
     // screen changed
     MSG_SCREEN_CHANGED,
@@ -78,7 +78,6 @@ public:
     virtual int GetNfcState() = 0;
     virtual int GetScreenState() = 0;
     virtual int GetNciVersion() = 0;
-    virtual std::weak_ptr<NFC::NCI::INfccHost> GetNfccHost() = 0;
     virtual std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() = 0;
     virtual std::weak_ptr<NfcPollingManager> GetNfcPollingManager() = 0;
     virtual std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() = 0;

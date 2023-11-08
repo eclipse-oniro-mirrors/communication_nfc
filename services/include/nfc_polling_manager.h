@@ -17,7 +17,8 @@
 #include "access_token.h"
 #include "common_event_manager.h"
 #include "iforeground_callback.h"
-#include "nfcc_host.h"
+#include "nci_nfcc_proxy.h"
+#include "nci_tag_proxy.h"
 #include "nfc_polling_params.h"
 #include "taginfo_parcelable.h"
 
@@ -28,7 +29,9 @@ static const int WAIT_MS_SET_ROUTE = 10 * 1000;
 class NfcService;
 class NfcPollingManager {
 public:
-    NfcPollingManager(std::weak_ptr<NCI::INfccHost> nfccHost, std::weak_ptr<NfcService> nfcService);
+    NfcPollingManager(std::weak_ptr<NfcService> nfcService,
+                      std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy,
+                      std::weak_ptr<NCI::NciTagProxy> nciTagProxy);
     ~NfcPollingManager();
     class ForegroundRegistryData {
     public:
@@ -42,7 +45,7 @@ public:
     void ResetCurrPollingParams();
     std::shared_ptr<NfcPollingParams> GetCurrentParameters();
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
-    uint16_t GetTechMaskFromTechList(std::vector<uint32_t> &discTech);
+
     // polling
     void StartPollingLoop(bool force);
     // screen changed
@@ -51,7 +54,7 @@ public:
     void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
     bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
-        const sptr<KITS::IForegroundCallback> &callback);
+                                  const sptr<KITS::IForegroundCallback> &callback);
     bool DisableForegroundDispatch(AppExecFwk::ElementName element);
     bool DisableForegroundByDeathRcpt();
     bool IsForegroundEnabled();
@@ -59,11 +62,12 @@ public:
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> GetForegroundData();
 
 private:
-    int screenState_ {};
+    int screenState_ = 0;
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData_ {};
     std::shared_ptr<NfcPollingParams> currPollingParams_ {};
-    std::weak_ptr<NCI::INfccHost> nfccHost_ {};
     std::weak_ptr<NfcService> nfcService_ {};
+    std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy_ {};
+    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
 
     // lock
     std::mutex mutex_ {};

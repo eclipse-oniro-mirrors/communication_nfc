@@ -16,17 +16,17 @@
 #define NFC_SERVICE_H
 #include <future>
 #include <mutex>
-
 #include "access_token.h"
 #include "ce_service.h"
 #include "infc_controller_callback.h"
 #include "infc_service.h"
-#include "infcc_host.h"
-#include "itag_host.h"
 #include "nfc_controller_impl.h"
-#include "nfc_sdk_common.h"
 #include "nfc_polling_manager.h"
 #include "nfc_routing_manager.h"
+#include "nfc_sdk_common.h"
+#include "nci_nfcc_proxy.h"
+#include "nci_tag_proxy.h"
+#include "nci_ce_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -37,35 +37,34 @@ public:
     sptr<INfcControllerCallback> nfcStateChangeCallback_ = nullptr;
 };
 
-class NfcService final : public NCI::INfccHost::INfccHostListener,
+class NfcService final : public NCI::INciTagInterface::ITagListener,
+    public NCI::INciCeInterface::ICeHostListener,
     public INfcService,
     public std::enable_shared_from_this<NfcService> {
 public:
-    NfcService(std::unique_ptr<NCI::INfccHost> nfccHost = nullptr);
+    NfcService();
     ~NfcService() override;
     NfcService& operator=(const NfcService&) = delete;
     NfcService(const NfcService&) = delete;
     bool Initialize();
     std::weak_ptr<NfcService> GetInstance() const;
-    void OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost) override;
+    void OnTagDiscovered(uint32_t tagDiscId) override;
+    void OnTagLost(uint32_t tagDiscId) override;
     void FieldActivated() override;
     void FieldDeactivated() override;
+    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+
     bool IsNfcEnabled() override;
     int GetNfcState() override;
-    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    int GetScreenState() override;
+    int GetNciVersion() override;
+    std::shared_ptr<NCI::INciTagInterface> GetNciTagInterface(void);
+    std::weak_ptr<NCI::NciTagProxy> GetNciTagProxy(void);
     std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
-
-    int GetScreenState() override;
-    int GetNciVersion() override;
-    std::weak_ptr<NCI::INfccHost> GetNfccHost() override
-    {
-        return nfccHost_;
-    }
-
     bool IsNfcTaskReady(std::future<int>& future) const;
     void ExecuteTask(KITS::NfcTask param);
     void UpdateNfcState(int newState);
@@ -81,10 +80,11 @@ private:
         const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID callerToken);
-
     // shutdown event
     void HandleShutdown();
 
+    std::shared_ptr<NCI::INciNfccInterface> GetNciNfccInterface(void);
+    std::shared_ptr<NCI::INciCeInterface> GetNciCeInterface(void);
 private:
     // ms wait for initialization, included firmware download.
     static constexpr const int WAIT_MS_INIT = 90 * 1000;
@@ -92,21 +92,24 @@ private:
 
     // service
     std::weak_ptr<NfcService> nfcService_ {};
-    // NCI
-    std::shared_ptr<NCI::INfccHost> nfccHost_ {};
+    std::shared_ptr<NCI::NciNfccProxy> nciNfccProxy_ {};
+    std::shared_ptr<NCI::NciTagProxy> nciTagProxy_ {};
+    std::shared_ptr<NCI::NciCeProxy> nciCeProxy_ {};
     // polling manager
     std::shared_ptr<NfcPollingManager> nfcPollingManager_ {};
     // routing manager
     std::shared_ptr<NfcRoutingManager> nfcRoutingManager_ {};
+    OHOS::sptr<IRemoteObject> tagSessionIface_{};
     std::shared_ptr<NfcEventHandler> eventHandler_ {};
     std::shared_ptr<CeService> ceService_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_ {};
-    OHOS::sptr<IRemoteObject> tagSessionIface_ {};
     // save current state.
     int nfcState_;
     // save screen state
     int screenState_ {};
+    // current polling params
+    std::shared_ptr<NfcPollingParams> currPollingParams_ {};
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
     // lock

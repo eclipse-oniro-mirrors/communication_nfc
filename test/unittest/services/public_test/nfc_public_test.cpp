@@ -18,7 +18,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_database_helper.h"
 #include "permission_tools.h"
-#include "utils/synchronize_event.h"
+#include "synchronize_event.h"
 
 namespace OHOS {
 namespace NFC {
@@ -204,7 +204,7 @@ HWTEST_F(NfcPublicTest, StringToHexString001, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, HexStringToBytes001, TestSize.Level1)
 {
-    std::string src = "";
+    const std::string src = "";
     std::vector<unsigned char> bytes;
     NfcSdkCommon::HexStringToBytes(src, bytes);
     ASSERT_TRUE(bytes.empty() == true);
@@ -216,7 +216,7 @@ HWTEST_F(NfcPublicTest, HexStringToBytes001, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, HexStringToBytes002, TestSize.Level1)
 {
-    std::string src = "01";
+    const std::string src = "01";
     std::vector<unsigned char> bytes;
     NfcSdkCommon::HexStringToBytes(src, bytes);
     ASSERT_TRUE(bytes.size() == FeatureType::UICC);
@@ -284,7 +284,7 @@ HWTEST_F(NfcPublicTest, IntToHexString002, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
 {
-    std::string src = "%x";
+    const std::string src = "%x";
     std::vector<unsigned char> bytes;
     NfcSdkCommon::HexStringToBytes(src, bytes);
     ASSERT_TRUE(bytes.empty() == true);
@@ -321,23 +321,6 @@ HWTEST_F(NfcPublicTest, PermissionTools001, TestSize.Level1)
 {
     bool granted = PermissionTools::IsGranted("unitest.permission.nfc");
     ASSERT_TRUE(granted == true);
-}
-
-/**
- * @tc.name: SynchronizeEvent001
- * @tc.desc: Test SynchronizeEvent001
- * @tc.type: FUNC
- */
-HWTEST_F(NfcPublicTest, SynchronizeEvent001, TestSize.Level1)
-{
-    OHOS::NFC::SynchronizeEvent *event = new OHOS::NFC::SynchronizeEvent();
-    bool success = true;
-    event->Start();
-    event->Wait(1000);
-    event->NotifyOne();
-    event->End();
-    delete event;
-    ASSERT_TRUE(success == true);
 }
 }
 }

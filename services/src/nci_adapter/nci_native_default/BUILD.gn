@@ -1,0 +1,73 @@
+# Copyright (C) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+import("../../../../nfc.gni")
+
+config("nci_native_default_config") {
+  visibility = [ ":*" ]
+
+  defines = [ "DEBUG" ]
+
+  cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
+
+  include_dirs = [
+    "//third_party/libnfc-nci/SN100x/src/gki/common/",
+    "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
+    "//third_party/libnfc-nci/SN100x/src/include",
+    "//third_party/libnfc-nci/SN100x/src/nfa/include",
+    "//third_party/libnfc-nci/SN100x/src/nfc/include",
+    "//third_party/libnfc-nci/SN100x/utils/include",
+    "$NFC_DIR/interfaces/inner_api/common",
+  ]
+}
+
+ohos_shared_library("nfc_nci_native_default") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    integer_overflow = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  stack_protector_ret = true
+  sources = [
+    "native_impl_default/extns.cpp",
+    "native_impl_default/nfcc_nci_adapter.cpp",
+    "native_impl_default/routing_manager.cpp",
+    "native_impl_default/synchronize_event.cpp",
+    "native_impl_default/tag_host.cpp",
+    "native_impl_default/tag_native_impl.cpp",
+    "native_impl_default/tag_nci_adapter.cpp",
+    "nci_ce_impl_default.cpp",
+    "nci_nfcc_impl_default.cpp",
+    "nci_tag_impl_default.cpp",
+  ]
+
+  public_configs = [ ":nci_native_default_config" ]
+
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "//third_party/libnfc-nci/SN100x:nfc-nci",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  part_name = "nfc"
+  subsystem_name = "communication"
+}

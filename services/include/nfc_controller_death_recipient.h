@@ -14,11 +14,10 @@
  */
 #ifndef NFC_CONTROLLER_DEATH_RECIPIENT_H
 #define NFC_CONTROLLER_DEATH_RECIPIENT_H
-
 #include <unistd.h>
 #include <ipc_object_stub.h>
-#include "nfc_controller_stub.h"
 #include "access_token.h"
+#include "nfc_controller_stub.h"
 
 namespace OHOS {
 namespace NFC {

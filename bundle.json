@@ -67,7 +67,8 @@
                 "drivers_interface_nfc",
                 "init",
                 "hisysevent",
-                "data_share"
+                "data_share",
+                "nfc_ext_service"
             ],
             "third_party": [
                 "libnfc-nci",
@@ -84,7 +85,6 @@
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
                 ],
                 "service_group": [
-                    "//third_party/libnfc-nci/SN100x:nfc-nci",
                     "//foundation/communication/nfc/sa_profile:nfc_profile",
                     "//foundation/communication/nfc/services:nfc_service"
                 ]
@@ -98,6 +98,15 @@
                             "nfc_controller.h"
                         ],
                         "header_base": "//foundation/communication/nfc/interfaces/inner_api/include/controller"
+                    }
+                },
+                {
+                    "type": "so",
+                    "name": "//foundation/communication/nfc/interfaces/inner_api/common:nfc_inner_kits_common",
+                    "header": {
+                        "header_files": [
+                        ],
+                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/common"
                     }
                 }
             ],

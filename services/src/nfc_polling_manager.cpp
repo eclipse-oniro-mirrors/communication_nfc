@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 #include "nfc_polling_manager.h"
-
-#include "loghelper.h"
-#include "nfc_watch_dog.h"
 #include "common_event_support.h"
-#include "run_on_demaind_manager.h"
+#include "loghelper.h"
 #include "nfc_service.h"
+#include "nfc_watch_dog.h"
+#include "run_on_demaind_manager.h"
 
 namespace OHOS {
 namespace NFC {
-NfcPollingManager::NfcPollingManager(std::weak_ptr<NCI::INfccHost> nfccHost,
-                                     std::weak_ptr<NfcService> nfcService)
-    : nfccHost_(nfccHost), nfcService_(nfcService)
+NfcPollingManager::NfcPollingManager(std::weak_ptr<NfcService> nfcService,
+                                     std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy,
+                                     std::weak_ptr<NCI::NciTagProxy> nciTagProxy)
+    : nfcService_(nfcService), nciNfccProxy_(nciNfccProxy), nciTagProxy_(nciTagProxy)
 {
     foregroundData_ = std::make_shared<NfcPollingManager::ForegroundRegistryData>();
     currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
@@ -68,30 +68,6 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int sc
     return params;
 }
 
-uint16_t NfcPollingManager::GetTechMaskFromTechList(std::vector<uint32_t> &discTech)
-{
-    uint16_t techMask = 0;
-    for (uint16_t i = 0; i < sizeof(discTech); i++) {
-        switch (discTech[i]) {
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_A_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_A;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_B_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_B;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_F_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_F;
-                break;
-            case static_cast<int32_t>(KITS::TagTechnology::NFC_V_TECH):
-                techMask |= NFA_TECHNOLOGY_MASK_V;
-                break;
-            default:
-                break;
-        }
-    }
-    return techMask;
-}
-
 void NfcPollingManager::StartPollingLoop(bool force)
 {
     InfoLog("StartPollingLoop force = %{public}d", force);
@@ -105,7 +81,7 @@ void NfcPollingManager::StartPollingLoop(bool force)
     }
     std::lock_guard<std::mutex> lock(mutex_);
 
-    NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nfccHost_.lock());
+    NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nciNfccProxy_);
     pollingWatchDog.Run();
     // Compute new polling parameters
     std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
@@ -116,12 +92,12 @@ void NfcPollingManager::StartPollingLoop(bool force)
             bool shouldRestart = currPollingParams_->ShouldEnablePolling();
             InfoLog("StartPollingLoop shouldRestart = %{public}d", shouldRestart);
 
-            nfccHost_.lock()->EnableDiscovery(newParams->GetTechMask(),
-                                              newParams->ShouldEnableReaderMode(),
-                                              newParams->ShouldEnableHostRouting(),
-                                              shouldRestart || force);
+            nciNfccProxy_.lock()->EnableDiscovery(newParams->GetTechMask(),
+                                                  newParams->ShouldEnableReaderMode(),
+                                                  newParams->ShouldEnableHostRouting(),
+                                                  shouldRestart || force);
         } else {
-            nfccHost_.lock()->DisableDiscovery();
+            nciNfccProxy_.lock()->DisableDiscovery();
         }
         currPollingParams_ = newParams;
     } else {
@@ -135,7 +111,7 @@ void NfcPollingManager::HandleScreenChanged(int screenState)
     std::lock_guard<std::mutex> lock(mutex_);
     screenState_ = screenState;
     DebugLog("Screen changed screenState %{public}d", screenState_);
-    nfccHost_.lock()->SetScreenStatus(screenState_);
+    nciNfccProxy_.lock()->SetScreenStatus(screenState_);
 }
 
 void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -159,7 +135,7 @@ void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
 bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
-    if (nfcService_.expired()) {
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("EnableForegroundDispatch: nfcService_ is nullptr.");
         return false;
     }
@@ -167,12 +143,16 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName element
         ErrorLog("EnableForegroundDispatch: NFC not enabled, do not set foreground");
         return false;
     }
+    if (callback == nullptr) {
+        ErrorLog("EnableForegroundDispatch: ForegroundCallback invalid");
+        return false;
+    }
     bool isDisablePolling = (discTech.size() == 0);
     DebugLog("EnableForegroundDispatch: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (!isDisablePolling) {
         foregroundData_->isEnabled_ = true;
-        foregroundData_->techMask_ = GetTechMaskFromTechList(discTech);
+        foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
         foregroundData_->element_ = element;
         foregroundData_->callback_ = callback;
     }

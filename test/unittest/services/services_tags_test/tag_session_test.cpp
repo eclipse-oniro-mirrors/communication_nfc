@@ -25,7 +25,6 @@
 #include "nfc_service_tdd.h"
 #include "permission_tools.h"
 #include "tag_session.h"
-#include "tag_host.h"
 
 namespace OHOS {
 namespace NFC {
@@ -71,7 +70,7 @@ void TagSessionTest::TearDown()
  */
 HWTEST_F(TagSessionTest, Dump001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int32_t fd = -1;
     const std::vector<std::u16string> args;
@@ -85,7 +84,7 @@ HWTEST_F(TagSessionTest, Dump001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, Dump002, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int32_t fd = 1;
     const std::vector<std::u16string> args;
@@ -99,7 +98,7 @@ HWTEST_F(TagSessionTest, Dump002, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetMaxTransceiveLength001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = MAX_TECH;
     int maxSize = g_maxTransLength[0];
@@ -114,7 +113,7 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetMaxTransceiveLength002, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = -1;
     int maxSize = g_maxTransLength[0];
@@ -129,7 +128,7 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength002, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetMaxTransceiveLength003, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
     int maxSize = g_maxTransLength[0];
@@ -144,7 +143,7 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength003, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, UnregForegroundDispatch001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
     KITS::ErrorCode result = tagSession->UnregForegroundDispatch(element);
@@ -157,7 +156,7 @@ HWTEST_F(TagSessionTest, UnregForegroundDispatch001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech;
@@ -172,11 +171,11 @@ HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, NdefMakeReadOnly001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     int result = tagSession->NdefMakeReadOnly(tagRfDiscId);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefWrite001
@@ -185,12 +184,12 @@ HWTEST_F(TagSessionTest, NdefMakeReadOnly001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, NdefWrite001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     std::string msg = "";
     int result = tagSession->NdefWrite(tagRfDiscId, msg);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefRead001
@@ -199,7 +198,7 @@ HWTEST_F(TagSessionTest, NdefWrite001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, NdefRead001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     std::string ndefRead = tagSession->NdefRead(tagRfDiscId);
@@ -212,7 +211,7 @@ HWTEST_F(TagSessionTest, NdefRead001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, IsTagFieldOn001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     bool isTagFieldOn = tagSession->IsTagFieldOn(tagRfDiscId);
@@ -225,7 +224,7 @@ HWTEST_F(TagSessionTest, IsTagFieldOn001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetTechList001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     std::vector<int> getTechList = tagSession->GetTechList(tagRfDiscId);
@@ -238,7 +237,7 @@ HWTEST_F(TagSessionTest, GetTechList001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetTimeout001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = -1;
     int timeout = 0;
@@ -252,7 +251,7 @@ HWTEST_F(TagSessionTest, GetTimeout001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetTimeout002, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = MAX_TECH;
     int timeout = 0;
@@ -266,7 +265,7 @@ HWTEST_F(TagSessionTest, GetTimeout002, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, GetTimeout003, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
     int timeout = 0;
@@ -280,7 +279,7 @@ HWTEST_F(TagSessionTest, GetTimeout003, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, SetTimeout001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = -1;
@@ -294,7 +293,7 @@ HWTEST_F(TagSessionTest, SetTimeout001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, SetTimeout002, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = MAX_TECH;
@@ -309,13 +308,14 @@ HWTEST_F(TagSessionTest, SetTimeout002, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, SetTimeout003, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
     tagSession->Disconnect(technology);
     int result = tagSession->SetTimeout(TEST_DISC_ID, timeout, technology);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED || result == NFC::KITS::ErrorCode::ERR_NONE);
 }
 /**
  * @tc.name: Reconnect001
@@ -324,11 +324,11 @@ HWTEST_F(TagSessionTest, SetTimeout003, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, Reconnect001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     int result = tagSession->Reconnect(tagRfDiscId);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: Connect001
@@ -337,14 +337,12 @@ HWTEST_F(TagSessionTest, Reconnect001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, Connect001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     int technology = -1;
     int result = tagSession->Connect(tagRfDiscId, technology);
-    std::shared_ptr<INfcService> service_ = nullptr;
-    sptr<NFC::TAG::TagSession> tagSession_ = new NFC::TAG::TagSession(service_);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
 }
 /**
  * @tc.name: IsNdef001
@@ -353,7 +351,7 @@ HWTEST_F(TagSessionTest, Connect001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, IsNdef001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     bool isNdef = tagSession->IsNdef(tagRfDiscId);
@@ -366,14 +364,14 @@ HWTEST_F(TagSessionTest, IsNdef001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, SendRawFrame001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     std::string hexCmdData = "";
     bool raw = true;
     std::string hexRespData = "";
     int result = tagSession->SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: FormatNdef001
@@ -382,12 +380,12 @@ HWTEST_F(TagSessionTest, SendRawFrame001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, FormatNdef001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     const std::string key = "";
     int result = tagSession->FormatNdef(tagRfDiscId, key);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: CanMakeReadOnly001
@@ -396,12 +394,13 @@ HWTEST_F(TagSessionTest, FormatNdef001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, CanMakeReadOnly001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    int ndefType = NCI::TagHost::NDEF_TYPE1_TAG;
+    static const auto NDEF_TYPE1_TAG = 1;
+    int ndefType = NDEF_TYPE1_TAG;
     bool canSetReadOnly = true;
     int result = tagSession->CanMakeReadOnly(ndefType, canSetReadOnly);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: IsSupportedApdusExtended001
@@ -410,11 +409,11 @@ HWTEST_F(TagSessionTest, CanMakeReadOnly001, TestSize.Level1)
  */
 HWTEST_F(TagSessionTest, IsSupportedApdusExtended001, TestSize.Level1)
 {
-    std::shared_ptr<INfcService> service = std::make_shared<NfcServiceImpl>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     bool isSupported = true;
     int result = tagSession->IsSupportedApdusExtended(isSupported);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 }
 }

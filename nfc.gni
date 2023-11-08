@@ -12,4 +12,12 @@
 # limitations under the License.
 
 NFC_DIR = "//foundation/communication/nfc"
+
 fuzz_module_out_path = "nfc/nfc"
+
+declare_args() {
+  nfc_use_vendor_nci_native = false
+  if (defined(global_parts_info.nfc_use_vendor_nci_native)) {
+    nfc_use_vendor_nci_native = true
+  }
+}

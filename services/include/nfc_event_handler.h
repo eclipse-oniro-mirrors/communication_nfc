@@ -16,7 +16,7 @@
 #define NFC_EVENT_HANDLER_H
 #include "common_event_manager.h"
 #include "event_handler.h"
-#include "infcc_host.h"
+#include "nfc_service.h"
 #include "tag_dispatcher.h"
 
 namespace OHOS {

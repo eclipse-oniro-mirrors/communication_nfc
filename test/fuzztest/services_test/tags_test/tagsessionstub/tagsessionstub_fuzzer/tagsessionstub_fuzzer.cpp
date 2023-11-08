@@ -39,7 +39,7 @@ namespace OHOS {
 
     void FuzzHandleConnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -54,7 +54,7 @@ namespace OHOS {
 
     void FuzzHandleReconnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -69,7 +69,7 @@ namespace OHOS {
 
     void FuzzHandleDisconnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -84,7 +84,7 @@ namespace OHOS {
 
     void FuzzHandleSetTimeout(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -99,7 +99,7 @@ namespace OHOS {
 
     void FuzzHandleGetTimeout(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -114,7 +114,7 @@ namespace OHOS {
 
     void FuzzHandleGetTechList(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -129,7 +129,7 @@ namespace OHOS {
 
     void FuzzHandleIsTagFieldOn(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -144,7 +144,7 @@ namespace OHOS {
 
     void FuzzHandleIsNdef(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -159,7 +159,7 @@ namespace OHOS {
 
     void FuzzHandleSendRawFrame(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -174,7 +174,7 @@ namespace OHOS {
 
     void FuzzHandleNdefRead(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -189,7 +189,7 @@ namespace OHOS {
 
     void FuzzHandleNdefWrite(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -204,7 +204,7 @@ namespace OHOS {
 
     void FuzzHandleNdefMakeReadOnly(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -219,7 +219,7 @@ namespace OHOS {
 
     void FuzzHandleFormatNdef(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -234,7 +234,7 @@ namespace OHOS {
 
     void FuzzHandleCanMakeReadOnly(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -249,7 +249,7 @@ namespace OHOS {
 
     void FuzzHandleGetMaxTransceiveLength(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
@@ -265,7 +265,7 @@ namespace OHOS {
 
     void FuzzHandleIsSupportedApdusExtended(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::INfcService> service = std::make_shared<NFC::NfcServiceFuzz>();
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);

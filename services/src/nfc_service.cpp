@@ -13,35 +13,40 @@
  * limitations under the License.
  */
 #include "nfc_service.h"
-
 #include <unistd.h>
-
 #include "app_data_parser.h"
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "loghelper.h"
-#include "nfc_event_publisher.h"
 #include "nfc_database_helper.h"
 #include "nfc_event_handler.h"
+#include "nfc_event_publisher.h"
 #include "nfc_hisysevent.h"
-#include "nfc_nci_adaptor.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"
 #include "nfc_timer.h"
 #include "nfc_watch_dog.h"
-#include "nfcc_host.h"
 #include "tag_session.h"
 #include "run_on_demaind_manager.h"
 #include "want.h"
+
+#ifdef USE_VENDOR_NCI_NATIVE
+#include "nci_ce_impl_vendor.h"
+#include "nci_nfcc_impl_vendor.h"
+#include "nci_tag_impl_vendor.h"
+#else
+#include "nci_ce_impl_default.h"
+#include "nci_nfcc_impl_default.h"
+#include "nci_tag_impl_default.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
 uint32_t NfcService::unloadStaSaTimerId{0};
 
-NfcService::NfcService(std::unique_ptr<NFC::NCI::INfccHost> nfccHost)
-    : nfccHost_(std::move(nfccHost)),
-    eventHandler_(nullptr),
+NfcService::NfcService()
+    : eventHandler_(nullptr),
     tagDispatcher_(nullptr),
     nfcControllerImpl_(nullptr),
     nfcState_(KITS::STATE_OFF)
@@ -66,6 +71,38 @@ std::weak_ptr<NfcService> NfcService::GetInstance() const
     return nfcService_;
 }
 
+std::shared_ptr<NCI::INciNfccInterface> NfcService::GetNciNfccInterface(void)
+{
+#ifdef USE_VENDOR_NCI_NATIVE
+    return std::make_shared<NCI::NciNfccImplVendor>();
+#else
+    return std::make_shared<NCI::NciNfccImplDefault>();
+#endif
+}
+
+std::shared_ptr<NCI::INciTagInterface> NfcService::GetNciTagInterface(void)
+{
+#ifdef USE_VENDOR_NCI_NATIVE
+    return std::make_shared<NCI::NciTagImplVendor>();
+#else
+    return std::make_shared<NCI::NciTagImplDefault>();
+#endif
+}
+
+std::shared_ptr<NCI::INciCeInterface> NfcService::GetNciCeInterface(void)
+{
+#ifdef USE_VENDOR_NCI_NATIVE
+    return std::make_shared<NCI::NciCeImplVendor>();
+#else
+    return std::make_shared<NCI::NciCeImplDefault>();
+#endif
+}
+
+std::weak_ptr<NCI::NciTagProxy> NfcService::GetNciTagProxy(void)
+{
+    return nciTagProxy_;
+}
+
 std::weak_ptr<NfcPollingManager> NfcService::GetNfcPollingManager()
 {
     return nfcPollingManager_;
@@ -80,24 +117,24 @@ bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
     InfoLog("Nfc service initialize.");
-    if (nfccHost_) {
-        nfccHost_->SetNfccHostListener(nfcService_);
-    } else {
-        nfccHost_ = std::make_shared<NFC::NCI::NfccHost>(nfcService_);
-    }
+    nciNfccProxy_ = std::make_shared<NFC::NCI::NciNfccProxy>(GetNciNfccInterface());
+    nciTagProxy_ = std::make_shared<NFC::NCI::NciTagProxy>(GetNciTagInterface());
+    nciCeProxy_ = std::make_shared<NFC::NCI::NciCeProxy>(GetNciCeInterface());
+    nciTagProxy_->SetTagListener(nfcService_);
+    nciCeProxy_->SetCeHostListener(nfcService_);
 
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
     eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
     ceService_ = std::make_shared<CeService>(shared_from_this());
-    nfcPollingManager_ = std::make_shared<NfcPollingManager>(nfccHost_, shared_from_this());
-    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nfccHost_, shared_from_this());
+
+    nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
+    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciCeProxy_, shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
 
-    // To be structured after Tag and HCE, the controller module is the controller of tag and HCE module
+    // used by NfcSaManager::Init(), to public for the proxy.
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
-
     nfcPollingManager_->ResetCurrPollingParams();
 
     runner->Run();
@@ -132,10 +169,16 @@ OHOS::sptr<IRemoteObject> NfcService::GetTagServiceIface()
     return tagSessionIface_;
 }
 
-void NfcService::OnTagDiscovered(std::shared_ptr<NCI::ITagHost> tagHost)
+void NfcService::OnTagDiscovered(uint32_t tagDiscId)
 {
-    InfoLog("NfcService::OnTagDiscovered");
-    eventHandler_->SendEvent<NCI::ITagHost>(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagHost);
+    InfoLog("NfcService::OnTagDiscovered tagDiscId %{public}d", tagDiscId);
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagDiscId, 0);
+}
+
+void NfcService::OnTagLost(uint32_t tagDiscId)
+{
+    InfoLog("NfcService::OnTagLost tagDiscId %{public}d", tagDiscId);
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_LOST), tagDiscId, 0);
 }
 
 void NfcService::FieldActivated()
@@ -219,10 +262,10 @@ bool NfcService::DoTurnOn()
     InfoLog("Nfc do turn on: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_ON);
 
-    NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nfccHost_);
+    NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nciNfccProxy_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
-    if (!nfccHost_->Initialize()) {
+    if (!nciNfccProxy_->Initialize()) {
         ErrorLog("Nfc do turn on err");
         UpdateNfcState(KITS::STATE_OFF);
         // Routing Wake Lock release
@@ -239,7 +282,7 @@ bool NfcService::DoTurnOn()
     // Routing Wake Lock release
     nfcWatchDog.Cancel();
 
-    nciVersion_ = nfccHost_->GetNciVersion();
+    nciVersion_ = nciNfccProxy_->GetNciVersion();
     InfoLog("Get nci version: ver %{public}d", nciVersion_);
 
     UpdateNfcState(KITS::STATE_ON);
@@ -249,7 +292,7 @@ bool NfcService::DoTurnOn()
         unloadStaSaTimerId = 0;
     }
 
-    nfccHost_->SetScreenStatus(screenState_);
+    nciNfccProxy_->SetScreenStatus(screenState_);
 
     /* Start polling loop */
     nfcPollingManager_->StartPollingLoop(true);
@@ -267,11 +310,11 @@ bool NfcService::DoTurnOff()
     UpdateNfcState(KITS::STATE_TURNING_OFF);
 
     /* WatchDog to monitor for Deinitialize failed */
-    NfcWatchDog nfcWatchDog("DoTurnOff", WAIT_MS_SET_ROUTE, nfccHost_);
+    NfcWatchDog nfcWatchDog("DoTurnOff", WAIT_MS_SET_ROUTE, nciNfccProxy_);
     nfcWatchDog.Run();
 
-    bool result = nfccHost_->Deinitialize();
-    InfoLog("NfccHost deinitialize result %{public}d", result);
+    bool result = nciNfccProxy_->Deinitialize();
+    InfoLog("Nfcc deinitialize result %{public}d", result);
 
     nfcWatchDog.Cancel();
 
@@ -431,7 +474,7 @@ void NfcService::HandleShutdown()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     DebugLog("device is shutting down");
-    NCI::NfcNciAdaptor::GetInstance().NfcAdaptationDeviceShutdown();
+    nciNfccProxy_->Shutdown();
 }
 }  // namespace NFC
 }  // namespace OHOS
