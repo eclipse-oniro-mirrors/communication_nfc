@@ -101,7 +101,7 @@ bool NciTagImplVendor::Connect(uint32_t tagDiscId, uint32_t technology)
     if (vendorTagImpl_) {
         return vendorTagImpl_->Connect(tagDiscId, technology);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -114,7 +114,7 @@ bool NciTagImplVendor::Disconnect(uint32_t tagDiscId)
     if (vendorTagImpl_) {
         return vendorTagImpl_->Disconnect(tagDiscId);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -127,7 +127,7 @@ bool NciTagImplVendor::Reconnect(uint32_t tagDiscId)
     if (vendorTagImpl_) {
         return vendorTagImpl_->Reconnect(tagDiscId);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -182,7 +182,7 @@ bool NciTagImplVendor::WriteNdef(uint32_t tagDiscId, std::string& command)
     if (vendorTagImpl_) {
         return vendorTagImpl_->WriteNdef(tagDiscId, command);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -196,7 +196,7 @@ bool NciTagImplVendor::FormatNdef(uint32_t tagDiscId, const std::string& key)
     if (vendorTagImpl_) {
         return vendorTagImpl_->FormatNdef(tagDiscId, key);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -209,7 +209,7 @@ bool NciTagImplVendor::CanMakeReadOnly(uint32_t ndefType)
     if (vendorTagImpl_) {
         return vendorTagImpl_->CanMakeReadOnly(ndefType);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -222,7 +222,7 @@ bool NciTagImplVendor::SetNdefReadOnly(uint32_t tagDiscId)
     if (vendorTagImpl_) {
         return vendorTagImpl_->SetNdefReadOnly(tagDiscId);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -236,7 +236,7 @@ bool NciTagImplVendor::DetectNdefInfo(uint32_t tagDiscId, std::vector<int>& ndef
     if (vendorTagImpl_) {
         return vendorTagImpl_->DetectNdefInfo(tagDiscId, ndefInfo);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -249,7 +249,7 @@ bool NciTagImplVendor::IsTagFieldOn(uint32_t tagDiscId)
     if (vendorTagImpl_) {
         return vendorTagImpl_->IsTagFieldOn(tagDiscId);
     }
-    return false;
+    return true;
 }
 
 /**
@@ -298,7 +298,7 @@ bool NciTagImplVendor::IsExtendedLengthApduSupported()
     if (vendorTagImpl_) {
         return vendorTagImpl_->IsExtendedLengthApduSupported();
     }
-    return false;
+    return true;
 }
 
 /**

@@ -119,9 +119,11 @@ void RunOnDemaindProxy::WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCn
     NfcHisysEvent::WriteFirmwareUpdateHiSysEvent(requestCnt, failCnt);
 }
 
-NfcFailedParams* RunOnDemaindProxy::BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+void RunOnDemaindProxy::BuildFailedParams(NfcFailedParams &nfcFailedParams,
+                                          MainErrorCode mainErrorCode,
+                                          SubErrorCode subErrorCode)
 {
-    return NfcHisysEvent::BuildFailedParams(mainErrorCode, subErrorCode);
+    NfcHisysEvent::BuildFailedParams(nfcFailedParams, mainErrorCode, subErrorCode);
 }
 
 bool RunOnDemaindProxy::IsGranted(std::string permission)

@@ -47,7 +47,7 @@ bool NciCeImplVendor::ComputeRoutingParams()
     if (vendorCeImpl_) {
         return vendorCeImpl_->ComputeRoutingParams();
     }
-    return false;
+    return true;
 }
 
 /**
@@ -59,7 +59,7 @@ bool NciCeImplVendor::CommitRouting()
     if (vendorCeImpl_) {
         return vendorCeImpl_->CommitRouting();
     }
-    return false;
+    return true;
 }
 }  // namespace NCI
 }  // namespace NFC

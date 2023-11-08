@@ -64,7 +64,7 @@ public:
                                  int typeBCnt, int typeFCnt, int typeVCnt);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
-    NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+    void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
 
     bool IsGranted(std::string permission);
 

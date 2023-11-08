@@ -75,9 +75,10 @@ void NfcHisysEvent::WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt)
                "FAILED_FIRMWARE_UPDATE_CNT", failCnt);
 }
 
-NfcFailedParams* NfcHisysEvent::BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+void NfcHisysEvent::BuildFailedParams(NfcFailedParams &nfcFailedParams,
+                                      MainErrorCode mainErrorCode,
+                                      SubErrorCode subErrorCode)
 {
-    NfcFailedParams nfcFailedParams;
     nfcFailedParams.mainErrorCode = mainErrorCode;
     nfcFailedParams.subErrorCode = subErrorCode;
     nfcFailedParams.defaultRoute = 0;
@@ -86,7 +87,6 @@ NfcFailedParams* NfcHisysEvent::BuildFailedParams(MainErrorCode mainErrorCode, S
     nfcFailedParams.passiveListenState = 0;
     nfcFailedParams.version = "VERSION";
     nfcFailedParams.appPackageName = "APPNAME";
-    return &nfcFailedParams;
 }
 }  // namespace NFC
 }  // namespace OHOS
