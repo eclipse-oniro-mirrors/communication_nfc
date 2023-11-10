@@ -56,7 +56,9 @@ public:
                                         int typeBCnt, int typeFCnt, int typeVCnt);
     static void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     static void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
-    static NfcFailedParams* BuildFailedParams(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+    static void BuildFailedParams(NfcFailedParams &nfcFailedParams,
+                                  MainErrorCode mainErrorCode,
+                                  SubErrorCode subErrorCode);
 };
 }  // namespace NFC
 }  // namespace OHOS

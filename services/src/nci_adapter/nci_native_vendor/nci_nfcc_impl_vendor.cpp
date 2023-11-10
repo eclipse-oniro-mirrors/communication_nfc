@@ -36,7 +36,7 @@ bool NciNfccImplVendor::Initialize()
     if (vendorNfccImpl_) {
         return vendorNfccImpl_->Initialize();
     }
-    return false;
+    return true;
 }
 
 /**
@@ -48,7 +48,7 @@ bool NciNfccImplVendor::Deinitialize()
     if (vendorNfccImpl_) {
         return vendorNfccImpl_->Deinitialize();
     }
-    return false;
+    return true;
 }
 
 /**
@@ -85,7 +85,7 @@ bool NciNfccImplVendor::SetScreenStatus(uint8_t screenStateMask)
     if (vendorNfccImpl_) {
         return vendorNfccImpl_->SetScreenStatus(screenStateMask);
     }
-    return false;
+    return true;
 }
 
 /**

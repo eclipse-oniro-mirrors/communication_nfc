@@ -274,9 +274,10 @@ bool NfcService::DoTurnOn()
         RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
             NOT_COUNT, NOT_COUNT);
         // Record failed event
-        NfcFailedParams* nfcFailedParams = RunOnDemaindManager::GetInstance().BuildFailedParams(
+        NfcFailedParams nfcFailedParams;
+        RunOnDemaindManager::GetInstance().BuildFailedParams(nfcFailedParams,
             MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        RunOnDemaindManager::GetInstance().WriteNfcFailedHiSysEvent(nfcFailedParams);
+        RunOnDemaindManager::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return false;
     }
     // Routing Wake Lock release
