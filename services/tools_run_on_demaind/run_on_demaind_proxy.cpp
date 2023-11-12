@@ -136,5 +136,10 @@ void RunOnDemaindProxy::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInf
 {
     TAG::TagAbilityDispatcher::DispatchTagAbility(tagInfo, tagServiceIface);
 }
+
+void RunOnDemaindProxy::StartVibratorOnce()
+{
+    TAG::TagAbilityDispatcher::StartVibratorOnce();
+}
 } // NFC
 } // OHOS

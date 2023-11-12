@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 #include "nfc_controller_stub.h"
+
 #include "ipc_skeleton.h"
 #include "loghelper.h"
+#include "ndef_msg_callback_proxy.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
@@ -48,6 +50,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleIsNfcOpen(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE):
             return HandleGetNfcTagInterface(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK):
+            return HandleRegNdefMsgCb(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -178,6 +182,36 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
 
     reply.WriteRemoteObject(remoteOjbect);
     return ERR_NONE;
+}
+
+int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply)
+{
+    InfoLog("NfcControllerStub::HandleRegNdefMsgCb");
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    do {
+        sptr<IRemoteObject> remote = data.ReadRemoteObject();
+        if (remote == nullptr) {
+            DebugLog("Failed to readRemoteObject!");
+            break;
+        }
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            ndefCallback_ = iface_cast<INdefMsgCallback>(remote);
+            if (ndefCallback_ == nullptr) {
+                ndefCallback_ = new (std::nothrow) NdefMsgCallbackProxy(remote);
+                DebugLog("NfcControllerStub::HandleRegNdefMsgCb, create new `NdefMsgCallbackProxy`!");
+            }
+            ret = RegNdefMsgCallback(ndefCallback_);
+        }
+    } while (0);
+    reply.WriteInt32(ret);
+    return ERR_NONE;
+}
+
+KITS::ErrorCode NfcControllerStub::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
+{
+    InfoLog("NfcControllerStub::RegNdefMsgCb");
+    return RegNdefMsgCallback(callback);
 }
 }  // namespace NFC
 }  // namespace OHOS

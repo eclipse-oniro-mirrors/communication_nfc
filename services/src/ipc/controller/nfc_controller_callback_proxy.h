@@ -31,7 +31,7 @@ public:
     virtual ~NfcControllerCallBackProxy() {}
 
     void OnNfcStateChanged(int nfcRfState) override;
-    
+
 private:
     static inline BrokerDelegator<NfcControllerCallBackProxy> g_delegator;
 };

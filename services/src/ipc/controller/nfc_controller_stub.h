@@ -15,6 +15,7 @@
 #ifndef NFC_CONTROLLER_STUB_H
 #define NFC_CONTROLLER_STUB_H
 
+#include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
 #include "iremote_stub.h"
@@ -39,6 +40,7 @@ public:
     virtual KITS::ErrorCode UnRegisterCallBack(const std::string& type,
         Security::AccessToken::AccessTokenID callerToken) = 0;
     virtual KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) = 0;
     void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
 
 private:
@@ -49,15 +51,18 @@ private:
     int HandleRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
+    int HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply);
 
 private:
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
         const std::string& type) override;
     KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
+    KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) override;
 
 private:
     std::mutex mutex_ {};
     sptr<INfcControllerCallback> callback_;
+    sptr<INdefMsgCallback> ndefCallback_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace NFC
