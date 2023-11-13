@@ -52,6 +52,7 @@ ohos_shared_library("nfc_service") {
   branch_protector_ret = "pac_ret"
   sources = [
     "src/card_emulation/ce_service.cpp",
+    "src/ipc/controller/ndef_msg_callback_proxy.cpp",
     "src/ipc/controller/nfc_controller_callback_proxy.cpp",
     "src/ipc/controller/nfc_controller_death_recipient.cpp",
     "src/ipc/controller/nfc_controller_impl.cpp",

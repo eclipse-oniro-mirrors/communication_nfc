@@ -28,7 +28,8 @@ namespace TAG {
 using OHOS::NFC::KITS::TagTechnology;
 TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
     : nfcService_(nfcService),
-    lastNdefMsg_("")
+    lastNdefMsg_(""),
+    ndefCb_(nullptr)
 {
     if (nfcService_) {
         nciTagProxy_ = nfcService_->GetNciTagProxy();
@@ -37,6 +38,11 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
 
 TagDispatcher::~TagDispatcher()
 {
+}
+
+void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
+{
+    ndefCb_ = callback;
 }
 
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
@@ -56,6 +62,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
         nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
         nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+        RunOnDemaindManager::GetInstance().StartVibratorOnce();
         return;
     }
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
@@ -64,6 +71,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
             nciTagProxy_.lock()->Disconnect(tagDiscId);
             ErrorLog("HandleTagFound bad connection, tag disconnected");
+            RunOnDemaindManager::GetInstance().StartVibratorOnce();
             return;
         }
     }
@@ -71,11 +79,18 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
     if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
         nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+        RunOnDemaindManager::GetInstance().StartVibratorOnce();
         return;
     }
-    DispatchTag(tagDiscId);
+    bool ndefCbRes = false;
+    if (ndefCb_ != nullptr) {
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(ndefMsg, 1);
+    }
+    if (!ndefCbRes) {
+        DispatchTag(tagDiscId);
+    }
+    RunOnDemaindManager::GetInstance().StartVibratorOnce();
 }
-
 
 void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
 {

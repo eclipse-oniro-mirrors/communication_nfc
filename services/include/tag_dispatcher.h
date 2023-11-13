@@ -16,6 +16,7 @@
 #define TAG_DISPATCH_H
 #include <map>
 #include <mutex>
+#include "indef_msg_callback.h"
 #include "nci_tag_proxy.h"
 #include "nfc_service.h"
 #include "taginfo.h"
@@ -35,6 +36,7 @@ public:
     void HandleTagFound(uint32_t rfDiscId);
     void HandleTagDebounce();
     void HandleTagLost(uint32_t rfDiscId);
+    void RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
 private:
     std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(uint32_t rfDiscId);
@@ -51,6 +53,7 @@ private:
 
     // ndef message
     std::string lastNdefMsg_ {};
+    sptr<INdefMsgCallback> ndefCb_;
 };
 }  // namespace TAG
 }  // namespace NFC

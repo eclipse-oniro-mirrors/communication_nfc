@@ -60,6 +60,7 @@ public:
     bool IsGranted(std::string permission);
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
+    void StartVibratorOnce();
 };
 } // NFC
 } // OHOS

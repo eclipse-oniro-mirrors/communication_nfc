@@ -15,6 +15,7 @@
 #include "nfc_controller_proxy.h"
 
 #include "loghelper.h"
+#include "ndef_msg_callback_stub.h"
 #include "nfc_controller_callback_stub.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
@@ -24,6 +25,8 @@ namespace NFC {
 const std::string NFC_INTERFACE_TOKEN = "ohos.nfc.INfcController";
 static sptr<NfcControllerCallBackStub> g_nfcControllerCallbackStub =
     sptr<NfcControllerCallBackStub>(new (std::nothrow) NfcControllerCallBackStub());
+static sptr<NdefMsgCallbackStub> g_ndefMsgCallbackStub =
+    sptr<NdefMsgCallbackStub>(new (std::nothrow) NdefMsgCallbackStub());
 
 NfcControllerProxy ::~NfcControllerProxy() {}
 
@@ -159,6 +162,35 @@ OHOS::sptr<IRemoteObject> NfcControllerProxy::GetTagServiceIface()
     }
     sptr<OHOS::IRemoteObject> remoteObject = reply.ReadRemoteObject();
     return remoteObject;
+}
+
+KITS::ErrorCode NfcControllerProxy::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (g_ndefMsgCallbackStub == nullptr) {
+        ErrorLog("NfcControllerProxy::RegNdefMsgCb:g_ndefMsgCallbackStub is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    g_ndefMsgCallbackStub->RegisterCallback(callback);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("NfcControllerProxy::RegNdefMsgCb Write interface token error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteRemoteObject(g_ndefMsgCallbackStub->AsObject())) {
+        ErrorLog("NfcControllerProxy::RegNdefMsgCb WriteRemoteObject failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK),
+        data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("NfcControllerProxy::RegNdefMsgCb failed, error code is %{public}d", error);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
 }
 }  // namespace NFC
 }  // namespace OHOS

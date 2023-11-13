@@ -70,6 +70,11 @@ static void SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Wa
     }
 }
 
+void TagAbilityDispatcher::StartVibratorOnce()
+{
+    OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
+}
+
 void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo,
                                               OHOS::sptr<IRemoteObject> tagServiceIface)
 {
@@ -80,7 +85,6 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     if (tagServiceIface == nullptr) {
         WarnLog("DispatchTagAbility tagServiceIface is null");
     }
-    OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
 
     std::vector<int> techList = tagInfo->GetTagTechList();
     std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);

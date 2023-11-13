@@ -18,6 +18,7 @@
 #include "nfc_controller_callback_stub.h"
 #include "nfc_sa_client.h"
 #include "nfc_sdk_common.h"
+#include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -174,6 +175,17 @@ OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 {
     InitNfcRemoteSA();
     return nfcControllerService_.lock()->GetTagServiceIface();
+}
+
+ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
+{
+    DebugLog("NfcController::RegNdefMsgCb");
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::RegNdefMsgCb nfcControllerService_ expired");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return nfcControllerService_.lock()->RegNdefMsgCb(callback);
 }
 }  // namespace KITS
 }  // namespace NFC

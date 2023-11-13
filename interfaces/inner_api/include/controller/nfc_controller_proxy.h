@@ -18,6 +18,7 @@
 
 #include "nfc_basic_proxy.h"
 #include "nfc_sdk_common.h"
+#include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
 #include "iremote_proxy.h"
@@ -41,6 +42,7 @@ public:
         const std::string& type) override;
     KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) override;
 private:
 };
 }  // namespace NFC

@@ -109,6 +109,18 @@ OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
     return nfcService_.lock()->GetTagServiceIface();
 }
 
+KITS::ErrorCode NfcControllerImpl::RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback)
+{
+    if (nfcService_.expired()) {
+        ErrorLog("NfcControllerImpl::RegNdefMsgCallback nfcService_ expired");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (nfcService_.lock()->RegNdefMsgCb(callback)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     if (nfcService_.expired()) {

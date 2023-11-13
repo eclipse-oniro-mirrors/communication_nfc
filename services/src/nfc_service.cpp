@@ -477,5 +477,12 @@ void NfcService::HandleShutdown()
     DebugLog("device is shutting down");
     nciNfccProxy_->Shutdown();
 }
+
+bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
+{
+    DebugLog("NfcService::RegNdefMsgCb");
+    tagDispatcher_->RegNdefMsgCb(callback);
+    return true;
+}
 }  // namespace NFC
 }  // namespace OHOS

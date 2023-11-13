@@ -15,6 +15,7 @@
 #ifndef NFC_CONTROLLER_H
 #define NFC_CONTROLLER_H
 
+#include "ndef_msg_callback_stub.h"
 #include "nfc_controller_callback_stub.h"
 #include "nfc_controller_proxy.h"
 #include "nfc_sdk_common.h"
@@ -89,6 +90,8 @@ public:
     OHOS::sptr<IRemoteObject> GetTagServiceIface();
 
     void OnRemoteDied(const wptr<IRemoteObject> &remoteObject);
+
+    ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
 private:
     class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {

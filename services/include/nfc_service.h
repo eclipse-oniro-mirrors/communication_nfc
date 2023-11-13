@@ -80,6 +80,7 @@ private:
         const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveRegisterCallBack(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     int RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID callerToken);
+    bool RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
     // shutdown event
     void HandleShutdown();
 

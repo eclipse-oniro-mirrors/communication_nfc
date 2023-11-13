@@ -49,12 +49,12 @@ int NfcControllerCallBackStub::OnRemoteRequest(
         return KITS::ERR_NFC_STATE_UNBIND;
     }
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        ErrorLog("nfc callback stub token verification error");
+        ErrorLog("NfcControllerCallBackStub::OnRemoteRequest, nfc callback stub token verification error");
         return KITS::ERR_NFC_PARAMETERS;
     }
     int exception = data.ReadInt32();
     if (exception) {
-        ErrorLog("ConnectedTagCallBackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
+        ErrorLog("NfcControllerCallBackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
         return exception;
     }
     int ret = KITS::ERR_NFC_STATE_UNBIND;
