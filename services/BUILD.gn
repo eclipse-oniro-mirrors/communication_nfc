@@ -110,6 +110,7 @@ ohos_shared_library("nfc_service") {
     "preferences:native_preferences",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "screenlock_mgr:screenlock_client",
   ]
 
   part_name = "nfc"

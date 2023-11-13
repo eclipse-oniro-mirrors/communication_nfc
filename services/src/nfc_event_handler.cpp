@@ -21,6 +21,7 @@
 #include "nfc_polling_manager.h"
 #include "nfc_routing_manager.h"
 #include "want.h"
+#include "screenlock_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -53,12 +54,23 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         ErrorLog("action is empty");
         return;
     }
-
     ScreenState screenState = ScreenState::SCREEN_STATE_UNKNOWN;
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON) == 0) {
-        screenState = ScreenState::SCREEN_STATE_ON_UNLOCKED;
+        bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+        DebugLog("isScreenLocked = %{public}d", isScreenLocked);
+        if (isScreenLocked) {
+            screenState = ScreenState::SCREEN_STATE_ON_LOCKED;
+        } else {
+            screenState = ScreenState::SCREEN_STATE_ON_UNLOCKED;
+        }
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF) == 0) {
-        screenState = ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+        bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+        DebugLog("isScreenLocked = %{public}d", isScreenLocked);
+        if (isScreenLocked) {
+            screenState = ScreenState::SCREEN_STATE_OFF_LOCKED;
+        } else {
+            screenState = ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+        }
     } else {
         ErrorLog("Screen changed receiver event:unknown");
         return;
