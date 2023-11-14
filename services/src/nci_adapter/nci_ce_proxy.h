@@ -21,7 +21,7 @@ namespace NFC {
 namespace NCI {
 class NciCeProxy final : public INciCeInterface {
 public:
-    explicit NciCeProxy(std::shared_ptr<INciCeInterface> ceInterface);
+    explicit NciCeProxy();
     ~NciCeProxy();
 
     /**

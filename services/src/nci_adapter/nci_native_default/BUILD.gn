@@ -30,6 +30,7 @@ config("nci_native_default_config") {
     "//third_party/libnfc-nci/SN100x/src/nfc/include",
     "//third_party/libnfc-nci/SN100x/utils/include",
     "$NFC_DIR/interfaces/inner_api/common",
+    "native_impl_default/include"
   ]
 }
 
@@ -43,16 +44,17 @@ ohos_shared_library("nfc_nci_native_default") {
   }
   stack_protector_ret = true
   sources = [
-    "native_impl_default/extns.cpp",
-    "native_impl_default/nfcc_nci_adapter.cpp",
-    "native_impl_default/routing_manager.cpp",
-    "native_impl_default/synchronize_event.cpp",
-    "native_impl_default/tag_host.cpp",
-    "native_impl_default/tag_native_impl.cpp",
-    "native_impl_default/tag_nci_adapter.cpp",
-    "nci_ce_impl_default.cpp",
-    "nci_nfcc_impl_default.cpp",
-    "nci_tag_impl_default.cpp",
+    "native_impl_default/src/extns.cpp",
+    "native_impl_default/src/nfcc_nci_adapter.cpp",
+    "native_impl_default/src/routing_manager.cpp",
+    "native_impl_default/src/synchronize_event.cpp",
+    "native_impl_default/src/tag_host.cpp",
+    "native_impl_default/src/tag_native_impl.cpp",
+    "native_impl_default/src/tag_nci_adapter.cpp",
+    "native_impl_default/src/nci_ce_impl_default.cpp",
+    "native_impl_default/src/nci_native_adapter_default.cpp",
+    "native_impl_default/src/nci_nfcc_impl_default.cpp",
+    "native_impl_default/src/nci_tag_impl_default.cpp",
   ]
 
   public_configs = [ ":nci_native_default_config" ]

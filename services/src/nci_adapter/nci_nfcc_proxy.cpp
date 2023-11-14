@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 #include "nci_nfcc_proxy.h"
+#include "nci_native_proxy.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-NciNfccProxy::NciNfccProxy(std::shared_ptr<INciNfccInterface> nfccInterface)
-{
-    nfccInterface_ = nfccInterface;
+NciNfccProxy::NciNfccProxy()
+{   
+    nfccInterface_ = NciNativeProxy::GetInstance().GetNciNfccInterface();
 }
 
 NciNfccProxy::~NciNfccProxy()

@@ -33,12 +33,6 @@ config("nfc_config") {
     "$NFC_DIR/interfaces/inner_api/common",
     "tools_run_on_demaind",
   ]
-
-  if (nfc_use_vendor_nci_native) {
-    include_dirs += [ "src/nci_adapter/nci_native_vendor" ]
-  } else {
-    include_dirs += [ "src/nci_adapter/nci_native_default" ]
-  }
 }
 
 ohos_shared_library("nfc_service") {
@@ -64,6 +58,7 @@ ohos_shared_library("nfc_service") {
     "src/nci_adapter/nci_ce_proxy.cpp",
     "src/nci_adapter/nci_nfcc_proxy.cpp",
     "src/nci_adapter/nci_tag_proxy.cpp",
+    "src/nci_adapter/nci_native_proxy.cpp",
     "src/nfc_event_handler.cpp",
     "src/nfc_polling_manager.cpp",
     "src/nfc_polling_params.cpp",
@@ -83,12 +78,6 @@ ohos_shared_library("nfc_service") {
     "etc/init:etc",
     "tools_run_on_demaind:nfc_tools_on_demaind",
   ]
-
-  if (nfc_use_vendor_nci_native) {
-    deps += [ "src/nci_adapter/nci_native_vendor:nfc_nci_native_vendor" ]
-  } else {
-    deps += [ "src/nci_adapter/nci_native_default:nfc_nci_native_default" ]
-  }
 
   external_deps = [
     "ability_base:want",

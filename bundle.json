@@ -70,7 +70,6 @@
                 "init",
                 "hisysevent",
                 "data_share",
-                "nfc_ext_service",
                 "screenlock_mgr"
             ],
             "third_party": [

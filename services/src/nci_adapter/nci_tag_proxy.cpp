@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 #include "nci_tag_proxy.h"
+#include "nci_native_proxy.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-NciTagProxy::NciTagProxy(std::shared_ptr<INciTagInterface> tagInterface)
+NciTagProxy::NciTagProxy()
 {
-    nciTagInterface_ = tagInterface;
+    nciTagInterface_ = NciNativeProxy::GetInstance().GetNciTagInterface();
 }
 
 NciTagProxy::~NciTagProxy()

@@ -58,7 +58,6 @@ public:
     int GetNfcState() override;
     int GetScreenState() override;
     int GetNciVersion() override;
-    std::shared_ptr<NCI::INciTagInterface> GetNciTagInterface(void);
     std::weak_ptr<NCI::NciTagProxy> GetNciTagProxy(void);
     std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
@@ -84,8 +83,6 @@ private:
     // shutdown event
     void HandleShutdown();
 
-    std::shared_ptr<NCI::INciNfccInterface> GetNciNfccInterface(void);
-    std::shared_ptr<NCI::INciCeInterface> GetNciCeInterface(void);
 private:
     // ms wait for initialization, included firmware download.
     static constexpr const int WAIT_MS_INIT = 90 * 1000;

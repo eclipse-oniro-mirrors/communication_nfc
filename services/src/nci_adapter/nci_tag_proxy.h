@@ -21,7 +21,7 @@ namespace NFC {
 namespace NCI {
 class NciTagProxy final : public INciTagInterface {
 public:
-    explicit NciTagProxy(std::shared_ptr<INciTagInterface> tagInterface);
+    explicit NciTagProxy();
     ~NciTagProxy();
 
     /**
