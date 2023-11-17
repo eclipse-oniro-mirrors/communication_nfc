@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NCI_NATIVE_ADAPTER_H
-#define NCI_NATIVE_ADAPTER_H
+#ifndef NCI_NATIVE_PROXY_H
+#define NCI_NATIVE_PROXY_H
 
 #include <memory>
 #include <string>
@@ -46,40 +46,40 @@ public:
     std::shared_ptr<INciTagInterface> GetNciTagInterface();
 
 private:
-class NciLibsLoader {
-public:
-    NciLibsLoader(const std::string &newInterfaceSymbol = "NewInterface",
-        const std::string &deleteInterfaceSymbol = "DeleteInterface");
+    class NciLibsLoader {
+    public:
+        NciLibsLoader(const std::string &newInterfaceSymbol = "NewInterface",
+            const std::string &deleteInterfaceSymbol = "DeleteInterface");
 
-    ~NciLibsLoader();
+        ~NciLibsLoader();
 
-    NciLibsLoader(const NciLibsLoader &) = delete;
-    NciLibsLoader &operator=(NciLibsLoader &) = delete;
+        NciLibsLoader(const NciLibsLoader &) = delete;
+        NciLibsLoader &operator=(NciLibsLoader &) = delete;
 
-    /**
-     * @brief dlopen native so
-     * @param True if success, otherwise false.
-     */
-    bool LoadLib();
+        /**
+         * @brief dlopen native so
+         * @param True if success, otherwise false.
+         */
+        bool LoadLib();
 
-    /**
-     * @brief dlclose native so
-     * @param True if success, otherwise false.
-     */
-    bool CloseLib();
+        /**
+         * @brief dlclose native so
+         * @param True if success, otherwise false.
+         */
+        bool CloseLib();
 
-    /**
-     * @brief dlsym symbol
-     * @param The ptr of INciNativeInterface
-     */
-    std::shared_ptr<INciNativeInterface> NewInstance();
+        /**
+         * @brief dlsym symbol
+         * @param The ptr of INciNativeInterface
+         */
+        std::shared_ptr<INciNativeInterface> NewInstance();
 
-private:
-    void *handle_{nullptr};
-    std::string libPath_;
-    std::string newInterfaceSymbol_;
-    std::string deleteInterfaceSymbol_;
-};
+    private:
+        void *handle_{nullptr};
+        std::string libPath_;
+        std::string newInterfaceSymbol_;
+        std::string deleteInterfaceSymbol_;
+    };
 
     NciNativeProxy();
     NciNativeProxy(const NciNativeProxy &) = delete;
