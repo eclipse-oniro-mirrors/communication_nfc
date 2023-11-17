@@ -17,10 +17,10 @@
 #include "access_token.h"
 #include "common_event_manager.h"
 #include "iforeground_callback.h"
-#include "nci_nfcc_proxy.h"
-#include "nci_tag_proxy.h"
 #include "nfc_polling_params.h"
 #include "taginfo_parcelable.h"
+#include "inci_nfcc_interface.h"
+#include "inci_tag_interface.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,8 +30,8 @@ class NfcService;
 class NfcPollingManager {
 public:
     NfcPollingManager(std::weak_ptr<NfcService> nfcService,
-                      std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy,
-                      std::weak_ptr<NCI::NciTagProxy> nciTagProxy);
+                      std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy,
+                      std::weak_ptr<NCI::INciTagInterface> nciTagProxy);
     ~NfcPollingManager();
     class ForegroundRegistryData {
     public:
@@ -66,8 +66,8 @@ private:
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData_ {};
     std::shared_ptr<NfcPollingParams> currPollingParams_ {};
     std::weak_ptr<NfcService> nfcService_ {};
-    std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy_ {};
-    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 
     // lock
     std::mutex mutex_ {};

@@ -149,6 +149,10 @@ bool NciTagImplDefault::SetNdefReadOnly(uint32_t tagDiscId)
 
 bool NciTagImplDefault::DetectNdefInfo(uint32_t tagDiscId, std::vector<int> &ndefInfo)
 {
+    auto tag = TagNativeImpl::GetInstance().GetTag(tagDiscId).lock();
+    if (tag) {
+        return tag->DetectNdefInfo(ndefInfo);
+    }
     return false;
 }
 

@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace NFC {
-NfcWatchDog::NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::NciNfccProxy> nfccProxy)
+NfcWatchDog::NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::INciNfccInterface> nfccProxy)
     : threadName_(threadName), timeout_(timeout), canceled_(false), thread_(nullptr), nciNfccProxy_(nfccProxy)
 {
 }

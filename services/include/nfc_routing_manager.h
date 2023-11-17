@@ -15,7 +15,7 @@
 #ifndef NFC_ROUTING_MANAGER_H
 #define NFC_ROUTING_MANAGER_H
 #include "nfc_event_handler.h"
-#include "nci_ce_proxy.h"
+#include "inci_ce_interface.h"
 
 namespace OHOS {
 namespace NFC {
@@ -23,7 +23,7 @@ class NfcService;
 class NfcRoutingManager {
 public:
     NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
-                      std::weak_ptr<NCI::NciCeProxy> nciCeProxy,
+                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                       std::weak_ptr<NfcService> nfcService);
     ~NfcRoutingManager();
 
@@ -35,7 +35,7 @@ public:
 
 private:
     std::shared_ptr<NfcEventHandler> eventHandler_ {};
-    std::weak_ptr<NCI::NciCeProxy> nciCeProxy_ {};
+    std::weak_ptr<NCI::INciCeInterface> nciCeProxy_ {};
     std::weak_ptr<NfcService> nfcService_ {};
 
     // lock

@@ -61,7 +61,7 @@ std::weak_ptr<NfcService> NfcService::GetInstance() const
     return nfcService_;
 }
 
-std::weak_ptr<NCI::NciTagProxy> NfcService::GetNciTagProxy(void)
+std::weak_ptr<NCI::INciTagInterface> NfcService::GetNciTagProxy(void)
 {
     return nciTagProxy_;
 }
@@ -80,9 +80,9 @@ bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
     InfoLog("Nfc service initialize.");
-    nciNfccProxy_ = std::make_shared<NFC::NCI::NciNfccProxy>();
-    nciTagProxy_ = std::make_shared<NFC::NCI::NciTagProxy>();
-    nciCeProxy_ = std::make_shared<NFC::NCI::NciCeProxy>();
+    nciNfccProxy_ = NCI::NciNativeProxy::GetInstance().GetNciNfccInterface();
+    nciTagProxy_ = NCI::NciNativeProxy::GetInstance().GetNciTagInterface();
+    nciCeProxy_ = NCI::NciNativeProxy::GetInstance().GetNciCeInterface();
     nciTagProxy_->SetTagListener(nfcService_);
     nciCeProxy_->SetCeHostListener(nfcService_);
 

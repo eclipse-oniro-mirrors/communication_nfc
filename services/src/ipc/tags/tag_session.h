@@ -17,10 +17,10 @@
 #include "element_name.h"
 #include "itag_session.h"
 #include "nfc_service.h"
-#include "nci_tag_proxy.h"
 #include "tag_dispatcher.h"
 #include "tag_session_stub.h"
 #include "nfc_polling_manager.h"
+#include "inci_tag_interface.h"
 
 namespace OHOS {
 namespace NFC {
@@ -144,7 +144,7 @@ public:
 private:
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};
-    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
 };

@@ -22,8 +22,8 @@
 namespace OHOS {
 namespace NFC {
 NfcPollingManager::NfcPollingManager(std::weak_ptr<NfcService> nfcService,
-                                     std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy,
-                                     std::weak_ptr<NCI::NciTagProxy> nciTagProxy)
+                                     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy,
+                                     std::weak_ptr<NCI::INciTagInterface> nciTagProxy)
     : nfcService_(nfcService), nciNfccProxy_(nciNfccProxy), nciTagProxy_(nciTagProxy)
 {
     foregroundData_ = std::make_shared<NfcPollingManager::ForegroundRegistryData>();

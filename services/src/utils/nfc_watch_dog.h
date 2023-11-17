@@ -18,13 +18,13 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include "nci_nfcc_proxy.h"
+#include "inci_nfcc_interface.h"
 
 namespace OHOS {
 namespace NFC {
 class NfcWatchDog final {
 public:
-    NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::NciNfccProxy> nfccProxy);
+    NfcWatchDog(const std::string& threadName, int timeout, std::weak_ptr<NCI::INciNfccInterface> nfccProxy);
     ~NfcWatchDog();
     void Cancel();
     void Run();
@@ -40,7 +40,7 @@ private:
     volatile bool canceled_ {false};
     std::unique_ptr<std::thread> thread_ {};
 
-    std::weak_ptr<NCI::NciNfccProxy> nciNfccProxy_;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_;
 };
 }  // namespace NFC
 }  // namespace OHOS

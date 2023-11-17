@@ -24,9 +24,10 @@
 #include "nfc_polling_manager.h"
 #include "nfc_routing_manager.h"
 #include "nfc_sdk_common.h"
-#include "nci_nfcc_proxy.h"
-#include "nci_tag_proxy.h"
-#include "nci_ce_proxy.h"
+#include "inci_ce_interface.h"
+#include "inci_nfcc_interface.h"
+#include "inci_tag_interface.h"
+#include "nci_native_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -58,7 +59,7 @@ public:
     int GetNfcState() override;
     int GetScreenState() override;
     int GetNciVersion() override;
-    std::weak_ptr<NCI::NciTagProxy> GetNciTagProxy(void);
+    std::weak_ptr<NCI::INciTagInterface> GetNciTagProxy(void);
     std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
 
@@ -90,9 +91,9 @@ private:
 
     // service
     std::weak_ptr<NfcService> nfcService_ {};
-    std::shared_ptr<NCI::NciNfccProxy> nciNfccProxy_ {};
-    std::shared_ptr<NCI::NciTagProxy> nciTagProxy_ {};
-    std::shared_ptr<NCI::NciCeProxy> nciCeProxy_ {};
+    std::shared_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
+    std::shared_ptr<NCI::INciTagInterface> nciTagProxy_ {};
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy_ {};
     // polling manager
     std::shared_ptr<NfcPollingManager> nfcPollingManager_ {};
     // routing manager
