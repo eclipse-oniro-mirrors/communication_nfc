@@ -24,7 +24,7 @@ config("nfc_service_unit_test_config") {
     "$NFC_DIR/interfaces/inner_api/include/tags",
     "$NFC_DIR/interfaces/inner_api/include/cardEmulation",
     "$NFC_DIR/services/include",
-    "$NFC_DIR/services/src/nci_adapter/nci_native_default/native_impl_default/include",
+    "$NFC_DIR/services/src/nci_adapter/nci_native_default/include",
     "$NFC_DIR/services/src",
 
     "//third_party/libnfc-nci/SN100x/src/gki/common/",
@@ -191,7 +191,7 @@ ohos_unittest("nci_adapter_test") {
 
   deps = unit_test_deps
   deps += [
-    "$NFC_DIR/services/src/nci_adapter/nci_native_default:nfc_nci_native_default",
+    "$NFC_DIR/services/src/nci_adapter/nci_native_default:nci_native_default",
     "//third_party/libnfc-nci/SN100x:nfc-nci",
   ]
 

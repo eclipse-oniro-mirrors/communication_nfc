@@ -70,15 +70,15 @@ ohos_shared_library("nfc_service") {
 
   public_configs = [ ":nfc_config" ]
 
-  if (!nfc_use_vendor_nci_native) {
-    public_deps += [ "src/nci_adapter/nci_native_default:nfc_nci_native_default" ]
-  }
-
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
     "tools_run_on_demaind:nfc_tools_on_demaind",
   ]
+
+  if (!nfc_use_vendor_nci_native) {
+    deps += [ "src/nci_adapter/nci_native_default:nci_native_default" ]
+  }
 
   external_deps = [
     "ability_base:want",

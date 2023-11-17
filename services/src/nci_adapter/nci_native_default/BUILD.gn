@@ -34,7 +34,7 @@ config("nci_native_default_config") {
   ]
 }
 
-ohos_shared_library("nfc_nci_native_default") {
+ohos_shared_library("nci_native_default") {
   sanitize = {
     cfi = true
     boundary_sanitize = true

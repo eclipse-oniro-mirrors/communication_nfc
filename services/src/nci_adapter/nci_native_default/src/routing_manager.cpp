@@ -710,7 +710,7 @@ RoutingManager::RoutingManager() : isSecureNfcEnabled_(false),
     defaultEe_ = NfcConfig::getUnsigned(
         NAME_DEFAULT_ROUTE, DEFAULT_EE_ROUTE_DEST);
     if (NfcConfig::hasKey(NAME_OFFHOST_ROUTE_UICC)) {
-        offHostRouteEse_ = NfcConfig::getBytes(NAME_OFFHOST_ROUTE_UICC);
+        offHostRouteUicc_ = NfcConfig::getBytes(NAME_OFFHOST_ROUTE_UICC);
     } else {
         offHostRouteUicc_ = DEFAULT_UICC_ROUTE_DEST;
     }

@@ -70,22 +70,22 @@ std::shared_ptr<INciTagInterface> NciNativeProxy::GetNciTagInterface()
     return nullptr;
 }
 
-NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol, const std::string &deleteInterfaceSymbol)
+NciNativeProxy::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol, const std::string &deleteInterfaceSymbol)
     : newInterfaceSymbol_(newInterfaceSymbol), deleteInterfaceSymbol_(deleteInterfaceSymbol)
 {
 #ifdef USE_VENDOR_NCI_NATIVE
     libPath_ = "libnci_native_vendor.z.so";
 #else
-    libPath_ = "libnfc_nci_native_default.z.so";
+    libPath_ = "libnci_native_default.z.so";
 #endif
 }
 
-NciLibsLoader::~NciLibsLoader()
+NciNativeProxy::NciLibsLoader::~NciLibsLoader()
 {
     (void)CloseLib();
 }
 
-bool NciLibsLoader::LoadLib()
+bool NciNativeProxy::NciLibsLoader::LoadLib()
 {
     if (libPath_.empty() || handle_) {
         return false;
@@ -99,7 +99,7 @@ bool NciLibsLoader::LoadLib()
     return true;
 }
 
-bool NciLibsLoader::CloseLib()
+bool NciNativeProxy::NciLibsLoader::CloseLib()
 {
     if (handle_) {
         if (dlclose(handle_) != 0) {
@@ -113,7 +113,7 @@ bool NciLibsLoader::CloseLib()
     return true;
 }
 
-std::shared_ptr<INciNativeInterface> NciLibsLoader::NewInstance()
+std::shared_ptr<INciNativeInterface> NciNativeProxy::NciLibsLoader::NewInstance()
 {
     if (!handle_) {
         ErrorLog("fail handle is null");
