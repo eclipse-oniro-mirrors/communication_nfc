@@ -30,16 +30,6 @@
 #include "run_on_demaind_manager.h"
 #include "want.h"
 
-#ifdef USE_VENDOR_NCI_NATIVE
-#include "nci_ce_impl_vendor.h"
-#include "nci_nfcc_impl_vendor.h"
-#include "nci_tag_impl_vendor.h"
-#else
-#include "nci_ce_impl_default.h"
-#include "nci_nfcc_impl_default.h"
-#include "nci_tag_impl_default.h"
-#endif
-
 namespace OHOS {
 namespace NFC {
 const std::u16string NFC_SERVICE_NAME = OHOS::to_utf16("ohos.nfc.service");
@@ -71,34 +61,7 @@ std::weak_ptr<NfcService> NfcService::GetInstance() const
     return nfcService_;
 }
 
-std::shared_ptr<NCI::INciNfccInterface> NfcService::GetNciNfccInterface(void)
-{
-#ifdef USE_VENDOR_NCI_NATIVE
-    return std::make_shared<NCI::NciNfccImplVendor>();
-#else
-    return std::make_shared<NCI::NciNfccImplDefault>();
-#endif
-}
-
-std::shared_ptr<NCI::INciTagInterface> NfcService::GetNciTagInterface(void)
-{
-#ifdef USE_VENDOR_NCI_NATIVE
-    return std::make_shared<NCI::NciTagImplVendor>();
-#else
-    return std::make_shared<NCI::NciTagImplDefault>();
-#endif
-}
-
-std::shared_ptr<NCI::INciCeInterface> NfcService::GetNciCeInterface(void)
-{
-#ifdef USE_VENDOR_NCI_NATIVE
-    return std::make_shared<NCI::NciCeImplVendor>();
-#else
-    return std::make_shared<NCI::NciCeImplDefault>();
-#endif
-}
-
-std::weak_ptr<NCI::NciTagProxy> NfcService::GetNciTagProxy(void)
+std::weak_ptr<NCI::INciTagInterface> NfcService::GetNciTagProxy(void)
 {
     return nciTagProxy_;
 }
@@ -117,9 +80,9 @@ bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
     InfoLog("Nfc service initialize.");
-    nciNfccProxy_ = std::make_shared<NFC::NCI::NciNfccProxy>(GetNciNfccInterface());
-    nciTagProxy_ = std::make_shared<NFC::NCI::NciTagProxy>(GetNciTagInterface());
-    nciCeProxy_ = std::make_shared<NFC::NCI::NciCeProxy>(GetNciCeInterface());
+    nciNfccProxy_ = NCI::NciNativeProxy::GetInstance().GetNciNfccInterface();
+    nciTagProxy_ = NCI::NciNativeProxy::GetInstance().GetNciTagInterface();
+    nciCeProxy_ = NCI::NciNativeProxy::GetInstance().GetNciCeInterface();
     nciTagProxy_->SetTagListener(nfcService_);
     nciCeProxy_->SetCeHostListener(nfcService_);
 

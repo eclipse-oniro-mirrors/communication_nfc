@@ -17,7 +17,7 @@
 #include <map>
 #include <mutex>
 #include "indef_msg_callback.h"
-#include "nci_tag_proxy.h"
+#include "inci_tag_interface.h"
 #include "nfc_service.h"
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
@@ -45,7 +45,7 @@ private:
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
-    std::weak_ptr<NCI::NciTagProxy> nciTagProxy_ {};
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 
     // tag field on checking
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
