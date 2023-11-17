@@ -58,13 +58,6 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     }
     DebugLog("HandleTagFound fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
 
-    // skip ndef checking for foreground dispatch scenario
-    if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
-        nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
-        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
-        RunOnDemaindManager::GetInstance().StartVibratorOnce();
-        return;
-    }
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     if (ndefMessage == nullptr) {
@@ -83,7 +76,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         return;
     }
     bool ndefCbRes = false;
-    if (ndefCb_ != nullptr) {
+    if (ndefCb_ != nullptr && ndefMessage != nullptr) {
         ndefCbRes = ndefCb_->OnNdefMsgDiscovered(ndefMsg, 1);
     }
     if (!ndefCbRes) {
