@@ -24,24 +24,24 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class INciNativeInterface{
+class INciNativeInterface {
 public:
     virtual ~INciNativeInterface() = default;
 
     /**
-     * @brief Get the ptr of INciCeInterface  
+     * @brief Get the ptr of INciCeInterface
      * @return thr ptr of INciCeInterface
      */
     virtual std::shared_ptr<INciCeInterface> GetNciCeInterface() = 0;
 
     /**
-     * @brief Get the ptr of INciNfccInterface  
+     * @brief Get the ptr of INciNfccInterface
      * @return thr ptr of INciNfccInterface
      */
     virtual std::shared_ptr<INciNfccInterface> GetNciNfccInterface() = 0;
 
     /**
-     * @brief Get the ptr of INciTagInterface  
+     * @brief Get the ptr of INciTagInterface
      * @return thr ptr of INciTagInterface
      */
     virtual std::shared_ptr<INciTagInterface> GetNciTagInterface() = 0;

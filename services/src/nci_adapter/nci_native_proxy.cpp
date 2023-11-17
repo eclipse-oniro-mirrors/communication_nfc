@@ -18,9 +18,9 @@
 #include <string>
 #include "loghelper.h"
 
-namespace OHOS{
-namespace NFC{
-namespace NCI{
+namespace OHOS {
+namespace NFC {
+namespace NCI {
 NciNativeProxy::NciNativeProxy()
 {
     InitNativeInterface();
@@ -70,8 +70,9 @@ std::shared_ptr<INciTagInterface> NciNativeProxy::GetNciTagInterface()
     return nullptr;
 }
 
-NciNativeProxy::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol, const std::string &deleteInterfaceSymbol)
-    : newInterfaceSymbol_(newInterfaceSymbol), deleteInterfaceSymbol_(deleteInterfaceSymbol)
+NciNativeProxy::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol,
+    const std::string &deleteInterfaceSymbol): newInterfaceSymbol_(newInterfaceSymbol),
+    deleteInterfaceSymbol_(deleteInterfaceSymbol)
 {
 #ifdef USE_VENDOR_NCI_NATIVE
     libPath_ = "libnci_native_vendor.z.so";

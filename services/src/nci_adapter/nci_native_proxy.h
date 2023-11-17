@@ -23,24 +23,24 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class NciNativeProxy{
+class NciNativeProxy {
 public:
     static NciNativeProxy &GetInstance();
 
     /**
-     * @brief Get the ptr of INciCeInterface  
+     * @brief Get the ptr of INciCeInterface
      * @return thr ptr of INciCeInterface
      */
     std::shared_ptr<INciCeInterface> GetNciCeInterface();
 
     /**
-     * @brief Get the ptr of INciNfccInterface  
+     * @brief Get the ptr of INciNfccInterface
      * @return thr ptr of INciNfccInterface
      */
     std::shared_ptr<INciNfccInterface> GetNciNfccInterface();
 
     /**
-     * @brief Get the ptr of INciTagInterface  
+     * @brief Get the ptr of INciTagInterface
      * @return thr ptr of INciTagInterface
      */
     std::shared_ptr<INciTagInterface> GetNciTagInterface();
@@ -48,7 +48,7 @@ public:
 private:
     class NciLibsLoader {
     public:
-        NciLibsLoader(const std::string &newInterfaceSymbol = "NewInterface",
+        explicit NciLibsLoader(const std::string &newInterfaceSymbol = "NewInterface",
             const std::string &deleteInterfaceSymbol = "DeleteInterface");
 
         ~NciLibsLoader();
@@ -86,12 +86,12 @@ private:
     NciNativeProxy &operator=(NciNativeProxy &) = delete;
 
     /**
-     * @brief Init natvie interface  
+     * @brief Init natvie interface
      */
     void InitNativeInterface();
 
     /**
-     * @brief Get the ptr of INciNativeInterface  
+     * @brief Get the ptr of INciNativeInterface
      * @return thr ptr of INciNativeInterface
      */
     std::shared_ptr<INciNativeInterface> GetNciNativeInterface();
