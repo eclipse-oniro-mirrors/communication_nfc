@@ -29,6 +29,9 @@
 #include "tag_session.h"
 #include "run_on_demaind_manager.h"
 #include "want.h"
+#include "nci_nfcc_proxy.h"
+#include "nci_tag_proxy.h"
+#include "nci_ce_proxy.h"
 
 namespace OHOS {
 namespace NFC {
