@@ -80,9 +80,9 @@ bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
     InfoLog("Nfc service initialize.");
-    nciNfccProxy_ = NCI::NciNativeProxy::GetInstance().GetNciNfccInterface();
-    nciTagProxy_ = NCI::NciNativeProxy::GetInstance().GetNciTagInterface();
-    nciCeProxy_ = NCI::NciNativeProxy::GetInstance().GetNciCeInterface();
+    nciNfccProxy_ = std::make_shared<NFC::NCI::NciNfccProxy>();
+    nciTagProxy_ = std::make_shared<NFC::NCI::NciTagProxy>();
+    nciCeProxy_ = std::make_shared<NFC::NCI::NciCeProxy>();
     nciTagProxy_->SetTagListener(nfcService_);
     nciCeProxy_->SetCeHostListener(nfcService_);
 

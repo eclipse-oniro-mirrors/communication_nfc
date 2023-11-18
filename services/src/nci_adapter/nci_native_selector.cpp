@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "nci_native_proxy.h"
+#include "nci_native_selector.h"
 #include <dlfcn.h>
 #include <string>
 #include "loghelper.h"
@@ -21,17 +21,17 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-NciNativeProxy::NciNativeProxy()
+NciNativeSelector::NciNativeSelector()
 {
     InitNativeInterface();
 }
 
-void NciNativeProxy::InitNativeInterface()
+void NciNativeSelector::InitNativeInterface()
 {
     nativeInterface_ = GetNciNativeInterface();
 }
 
-std::shared_ptr<INciNativeInterface> NciNativeProxy::GetNciNativeInterface()
+std::shared_ptr<INciNativeInterface> NciNativeSelector::GetNciNativeInterface()
 {
     loader_ = std::make_unique<NciLibsLoader>();
     if (!loader_->LoadLib()) {
@@ -40,13 +40,13 @@ std::shared_ptr<INciNativeInterface> NciNativeProxy::GetNciNativeInterface()
     return loader_->NewInstance();
 }
 
-NciNativeProxy &NciNativeProxy::GetInstance()
+NciNativeSelector &NciNativeSelector::GetInstance()
 {
-    static NciNativeProxy instance;
+    static NciNativeSelector instance;
     return instance;
 }
 
-std::shared_ptr<INciCeInterface> NciNativeProxy::GetNciCeInterface()
+std::shared_ptr<INciCeInterface> NciNativeSelector::GetNciCeInterface()
 {
     if (nativeInterface_) {
         return nativeInterface_->GetNciCeInterface();
@@ -54,7 +54,7 @@ std::shared_ptr<INciCeInterface> NciNativeProxy::GetNciCeInterface()
     return nullptr;
 }
 
-std::shared_ptr<INciNfccInterface> NciNativeProxy::GetNciNfccInterface()
+std::shared_ptr<INciNfccInterface> NciNativeSelector::GetNciNfccInterface()
 {
     if (nativeInterface_) {
         return nativeInterface_->GetNciNfccInterface();
@@ -62,7 +62,7 @@ std::shared_ptr<INciNfccInterface> NciNativeProxy::GetNciNfccInterface()
     return nullptr;
 }
 
-std::shared_ptr<INciTagInterface> NciNativeProxy::GetNciTagInterface()
+std::shared_ptr<INciTagInterface> NciNativeSelector::GetNciTagInterface()
 {
     if (nativeInterface_) {
         return nativeInterface_->GetNciTagInterface();
@@ -70,7 +70,7 @@ std::shared_ptr<INciTagInterface> NciNativeProxy::GetNciTagInterface()
     return nullptr;
 }
 
-NciNativeProxy::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol,
+NciNativeSelector::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymbol,
     const std::string &deleteInterfaceSymbol): newInterfaceSymbol_(newInterfaceSymbol),
     deleteInterfaceSymbol_(deleteInterfaceSymbol)
 {
@@ -81,12 +81,12 @@ NciNativeProxy::NciLibsLoader::NciLibsLoader(const std::string &newInterfaceSymb
 #endif
 }
 
-NciNativeProxy::NciLibsLoader::~NciLibsLoader()
+NciNativeSelector::NciLibsLoader::~NciLibsLoader()
 {
     (void)CloseLib();
 }
 
-bool NciNativeProxy::NciLibsLoader::LoadLib()
+bool NciNativeSelector::NciLibsLoader::LoadLib()
 {
     if (libPath_.empty() || handle_) {
         return false;
@@ -100,7 +100,7 @@ bool NciNativeProxy::NciLibsLoader::LoadLib()
     return true;
 }
 
-bool NciNativeProxy::NciLibsLoader::CloseLib()
+bool NciNativeSelector::NciLibsLoader::CloseLib()
 {
     if (handle_) {
         if (dlclose(handle_) != 0) {
@@ -114,7 +114,7 @@ bool NciNativeProxy::NciLibsLoader::CloseLib()
     return true;
 }
 
-std::shared_ptr<INciNativeInterface> NciNativeProxy::NciLibsLoader::NewInstance()
+std::shared_ptr<INciNativeInterface> NciNativeSelector::NciLibsLoader::NewInstance()
 {
     if (!handle_) {
         ErrorLog("fail handle is null");
