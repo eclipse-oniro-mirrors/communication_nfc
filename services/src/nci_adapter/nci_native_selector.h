@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NCI_NATIVE_PROXY_H
-#define NCI_NATIVE_PROXY_H
+#ifndef NCI_NATIVE_SELECTOR_H
+#define NCI_NATIVE_SELECTOR_H
 
 #include <memory>
 #include <string>
@@ -23,9 +23,9 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-class NciNativeProxy {
+class NciNativeSelector {
 public:
-    static NciNativeProxy &GetInstance();
+    static NciNativeSelector &GetInstance();
 
     /**
      * @brief Get the ptr of INciCeInterface
@@ -81,9 +81,9 @@ private:
         std::string deleteInterfaceSymbol_;
     };
 
-    NciNativeProxy();
-    NciNativeProxy(const NciNativeProxy &) = delete;
-    NciNativeProxy &operator=(NciNativeProxy &) = delete;
+    NciNativeSelector();
+    NciNativeSelector(const NciNativeSelector &) = delete;
+    NciNativeSelector &operator=(NciNativeSelector &) = delete;
 
     /**
      * @brief Init natvie interface

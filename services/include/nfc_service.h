@@ -27,7 +27,7 @@
 #include "inci_ce_interface.h"
 #include "inci_nfcc_interface.h"
 #include "inci_tag_interface.h"
-#include "nci_native_proxy.h"
+
 
 namespace OHOS {
 namespace NFC {
