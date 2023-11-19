@@ -52,6 +52,7 @@ private:
     int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
     int HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply);
+    int HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply);
 
 private:
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,

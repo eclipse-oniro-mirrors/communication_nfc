@@ -412,5 +412,20 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
     }
     return elements;
 }
+
+std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList)
+{
+    std::vector<ElementName> elements;
+    if (queryApplicationByVendor == nullptr) {
+        return std::vector<ElementName>();
+    }
+    elements = queryApplicationByVendor(KEY_TAG_TECH, discTechList);
+    return elements;
+}
+
+void AppDataParser::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    queryApplicationByVendor = callback;
+}
 }  // namespace NFC
 }  // namespace OHOS

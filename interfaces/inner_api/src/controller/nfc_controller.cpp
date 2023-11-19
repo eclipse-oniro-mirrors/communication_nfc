@@ -187,6 +187,17 @@ ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
     }
     return nfcControllerService_.lock()->RegNdefMsgCb(callback);
 }
+
+ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    DebugLog("NfcController::RegQueryApplicationCb");
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::RegQueryApplicationCb nfcControllerService_ expired");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return nfcControllerService_.lock()->RegQueryApplicationCb(callback);
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

@@ -42,6 +42,16 @@ std::vector<ElementName> RunOnDemaindManager::GetDispatchTagAppsByTech(std::vect
     return RunOnDemaindProxy::GetInstance().GetDispatchTagAppsByTech(discTechList);
 }
 
+std::vector<ElementName> RunOnDemaindManager::GetVendorDispatchTagAppsByTech(std::vector<int> discTechList)
+{
+    return RunOnDemaindProxy::GetInstance().GetVendorDispatchTagAppsByTech(discTechList);
+}
+
+void RunOnDemaindManager::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    RunOnDemaindProxy::GetInstance().RegQueryApplicationCb(callback);
+}
+
 KITS::ErrorCode RunOnDemaindManager::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     return RunOnDemaindProxy::GetInstance().NfcDataGetValue(uri, column, value);

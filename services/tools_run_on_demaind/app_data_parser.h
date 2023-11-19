@@ -28,6 +28,7 @@ namespace NFC {
 using AppExecFwk::AbilityInfo;
 using AppExecFwk::ExtensionAbilityInfo;
 using OHOS::AppExecFwk::ElementName;
+using QueryApplicationByVendor = std::vector<ElementName> (*)(std::string, std::vector<int>);
 class AppDataParser {
 public:
     explicit AppDataParser();
@@ -57,6 +58,8 @@ public:
     void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
+    std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
+    void RegQueryApplicationCb(QueryApplicationByVendor callback);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
@@ -71,6 +74,7 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
+    QueryApplicationByVendor queryApplicationByVendor = nullptr;
 };
 }  // namespace NFC
 }  // namespace OHOS
