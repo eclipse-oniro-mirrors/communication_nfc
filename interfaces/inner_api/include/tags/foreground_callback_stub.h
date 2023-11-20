@@ -30,7 +30,7 @@ class ForegroundCallbackStub : public IRemoteStub<KITS::IForegroundCallback> {
 public:
     ForegroundCallbackStub();
     virtual ~ForegroundCallbackStub();
-    static ForegroundCallbackStub& GetInstance();
+    static ForegroundCallbackStub* GetInstance();
     KITS::ErrorCode RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback);
 
     virtual int OnRemoteRequest(

@@ -81,7 +81,7 @@ NfcController &NfcController::GetInstance()
 
 void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 {
-    DebugLog("%{public}s:Remote service is died!", __func__);
+    WarnLog("%{public}s:Remote service is died!", __func__);
     std::lock_guard<std::mutex> lock(mutex_);
     remoteDied_ = true;
     initialized_ = false;
