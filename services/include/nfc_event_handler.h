@@ -42,6 +42,9 @@ public:
     void SubscribeScreenChangedEvent();
     void SubscribePackageChangedEvent();
     void SubscribeShutdownEvent();
+    bool IsScreenOn();
+    bool IsScreenLocked();
+    ScreenState CheckScreenState();
 
 protected:
     // Screen Changed Receiver

@@ -22,6 +22,7 @@
 #include "nfc_routing_manager.h"
 #include "want.h"
 #include "screenlock_manager.h"
+#include "power_mgr_client.h"
 
 namespace OHOS {
 namespace NFC {
@@ -36,7 +37,7 @@ public:
 
 private:
     std::weak_ptr<NfcService> nfcService_ {};
-    std::weak_ptr<AppExecFwk::EventHandler> eventHandler_ {};
+    std::weak_ptr<NfcEventHandler> eventHandler_ {};
 };
 
 NfcEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
@@ -45,6 +46,32 @@ NfcEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<NfcS
     nfcService_(nfcService),
     eventHandler_(nfcService.lock()->eventHandler_)
 {
+}
+
+bool NfcEventHandler::IsScreenOn()
+{
+    return PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
+}
+
+bool NfcEventHandler::IsScreenLocked()
+{
+    return OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+}
+
+ScreenState NfcEventHandler::CheckScreenState()
+{
+    bool isScreenOn = IsScreenOn();
+    bool isScreenLocked = IsScreenLocked();
+    if (isScreenOn && isScreenLocked) {
+        return ScreenState::SCREEN_STATE_ON_LOCKED;
+    } else if (!isScreenOn && !isScreenLocked) {
+        return ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+    } else if (!isScreenOn && isScreenLocked) {
+        return ScreenState::SCREEN_STATE_OFF_LOCKED;
+    } else if (isScreenOn && !isScreenLocked) {
+        return ScreenState::SCREEN_STATE_ON_UNLOCKED;
+    }
+    return ScreenState::SCREEN_STATE_UNKNOWN;
 }
 
 void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
@@ -56,21 +83,14 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
     }
     ScreenState screenState = ScreenState::SCREEN_STATE_UNKNOWN;
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON) == 0) {
-        bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
-        DebugLog("isScreenLocked = %{public}d", isScreenLocked);
-        if (isScreenLocked) {
-            screenState = ScreenState::SCREEN_STATE_ON_LOCKED;
-        } else {
-            screenState = ScreenState::SCREEN_STATE_ON_UNLOCKED;
-        }
+        screenState = eventHandler_.lock()->IsScreenLocked() ?
+            ScreenState::SCREEN_STATE_ON_LOCKED : ScreenState::SCREEN_STATE_ON_UNLOCKED;
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF) == 0) {
-        bool isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
-        DebugLog("isScreenLocked = %{public}d", isScreenLocked);
-        if (isScreenLocked) {
-            screenState = ScreenState::SCREEN_STATE_OFF_LOCKED;
-        } else {
-            screenState = ScreenState::SCREEN_STATE_OFF_UNLOCKED;
-        }
+        screenState = eventHandler_.lock()->IsScreenLocked() ?
+            ScreenState::SCREEN_STATE_OFF_LOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+    } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) == 0) {
+        screenState = eventHandler_.lock()->IsScreenOn() ?
+            ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
     } else {
         ErrorLog("Screen changed receiver event:unknown");
         return;
@@ -189,6 +209,7 @@ void NfcEventHandler::SubscribeScreenChangedEvent()
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     screenSubscriber_ = std::make_shared<ScreenChangedReceiver>(nfcService_, subscribeInfo);
     if (screenSubscriber_ == nullptr) {

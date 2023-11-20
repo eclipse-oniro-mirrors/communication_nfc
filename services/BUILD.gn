@@ -100,6 +100,7 @@ ohos_shared_library("nfc_service") {
     "hisysevent:libhisysevent",
     "ipc:ipc_core",
     "miscdevice:vibrator_interface_native",
+    "power_manager:powermgr_client",
     "preferences:native_preferences",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
