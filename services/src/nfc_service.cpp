@@ -259,6 +259,7 @@ bool NfcService::DoTurnOn()
         unloadStaSaTimerId = 0;
     }
 
+    screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
 
     /* Start polling loop */

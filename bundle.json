@@ -70,7 +70,8 @@
                 "init",
                 "hisysevent",
                 "data_share",
-                "screenlock_mgr"
+                "screenlock_mgr",
+                "power_manager"
             ],
             "third_party": [
                 "libnfc-nci",
