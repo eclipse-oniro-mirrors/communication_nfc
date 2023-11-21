@@ -200,9 +200,9 @@ tNFA_STATUS TagNciAdapter::Connect(uint32_t idx)
     if (!IsTagActive()) {
         return NFA_STATUS_FAILED;
     }
-    connectedType_ = tagTechList_[idx];
+    connectedType_ = static_cast<uint32_t>(tagTechList_[idx]);
     connectedProtocol_ = tagRfProtocols_[idx];
-    int discId = tagRfDiscIdList_[idx];
+    uint32_t discId = tagRfDiscIdList_[idx];
     connectedTechIdx_ = idx;
     InfoLog("TagNciAdapter::Connect: index: %{public}d, discId: %{public}d, "
         "targetProto_: %{public}d, targetType_: %{public}d",
@@ -643,7 +643,7 @@ int TagNciAdapter::Transceive(const std::string& request, std::string& response)
                 ErrorLog("TagNciAdapter::Transceive: fail send; error=%{public}d", status);
                 break;
             }
-            int transceiveTimeout = GetTimeout(connectedType_);
+            uint32_t transceiveTimeout = GetTimeout(connectedType_);
             wait = transceiveEvent_.Wait(transceiveTimeout);
         }
         if (!wait || isTransceiveTimeout_) {

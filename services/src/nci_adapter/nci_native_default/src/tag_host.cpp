@@ -75,7 +75,7 @@ bool TagHost::Connect(int technology)
         if (connectedTagDiscId_ != tagRfDiscIdList_[i]) {
             status = TagNciAdapter::GetInstance().Connect(i);
         } else {
-            if (technology == static_cast<uint32_t>(KITS::TagTechnology::NFC_NDEF_TECH)) {
+            if (technology == static_cast<int>(KITS::TagTechnology::NFC_NDEF_TECH)) {
                 // special for ndef
                 i = 0;
             }
@@ -388,7 +388,7 @@ void TagHost::DoTargetTypeNdef(AppExecFwk::PacMap &pacMap)
 AppExecFwk::PacMap TagHost::ParseTechExtras(uint32_t index)
 {
     AppExecFwk::PacMap pacMap;
-    uint32_t targetType = tagTechList_[index];
+    uint32_t targetType = static_cast<uint32_t>(tagTechList_[index]);
     DebugLog("ParseTechExtras::targetType: %{public}d", targetType);
     switch (targetType) {
         case TARGET_TYPE_MIFARE_CLASSIC:
@@ -483,8 +483,8 @@ std::string TagHost::FindNdefTech()
     addNdefTech_ = true;
     DebugLog("TagHost::FindNdefTech");
     bool foundFormat = false;
-    int formatHandle = 0;
-    int formatLibNfcType = 0;
+    uint32_t formatHandle = 0;
+    uint32_t formatLibNfcType = 0;
     uint32_t index = tagTechList_.size();
     std::string ndefMsg = "";
     for (uint32_t i = 0; i < index; i++) {

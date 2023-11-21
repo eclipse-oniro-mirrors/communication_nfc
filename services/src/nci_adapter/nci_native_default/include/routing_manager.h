@@ -47,8 +47,8 @@ private:
     void SetOffHostNfceeTechMask();
 
     // routing entries
-    bool ClearRoutingEntry(int type);
-    bool SetRoutingEntry(int type, int value, int route, int power);
+    bool ClearRoutingEntry(uint32_t type);
+    bool SetRoutingEntry(uint32_t type, uint32_t value, uint32_t route, uint32_t power);
     void RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle,
         tNFA_PROTOCOL_MASK protoSwitchOn, tNFA_PROTOCOL_MASK protoSwitchOff,
         tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
@@ -58,7 +58,7 @@ private:
         tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
         tNFA_PROTOCOL_MASK protoScreenOff, tNFA_PROTOCOL_MASK protoSwitchOffLock);
     bool IsTypeABSupportedInEe(tNFA_HANDLE eeHandle);
-    uint8_t GetProtoMaskFromTechMask(int& value);
+    uint8_t GetProtoMaskFromTechMask(uint32_t& value);
 
     void DoNfaEeRegisterEvent();
     void DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData);
@@ -77,9 +77,9 @@ private:
 
 private:
     // default routes
-    int defaultOffHostRoute_ = 0;
-    int defaultFelicaRoute_ = 0;
-    int defaultIsoDepRoute_ = 0;
+    uint32_t defaultOffHostRoute_ = 0;
+    uint32_t defaultFelicaRoute_ = 0;
+    uint32_t defaultIsoDepRoute_ = 0;
     int defaultEe_ = 0;
 
     // system code params
@@ -105,7 +105,7 @@ private:
     bool isDeinitializing_ = false;
     bool isAidRoutingConfigured_ = false;
     uint8_t hostListenTechMask_ = 0;
-    int offHostAidRoutingPowerState_ = 0;
+    uint32_t offHostAidRoutingPowerState_ = 0;
 };
 }
 }
