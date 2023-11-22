@@ -296,7 +296,7 @@ bool NciTagProxy::IsExtendedLengthApduSupported()
     if (nciTagInterface_) {
         return nciTagInterface_->IsExtendedLengthApduSupported();
     }
-    return false;
+    return true;
 }
 
 /**
