@@ -24,36 +24,36 @@ namespace NCI {
 // default initialize values
 static const uint16_t DEFAULT_SYS_CODE = 0xFEFE;
 static const uint8_t AID_ROUTE_QUAL_PREFIX = 0x10;
-static const int DEFAULT_OFF_HOST_ROUTE_DEST = 0x01;
-static const int DEFAULT_FELICA_ROUTE_DEST = 0x02;
-static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
-static const int DEFAULT_EE_ROUTE_DEST = 0x01; // ese
+static const uint8_t DEFAULT_OFF_HOST_ROUTE_DEST = 0x01;
+static const uint8_t DEFAULT_FELICA_ROUTE_DEST = 0x02;
+static const uint8_t DEFAULT_HOST_ROUTE_DEST = 0x00;
+static const uint8_t DEFAULT_EE_ROUTE_DEST = 0x01; // ese
 static const std::vector<uint8_t> DEFAULT_UICC_ROUTE_DEST = {0x02, 0x03};
 static const tNFA_EE_PWR_STATE DEFAULT_SYS_CODE_PWR_STA = 0x00;
 static const tNFA_HANDLE DEFAULT_SYS_CODE_ROUTE_DEST = 0xC0;
-static const int MAX_NUM_OF_EE = 5;
+static const uint8_t MAX_NUM_OF_EE = 5;
 static const int EE_INFO_WAITE_INTERVAL = 100 * 1000; // ms for usleep
 
 // power state masks
-static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
-static const int PWR_STA_SWTCH_OFF = 0x02;
-static const int PWR_STA_BATT_OFF = 0x04;
-static const int PWR_STA_SWTCH_ON_SCRN_LOCK = 0x10;
-static const int PWR_STA_SWTCH_ON_SCRN_OFF = 0x08;
-static const int PWR_STA_SWTCH_ON_SCRN_OFF_LOCK = 0x20;
-static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
-static const int DEFAULT_PWR_STA_FOR_TECH_A_B = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_OFF |
+static const uint8_t PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
+static const uint8_t PWR_STA_SWTCH_OFF = 0x02;
+static const uint8_t PWR_STA_BATT_OFF = 0x04;
+static const uint8_t PWR_STA_SWTCH_ON_SCRN_LOCK = 0x10;
+static const uint8_t PWR_STA_SWTCH_ON_SCRN_OFF = 0x08;
+static const uint8_t PWR_STA_SWTCH_ON_SCRN_OFF_LOCK = 0x20;
+static const uint8_t DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
+static const uint8_t DEFAULT_PWR_STA_FOR_TECH_A_B = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_OFF |
     PWR_STA_SWTCH_ON_SCRN_OFF | PWR_STA_SWTCH_ON_SCRN_LOCK | PWR_STA_SWTCH_ON_SCRN_OFF_LOCK;
 
 // routing entries
-static const int NFA_SET_TECH_ROUTING = 0x01;
-static const int NFA_SET_PROTO_ROUTING = 0x02;
-static const int ROUTE_LOC_HOST_ID = 0x400;
-static const int ROUTE_LOC_ESE_ID = 0x4C0;
-static const int DEFAULT_PROTO_ROUTE_AND_POWER = 0x013B;
-static const int ROUTE_LOC_MASK = 8;
-static const int PWR_STA_MASK = 0x3F;
-static const int DEFAULT_LISTEN_TECH_MASK = 0x07;
+static const uint8_t NFA_SET_TECH_ROUTING = 0x01;
+static const uint8_t NFA_SET_PROTO_ROUTING = 0x02;
+static const uint32_t ROUTE_LOC_HOST_ID = 0x400;
+static const uint32_t ROUTE_LOC_ESE_ID = 0x4C0;
+static const uint32_t DEFAULT_PROTO_ROUTE_AND_POWER = 0x013B;
+static const uint8_t ROUTE_LOC_MASK = 8;
+static const uint8_t PWR_STA_MASK = 0x3F;
+static const uint8_t DEFAULT_LISTEN_TECH_MASK = 0x07;
 
 RoutingManager& RoutingManager::GetInstance()
 {
@@ -144,7 +144,7 @@ void RoutingManager::SetOffHostNfceeTechMask()
 bool RoutingManager::ComputeRoutingParams()
 {
     InfoLog("ComputeRoutingParams");
-    int valueProtoIsoDep = 0x01;
+    uint8_t valueProtoIsoDep = 0x01;
 
     // route for protocol
     ClearRoutingEntry(NFA_SET_PROTO_ROUTING);
@@ -154,22 +154,22 @@ bool RoutingManager::ComputeRoutingParams()
 
     // route for technology
     // currently set tech F default to ese with power 0x3B
-    int techSeId = DEFAULT_EE_ROUTE_DEST;
-    int techFSeId = DEFAULT_EE_ROUTE_DEST;
-    int techRouteForTypeAB = 0x03;
-    int techRouteForTypeF = 0x04;
+    uint8_t techSeId = DEFAULT_EE_ROUTE_DEST;
+    uint8_t techFSeId = DEFAULT_EE_ROUTE_DEST;
+    uint8_t techRouteForTypeAB = 0x03;
+    uint8_t techRouteForTypeF = 0x04;
     ClearRoutingEntry(NFA_SET_TECH_ROUTING);
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeAB, techSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeF, techFSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
     return true;
 }
 
-bool RoutingManager::SetRoutingEntry(int type, int value, int route, int power)
+bool RoutingManager::SetRoutingEntry(uint32_t type, uint32_t value, uint32_t route, uint32_t power)
 {
     InfoLog("SetRoutingEntry: type:0x%{public}X, value:0x%{public}X, route:0x%{public}X, power:0x%{public}X",
         type, value, route, power);
-    int maxTechMask = 0x03; // 0x01 for type A, 0x02 for type B, 0x03 for both
-    int last4BitsMask = 0xF0;
+    uint8_t maxTechMask = 0x03; // 0x01 for type A, 0x02 for type B, 0x03 for both
+    uint8_t last4BitsMask = 0xF0;
     tNFA_STATUS status = NFA_STATUS_FAILED;
     tNFA_HANDLE handle = ((route == DEFAULT_HOST_ROUTE_DEST) ? ROUTE_LOC_HOST_ID : ROUTE_LOC_ESE_ID);
     uint8_t swtchOnMask = 0;
@@ -223,7 +223,7 @@ bool RoutingManager::SetRoutingEntry(int type, int value, int route, int power)
     return status;
 }
 
-uint8_t RoutingManager::GetProtoMaskFromTechMask(int& value)
+uint8_t RoutingManager::GetProtoMaskFromTechMask(uint32_t& value)
 {
     if (value & NFA_TECHNOLOGY_MASK_A) {
         value &= ~NFA_TECHNOLOGY_MASK_A;
@@ -287,7 +287,7 @@ void RoutingManager::RegisterTechRoutingEntry(tNFA_HANDLE eeHandle,
     }
 }
 
-bool RoutingManager::ClearRoutingEntry(int type)
+bool RoutingManager::ClearRoutingEntry(uint32_t type)
 {
     InfoLog("ClearRoutingEntry: type = %{public}d", type);
     tNFA_STATUS status = NFA_STATUS_FAILED;
@@ -728,7 +728,7 @@ RoutingManager::RoutingManager() : isSecureNfcEnabled_(false),
     defaultSysCodePowerstate_ = NfcConfig::getUnsigned(
         NAME_DEFAULT_SYS_CODE_PWR_STATE, DEFAULT_SYS_CODE_PWR_STA);
     defaultSysCode_ = DEFAULT_SYS_CODE;
-
+    seTechMask_ = 0x00;
     isDeinitializing_ = false;
     isEeInfoChanged_ = false;
 
