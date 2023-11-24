@@ -59,6 +59,7 @@ ohos_shared_library("nfc_service") {
     "src/nci_adapter/nci_native_selector.cpp",
     "src/nci_adapter/nci_nfcc_proxy.cpp",
     "src/nci_adapter/nci_tag_proxy.cpp",
+    "src/ndef_bt_oob_data_parser.cpp",
     "src/nfc_event_handler.cpp",
     "src/nfc_polling_manager.cpp",
     "src/nfc_polling_params.cpp",

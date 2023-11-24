@@ -87,9 +87,13 @@ KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::I
 
 int ForegroundCallbackStub::RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply)
 {
-    KITS::TagInfoParcelable tagInfo = *(KITS::TagInfoParcelable::Unmarshalling(data));
+    KITS::TagInfoParcelable *tagInfo = KITS::TagInfoParcelable::Unmarshalling(data);
+    if (tagInfo == nullptr) {
+        reply.WriteInt32(KITS::ERR_NFC_PARAMETERS); /* Reply 0 to indicate that no exception occurs. */
+        return KITS::ERR_NFC_PARAMETERS;
+    }
     std::shared_lock<std::shared_mutex> guard(callbackMutex);
-    OnTagDiscovered(tagInfo);
+    OnTagDiscovered(*(tagInfo));
     reply.WriteInt32(KITS::ERR_NONE); /* Reply 0 to indicate that no exception occurs. */
     return KITS::ERR_NONE;
 }

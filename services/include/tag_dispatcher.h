@@ -42,6 +42,7 @@ private:
     std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(uint32_t rfDiscId);
     KITS::TagInfoParcelable GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     void DispatchTag(uint32_t rfDiscId);
+    bool HandleNdefDispatch(std::string &msg);
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
