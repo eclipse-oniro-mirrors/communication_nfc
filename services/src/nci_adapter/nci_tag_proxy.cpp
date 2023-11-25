@@ -206,7 +206,7 @@ bool NciTagProxy::CanMakeReadOnly(uint32_t ndefType)
     if (nciTagInterface_) {
         return nciTagInterface_->CanMakeReadOnly(ndefType);
     }
-    return false;
+    return true;
 }
 
 /**
