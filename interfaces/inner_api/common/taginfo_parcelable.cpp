@@ -20,6 +20,8 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+const uint32_t MAX_TECH_LIST_NUM = 12;
+
 TagInfoParcelable::TagInfoParcelable(std::vector<int> tagTechList,
                                      std::vector<AppExecFwk::PacMap> tagTechExtrasData,
                                      std::string& tagUid,
@@ -62,6 +64,9 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
 
     int32_t extraLen = 0;
     parcel.ReadInt32(extraLen);
+    if (extraLen >= MAX_TECH_LIST_NUM) {
+        return nullptr;
+    }
     std::vector<AppExecFwk::PacMap> tagTechExtrasData;
     for (int i = 0; i < extraLen; i++) {
         AppExecFwk::PacMap* pacMap = AppExecFwk::PacMap::Unmarshalling(parcel);

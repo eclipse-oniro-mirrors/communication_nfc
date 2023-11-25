@@ -16,6 +16,7 @@
 #include <functional>
 #include "app_data_parser.h"
 #include "loghelper.h"
+#include "ndef_bt_oob_data_parser.h"
 #include "ndef_message.h"
 #include "nfc_hisysevent.h"
 #include "nfc_sdk_common.h"
@@ -25,6 +26,9 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+#define NDEF_TYPE_NORMAL  1
+#define NDEF_TYPE_BT_OOB  2
+
 using OHOS::NFC::KITS::TagTechnology;
 TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
     : nfcService_(nfcService),
@@ -45,6 +49,28 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
     ndefCb_ = callback;
 }
 
+bool TagDispatcher::HandleNdefDispatch(std::string &msg)
+{
+    if (msg.empty()) {
+        return false;
+    }
+    bool ndefCbRes = false;
+    if (ndefCb_ != nullptr) {
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(msg, NDEF_TYPE_NORMAL);
+    }
+    if (ndefCbRes) {
+        return true;
+    }
+    std::shared_ptr<BtOobData> btData = NdefBtOobDataParser::CheckBtRecord(msg);
+    if (btData->isValid_ && !btData->vendorPayload_.empty()) {
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(btData->vendorPayload_, NDEF_TYPE_BT_OOB);
+    }
+    if (ndefCbRes) {
+        return true;
+    }
+    return false;
+}
+
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 {
     if (nfcService_ == nullptr || nciTagProxy_.expired() || nfcService_->GetNfcPollingManager().expired()) {
@@ -60,28 +86,26 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
-    if (ndefMessage == nullptr) {
-        if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
-            nciTagProxy_.lock()->Disconnect(tagDiscId);
-            ErrorLog("HandleTagFound bad connection, tag disconnected");
-            RunOnDemaindManager::GetInstance().StartVibratorOnce();
-            return;
+    do {
+        if (ndefMessage == nullptr) {
+            if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
+                nciTagProxy_.lock()->Disconnect(tagDiscId);
+                ErrorLog("HandleTagFound bad connection, tag disconnected");
+                break;
+            }
         }
-    }
-    lastNdefMsg_ = ndefMsg;
-    nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
-    if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
-        nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
-        RunOnDemaindManager::GetInstance().StartVibratorOnce();
-        return;
-    }
-    bool ndefCbRes = false;
-    if (ndefCb_ != nullptr && ndefMessage != nullptr) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(ndefMsg, 1);
-    }
-    if (!ndefCbRes) {
+        lastNdefMsg_ = ndefMsg;
+        nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
+        if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
+            nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+            break;
+        }
+        if (ndefMessage != nullptr && HandleNdefDispatch(ndefMsg)) {
+            break;
+        }
         DispatchTag(tagDiscId);
-    }
+        break;
+    } while (0);
     RunOnDemaindManager::GetInstance().StartVibratorOnce();
 }
 
