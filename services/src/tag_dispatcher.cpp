@@ -95,8 +95,8 @@ std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDisc
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
-    DebugLog("GetTagInfoFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
-        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagDiscId);
+    DebugLog("GetTagInfoFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, rfID = %{public}d",
+        techList.size(), tagTechExtras.size(), tagDiscId);
     return std::make_shared<KITS::TagInfo>(techList, tagTechExtras, tagUid, tagDiscId,
         nfcService_->GetTagServiceIface());
 }
@@ -106,8 +106,8 @@ KITS::TagInfoParcelable TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagD
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
-    DebugLog("GetTagInfoParcelableFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, tagUid = %{private}s,"
-        " rfID = %{public}d", techList.size(), tagTechExtras.size(), tagUid.c_str(), tagDiscId);
+    DebugLog("GetTagInfoParcelableFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, rfID = %{public}d",
+        techList.size(), tagTechExtras.size(), tagDiscId);
     KITS::TagInfoParcelable *tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
         tagUid, tagDiscId, nfcService_->GetTagServiceIface());
     return *(tagInfo);
