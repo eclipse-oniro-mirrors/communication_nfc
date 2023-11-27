@@ -93,6 +93,8 @@ public:
 
     ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
+    ErrorCode RegQueryApplicationCb(QueryApplicationByVendor callback);
+
 private:
     class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {
         public:

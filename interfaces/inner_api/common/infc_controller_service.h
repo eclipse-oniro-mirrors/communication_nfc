@@ -19,9 +19,11 @@
 #include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "iremote_broker.h"
+#include "element_name.h"
 
 namespace OHOS {
 namespace NFC {
+using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::string, std::vector<int>);
 class INfcControllerService : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.INfcControllerService");
@@ -54,6 +56,7 @@ public:
     virtual KITS::ErrorCode UnRegisterCallBack(const std::string& type) = 0;
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
     virtual KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) = 0;
+    virtual KITS::ErrorCode RegQueryApplicationCb(QueryApplicationByVendor callback) = 0;
 private:
 };
 }  // namespace NFC

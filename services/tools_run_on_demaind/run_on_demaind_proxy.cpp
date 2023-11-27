@@ -36,6 +36,16 @@ std::vector<ElementName> RunOnDemaindProxy::GetDispatchTagAppsByTech(std::vector
     return AppDataParser::GetInstance().GetDispatchTagAppsByTech(discTechList);
 }
 
+std::vector<ElementName> RunOnDemaindProxy::GetVendorDispatchTagAppsByTech(std::vector<int> discTechList)
+{
+    return AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(discTechList);
+}
+
+void RunOnDemaindProxy::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    AppDataParser::GetInstance().RegQueryApplicationCb(callback);
+}
+
 KITS::ErrorCode RunOnDemaindProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     return NfcDataShareImpl::GetInstance()->GetValue(uri, column, value);

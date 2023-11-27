@@ -192,5 +192,28 @@ KITS::ErrorCode NfcControllerProxy::RegNdefMsgCb(const sptr<INdefMsgCallback> &c
     }
     return KITS::ERR_NONE;
 }
+
+KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (callback == nullptr) {
+        ErrorLog("NfcControllerProxy::RegQueryApplicationCb failed, callback is null.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("NfcControllerProxy::RegQueryApplicationCb failed, write interface token error.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APPLICATION_MSG_CALLBACK),
+        data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("NfcControllerProxy::RegQueryApplicationCb failed, error code: %{public}d.", error);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
 }  // namespace NFC
 }  // namespace OHOS

@@ -52,6 +52,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleGetNfcTagInterface(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK):
             return HandleRegNdefMsgCb(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APPLICATION_MSG_CALLBACK):
+            return HandleRegQueryApplicationCb(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -205,6 +207,14 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
         }
     } while (0);
     reply.WriteInt32(ret);
+    return ERR_NONE;
+}
+
+int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
+{
+    InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
+    QueryApplicationByVendor callback = nullptr;
+    RegQueryApplicationCb(callback);
     return ERR_NONE;
 }
 

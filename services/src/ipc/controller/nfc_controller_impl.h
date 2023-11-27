@@ -38,6 +38,7 @@ public:
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+    KITS::ErrorCode RegQueryApplicationCb(QurenApplicationByVendor callback) override;
 
 private:
     std::string GetDumpInfo();

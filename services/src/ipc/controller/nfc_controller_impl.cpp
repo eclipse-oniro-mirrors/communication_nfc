@@ -16,6 +16,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service.h"
 #include "loghelper.h"
+#include "run_on_demaind_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -119,6 +120,12 @@ KITS::ErrorCode NfcControllerImpl::RegNdefMsgCallback(const sptr<INdefMsgCallbac
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
+}
+
+KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(QueryApplicationByVendor callback)
+{
+    RunOnDemaindManager::GetInstance().RegQueryApplicationCb(callback);
+    return KITS::ERR_NONE;
 }
 
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
