@@ -22,16 +22,29 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+
+bool g_callbackExist = false;
+ForegroundCallbackStub *g_foregroundCallbackStub = new ForegroundCallbackStub();
+
 ForegroundCallbackStub::ForegroundCallbackStub() : callback_(nullptr), mRemoteDied(false)
-{}
+{
+    g_callbackExist = true;
+    InfoLog("ForegroundCallbackStub");
+}
 
 ForegroundCallbackStub::~ForegroundCallbackStub()
-{}
-
-ForegroundCallbackStub& ForegroundCallbackStub::GetInstance()
 {
-    static ForegroundCallbackStub foregroundCallbackStub;
-    return foregroundCallbackStub;
+    g_callbackExist = false;
+    InfoLog("~ForegroundCallbackStub");
+}
+
+ForegroundCallbackStub* ForegroundCallbackStub::GetInstance()
+{
+    if (!g_callbackExist) {
+        InfoLog("g_callbackExist: %{public}d, new ForegroundCallbackStub", g_callbackExist);
+        g_foregroundCallbackStub = new ForegroundCallbackStub();
+    }
+    return g_foregroundCallbackStub;
 }
 
 void ForegroundCallbackStub::OnTagDiscovered(KITS::TagInfoParcelable tagInfo)
