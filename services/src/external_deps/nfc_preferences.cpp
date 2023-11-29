@@ -12,39 +12,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nfc_database_helper.h"
+#include "nfc_preferences.h"
 #include "loghelper.h"
 #include "nfc_data_share_impl.h"
 
 namespace OHOS {
 namespace NFC {
-NfcDatabaseHelper::NfcDatabaseHelper()
+NfcPreferences::NfcPreferences()
 {
     fileName_ = "/data/nfc/nfc_preferences.xml";
     errCode_ = 0;
 }
 
-NfcDatabaseHelper::~NfcDatabaseHelper()
+NfcPreferences::~NfcPreferences()
 {
 }
 
-NfcDatabaseHelper& NfcDatabaseHelper::GetInstance()
+NfcPreferences& NfcPreferences::GetInstance()
 {
-    static NfcDatabaseHelper sNfcPrefImpl;
+    static NfcPreferences sNfcPrefImpl;
     return sNfcPrefImpl;
 }
 
-std::shared_ptr<NativePreferences::Preferences> NfcDatabaseHelper::GetPreference(const std::string& fileName)
+std::shared_ptr<NativePreferences::Preferences> NfcPreferences::GetPreference(const std::string& fileName)
 {
     DebugLog("Getting preference from distributed data management system");
     return NativePreferences::PreferencesHelper::GetPreferences(fileName, errCode_);
 }
 
-void NfcDatabaseHelper::SetString(const std::string& key, const std::string& value)
+void NfcPreferences::SetString(const std::string& key, const std::string& value)
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return;
     }
     DebugLog("Set preference with key %{public}s, value %{public}s", key.c_str(), value.c_str());
@@ -52,22 +52,22 @@ void NfcDatabaseHelper::SetString(const std::string& key, const std::string& val
     pref->Flush();
 }
 
-std::string NfcDatabaseHelper::GetString(const std::string& key)
+std::string NfcPreferences::GetString(const std::string& key)
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return "";
     }
     DebugLog("Get preference with key %{public}s", key.c_str());
     return pref->GetString(key, "");
 }
 
-void NfcDatabaseHelper::SetInt(const std::string& key, const int value)
+void NfcPreferences::SetInt(const std::string& key, const int value)
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return;
     }
     DebugLog("Set preference with key %{public}s, value %{public}d", key.c_str(), value);
@@ -75,42 +75,42 @@ void NfcDatabaseHelper::SetInt(const std::string& key, const int value)
     pref->Flush();
 }
 
-int NfcDatabaseHelper::GetInt(const std::string& key)
+int NfcPreferences::GetInt(const std::string& key)
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return 0;
     }
     DebugLog("Get preference with key %{public}s", key.c_str());
     return pref->GetInt(key, 0);
 }
 
-void NfcDatabaseHelper::Clear()
+void NfcPreferences::Clear()
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return;
     }
     pref->Clear();
-    DebugLog("NfcDatabaseHelper: Clear preferences");
+    DebugLog("NfcPreferences: Clear preferences");
     NativePreferences::PreferencesHelper::DeletePreferences(fileName_);
 }
 
-void NfcDatabaseHelper::Delete(const std::string& key)
+void NfcPreferences::Delete(const std::string& key)
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
     if (!pref) {
-        ErrorLog("NfcDatabaseHelper: Preference get null");
+        ErrorLog("NfcPreferences: Preference get null");
         return;
     }
-    DebugLog("NfcDatabaseHelper: Delete preference with key %{public}s", key.c_str());
+    DebugLog("NfcPreferences: Delete preference with key %{public}s", key.c_str());
     pref->Delete(key);
     pref->FlushSync();
 }
 
-void NfcDatabaseHelper::UpdateNfcState(int newState)
+void NfcPreferences::UpdateNfcState(int newState)
 {
     SetInt(PREF_KEY_STATE, newState);
 
@@ -118,7 +118,7 @@ void NfcDatabaseHelper::UpdateNfcState(int newState)
     DelayedSingleton<NfcDataShareImpl>::GetInstance()->SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, newState);
 }
 
-int NfcDatabaseHelper::GetNfcState()
+int NfcPreferences::GetNfcState()
 {
     return GetInt(PREF_KEY_STATE);
 }

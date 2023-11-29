@@ -30,11 +30,71 @@ config("nfc_config") {
     "src/nci_adapter",
     "src/utils",
     "src/card_emulation",
+    "src/external_deps",
     "$NFC_DIR/interfaces/inner_api/common",
-    "tools_run_on_demaind",
   ]
 }
 
+nfc_service_source = [
+  "src/card_emulation/ce_service.cpp",
+  "src/external_deps/app_data_parser.cpp",
+  "src/external_deps/external_deps_proxy.cpp",
+  "src/external_deps/nfc_data_share_impl.cpp",
+  "src/external_deps/nfc_event_publisher.cpp",
+  "src/external_deps/nfc_hisysevent.cpp",
+  "src/external_deps/nfc_permission_checker.cpp",
+  "src/external_deps/nfc_preferences.cpp",
+  "src/external_deps/tag_ability_dispatcher.cpp",
+  "src/ipc/controller/ndef_msg_callback_proxy.cpp",
+  "src/ipc/controller/nfc_controller_callback_proxy.cpp",
+  "src/ipc/controller/nfc_controller_death_recipient.cpp",
+  "src/ipc/controller/nfc_controller_impl.cpp",
+  "src/ipc/controller/nfc_controller_stub.cpp",
+  "src/ipc/tags/foreground_callback_proxy.cpp",
+  "src/ipc/tags/foreground_death_recipient.cpp",
+  "src/ipc/tags/tag_session.cpp",
+  "src/ipc/tags/tag_session_stub.cpp",
+  "src/nci_adapter/nci_ce_proxy.cpp",
+  "src/nci_adapter/nci_native_selector.cpp",
+  "src/nci_adapter/nci_nfcc_proxy.cpp",
+  "src/nci_adapter/nci_tag_proxy.cpp",
+  "src/ndef_bt_oob_data_parser.cpp",
+  "src/nfc_event_handler.cpp",
+  "src/nfc_polling_manager.cpp",
+  "src/nfc_polling_params.cpp",
+  "src/nfc_routing_manager.cpp",
+  "src/nfc_sa_manager.cpp",
+  "src/nfc_service.cpp",
+  "src/tag_dispatcher.cpp",
+  "src/utils/nfc_timer.cpp",
+  "src/utils/nfc_watch_dog.cpp",
+]
+
+nfc_service_external_deps = [
+  "ability_base:want",
+  "ability_base:zuri",
+  "ability_runtime:ability_manager",
+  "ability_runtime:app_manager",
+  "access_token:libaccesstoken_sdk",
+  "bundle_framework:appexecfwk_base",
+  "bundle_framework:appexecfwk_core",
+  "c_utils:utils",
+  "common_event_service:cesfwk_core",
+  "common_event_service:cesfwk_innerkits",
+  "data_share:datashare_consumer",
+  "eventhandler:libeventhandler",
+  "hilog:libhilog",
+  "hisysevent:libhisysevent",
+  "ipc:ipc_core",
+  "miscdevice:vibrator_interface_native",
+  "power_manager:powermgr_client",
+  "preferences:native_preferences",
+  "safwk:system_ability_fwk",
+  "samgr:samgr_proxy",
+  "screenlock_mgr:screenlock_client",
+]
+
+####################### nfc_service ################
 ohos_shared_library("nfc_service") {
   sanitize = {
     cfi = true
@@ -44,69 +104,51 @@ ohos_shared_library("nfc_service") {
     debug = false
   }
   branch_protector_ret = "pac_ret"
-  sources = [
-    "src/card_emulation/ce_service.cpp",
-    "src/ipc/controller/ndef_msg_callback_proxy.cpp",
-    "src/ipc/controller/nfc_controller_callback_proxy.cpp",
-    "src/ipc/controller/nfc_controller_death_recipient.cpp",
-    "src/ipc/controller/nfc_controller_impl.cpp",
-    "src/ipc/controller/nfc_controller_stub.cpp",
-    "src/ipc/tags/foreground_callback_proxy.cpp",
-    "src/ipc/tags/foreground_death_recipient.cpp",
-    "src/ipc/tags/tag_session.cpp",
-    "src/ipc/tags/tag_session_stub.cpp",
-    "src/nci_adapter/nci_ce_proxy.cpp",
-    "src/nci_adapter/nci_native_selector.cpp",
-    "src/nci_adapter/nci_nfcc_proxy.cpp",
-    "src/nci_adapter/nci_tag_proxy.cpp",
-    "src/ndef_bt_oob_data_parser.cpp",
-    "src/nfc_event_handler.cpp",
-    "src/nfc_polling_manager.cpp",
-    "src/nfc_polling_params.cpp",
-    "src/nfc_routing_manager.cpp",
-    "src/nfc_sa_manager.cpp",
-    "src/nfc_service.cpp",
-    "src/run_on_demaind_manager.cpp",
-    "src/tag_dispatcher.cpp",
-    "src/utils/nfc_timer.cpp",
-    "src/utils/nfc_watch_dog.cpp",
-  ]
+  sources = nfc_service_source
 
   public_configs = [ ":nfc_config" ]
+
+  # Used to control the export of dynamic library symbols.
+  version_script = "libnfc_service_version_script.txt"
 
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
-    "tools_run_on_demaind:nfc_tools_on_demaind",
   ]
 
   if (!nfc_use_vendor_nci_native) {
     deps += [ "src/nci_adapter/nci_native_default:nci_native_default" ]
   }
 
-  external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "common_event_service:cesfwk_core",
-    "common_event_service:cesfwk_innerkits",
-    "data_share:datashare_consumer",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "hisysevent:libhisysevent",
-    "ipc:ipc_core",
-    "miscdevice:vibrator_interface_native",
-    "power_manager:powermgr_client",
-    "preferences:native_preferences",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-    "screenlock_mgr:screenlock_client",
+  external_deps = nfc_service_external_deps
+
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
+
+####################### nfc_service_static ################
+# Only used for unittest
+ohos_static_library("nfc_service_static") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    integer_overflow = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  sources = nfc_service_source
+  public_configs = [ ":nfc_config" ]
+
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "etc/init:etc",
   ]
+
+  if (!nfc_use_vendor_nci_native) {
+    deps += [ "src/nci_adapter/nci_native_default:nci_native_default" ]
+  }
+
+  external_deps = nfc_service_external_deps
 
   part_name = "nfc"
   subsystem_name = "communication"

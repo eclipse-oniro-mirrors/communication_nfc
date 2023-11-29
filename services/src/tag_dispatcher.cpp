@@ -20,7 +20,7 @@
 #include "ndef_message.h"
 #include "nfc_hisysevent.h"
 #include "nfc_sdk_common.h"
-#include "run_on_demaind_manager.h"
+#include "external_deps_proxy.h"
 #include "tag_ability_dispatcher.h"
 
 namespace OHOS {
@@ -106,7 +106,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         DispatchTag(tagDiscId);
         break;
     } while (0);
-    RunOnDemaindManager::GetInstance().StartVibratorOnce();
+    ExternalDepsProxy::GetInstance().StartVibratorOnce();
 }
 
 void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
@@ -171,11 +171,11 @@ void TagDispatcher::DispatchTag(uint32_t tagDiscId)
             tagFoundCnt++;
         }
     }
-    RunOnDemaindManager::GetInstance().WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt,
+    ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt,
         typeBTagFoundCnt, typeFTagFoundCnt, typeVTagFoundCnt);
 
     // start application ability for tag found.
-    RunOnDemaindManager::GetInstance().DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
+    ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
 }
 
 void TagDispatcher::HandleTagDebounce()

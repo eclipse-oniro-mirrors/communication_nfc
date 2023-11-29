@@ -26,7 +26,7 @@ config("nfc_service_unit_test_config") {
     "$NFC_DIR/services/include",
     "$NFC_DIR/services/src/nci_adapter/nci_native_default/include",
     "$NFC_DIR/services/src",
-
+    "$NFC_DIR/services/src/external_deps",
     "//third_party/libnfc-nci/SN100x/src/gki/common/",
     "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
     "//third_party/libnfc-nci/SN100x/src/include",
@@ -44,8 +44,7 @@ config("nfc_service_unit_test_config") {
 unit_test_deps = [
   "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
   "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-  "$NFC_DIR/services:nfc_service",
-  "$NFC_DIR/services/tools_run_on_demaind:nfc_tools_on_demaind",
+  "$NFC_DIR/services:nfc_service_static",
   "//third_party/googletest:gtest_main",
 ]
 

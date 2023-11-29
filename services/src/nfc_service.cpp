@@ -18,7 +18,7 @@
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "loghelper.h"
-#include "nfc_database_helper.h"
+#include "nfc_preferences.h"
 #include "nfc_event_handler.h"
 #include "nfc_event_publisher.h"
 #include "nfc_hisysevent.h"
@@ -27,7 +27,7 @@
 #include "nfc_timer.h"
 #include "nfc_watch_dog.h"
 #include "tag_session.h"
-#include "run_on_demaind_manager.h"
+#include "external_deps_proxy.h"
 #include "want.h"
 #include "nci_nfcc_proxy.h"
 #include "nci_tag_proxy.h"
@@ -237,13 +237,13 @@ bool NfcService::DoTurnOn()
         // Routing Wake Lock release
         nfcWatchDog.Cancel();
         // Do turn on failed, openRequestCnt and openFailedCnt = 1, others = 0
-        RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
+        ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
             NOT_COUNT, NOT_COUNT);
         // Record failed event
         NfcFailedParams nfcFailedParams;
-        RunOnDemaindManager::GetInstance().BuildFailedParams(nfcFailedParams,
+        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
             MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        RunOnDemaindManager::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return false;
     }
     // Routing Wake Lock release
@@ -268,7 +268,7 @@ bool NfcService::DoTurnOn()
     nfcRoutingManager_->ComputeRoutingParams();
     nfcRoutingManager_->CommitRouting();
     // Do turn on success, openRequestCnt = 1, others = 0
-    RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
+    ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
     return true;
 }
 
@@ -300,16 +300,16 @@ bool NfcService::DoTurnOff()
     }
     NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
     // Do turn off success, closeRequestCnt = 1, others = 0
-    RunOnDemaindManager::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
+    ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
     return result;
 }
 
 void NfcService::DoInitialize()
 {
     eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_);
-    RunOnDemaindManager::GetInstance().InitAppList();
+    ExternalDepsProxy::GetInstance().InitAppList();
 
-    int lastState = RunOnDemaindManager::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
+    int lastState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
     if (lastState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
     }
@@ -388,8 +388,8 @@ void NfcService::UpdateNfcState(int newState)
         }
         nfcState_ = newState;
     }
-    RunOnDemaindManager::GetInstance().UpdateNfcState(newState);
-    RunOnDemaindManager::GetInstance().PublishNfcStateChanged(newState);
+    ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
+    ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);

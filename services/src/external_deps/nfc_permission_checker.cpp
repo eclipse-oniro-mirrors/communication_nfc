@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "permission_tools.h"
+#include "nfc_permission_checker.h"
 #include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace NFC {
-bool PermissionTools::IsGranted(std::string permission)
+bool NfcPermissionChecker::IsGranted(std::string permission)
 {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     int result = Security::AccessToken::PermissionState::PERMISSION_GRANTED;

@@ -16,8 +16,8 @@
 #include <thread>
 
 #include "nfc_sdk_common.h"
-#include "nfc_database_helper.h"
-#include "permission_tools.h"
+#include "nfc_preferences.h"
+#include "nfc_permission_checker.h"
 #include "synchronize_event.h"
 
 namespace OHOS {
@@ -297,7 +297,7 @@ HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
 {
-    OHOS::NFC::NfcDatabaseHelper *impl = new OHOS::NFC::NfcDatabaseHelper();
+    OHOS::NFC::NfcPreferences *impl = new OHOS::NFC::NfcPreferences();
     impl->SetString("test_key", "test_value");
     std::string value = impl->GetString("test_key");
     ASSERT_TRUE(value == "test_value");
@@ -313,13 +313,13 @@ HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
 }
 
 /**
- * @tc.name: PermissionTools001
- * @tc.desc: Test PermissionTools001
+ * @tc.name: NfcPermissionChecker001
+ * @tc.desc: Test NfcPermissionChecker001
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPublicTest, PermissionTools001, TestSize.Level1)
+HWTEST_F(NfcPublicTest, NfcPermissionChecker001, TestSize.Level1)
 {
-    bool granted = PermissionTools::IsGranted("unitest.permission.nfc");
+    bool granted = NfcPermissionChecker::IsGranted("unitest.permission.nfc");
     ASSERT_TRUE(granted == true);
 }
 }
