@@ -36,6 +36,7 @@ namespace OHOS {
     constexpr const auto TEST_NDEF_TAG_MODE = NdefTag::EmNdefTagMode::MODE_READ_ONLY;
     constexpr const auto TEST_NDEF_MSG = "ndef";
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
+    constexpr const uint8_t MAX_TNF_NUMS = 7;
 
     uint32_t ConvertToUint32(const uint8_t* ptr)
     {
@@ -46,6 +47,50 @@ namespace OHOS {
         // Shift the 0th number to the left by 24 bits, shift the 1st number to the left by 16 bits,
         // shift the 2nd number to the left by 8 bits, and not shift the 3rd number to the left
         return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    }
+
+    bool CheckTnf(short tnf, const std::string& tagRtdType, const std::string& id, const std::string& payload)
+    {
+        switch (tnf) {
+            case NdefMessage::TNF_EMPTY:
+                if (!tagRtdType.empty() || !id.empty() || !payload.empty()) {
+                    return false;
+                }
+                break;
+            case NdefMessage::TNF_WELL_KNOWN: // fall-through
+            case NdefMessage::TNF_MIME_MEDIA: // fall-through
+            case NdefMessage::TNF_ABSOLUTE_URI: // fall-through
+            case NdefMessage::TNF_EXTERNAL_TYPE: // fall-through
+                return true;
+            case NdefMessage::TNF_UNKNOWN: // fall-through
+            case NdefMessage::TNF_RESERVED:
+                if (tagRtdType.empty()) {
+                    return false;
+                }
+                return true;
+            case NdefMessage::TNF_UNCHANGED:
+                return false;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    std::shared_ptr<NdefRecord> CreateNdefRecord(short tnf,
+                                                 const std::string& id,
+                                                 const std::string& payload,
+                                                 const std::string& tagRtdType)
+    {
+        bool isValidTnf = OHOS::CheckTnf(tnf, tagRtdType, id, payload);
+        if (!isValidTnf) {
+            return std::shared_ptr<NdefRecord>();
+        }
+        std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
+        ndefRecord->tnf_ = tnf;
+        ndefRecord->id_ = id;
+        ndefRecord->payload_ = payload;
+        ndefRecord->tagRtdType_ = tagRtdType;
+        return ndefRecord;
     }
 
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
@@ -106,6 +151,55 @@ namespace OHOS {
         EmNfcForumType emNfcForumType = static_cast<EmNfcForumType>(ConvertToUint32(data));
         ndefTag->GetNdefTagTypeString(emNfcForumType);
     }
+
+    void FuzzReadNdef(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
+        if (tagInfo == nullptr) {
+            std::cout << "tagInfo is nullptr." << std::endl;
+            return;
+        }
+        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
+
+        short tnf = static_cast<short>(data[0] % OHOS::MAX_TNF_NUMS);
+        std::string id = NfcSdkCommon::UnsignedCharToHexString(data[1]);
+
+        // 2 is an array subscript, which requires 3 strings to form ndefrecord
+        std::string payload = NfcSdkCommon::UnsignedCharToHexString(data[2]);
+
+        // 3 is an array subscript, which requires 3 strings to form ndefrecord
+        std::string tagRtdType = NfcSdkCommon::UnsignedCharToHexString(data[3]);
+        std::vector<std::shared_ptr<NdefRecord>> ndefRecords;
+        std::shared_ptr<NdefRecord> ndefRecord = CreateNdefRecord(tnf, id, payload, tagRtdType);
+        ndefRecords.push_back(ndefRecord);
+        std::shared_ptr<NdefMessage> ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
+        ndefTag->ReadNdef(ndefMessage);
+    }
+
+    void FuzzWriteNdef(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
+        if (tagInfo == nullptr) {
+            std::cout << "tagInfo is nullptr." << std::endl;
+            return;
+        }
+        std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
+
+        short tnf = static_cast<short>(data[0] % OHOS::MAX_TNF_NUMS);
+        std::string id = NfcSdkCommon::UnsignedCharToHexString(data[1]);
+
+        // 2 is an array subscript, which requires 3 strings to form ndefrecord
+        std::string payload = NfcSdkCommon::UnsignedCharToHexString(data[2]);
+
+        // 3 is an array subscript, which requires 3 strings to form ndefrecord
+        std::string tagRtdType = NfcSdkCommon::UnsignedCharToHexString(data[3]);
+        std::vector<std::shared_ptr<NdefRecord>> ndefRecords;
+        std::shared_ptr<NdefRecord> ndefRecord = CreateNdefRecord(tnf, id, payload, tagRtdType);
+        ndefRecords.push_back(ndefRecord);
+        std::shared_ptr<NdefMessage> ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
+
+        ndefTag->WriteNdef(ndefMessage);
+    }
 }
 
 /* Fuzzer entry point */
@@ -118,6 +212,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzGetTag(data, size);
     OHOS::FuzzIsEnableReadOnly(data, size);
     OHOS::FuzzGetNdefTagTypeString(data, size);
+    OHOS::FuzzReadNdef(data, size);
+    OHOS::FuzzWriteNdef(data, size);
     return 0;
 }
 
