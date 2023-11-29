@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PERMISSION_TOOLS_H
-#define PERMISSION_TOOLS_H
+#ifndef NFC_PERMISSION_CHECKER_H
+#define NFC_PERMISSION_CHECKER_H
 #include <string>
 
 namespace OHOS {
@@ -27,7 +27,7 @@ const std::string TAG_PERM = "ohos.permission.NFC_TAG";
 // the app need request the permission for card emulation operations.
 const std::string CARD_EMU_PERM = "ohos.permission.NFC_CARD_EMULATION";
 
-class PermissionTools {
+class NfcPermissionChecker {
 public:
     /**
      * @Description : Check the Permission.
@@ -38,4 +38,4 @@ public:
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif // PERMISSION_TOOLS_H
+#endif // NFC_PERMISSION_CHECKER_H

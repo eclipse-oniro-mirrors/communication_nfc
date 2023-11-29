@@ -17,7 +17,7 @@
 #include "loghelper.h"
 #include "nfc_service.h"
 #include "nfc_watch_dog.h"
-#include "run_on_demaind_manager.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -124,9 +124,9 @@ void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
     }
     if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
         (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
-        RunOnDemaindManager::GetInstance().HandleAppAddOrChangedEvent(data);
+        ExternalDepsProxy::GetInstance().HandleAppAddOrChangedEvent(data);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        RunOnDemaindManager::GetInstance().HandleAppRemovedEvent(data);
+        ExternalDepsProxy::GetInstance().HandleAppRemovedEvent(data);
     } else {
         DebugLog("not need event.");
     }

@@ -24,7 +24,7 @@
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_service_tdd.h"
 #include "nfc_service.h"
-#include "permission_tools.h"
+#include "nfc_permission_checker.h"
 #include "tag_session.h"
 #include "tag_session_stub.h"
 

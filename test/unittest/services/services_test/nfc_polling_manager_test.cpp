@@ -25,7 +25,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_watch_dog.h"
 #include "want.h"
-#include "nfc_database_helper.h"
+#include "nfc_preferences.h"
 #include "tag_session.h"
 
 namespace OHOS {

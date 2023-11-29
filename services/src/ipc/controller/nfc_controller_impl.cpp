@@ -16,7 +16,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service.h"
 #include "loghelper.h"
-#include "run_on_demaind_manager.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -124,7 +124,7 @@ KITS::ErrorCode NfcControllerImpl::RegNdefMsgCallback(const sptr<INdefMsgCallbac
 
 KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(QueryApplicationByVendor callback)
 {
-    RunOnDemaindManager::GetInstance().RegQueryApplicationCb(callback);
+    ExternalDepsProxy::GetInstance().RegQueryApplicationCb(callback);
     return KITS::ERR_NONE;
 }
 
