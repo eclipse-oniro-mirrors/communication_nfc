@@ -38,7 +38,7 @@ ohos_fuzztest("NfcControllerStubFuzzTest") {
   deps = [
     "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "$NFC_DIR/services:nfc_service",
+    "$NFC_DIR/services:nfc_service_static",
   ]
 
   external_deps = [
