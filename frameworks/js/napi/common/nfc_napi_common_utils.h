@@ -27,11 +27,11 @@ namespace KITS {
 using OHOS::AppExecFwk::ElementName;
 
 // business error code, throw these errors to applcation.
-const  int BUSI_ERR_PERM = 201; // Permission denied.
-const  int BUSI_ERR_PARAM = 401; // The parameter check failed.
-const  int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
+const static int BUSI_ERR_PERM = 201; // Permission denied.
+const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
+const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
 
-const  int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
+const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
 
 const  int BUSI_ERR_HCE_STATE_INVALID = 4100201; // nfc hce state invalid.
 
