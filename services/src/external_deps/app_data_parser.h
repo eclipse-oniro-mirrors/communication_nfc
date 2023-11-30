@@ -77,7 +77,7 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
-    QueryApplicationByVendor queryApplicationByVendor = nullptr;
+    sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS
