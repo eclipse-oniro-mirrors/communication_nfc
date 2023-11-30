@@ -27,6 +27,7 @@
 #include "inci_ce_interface.h"
 #include "inci_nfcc_interface.h"
 #include "inci_tag_interface.h"
+#include "host_card_emulation_manager.h"
 
 
 namespace OHOS {
@@ -53,7 +54,11 @@ public:
     void OnTagLost(uint32_t tagDiscId) override;
     void FieldActivated() override;
     void FieldDeactivated() override;
+    void OnCardEmulationData(const std::vector<uint8_t>& data) override;
+    void OnCardEmulationActivated() override;
+    void OnCardEmulationDeactivated() override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
 
     bool IsNfcEnabled() override;
     int GetNfcState() override;
@@ -62,6 +67,8 @@ public:
     std::weak_ptr<NCI::INciTagInterface> GetNciTagProxy(void);
     std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
+
+    std::weak_ptr<CeService> GetCeService() override;
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
@@ -99,6 +106,7 @@ private:
     // routing manager
     std::shared_ptr<NfcRoutingManager> nfcRoutingManager_ {};
     OHOS::sptr<IRemoteObject> tagSessionIface_{};
+    OHOS::sptr<IRemoteObject> hceSessionIface_ {};
     std::shared_ptr<NfcEventHandler> eventHandler_ {};
     std::shared_ptr<CeService> ceService_ {};
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};

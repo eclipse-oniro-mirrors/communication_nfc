@@ -35,7 +35,8 @@ public:
         COMMAND_TAG_FOUND_FOREGROUND,
         COMMAND_REG_NDEF_MSG_CALLBACK,
         COMMAND_ON_NDEF_MSG_NOTIFY,
-        COMMAND_QUERY_APP_INFO_MSG_CALLBACK
+        COMMAND_QUERY_APP_INFO_MSG_CALLBACK,
+        COMMAND_GET_HCE_INTERFACE
     };
 
     enum TagSessionCode {
@@ -56,6 +57,12 @@ public:
         COMMAND_IS_SUPPORTED_APDUS_EXTENDED,
         COMMAND_SET_TIMEOUT,
         COMMAND_GET_TIMEOUT
+    };
+     enum HceSessionCode {
+        HCE_SESSION_START_ID = 300,
+        COMMAND_REG_HCE_CMD,
+        COMMAND_ON_CE_APDU_DATA,
+        COMMAND_HCE_SEND_RAW_FRAME,
     };
 }; // NfcServiceIpcInterfaceCode
 } // NFC

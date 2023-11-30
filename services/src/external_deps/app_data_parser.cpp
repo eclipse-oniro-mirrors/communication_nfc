@@ -25,8 +25,6 @@
 namespace OHOS {
 namespace NFC {
 const std::string KEY_TAG_TECH = "tag-tech";
-const std::string KEY_PAYMENT_AID = "payment-aid";
-const std::string KEY_OHTER_AID = "other-aid";
 const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser g_appDataParser;
@@ -138,7 +136,8 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     want.SetType("*/*"); // skip the type, matched action only.
     bool withDefault = false;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
-        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
     if (!bundleMgrProxy_->ImplicitQueryInfos(want, abilityInfoFlag, USER_ID, withDefault,
         abilityInfos, extensionInfos)) {
         WarnLog("QueryAbilityInfos, query none for action %{public}s", action.c_str());
@@ -296,7 +295,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     std::vector<AppDataParser::AidInfo> customDataAidList;
     AppDataParser::AidInfo customDataAid;
     for (auto& data : abilityInfo.metadata) {
-        if ((KEY_PAYMENT_AID.compare(data.name) == 0) || (KEY_OHTER_AID.compare(data.name) == 0)) {
+        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OHTER_AID.compare(data.name) == 0)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -304,7 +303,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
         }
     }
     for (auto& data : abilityInfo.metaData.customizeData) {
-        if ((KEY_PAYMENT_AID.compare(data.name) == 0) || (KEY_OHTER_AID.compare(data.name) == 0)) {
+        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OHTER_AID.compare(data.name) == 0)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -428,6 +427,26 @@ std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vect
 void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
     queryApplicationByVendor_ = callback;
+}
+
+std::vector<ElementName> AppDataParser::GetHceAppsByAid(const std::string& aid,std::vector<ElementName> elementNames) {
+
+    for (const HceAppAidInfo& appAidInfo : g_hceAppAndAidMap) {
+        for (const AidInfo& aidInfo : appAidInfo.customDataAid) {
+            if (aid == aidInfo.value) {
+                elementNames.push_back(appAidInfo.element);
+                break;
+            }
+        }
+    }
+
+    return elementNames;
+}
+void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
+{
+    for (const AppDataParser::HceAppAidInfo& appAidInfo : g_hceAppAndAidMap){
+        hceApps.push_back(appAidInfo);
+    }
 }
 }  // namespace NFC
 }  // namespace OHOS

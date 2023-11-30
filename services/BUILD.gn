@@ -27,6 +27,7 @@ config("nfc_config") {
     "include",
     "src/ipc/controller",
     "src/ipc/tags",
+    "src/ipc/card_emulation",
     "src/nci_adapter",
     "src/utils",
     "src/card_emulation",
@@ -37,6 +38,8 @@ config("nfc_config") {
 
 nfc_service_source = [
   "src/card_emulation/ce_service.cpp",
+  "src/card_emulation/host_card_emulation_manager.cpp",
+  "src/card_emulation/nfc_ability_connection_callback.cpp",
   "src/external_deps/app_data_parser.cpp",
   "src/external_deps/external_deps_proxy.cpp",
   "src/external_deps/nfc_data_share_impl.cpp",
@@ -69,6 +72,10 @@ nfc_service_source = [
   "src/tag_dispatcher.cpp",
   "src/utils/nfc_timer.cpp",
   "src/utils/nfc_watch_dog.cpp",
+  "src/ipc/card_emulation/hce_cmd_callback_proxy.cpp",
+  "src/ipc/card_emulation/hce_cmd_death_recipient.cpp",
+  "src/ipc/card_emulation/hce_session.cpp",
+  "src/ipc/card_emulation/hce_session_stub.cpp",
 ]
 
 nfc_service_external_deps = [

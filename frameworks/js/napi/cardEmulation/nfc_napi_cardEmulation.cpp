@@ -17,6 +17,7 @@
 #include "napi/native_node_api.h"
 #include "nfc_napi_cardEmulation_adapter.h"
 #include "nfc_sdk_common.h"
+#include "nfc_napi_hce_adapter.h"
 
 namespace OHOS {
 namespace NFC {
@@ -88,6 +89,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));
     CreateEnumFeatureType(env, exports);
     CreateEnumCardType(env, exports);
+    NfcNapiHceAdapter::Init(env, exports);
+    DebugLog("Init end, nfc_napi_cardEmulation");
     return exports;
 }
 

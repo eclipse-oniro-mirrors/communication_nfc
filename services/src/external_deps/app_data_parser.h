@@ -61,6 +61,8 @@ public:
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
+    std::vector<ElementName> GetHceAppsByAid(const std::string &aid, std::vector<ElementName> elementNames);
+    void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);

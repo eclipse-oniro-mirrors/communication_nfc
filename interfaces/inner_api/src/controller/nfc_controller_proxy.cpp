@@ -220,5 +220,26 @@ KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCall
     }
     return KITS::ERR_NONE;
 }
+
+
+OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()
+{
+    DebugLog("GetHceServiceIface start!");
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("GetHceServiceIface, Write interface token error");
+        return nullptr;
+    }
+    int32_t res = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE),
+        data, reply, option);
+    if (res != ERR_NONE) {
+        ErrorLog("GetHceServiceIface SendRequest err %{public}d", res);
+        return nullptr;
+    }
+    sptr<OHOS::IRemoteObject> remoteObject = reply.ReadRemoteObject();
+    return remoteObject;
+}
 }  // namespace NFC
 }  // namespace OHOS

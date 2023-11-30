@@ -42,6 +42,7 @@ public:
         const std::string& type) override;
     KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
     KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) override;
     KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) override;
 private:

@@ -34,6 +34,22 @@ public:
          * @brief The notification for field off.
          */
         virtual void FieldDeactivated() = 0;
+        /**
+         * @brief deal with card emulation data 
+         * @note   
+         * @param  data: card emulation data
+         */
+        virtual void OnCardEmulationData(const std::vector<uint8_t>& data) = 0;
+        /**
+         * @brief  card emulation activate
+         * @note   
+         */
+        virtual void OnCardEmulationActivated() = 0;
+        /**
+         * @brief  card emulation deactivate
+         * @note   
+         */
+        virtual void OnCardEmulationDeactivated() = 0;
     };
 
     virtual ~INciCeInterface() = default;
@@ -55,6 +71,23 @@ public:
      * @return True if success, otherwise false.
      */
     virtual bool CommitRouting() = 0;
+    
+    /**
+     * @brief  send raw frame data 
+     * @param  hexCmdData the data to send
+     * @return True if success, otherwise false.
+     */
+    virtual bool SendRawFrame(std::string &hexCmdData) = 0;
+
+    /**
+     * @brief  add aid routing
+     * @param  aidStr: aid
+     * @param  route: route dest
+     * @param  aidInfo: prefix subset etc
+     * @param  power: power state
+     * @return True if success, otherwise false.
+     */
+    virtual bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

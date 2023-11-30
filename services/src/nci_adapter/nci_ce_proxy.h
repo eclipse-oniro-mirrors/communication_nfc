@@ -41,6 +41,22 @@ public:
      */
     bool CommitRouting() override;
 
+    /**
+    * @brief  send raw frame data 
+    * @param  hexCmdData the data to send
+    * @return True if success, otherwise false.
+    */
+    bool SendRawFrame(std::string &hexCmdData) override;
+    /**
+     * @brief  add aid routing
+     * @param  aidStr: aid
+     * @param  route: route dest
+     * @param  aidInfo: prefix subset etc
+     * @param  power: power state
+     * @return True if success, otherwise false.
+     */
+    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
+
 private:
     std::shared_ptr<INciCeInterface> nciCeInterface_;
 };

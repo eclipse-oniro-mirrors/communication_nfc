@@ -15,6 +15,7 @@
 
 #include "nci_ce_impl_default.h"
 #include "nfcc_nci_adapter.h"
+#include "routing_manager.h"
 
 namespace OHOS {
 namespace NFC {
@@ -41,6 +42,14 @@ bool NciCeImplDefault::CommitRouting()
     }
     return commitResult;
 }
-}  // namespace NCI
+bool NciCeImplDefault::SendRawFrame(std::string &hexCmdData)
+{
+    return NfccNciAdapter::GetInstance().SendRawFrame(hexCmdData);
+}
+bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route, int aidInfo, int power)
+{
+    return RoutingManager::GetInstance().AddAidRouting(aidStr, route,aidInfo,power);
+}
+} // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

@@ -88,6 +88,8 @@ public:
      * @return OHOS::sptr<IRemoteObject> the remote object of tag service.
      */
     OHOS::sptr<IRemoteObject> GetTagServiceIface();
+    
+    OHOS::sptr<IRemoteObject> GetHceServiceIface();
 
     void OnRemoteDied(const wptr<IRemoteObject> &remoteObject);
 

@@ -27,6 +27,8 @@ public:
     void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) override;
     bool ComputeRoutingParams() override;
     bool CommitRouting() override;
+    bool SendRawFrame(std::string &hexCmdData) override;
+    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
 };
 }  // namespace NCI
 }  // namespace NFC

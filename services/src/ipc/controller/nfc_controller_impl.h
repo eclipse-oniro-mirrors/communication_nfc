@@ -36,6 +36,7 @@ public:
         Security::AccessToken::AccessTokenID callerToken) override;
     KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
+    OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
     KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) override;
     KITS::ErrorCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;

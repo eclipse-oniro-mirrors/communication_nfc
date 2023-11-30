@@ -66,6 +66,10 @@ public:
     bool CommitRouting();
     bool ComputeRoutingParams();
 
+    void OnCardEmulationData(const std::vector<uint8_t> &data);
+    void OnCardEmulationActivated();
+    void OnCardEmulationDeactivated();
+
     // method for SAK28 issue
     void SendActEvtForSak28Tag(uint8_t connEvent, tNFA_CONN_EVT_DATA* eventData);
 
