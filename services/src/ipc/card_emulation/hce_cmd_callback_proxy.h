@@ -35,7 +35,7 @@ public:
 private:
     static inline BrokerDelegator<HceCmdCallbackProxy> g_delegator;
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
 #endif

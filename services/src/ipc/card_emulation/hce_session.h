@@ -30,21 +30,24 @@ public:
     // Constructor/Destructor
     explicit HceSession(std::shared_ptr<NFC::INfcService> service);
     ~HceSession() override;
-    HceSession(const HceSession&) = delete;
-    HceSession& operator=(const HceSession&) = delete;
+    HceSession(const HceSession &) = delete;
+    HceSession &operator=(const HceSession &) = delete;
 
-    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,const std::string &type) override;
+    KITS::ErrorCode RegHceCmdCallback(
+        const sptr<KITS::IHceCmdCallback> &callback,
+        const std::string &type) override;
 
-    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    int SendRawFrame(std::string hexCmdData, bool raw,
+                     std::string &hexRespData) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 
 private:
     std::string GetDumpInfo();
-    std::weak_ptr<NFC::INfcService> nfcService_ {};
-    std::weak_ptr<CeService> ceService_ {};
+    std::weak_ptr<NFC::INfcService> nfcService_{};
+    std::weak_ptr<CeService> ceService_{};
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
-#endif  
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
+#endif

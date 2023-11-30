@@ -36,7 +36,7 @@ public:
     };
 
     explicit CeService(std::weak_ptr<NfcService> nfcService,
-    std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
+                       std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
     ~CeService();
 
     void HandleFieldActivated();
@@ -45,9 +45,11 @@ public:
     void OnCardEmulationActivated();
     void OnCardEmulationDeactivated();
     static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
-    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,const std::string &type);
+    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                           const std::string &type);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData);
+    bool SendHostApduData(std::string hexCmdData, bool raw,
+                          std::string &hexRespData);
 
     void InitConfigAidRouting();
 
@@ -55,13 +57,12 @@ private:
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
 
-    std::weak_ptr<NfcService> nfcService_ {};
+    std::weak_ptr<NfcService> nfcService_{};
 
     friend class NfcService;
-    std::weak_ptr<NCI::INciCeInterface> nciCeProxy_ {};
-    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_ {};
-
+    std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
 };
-} // NFC
-} // OHOS
+} // namespace NFC
+} // namespace OHOS
 #endif

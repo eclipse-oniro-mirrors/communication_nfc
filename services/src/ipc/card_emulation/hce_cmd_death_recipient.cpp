@@ -21,14 +21,13 @@
 namespace OHOS {
 namespace NFC {
 HceCmdDeathRecipient::HceCmdDeathRecipient(
-    sptr<HCE::HceSessionStub> hceSession, Security::AccessToken::AccessTokenID callerToken)
+    sptr<HCE::HceSessionStub> hceSession,
+    Security::AccessToken::AccessTokenID callerToken)
 {
     hceSession_ = hceSession;
     callerToken_ = callerToken;
 }
-void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
-{
-}
-}
+void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote) {}
+} // namespace NFC
 // namespace NFC
 } // namespace OHOS

@@ -25,20 +25,23 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-class HceSessionProxy final : public OHOS::IRemoteProxy<IHceSession>, public NfcBasicProxy {
+class HceSessionProxy final : public OHOS::IRemoteProxy<IHceSession>,
+                              public NfcBasicProxy {
 public:
-    explicit HceSessionProxy(const OHOS::sptr<OHOS::IRemoteObject>& remote)
+    explicit HceSessionProxy(const OHOS::sptr<OHOS::IRemoteObject> &remote)
         : OHOS::IRemoteProxy<IHceSession>(remote), NfcBasicProxy(remote)
     {
     }
     ~HceSessionProxy() override {}
 
-    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-    const std::string& type) override;
+    KITS::ErrorCode RegHceCmdCallback(
+        const sptr<KITS::IHceCmdCallback> &callback,
+        const std::string &type) override;
 
-    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    int SendRawFrame(std::string hexCmdData, bool raw,
+                     std::string &hexRespData) override;
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
-#endif  
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
+#endif

@@ -33,8 +33,7 @@ bool EventRegister::isEventRegistered = false;
 static std::shared_mutex g_regInfoMutex;
 static std::map<std::string, RegObj> g_eventRegisterInfo;
 
-class NapiEvent
-{
+class NapiEvent {
 public:
     napi_value CreateResult(const napi_env& env,
                             const std::vector<uint8_t>& data);
@@ -63,8 +62,7 @@ public:
     }
 };
 
-class HceCmdListenerEvent : public IHceCmdCallback, public NapiEvent
-{
+class HceCmdListenerEvent : public IHceCmdCallback, public NapiEvent {
 public:
     HceCmdListenerEvent() {}
 

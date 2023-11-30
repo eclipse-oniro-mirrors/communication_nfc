@@ -30,11 +30,12 @@ class HceCmdCallbackStub : public IRemoteStub<KITS::IHceCmdCallback> {
 public:
     HceCmdCallbackStub();
     virtual ~HceCmdCallbackStub();
-    static HceCmdCallbackStub& GetInstance();
-    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-    const std::string& type);
-    virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    static HceCmdCallbackStub &GetInstance();
+    KITS::ErrorCode RegHceCmdCallback(
+        const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
+    virtual int OnRemoteRequest(uint32_t code, MessageParcel &data,
+                                MessageParcel &reply,
+                                MessageOption &option) override;
 
     int RemoteOnCeApduData(MessageParcel &data, MessageParcel &reply);
 
@@ -45,7 +46,7 @@ private:
     std::shared_mutex callbackMutex;
     bool mRemoteDied;
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
 #endif

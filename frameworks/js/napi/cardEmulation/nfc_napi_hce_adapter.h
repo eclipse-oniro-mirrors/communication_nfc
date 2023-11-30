@@ -32,27 +32,29 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-class NfcNapiHceAdapter{
+class NfcNapiHceAdapter {
 public:
     static napi_value Init(napi_env env, napi_value exports);
     static napi_value Constructor(napi_env env, napi_callback_info info);
-    static void Destructor(napi_env env, void* nativeObject, void* /*finalize_hint*/) ;
+    static void Destructor(napi_env env, void* nativeObject,
+                           void* /*finalize_hint*/);
     static napi_value OnMiddle(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
 };
 
 struct NfcHceSessionContext : BaseContext {
-    std::string value; //out 
-    std::string dataBytes;// in
+    std::string value;     // out
+    std::string dataBytes; // in
 };
 
 class AsyncEventData {
 public:
     napi_env env;
     napi_ref callbackRef;
-    std::function<napi_value ()> packResult;
+    std::function<napi_value()> packResult;
 
-    explicit AsyncEventData(napi_env e, napi_ref r, std::function<napi_value ()> v)
+    explicit AsyncEventData(napi_env e, napi_ref r,
+                            std::function<napi_value()> v)
     {
         env = e;
         callbackRef = r;
@@ -61,14 +63,12 @@ public:
 
     AsyncEventData() = delete;
 
-    virtual ~AsyncEventData() {
-    }
+    virtual ~AsyncEventData() {}
 };
 
 class RegObj {
 public:
-    RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {
-    }
+    RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {}
 
     explicit RegObj(const napi_env& env, const napi_ref& ref)
     {
@@ -76,24 +76,20 @@ public:
         m_regHanderRef = ref;
     }
 
-    ~RegObj() {
-    }
+    ~RegObj() {}
 
     napi_env m_regEnv;
     napi_ref m_regHanderRef;
 };
 class EventRegister {
 public:
-    EventRegister()
-    {
-    }
-    ~EventRegister()
-    {
-    }
+    EventRegister() {}
+    ~EventRegister() {}
 
     static EventRegister& GetInstance();
 
-    void Register(const napi_env& env, const std::string& type, napi_value handler);
+    void Register(const napi_env& env, const std::string& type,
+                  napi_value handler);
 
 private:
     ErrorCode RegHceCmdCallbackEvents(const std::string& type);
@@ -101,7 +97,7 @@ private:
 
     static bool isEventRegistered;
 };
-}  // namespace KITS
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace KITS
+} // namespace NFC
+} // namespace OHOS
 #endif

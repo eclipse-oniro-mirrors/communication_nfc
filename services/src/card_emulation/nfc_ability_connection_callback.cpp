@@ -27,22 +27,25 @@ NfcAbilityConnectionCallback::~NfcAbilityConnectionCallback()
     serviceConnected_ = false;
 }
 
-void NfcAbilityConnectionCallback::OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
+void NfcAbilityConnectionCallback::OnAbilityConnectDone(
+    const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     InfoLog("service connected: %{public}s, result code %{public}d",
-    element.GetAbilityName().c_str(), resultCode);
+            element.GetAbilityName().c_str(), resultCode);
     serviceConnected_ = true;
 }
 
-void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(
+    const AppExecFwk::ElementName &element, int resultCode)
 {
     InfoLog("service disconnected done: %{public}s, result code %{public}d",
-    element.GetAbilityName().c_str(), resultCode);
+            element.GetAbilityName().c_str(), resultCode);
     serviceConnected_ = false;
 }
 bool NfcAbilityConnectionCallback::ServiceConnected()
 {
     return serviceConnected_;
 }
-}
-}
+} // namespace NFC
+} // namespace OHOS

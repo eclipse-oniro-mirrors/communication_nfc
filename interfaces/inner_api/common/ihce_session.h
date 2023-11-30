@@ -30,14 +30,16 @@ public:
 
     virtual ~IHceSession() {}
 
-    virtual KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-    const std::string& type) = 0;
+    virtual KITS::ErrorCode RegHceCmdCallback(
+        const sptr<KITS::IHceCmdCallback> &callback,
+        const std::string &type) = 0;
 
-    virtual int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
+    virtual int SendRawFrame(std::string hexCmdData, bool raw,
+                             std::string &hexRespData) = 0;
 
 private:
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
-#endif  
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
+#endif

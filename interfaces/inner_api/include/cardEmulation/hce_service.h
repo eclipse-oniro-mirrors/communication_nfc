@@ -31,8 +31,11 @@ public:
 
     static HceService &GetInstance();
 
-    ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
-    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData);
+    ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                                const std::string &type);
+    int SendRawFrame(std::string hexCmdData, bool raw,
+                     std::string &hexRespData);
+
 protected:
     OHOS::sptr<HCE::IHceSession> GetHceSessionProxy();
 
@@ -42,4 +45,4 @@ private:
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
-#endif 
+#endif

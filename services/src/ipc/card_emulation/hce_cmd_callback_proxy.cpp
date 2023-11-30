@@ -22,7 +22,7 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 HceCmdCallbackProxy::HceCmdCallbackProxy(const sptr<IRemoteObject> &remote)
- : IRemoteProxy<KITS::IHceCmdCallback>(remote)
+    : IRemoteProxy<KITS::IHceCmdCallback>(remote)
 {
 }
 
@@ -39,11 +39,13 @@ void HceCmdCallbackProxy::OnCeApduData(const std::vector<uint8_t> &apduData)
     data.WriteInt32(0);
     data.WriteUInt8Vector(apduData);
 
-    int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CE_APDU_DATA),
+    int error = Remote()->SendRequest(
+        static_cast<uint32_t>(
+            NfcServiceIpcInterfaceCode::COMMAND_ON_CE_APDU_DATA),
         data, reply, option);
     if (error != ERR_NONE) {
         InfoLog("Set Attr %{public}d failed,error code is %{public}d",
-            NfcServiceIpcInterfaceCode::COMMAND_ON_CE_APDU_DATA, error);
+                NfcServiceIpcInterfaceCode::COMMAND_ON_CE_APDU_DATA, error);
         return;
     }
     int exception = reply.ReadInt32();
@@ -53,8 +55,6 @@ void HceCmdCallbackProxy::OnCeApduData(const std::vector<uint8_t> &apduData)
     return;
 }
 
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
-
-
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS

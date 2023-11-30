@@ -28,27 +28,32 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data,
- OHOS::MessageParcel &reply, OHOS::MessageOption &option)
+                                    OHOS::MessageParcel &reply,
+                                    OHOS::MessageOption &option)
 {
-     DebugLog("hceSessionStub OnRemoteRequest occur, code is %d", code);
+    DebugLog("hceSessionStub OnRemoteRequest occur, code is %d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ErrorLog("hceSessionStub OnRemoteRequest GetDescriptor failed");
         return KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
 
     switch (code) {
-        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_HCE_CMD):
+        case static_cast<uint32_t>(
+            NfcServiceIpcInterfaceCode::COMMAND_REG_HCE_CMD):
             return HandleRegHceCmdCallback(data, reply);
-        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME):
+        case static_cast<uint32_t>(
+            NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME):
             return HandleSendRawFrame(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
 
-int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &reply)
+int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data,
+                                            MessageParcel &reply)
 {
-    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(
+            OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -64,8 +69,9 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &
             DebugLog("Failed to readRemoteObject!");
             break;
         }
-        std::unique_ptr<HceCmdDeathRecipient> recipient
-            = std::make_unique<HceCmdDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+        std::unique_ptr<HceCmdDeathRecipient> recipient =
+            std::make_unique<HceCmdDeathRecipient>(
+                this, IPCSkeleton::GetCallingTokenID());
         sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
         if ((remote->IsProxyObject()) && (!remote->AddDeathRecipient(dr))) {
             ErrorLog("Failed to add death recipient");
@@ -76,18 +82,21 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &
             deathRecipient_ = dr;
             hceCmdCallback_ = iface_cast<KITS::IHceCmdCallback>(remote);
             if (hceCmdCallback_ == nullptr) {
-                hceCmdCallback_ = new (std::nothrow) HceCmdCallbackProxy(remote);
+                hceCmdCallback_ =
+                    new (std::nothrow) HceCmdCallbackProxy(remote);
                 DebugLog("create new `HceCmdCallbackProxy`!");
             }
-            ret = RegHceCmdCallback(hceCmdCallback_,type);
+            ret = RegHceCmdCallback(hceCmdCallback_, type);
         }
     } while (0);
     reply.WriteInt32(ret);
     return ERR_NONE;
 }
-int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageParcel &reply)
+int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data,
+                                       OHOS::MessageParcel &reply)
 {
-    if (!RunOnDemaindManager::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+    if (!RunOnDemaindManager::GetInstance().IsGranted(
+            OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -95,10 +104,10 @@ int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageP
     std::string hexCmdData = data.ReadString();
     bool raw = data.ReadBool();
     std::string hexRespData;
-    int statusCode = SendRawFrame( hexCmdData, raw, hexRespData);
+    int statusCode = SendRawFrame(hexCmdData, raw, hexRespData);
     reply.WriteString(hexRespData);
     return statusCode;
 }
 } // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace NFC
+} // namespace OHOS

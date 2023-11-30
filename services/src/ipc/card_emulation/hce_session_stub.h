@@ -36,14 +36,15 @@ public:
 private:
     int HandleRegHceCmdCallback(MessageParcel& data, MessageParcel& reply);
 
-    int HandleSendRawFrame(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleSendRawFrame(OHOS::MessageParcel& data,
+                           OHOS::MessageParcel& reply);
 
 private:
-    std::mutex mutex_ {};
+    std::mutex mutex_{};
     sptr<KITS::IHceCmdCallback> hceCmdCallback_;
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_{nullptr};
 };
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
-#endif  // HCE_SESSION_STUB_H
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
+#endif // HCE_SESSION_STUB_H

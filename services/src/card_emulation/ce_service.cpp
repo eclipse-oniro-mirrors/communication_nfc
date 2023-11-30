@@ -26,32 +26,35 @@ const int DEACTIVATE_TIMEOUT = 6000;
 static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int PWR_STA_SWTCH_ON_SCRN_LOCK = 0x10;
-static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
+static const int DEFAULT_PWR_STA_HOST =
+    PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
 
-CeService::CeService(std::weak_ptr<NfcService> nfcService,std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
- : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
+CeService::CeService(std::weak_ptr<NfcService> nfcService,
+                     std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
+    : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
 {
-    hostCardEmulationManager_ = std::make_shared<HostCardEmulationManager>(nfcService,nciCeProxy);
+    hostCardEmulationManager_ =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
 }
 
-CeService::~CeService()
-{
-    hostCardEmulationManager_ = nullptr;
-}
+CeService::~CeService() { hostCardEmulationManager_ = nullptr; }
 
 void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 {
     ExternalDepsProxy::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
 }
 
-bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                                  const std::string &type)
 {
-    return hostCardEmulationManager_->RegHceCmdCallback(callback,type);
+    return hostCardEmulationManager_->RegHceCmdCallback(callback, type);
 }
 
-bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData)
+bool CeService::SendHostApduData(std::string hexCmdData, bool raw,
+                                 std::string &hexRespData)
 {
-    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData);
+    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw,
+                                                       hexRespData);
 }
 
 void CeService::InitConfigAidRouting()
@@ -59,13 +62,13 @@ void CeService::InitConfigAidRouting()
     DebugLog("AddAidRoutingHceOtherAids: start");
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
     AppDataParser::GetInstance().GetHceApps(hceApps);
-    if(hceApps.empty()){
-       InfoLog("AddAidRoutingHceOtherAids: no hce apps");
-       return;
+    if (hceApps.empty()) {
+        InfoLog("AddAidRoutingHceOtherAids: no hce apps");
+        return;
     }
     std::vector<AidEntry> aidEntries;
-    for (const AppDataParser::HceAppAidInfo& appAidInfo : hceApps) {
-        for (const AppDataParser::AidInfo& aidInfo : appAidInfo.customDataAid) {
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
+        for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
             if (KITS::KEY_OHTER_AID == aidInfo.name) {
                 AidEntry aidEntry;
                 aidEntry.aid = aidInfo.value;
@@ -76,14 +79,15 @@ void CeService::InitConfigAidRouting()
             }
         }
     }
-    for (const AidEntry& entry: aidEntries){
+    for (const AidEntry &entry : aidEntries) {
         std::string aid = entry.aid;
         int aidInfo = entry.aidInfo;
         int power = entry.power;
         int route = entry.route;
-        InfoLog("AddAidRoutingHceOtherAids: aid= %{public}s, aidInfo= 0x%{public}x, route=0x%{public}x, power=0x%{public}x",
-        aid.c_str(), aidInfo, route, power);
-        nciCeProxy_.lock()->AddAidRouting(aid, route,aidInfo, power);
+        InfoLog("AddAidRoutingHceOtherAids: aid= %{public}s, aidInfo= "
+                "0x%{public}x, route=0x%{public}x, power=0x%{public}x",
+                aid.c_str(), aidInfo, route, power);
+        nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
     }
     DebugLog("AddAidRoutingHceOtherAids: end");
 }
@@ -93,15 +97,19 @@ void CeService::HandleFieldActivated()
     if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
         return;
     }
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
-    nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT),
+    nfcService_.lock()->eventHandler_->RemoveEvent(
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcService_.lock()->eventHandler_->RemoveEvent(
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
+    nfcService_.lock()->eventHandler_->SendEvent(
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT),
         DEACTIVATE_TIMEOUT);
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOnTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
+        nfcService_.lock()->eventHandler_->SendEvent(
+            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
     }
 }
 
@@ -110,13 +118,16 @@ void CeService::HandleFieldDeactivated()
     if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
         return;
     }
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcService_.lock()->eventHandler_->RemoveEvent(
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
+    nfcService_.lock()->eventHandler_->RemoveEvent(
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
+        nfcService_.lock()->eventHandler_->SendEvent(
+            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
             FIELD_COMMON_EVENT_INTERVAL);
     }
 }
@@ -126,11 +137,11 @@ void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
 }
 void CeService::OnCardEmulationActivated()
 {
-     hostCardEmulationManager_->OnCardEmulationActivated();
+    hostCardEmulationManager_->OnCardEmulationActivated();
 }
 void CeService::OnCardEmulationDeactivated()
 {
-     hostCardEmulationManager_->OnCardEmulationDeactivated();
+    hostCardEmulationManager_->OnCardEmulationDeactivated();
 }
-} // NFC
-} // OHOS
+} // namespace NFC
+} // namespace OHOS

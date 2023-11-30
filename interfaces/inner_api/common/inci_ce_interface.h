@@ -35,19 +35,19 @@ public:
          */
         virtual void FieldDeactivated() = 0;
         /**
-         * @brief deal with card emulation data 
-         * @note   
+         * @brief deal with card emulation data
+         * @note
          * @param  data: card emulation data
          */
-        virtual void OnCardEmulationData(const std::vector<uint8_t>& data) = 0;
+        virtual void OnCardEmulationData(const std::vector<uint8_t> &data) = 0;
         /**
          * @brief  card emulation activate
-         * @note   
+         * @note
          */
         virtual void OnCardEmulationActivated() = 0;
         /**
          * @brief  card emulation deactivate
-         * @note   
+         * @note
          */
         virtual void OnCardEmulationDeactivated() = 0;
     };
@@ -61,7 +61,8 @@ public:
     virtual void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) = 0;
 
     /**
-     * @brief compute the routing parameters based on the default payment app and all installed app.
+     * @brief compute the routing parameters based on the default payment app
+     * and all installed app.
      * @return True if success, otherwise false.
      */
     virtual bool ComputeRoutingParams() = 0;
@@ -71,9 +72,9 @@ public:
      * @return True if success, otherwise false.
      */
     virtual bool CommitRouting() = 0;
-    
+
     /**
-     * @brief  send raw frame data 
+     * @brief  send raw frame data
      * @param  hexCmdData the data to send
      * @return True if success, otherwise false.
      */
@@ -87,9 +88,10 @@ public:
      * @param  power: power state
      * @return True if success, otherwise false.
      */
-    virtual bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) = 0;
+    virtual bool AddAidRouting(const std::string aidStr, int route, int aidInfo,
+                               int power) = 0;
 };
-}  // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
-#endif  // I_NCI_CE_INTERFACE_H
+} // namespace NCI
+} // namespace NFC
+} // namespace OHOS
+#endif // I_NCI_CE_INTERFACE_H

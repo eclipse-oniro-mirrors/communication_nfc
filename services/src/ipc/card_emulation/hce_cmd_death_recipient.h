@@ -23,7 +23,8 @@ namespace OHOS {
 namespace NFC {
 class HceCmdDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    explicit HceCmdDeathRecipient(sptr<HCE::HceSessionStub> hceSession,
+    explicit HceCmdDeathRecipient(
+        sptr<HCE::HceSessionStub> hceSession,
         Security::AccessToken::AccessTokenID callerToken);
     ~HceCmdDeathRecipient() = default;
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
@@ -33,6 +34,6 @@ private:
     Security::AccessToken::AccessTokenID callerToken_;
     std::mutex mutex_;
 };
-}  // namespace NFC
-}  // namespace OHOS
-#endif  // HCECMD_DEATH_RECIPIENT_H
+} // namespace NFC
+} // namespace OHOS
+#endif // HCECMD_DEATH_RECIPIENT_H

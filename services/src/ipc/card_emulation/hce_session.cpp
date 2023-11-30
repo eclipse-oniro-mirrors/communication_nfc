@@ -33,38 +33,39 @@ HceSession::HceSession(std::shared_ptr<INfcService> service)
     ceService_ = service->GetCeService();
 }
 
-HceSession::~HceSession()
+HceSession::~HceSession() {}
+
+KITS::ErrorCode HceSession::RegHceCmdCallback(
+    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
 {
-}
-
-
-KITS::ErrorCode HceSession::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,const std::string &type)
-{
-
     if (ceService_.expired()) {
         ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->RegHceCmdCallback(callback,type)) {
+    if (ceService_.lock()->RegHceCmdCallback(callback, type)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-int HceSession::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData){
+int HceSession::SendRawFrame(std::string hexCmdData, bool raw,
+                             std::string &hexRespData)
+{
     if (ceService_.expired()) {
         ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
-    bool success= ceService_.lock()->SendHostApduData(hexCmdData,raw,hexRespData);
-    if(success){
-       return  NFC::KITS::ErrorCode::ERR_NONE;
-    }else{
+    bool success =
+        ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData);
+    if (success) {
+        return NFC::KITS::ErrorCode::ERR_NONE;
+    }
+    else {
         return NFC::KITS::ErrorCode::ERR_HCE_STATE_IO_FAILED;
     }
 }
 
-int32_t HceSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
+int32_t HceSession::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     std::string info = GetDumpInfo();
     int ret = dprintf(fd, "%s\n", info.c_str());
@@ -92,6 +93,6 @@ std::string HceSession::GetDumpInfo()
         .append(std::to_string(nfcService_.lock()->GetNciVersion()))
         .append(DUMP_END);
 }
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
