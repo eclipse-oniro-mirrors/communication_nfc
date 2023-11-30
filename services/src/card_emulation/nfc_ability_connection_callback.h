@@ -25,11 +25,11 @@ public:
     NfcAbilityConnectionCallback();
     virtual ~NfcAbilityConnectionCallback();
 
-    virtual void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
-                                      const sptr<IRemoteObject> &remoteObject,
-                                      int resultCode) override;
-    virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
-                                         int resultCode) override;
+    void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+                              const sptr<IRemoteObject> &remoteObject,
+                              int resultCode) override;
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+                                 int resultCode) override;
     bool ServiceConnected();
 
 private:

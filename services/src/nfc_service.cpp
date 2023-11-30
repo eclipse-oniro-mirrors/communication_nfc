@@ -99,7 +99,7 @@ bool NfcService::Initialize()
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
     eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
-    ceService_ = std::make_shared<CeService>(shared_from_this(),nciCeProxy_);
+    ceService_ = std::make_shared<CeService>(shared_from_this(), nciCeProxy_);
 
     nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
     nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciCeProxy_, shared_from_this());

@@ -35,7 +35,8 @@ void NciCeProxy::SetCeHostListener(std::weak_ptr<ICeHostListener> listener)
 }
 
 /**
- * @brief compute the routing parameters based on the default payment app and all installed app.
+ * @brief compute the routing parameters based on the default payment app and
+ * all installed app.
  * @return True if success, otherwise false.
  */
 bool NciCeProxy::ComputeRoutingParams()
@@ -59,7 +60,7 @@ bool NciCeProxy::CommitRouting()
 }
 
 /**
- * @brief  send raw frame data 
+ * @brief  send raw frame data
  * @param  hexCmdData the data to send
  * @return True if success, otherwise false.
  */
@@ -71,13 +72,14 @@ bool NciCeProxy::SendRawFrame(std::string &hexCmdData)
     return false;
 }
 
-bool NciCeProxy::AddAidRouting(const std::string aidStr, int route, int aidInfo, int power)
+bool NciCeProxy::AddAidRouting(const std::string aidStr, int route, int aidInfo,
+                               int power)
 {
     if (nciCeInterface_) {
-        return nciCeInterface_->AddAidRouting(aidStr,route,aidInfo,power);
+        return nciCeInterface_->AddAidRouting(aidStr, route, aidInfo, power);
     }
     return false;
 }
 } // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace NFC
+} // namespace OHOS

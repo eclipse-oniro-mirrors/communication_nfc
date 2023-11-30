@@ -115,8 +115,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
             SendDataToService(data);
             return;
-        }
-        else {
+        } else {
             InfoLog("HandleDataOnW4Select: try to connect service.");
             queueHceData_ = std::move(data);
             bool startService = DispatchAbilitySingleApp(aid);
@@ -125,15 +124,13 @@ void HostCardEmulationManager::HandleDataOnW4Select(
             }
             return;
         }
-    }
-    else if (exitService) {
+    } else if (exitService) {
         InfoLog("HandleDataOnW4Select: existing service, try to send data "
                 "directly.");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
         SendDataToService(data);
         return;
-    }
-    else {
+    } else {
         InfoLog("no aid got");
     }
 }
@@ -149,8 +146,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
             SendDataToService(data);
             return;
-        }
-        else {
+        } else {
             InfoLog("HandleDataOnDataTransfer: existing service, try to "
                     "connect service.");
             queueHceData_ = std::move(data);
@@ -160,15 +156,13 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(
             }
             return;
         }
-    }
-    else if (exitService) {
+    } else if (exitService) {
         InfoLog("HandleDataOnDataTransfer: existing service, try to send data "
                 "directly.");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
         SendDataToService(data);
         return;
-    }
-    else {
+    } else {
         InfoLog("no service, drop apdu data.");
     }
 }

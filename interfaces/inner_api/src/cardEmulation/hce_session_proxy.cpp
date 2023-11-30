@@ -26,10 +26,10 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-static HceCmdCallbackStub* g_hceCmdCallbackStub = new HceCmdCallbackStub;
+static HceCmdCallbackStub *g_hceCmdCallbackStub = new HceCmdCallbackStub;
 
-KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-    const std::string& type)
+KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(
+    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -63,7 +63,8 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallb
     return KITS::ERR_NONE;
 }
 
-int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
+int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw,
+                                  std::string &hexRespData)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -73,13 +74,15 @@ int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string 
     }
     data.WriteString(hexCmdData);
     data.WriteBool(raw);
-    int statusCode = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME),
+    int statusCode = Remote()->SendRequest(
+        static_cast<uint32_t>(
+            NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME),
         data, reply, option);
     if (statusCode == ERR_NONE) {
         hexRespData = reply.ReadString();
     }
     return statusCode;
 }
-}  // namespace HCE
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS

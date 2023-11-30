@@ -59,8 +59,7 @@ int HceSession::SendRawFrame(std::string hexCmdData, bool raw,
         ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData);
     if (success) {
         return NFC::KITS::ErrorCode::ERR_NONE;
-    }
-    else {
+    } else {
         return NFC::KITS::ErrorCode::ERR_HCE_STATE_IO_FAILED;
     }
 }

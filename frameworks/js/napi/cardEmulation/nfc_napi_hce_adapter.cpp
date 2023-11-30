@@ -168,8 +168,7 @@ static bool CheckTransmitParametersAndThrow(napi_env env,
             return false;
         }
         return true;
-    }
-    else if (parameterCount == ARGV_NUM_2) {
+    } else if (parameterCount == ARGV_NUM_2) {
         if (!CheckParametersAndThrow(
                 env, parameters, {napi_object, napi_function},
                 "data & callback", "number[] & function") ||
@@ -178,8 +177,7 @@ static bool CheckTransmitParametersAndThrow(napi_env env,
             return false;
         }
         return true;
-    }
-    else {
+    } else {
         napi_throw(env, GenerateBusinessError(
                             env, BUSI_ERR_PARAM,
                             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
@@ -233,12 +231,10 @@ void EventRegister::Register(const napi_env& env, const std::string& type,
         napi_strict_equals(oldRegObj.m_regEnv, oldHandler, handler, &isEqual);
         if (isEqual) {
             DebugLog("handler function is same");
-        }
-        else {
+        } else {
             iter->second = regObj;
         }
-    }
-    else {
+    } else {
         DebugLog("handler env is different");
         iter->second = regObj;
     }
@@ -282,8 +278,7 @@ static void after_work_cb(uv_work_t* work, int status)
     if (napi_call_function(asyncData->env, nullptr, handler, ARGV_INDEX_2,
                            resArgs, &returnVal) != napi_ok) {
         DebugLog("Report event to Js failed");
-    }
-    else {
+    } else {
         DebugLog("Report event to Js success");
     }
 
@@ -366,8 +361,7 @@ static void TransmitCallback(napi_env env, napi_status status, void* data)
         context->errorCode == ErrorCode::ERR_NONE) {
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
-    }
-    else {
+    } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
         std::string errMessage = BuildErrorMessage(
             errCode, "transmit", CARD_EMULATION_PERM_DESC, "", "");

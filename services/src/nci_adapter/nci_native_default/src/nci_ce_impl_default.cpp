@@ -20,7 +20,8 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-void NciCeImplDefault::SetCeHostListener(std::weak_ptr<ICeHostListener> listener)
+void NciCeImplDefault::SetCeHostListener(
+    std::weak_ptr<ICeHostListener> listener)
 {
     NfccNciAdapter::GetInstance().SetCeHostListener(listener);
 }
@@ -46,10 +47,12 @@ bool NciCeImplDefault::SendRawFrame(std::string &hexCmdData)
 {
     return NfccNciAdapter::GetInstance().SendRawFrame(hexCmdData);
 }
-bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route, int aidInfo, int power)
+bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route,
+                                     int aidInfo, int power)
 {
-    return RoutingManager::GetInstance().AddAidRouting(aidStr, route,aidInfo,power);
+    return RoutingManager::GetInstance().AddAidRouting(aidStr, route, aidInfo,
+                                                       power);
 }
 } // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace NFC
+} // namespace OHOS

@@ -444,7 +444,7 @@ std::vector<ElementName> AppDataParser::GetHceAppsByAid(const std::string& aid,s
 }
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
 {
-    for (const AppDataParser::HceAppAidInfo& appAidInfo : g_hceAppAndAidMap){
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         hceApps.push_back(appAidInfo);
     }
 }
