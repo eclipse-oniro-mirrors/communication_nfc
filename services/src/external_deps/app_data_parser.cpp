@@ -429,8 +429,8 @@ void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
     queryApplicationByVendor_ = callback;
 }
 
-std::vector<ElementName> AppDataParser::GetHceAppsByAid(const std::string& aid,std::vector<ElementName> elementNames) {
-
+std::vector<ElementName> AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementName> elementNames)
+{
     for (const HceAppAidInfo& appAidInfo : g_hceAppAndAidMap) {
         for (const AidInfo& aidInfo : appAidInfo.customDataAid) {
             if (aid == aidInfo.value) {
