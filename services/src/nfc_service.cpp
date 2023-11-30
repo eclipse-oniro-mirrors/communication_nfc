@@ -137,8 +137,6 @@ std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
     return tagDispatcher_;
 }
 
-
-
 OHOS::sptr<IRemoteObject> NfcService::GetTagServiceIface()
 {
     return tagSessionIface_;

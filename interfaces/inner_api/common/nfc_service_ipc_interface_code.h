@@ -58,7 +58,7 @@ public:
         COMMAND_SET_TIMEOUT,
         COMMAND_GET_TIMEOUT
     };
-     enum HceSessionCode {
+    enum HceSessionCode {
         HCE_SESSION_START_ID = 300,
         COMMAND_REG_HCE_CMD,
         COMMAND_ON_CE_APDU_DATA,

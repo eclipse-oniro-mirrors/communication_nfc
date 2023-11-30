@@ -27,15 +27,9 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
-HceService::HceService()
-{
-    DebugLog("[HceService] new HceService");
-}
+HceService::HceService() { DebugLog("[HceService] new HceService"); }
 
-HceService::~HceService()
-{
-    DebugLog("destruct HceService");
-}
+HceService::~HceService() { DebugLog("destruct HceService"); }
 
 HceService &HceService::GetInstance()
 {
@@ -44,7 +38,7 @@ HceService &HceService::GetInstance()
 }
 
 ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback,
-    const std::string& type)
+                                        const std::string &type)
 {
     DebugLog("HceService::RegHceCmdCallback");
     OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
@@ -52,9 +46,10 @@ ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback,
         ErrorLog("HceService::RegHceCmdCallback, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->RegHceCmdCallback(callback,type);
+    return hceSession->RegHceCmdCallback(callback, type);
 }
-int HceService::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
+int HceService::SendRawFrame(std::string hexCmdData, bool raw,
+                             std::string &hexRespData)
 {
     DebugLog("HceService::SendRawFrame");
     OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
@@ -62,18 +57,19 @@ int HceService::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexR
         ErrorLog("HceService::SendRawFrame, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->SendRawFrame(hexCmdData,raw,hexRespData);
+    return hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
 }
 OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
 {
     if (hceSessionProxy_ == nullptr) {
-        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetHceServiceIface();
+        OHOS::sptr<IRemoteObject> iface =
+            NfcController::GetInstance().GetHceServiceIface();
         if (iface != nullptr) {
             hceSessionProxy_ = new HCE::HceSessionProxy(iface);
         }
     }
     return hceSessionProxy_;
 }
-}  // namespace KITS
-}  // namespace NFC
-}  // namespace OHOS
+} // namespace KITS
+} // namespace NFC
+} // namespace OHOS
