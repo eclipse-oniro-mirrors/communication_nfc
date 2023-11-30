@@ -122,7 +122,7 @@ KITS::ErrorCode NfcControllerImpl::RegNdefMsgCallback(const sptr<INdefMsgCallbac
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(QueryApplicationByVendor callback)
+KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback)
 {
     ExternalDepsProxy::GetInstance().RegQueryApplicationCb(callback);
     return KITS::ERR_NONE;

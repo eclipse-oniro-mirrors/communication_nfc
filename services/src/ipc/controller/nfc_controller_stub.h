@@ -18,6 +18,7 @@
 #include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
+#include "iquery_app_info_callback.h"
 #include "iremote_stub.h"
 #include "nfc_controller_callback_proxy.h"
 #include "nfc_sdk_common.h"
@@ -64,6 +65,7 @@ private:
     std::mutex mutex_ {};
     sptr<INfcControllerCallback> callback_;
     sptr<INdefMsgCallback> ndefCallback_;
+    sptr<IQueryAppInfoCallback> queryAppInfoCallback_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace NFC

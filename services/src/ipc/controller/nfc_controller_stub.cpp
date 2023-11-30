@@ -21,6 +21,7 @@
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
 #include "nfc_permission_checker.h"
+#include "query_app_info_callback_proxy.h"
 #include "external_deps_proxy.h"
 
 namespace OHOS {
@@ -52,7 +53,7 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleGetNfcTagInterface(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK):
             return HandleRegNdefMsgCb(data, reply);
-        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APPLICATION_MSG_CALLBACK):
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK):
             return HandleRegQueryApplicationCb(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -213,8 +214,21 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
 int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
 {
     InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
-    QueryApplicationByVendor callback = nullptr;
-    RegQueryApplicationCb(callback);
+    sptr<IRemoteObject> remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        ErrorLog("Failed to readRemoteObject!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        queryAppInfoCallback_ = iface_cast<IQueryAppInfoCallback>(remote);
+        if (queryAppInfoCallback_ == nullptr) {
+            queryAppInfoCallback_ = new (std::nothrow) QueryAppInfoCallbackProxy(remote);
+            DebugLog("NfcControllerStub::HandleRegQueryApplicationCb, create new `QueryAppInfoCallbackProxy`!");
+        }
+        int ret = RegQueryApplicationCb(queryAppInfoCallback_);
+        reply.WriteInt32(ret);
+    }
     return ERR_NONE;
 }
 

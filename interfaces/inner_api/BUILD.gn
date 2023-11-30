@@ -49,6 +49,7 @@ ohos_shared_library("nfc_inner_kits") {
     "src/controller/nfc_controller.cpp",
     "src/controller/nfc_controller_callback_stub.cpp",
     "src/controller/nfc_controller_proxy.cpp",
+    "src/controller/query_app_info_callback_stub.cpp",
     "src/nfc_basic_proxy.cpp",
     "src/nfc_data_share_impl.cpp",
     "src/nfc_sa_client.cpp",

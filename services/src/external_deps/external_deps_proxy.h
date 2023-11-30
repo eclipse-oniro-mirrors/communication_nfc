@@ -43,7 +43,7 @@ public:
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int> discTechList);
-    void RegQueryApplicationCb(QueryApplicationByVendor callback);
+    void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
 
     KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);
     KITS::ErrorCode NfcDataSetValue(Uri &uri, const std::string &column, int &value);
