@@ -182,6 +182,8 @@ bool HostCardEmulationManager::ExistService()
 const uint32_t SELECT_APDU_HDR_LENGTH = 5;
 const uint8_t INSTR_SELECT = 0xA4;
 const uint32_t MINIMUM_AID_LENGTH = 5;
+const uint8_t SELECT_00 = 0x00;
+const uint8_t SELECT_P1 = 0x04;
 
 std::string HostCardEmulationManager::FindSelectAid(
     const std::vector<uint8_t>& data)
@@ -198,8 +200,8 @@ std::string HostCardEmulationManager::FindSelectAid(
     // P1: must be 0x04: select by application identifier
     // P2: File control information is only relevant for higher-level
     // application, and we only support "first or only occurrence."
-    if (data[0] == 0x00 && data[1] == INSTR_SELECT && data[2] == 0x04) {
-        if (data[3] != 0x00) {
+    if (data[0] == SELECT_00 && data[1] == INSTR_SELECT && data[2] == SELECT_P1) {
+        if (data[3] != SELECT_00) {
             InfoLog("Selecting next, last, or previous AID occurrence is not "
                     "supported");
             return "";
