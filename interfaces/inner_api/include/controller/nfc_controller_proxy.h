@@ -43,7 +43,7 @@ public:
     KITS::ErrorCode UnRegisterCallBack(const std::string& type) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) override;
-    KITS::ErrorCode RegQueryApplicationCb(QueryApplicationByVendor callback) override;
+    KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) override;
 private:
 };
 }  // namespace NFC

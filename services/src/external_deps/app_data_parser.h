@@ -21,6 +21,7 @@
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
 #include "element_name.h"
+#include "iquery_app_info_callback.h"
 #include "want.h"
 
 namespace OHOS {
@@ -59,7 +60,7 @@ public:
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
-    void RegQueryApplicationCb(QueryApplicationByVendor callback);
+    void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
@@ -74,7 +75,7 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
-    QueryApplicationByVendor queryApplicationByVendor = nullptr;
+    sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS

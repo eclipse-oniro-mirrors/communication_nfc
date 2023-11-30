@@ -416,16 +416,18 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
 std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList)
 {
     std::vector<ElementName> elements;
-    if (queryApplicationByVendor == nullptr) {
+    std::vector<std::string> aidList {};
+    if (queryApplicationByVendor_ == nullptr) {
+        ErrorLog("AppDataParser::GetVendorDispatchTagAppsByTech queryApplicationByVendor_ is nullptr.");
         return std::vector<ElementName>();
     }
-    elements = queryApplicationByVendor(KEY_TAG_TECH, discTechList);
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_TAG_TECH, discTechList, aidList, elements);
     return elements;
 }
 
-void AppDataParser::RegQueryApplicationCb(QueryApplicationByVendor callback)
+void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
-    queryApplicationByVendor = callback;
+    queryApplicationByVendor_ = callback;
 }
 }  // namespace NFC
 }  // namespace OHOS

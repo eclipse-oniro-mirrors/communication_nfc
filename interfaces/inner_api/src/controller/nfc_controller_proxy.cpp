@@ -14,6 +14,7 @@
  */
 #include "nfc_controller_proxy.h"
 
+#include "iquery_app_info_callback.h"
 #include "loghelper.h"
 #include "ndef_msg_callback_stub.h"
 #include "nfc_controller_callback_stub.h"
@@ -193,7 +194,7 @@ KITS::ErrorCode NfcControllerProxy::RegNdefMsgCb(const sptr<INdefMsgCallback> &c
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(QueryApplicationByVendor callback)
+KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -206,8 +207,12 @@ KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(QueryApplicationByVend
         ErrorLog("NfcControllerProxy::RegQueryApplicationCb failed, write interface token error.");
         return KITS::ERR_NFC_PARAMETERS;
     }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        ErrorLog("NfcControllerProxy::RegQueryApplicationCb WriteRemoteObject failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
     int error = SendRequestExpectReplyNone(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APPLICATION_MSG_CALLBACK),
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
         data, option);
     if (error != ERR_NONE) {
         ErrorLog("NfcControllerProxy::RegQueryApplicationCb failed, error code: %{public}d.", error);

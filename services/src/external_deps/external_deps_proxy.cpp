@@ -41,7 +41,7 @@ std::vector<ElementName> ExternalDepsProxy::GetVendorDispatchTagAppsByTech(std::
     return AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(discTechList);
 }
 
-void ExternalDepsProxy::RegQueryApplicationCb(QueryApplicationByVendor callback)
+void ExternalDepsProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
     AppDataParser::GetInstance().RegQueryApplicationCb(callback);
 }

@@ -92,7 +92,32 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     if (elements.size() == 0) {
         return;
     }
-
+#if 0
+    std::vector<ElementName> vendorElements = AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(techList);
+    bool isFromVendor = false;
+    if (vendorElements.size() != 0) {
+        isFromVendor = true;
+        for (auto element : vendorElements) {
+            elements.push_back(element);
+        }
+    }
+    std::vector<std::string> elementNameList;
+    for (auto element : elements) {
+        std::string elementName = element.GetBundleName() + element.GetAbilityName();
+        elementNameList.push_back(elementName);
+    }
+    AAFwk::Want want;
+    const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+    want.SetParam("remoteTagService", tagServiceIface);
+    SetWantExtraParam(tagInfo, want);
+    if (elementNameList.size() > TAG_APP_MATCHED_SIZE_SINGLE) {
+        want.SetParam(PARAM_ABILITY_APPINFOS, elementNameList);
+        DispatchAbilityMultiApp(tagInfo, want);
+    } else if ((elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isOH) {
+        want.SetElement(elements[0]);
+        DispatchAbilitySingleApp(want);
+    } else if ((elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isFromVendor) {}
+#endif
     AAFwk::Want want;
     want.SetParam("remoteTagService", tagServiceIface);
     SetWantExtraParam(tagInfo, want);

@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "nfc_state_change_callback.h"
+#include "query_app_info_callback_stub.h"
 
 namespace OHOS {
 namespace NFC {
@@ -35,7 +36,8 @@ bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
 static sptr<NfcStateChangeCallback> dataRdbObserver_;
-
+static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
+    sptr<QueryAppInfoCallbackStub>(new (std::nothrow) QueryAppInfoCallbackStub());
 NfcController::NfcController()
 {
     DebugLog("[NfcController::NfcController] new ability manager");
@@ -196,7 +198,8 @@ ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback
         ErrorLog("NfcController::RegQueryApplicationCb nfcControllerService_ expired");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->RegQueryApplicationCb(callback);
+    g_queryAppInfoCallbackStub->RegisterCallback(callback);
+    return nfcControllerService_.lock()->RegQueryApplicationCb(g_queryAppInfoCallbackStub);
 }
 }  // namespace KITS
 }  // namespace NFC
