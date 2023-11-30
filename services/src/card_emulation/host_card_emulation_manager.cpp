@@ -29,14 +29,14 @@ HostCardEmulationManager::HostCardEmulationManager(
 {
     hceCmdRegistryData_ =
         std::make_shared<HostCardEmulationManager::HceCmdRegistryData>();
-    hceState_ = HostCardEmulationManager::IDLE;
+    hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     connect_ = new (std::nothrow) NfcAbilityConnectionCallback();
 }
 HostCardEmulationManager::~HostCardEmulationManager()
 {
     hceCmdRegistryData_ = nullptr;
-    hceState_ = HostCardEmulationManager::IDLE;
+    hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     connect_ = nullptr;
 }
@@ -53,20 +53,20 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(
     InfoLog("onHostCardEmulationDataNfcA: Data Length = %{public}zu; Data as "
             "String = %{public}s",
             data.size(), dataStr.c_str());
-    std::string aid = FindSelectAid(data);
+    std::string aid = ParseSelectAid(data);
     InfoLog("selectAid = %{public}s", aid.c_str());
     InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
 
     switch (hceState_) {
-        case HostCardEmulationManager::IDLE: {
-            InfoLog("got data on state idle");
+        case HostCardEmulationManager::INITIAL_STATE: {
+            InfoLog("got data on state INITIAL_STATE");
             return;
         }
-        case HostCardEmulationManager::W4_SELECT: {
+        case HostCardEmulationManager::WAIT_FOR_SELECT: {
             HandleDataOnW4Select(aid, data);
             break;
         }
-        case HostCardEmulationManager::W4_SERVICE: {
+        case HostCardEmulationManager::WAIT_FOR_SERVICE: {
             InfoLog("got data on state w4 service");
             return;
         }
@@ -74,7 +74,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(
             HandleDataOnDataTransfer(aid, data);
             break;
         }
-        case HostCardEmulationManager::W4_DEACTIVATE: {
+        case HostCardEmulationManager::WAIT_FOR_DEACTIVATE: {
             InfoLog("got data on state w4 deactivate");
             return;
         }
@@ -85,14 +85,14 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(
 void HostCardEmulationManager::OnCardEmulationActivated()
 {
     InfoLog("OnCardEmulationActivated: state %{public}d", hceState_);
-    hceState_ = HostCardEmulationManager::W4_SELECT;
+    hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
     queueHceData_.clear();
 }
 
 void HostCardEmulationManager::OnCardEmulationDeactivated()
 {
     InfoLog("OnCardEmulationDeactivated: state %{public}d", hceState_);
-    hceState_ = HostCardEmulationManager::IDLE;
+    hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     hceCmdRegistryData_->isEnabled_ = false;
     hceCmdRegistryData_->callerToken_ = 0;
@@ -120,7 +120,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(
             queueHceData_ = std::move(data);
             bool startService = DispatchAbilitySingleApp(aid);
             if (startService) {
-                hceState_ = HostCardEmulationManager::W4_SERVICE;
+                hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
             }
             return;
         }
@@ -152,7 +152,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(
             queueHceData_ = std::move(data);
             bool startService = DispatchAbilitySingleApp(aid);
             if (startService) {
-                hceState_ = HostCardEmulationManager::W4_SERVICE;
+                hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
             }
             return;
         }
@@ -189,31 +189,25 @@ const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
 const uint32_t INDEX_P1 = 2;
 const uint32_t INDEX_3 = 3;
 
-std::string HostCardEmulationManager::FindSelectAid(
+std::string HostCardEmulationManager::ParseSelectAid(
     const std::vector<uint8_t>& data)
 {
     if (data.empty() ||
         data.size() < SELECT_APDU_HDR_LENGTH + MINIMUM_AID_LENGTH) {
-        InfoLog("Data size too small for SELECT APDU");
+        InfoLog("invalid data. Data size less than hdr length plus minumum length.");
         return "";
     }
 
-    // To accept a SELECT AID for dispatch, we require the following:
-    // Class byte must be 0x00: logical channel set to zero, no secure
-    // messaging, no chaining Instruction byte must be 0xA4: SELECT instruction
-    // P1: must be 0x04: select by application identifier
-    // P2: File control information is only relevant for higher-level
-    // application, and we only support "first or only occurrence."
     if (data[INDEX_CLASS_BYTE] == SELECT_00 &&
         data[INDEX_CHAIN_INSTRUCTION] == INSTR_SELECT && data[INDEX_P1] == SELECT_P1) {
         if (data[INDEX_3] != SELECT_00) {
-            InfoLog("Selecting next, last, or previous AID occurrence is not "
-                    "supported");
+            InfoLog("not supported aid");
             return "";
         }
 
         int aidLength = data[4];
         if (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) {
+            InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
         }
 
@@ -240,7 +234,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(
     }
     hceCmdRegistryData_->callback_ = callback;
     bool shouldSendQueueData =
-        hceState_ == HostCardEmulationManager::W4_SERVICE &&
+        hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE &&
         !queueHceData_.empty();
 
     std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(

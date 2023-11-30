@@ -32,10 +32,10 @@ class NfcService;
 class HostCardEmulationManager {
 public:
     enum HceState {
-        IDLE = 0,
-        W4_SELECT,
-        W4_SERVICE,
-        W4_DEACTIVATE,
+        INITIAL_STATE = 0,
+        WAIT_FOR_SELECT,
+        WAIT_FOR_SERVICE,
+        WAIT_FOR_DEACTIVATE,
         DATA_TRANSFER,
     };
     explicit HostCardEmulationManager(
@@ -64,7 +64,7 @@ private:
     void HandleDataOnDataTransfer(const std::string aid,
                                   const std::vector<uint8_t>& data);
     bool ExistService();
-    std::string FindSelectAid(const std::vector<uint8_t>& data);
+    std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
     bool DispatchAbilitySingleApp(const std::string aid);
 
