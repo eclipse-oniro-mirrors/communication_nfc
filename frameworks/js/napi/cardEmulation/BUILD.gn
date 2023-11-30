@@ -34,14 +34,15 @@ ohos_shared_library("cardemulation") {
   ]
 
   sources = [
+    "$NFC_DIR/frameworks/js/napi/common/nfc_napi_common_utils.cpp",
     "nfc_napi_cardEmulation.cpp",
     "nfc_napi_cardEmulation_adapter.cpp",
     "nfc_napi_hce_adapter.cpp",
-    "$NFC_DIR/frameworks/js/napi/common/nfc_napi_common_utils.cpp"
   ]
 
-  deps = [ "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
-  "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+  deps = [
+    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
   ]
 
   external_deps = [
