@@ -53,7 +53,7 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data,
                                             MessageParcel &reply)
 {
     if (!RunOnDemaindManager::GetInstance().IsGranted(
-            OHOS::NFC::CARD_EMU_PERM)) {
+        OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
@@ -96,7 +96,7 @@ int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data,
                                        OHOS::MessageParcel &reply)
 {
     if (!RunOnDemaindManager::GetInstance().IsGranted(
-            OHOS::NFC::CARD_EMU_PERM)) {
+        OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }

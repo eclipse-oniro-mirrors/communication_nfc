@@ -170,8 +170,8 @@ static bool CheckTransmitParametersAndThrow(napi_env env,
         return true;
     } else if (parameterCount == ARGV_NUM_2) {
         if (!CheckParametersAndThrow(
-                env, parameters, {napi_object, napi_function},
-                "data & callback", "number[] & function") ||
+            env, parameters, {napi_object, napi_function},
+            "data & callback", "number[] & function") ||
             !CheckArrayNumberAndThrow(env, parameters[ARGV_NUM_0], "data",
                                       "number[]")) {
             return false;
@@ -179,8 +179,8 @@ static bool CheckTransmitParametersAndThrow(napi_env env,
         return true;
     } else {
         napi_throw(env, GenerateBusinessError(
-                            env, BUSI_ERR_PARAM,
-                            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
+            env, BUSI_ERR_PARAM,
+            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
         return false;
     }
 }
