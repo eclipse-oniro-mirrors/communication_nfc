@@ -38,9 +38,8 @@ public:
         WAIT_FOR_DEACTIVATE,
         DATA_TRANSFER,
     };
-    explicit HostCardEmulationManager(
-        std::weak_ptr<NfcService> nfcService,
-        std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
+    explicit HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
+                                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
     ~HostCardEmulationManager();
     void OnHostCardEmulationDataNfcA(const std::vector<uint8_t>& data);
     void OnCardEmulationActivated();
@@ -52,17 +51,13 @@ public:
         Security::AccessToken::AccessTokenID callerToken_ = 0;
         sptr<KITS::IHceCmdCallback> callback_ = nullptr;
     };
-    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
-                           const std::string& type);
+    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback, const std::string& type);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw,
-                          const std::string& hexRespData);
+    bool SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData);
 
 private:
-    void HandleDataOnW4Select(const std::string aid,
-                              const std::vector<uint8_t>& data);
-    void HandleDataOnDataTransfer(const std::string aid,
-                                  const std::vector<uint8_t>& data);
+    void HandleDataOnW4Select(const std::string aid, const std::vector<uint8_t>& data);
+    void HandleDataOnDataTransfer(const std::string aid, const std::vector<uint8_t>& data);
     bool ExistService();
     std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
@@ -71,8 +66,7 @@ private:
     std::weak_ptr<NfcService> nfcService_{};
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     friend class NfcService;
-    std::shared_ptr<HostCardEmulationManager::HceCmdRegistryData>
-        hceCmdRegistryData_{};
+    std::shared_ptr<HostCardEmulationManager::HceCmdRegistryData> hceCmdRegistryData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
     sptr<NfcAbilityConnectionCallback> connect_{};

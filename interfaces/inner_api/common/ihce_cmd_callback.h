@@ -29,6 +29,11 @@ namespace NFC {
 namespace KITS {
 class IHceCmdCallback : public IRemoteBroker {
 public:
+    /**
+     * @brief  send apdu data to js service 
+     * @param  data: data send to js service
+     * @return void
+     */
     virtual void OnCeApduData(const std::vector<uint8_t> &data) = 0;
 
 public:

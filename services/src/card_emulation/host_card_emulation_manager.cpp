@@ -22,13 +22,11 @@
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
-HostCardEmulationManager::HostCardEmulationManager(
-    std::weak_ptr<NfcService> nfcService,
-    std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
+HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
+                                                   std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
 {
-    hceCmdRegistryData_ =
-        std::make_shared<HostCardEmulationManager::HceCmdRegistryData>();
+    hceCmdRegistryData_ = std::make_shared<HostCardEmulationManager::HceCmdRegistryData>();
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     connect_ = new (std::nothrow) NfcAbilityConnectionCallback();
@@ -41,15 +39,13 @@ HostCardEmulationManager::~HostCardEmulationManager()
     connect_ = nullptr;
 }
 
-void HostCardEmulationManager::OnHostCardEmulationDataNfcA(
-    const std::vector<uint8_t>& data)
+void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uint8_t>& data)
 {
     if (data.empty()) {
         InfoLog("onHostCardEmulationDataNfcA: no data");
         return;
     }
-    std::string dataStr =
-        KITS::NfcSdkCommon::BytesVecToHexString(&data[0], data.size());
+    std::string dataStr = KITS::NfcSdkCommon::BytesVecToHexString(&data[0], data.size());
     InfoLog("onHostCardEmulationDataNfcA: Data Length = %{public}zu; Data as "
             "String = %{public}s",
             data.size(), dataStr.c_str());
@@ -104,8 +100,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
     hceCmdRegistryData_->callback_ = nullptr;
 }
 
-void HostCardEmulationManager::HandleDataOnW4Select(
-    const std::string aid, const std::vector<uint8_t>& data)
+void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, const std::vector<uint8_t>& data)
 {
     bool exitService = ExistService();
     if (!aid.empty()) {
@@ -135,8 +130,8 @@ void HostCardEmulationManager::HandleDataOnW4Select(
     }
 }
 
-void HostCardEmulationManager::HandleDataOnDataTransfer(
-    const std::string aid, const std::vector<uint8_t>& data)
+void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid,
+                                                        const std::vector<uint8_t>& data)
 {
     bool exitService = ExistService();
     if (!aid.empty()) {
@@ -189,17 +184,15 @@ const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
 const uint32_t INDEX_P1 = 2;
 const uint32_t INDEX_3 = 3;
 
-std::string HostCardEmulationManager::ParseSelectAid(
-    const std::vector<uint8_t>& data)
+std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>& data)
 {
-    if (data.empty() ||
-        data.size() < SELECT_APDU_HDR_LENGTH + MINIMUM_AID_LENGTH) {
+    if (data.empty() || data.size() < SELECT_APDU_HDR_LENGTH + MINIMUM_AID_LENGTH) {
         InfoLog("invalid data. Data size less than hdr length plus minumum length.");
         return "";
     }
 
-    if (data[INDEX_CLASS_BYTE] == SELECT_00 &&
-        data[INDEX_CHAIN_INSTRUCTION] == INSTR_SELECT && data[INDEX_P1] == SELECT_P1) {
+    if (data[INDEX_CLASS_BYTE] == SELECT_00 && data[INDEX_CHAIN_INSTRUCTION] == INSTR_SELECT &&
+        data[INDEX_P1] == SELECT_P1) {
         if (data[INDEX_3] != SELECT_00) {
             InfoLog("not supported aid");
             return "";
@@ -211,18 +204,16 @@ std::string HostCardEmulationManager::ParseSelectAid(
             return "";
         }
 
-        std::vector<uint8_t> aidVec(
-            data.begin() + SELECT_APDU_HDR_LENGTH,
-            data.begin() + SELECT_APDU_HDR_LENGTH + aidLength);
-        return KITS::NfcSdkCommon::BytesVecToHexString(&aidVec[0],
-                                                       aidVec.size());
+        std::vector<uint8_t> aidVec(data.begin() + SELECT_APDU_HDR_LENGTH,
+                                    data.begin() + SELECT_APDU_HDR_LENGTH + aidLength);
+        return KITS::NfcSdkCommon::BytesVecToHexString(&aidVec[0], aidVec.size());
     }
 
     return "";
 }
 
-bool HostCardEmulationManager::RegHceCmdCallback(
-    const sptr<KITS::IHceCmdCallback>& callback, const std::string& ype)
+bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
+                                                 const std::string& ype)
 {
     if (nfcService_.expired()) {
         ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
@@ -234,11 +225,9 @@ bool HostCardEmulationManager::RegHceCmdCallback(
     }
     hceCmdRegistryData_->callback_ = callback;
     bool shouldSendQueueData =
-        hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE &&
-        !queueHceData_.empty();
+        hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
 
-    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(
-        &queueHceData_[0], queueHceData_.size());
+    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
     InfoLog("RegHceCmdCallback queue data %{public}s, hceState= %{public}d, "
             "service connected= %{public}d",
             queueData.c_str(), hceState_, connect_->ServiceConnected());
@@ -252,8 +241,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(
     return true;
 }
 
-bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData,
-                                                bool raw,
+bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw,
                                                 const std::string& hexRespData)
 {
     if (nfcService_.expired()) {
@@ -267,8 +255,7 @@ bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData,
     return nciCeProxy_.lock()->SendRawFrame(hexCmdData);
 }
 
-void HostCardEmulationManager::SendDataToService(
-    const std::vector<uint8_t>& data)
+void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
     if (hceCmdRegistryData_->callback_ == nullptr) {
         ErrorLog("callback is null");
@@ -290,8 +277,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(const std::string aid)
     }
     for (const ElementName& elementName : searchElementNames) {
         InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
-        InfoLog("ElementValue: %{public}s",
-                elementName.GetAbilityName().c_str());
+        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
     }
     ElementName element = searchElementNames[0];
     if (element.GetBundleName().empty()) {
@@ -308,11 +294,8 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(const std::string aid)
         ErrorLog("DispatchAbilitySingleApp AbilityManagerClient is null");
         return false;
     }
-    ErrCode err =
-        AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(
-            want, connect_);
-    InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d",
-            err);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, connect_);
+    InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
         return true;
     }

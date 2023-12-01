@@ -26,15 +26,12 @@ const int DEACTIVATE_TIMEOUT = 6000;
 static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int PWR_STA_SWTCH_ON_SCRN_LOCK = 0x10;
-static const int DEFAULT_PWR_STA_HOST =
-    PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
+static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK | PWR_STA_SWTCH_ON_SCRN_LOCK;
 
-CeService::CeService(std::weak_ptr<NfcService> nfcService,
-                     std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
+CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
 {
-    hostCardEmulationManager_ =
-        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
+    hostCardEmulationManager_ = std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
 }
 
 CeService::~CeService() { hostCardEmulationManager_ = nullptr; }
@@ -44,17 +41,14 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
     ExternalDepsProxy::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
 }
 
-bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-                                  const std::string &type)
+bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
 {
     return hostCardEmulationManager_->RegHceCmdCallback(callback, type);
 }
 
-bool CeService::SendHostApduData(std::string hexCmdData, bool raw,
-                                 std::string &hexRespData)
+bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
-    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw,
-                                                       hexRespData);
+    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData);
 }
 
 void CeService::InitConfigAidRouting()
@@ -102,8 +96,7 @@ void CeService::HandleFieldActivated()
     nfcService_.lock()->eventHandler_->RemoveEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
     nfcService_.lock()->eventHandler_->SendEvent(
-        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT),
-        DEACTIVATE_TIMEOUT);
+        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT), DEACTIVATE_TIMEOUT);
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
@@ -127,8 +120,7 @@ void CeService::HandleFieldDeactivated()
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
         nfcService_.lock()->eventHandler_->SendEvent(
-            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
-            FIELD_COMMON_EVENT_INTERVAL);
+            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF), FIELD_COMMON_EVENT_INTERVAL);
     }
 }
 void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
@@ -136,11 +128,11 @@ void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
     hostCardEmulationManager_->OnHostCardEmulationDataNfcA(data);
 }
 void CeService::OnCardEmulationActivated()
-{
+{ 
     hostCardEmulationManager_->OnCardEmulationActivated();
 }
 void CeService::OnCardEmulationDeactivated()
-{
+{ 
     hostCardEmulationManager_->OnCardEmulationDeactivated();
 }
 } // namespace NFC

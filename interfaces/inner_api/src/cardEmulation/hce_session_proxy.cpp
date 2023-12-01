@@ -54,7 +54,7 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(
     }
 
     int error = SendRequestExpectReplyNone(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_HCE_CMD),
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON),
         data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegHceCmdCallback failed, error code is %{public}d", error);
@@ -76,7 +76,7 @@ int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw,
     data.WriteBool(raw);
     int statusCode = Remote()->SendRequest(
         static_cast<uint32_t>(
-            NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME),
+            NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_TRANSMIT),
         data, reply, option);
     if (statusCode == ERR_NONE) {
         hexRespData = reply.ReadString();

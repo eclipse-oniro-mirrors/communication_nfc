@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,9 +36,8 @@ class NfcNapiHceAdapter {
 public:
     static napi_value Init(napi_env env, napi_value exports);
     static napi_value Constructor(napi_env env, napi_callback_info info);
-    static void Destructor(napi_env env, void* nativeObject,
-                           void* /*finalize_hint*/);
-    static napi_value OnMiddle(napi_env env, napi_callback_info info);
+    static void Destructor(napi_env env, void* nativeObject, void* /*finalize_hint*/);
+    static napi_value OnHceCmd(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
 };
 
@@ -53,8 +52,7 @@ public:
     napi_ref callbackRef;
     std::function<napi_value()> packResult;
 
-    explicit AsyncEventData(napi_env e, napi_ref r,
-                            std::function<napi_value()> v)
+    explicit AsyncEventData(napi_env e, napi_ref r, std::function<napi_value()> v)
     {
         env = e;
         callbackRef = r;
@@ -65,7 +63,10 @@ public:
 
     virtual ~AsyncEventData() {}
 };
-
+/**
+ * @brief 注册对象
+ * @note   
+ */
 class RegObj {
 public:
     RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {}
@@ -88,8 +89,7 @@ public:
 
     static EventRegister& GetInstance();
 
-    void Register(const napi_env& env, const std::string& type,
-                  napi_value handler);
+    void Register(const napi_env& env, const std::string& type, napi_value handler);
 
 private:
     ErrorCode RegHceCmdCallbackEvents(const std::string& type);

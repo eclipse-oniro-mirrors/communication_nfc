@@ -59,10 +59,12 @@ public:
         COMMAND_GET_TIMEOUT
     };
     enum HceSessionCode {
-        HCE_SESSION_START_ID = 300,
-        COMMAND_REG_HCE_CMD,
+        COMMAND_CE_UNKNOW = 300,
+        COMMAND_CE_HCE_START,
+        COMMAND_CE_HCE_STOP,
+        COMMAND_CE_HCE_ON,
         COMMAND_ON_CE_APDU_DATA,
-        COMMAND_HCE_SEND_RAW_FRAME,
+        COMMAND_CE_HCE_TRANSMIT,
     };
 }; // NfcServiceIpcInterfaceCode
 } // NFC

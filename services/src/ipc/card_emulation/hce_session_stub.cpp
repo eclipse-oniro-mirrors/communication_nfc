@@ -20,9 +20,9 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
-#include "permission_tools.h"
-#include "run_on_demaind_manager.h"
 #include "hce_cmd_callback_proxy.h"
+#include "nfc_permission_checker.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -39,10 +39,10 @@ int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data,
 
     switch (code) {
         case static_cast<uint32_t>(
-            NfcServiceIpcInterfaceCode::COMMAND_REG_HCE_CMD):
+            NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON):
             return HandleRegHceCmdCallback(data, reply);
         case static_cast<uint32_t>(
-            NfcServiceIpcInterfaceCode::COMMAND_HCE_SEND_RAW_FRAME):
+            NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_TRANSMIT):
             return HandleSendRawFrame(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -52,7 +52,7 @@ int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data,
 int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data,
                                             MessageParcel &reply)
 {
-    if (!RunOnDemaindManager::GetInstance().IsGranted(
+    if (!ExternalDepsProxy::GetInstance().IsGranted(
         OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
@@ -95,7 +95,7 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data,
 int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data,
                                        OHOS::MessageParcel &reply)
 {
-    if (!RunOnDemaindManager::GetInstance().IsGranted(
+    if (!ExternalDepsProxy::GetInstance().IsGranted(
         OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;

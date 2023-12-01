@@ -35,8 +35,7 @@ public:
         int power;
     };
 
-    explicit CeService(std::weak_ptr<NfcService> nfcService,
-                       std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
+    explicit CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
     ~CeService();
 
     void HandleFieldActivated();
@@ -45,11 +44,9 @@ public:
     void OnCardEmulationActivated();
     void OnCardEmulationDeactivated();
     static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
-    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
-                           const std::string &type);
+    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw,
-                          std::string &hexRespData);
+    bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData);
 
     void InitConfigAidRouting();
 
