@@ -65,7 +65,6 @@ public:
 };
 /**
  * @brief register obj
- * @note   
  */
 class RegObj {
 public:

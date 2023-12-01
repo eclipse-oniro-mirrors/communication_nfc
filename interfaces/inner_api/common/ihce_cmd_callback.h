@@ -30,7 +30,7 @@ namespace KITS {
 class IHceCmdCallback : public IRemoteBroker {
 public:
     /**
-     * @brief  send apdu data to js service 
+     * @brief  send apdu data to js service
      * @param  data: data send to js service
      * @return void
      */

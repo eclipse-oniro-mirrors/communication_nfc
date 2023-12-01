@@ -128,11 +128,11 @@ void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
     hostCardEmulationManager_->OnHostCardEmulationDataNfcA(data);
 }
 void CeService::OnCardEmulationActivated()
-{ 
+{
     hostCardEmulationManager_->OnCardEmulationActivated();
 }
 void CeService::OnCardEmulationDeactivated()
-{ 
+{
     hostCardEmulationManager_->OnCardEmulationDeactivated();
 }
 } // namespace NFC

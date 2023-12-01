@@ -30,18 +30,19 @@ public:
 
     virtual ~IHceSession() {}
     /**
-     * @brief  register on hce cmd  
+     * @brief  register on hce cmd
      * @param  callback: callback
      * @param  type: register type hcecmd
      * @return result
      */
-    virtual KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) = 0;
+    virtual KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                                              const std::string &type) = 0;
     /**
-     * @brief  js service send raw data   
+     * @brief  js service send raw data
      * @param  hexCmdData: raw data from js service
      * @param  raw: raw if true
      * @param  hexRespData: response data
-     * @retval 
+     * @return result
      */
     virtual int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
 

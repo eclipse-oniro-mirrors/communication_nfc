@@ -27,7 +27,8 @@
 namespace OHOS {
 namespace NFC {
 namespace HCE {
-int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply, OHOS::MessageOption &option)
+int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply,
+                                    OHOS::MessageOption &option)
 {
     DebugLog("hceSessionStub OnRemoteRequest occur, code is %d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
