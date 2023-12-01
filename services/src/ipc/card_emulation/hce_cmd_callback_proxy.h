@@ -13,25 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef NCI_CE_IMPL_DEFAULT_H
-#define NCI_CE_IMPL_DEFAULT_H
+#ifndef FOREGROUND_CALLBACK_PROXY_H
+#define FOREGROUND_CALLBACK_PROXY_H
 
-#include "inci_ce_interface.h"
+#include "message_parcel.h"
+#include "ihce_cmd_callback.h"
+#include "iremote_proxy.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
-namespace NCI {
-class NciCeImplDefault : public INciCeInterface {
+namespace HCE {
+class HceCmdCallbackProxy : public IRemoteProxy<KITS::IHceCmdCallback> {
 public:
-    ~NciCeImplDefault() override = default;
-    void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) override;
-    bool ComputeRoutingParams() override;
-    bool CommitRouting() override;
-    bool SendRawFrame(std::string &hexCmdData) override;
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
-};
-}  // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
+    explicit HceCmdCallbackProxy(const sptr<IRemoteObject> &remote);
 
+    virtual ~HceCmdCallbackProxy() {}
+
+    void OnCeApduData(const std::vector<uint8_t> &apduData) override;
+
+private:
+    static inline BrokerDelegator<HceCmdCallbackProxy> g_delegator;
+};
+} // namespace HCE
+} // namespace NFC
+} // namespace OHOS
 #endif

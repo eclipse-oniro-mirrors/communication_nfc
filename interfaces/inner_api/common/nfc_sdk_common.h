@@ -46,6 +46,12 @@ enum ErrorCode : const int {
 
     // error for card emulation operations
     ERR_CE_BASE = 3100300,
+    ERR_HCE_PARAMETERS,
+    ERR_HCE_STATE_NFC_CLOSED,
+    ERR_HCE_STATE_LOST,
+    ERR_HCE_STATE_DISCONNECTED,
+    ERR_HCE_STATE_IO_FAILED,
+    ERR_HCE_STATE_UNBIND,
 
     // error for nfc database operations
     ERR_NFC_DATABASE_RW = 3100400,
@@ -66,6 +72,12 @@ static const std::string TYPE_PAYMENT = "payment";
 
 /** Other type of card emulation */
 static const std::string TYPE_OHTER = "other";
+
+/** Payment type of card emulation metadata name */
+const std::string KEY_PAYMENT_AID = "payment-aid";
+
+/** Other type of card emulation metadata name */
+const std::string KEY_OHTER_AID = "other-aid";
 
 /** Action for tag application declared */
 const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";

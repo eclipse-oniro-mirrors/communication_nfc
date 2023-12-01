@@ -13,25 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef NCI_CE_IMPL_DEFAULT_H
-#define NCI_CE_IMPL_DEFAULT_H
+#include "hce_cmd_death_recipient.h"
 
-#include "inci_ce_interface.h"
+#include "loghelper.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
-namespace NCI {
-class NciCeImplDefault : public INciCeInterface {
-public:
-    ~NciCeImplDefault() override = default;
-    void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) override;
-    bool ComputeRoutingParams() override;
-    bool CommitRouting() override;
-    bool SendRawFrame(std::string &hexCmdData) override;
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
-};
-}  // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
-
-#endif
+HceCmdDeathRecipient::HceCmdDeathRecipient(
+    sptr<HCE::HceSessionStub> hceSession,
+    Security::AccessToken::AccessTokenID callerToken)
+{
+    hceSession_ = hceSession;
+    callerToken_ = callerToken;
+}
+void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote) {}
+} // namespace NFC
+// namespace NFC
+} // namespace OHOS

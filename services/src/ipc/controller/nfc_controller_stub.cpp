@@ -55,6 +55,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleRegNdefMsgCb(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK):
             return HandleRegQueryApplicationCb(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE):
+            return HandleGetNfcHceInterface(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -180,6 +182,17 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
     OHOS::sptr<IRemoteObject> remoteOjbect = GetTagServiceIface();
     if (remoteOjbect == nullptr) {
         ErrorLog("HandleGetNfcTagInterface remoteOjbect null!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    reply.WriteRemoteObject(remoteOjbect);
+    return ERR_NONE;
+}
+int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParcel& reply)
+{
+    OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface();
+    if (remoteOjbect == nullptr) {
+        ErrorLog("HandleGetNfcHceInterface remoteOjbect null!");
         return KITS::ERR_NFC_PARAMETERS;
     }
 

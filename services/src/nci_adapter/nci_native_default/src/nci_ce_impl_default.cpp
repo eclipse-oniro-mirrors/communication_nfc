@@ -15,11 +15,13 @@
 
 #include "nci_ce_impl_default.h"
 #include "nfcc_nci_adapter.h"
+#include "routing_manager.h"
 
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-void NciCeImplDefault::SetCeHostListener(std::weak_ptr<ICeHostListener> listener)
+void NciCeImplDefault::SetCeHostListener(
+    std::weak_ptr<ICeHostListener> listener)
 {
     NfccNciAdapter::GetInstance().SetCeHostListener(listener);
 }
@@ -41,6 +43,16 @@ bool NciCeImplDefault::CommitRouting()
     }
     return commitResult;
 }
-}  // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
+bool NciCeImplDefault::SendRawFrame(std::string &hexCmdData)
+{
+    return NfccNciAdapter::GetInstance().SendRawFrame(hexCmdData);
+}
+bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route,
+                                     int aidInfo, int power)
+{
+    return RoutingManager::GetInstance().AddAidRouting(aidStr, route, aidInfo,
+                                                       power);
+}
+} // namespace NCI
+} // namespace NFC
+} // namespace OHOS

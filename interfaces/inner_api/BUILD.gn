@@ -45,6 +45,9 @@ ohos_shared_library("nfc_inner_kits") {
   branch_protector_ret = "pac_ret"
   sources = [
     "src/cardEmulation/cardEmulation.cpp",
+    "src/cardEmulation/hce_cmd_callback_stub.cpp",
+    "src/cardEmulation/hce_service.cpp",
+    "src/cardEmulation/hce_session_proxy.cpp",
     "src/controller/ndef_msg_callback_stub.cpp",
     "src/controller/nfc_controller.cpp",
     "src/controller/nfc_controller_callback_stub.cpp",

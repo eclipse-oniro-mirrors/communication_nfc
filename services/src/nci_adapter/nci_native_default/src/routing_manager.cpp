@@ -63,6 +63,7 @@ RoutingManager& RoutingManager::GetInstance()
 
 bool RoutingManager::Initialize()
 {
+    mRxDataBuffer.clear();
     tNFA_STATUS status;
     {
         SynchronizeEvent guard(eeRegisterEvent_);
@@ -162,6 +163,26 @@ bool RoutingManager::ComputeRoutingParams()
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeAB, techSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeF, techFSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
     return true;
+}
+
+bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
+                                   int aidInfo, int power)
+{
+    std::vector<unsigned char> aidBytes;
+    NfcSdkCommon::HexStringToBytes(aidStr, aidBytes);
+    const uint8_t* aidBuf = reinterpret_cast<const uint8_t*>(aidStr.c_str());
+    size_t aidLen = aidBytes.size();
+    tNFA_STATUS status;
+    status = NFA_EeAddAidRouting(
+        handle, aidLen, static_cast<uint8_t*> aidBytes.data(), power, aidInfo);
+    if (status == NFA_STATUS_OK) {
+        InfoLog("AddAidRouting: Succeed ");
+        return true;
+    } else {
+        ErrorLog("AddAidRouting: failed ");
+        return false;
+    }
+    return false;
 }
 
 bool RoutingManager::SetRoutingEntry(uint32_t type, uint32_t value, uint32_t route, uint32_t power)
@@ -540,7 +561,8 @@ void RoutingManager::DoNfaEeRegisterEvt()
     routingEvent_.NotifyOne();
 }
 
-void RoutingManager::NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* eventData)
+void RoutingManager::NfaCeStackCallback(uint8_t event,
+                                        tNFA_CONN_EVT_DATA* eventData)
 {
     if (!eventData) {
         ErrorLog("NfaCeStackCallback: eventData is null");
@@ -552,9 +574,55 @@ void RoutingManager::NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* event
             RoutingManager::GetInstance().DoNfaEeRegisterEvt();
             break;
         }
-        default:
+        case NFA_CE_DATA_EVT: {
+            tNFA_CE_DATA& ce_data = eventData->ce_data;
+            InfoLog("NFA_CE_DATA_EVT: stat=0x%{public}X;h=0x%{public}X;data "
+                    "len=%{public}u",
+                    ce_data.status, ce_data.handle, ce_data.len);
+            rm.DoNfaCeDataEvt(ce_data);
             break;
+        }
+        case NFA_CE_ACTIVATED_EVT: {
+            InfoLog("tNFA_CE_ACTIVATED come");
+            NfccNciAdapter::GetInstance().OnCardEmulationActivated();
+            break;
+        }
+        case NFA_DEACTIVATED_EVT:
+        case NFA_CE_DEACTIVATED_EVT: {
+            InfoLog("tNFA_CE_ACTIVATED come");
+            NfccNciAdapter::GetInstance().OnCardEmulationDeactivated();
+            break;
+        }
+        default: break;
     }
+}
+
+void RoutingManager::DoNfaCeDataEvt(const tNFA_CE_DATA& ce_data)
+{
+    tNFA_STATUS status = ce_data.status;
+    uint32_t dataLen = ce_data.len;
+    const uint8_t* data = ce_data.p_data;
+    if (status == NFC_STATUS_CONTINUE) {
+        if (dataLen > 0) {
+            mRxDataBuffer.insert(mRxDataBuffer.end(), &data[0], &data[dataLen]);
+        }
+        return;
+    }
+    if (status == NFA_STATUS_OK) {
+        if (dataLen > 0) {
+            mRxDataBuffer.insert(mRxDataBuffer.end(), &data[0], &data[dataLen]);
+        }
+    }
+    if (status == NFA_STATUS_FAILED) {
+        InfoLog("NFA_CE_DATA_EVT: stat=0x%{public}X;h=0x%{public}X;data "
+                "len=%{public}u",
+                ce_data.status, ce_data.handle, ce_data.len);
+        mRxDataBuffer.clear();
+    }
+
+    std::vector<uint8_t> hostCardData = mRxDataBuffer;
+    NfccNciAdapter::GetInstance().OnCardEmulationData(hostCardData);
+    mRxDataBuffer.clear();
 }
 
 void RoutingManager::NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventData)
@@ -702,6 +770,7 @@ void RoutingManager::DoNfaEeUpdateEvent()
 
 RoutingManager::RoutingManager() : isSecureNfcEnabled_(false),
     isAidRoutingConfigured_(false) {
+    mRxDataBuffer.clear();
     // read default route params
     defaultOffHostRoute_ = NfcConfig::getUnsigned(
         NAME_DEFAULT_OFFHOST_ROUTE, DEFAULT_OFF_HOST_ROUTE_DEST);

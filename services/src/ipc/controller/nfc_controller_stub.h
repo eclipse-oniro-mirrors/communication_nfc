@@ -54,6 +54,7 @@ private:
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
     int HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply);
     int HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply);
+    int HandleGetNfcHceInterface(MessageParcel &data, MessageParcel &reply);
 
 private:
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,

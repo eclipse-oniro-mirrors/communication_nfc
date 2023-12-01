@@ -32,6 +32,7 @@
 #include "nci_nfcc_proxy.h"
 #include "nci_tag_proxy.h"
 #include "nci_ce_proxy.h"
+#include "hce_session.h"
 
 namespace OHOS {
 namespace NFC {
@@ -79,6 +80,11 @@ std::weak_ptr<NfcRoutingManager> NfcService::GetNfcRoutingManager()
     return nfcRoutingManager_;
 }
 
+std::weak_ptr<CeService> NfcService::GetCeService()
+{
+    return ceService_;
+}
+
 bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
@@ -93,11 +99,12 @@ bool NfcService::Initialize()
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
     eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
-    ceService_ = std::make_shared<CeService>(shared_from_this());
+    ceService_ = std::make_shared<CeService>(shared_from_this(), nciCeProxy_);
 
     nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
     nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciCeProxy_, shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
+    hceSessionIface_ = new HCE::HceSession(shared_from_this());
 
     // used by NfcSaManager::Init(), to public for the proxy.
     nfcControllerImpl_ = new NfcControllerImpl(shared_from_this());
@@ -157,6 +164,28 @@ void NfcService::FieldDeactivated()
 {
     InfoLog("NfcService::FiledDeactivated");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED));
+}
+
+void NfcService::OnCardEmulationData(const std::vector<uint8_t> &data)
+{
+    InfoLog("NfcService::OnCardEmulationData");
+    ceService_->OnCardEmulationData(data);
+}
+
+void NfcService::OnCardEmulationActivated()
+{
+    InfoLog("NfcService::OnCardEmulationActivated");
+    ceService_->OnCardEmulationActivated();
+}
+OHOS::sptr<IRemoteObject> NfcService::GetHceServiceIface()
+{
+    return hceSessionIface_;
+}
+
+void NfcService::OnCardEmulationDeactivated()
+{
+    InfoLog("NfcService::OnCardEmulationDeactivated");
+    ceService_->OnCardEmulationDeactivated();
 }
 
 bool NfcService::IsNfcTaskReady(std::future<int>& future) const
@@ -264,6 +293,7 @@ bool NfcService::DoTurnOn()
 
     /* Start polling loop */
     nfcPollingManager_->StartPollingLoop(true);
+    ceService_->InitConfigAidRouting();
 
     nfcRoutingManager_->ComputeRoutingParams();
     nfcRoutingManager_->CommitRouting();

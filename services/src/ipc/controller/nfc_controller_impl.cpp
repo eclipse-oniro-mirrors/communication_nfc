@@ -128,6 +128,15 @@ KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(const sptr<IQueryAppInf
     return KITS::ERR_NONE;
 }
 
+
+OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface()
+{
+    if (nfcService_.lock() == nullptr) {
+        return nullptr;
+    }
+    return nfcService_.lock()->GetHceServiceIface();
+}
+
 int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
 {
     if (nfcService_.expired()) {

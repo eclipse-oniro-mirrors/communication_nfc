@@ -201,6 +201,11 @@ ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback
     g_queryAppInfoCallbackStub->RegisterCallback(callback);
     return nfcControllerService_.lock()->RegQueryApplicationCb(g_queryAppInfoCallbackStub);
 }
+OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface()
+{
+    InitNfcRemoteSA();
+    return nfcControllerService_.lock()->GetHceServiceIface();
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

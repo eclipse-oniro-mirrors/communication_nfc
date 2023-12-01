@@ -878,6 +878,23 @@ bool NfccNciAdapter::ComputeRoutingParams()
 {
     return RoutingManager::GetInstance().ComputeRoutingParams();
 }
+
+void NfccNciAdapter::OnCardEmulationData(const std::vector<uint8_t> &data)
+{
+    DebugLog("NfccNciAdapter::OnCardEmulationData");
+    cardEmulationListener_.lock()->OnCardEmulationData(data);
+}
+
+void NfccNciAdapter::OnCardEmulationActivated()
+{
+    DebugLog("NfccNciAdapter::OnCardEmulationActivated");
+    cardEmulationListener_.lock()->OnCardEmulationActivated();
+}
+void  NfccNciAdapter::OnCardEmulationDeactivated()
+{
+    DebugLog("NfccNciAdapter::OnCardEmulationDeactivated");
+    cardEmulationListener_.lock()->OnCardEmulationDeactivated();
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

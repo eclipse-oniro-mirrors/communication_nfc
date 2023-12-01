@@ -24,6 +24,7 @@
 #include "nfa_rw_api.h"
 #include "nfc_hal_api.h"
 #include "synchronize_event.h"
+#include "nfcc_nci_adapter.h"
 
 namespace OHOS {
 namespace NFC {
@@ -35,6 +36,7 @@ public:
     void Deinitialize();
     bool CommitRouting();
     bool ComputeRoutingParams();
+    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power);
 
 private:
     RoutingManager();
@@ -75,6 +77,8 @@ private:
     static void NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventData);
     static void NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* eventData);
 
+    void DoNfaCeDataEvt(const tNFA_CE_DATA& ce_data);
+
 private:
     // default routes
     uint32_t defaultOffHostRoute_ = 0;
@@ -89,6 +93,7 @@ private:
 
     std::vector<uint8_t> offHostRouteUicc_ {};
     std::vector<uint8_t> offHostRouteEse_ {};
+    std::vector<uint8_t> mRxDataBuffer;
 
     tNFA_TECHNOLOGY_MASK seTechMask_;
     tNFA_EE_DISCOVER_REQ eeInfo_;

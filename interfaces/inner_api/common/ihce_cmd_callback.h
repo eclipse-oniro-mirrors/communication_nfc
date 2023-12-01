@@ -13,25 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef NCI_CE_IMPL_DEFAULT_H
-#define NCI_CE_IMPL_DEFAULT_H
+#ifndef OHOS_I_NFC_HCE_CMD_H
+#define OHOS_I_NFC_HCE_CMD_H
 
-#include "inci_ce_interface.h"
+#include <string>
+#include <string_ex.h>
+#include <vector>
+#include <iremote_broker.h>
+
+#include "message_parcel.h"
+#include "message_option.h"
 
 namespace OHOS {
 namespace NFC {
-namespace NCI {
-class NciCeImplDefault : public INciCeInterface {
+namespace KITS {
+class IHceCmdCallback : public IRemoteBroker {
 public:
-    ~NciCeImplDefault() override = default;
-    void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) override;
-    bool ComputeRoutingParams() override;
-    bool CommitRouting() override;
-    bool SendRawFrame(std::string &hexCmdData) override;
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
-};
-}  // namespace NCI
-}  // namespace NFC
-}  // namespace OHOS
+    /**
+     * @brief  send apdu data to js service
+     * @param  data: data send to js service
+     * @return void
+     */
+    virtual void OnCeApduData(const std::vector<uint8_t> &data) = 0;
 
+public:
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.IHceCmdCallback");
+};
+} // namespace KITS
+} // namespace NFC
+} // namespace OHOS
 #endif
