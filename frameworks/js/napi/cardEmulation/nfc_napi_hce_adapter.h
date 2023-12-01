@@ -64,7 +64,7 @@ public:
     virtual ~AsyncEventData() {}
 };
 /**
- * @brief 注册对象
+ * @brief register obj
  * @note   
  */
 class RegObj {

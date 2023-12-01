@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,8 +23,7 @@ using OHOS::AppExecFwk::ElementName;
 const std::string DUMP_LINE = "---------------------------";
 const std::string DUMP_END = "\n";
 
-HceSession::HceSession(std::shared_ptr<INfcService> service)
-    : nfcService_(service)
+HceSession::HceSession(std::shared_ptr<INfcService> service) : nfcService_(service)
 {
     if (service == nullptr) {
         ErrorLog("HceSession create fail, service is nullptr");
@@ -35,8 +34,7 @@ HceSession::HceSession(std::shared_ptr<INfcService> service)
 
 HceSession::~HceSession() {}
 
-KITS::ErrorCode HceSession::RegHceCmdCallback(
-    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceSession::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
 {
     if (ceService_.expired()) {
         ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
@@ -48,15 +46,13 @@ KITS::ErrorCode HceSession::RegHceCmdCallback(
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-int HceSession::SendRawFrame(std::string hexCmdData, bool raw,
-                             std::string &hexRespData)
+int HceSession::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     if (ceService_.expired()) {
         ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
-    bool success =
-        ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData);
+    bool success = ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData);
     if (success) {
         return NFC::KITS::ErrorCode::ERR_NONE;
     } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,8 +25,7 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-class HceSessionProxy final : public OHOS::IRemoteProxy<IHceSession>,
-                              public NfcBasicProxy {
+class HceSessionProxy final : public OHOS::IRemoteProxy<IHceSession>, public NfcBasicProxy {
 public:
     explicit HceSessionProxy(const OHOS::sptr<OHOS::IRemoteObject> &remote)
         : OHOS::IRemoteProxy<IHceSession>(remote), NfcBasicProxy(remote)
@@ -34,12 +33,9 @@ public:
     }
     ~HceSessionProxy() override {}
 
-    KITS::ErrorCode RegHceCmdCallback(
-        const sptr<KITS::IHceCmdCallback> &callback,
-        const std::string &type) override;
+    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
 
-    int SendRawFrame(std::string hexCmdData, bool raw,
-                     std::string &hexRespData) override;
+    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
 };
 } // namespace HCE
 } // namespace NFC

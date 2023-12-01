@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,12 +33,9 @@ public:
     HceSession(const HceSession &) = delete;
     HceSession &operator=(const HceSession &) = delete;
 
-    KITS::ErrorCode RegHceCmdCallback(
-        const sptr<KITS::IHceCmdCallback> &callback,
-        const std::string &type) override;
+    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
 
-    int SendRawFrame(std::string hexCmdData, bool raw,
-                     std::string &hexRespData) override;
+    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 
