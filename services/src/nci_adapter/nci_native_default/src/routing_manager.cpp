@@ -574,7 +574,7 @@ void RoutingManager::NfaCeStackCallback(uint8_t event, tNFA_CONN_EVT_DATA* event
             InfoLog("NFA_CE_DATA_EVT: stat=0x%{public}X;h=0x%{public}X;data "
                     "len=%{public}u",
                     ce_data.status, ce_data.handle, ce_data.len);
-            RoutingManager::GetInstance()..DoNfaCeDataEvt(ce_data);
+            RoutingManager::GetInstance().DoNfaCeDataEvt(ce_data);
             break;
         }
         case NFA_CE_ACTIVATED_EVT: {
