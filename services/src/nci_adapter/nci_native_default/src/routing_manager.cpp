@@ -17,6 +17,7 @@
 #include <securec.h>
 #include "loghelper.h"
 #include "nfc_config.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -169,12 +170,9 @@ bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
                                    int aidInfo, int power)
 {
     std::vector<unsigned char> aidBytes;
-    NfcSdkCommon::HexStringToBytes(aidStr, aidBytes);
-    const uint8_t* aidBuf = reinterpret_cast<const uint8_t*>(aidStr.c_str());
+    KITS::NfcSdkCommon::HexStringToBytes(aidStr, aidBytes);
     size_t aidLen = aidBytes.size();
-    tNFA_STATUS status;
-    status = NFA_EeAddAidRouting(
-        handle, aidLen, static_cast<uint8_t*> aidBytes.data(), power, aidInfo);
+    tNFA_STATUS status = NFA_EeAddAidRouting(route, aidLen, static_cast<uint8_t*>(aidBytes.data()), power, aidInfo);
     if (status == NFA_STATUS_OK) {
         InfoLog("AddAidRouting: Succeed ");
         return true;
@@ -579,7 +577,7 @@ void RoutingManager::NfaCeStackCallback(uint8_t event,
             InfoLog("NFA_CE_DATA_EVT: stat=0x%{public}X;h=0x%{public}X;data "
                     "len=%{public}u",
                     ce_data.status, ce_data.handle, ce_data.len);
-            rm.DoNfaCeDataEvt(ce_data);
+            RoutingManager::GetInstance().DoNfaCeDataEvt(ce_data);
             break;
         }
         case NFA_CE_ACTIVATED_EVT: {
