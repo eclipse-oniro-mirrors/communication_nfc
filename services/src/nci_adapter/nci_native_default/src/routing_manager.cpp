@@ -172,8 +172,7 @@ bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
     std::vector<unsigned char> aidBytes;
     KITS::NfcSdkCommon::HexStringToBytes(aidStr, aidBytes);
     size_t aidLen = aidBytes.size();
-    tNFA_STATUS status;
-    status = NFA_EeAddAidRouting(route, aidLen, static_cast<uint8_t*>(aidBytes.data()), power, aidInfo);
+    tNFA_STATUS status = NFA_EeAddAidRouting(route, aidLen, static_cast<uint8_t*>(aidBytes.data()), power, aidInfo);
     if (status == NFA_STATUS_OK) {
         InfoLog("AddAidRouting: Succeed ");
         return true;
