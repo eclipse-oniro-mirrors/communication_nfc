@@ -143,6 +143,7 @@ ohos_unittest("services_test") {
 
   sources = [
     "services_test/app_data_parser_test.cpp",
+    "services_test/ndef_bt_oob_data_parser_test.cpp",
     "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
   ]
