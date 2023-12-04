@@ -22,26 +22,26 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-
-bool g_callbackExist = false;
-ForegroundCallbackStub *g_foregroundCallbackStub = new ForegroundCallbackStub();
+ForegroundCallbackStub *g_foregroundCallbackStub = nullptr;
 
 ForegroundCallbackStub::ForegroundCallbackStub() : callback_(nullptr), mRemoteDied(false)
 {
-    g_callbackExist = true;
     InfoLog("ForegroundCallbackStub");
 }
 
 ForegroundCallbackStub::~ForegroundCallbackStub()
 {
-    g_callbackExist = false;
+    if (g_foregroundCallbackStub != nullptr) {
+        DebugLog("g_foregroundCallbackStub != nullptr");
+        g_foregroundCallbackStub = nullptr;
+    }
     InfoLog("~ForegroundCallbackStub");
 }
 
 ForegroundCallbackStub* ForegroundCallbackStub::GetInstance()
 {
-    if (!g_callbackExist) {
-        InfoLog("g_callbackExist: %{public}d, new ForegroundCallbackStub", g_callbackExist);
+    if (g_foregroundCallbackStub == nullptr) {
+        DebugLog("new ForegroundCallbackStub");
         g_foregroundCallbackStub = new ForegroundCallbackStub();
     }
     return g_foregroundCallbackStub;
