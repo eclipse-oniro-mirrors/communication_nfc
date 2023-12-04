@@ -15,12 +15,14 @@
 
 #include "loghelper.h"
 #include "app_data_parser.h"
+#include "external_deps_proxy.h"
 #include "host_card_emulation_manager.h"
 #include "ability_manager_client.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
+static const int CODE_SEND_APDU_DATA = 2;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
@@ -49,6 +51,14 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     InfoLog("onHostCardEmulationDataNfcA: Data Length = %{public}zu; Data as "
             "String = %{public}s",
             data.size(), dataStr.c_str());
+
+    // send data to vendor
+    sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
+        ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
+    if (notifyApduDataCallback != nullptr) {
+        notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_APDU_DATA, dataStr);
+    }
+
     std::string aid = ParseSelectAid(data);
     InfoLog("selectAid = %{public}s", aid.c_str());
     InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
@@ -82,6 +92,15 @@ void HostCardEmulationManager::OnCardEmulationActivated()
 {
     InfoLog("OnCardEmulationActivated: state %{public}d", hceState_);
     hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
+
+    // send data to vendor
+    sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
+        ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
+    if (notifyApduDataCallback != nullptr) {
+        std::string data {};
+        notifyApduDataCallback->OnCardEmulationNotify(1, data);
+    }
+
     queueHceData_.clear();
 }
 
@@ -89,6 +108,15 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 {
     InfoLog("OnCardEmulationDeactivated: state %{public}d", hceState_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
+
+    // send data to vendor
+    sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
+        ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
+    if (notifyApduDataCallback != nullptr) {
+        std::string data {};
+        notifyApduDataCallback->OnCardEmulationNotify(0, data);
+    }
+
     queueHceData_.clear();
     hceCmdRegistryData_->isEnabled_ = false;
     hceCmdRegistryData_->callerToken_ = 0;

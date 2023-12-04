@@ -13,42 +13,36 @@
  * limitations under the License.
  */
 
-#include "query_app_info_callback_stub.h"
+#include "on_card_emulation_notify_cb_stub.h"
 
 #include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
-QueryAppInfoCallbackStub::QueryAppInfoCallbackStub() : callback_(nullptr), isRemoteDied_(false)
+OnCardEmulationNotifyCbStub::OnCardEmulationNotifyCbStub() : callback_(nullptr), isRemoteDied_(false)
 {}
 
-QueryAppInfoCallbackStub::~QueryAppInfoCallbackStub()
+OnCardEmulationNotifyCbStub::~OnCardEmulationNotifyCbStub()
 {}
 
-QueryAppInfoCallbackStub& QueryAppInfoCallbackStub::GetInstance()
+OnCardEmulationNotifyCbStub& OnCardEmulationNotifyCbStub::GetInstance()
 {
-    static QueryAppInfoCallbackStub instance;
+    static OnCardEmulationNotifyCbStub instance;
     return instance;
 }
 
-bool QueryAppInfoCallbackStub::OnQueryAppInfo(std::string type, std::vector<int> techList,
-    std::vector<std::string> aidList, std::vector<AppExecFwk::ElementName> &elementNameList)
+bool OnCardEmulationNotifyCbStub::OnCardEmulationNotify(uint32_t eventType, std::string apduData)
 {
-    if (type.compare(KEY_TAG_TECH) == 0) {
-        if (callback_) {
-            InfoLog("OnQueryAppInfo:call tag callback_");
-            elementNameList = callback_(type, techList);
-            return true;
-        }
-    } else if (type.compare(KEY_HCE_TECH) == 0) {
-        InfoLog("OnQueryAppInfo:call hce callback_");
+    if (callback_) {
+        InfoLog("OnCardEmulationNotify:call callback_");
+        callback_(eventType, apduData);
         return true;
     }
     return false;
 }
 
-int QueryAppInfoCallbackStub::OnRemoteRequest(
+int OnCardEmulationNotifyCbStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     InfoLog("OnRemoteRequest: code = %{public}d", code);
@@ -68,8 +62,8 @@ int QueryAppInfoCallbackStub::OnRemoteRequest(
 
     int ret = KITS::ERR_NFC_STATE_UNBIND;
     switch (code) {
-        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK): {
-            ret = RemoteQueryAppInfo(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY): {
+            ret = RemoteCardEmulationNotify(data, reply);
             break;
         }
 
@@ -81,7 +75,7 @@ int QueryAppInfoCallbackStub::OnRemoteRequest(
     return ret;
 }
 
-KITS::ErrorCode QueryAppInfoCallbackStub::RegisterCallback(const QueryApplicationByVendor callback)
+KITS::ErrorCode OnCardEmulationNotifyCbStub::RegisterCallback(const OnCardEmulationNotifyCb callback)
 {
     if (callback_ != nullptr) {
         InfoLog("RegisterCallback::callback_ has registered!");
@@ -97,23 +91,12 @@ KITS::ErrorCode QueryAppInfoCallbackStub::RegisterCallback(const QueryApplicatio
     return KITS::ERR_NONE;
 }
 
-int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessageParcel &reply)
+int OnCardEmulationNotifyCbStub::RemoteCardEmulationNotify(MessageParcel &data, MessageParcel &reply)
 {
     std::shared_lock<std::shared_mutex> guard(mutex_);
-    std::string type = data.ReadString();
-    std::vector<AppExecFwk::ElementName> elementNameList;
-    std::vector<std::string> aidList;
-    std::vector<int> techList;
-    if (type.compare(KEY_TAG_TECH) == 0) {
-        data.ReadInt32Vector(&techList);
-        OnQueryAppInfo(type, techList, aidList, elementNameList);
-        reply.WriteInt32(elementNameList.size());
-        for (auto elementName : elementNameList) {
-            elementName.Marshalling(reply);
-        }
-    } else if (type.compare(KEY_HCE_TECH) == 0) {
-        OnQueryAppInfo(type, techList, aidList, elementNameList);
-    }
+    uint32_t eventType = data.ReadInt32();
+    std::string apduData = data.ReadString();
+    OnCardEmulationNotify(eventType, apduData);
     return KITS::ERR_NONE;
 }
 }  // namespace NFC

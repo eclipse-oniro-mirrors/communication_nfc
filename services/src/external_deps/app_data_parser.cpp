@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 #include "app_data_parser.h"
+
 #include "accesstoken_kit.h"
 #include "common_event_manager.h"
 #include "iservice_registry.h"
@@ -24,7 +25,6 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string KEY_TAG_TECH = "tag-tech";
 const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser g_appDataParser;
@@ -429,6 +429,16 @@ void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
     queryApplicationByVendor_ = callback;
 }
 
+void AppDataParser::RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback)
+{
+    onCardEmulationNotify_ = callback;
+}
+
+sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback()
+{
+    return onCardEmulationNotify_;
+}
+
 std::vector<ElementName> AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementName> elementNames)
 {
     for (const HceAppAidInfo& appAidInfo : g_hceAppAndAidMap) {
@@ -447,6 +457,20 @@ void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         hceApps.push_back(appAidInfo);
     }
+
+    AppDataParser::HceAppAidInfo vendorAppAidInfo;
+    std::vector<AppDataParser::AidInfo> vendorCustomDataAid;
+    AppDataParser::AidInfo vendorAidInfo;
+    ElementName vendorElementName;
+    vendorElementName.SetDeviceId("");
+    vendorElementName.SetAbilityName("com.nxp.cascaen.paymenthost");
+    vendorElementName.SetBundleName("/com.nxp.cascaen.paymenthost.PaymentServiceHost");
+    vendorAidInfo.name = "other-aid";
+    vendorAidInfo.value = "A0000000041010";
+    vendorCustomDataAid.push_back(vendorAidInfo);
+    vendorAidInfo.element = vendorElementName;
+    vendorAidInfo.customDataAid = vendorCustomDataAid;
+    hceApps.push_back(vendorAppAidInfo);
 }
 }  // namespace NFC
 }  // namespace OHOS

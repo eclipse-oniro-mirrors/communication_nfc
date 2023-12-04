@@ -12,26 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_I_QUERY_APP_INFO_CALLBACK_H
-#define OHOS_I_QUERY_APP_INFO_CALLBACK_H
+#ifndef OHOS_I_ON_CARD_EMULATION_NOTIFY_CB_H
+#define OHOS_I_ON_CARD_EMULATION_NOTIFY_CB_H
 
 #include <iremote_broker.h>
 
-#include "element_name.h"
-
 namespace OHOS {
 namespace NFC {
-const std::string KEY_TAG_TECH = "tag";
-const std::string KEY_HCE_TECH = "hce";
-using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::string, std::vector<int>);
-class IQueryAppInfoCallback : public IRemoteBroker {
+using OnCardEmulationNotifyCb = void (*)(uint32_t, std::string);
+class IOnCardEmulationNotifyCb : public IRemoteBroker {
 public:
-    virtual bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<std::string> aidList,
-        std::vector<AppExecFwk::ElementName> &elementNameList) = 0;
+    virtual bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) = 0;
 
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.IQueryAppInfoCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.IOnCardEmulationNotifyCb");
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // OHOS_I_QUERY_APP_INFO_CALLBACK_H
+#endif  // OHOS_I_ON_CARD_EMULATION_NOTIFY_CB_H

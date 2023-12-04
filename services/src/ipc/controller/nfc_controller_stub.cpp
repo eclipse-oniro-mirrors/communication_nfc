@@ -21,6 +21,7 @@
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
 #include "nfc_permission_checker.h"
+#include "on_card_emulation_notify_cb_proxy.h"
 #include "query_app_info_callback_proxy.h"
 #include "external_deps_proxy.h"
 
@@ -55,6 +56,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleRegNdefMsgCb(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK):
             return HandleRegQueryApplicationCb(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY):
+            return HandleRegCardEmulationNotifyCb(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE):
             return HandleGetNfcHceInterface(data, reply);
         default:
@@ -188,6 +191,7 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
     reply.WriteRemoteObject(remoteOjbect);
     return ERR_NONE;
 }
+
 int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParcel& reply)
 {
     OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface();
@@ -240,6 +244,27 @@ int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageP
             DebugLog("NfcControllerStub::HandleRegQueryApplicationCb, create new `QueryAppInfoCallbackProxy`!");
         }
         int ret = RegQueryApplicationCb(queryAppInfoCallback_);
+        reply.WriteInt32(ret);
+    }
+    return ERR_NONE;
+}
+
+int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply)
+{
+    InfoLog("NfcControllerStub::HandleRegCardEmulationNotifyCb");
+    sptr<IRemoteObject> remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        ErrorLog("Failed to readRemoteObject!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        onCardEmulationNotifyCb_ = iface_cast<IOnCardEmulationNotifyCb>(remote);
+        if (onCardEmulationNotifyCb_ == nullptr) {
+            onCardEmulationNotifyCb_ = new (std::nothrow) OnCardEmulationNotifyCbProxy(remote);
+            DebugLog("NfcControllerStub::HandleRegCardEmulationNotifyCb, create new `OnCardEmulationNotifyCbProxy`!");
+        }
+        int ret = RegCardEmulationNotifyCb(onCardEmulationNotifyCb_);
         reply.WriteInt32(ret);
     }
     return ERR_NONE;

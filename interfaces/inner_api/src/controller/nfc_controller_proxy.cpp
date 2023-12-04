@@ -221,6 +221,32 @@ KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCall
     return KITS::ERR_NONE;
 }
 
+KITS::ErrorCode NfcControllerProxy::RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (callback == nullptr) {
+        ErrorLog("NfcControllerProxy::RegCardEmulationNotifyCb failed, callback is null.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("NfcControllerProxy::RegCardEmulationNotifyCb failed, write interface token error.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteRemoteObject(callback->AsObject())) {
+        ErrorLog("NfcControllerProxy::RegCardEmulationNotifyCb WriteRemoteObject failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY),
+        data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("NfcControllerProxy::RegCardEmulationNotifyCb failed, error code: %{public}d.", error);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
 
 OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()
 {

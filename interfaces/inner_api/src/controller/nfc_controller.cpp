@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "nfc_state_change_callback.h"
+#include "on_card_emulation_notify_cb_stub.h"
 #include "query_app_info_callback_stub.h"
 
 namespace OHOS {
@@ -38,6 +39,8 @@ std::mutex NfcController::mutex_;
 static sptr<NfcStateChangeCallback> dataRdbObserver_;
 static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
     sptr<QueryAppInfoCallbackStub>(new (std::nothrow) QueryAppInfoCallbackStub());
+static sptr<OnCardEmulationNotifyCbStub> g_onCardEmulationNotifyCbStub =
+    sptr<OnCardEmulationNotifyCbStub>(new (std::nothrow) OnCardEmulationNotifyCbStub());
 NfcController::NfcController()
 {
     DebugLog("[NfcController::NfcController] new ability manager");
@@ -201,6 +204,19 @@ ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback
     g_queryAppInfoCallbackStub->RegisterCallback(callback);
     return nfcControllerService_.lock()->RegQueryApplicationCb(g_queryAppInfoCallbackStub);
 }
+
+ErrorCode NfcController::RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback)
+{
+    DebugLog("NfcController::RegCardEmulationNotifyCb");
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::RegCardEmulationNotifyCb nfcControllerService_ expired");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    g_onCardEmulationNotifyCbStub->RegisterCallback(callback);
+    return nfcControllerService_.lock()->RegCardEmulationNotifyCb(g_onCardEmulationNotifyCbStub);
+}
+
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface()
 {
     InitNfcRemoteSA();

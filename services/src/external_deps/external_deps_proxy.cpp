@@ -46,6 +46,16 @@ void ExternalDepsProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callba
     AppDataParser::GetInstance().RegQueryApplicationCb(callback);
 }
 
+void ExternalDepsProxy::RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback)
+{
+    AppDataParser::GetInstance().RegCardEmulationNotifyCb(callback);
+}
+
+sptr<IOnCardEmulationNotifyCb> ExternalDepsProxy::GetNotifyCardEmulationCallback()
+{
+    return AppDataParser::GetInstance().GetNotifyCardEmulationCallback();
+}
+
 KITS::ErrorCode ExternalDepsProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     return NfcDataShareImpl::GetInstance()->GetValue(uri, column, value);

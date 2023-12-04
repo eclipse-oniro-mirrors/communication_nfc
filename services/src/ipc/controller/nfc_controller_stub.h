@@ -54,6 +54,7 @@ private:
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
     int HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply);
     int HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply);
+    int HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply);
     int HandleGetNfcHceInterface(MessageParcel &data, MessageParcel &reply);
 
 private:
@@ -67,6 +68,7 @@ private:
     sptr<INfcControllerCallback> callback_;
     sptr<INdefMsgCallback> ndefCallback_;
     sptr<IQueryAppInfoCallback> queryAppInfoCallback_ {nullptr};
+    sptr<IOnCardEmulationNotifyCb> onCardEmulationNotifyCb_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace NFC

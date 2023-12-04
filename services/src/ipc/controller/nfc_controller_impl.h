@@ -39,6 +39,7 @@ public:
     OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
     KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) override;
     KITS::ErrorCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback) override;
+    KITS::ErrorCode RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb> callback) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
 private:
