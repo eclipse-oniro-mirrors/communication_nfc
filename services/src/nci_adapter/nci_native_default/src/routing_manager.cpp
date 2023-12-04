@@ -67,7 +67,7 @@ bool RoutingManager::Initialize()
     mRxDataBuffer.clear();
     tNFA_STATUS status;
     {
-        SynchronizeEvent guard(eeRegisterEvent_);
+        SynchronizeGuard guard(eeRegisterEvent_);
         InfoLog("Initialize: try ee register");
         status = NFA_EeRegister(NfaEeCallback);
         if (status != NFA_STATUS_OK) {
@@ -81,7 +81,7 @@ bool RoutingManager::Initialize()
     // wait 100ms here to avoid timing issue in executing eeInfoEvent_
     usleep(EE_INFO_WAITE_INTERVAL);
     if ((defaultOffHostRoute_ != 0) || (defaultFelicaRoute_ != 0)) {
-        SynchronizeEvent guard(eeInfoEvent_);
+        SynchronizeGuard guard(eeInfoEvent_);
         if (!isEeInfoReceived_) {
             InfoLog("Initialize: Waiting for EE info");
             eeInfoEvent_.Wait(); // wait for NFA_EE_DISCOVER_REQ_EVT if eeinfo not received
@@ -267,7 +267,7 @@ void RoutingManager::RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle,
 {
     tNFA_STATUS status = NFA_STATUS_FAILED;
     {
-        SynchronizeEvent guard(routingEvent_);
+        SynchronizeGuard guard(routingEvent_);
         status = NFA_EeSetDefaultProtoRouting(eeHandle, protoSwitchOn,
             isSecureNfcEnabled_ ? 0 : protoSwitchOff,
             isSecureNfcEnabled_ ? 0 : protoBatteryOn,
@@ -290,7 +290,7 @@ void RoutingManager::RegisterTechRoutingEntry(tNFA_HANDLE eeHandle,
 {
     tNFA_STATUS status = NFA_STATUS_FAILED;
     {
-        SynchronizeEvent guard(routingEvent_);
+        SynchronizeGuard guard(routingEvent_);
         status = NFA_EeSetDefaultTechRouting(eeHandle, protoSwitchOn,
             isSecureNfcEnabled_ ? 0 : protoSwitchOff,
             isSecureNfcEnabled_ ? 0 : protoBatteryOn,
@@ -310,7 +310,7 @@ bool RoutingManager::ClearRoutingEntry(uint32_t type)
 {
     InfoLog("ClearRoutingEntry: type = %{public}d", type);
     tNFA_STATUS status = NFA_STATUS_FAILED;
-    SynchronizeEvent guard(routingEvent_);
+    SynchronizeGuard guard(routingEvent_);
     if (type & NFA_SET_TECH_ROUTING) {
         status = NFA_EeClearDefaultTechRouting(NFA_EE_HANDLE_DH,
             (NFA_TECHNOLOGY_MASK_A | NFA_TECHNOLOGY_MASK_B | NFA_TECHNOLOGY_MASK_F));
@@ -370,7 +370,7 @@ void RoutingManager::UpdateDefaultRoute()
     tNFA_STATUS status;
 
     // Register System Code for routing
-    SynchronizeEvent guard(routingEvent_);
+    SynchronizeGuard guard(routingEvent_);
     status = NFA_EeAddSystemCodeRouting(
         defaultSysCode_, defaultSysCodeRoute_,
         isSecureNfcEnabled_ ? PWR_STA_SWTCH_ON_SCRN_UNLCK : defaultSysCodePowerstate_);
@@ -432,7 +432,7 @@ void RoutingManager::OnNfcDeinit()
             if (isOffHostEEPresent)  {
                 InfoLog("OnNfcDeinit: Handle: 0x%{public}04x Change Status Active to Inactive",
                     eeInfo[i].ee_handle);
-                SynchronizeEvent guard(eeSetModeEvent_);
+                SynchronizeGuard guard(eeSetModeEvent_);
                 status = NFA_EeModeSet(eeInfo[i].ee_handle, NFA_EE_MD_DEACTIVATE);
                 if (status == NFA_STATUS_OK) {
                     eeSetModeEvent_.Wait();
@@ -450,23 +450,23 @@ void RoutingManager::ClearAllEvents()
 {
     InfoLog("ClearAllEvents");
     {
-        SynchronizeEvent guard(eeUpdateEvent_);
+        SynchronizeGuard guard(eeUpdateEvent_);
         eeUpdateEvent_.NotifyOne();
     }
     {
-        SynchronizeEvent guard(eeRegisterEvent_);
+        SynchronizeGuard guard(eeRegisterEvent_);
         eeRegisterEvent_.NotifyOne();
     }
     {
-        SynchronizeEvent guard(eeInfoEvent_);
+        SynchronizeGuard guard(eeInfoEvent_);
         eeInfoEvent_.NotifyOne();
     }
     {
-        SynchronizeEvent guard(routingEvent_);
+        SynchronizeGuard guard(routingEvent_);
         routingEvent_.NotifyOne();
     }
     {
-        SynchronizeEvent guard(eeSetModeEvent_);
+        SynchronizeGuard guard(eeSetModeEvent_);
         eeSetModeEvent_.NotifyOne();
     }
 }
@@ -543,7 +543,7 @@ bool RoutingManager::CommitRouting()
         isEeInfoChanged_ = false;
     }
     {
-        SynchronizeEvent guard(eeUpdateEvent_);
+        SynchronizeGuard guard(eeUpdateEvent_);
         status = NFA_EeUpdateNow();
         if (status == NFA_STATUS_OK) {
             eeUpdateEvent_.Wait();  // wait for NFA_EE_UPDATED_EVT
@@ -555,7 +555,7 @@ bool RoutingManager::CommitRouting()
 void RoutingManager::DoNfaEeRegisterEvt()
 {
     InfoLog("DoNfaEeRegisterEvt: NFA_EE_REGISTER_EVT notified");
-    SynchronizeEvent guard(routingEvent_);
+    SynchronizeGuard guard(routingEvent_);
     routingEvent_.NotifyOne();
 }
 
@@ -703,7 +703,7 @@ void RoutingManager::NfaEeCallback(tNFA_EE_EVT event, tNFA_EE_CBACK_DATA* eventD
 void RoutingManager::DoNfaEeRegisterEvent()
 {
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.eeRegisterEvent_);
+    SynchronizeGuard guard(rm.eeRegisterEvent_);
     InfoLog("NfaEeCallback: NFA_EE_REGISTER_EVT");
     rm.eeRegisterEvent_.NotifyOne();
 }
@@ -711,7 +711,7 @@ void RoutingManager::DoNfaEeRegisterEvent()
 void RoutingManager::DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData)
 {
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.eeSetModeEvent_);
+    SynchronizeGuard guard(rm.eeSetModeEvent_);
     InfoLog("NfaEeCallback: NFA_EE_MODE_SET_EVT, status = 0x%{public}04X, handle = 0x%{public}04X",
         eventData->mode_set.status, eventData->mode_set.ee_handle);
     rm.eeSetModeEvent_.NotifyOne();
@@ -728,7 +728,7 @@ void RoutingManager::DoNfaEeDeregisterEvent(tNFA_EE_CBACK_DATA* eventData)
 void RoutingManager::NotifyRoutingEvent()
 {
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.routingEvent_);
+    SynchronizeGuard guard(rm.routingEvent_);
     rm.routingEvent_.NotifyOne();
 }
 
@@ -736,7 +736,7 @@ void RoutingManager::DoNfaEeAddOrRemoveAidEvent(tNFA_EE_CBACK_DATA* eventData)
 {
     InfoLog("NfaEeCallback: NFA_EE_ADD_AID_EVT  status=%{public}u", eventData->status);
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.routingEvent_);
+    SynchronizeGuard guard(rm.routingEvent_);
     rm.isAidRoutingConfigured_ = (eventData->status == NFA_STATUS_OK);
     rm.routingEvent_.NotifyOne();
 }
@@ -746,7 +746,7 @@ void RoutingManager::DoNfaEeDiscoverReqEvent(tNFA_EE_CBACK_DATA* eventData)
     InfoLog("NfaEeCallback: NFA_EE_DISCOVER_REQ_EVT; status=0x%{public}X; num ee=%{public}u",
         eventData->discover_req.status, eventData->discover_req.num_ee);
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.eeInfoEvent_);
+    SynchronizeGuard guard(rm.eeInfoEvent_);
     int status = memcpy_s(&rm.eeInfo_, sizeof(rm.eeInfo_), &eventData->discover_req, sizeof(rm.eeInfo_));
     if (status != 0) {
         return;
@@ -762,7 +762,7 @@ void RoutingManager::DoNfaEeUpdateEvent()
 {
     InfoLog("NfaEeCallback: NFA_EE_UPDATED_EVT");
     RoutingManager& rm = RoutingManager::GetInstance();
-    SynchronizeEvent guard(rm.eeUpdateEvent_);
+    SynchronizeGuard guard(rm.eeUpdateEvent_);
     rm.eeUpdateEvent_.NotifyOne();
 }
 
