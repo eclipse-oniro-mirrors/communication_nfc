@@ -21,6 +21,7 @@
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
 #include "element_name.h"
+#include "ion_card_emulation_notify_cb.h"
 #include "iquery_app_info_callback.h"
 #include "want.h"
 
@@ -61,6 +62,8 @@ public:
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
+    void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
+    sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
     std::vector<ElementName> GetHceAppsByAid(const std::string &aid, std::vector<ElementName> elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
 private:
@@ -78,6 +81,7 @@ private:
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
+    sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS

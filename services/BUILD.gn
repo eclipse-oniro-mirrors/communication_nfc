@@ -53,6 +53,7 @@ nfc_service_source = [
   "src/ipc/controller/nfc_controller_death_recipient.cpp",
   "src/ipc/controller/nfc_controller_impl.cpp",
   "src/ipc/controller/nfc_controller_stub.cpp",
+  "src/ipc/controller/on_card_emulation_notify_cb_proxy.cpp",
   "src/ipc/controller/query_app_info_callback_proxy.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
   "src/ipc/tags/foreground_death_recipient.cpp",

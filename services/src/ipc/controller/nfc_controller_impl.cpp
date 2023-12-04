@@ -128,6 +128,12 @@ KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(const sptr<IQueryAppInf
     return KITS::ERR_NONE;
 }
 
+KITS::ErrorCode NfcControllerImpl::RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb> callback)
+{
+    ExternalDepsProxy::GetInstance().RegCardEmulationNotifyCb(callback);
+    return KITS::ERR_NONE;
+}
+
 
 OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface()
 {

@@ -12,26 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_I_QUERY_APP_INFO_CALLBACK_H
-#define OHOS_I_QUERY_APP_INFO_CALLBACK_H
+#ifndef OHOS_ON_CARD_EMULATION_NOTIFY_CB_PROXY_H
+#define OHOS_ON_CARD_EMULATION_NOTIFY_CB_PROXY_H
 
-#include <iremote_broker.h>
-
-#include "element_name.h"
+#include "ion_card_emulation_notify_cb.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace NFC {
-const std::string KEY_TAG_TECH = "tag";
-const std::string KEY_HCE_TECH = "hce";
-using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::string, std::vector<int>);
-class IQueryAppInfoCallback : public IRemoteBroker {
+class OnCardEmulationNotifyCbProxy : public IRemoteProxy<IOnCardEmulationNotifyCb> {
 public:
-    virtual bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<std::string> aidList,
-        std::vector<AppExecFwk::ElementName> &elementNameList) = 0;
+    explicit OnCardEmulationNotifyCbProxy(const sptr<IRemoteObject> &remote);
+    virtual ~OnCardEmulationNotifyCbProxy() {}
 
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.IQueryAppInfoCallback");
+    bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) override;
+
+private:
+    static inline BrokerDelegator<OnCardEmulationNotifyCbProxy> g_delegator;
 };
 }  // namespace NFC
 }  // namespace OHOS
-#endif  // OHOS_I_QUERY_APP_INFO_CALLBACK_H
+#endif  // OHOS_ON_CARD_EMULATION_NOTIFY_CB_PROXY_H

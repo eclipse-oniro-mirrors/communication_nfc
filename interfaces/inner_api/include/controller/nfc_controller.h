@@ -21,6 +21,7 @@
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
+#include "iquery_app_info_callback.h"
 
 namespace OHOS {
 namespace NFC {
@@ -88,7 +89,7 @@ public:
      * @return OHOS::sptr<IRemoteObject> the remote object of tag service.
      */
     OHOS::sptr<IRemoteObject> GetTagServiceIface();
-    
+
     OHOS::sptr<IRemoteObject> GetHceServiceIface();
 
     void OnRemoteDied(const wptr<IRemoteObject> &remoteObject);
@@ -96,6 +97,8 @@ public:
     ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
     ErrorCode RegQueryApplicationCb(QueryApplicationByVendor callback);
+
+    ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);
 
 private:
     class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {

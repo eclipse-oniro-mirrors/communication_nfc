@@ -20,8 +20,6 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string KEY_TAG_TECH = "tag-tech";
-const std::string KEY_PAYMENT_AID = "payment-aid";
 QueryAppInfoCallbackProxy::QueryAppInfoCallbackProxy(const sptr<IRemoteObject> &remote) 
     : IRemoteProxy<IQueryAppInfoCallback>(remote)
 {}
@@ -41,17 +39,20 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
     if (type.compare(KEY_TAG_TECH) == 0) {
         DebugLog("query tag app.");
         data.WriteInt32Vector(techList);
-    }
-    int error = Remote()->SendRequest(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK), data, reply, option);
-    if (error != ERR_NONE) {
-        ErrorLog("NdefMsgCallbackProxy::OnNdefMsgDiscovered, Set Attr %{public}d error: %{public}d",
-            NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);
-        return false;
-    }
-    int elementNameListLen = reply.ReadInt32();
-    for (int i = 0; i < elementNameListLen; i++) {
-        elementNameList.push_back(*AppExecFwk::ElementName::Unmarshalling(reply));
+        int error = Remote()->SendRequest(
+            static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK), data, reply, option);
+        if (error != ERR_NONE) {
+            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr %{public}d error: %{public}d",
+                NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);
+            return false;
+        }
+        int elementNameListLen = reply.ReadInt32();
+        for (int i = 0; i < elementNameListLen; i++) {
+            elementNameList.push_back(*AppExecFwk::ElementName::Unmarshalling(reply));
+        }
+        return true;
+    } else if (type.compare(KEY_HCE_TECH) == 0) {
+        DebugLog("query hce app.");
     }
     return true;
 }
