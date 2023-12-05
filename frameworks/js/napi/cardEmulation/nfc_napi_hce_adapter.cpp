@@ -131,7 +131,7 @@ napi_value NfcNapiHceAdapter::OnHceCmd(napi_env env, napi_callback_info info)
     napi_value argv[2] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    NAPI_ASSERT(env, argc != requireArgc, "requires 2 parameter");
+    NAPI_ASSERT(env, argc == requireArgc, "requires 2 parameter");
 
     napi_valuetype eventName = napi_undefined;
     napi_typeof(env, argv[0], &eventName);
