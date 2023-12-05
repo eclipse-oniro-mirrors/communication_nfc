@@ -449,7 +449,6 @@ void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementN
             }
         }
     }
-
 }
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
 {
