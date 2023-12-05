@@ -64,7 +64,7 @@ public:
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
-    std::vector<ElementName> GetHceAppsByAid(const std::string &aid, std::vector<ElementName> elementNames);
+    void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
