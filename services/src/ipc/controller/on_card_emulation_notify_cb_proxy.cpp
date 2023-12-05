@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace NFC {
-OnCardEmulationNotifyCbProxy::OnCardEmulationNotifyCbProxy(const sptr<IRemoteObject> &remote) 
+OnCardEmulationNotifyCbProxy::OnCardEmulationNotifyCbProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<IOnCardEmulationNotifyCb>(remote)
 {}
 
