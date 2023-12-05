@@ -40,7 +40,8 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         DebugLog("query tag app.");
         data.WriteInt32Vector(techList);
         int error = Remote()->SendRequest(
-            static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK), data, reply, option);
+            static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
+            data, reply, option);
         if (error != ERR_NONE) {
             ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr %{public}d error: %{public}d",
                 NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);

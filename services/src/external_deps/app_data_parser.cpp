@@ -462,14 +462,14 @@ void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
     std::vector<AppDataParser::AidInfo> vendorCustomDataAid;
     AppDataParser::AidInfo vendorAidInfo;
     ElementName vendorElementName;
-    vendorElementName.SetDeviceId("");
+    vendorElementName.SetDeviceID("");
     vendorElementName.SetAbilityName("com.nxp.cascaen.paymenthost");
     vendorElementName.SetBundleName("/com.nxp.cascaen.paymenthost.PaymentServiceHost");
     vendorAidInfo.name = "other-aid";
     vendorAidInfo.value = "A0000000041010";
     vendorCustomDataAid.push_back(vendorAidInfo);
-    vendorAidInfo.element = vendorElementName;
-    vendorAidInfo.customDataAid = vendorCustomDataAid;
+    vendorAppAidInfo.element = vendorElementName;
+    vendorAppAidInfo.customDataAid = vendorCustomDataAid;
     hceApps.push_back(vendorAppAidInfo);
 }
 }  // namespace NFC
