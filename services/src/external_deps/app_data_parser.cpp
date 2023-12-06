@@ -28,6 +28,8 @@ namespace NFC {
 const int USER_ID = 100;
 sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser g_appDataParser;
+/** Tag type of tag app metadata name */
+static const std::string KEY_TAG_TECH = "tag-tech";
 
 AppDataParser::AppDataParser()
 {
@@ -420,7 +422,7 @@ std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vect
         ErrorLog("AppDataParser::GetVendorDispatchTagAppsByTech queryApplicationByVendor_ is nullptr.");
         return std::vector<ElementName>();
     }
-    queryApplicationByVendor_->OnQueryAppInfo(KEY_TAG_TECH, discTechList, aidList, elements);
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_TAG_APP, discTechList, aidList, elements);
     return elements;
 }
 
