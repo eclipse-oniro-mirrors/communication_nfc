@@ -35,13 +35,13 @@ QueryAppInfoCallbackStub& QueryAppInfoCallbackStub::GetInstance()
 bool QueryAppInfoCallbackStub::OnQueryAppInfo(std::string type, std::vector<int> techList,
     std::vector<std::string> aidList, std::vector<AppExecFwk::ElementName> &elementNameList)
 {
-    if (type.compare(KEY_TAG_TECH) == 0) {
+    if (type.compare(KEY_TAG_APP) == 0) {
         if (callback_) {
             InfoLog("OnQueryAppInfo:call tag callback_");
             elementNameList = callback_(type, techList);
             return true;
         }
-    } else if (type.compare(KEY_HCE_TECH) == 0) {
+    } else if (type.compare(KEY_HCE_APP) == 0) {
         InfoLog("OnQueryAppInfo:call hce callback_");
         return true;
     }
@@ -104,14 +104,14 @@ int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessagePar
     std::vector<AppExecFwk::ElementName> elementNameList;
     std::vector<std::string> aidList;
     std::vector<int> techList;
-    if (type.compare(KEY_TAG_TECH) == 0) {
+    if (type.compare(KEY_TAG_APP) == 0) {
         data.ReadInt32Vector(&techList);
         OnQueryAppInfo(type, techList, aidList, elementNameList);
         reply.WriteInt32(elementNameList.size());
         for (auto elementName : elementNameList) {
             elementName.Marshalling(reply);
         }
-    } else if (type.compare(KEY_HCE_TECH) == 0) {
+    } else if (type.compare(KEY_HCE_APP) == 0) {
         OnQueryAppInfo(type, techList, aidList, elementNameList);
     }
     return KITS::ERR_NONE;

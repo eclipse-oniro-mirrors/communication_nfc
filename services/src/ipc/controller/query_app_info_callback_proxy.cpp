@@ -36,7 +36,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
     }
     data.WriteInt32(0);
     data.WriteString(type);
-    if (type.compare(KEY_TAG_TECH) == 0) {
+    if (type.compare(KEY_TAG_APP) == 0) {
         DebugLog("query tag app.");
         data.WriteInt32Vector(techList);
         int error = Remote()->SendRequest(
@@ -52,7 +52,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
             elementNameList.push_back(*AppExecFwk::ElementName::Unmarshalling(reply));
         }
         return true;
-    } else if (type.compare(KEY_HCE_TECH) == 0) {
+    } else if (type.compare(KEY_HCE_APP) == 0) {
         DebugLog("query hce app.");
     }
     return true;
