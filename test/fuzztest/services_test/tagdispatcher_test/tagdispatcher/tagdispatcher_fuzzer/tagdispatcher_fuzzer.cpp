@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "tagsessionstub_fuzzer.h"
+#include "tagdispatcher_fuzz.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "tag_session_stub.h"
-#include "tag_session.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_fuzz.h"
 #include "nfc_service_ipc_interface_code.h"
@@ -40,21 +38,19 @@ namespace OHOS {
     void FuzzHandleTagFound(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
-        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
-        uint32_t rfDiscId = timeOutArray[0];
-        tagSession->OnRemoteRequest(rfDiscId);
+        tagDispatcher->OnRemoteRequest(timeOutArray[0]);
     }
 
     void FuzzHandleTagLost(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
-        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
-        uint32_t rfDiscId = timeOutArray[0];
-        tagSession->HandleTagLost(rfDiscId);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+        tagDispatcher->HandleTagFound(timeOutArray[0]);
     }
 }
 

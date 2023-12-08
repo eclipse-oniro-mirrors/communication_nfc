@@ -36,6 +36,7 @@ ohos_fuzztest("TagDisPatcherFuzzTest") {
 
   sources = [
     "tagdispatcher_fuzzer.cpp",
+    "nfc_service_fuzz.cpp",
   ]
 
   deps = [
