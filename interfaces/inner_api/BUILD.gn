@@ -82,13 +82,13 @@ ohos_shared_library("nfc_inner_kits") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:dataobs_manager",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "bundle_framework:appexecfwk_base",
   ]
 
   part_name = "nfc"
