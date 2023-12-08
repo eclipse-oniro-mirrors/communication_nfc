@@ -28,7 +28,7 @@ CePaymentServicesParcelable::~CePaymentServicesParcelable()
 }
 bool CePaymentServicesParcelable::Marshalling(Parcel &parcel) const
 {
-    if (!parcel.WriteInt32(paymentAbilityInfos.size())) {
+    if (!parcel.WriteUint32(paymentAbilityInfos.size())) {
         ErrorLog("write size failed");
         return false;
     }
@@ -43,7 +43,7 @@ bool CePaymentServicesParcelable::Marshalling(Parcel &parcel) const
 CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &parcel)
 {
     int32_t extraLen = 0;
-    parcel.ReadInt32(extraLen);
+    parcel.ReadUint32(extraLen);
     if (extraLen >= MAX_APP_LIST_NUM) {
         return nullptr;
     }
@@ -52,7 +52,8 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
         AbilityInfo *ability = AbilityInfo::Unmarshalling(parcel);
         abilityInfos.push_back(*(ability));
     }
-    CePaymentServicesParcelable *paymentService = new (std::nothrow) CePaymentServicesParcelable(abilityInfos);
+    CePaymentServicesParcelable *paymentService = new (std::nothrow) CePaymentServicesParcelable();
+    paymentService->paymentAbilityInfos = std::move(abilityInfos);
     return paymentService;
 }
 } // namespace KITS
