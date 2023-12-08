@@ -38,6 +38,8 @@ private:
 
     int HandleSendRawFrame(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
 
+    int HandleGetPaymentServices(MessageParcel& data, MessageParcel& reply);
+
 private:
     std::mutex mutex_{};
     sptr<KITS::IHceCmdCallback> hceCmdCallback_;

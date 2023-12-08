@@ -48,6 +48,8 @@ public:
 
     struct HceAppAidInfo {
         ElementName element;
+        int32_t labelId;
+        int32_t iconId;
         std::vector<AidInfo> customDataAid;
     };
 
@@ -66,6 +68,8 @@ public:
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
+    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
@@ -80,6 +84,7 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
+    bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 };

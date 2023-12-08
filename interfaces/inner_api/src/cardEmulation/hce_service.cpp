@@ -59,6 +59,16 @@ int HceService::SendRawFrame(std::string hexCmdData, bool raw,
     }
     return hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
 }
+int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
+{
+    DebugLog("HceService::GetPaymentServices");
+    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
+    if (hceSession == nullptr) {
+        ErrorLog("HceService::GetPaymentServices, ERR_HCE_STATE_UNBIND");
+        return ErrorCode::ERR_HCE_STATE_UNBIND;
+    }
+    return hceSession->GetPaymentServices(abilityInfos);
+}
 OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
 {
     if (hceSessionProxy_ == nullptr) {

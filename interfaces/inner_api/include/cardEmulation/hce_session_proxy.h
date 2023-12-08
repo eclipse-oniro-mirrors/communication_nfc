@@ -20,11 +20,14 @@
 #include "ihce_session.h"
 #include "nfc_basic_proxy.h"
 #include "ihce_cmd_callback.h"
+#include "ability_info.h"
+
 
 namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
+using AppExecFwk::AbilityInfo;
 class HceSessionProxy final : public OHOS::IRemoteProxy<IHceSession>, public NfcBasicProxy {
 public:
     explicit HceSessionProxy(const OHOS::sptr<OHOS::IRemoteObject> &remote)
@@ -36,6 +39,7 @@ public:
     KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
 
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 };
 } // namespace HCE
 } // namespace NFC

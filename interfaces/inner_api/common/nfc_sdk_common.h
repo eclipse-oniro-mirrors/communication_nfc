@@ -52,6 +52,7 @@ enum ErrorCode : const int {
     ERR_HCE_STATE_DISCONNECTED,
     ERR_HCE_STATE_IO_FAILED,
     ERR_HCE_STATE_UNBIND,
+    ERR_HCE_NOT_GET_PAYMENT_SERVICES,
 
     // error for nfc database operations
     ERR_NFC_DATABASE_RW = 3100400,

@@ -161,5 +161,9 @@ void ExternalDepsProxy::StartVibratorOnce()
 {
     TAG::TagAbilityDispatcher::StartVibratorOnce();
 }
-} // NFC
+void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos)
+{
+    AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
+}
+} // namespace NFC
 } // OHOS

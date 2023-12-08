@@ -84,6 +84,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isSupported", IsSupported),
         DECLARE_NAPI_FUNCTION("hasHceCapability", HasHceCapability),
         DECLARE_NAPI_FUNCTION("isDefaultService", IsDefaultService),
+        DECLARE_NAPI_FUNCTION("getPaymentServices", GetPaymentServices),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

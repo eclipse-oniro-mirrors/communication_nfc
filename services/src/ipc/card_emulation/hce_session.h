@@ -20,10 +20,12 @@
 #include "ihce_session.h"
 #include "hce_session_stub.h"
 #include "host_card_emulation_manager.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace NFC {
 namespace HCE {
+using AppExecFwk::AbilityInfo;
 using OHOS::AppExecFwk::ElementName;
 class HceSession final : public HceSessionStub {
 public:
@@ -36,6 +38,8 @@ public:
     KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
 
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
+
+    int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 

@@ -15,6 +15,7 @@
 
 #include "loghelper.h"
 #include "hce_session.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -87,6 +88,11 @@ std::string HceSession::GetDumpInfo()
         .append("NCI_VERSION        : ")
         .append(std::to_string(nfcService_.lock()->GetNciVersion()))
         .append(DUMP_END);
+}
+int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
+{
+    ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos);
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 } // namespace HCE
 } // namespace NFC
