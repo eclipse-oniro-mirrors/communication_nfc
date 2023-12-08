@@ -20,6 +20,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service_fuzz.h"
 #include "nfc_service_ipc_interface_code.h"
+#include "tag_dispatcher.cpp"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -41,7 +42,7 @@ namespace OHOS {
         std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
-        tagDispatcher->OnRemoteRequest(timeOutArray[0]);
+        tagDispatcher->HandleTagFound(timeOutArray[0]);
     }
 
     void FuzzHandleTagLost(const uint8_t* data, size_t size)
