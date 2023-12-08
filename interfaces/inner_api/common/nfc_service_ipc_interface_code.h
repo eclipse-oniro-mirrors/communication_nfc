@@ -66,6 +66,7 @@ public:
         COMMAND_CE_HCE_ON,
         COMMAND_ON_CE_APDU_DATA,
         COMMAND_CE_HCE_TRANSMIT,
+        COMMAND_CE_HCE_GET_PAYMENT_SERVICES
     };
 }; // NfcServiceIpcInterfaceCode
 } // NFC

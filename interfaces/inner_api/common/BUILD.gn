@@ -43,6 +43,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     "nfc_sdk_common.cpp",
     "taginfo.cpp",
     "taginfo_parcelable.cpp",
+    "ce_payment_services_parcelable.cpp",
   ]
 
   configs = [ ":nfc_inner_kits_config" ]
@@ -56,6 +57,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "bundle_framework:appexecfwk_base",
   ]
 
   part_name = "nfc"

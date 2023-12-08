@@ -50,6 +50,7 @@ ohos_shared_library("cardemulation") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "bundle_framework:appexecfwk_base",
   ]
 
   relative_install_dir = "module/nfc"

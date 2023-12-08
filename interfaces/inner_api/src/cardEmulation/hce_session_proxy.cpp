@@ -21,6 +21,7 @@
 #include "message_parcel.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include "ce_payment_services_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
@@ -36,29 +37,28 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(
     MessageOption option(MessageOption::TF_SYNC);
     if (g_hceCmdCallbackStub == nullptr) {
         ErrorLog("%{public}s:g_hceCmdCallbackStub is nullptr", __func__);
-        return KITS::ERR_NFC_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     g_hceCmdCallbackStub->RegHceCmdCallback(callback, type);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
-        return KITS::ERR_NFC_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     if (!data.WriteString(type)) {
         ErrorLog("Write type error");
-        return KITS::ERR_NFC_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     data.WriteInt32(0);
     if (!data.WriteRemoteObject(g_hceCmdCallbackStub->AsObject())) {
         ErrorLog("RegHceCmdCallback WriteRemoteObject failed!");
-        return KITS::ERR_NFC_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
 
-    int error = SendRequestExpectReplyNone(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON),
-        data, option);
+    int error = SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON),
+                                           data, option);
     if (error != ERR_NONE) {
         ErrorLog("RegHceCmdCallback failed, error code is %{public}d", error);
-        return KITS::ERR_NFC_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     return KITS::ERR_NONE;
 }
@@ -70,17 +70,44 @@ int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw,
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
     data.WriteString(hexCmdData);
     data.WriteBool(raw);
     int statusCode = Remote()->SendRequest(
-        static_cast<uint32_t>(
-            NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_TRANSMIT),
-        data, reply, option);
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_TRANSMIT), data, reply, option);
     if (statusCode == ERR_NONE) {
         hexRespData = reply.ReadString();
     }
+    return statusCode;
+}
+int HceSessionProxy::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    data.WriteInt32(0);
+
+    int statusCode = Remote()->SendRequest(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_GET_PAYMENT_SERVICES), data, reply,
+        option);
+    if (statusCode != ERR_NONE) {
+        ErrorLog("GetPaymentServices failed, error code is %{public}d", statusCode);
+        return statusCode;
+    }
+
+    std::shared_ptr<KITS::CePaymentServicesParcelable> paymentServices(
+        reply.ReadParcelable<KITS::CePaymentServicesParcelable>());
+    if (paymentServices == nullptr) {
+        ErrorLog("paymentServices read failed.");
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    std::vector<AbilityInfo> paymentAbilityInfos = paymentServices->paymentAbilityInfos;
+    DebugLog("GetPaymentServices size %{public}zu", paymentAbilityInfos.size());
+    abilityInfos = std::move(paymentAbilityInfos);
     return statusCode;
 }
 } // namespace HCE

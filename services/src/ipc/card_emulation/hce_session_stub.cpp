@@ -23,10 +23,13 @@
 #include "hce_cmd_callback_proxy.h"
 #include "nfc_permission_checker.h"
 #include "external_deps_proxy.h"
+#include "ce_payment_services_parcelable.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace NFC {
 namespace HCE {
+using AppExecFwk::AbilityInfo;
 int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply,
                                     OHOS::MessageOption &option)
 {
@@ -41,6 +44,8 @@ int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OH
             return HandleRegHceCmdCallback(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_TRANSMIT):
             return HandleSendRawFrame(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_GET_PAYMENT_SERVICES):
+            return HandleGetPaymentServices(data, reply);
         default: return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
@@ -97,6 +102,27 @@ int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageP
     int statusCode = SendRawFrame(hexCmdData, raw, hexRespData);
     reply.WriteString(hexRespData);
     return statusCode;
+}
+int HceSessionStub::HandleGetPaymentServices(MessageParcel &data, MessageParcel &reply)
+{
+    int exception = data.ReadInt32();
+    if (exception) {
+        ErrorLog("HandleGetPaymentServices, exception");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    std::vector<AbilityInfo> abilityInfos;
+    int result = GetPaymentServices(abilityInfos);
+    if (result != NFC::KITS::ErrorCode::ERR_NONE) {
+        ErrorLog("HandleGetPaymentServices, get payment service failed");
+        return KITS::ErrorCode::ERR_HCE_NOT_GET_PAYMENT_SERVICES;
+    }
+    KITS::CePaymentServicesParcelable paymentServiceMsg;
+    paymentServiceMsg.paymentAbilityInfos = abilityInfos;
+    if (!reply.WriteParcelable(&paymentServiceMsg)) {
+        ErrorLog("HandleGetPaymentServices, write payment service failed");
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    return ERR_NONE;
 }
 } // namespace HCE
 } // namespace NFC

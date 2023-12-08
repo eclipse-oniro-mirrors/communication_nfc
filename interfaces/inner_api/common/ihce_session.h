@@ -20,10 +20,12 @@
 #include "iremote_broker.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace NFC {
 namespace HCE {
+using AppExecFwk::AbilityInfo;
 class IHceSession : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.cardemulation.IHceSession");
@@ -45,7 +47,12 @@ public:
      * @return result
      */
     virtual int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
-
+    /**
+     * @brief  get payment services
+     * @param  abilityInfos: payment services
+     * @return result
+     */
+    virtual int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) = 0;
 private:
 };
 } // namespace HCE

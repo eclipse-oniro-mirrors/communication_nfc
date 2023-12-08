@@ -26,10 +26,12 @@
 #include "nfc_permission_checker.h"
 #include "tag_ability_dispatcher.h"
 #include "taginfo.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
+using AppExecFwk::AbilityInfo;
 class ExternalDepsProxy {
 public:
     static ExternalDepsProxy &GetInstance()
@@ -74,6 +76,7 @@ public:
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     void StartVibratorOnce();
+    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
 };
 } // NFC
 } // OHOS

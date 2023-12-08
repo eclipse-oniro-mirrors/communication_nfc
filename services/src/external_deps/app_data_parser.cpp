@@ -319,6 +319,8 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     }
     HceAppAidInfo hceAppAidInfo;
     hceAppAidInfo.element = element;
+    hceAppAidInfo.iconPath = abilityInfo.iconPath;
+    hceAppAidInfo.label = abilityInfo.label;
     hceAppAidInfo.customDataAid = customDataAidList;
     g_hceAppAndAidMap.push_back(hceAppAidInfo);
     DebugLog("UpdateHceAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
@@ -472,5 +474,29 @@ void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
     vendorAppAidInfo.customDataAid = vendorCustomDataAid;
     hceApps.push_back(vendorAppAidInfo);
 }
-}  // namespace NFC
-}  // namespace OHOS
+
+bool AppDataParser::isPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
+{
+    for (const AppDataParser::AidInfo &aidInfo : hceAppInfo.customDataAid) {
+        if (KITS::KEY_PAYMENT_AID == aidInfo.name) {
+            return true;
+        }
+    }
+    return false;
+}
+void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
+{
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
+        if (!isPaymentApp(appAidInfo)) {
+            continue;
+        }
+        AbilityInfo ability;
+        ability.name = appAidInfo.element.GetAbilityName();
+        ability.bundleName = appAidInfo.element.GetBundleName();
+        ability.label = appAidInfo.label;
+        ability.iconPath = appAidInfo.iconPath;
+        paymentAbilityInfos.push_back(ability);
+    }
+}
+} // namespace NFC
+} // namespace OHOS

@@ -88,6 +88,7 @@ ohos_shared_library("nfc_inner_kits") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "bundle_framework:appexecfwk_base",
   ]
 
   part_name = "nfc"

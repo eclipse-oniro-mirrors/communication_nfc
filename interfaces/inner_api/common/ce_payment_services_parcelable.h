@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,37 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef HCE_SERVICE_H
-#define HCE_SERVICE_H
-
-#include "nfc_sdk_common.h"
-#include "ihce_cmd_callback.h"
-#include "ihce_session.h"
+#include "parcel.h"
 #include "ability_info.h"
-
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 using AppExecFwk::AbilityInfo;
-class HceService final {
-public:
-    explicit HceService();
-    ~HceService();
-
-    static HceService &GetInstance();
-
-    ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
-    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData);
-    int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos);
-
-protected:
-    OHOS::sptr<HCE::IHceSession> GetHceSessionProxy();
-
-private:
-    OHOS::sptr<HCE::IHceSession> hceSessionProxy_;
+struct CePaymentServicesParcelable : public Parcelable
+{
+    CePaymentServicesParcelable(std::vector<AbilityInfo> paymentAbilityInfos);
+    CePaymentServicesParcelable();
+    ~CePaymentServicesParcelable();
+    bool Marshalling(Parcel &parcel) const override;
+    static CePaymentServicesParcelable *Unmarshalling(Parcel &parcel);
+    std::vector<AbilityInfo> paymentAbilityInfos;
 };
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
-#endif
