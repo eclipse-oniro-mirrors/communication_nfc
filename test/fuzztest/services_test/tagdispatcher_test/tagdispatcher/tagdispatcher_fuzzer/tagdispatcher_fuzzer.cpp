@@ -12,20 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "tagdispatcher_fuzz.h"
+#include "tagdispatcher_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
 #include "nfc_sdk_common.h"
-#include "nfc_service_fuzz.h"
 #include "nfc_service_ipc_interface_code.h"
-#include "tag_dispatcher.cpp"
+#include "tag_dispatcher.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
-    static constexpr const auto TAGSESSION_DESCRIPTOR = u"ohos.nfc.TAG.ITagSession";
     constexpr const auto FUZZER_THRESHOLD = 4;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)

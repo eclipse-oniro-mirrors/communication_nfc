@@ -111,15 +111,15 @@ HWTEST_F(CardemulationTest, IsSupported004, TestSize.Level1)
 HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
 {
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-    OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
     bool success = true;
     bool initStaus = nfcService->Initialize();
     ASSERT_TRUE(initStaus);
+    std::weak_ptr<NFC::CeService> ceService = nfcService->GetCeService();
 
-    ceService->PublishFieldOnOrOffCommonEvent(true);
-    ceService->PublishFieldOnOrOffCommonEvent(false);
-    ceService->HandleFieldActivated();
-    ceService->HandleFieldDeactivated();
+    ceService.lock()->PublishFieldOnOrOffCommonEvent(true);
+    ceService.lock()->PublishFieldOnOrOffCommonEvent(false);
+    ceService.lock()->HandleFieldActivated();
+    ceService.lock()->HandleFieldDeactivated();
     delete ceService;
     ASSERT_TRUE(success);
 }
@@ -132,12 +132,13 @@ HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
 HWTEST_F(CardemulationTest, CeService002, TestSize.Level1)
 {
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-    OHOS::NFC::CeService *ceService = new OHOS::NFC::CeService(nfcService);
     bool success = true;
+    bool initStatus = nfcService->Initialize();
+    ASSERT_TRUE(initStatus);
+    std::weak_ptr<NFC::CeService> ceService = nfcService->GetCeService();
+    ceService.lock()->HandleFieldActivated();
+    ceService.lock()->HandleFieldDeactivated();
     nfcService = nullptr; // release the NfcService, let to be expired.
-    ceService->HandleFieldActivated();
-    ceService->HandleFieldDeactivated();
-    delete ceService;
     ASSERT_TRUE(success);
 }
 }

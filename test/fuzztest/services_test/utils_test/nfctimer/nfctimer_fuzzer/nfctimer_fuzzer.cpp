@@ -12,18 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nfctime_fuzzer.h"
+#include "nfctimer_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "nfctimer.h"
+#include "nfc_timer.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
-    static constexpr const auto TAGSESSION_DESCRIPTOR = u"ohos.nfc.TAG.ITagSession";
     constexpr const auto FUZZER_THRESHOLD = 8;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
@@ -33,20 +32,24 @@ namespace OHOS {
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
     }
+    
+    void fun_fuzz()
+    {
 
+    }
     void FuzzUnRegister(const uint8_t* data, size_t size)
     {
         uint32_t timerIds[1];
         ConvertToUint32s(data, timerIds, 1);
-        NfcTimer::GetInstance()->UnRegister(timerIds[0]);
+        NFC::NfcTimer::GetInstance()->UnRegister(timerIds[0]);
     }
 
     void FuzzRegister(const uint8_t* data, size_t size)
     {
         uint32_t Uint32Array[2];
-        ConvertToUint32s(data, timerIds, 2);
-        TimeOutCallback timeoutCallback = std::bind(ConvertToUint32s);
-        NfcTimer::GetInstance()->Register(timeoutCallback, Uint32Array[0], Uint32Array[1]);
+        ConvertToUint32s(data, Uint32Array, 2);
+        NFC::TimeOutCallback timeoutCallback = std::bind(fun_fuzz);
+        NFC::NfcTimer::GetInstance()->Register(timeoutCallback, Uint32Array[0], Uint32Array[1]);
     }
 }
 

@@ -45,6 +45,7 @@ ohos_fuzztest("NfcTimerFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "ipc:ipc_core",

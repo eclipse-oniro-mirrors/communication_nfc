@@ -42,6 +42,7 @@ ohos_fuzztest("GetStringTechFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "c_utils:utils",
     "ipc:ipc_core",
   ]
