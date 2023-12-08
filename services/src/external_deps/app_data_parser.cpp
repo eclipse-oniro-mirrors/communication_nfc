@@ -319,8 +319,8 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     }
     HceAppAidInfo hceAppAidInfo;
     hceAppAidInfo.element = element;
-    hceAppAidInfo.iconPath = abilityInfo.iconPath;
-    hceAppAidInfo.label = abilityInfo.label;
+    hceAppAidInfo.iconId = abilityInfo.iconId;
+    hceAppAidInfo.labelId = abilityInfo.labelId;
     hceAppAidInfo.customDataAid = customDataAidList;
     g_hceAppAndAidMap.push_back(hceAppAidInfo);
     DebugLog("UpdateHceAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),

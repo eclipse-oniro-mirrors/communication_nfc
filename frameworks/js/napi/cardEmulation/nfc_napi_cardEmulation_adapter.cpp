@@ -59,17 +59,17 @@ void ConvertAbilityInfoToJS(napi_env env, napi_value &result, AbilityInfo &abili
     napi_create_string_utf8(env, abilityInfo.name.c_ctr(), NAPI_AUTO_LENGTH, &name);
     napi_set_named_property(env, result, "name", name);
 
-    napi_value label;
-    napi_create_string_utf8(env, abilityInfo.label.c_ctr(), NAPI_AUTO_LENGTH, &label);
-    napi_set_named_property(env, result, "label", label);
+    napi_value labelId;
+    napi_create_int32(env, abilityInfo.labelId, &labelId);
+    napi_set_named_property(env, result, "labelId", labelId);
 
     napi_value bundleName;
     napi_create_string_utf8(env, abilityInfo.bundleName.c_ctr(), NAPI_AUTO_LENGTH, &bundleName);
     napi_set_named_property(env, result, "bundleName", bundleName);
 
-    napi_value iconPath;
-    napi_create_string_utf8(env, abilityInfo.iconPath.c_ctr(), NAPI_AUTO_LENGTH, &iconPath);
-    napi_set_named_property(env, result, "icon", iconPath);
+    napi_value iconId;
+    napi_create_int32(env, abilityInfo.iconId, &iconId);
+    napi_set_named_property(env, result, "iconId", iconId);
 }
 
 void ConvertAbilityInfoVectorToJS(napi_env env, napi_value &result, std::vector<AbilityInfo> &paymentAbilityInfos)
