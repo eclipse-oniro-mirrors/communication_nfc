@@ -23,7 +23,7 @@ ohos_fuzztest("TagDisPatcherFuzzTest") {
   include_dirs = [
     "$NFC_DIR/services/include",
     "$NFC_DIR/services/src",
-    "$NFC_DIR/service/src/tags",
+    "$NFC_DIR/services/src/tags",
     "$NFC_DIR/interfaces/inner_api/common",
     "$NFC_DIR/interfaces/inner_api/include",
   ]
@@ -35,10 +35,7 @@ ohos_fuzztest("TagDisPatcherFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "tagdispatcher_fuzzer.cpp",
-    "nfc_service_fuzz.cpp",
-  ]
+  sources = [ "tagdispatcher_fuzzer.cpp" ]
 
   deps = [
     "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",

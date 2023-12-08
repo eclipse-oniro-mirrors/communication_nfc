@@ -18,7 +18,8 @@ import("../../../../../../nfc.gni")
 ohos_fuzztest("NfcTimerFuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/utils_test/nfctimer/nfctimer_fuzzer"
+  fuzz_config_file =
+      "$NFC_DIR/test/fuzztest/services_test/utils_test/nfctimer/nfctimer_fuzzer"
 
   include_dirs = [
     "$NFC_DIR/services/include",
@@ -33,9 +34,7 @@ ohos_fuzztest("NfcTimerFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "nfctimer_fuzzer.cpp",
-  ]
+  sources = [ "nfctimer_fuzzer.cpp" ]
 
   deps = [
     "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",

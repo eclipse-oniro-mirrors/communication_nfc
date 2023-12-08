@@ -195,8 +195,8 @@ public:
         data2.WriteInterfaceToken(DESCRIPTOR);
         data2.WriteString(type);
         data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK),
-            data2, reply, option);
+        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK);
+        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
     }
 
     void FuzzHandleRegQueryApplicationCb(const uint8_t* data, size_t size)
@@ -210,8 +210,8 @@ public:
         data2.WriteInterfaceToken(DESCRIPTOR);
         data2.WriteString(type);
         data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
-            data2, reply, option);
+        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK);
+        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
     }
 
     void FuzzHandleRegCardEmulationNotifyCb(const uint8_t* data, size_t size)
@@ -225,8 +225,8 @@ public:
         data2.WriteInterfaceToken(DESCRIPTOR);
         data2.WriteString(type);
         data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY),
-            data2, reply, option);
+        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY);
+        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
     }
 
     void FuzzHandleGetNfcHceInterface(const uint8_t* data, size_t size)
