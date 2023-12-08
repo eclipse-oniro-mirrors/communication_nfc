@@ -56,7 +56,7 @@ void ConvertAbilityInfoToJS(napi_env env, napi_value &result, AbilityInfo &abili
     napi_create_object(env, &result);
 
     napi_value name;
-    napi_create_string_utf8(env, abilityInfo.name.c_ctr(), NAPI_AUTO_LENGTH, &name);
+    napi_create_string_utf8(env, abilityInfo.name.c_str(), NAPI_AUTO_LENGTH, &name);
     napi_set_named_property(env, result, "name", name);
 
     napi_value labelId;
@@ -64,7 +64,7 @@ void ConvertAbilityInfoToJS(napi_env env, napi_value &result, AbilityInfo &abili
     napi_set_named_property(env, result, "labelId", labelId);
 
     napi_value bundleName;
-    napi_create_string_utf8(env, abilityInfo.bundleName.c_ctr(), NAPI_AUTO_LENGTH, &bundleName);
+    napi_create_string_utf8(env, abilityInfo.bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleName);
     napi_set_named_property(env, result, "bundleName", bundleName);
 
     napi_value iconId;

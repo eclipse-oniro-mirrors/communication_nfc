@@ -487,14 +487,14 @@ bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
-        if (!isPaymentApp(appAidInfo)) {
+        if (!IsPaymentApp(appAidInfo)) {
             continue;
         }
         AbilityInfo ability;
         ability.name = appAidInfo.element.GetAbilityName();
         ability.bundleName = appAidInfo.element.GetBundleName();
-        ability.label = appAidInfo.label;
-        ability.iconPath = appAidInfo.iconPath;
+        ability.labelId = appAidInfo.labelId;
+        ability.iconId = appAidInfo.iconId;
         paymentAbilityInfos.push_back(ability);
     }
 }

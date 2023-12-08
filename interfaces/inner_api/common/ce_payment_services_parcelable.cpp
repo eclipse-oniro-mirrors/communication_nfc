@@ -42,7 +42,7 @@ bool CePaymentServicesParcelable::Marshalling(Parcel &parcel) const
 }
 CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &parcel)
 {
-    int32_t extraLen = 0;
+    uint32_t extraLen = 0;
     parcel.ReadUint32(extraLen);
     if (extraLen >= MAX_APP_LIST_NUM) {
         return nullptr;
