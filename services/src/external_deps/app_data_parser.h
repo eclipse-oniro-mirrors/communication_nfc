@@ -84,7 +84,7 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
-    bool isPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
+    bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 };

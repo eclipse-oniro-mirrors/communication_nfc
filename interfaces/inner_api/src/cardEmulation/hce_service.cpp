@@ -60,7 +60,7 @@ int HceService::SendRawFrame(std::string hexCmdData, bool raw,
     return hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
 }
 int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
-{ 
+{
     DebugLog("HceService::GetPaymentServices");
     OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
     if (hceSession == nullptr) {

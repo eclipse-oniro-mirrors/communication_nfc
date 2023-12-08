@@ -12,15 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef OHOS_I_CE_PAYMENT_SERVICES_PARCELABLE_H
+#define OHOS_I_CE_PAYMENT_SERVICES_PARCELABLE_H
+
 #include "parcel.h"
 #include "ability_info.h"
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 using AppExecFwk::AbilityInfo;
-struct CePaymentServicesParcelable : public Parcelable
-{
-    CePaymentServicesParcelable(std::vector<AbilityInfo> paymentAbilityInfos);
+struct CePaymentServicesParcelable : public Parcelable {
     CePaymentServicesParcelable();
     ~CePaymentServicesParcelable();
     bool Marshalling(Parcel &parcel) const override;
@@ -30,3 +31,4 @@ struct CePaymentServicesParcelable : public Parcelable
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
+#endif

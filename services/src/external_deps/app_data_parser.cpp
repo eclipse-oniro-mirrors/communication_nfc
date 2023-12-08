@@ -475,7 +475,7 @@ void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
     hceApps.push_back(vendorAppAidInfo);
 }
 
-bool AppDataParser::isPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
+bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
 {
     for (const AppDataParser::AidInfo &aidInfo : hceAppInfo.customDataAid) {
         if (KITS::KEY_PAYMENT_AID == aidInfo.name) {

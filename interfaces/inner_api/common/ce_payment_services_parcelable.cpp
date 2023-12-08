@@ -19,10 +19,6 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 const uint32_t MAX_APP_LIST_NUM = 100;
-CePaymentServicesParcelable::CePaymentServicesParcelable(std::vector<AbilityInfo> abilityInfos)
-{
-    paymentAbilityInfos = std::move(abilityInfos);
-}
 CePaymentServicesParcelable::CePaymentServicesParcelable()
 {
 }
