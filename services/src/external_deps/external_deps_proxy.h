@@ -78,7 +78,7 @@ public:
     void StartVibratorOnce();
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
-    void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
+    void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
 };
 } // NFC
 } // OHOS
