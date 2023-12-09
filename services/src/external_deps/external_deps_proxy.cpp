@@ -123,6 +123,11 @@ void ExternalDepsProxy::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int open
         closeRequestCnt, closeFailCnt);
 }
 
+void ExternalDepsProxy::WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt)
+{
+    NfcHisysEvent::WriteHceSwipeResultHiSysEvent(appPackageName, hceSwipeCnt);
+}
+
 void ExternalDepsProxy::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                                                 int typeBCnt, int typeFCnt, int typeVCnt)
 {
@@ -164,6 +169,14 @@ void ExternalDepsProxy::StartVibratorOnce()
 void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos)
 {
     AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
+}
+void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<ElementName>& elementNames)
+{
+    AppDataParser::GetInstance().GetHceAppsByAid(aid, elementNames);
+}
+void ExternalDepsProxy::GetHceApps(std::vector<AppDataParser::HceAppAidInfo>& hceApps)
+{
+    AppDataParser::GetInstance().GetHceApps(hceApps);
 }
 } // namespace NFC
 } // OHOS

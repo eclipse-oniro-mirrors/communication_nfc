@@ -295,7 +295,7 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
 bool HostCardEmulationManager::DispatchAbilitySingleApp(const std::string aid)
 {
     std::vector<ElementName> searchElementNames;
-    AppDataParser::GetInstance().GetHceAppsByAid(aid, searchElementNames);
+    ExternalDepsProxy::GetInstance().GetHceAppsByAid(aid, searchElementNames);
     if (searchElementNames.empty()) {
         InfoLog("No applications found");
         return false;
@@ -325,6 +325,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(const std::string aid)
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, connect_);
     InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
+        ExternalDepsProxy::GetInstance().WriteHceSwipeResultHiSysEvent(element.GetBundleName(), DEFAULT_COUNT);
         return true;
     }
     return false;
