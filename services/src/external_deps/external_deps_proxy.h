@@ -66,8 +66,8 @@ public:
     void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
     void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                      int closeRequestCnt, int closeFailCnt);
-    void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
-                                 int typeBCnt, int typeFCnt, int typeVCnt);
+    void WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt);
+    void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt, int typeBCnt, int typeFCnt, int typeVCnt);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
@@ -77,6 +77,8 @@ public:
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     void StartVibratorOnce();
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+    void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
+    void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
 };
 } // NFC
 } // OHOS

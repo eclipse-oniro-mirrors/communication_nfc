@@ -88,5 +88,11 @@ void NfcHisysEvent::BuildFailedParams(NfcFailedParams &nfcFailedParams,
     nfcFailedParams.version = "VERSION";
     nfcFailedParams.appPackageName = "APPNAME";
 }
+void NfcHisysEvent::WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt)
+{
+    WriteEvent("HCE_SWIPE_RESULT", HiviewDFX::HiSysEvent::EventType::STATISTIC,
+               "HCE_SWIPE_CNT", hceSwipeCnt,
+               "APP_PACKAGE_NAME", appPackageName);
+}
 }  // namespace NFC
 }  // namespace OHOS

@@ -55,7 +55,7 @@ void CeService::InitConfigAidRouting()
 {
     DebugLog("AddAidRoutingHceOtherAids: start");
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
-    AppDataParser::GetInstance().GetHceApps(hceApps);
+    ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
     if (hceApps.empty()) {
         InfoLog("AddAidRoutingHceOtherAids: no hce apps");
         return;
