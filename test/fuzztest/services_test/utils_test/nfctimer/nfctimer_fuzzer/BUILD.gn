@@ -15,14 +15,14 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("../../../../../../nfc.gni")
 
-ohos_fuzztest("TagSessionStubFuzzTest") {
+ohos_fuzztest("NfcTimerFuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstub_fuzzer"
+  fuzz_config_file =
+      "$NFC_DIR/test/fuzztest/services_test/utils_test/nfctimer/nfctimer_fuzzer"
 
   include_dirs = [
     "$NFC_DIR/services/include",
-    "$NFC_DIR/services/src/tags",
     "$NFC_DIR/interfaces/inner_api/common",
     "$NFC_DIR/interfaces/inner_api/include",
   ]
@@ -34,10 +34,7 @@ ohos_fuzztest("TagSessionStubFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "nfc_service_fuzz.cpp",
-    "tagsessionstub_fuzzer.cpp",
-  ]
+  sources = [ "nfctimer_fuzzer.cpp" ]
 
   deps = [
     "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
@@ -59,6 +56,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TagSessionStubFuzzTest",
+    ":NfcTimerFuzzTest",
   ]
 }

@@ -278,6 +278,52 @@ namespace OHOS {
             static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED),
             data2, reply, option);
     }
+
+    void FuzzHandleRegForegroundDispatch(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        tagSession->OnRemoteRequest(
+            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REG_FOREGROUND),
+            data2, reply, option);
+    }
+
+    void FuzzHandleUnregForegroundDispatch(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        tagSession->OnRemoteRequest(
+            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND),
+            data2, reply, option);
+    }
+
+    void FuzzOnRemoteRequest(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(size), data2, reply, option);
+    }
 }
 
 /* Fuzzer entry point */
@@ -304,6 +350,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleCanMakeReadOnly(data, size);
     OHOS::FuzzHandleGetMaxTransceiveLength(data, size);
     OHOS::FuzzHandleIsSupportedApdusExtended(data, size);
+    OHOS::FuzzHandleRegForegroundDispatch(data, size);
+    OHOS::FuzzHandleUnregForegroundDispatch(data, size);
+    OHOS::FuzzOnRemoteRequest(data, size);
 
     return 0;
 }
