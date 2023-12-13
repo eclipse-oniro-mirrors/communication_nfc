@@ -29,17 +29,19 @@ public:
     QueryAppInfoCallbackStub();
     virtual ~QueryAppInfoCallbackStub();
     static QueryAppInfoCallbackStub& GetInstance();
-    KITS::ErrorCode RegisterCallback(const QueryApplicationByVendor callback);
+    KITS::ErrorCode RegisterQueryTagAppCallback(const QueryApplicationByVendor tagCallback);
+    KITS::ErrorCode RegisterQueryHceAppCallback(const QueryHceAppByVendor hceCallback);
 
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<std::string> aidList,
+    bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<AAFwk::Want> &hceAppList,
         std::vector<AppExecFwk::ElementName> &elementNameList) override;
 
 private:
     int RemoteQueryAppInfo(MessageParcel &data, MessageParcel &reply);
-    QueryApplicationByVendor callback_;
+    QueryApplicationByVendor queryTagAppByTechCallback_;
+    QueryHceAppByVendor queryHceAppCallback_;
     std::shared_mutex mutex_;
     bool isRemoteDied_;
 };

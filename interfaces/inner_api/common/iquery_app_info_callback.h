@@ -18,15 +18,18 @@
 #include <iremote_broker.h>
 
 #include "element_name.h"
+#include "want.h"
 
 namespace OHOS {
 namespace NFC {
+
 const std::string KEY_TAG_APP = "tag";
 const std::string KEY_HCE_APP = "hce";
-using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::string, std::vector<int>);
+using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::vector<int>);
+using QueryHceAppByVendor = std::vector<AAFwk::Want> (*)();
 class IQueryAppInfoCallback : public IRemoteBroker {
 public:
-    virtual bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<std::string> aidList,
+    virtual bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<AAFwk::Want> &hceAppList,
         std::vector<AppExecFwk::ElementName> &elementNameList) = 0;
 
 public:

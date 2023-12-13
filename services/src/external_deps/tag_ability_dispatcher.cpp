@@ -24,6 +24,9 @@ namespace NFC {
 namespace TAG {
 using OHOS::NFC::KITS::TagTechnology;
 using OHOS::AppExecFwk::ElementName;
+
+const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+
 TagAbilityDispatcher::TagAbilityDispatcher()
 {
 }
@@ -94,29 +97,31 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     }
 #if 0
     std::vector<ElementName> vendorElements = AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(techList);
-    bool isFromVendor = false;
-    if (vendorElements.size() != 0) {
-        isFromVendor = true;
-        for (auto element : vendorElements) {
-            elements.push_back(element);
-        }
+    if (elements.size() == 0 && vendorElements.size() == 0) {
+        return;
     }
-    std::vector<std::string> elementNameList;
-    for (auto element : elements) {
-        std::string elementName = element.GetBundleName() + element.GetAbilityName();
-        elementNameList.push_back(elementName);
-    }
+
+    bool isFromVendor = (vendorElements.size() != 0) ? true : false;
+    bool isOH = true;
     AAFwk::Want want;
-    const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+    std::vector<std::string> vendorElementNameList;
+    for (auto vendorElement : vendorElements) {
+        std::string elementName = vendorElement.GetBundleName() + vendorElement.GetAbilityName();
+        vendorElementNameList.push_back(elementName);
+    }
+
     want.SetParam("remoteTagService", tagServiceIface);
     SetWantExtraParam(tagInfo, want);
-    if (elementNameList.size() > TAG_APP_MATCHED_SIZE_SINGLE) {
-        want.SetParam(PARAM_ABILITY_APPINFOS, elementNameList);
+    if ((vendorElementNameList.size() + elements.size()) > TAG_APP_MATCHED_SIZE_SINGLE) {
+        want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
         DispatchAbilityMultiApp(tagInfo, want);
     } else if ((elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isOH) {
         want.SetElement(elements[0]);
         DispatchAbilitySingleApp(want);
-    } else if ((elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isFromVendor) {}
+    } else if ((vendorElementNameList.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isFromVendor) {
+        want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
+        DispatchAbilitySingleApp(want);
+    }
 #endif
     AAFwk::Want want;
     want.SetParam("remoteTagService", tagServiceIface);

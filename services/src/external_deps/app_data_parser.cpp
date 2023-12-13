@@ -294,8 +294,8 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
         WarnLog("UpdateHceAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
         RemoveHceAppInfo(element);
     }
-    std::vector<AppDataParser::AidInfo> customDataAidList;
-    AppDataParser::AidInfo customDataAid;
+    std::vector<AidInfo> customDataAidList;
+    AidInfo customDataAid;
     for (auto& data : abilityInfo.metadata) {
         if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OHTER_AID.compare(data.name) == 0)) {
             customDataAid.name = data.name;
@@ -416,13 +416,13 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
 
 std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList)
 {
-    std::vector<ElementName> elements;
-    std::vector<std::string> aidList {};
+    std::vector<ElementName> elements {};
+    std::vector<AAFwk::Want> hceAppList {};
     if (queryApplicationByVendor_ == nullptr) {
         ErrorLog("AppDataParser::GetVendorDispatchTagAppsByTech queryApplicationByVendor_ is nullptr.");
         return std::vector<ElementName>();
     }
-    queryApplicationByVendor_->OnQueryAppInfo(KEY_TAG_APP, discTechList, aidList, elements);
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_TAG_APP, discTechList, hceAppList, elements);
     return elements;
 }
 
@@ -452,25 +452,44 @@ void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementN
         }
     }
 }
+
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
 {
-    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
+    for (const HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         hceApps.push_back(appAidInfo);
     }
 
-    AppDataParser::HceAppAidInfo vendorAppAidInfo;
-    std::vector<AppDataParser::AidInfo> vendorCustomDataAid;
-    AppDataParser::AidInfo vendorAidInfo;
-    ElementName vendorElementName;
-    vendorElementName.SetDeviceID("");
-    vendorElementName.SetAbilityName("com.nxp.cascaen.paymenthost");
-    vendorElementName.SetBundleName("/com.nxp.cascaen.paymenthost.PaymentServiceHost");
-    vendorAidInfo.name = "other-aid";
-    vendorAidInfo.value = "A0000000041010";
-    vendorCustomDataAid.push_back(vendorAidInfo);
-    vendorAppAidInfo.element = vendorElementName;
-    vendorAppAidInfo.customDataAid = vendorCustomDataAid;
-    hceApps.push_back(vendorAppAidInfo);
+    if (queryApplicationByVendor_ == nullptr) {
+        WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
+        return;
+    }
+    std::vector<int> techList {};
+    std::vector<AAFwk::Want> vendorHceAppAndAidList {};
+    std::vector<AppExecFwk::ElementName> elementNameList {};
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
+    if (vendorHceAppAndAidList.size() != 0) {
+        for (const auto appAidInfoWant : vendorHceAppAndAidList) {
+            std::shared_ptr<HceAppAidInfo> appAidInfo = std::make_shared<HceAppAidInfo>();
+            appAidInfo->element = appAidInfoWant.GetElement();
+            const std::string KEY_OTHER_AID = "other-aid";
+            const std::string KEY_PAYMENT_AID = "payment-aid";
+            std::vector<std::string> otherAidList = appAidInfoWant.GetStringArrayParam(KEY_OTHER_AID);
+            std::vector<std::string> paymentAidList = appAidInfoWant.GetStringArrayParam(KEY_PAYMENT_AID);
+            for (std::string otherAid : otherAidList) {
+                std::shared_ptr<AidInfo> aidInfo = std::make_shared<AidInfo>();
+                aidInfo->name = KEY_OTHER_AID;
+                aidInfo->value = otherAid;
+                appAidInfo->customDataAid.push_back(*aidInfo);
+            }
+            for (std::string paymentAid : paymentAidList) {
+                std::shared_ptr<AidInfo> aidInfo = std::make_shared<AidInfo>();
+                aidInfo->name = KEY_OTHER_AID;
+                aidInfo->value = paymentAid;
+                appAidInfo->customDataAid.push_back(*aidInfo);
+            }
+            hceApps.push_back(*appAidInfo);
+        }
+    }
 }
 }  // namespace NFC
 }  // namespace OHOS

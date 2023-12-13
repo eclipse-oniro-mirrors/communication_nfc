@@ -25,7 +25,7 @@ public:
     explicit QueryAppInfoCallbackProxy(const sptr<IRemoteObject> &remote);
     virtual ~QueryAppInfoCallbackProxy() {}
 
-    bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<std::string> aidList,
+    bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<AAFwk::Want> &hceAppList,
         std::vector<AppExecFwk::ElementName> &elementNameList) override;
 
 private:

@@ -20,7 +20,8 @@
 
 namespace OHOS {
 namespace NFC {
-QueryAppInfoCallbackStub::QueryAppInfoCallbackStub() : callback_(nullptr), isRemoteDied_(false)
+QueryAppInfoCallbackStub::QueryAppInfoCallbackStub()
+    : queryTagAppByTechCallback_(nullptr), queryHceAppCallback_(nullptr), isRemoteDied_(false)
 {}
 
 QueryAppInfoCallbackStub::~QueryAppInfoCallbackStub()
@@ -33,16 +34,19 @@ QueryAppInfoCallbackStub& QueryAppInfoCallbackStub::GetInstance()
 }
 
 bool QueryAppInfoCallbackStub::OnQueryAppInfo(std::string type, std::vector<int> techList,
-    std::vector<std::string> aidList, std::vector<AppExecFwk::ElementName> &elementNameList)
+    std::vector<AAFwk::Want> &hceAppList, std::vector<AppExecFwk::ElementName> &elementNameList)
 {
     if (type.compare(KEY_TAG_APP) == 0) {
-        if (callback_) {
+        if (queryTagAppByTechCallback_) {
             InfoLog("OnQueryAppInfo:call tag callback_");
-            elementNameList = callback_(type, techList);
-            return true;
+            elementNameList = queryTagAppByTechCallback_(techList);
         }
+        return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
-        InfoLog("OnQueryAppInfo:call hce callback_");
+        if (queryHceAppCallback_) {
+            InfoLog("OnQueryAppInfo:call hce callback_");
+            hceAppList = queryHceAppCallback_();
+        }
         return true;
     }
     return false;
@@ -81,19 +85,35 @@ int QueryAppInfoCallbackStub::OnRemoteRequest(
     return ret;
 }
 
-KITS::ErrorCode QueryAppInfoCallbackStub::RegisterCallback(const QueryApplicationByVendor callback)
+KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryTagAppCallback(const QueryApplicationByVendor tagCallback)
 {
-    if (callback_ != nullptr) {
-        InfoLog("RegisterCallback::callback_ has registered!");
+    if (queryTagAppByTechCallback_ != nullptr) {
+        InfoLog("RegisterQueryTagAppCallback::queryTagAppByTechCallback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
     std::shared_lock<std::shared_mutex> guard(mutex_);
-    if (callback == nullptr) {
-        InfoLog("RegisterCallback::callback is nullptr!");
-        callback_ = callback;
+    if (tagCallback == nullptr) {
+        InfoLog("RegisterQueryTagAppCallback::callback is nullptr!");
+        queryTagAppByTechCallback_ = tagCallback;
         return KITS::ERR_NFC_PARAMETERS;
     }
-    callback_ = callback;
+    queryTagAppByTechCallback_ = tagCallback;
+    return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryHceAppCallback(const QueryHceAppByVendor hceCallback)
+{
+    if (queryHceAppCallback_ != nullptr) {
+        InfoLog("RegisterQueryHceAppCallback::queryHceAppCallback_ has registered!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    std::shared_lock<std::shared_mutex> guard(mutex_);
+    if (hceCallback == nullptr) {
+        InfoLog("RegisterQueryHceAppCallback::callback is nullptr!");
+        queryHceAppCallback_ = hceCallback;
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    queryHceAppCallback_ = hceCallback;
     return KITS::ERR_NONE;
 }
 
@@ -102,17 +122,21 @@ int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessagePar
     std::shared_lock<std::shared_mutex> guard(mutex_);
     std::string type = data.ReadString();
     std::vector<AppExecFwk::ElementName> elementNameList;
-    std::vector<std::string> aidList;
+    std::vector<AAFwk::Want> hceAppList;
     std::vector<int> techList;
     if (type.compare(KEY_TAG_APP) == 0) {
         data.ReadInt32Vector(&techList);
-        OnQueryAppInfo(type, techList, aidList, elementNameList);
+        OnQueryAppInfo(type, techList, hceAppList, elementNameList);
         reply.WriteInt32(elementNameList.size());
-        for (auto elementName : elementNameList) {
+        for (AppExecFwk::ElementName elementName : elementNameList) {
             elementName.Marshalling(reply);
         }
     } else if (type.compare(KEY_HCE_APP) == 0) {
-        OnQueryAppInfo(type, techList, aidList, elementNameList);
+        OnQueryAppInfo(type, techList, hceAppList, elementNameList);
+        int appLen = hceAppList.size();
+        for (int i = 0; i < appLen; i++) {
+            hceAppList[i].Marshalling(reply);
+        }
     }
     return KITS::ERR_NONE;
 }
