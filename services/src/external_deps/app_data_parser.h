@@ -23,6 +23,7 @@
 #include "element_name.h"
 #include "ion_card_emulation_notify_cb.h"
 #include "iquery_app_info_callback.h"
+#include "nfc_sdk_common.h"
 #include "want.h"
 
 namespace OHOS {
@@ -30,7 +31,7 @@ namespace NFC {
 using AppExecFwk::AbilityInfo;
 using AppExecFwk::ExtensionAbilityInfo;
 using OHOS::AppExecFwk::ElementName;
-using QueryApplicationByVendor = std::vector<ElementName> (*)(std::string, std::vector<int>);
+
 class AppDataParser {
 public:
     explicit AppDataParser();
@@ -43,7 +44,7 @@ public:
 
     struct TagAppTechInfo {
         ElementName element;
-        std::vector<std::string> tech; // technology, such as NfcA/NfcB/IsoDep.
+        std::vector<std::string> tech;
     };
 
     struct HceAppAidInfo {

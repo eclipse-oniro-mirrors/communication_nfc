@@ -193,7 +193,8 @@ ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
     return nfcControllerService_.lock()->RegNdefMsgCb(callback);
 }
 
-ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback)
+ErrorCode NfcController::RegQueryApplicationCb(std::string type,
+    QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback)
 {
     DebugLog("NfcController::RegQueryApplicationCb");
     InitNfcRemoteSA();
@@ -201,7 +202,11 @@ ErrorCode NfcController::RegQueryApplicationCb(QueryApplicationByVendor callback
         ErrorLog("NfcController::RegQueryApplicationCb nfcControllerService_ expired");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    g_queryAppInfoCallbackStub->RegisterCallback(callback);
+    if (type.compare(KEY_TAG_APP) == 0) {
+        g_queryAppInfoCallbackStub->RegisterQueryTagAppCallback(tagCallback);
+    } else if (type.compare(KEY_HCE_APP) == 0) {
+        g_queryAppInfoCallbackStub->RegisterQueryHceAppCallback(hceCallback);
+    }
     return nfcControllerService_.lock()->RegQueryApplicationCb(g_queryAppInfoCallbackStub);
 }
 

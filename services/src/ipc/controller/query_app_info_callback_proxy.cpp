@@ -20,12 +20,12 @@
 
 namespace OHOS {
 namespace NFC {
-QueryAppInfoCallbackProxy::QueryAppInfoCallbackProxy(const sptr<IRemoteObject> &remote) 
+QueryAppInfoCallbackProxy::QueryAppInfoCallbackProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<IQueryAppInfoCallback>(remote)
 {}
 
 bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int> techList,
-    std::vector<std::string> aidList, std::vector<AppExecFwk::ElementName> &elementNameList)
+    std::vector<AAFwk::Want> &hceAppList, std::vector<AppExecFwk::ElementName> &elementNameList)
 {
     MessageOption option = {MessageOption::TF_SYNC};
     MessageParcel data;
@@ -54,8 +54,22 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
         DebugLog("query hce app.");
+        int error = Remote()->SendRequest(
+            static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
+            data, reply, option);
+        if (error != ERR_NONE) {
+            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr %{public}d error: %{public}d",
+                NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);
+            return false;
+        }
+        int appLen = reply.ReadInt32();
+        InfoLog("QueryAppInfoCallbackProxy::OnQueryAppInfo recv %{public}d app need to add", appLen);
+        for (int i = 0; i < appLen; i++) {
+            hceAppList.push_back(*(AAFwk::Want::Unmarshalling(reply)));
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 }  // namespace NFC
 }  // namespace OHOS
