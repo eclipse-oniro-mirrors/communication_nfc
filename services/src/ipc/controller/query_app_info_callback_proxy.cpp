@@ -54,7 +54,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
         DebugLog("query hce app.");
-            int error = Remote()->SendRequest(
+        int error = Remote()->SendRequest(
             static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
             data, reply, option);
         if (error != ERR_NONE) {
