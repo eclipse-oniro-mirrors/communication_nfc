@@ -30,8 +30,7 @@ class NfcService;
 class NfcEventHandler;
 class HostCardEmulationManager;
 using OHOS::AppExecFwk::ElementName;
-class CeService : public IDefaultPaymentServiceChangeCallback, public std::enable_shared_from_this<CeService>
-{
+class CeService : public IDefaultPaymentServiceChangeCallback, public std::enable_shared_from_this<CeService> {
 public:
     struct AidEntry {
         std::string aid;

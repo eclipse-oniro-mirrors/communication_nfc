@@ -22,8 +22,7 @@
 
 namespace OHOS {
 namespace NFC {
-class IDefaultPaymentServiceChangeCallback : public IRemoteBroker
-{
+class IDefaultPaymentServiceChangeCallback : public IRemoteBroker {
 public:
     /**
      * * @brief  on default payment service change

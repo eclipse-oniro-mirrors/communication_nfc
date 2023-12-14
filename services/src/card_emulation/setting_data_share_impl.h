@@ -24,8 +24,7 @@
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
-class SettingDataShareImpl : public DelayedSingleton<SettingDataShareImpl>
-{
+class SettingDataShareImpl : public DelayedSingleton<SettingDataShareImpl> {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"nfc.setting.data");
     SettingDataShareImpl();
@@ -43,8 +42,7 @@ private:
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
 };
 
-class ISettingData : public IRemoteBroker
-{
+class ISettingData : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"nfc.setting.data");
 };

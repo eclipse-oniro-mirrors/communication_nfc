@@ -23,8 +23,7 @@
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
-class DefaultPaymentServiceChangeCallback : public AAFwk::DataAbilityObserverStub
-{
+class DefaultPaymentServiceChangeCallback : public AAFwk::DataAbilityObserverStub {
 public:
     explicit DefaultPaymentServiceChangeCallback(sptr<IDefaultPaymentServiceChangeCallback> callback)
         : callback_(callback)
