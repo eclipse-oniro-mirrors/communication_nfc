@@ -42,7 +42,10 @@ ohos_fuzztest("NdefTagFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:dataobs_manager",
     "c_utils:utils",
     "ipc:ipc_core",
   ]
