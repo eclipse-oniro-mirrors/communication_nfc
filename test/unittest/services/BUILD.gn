@@ -66,6 +66,7 @@ ohos_unittest("controller_test") {
 
   sources = [
     "controller_test/nfc_controller_callback_stub_test.cpp",
+    "controller_test/nfc_controller_impl_test.cpp",
     "controller_test/nfc_controller_test.cpp",
   ]
 
