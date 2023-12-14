@@ -12,44 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nfc_data_share_impl.h"
 #include "loghelper.h"
 #include "iremote_broker.h"
 #include "iremote_stub.h"
-
+#include "setting_data_share_impl.h"
 namespace OHOS {
 namespace NFC {
-NfcDataShareImpl::NfcDataShareImpl()
+OHOS::NFC::SettingDataShareImpl::SettingDataShareImpl()
 {
     Initialize();
 }
-
-NfcDataShareImpl::~NfcDataShareImpl()
+SettingDataShareImpl::~SettingDataShareImpl()
 {
     remoteObj_ = nullptr;
 }
-
-void NfcDataShareImpl::Initialize()
+KITS::ErrorCode SettingDataShareImpl::RegisterDataObserver(const Uri& uri,
+                                                           const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
-    auto remote = sptr<INfcState>(new (std::nothrow) IRemoteStub<INfcState>());
-    if (remote == nullptr) {
-        ErrorLog("%{public}s: remoteObject is nullptr.", __func__);
-        return;
+    if (dataShareHelper_ == nullptr) {
+        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
     }
-    remoteObj_ = remote->AsObject();
-    dataShareHelper_ = CreateDataShareHelper();
+    dataShareHelper_->RegisterObserver(uri, dataObserver);
+    return KITS::ERR_NONE;
 }
-
-std::shared_ptr<DataShare::DataShareHelper> NfcDataShareImpl::CreateDataShareHelper()
+KITS::ErrorCode SettingDataShareImpl::ReleaseDataObserver(const Uri& uri,
+                                                          const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
-    if (remoteObj_ == nullptr) {
-        ErrorLog("%{public}s: remoteObject is nullptr, reInitialize.", __func__);
-        Initialize();
+    if (dataShareHelper_ == nullptr) {
+        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
     }
-    return DataShare::DataShareHelper::Creator(remoteObj_, KITS::NFC_DATA_URI);
+    dataShareHelper_->UnregisterObserver(uri, dataObserver);
+    return KITS::ERR_NONE;
 }
-
-KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, int32_t &value)
+KITS::ErrorCode SettingDataShareImpl::GetElementName(Uri& uri, const std::string& column, ElementName& value)
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
@@ -67,27 +64,26 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
     int32_t columnIndex;
     rows->GetColumnIndex(KITS::NFC_DATA_COLUMN_VALUE, columnIndex);
     std::string valueStr;
-    int32_t result = rows->GetString(columnIndex, valueStr);
-    if (result != KITS::ERR_NONE) {
+    int32_t ret = rows->GetString(columnIndex, valueStr);
+    if (ret != KITS::ERR_NONE) {
         ErrorLog("%{public}s: can't get value.", __func__);
         return KITS::ERR_NFC_DATABASE_RW;
     }
     rows->Close();
-    value = atoi(valueStr.c_str());
-    InfoLog("%{public}s: success, value = %{public}d.", __func__, value);
+    value.ParseURI(valueStr);
+    InfoLog("%{public}s: success, value = %{public}s.", __func__, valueStr.c_str());
     return KITS::ERR_NONE;
 }
-
-KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, int &value)
+KITS::ErrorCode SettingDataShareImpl::SetElementName(Uri& uri, const std::string& column, ElementName& value)
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
         return KITS::ERR_NFC_DATABASE_RW;
     }
-    int oldVal = 0;
-    int errorCode = GetValue(uri, column, oldVal);
+    ElementName oldVal;
+    int errorCode = GetElementName(uri, column, oldVal);
     DataShare::DataShareValueObject keyObj(column);
-    DataShare::DataShareValueObject valueObj(std::to_string(value));
+    DataShare::DataShareValueObject valueObj(value.GetURI());
     DataShare::DataShareValuesBucket bucket;
     bucket.Put(KITS::NFC_DATA_COLUMN_VALUE, valueObj);
     bucket.Put(KITS::NFC_DATA_COLUMN_KEYWORD, keyObj);
@@ -106,5 +102,23 @@ KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, 
     }
     return KITS::ERR_NONE;
 }
-} // NFC
-} // OHOS
+std::shared_ptr<DataShare::DataShareHelper> SettingDataShareImpl::CreateDataShareHelper()
+{
+    if (remoteObj_ == nullptr) {
+        ErrorLog("%{public}s: remoteObject is nullptr, reInitialize.", __func__);
+        Initialize();
+    }
+    return DataShare::DataShareHelper::Creator(remoteObj_, KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+}
+void SettingDataShareImpl::Initialize()
+{
+    auto remote = sptr<ISettingData>(new (std::nothrow) IRemoteStub<ISettingData>());
+    if (remote == nullptr) {
+        ErrorLog("%{public}s: remoteObject is nullptr.", __func__);
+        return;
+    }
+    remoteObj_ = remote->AsObject();
+    dataShareHelper_ = CreateDataShareHelper();
+}
+} // namespace NFC
+} // namespace OHOS

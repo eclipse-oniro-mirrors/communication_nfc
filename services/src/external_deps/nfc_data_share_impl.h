@@ -24,7 +24,6 @@ namespace NFC {
 const static std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
 const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
-static const int INVALID_VALUE = -1;
 
 class NfcDataShareImpl : public DelayedSingleton<NfcDataShareImpl> {
 public:

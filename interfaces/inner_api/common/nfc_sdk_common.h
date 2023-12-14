@@ -95,9 +95,17 @@ const std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
 const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
 
+/** Database key for payment default app. */
+const std::string NFC_PAYMENT_DEFAULT_APP =
+    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=nfc_payment_default_app";
+const std::string NFC_DATA_URI_PAYMENT_DEFAULT_APP = NFC_DATA_ABILITY_PREFIX + NFC_PAYMENT_DEFAULT_APP;
+const std::string DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP = "nfc_payment_default_app";
+
 /** NFC filed on/off common event */
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
+
+const int DATA_SHARE_INVALID_VALUE = -1;
 
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,

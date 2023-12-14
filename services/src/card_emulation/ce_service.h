@@ -20,13 +20,17 @@
 #include "ihce_cmd_callback.h"
 #include "app_data_parser.h"
 #include "common_event_manager.h"
+#include "element_name.h"
+#include "idefault_payment_service_change_callback.h"
+#include "default_payment_service_change_callback.h"
 
 namespace OHOS {
 namespace NFC {
 class NfcService;
 class NfcEventHandler;
 class HostCardEmulationManager;
-class CeService {
+using OHOS::AppExecFwk::ElementName;
+class CeService : public IDefaultPaymentServiceChangeCallback, public std::enable_shared_from_this<CeService> {
 public:
     struct AidEntry {
         std::string aid;
@@ -49,6 +53,10 @@ public:
     bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData);
 
     void InitConfigAidRouting();
+    void OnDefaultPaymentServiceChange() override;
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
+    void Initialize();
+    void Deinitialize();
 
 private:
     uint64_t lastFieldOnTime_ = 0;
@@ -59,6 +67,8 @@ private:
     friend class NfcService;
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
+    ElementName defaultPaymentElement_;
+    sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
 };
 } // namespace NFC
 } // namespace OHOS
