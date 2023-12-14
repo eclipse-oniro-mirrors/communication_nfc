@@ -82,7 +82,10 @@ ohos_unittest("controller_test") {
 ohos_unittest("cardemulation_test") {
   module_out_path = "nfc/services"
 
-  sources = [ "cardemulation_test/cardemulation_test.cpp" ]
+  sources = [
+    "cardemulation_test/cardemulation_test.cpp",
+    "cardemulation_test/hce_cmd_callback_stub_test.cpp",
+  ]
 
   configs = [ ":nfc_service_unit_test_config" ]
 
