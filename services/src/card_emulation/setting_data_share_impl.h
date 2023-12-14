@@ -12,26 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NFC_DATA_SHARE_IMPL_H
-#define NFC_DATA_SHARE_IMPL_H
+#ifndef SETTING_DATA_SHARE_IMPL_H
+#define SETTING_DATA_SHARE_IMPL_H
 
 #include <singleton.h>
 #include "datashare_helper.h"
 #include "nfc_sdk_common.h"
 #include "uri.h"
+#include "element_name.h"
 
 namespace OHOS {
 namespace NFC {
-
-class NfcDataShareImpl : public DelayedSingleton<NfcDataShareImpl> {
+using OHOS::AppExecFwk::ElementName;
+class SettingDataShareImpl : public DelayedSingleton<SettingDataShareImpl>
+{
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.INfcState");
-    NfcDataShareImpl();
-    ~NfcDataShareImpl();
+    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.setting.data");
+    SettingDataShareImpl();
+    ~SettingDataShareImpl();
     KITS::ErrorCode RegisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-    KITS::ErrorCode UnregisterDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-    KITS::ErrorCode GetValue(Uri &uri, const std::string &column, int32_t &value);
-    KITS::ErrorCode SetValue(Uri &uri, const std::string &column, int &value);
+    KITS::ErrorCode ReleaseDataObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+    KITS::ErrorCode GetElementName(Uri &uri, const std::string &column, ElementName &value);
+    KITS::ErrorCode SetElementName(Uri &uri, const std::string &column, ElementName &value);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
 
 private:
@@ -41,10 +43,11 @@ private:
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
 };
 
-class INfcState : public IRemoteBroker {
+class ISettingData : public IRemoteBroker
+{
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.INfcState");
+    DECLARE_INTERFACE_DESCRIPTOR(u"nfc.setting.data");
 };
-} // NFC
-} // OHOS
-#endif // NFC_DATA_SHARE_IMPL_H
+} // namespace NFC
+} // namespace OHOS
+#endif // SETTING_DATA_SHARE_IMPL_H

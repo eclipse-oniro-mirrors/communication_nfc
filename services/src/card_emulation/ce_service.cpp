@@ -18,6 +18,7 @@
 #include "external_deps_proxy.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
+#include "setting_data_share_impl.h"
 
 namespace OHOS {
 namespace NFC {
@@ -32,9 +33,18 @@ CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::IN
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
 {
     hostCardEmulationManager_ = std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
+
+    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
+        nfcDefaultPaymentApp, KIST::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
+    DebugLog("CeService constructor end");
 }
 
-CeService::~CeService() { hostCardEmulationManager_ = nullptr; }
+CeService::~CeService()
+{
+    hostCardEmulationManager_ = nullptr;
+    DebugLog("CeService deconstructor end");
+}
 
 void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 {
@@ -62,8 +72,11 @@ void CeService::InitConfigAidRouting()
     }
     std::vector<AidEntry> aidEntries;
     for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
+        bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
+                                appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
         for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
-            if (KITS::KEY_OHTER_AID == aidInfo.name) {
+            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isDefaultPayment;
+            if (shouldAdd) {
                 AidEntry aidEntry;
                 aidEntry.aid = aidInfo.value;
                 aidEntry.aidInfo = 0;
@@ -84,6 +97,31 @@ void CeService::InitConfigAidRouting()
         nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
     }
     DebugLog("AddAidRoutingHceOtherAids: end");
+}
+
+void CeService::OnDefaultPaymentServiceChange()
+{
+    ElementName newElement;
+    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
+        nfcDefaultPaymentApp, KIST::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, newElement);
+    if (newElement.GetURI() == defaultPaymentElement_.GetURI()) {
+        InfoLog("OnDefaultPaymentServiceChange: payment service not change");
+        return;
+    }
+    defaultPaymentElement_ = newElement;
+    InitConfigAidRouting();
+    if (nfcService_.expired()) {
+        ErrorLog("OnDefaultPaymentServiceChange: nfc service is null");
+        return;
+    }
+    std::weak_ptr<NfcRoutingManager> routingManager = nfcService_.lock()->GetNfcRoutingManager();
+    if (routingManager.expired()) {
+        ErrorLog("OnDefaultPaymentServiceChange: routing manager is null");
+        return;
+    }
+    routingManager.lock()->ComputeRoutingParams();
+    routingManager.lock()->CommitRouting();
 }
 
 void CeService::HandleFieldActivated()
@@ -134,6 +172,27 @@ void CeService::OnCardEmulationActivated()
 void CeService::OnCardEmulationDeactivated()
 {
     hostCardEmulationManager_->OnCardEmulationDeactivated();
+}
+OHOS::sptr<OHOS::IRemoteObject> CeService::AsObject()
+{
+    return nullptr;
+}
+void CeService::Initialize()
+{
+    DebugLog("CeService Initialize start");
+    dataRdbObserver_ = sptr<DefaultPaymentServiceChangeCallback>(
+        new (std::nothrow) DefaultPaymentServiceChangeCallback(shared_from_this()));
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->RegisterDataObserver(nfcDefaultPaymentApp,
+                                                                                dataRdbObserver_);
+    DebugLog("CeService Initialize end");
+}
+void CeService::Deinitialize()
+{
+    DebugLog("CeService Deinitialize start");
+    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
+                                                                               dataRdbObserver_);
+    DebugLog("CeService Deinitialize end");
 }
 } // namespace NFC
 } // namespace OHOS

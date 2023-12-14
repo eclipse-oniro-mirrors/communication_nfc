@@ -293,6 +293,7 @@ bool NfcService::DoTurnOn()
 
     /* Start polling loop */
     nfcPollingManager_->StartPollingLoop(true);
+    ceService_->Initialize();
     ceService_->InitConfigAidRouting();
 
     nfcRoutingManager_->ComputeRoutingParams();
@@ -329,6 +330,7 @@ bool NfcService::DoTurnOff()
         unloadStaSaTimerId = 0;
     }
     NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
+    ceService_->Deinitialize();
     // Do turn off success, closeRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
     return result;
