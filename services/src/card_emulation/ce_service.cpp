@@ -34,9 +34,9 @@ CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::IN
 {
     hostCardEmulationManager_ = std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
 
-    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
-        nfcDefaultPaymentApp, KIST::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
+        nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
     DebugLog("CeService constructor end");
 }
 
@@ -102,9 +102,9 @@ void CeService::InitConfigAidRouting()
 void CeService::OnDefaultPaymentServiceChange()
 {
     ElementName newElement;
-    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
-        nfcDefaultPaymentApp, KIST::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, newElement);
+        nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, newElement);
     if (newElement.GetURI() == defaultPaymentElement_.GetURI()) {
         InfoLog("OnDefaultPaymentServiceChange: payment service not change");
         return;
@@ -182,6 +182,7 @@ void CeService::Initialize()
     DebugLog("CeService Initialize start");
     dataRdbObserver_ = sptr<DefaultPaymentServiceChangeCallback>(
         new (std::nothrow) DefaultPaymentServiceChangeCallback(shared_from_this()));
+    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->RegisterDataObserver(nfcDefaultPaymentApp,
                                                                                 dataRdbObserver_);
     DebugLog("CeService Initialize end");
@@ -189,7 +190,7 @@ void CeService::Initialize()
 void CeService::Deinitialize()
 {
     DebugLog("CeService Deinitialize start");
-    Uri nfcDefaultPaymentApp(KIST::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
                                                                                dataRdbObserver_);
     DebugLog("CeService Deinitialize end");

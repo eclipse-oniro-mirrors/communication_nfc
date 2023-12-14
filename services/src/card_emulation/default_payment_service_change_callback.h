@@ -19,13 +19,14 @@
 #include "idefault_payment_service_change_callback.h"
 #include "element_name.h"
 #include "setting_data_share_impl.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
 class DefaultPaymentServiceChangeCallback : public AAFwk::DataAbilityObserverStub {
 public:
-    explicit DefaultPaymentServiceChangeCallback(sptr<IDefaultPaymentServiceChangeCallback> callback)
+    explicit DefaultPaymentServiceChangeCallback(std::weak_ptr<IDefaultPaymentServiceChangeCallback> callback)
         : callback_(callback)
     {
     }
@@ -34,14 +35,15 @@ public:
     }
     void OnChange() override
     {
-        if (callback_ == nullptr) {
+        if (callback_.expired()) {
+            ErrorLog("OnDefaultPaymentServiceChange: callback is expired");
             return;
         }
-        callback_->OnDefaultPaymentServiceChange();
+        callback_.lock()->OnDefaultPaymentServiceChange();
     }
 
 private:
-    sptr<IDefaultPaymentServiceChangeCallback> callback_;
+    std::weak_ptr<IDefaultPaymentServiceChangeCallback> callback_;
 };
 
 } // namespace NFC
