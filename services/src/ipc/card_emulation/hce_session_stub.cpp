@@ -105,6 +105,10 @@ int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageP
 }
 int HceSessionStub::HandleGetPaymentServices(MessageParcel &data, MessageParcel &reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("HandleGetPaymentServices, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     int exception = data.ReadInt32();
     if (exception) {
         ErrorLog("HandleGetPaymentServices, exception");

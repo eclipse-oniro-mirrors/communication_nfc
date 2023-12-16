@@ -128,6 +128,12 @@ void ExternalDepsProxy::WriteHceSwipeResultHiSysEvent(std::string appPackageName
     NfcHisysEvent::WriteHceSwipeResultHiSysEvent(appPackageName, hceSwipeCnt);
 }
 
+void ExternalDepsProxy::WriteHceDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
+                                                                  std::string newAppPackageName)
+{
+    NfcHisysEvent::WriteHceDefaultPaymentAppChangeHiSysEvent(oldAppPackageName, newAppPackageName);
+}
+
 void ExternalDepsProxy::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
                                                 int typeBCnt, int typeFCnt, int typeVCnt)
 {
