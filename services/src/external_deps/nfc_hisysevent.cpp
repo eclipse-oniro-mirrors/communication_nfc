@@ -94,11 +94,11 @@ void NfcHisysEvent::WriteHceSwipeResultHiSysEvent(std::string appPackageName, in
                "HCE_SWIPE_CNT", hceSwipeCnt,
                "APP_PACKAGE_NAME", appPackageName);
 }
-void NfcHisysEvent::WriteHceDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName, std::string newAppPackageName)
+void NfcHisysEvent::WriteHceDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
+                                                              std::string newAppPackageName)
 {
     WriteEvent("HCE_DEFAULT_PAYMENT_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
-               "OLD_APP_PACKAGE_NAME", oldAppPackageName,
-               "NEW_APP_PACKAGE_NAME", newAppPackageName);
+               "OLD_APP_PACKAGE_NAME", oldAppPackageName, "NEW_APP_PACKAGE_NAME", newAppPackageName);
 }
 }  // namespace NFC
 }  // namespace OHOS
