@@ -422,6 +422,7 @@ void NfcService::UpdateNfcState(int newState)
     }
     ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
     ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
+    InfoLog("Update nfc state: oldState %{public}d, newState %{public}d succ", nfcState_, newState);
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);
