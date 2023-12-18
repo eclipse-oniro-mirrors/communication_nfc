@@ -134,10 +134,9 @@ void ExternalDepsProxy::WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAp
     NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(oldAppPackageName, newAppPackageName);
 }
 
-void ExternalDepsProxy::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
-                                                int typeBCnt, int typeFCnt, int typeVCnt)
+void ExternalDepsProxy::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
-    NfcHisysEvent::WriteTagFoundHiSysEvent(tagFoundCnt, typeACnt, typeBCnt, typeFCnt, typeVCnt);
+    NfcHisysEvent::WriteTagFoundHiSysEvent(techList);
 }
 
 void ExternalDepsProxy::WritePassiveListenHiSysEvent(int requestCnt, int failCnt)

@@ -148,31 +148,7 @@ void TagDispatcher::DispatchTag(uint32_t tagDiscId)
     // select the matched applications, try start ability
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     // Record types of read tags.
-    int tagFoundCnt = 0;
-    int typeATagFoundCnt = 0;
-    int typeBTagFoundCnt = 0;
-    int typeFTagFoundCnt = 0;
-    int typeVTagFoundCnt = 0;
-    for (size_t i = 0; i < techList.size(); i++) {
-        std::string discStrTech = KITS::TagInfo::GetStringTech(techList[i]);
-        if (discStrTech.compare("NfcA") == 0) {
-            tagFoundCnt++;
-            typeATagFoundCnt++;
-        } else if (discStrTech.compare("NfcB") == 0) {
-            tagFoundCnt++;
-            typeBTagFoundCnt++;
-        } else if (discStrTech.compare("NfcF") == 0) {
-            tagFoundCnt++;
-            typeFTagFoundCnt++;
-        } else if (discStrTech.compare("NfcV") == 0) {
-            tagFoundCnt++;
-            typeVTagFoundCnt++;
-        } else {
-            tagFoundCnt++;
-        }
-    }
-    ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(tagFoundCnt, typeATagFoundCnt,
-        typeBTagFoundCnt, typeFTagFoundCnt, typeVTagFoundCnt);
+    ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
 
     // start application ability for tag found.
     ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
