@@ -109,6 +109,8 @@ void CeService::OnDefaultPaymentServiceChange()
         InfoLog("OnDefaultPaymentServiceChange: payment service not change");
         return;
     }
+    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
+        defaultPaymentElement_.GetBundleName(), newElement.GetBundleName());
     defaultPaymentElement_ = newElement;
     InitConfigAidRouting();
     if (nfcService_.expired()) {

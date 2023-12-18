@@ -67,6 +67,7 @@ public:
     void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                      int closeRequestCnt, int closeFailCnt);
     void WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt);
+    void WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName, std::string newAppPackageName);
     void WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt, int typeBCnt, int typeFCnt, int typeVCnt);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
