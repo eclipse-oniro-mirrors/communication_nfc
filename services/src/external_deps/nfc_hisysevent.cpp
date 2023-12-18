@@ -15,6 +15,7 @@
 #include "nfc_hisysevent.h"
 #include "hisysevent.h"
 #include "loghelper.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
@@ -50,9 +51,31 @@ void NfcHisysEvent::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFail
                "CLOSE_FAILED_CNT", closeFailCnt);
 }
 
-void NfcHisysEvent::WriteTagFoundHiSysEvent(int tagFoundCnt, int typeACnt,
-                                            int typeBCnt, int typeFCnt, int typeVCnt)
+void NfcHisysEvent::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
+    int tagFoundCnt = 0;
+    int typeACnt = 0;
+    int typeBCnt = 0;
+    int typeFCnt = 0;
+    int typeVCnt = 0;
+    for (size_t i = 0; i < techList.size(); i++) {
+        std::string discStrTech = KITS::TagInfo::GetStringTech(techList[i]);
+        if (discStrTech.compare("NfcA") == 0) {
+            tagFoundCnt++;
+            typeACnt++;
+        } else if (discStrTech.compare("NfcB") == 0) {
+            tagFoundCnt++;
+            typeBCnt++;
+        } else if (discStrTech.compare("NfcF") == 0) {
+            tagFoundCnt++;
+            typeFCnt++;
+        } else if (discStrTech.compare("NfcV") == 0) {
+            tagFoundCnt++;
+            typeVCnt++;
+        } else {
+            tagFoundCnt++;
+        }
+    }
     WriteEvent("TAG_FOUND", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "TOTAL_TAG_FOUND_CNT", tagFoundCnt,
                "TYPE_A_TAG_FOUND", typeACnt,
