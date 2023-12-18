@@ -241,7 +241,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
 }
 
 bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
-                                                 const std::string& ype)
+                                                 const std::string& type)
 {
     if (nfcService_.expired()) {
         ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
