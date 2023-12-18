@@ -109,7 +109,7 @@ void CeService::OnDefaultPaymentServiceChange()
         InfoLog("OnDefaultPaymentServiceChange: payment service not change");
         return;
     }
-    ExternalDepsProxy::GetInstance().WriteHceDefaultPaymentAppChangeHiSysEvent(
+    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
         defaultPaymentElement_.GetBundleName(), newElement.GetBundleName());
     defaultPaymentElement_ = newElement;
     InitConfigAidRouting();

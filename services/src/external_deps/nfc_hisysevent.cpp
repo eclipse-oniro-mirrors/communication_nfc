@@ -94,7 +94,7 @@ void NfcHisysEvent::WriteHceSwipeResultHiSysEvent(std::string appPackageName, in
                "HCE_SWIPE_CNT", hceSwipeCnt,
                "APP_PACKAGE_NAME", appPackageName);
 }
-void NfcHisysEvent::WriteHceDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
+void NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
                                                               std::string newAppPackageName)
 {
     WriteEvent("HCE_DEFAULT_PAYMENT_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
