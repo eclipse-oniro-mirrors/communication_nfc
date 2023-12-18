@@ -18,11 +18,10 @@ config("nfc_service_unit_test_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
+    "$NFC_DIR/interfaces/inner_api/cardEmulation",
     "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/interfaces/inner_api/include",
-    "$NFC_DIR/interfaces/inner_api/include/controller",
-    "$NFC_DIR/interfaces/inner_api/include/tags",
-    "$NFC_DIR/interfaces/inner_api/include/cardEmulation",
+    "$NFC_DIR/interfaces/inner_api/controller",
+    "$NFC_DIR/interfaces/inner_api/tags",
     "$NFC_DIR/services/include",
     "$NFC_DIR/services/src/nci_adapter/nci_native_default/include",
     "$NFC_DIR/services/src",
@@ -42,8 +41,10 @@ config("nfc_service_unit_test_config") {
 }
 
 unit_test_deps = [
-  "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
+  "$NFC_DIR/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation",
   "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+  "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
+  "$NFC_DIR/interfaces/inner_api/tags:nfc_inner_kits_tags",
   "$NFC_DIR/services:nfc_service_static",
   "//third_party/googletest:gtest_main",
 ]

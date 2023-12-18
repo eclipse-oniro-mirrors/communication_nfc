@@ -27,8 +27,8 @@ ohos_shared_library("controller") {
   defines = [ "DEBUG" ]
   install_enable = true
   include_dirs = [
-    "$NFC_DIR/interfaces/inner_api/include",
-    "$NFC_DIR/interfaces/inner_api/include/controller",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/controller",
   ]
 
   sources = [
@@ -38,7 +38,10 @@ ohos_shared_library("controller") {
     "nfc_napi_ctrl_utils.cpp",
   ]
 
-  deps = [ "$NFC_DIR/interfaces/inner_api:nfc_inner_kits" ]
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
+  ]
 
   external_deps = [
     "c_utils:utils",

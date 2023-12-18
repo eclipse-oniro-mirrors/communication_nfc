@@ -28,8 +28,7 @@ ohos_shared_library("tag") {
   install_enable = true
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/interfaces/inner_api/include",
-    "$NFC_DIR/interfaces/inner_api/include/tags",
+    "$NFC_DIR/interfaces/inner_api/tags",
   ]
 
   sources = [
@@ -50,8 +49,8 @@ ohos_shared_library("tag") {
   ]
 
   deps = [
-    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/tags:nfc_inner_kits_tags",
   ]
 
   external_deps = [
