@@ -129,7 +129,7 @@ void ExternalDepsProxy::WriteHceSwipeResultHiSysEvent(std::string appPackageName
 }
 
 void ExternalDepsProxy::WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
-                                                                  std::string newAppPackageName)
+                                                               std::string newAppPackageName)
 {
     NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(oldAppPackageName, newAppPackageName);
 }
