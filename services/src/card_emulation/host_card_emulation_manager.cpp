@@ -22,7 +22,9 @@
 
 namespace OHOS {
 namespace NFC {
+#ifdef VENDOR_APPLICATIONS_ENABLED
 static const int CODE_SEND_APDU_DATA = 2;
+#endif
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
@@ -52,12 +54,14 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
             "String = %{public}s",
             data.size(), dataStr.c_str());
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
     // send data to vendor
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback != nullptr) {
         notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_APDU_DATA, dataStr);
     }
+#endif
 
     std::string aid = ParseSelectAid(data);
     InfoLog("selectAid = %{public}s", aid.c_str());
@@ -93,6 +97,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
     InfoLog("OnCardEmulationActivated: state %{public}d", hceState_);
     hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
     // send data to vendor
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
@@ -100,6 +105,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
         std::string data {};
         notifyApduDataCallback->OnCardEmulationNotify(1, data);
     }
+#endif
 
     queueHceData_.clear();
 }
@@ -109,6 +115,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
     InfoLog("OnCardEmulationDeactivated: state %{public}d", hceState_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
     // send data to vendor
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
@@ -116,6 +123,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
         std::string data {};
         notifyApduDataCallback->OnCardEmulationNotify(0, data);
     }
+#endif
 
     queueHceData_.clear();
     hceCmdRegistryData_->isEnabled_ = false;

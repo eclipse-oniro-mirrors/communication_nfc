@@ -20,4 +20,9 @@ declare_args() {
   if (defined(global_parts_info.nfc_use_vendor_nci_native)) {
     nfc_use_vendor_nci_native = true
   }
+  nfc_service_feature_vendor_applications_enabled = false
+  if (defined(
+      global_parts_info.nfc_service_feature_vendor_applications_enabled)) {
+    nfc_service_feature_vendor_applications_enabled = true
+  }
 }

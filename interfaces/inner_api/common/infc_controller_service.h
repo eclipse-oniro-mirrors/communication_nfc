@@ -18,8 +18,10 @@
 #include "nfc_sdk_common.h"
 #include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "ion_card_emulation_notify_cb.h"
 #include "iquery_app_info_callback.h"
+#endif
 #include "iremote_broker.h"
 #include "element_name.h"
 
@@ -58,8 +60,10 @@ public:
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
     virtual OHOS::sptr<IRemoteObject> GetHceServiceIface() = 0;
     virtual KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) = 0;
+#ifdef VENDOR_APPLICATIONS_ENABLED
     virtual KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) = 0;
     virtual KITS::ErrorCode RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback) = 0;
+#endif
 };
 }  // namespace NFC
 }  // namespace OHOS

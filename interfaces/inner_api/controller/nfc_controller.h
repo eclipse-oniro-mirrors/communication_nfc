@@ -21,7 +21,9 @@
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "iquery_app_info_callback.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
@@ -96,10 +98,12 @@ public:
 
     ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
     ErrorCode RegQueryApplicationCb(std::string type,
         QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback);
 
     ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);
+#endif
 
 private:
     class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {
