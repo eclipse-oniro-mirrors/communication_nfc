@@ -25,12 +25,14 @@ enum MainErrorCode {
     PASSIVE_LISTEN_FAILED = 104,
     SET_READER_MODE_EVENT = 105,
     OPEN_NFC_EVENT = 106,
-    CLOSE_NFC_EVENT = 107
+    CLOSE_NFC_EVENT = 107,
+    INIT_SA_FAILED = 201 // error code for init sa failed
 };
 
 enum SubErrorCode {
-    NCI_RESP_TIMEOUT = 1,
-    NCI_RESP_ERROR = 2
+    DEFAULT_ERR_DEF = 10000,
+    NCI_RESP_TIMEOUT = 10001,
+    NCI_RESP_ERROR = 10002,
 };
 
 const int DEFAULT_COUNT = 1;
