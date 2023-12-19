@@ -71,6 +71,7 @@ ohos_unittest("controller_test") {
 
   sources = [
     "controller_test/nfc_controller_callback_stub_test.cpp",
+    "controller_test/nfc_controller_death_recipient_test.cpp",
     "controller_test/nfc_controller_impl_test.cpp",
     "controller_test/nfc_controller_test.cpp",
   ]
@@ -91,6 +92,8 @@ ohos_unittest("cardemulation_test") {
   sources = [
     "cardemulation_test/cardemulation_test.cpp",
     "cardemulation_test/hce_cmd_callback_stub_test.cpp",
+    "cardemulation_test/hce_session_test.cpp",
+    "cardemulation_test/host_card_emulation_manager_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
