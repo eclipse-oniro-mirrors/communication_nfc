@@ -82,7 +82,9 @@
             "group_type": {
                 "base_group": [],
                 "fwk_group": [
-                    "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
+                    "//foundation/communication/nfc/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation",
+                    "//foundation/communication/nfc/interfaces/inner_api/controller:nfc_inner_kits_controller",
+                    "//foundation/communication/nfc/interfaces/inner_api/tags:nfc_inner_kits_tags",
                     "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
                     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardemulation",
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
@@ -95,12 +97,12 @@
             "inner_kits": [
                 {
                     "type": "so",
-                    "name": "//foundation/communication/nfc/interfaces/inner_api:nfc_inner_kits",
+                    "name":
+                    "//foundation/communication/nfc/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation",
                     "header": {
                         "header_files": [
-                            "nfc_controller.h"
                         ],
-                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/include/controller"
+                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/cardEmulation"
                     }
                 },
                 {
@@ -110,6 +112,25 @@
                         "header_files": [
                         ],
                         "header_base": "//foundation/communication/nfc/interfaces/inner_api/common"
+                    }
+                },
+                {
+                    "type": "so",
+                    "name": "//foundation/communication/nfc/interfaces/inner_api/controller:nfc_inner_kits_controller",
+                    "header": {
+                        "header_files": [
+                            "nfc_controller.h"
+                        ],
+                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/controller"
+                    }
+                },
+                {
+                    "type": "so",
+                    "name": "//foundation/communication/nfc/interfaces/inner_api/tags:nfc_inner_kits_tags",
+                    "header": {
+                        "header_files": [
+                        ],
+                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/tags"
                     }
                 }
             ],

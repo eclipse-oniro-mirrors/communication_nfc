@@ -22,8 +22,7 @@ ohos_fuzztest("NfcControllerFuzzTest") {
 
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/interfaces/inner_api/include",
-    "$NFC_DIR/interfaces/inner_api/include/controller",
+    "$NFC_DIR/interfaces/inner_api/controller",
   ]
 
   cflags = [
@@ -36,8 +35,8 @@ ohos_fuzztest("NfcControllerFuzzTest") {
   sources = [ "nfccontroller_fuzzer.cpp" ]
 
   deps = [
-    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
   ]
 
   external_deps = [

@@ -23,8 +23,8 @@ ohos_fuzztest("IsTechSupportedFuzzTest") {
 
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/interfaces/inner_api/include",
-    "$NFC_DIR/interfaces/inner_api/include/tags",
+    "$NFC_DIR/interfaces/inner_api/controller",
+    "$NFC_DIR/interfaces/inner_api/tags",
   ]
 
   cflags = [
@@ -37,8 +37,9 @@ ohos_fuzztest("IsTechSupportedFuzzTest") {
   sources = [ "istechsupported_fuzzer.cpp" ]
 
   deps = [
-    "$NFC_DIR/interfaces/inner_api:nfc_inner_kits",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
+    "$NFC_DIR/interfaces/inner_api/tags:nfc_inner_kits_tags",
   ]
 
   external_deps = [
