@@ -340,7 +340,7 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
-KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
+KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     if (nfcPollingManager_.expired()) {
@@ -353,13 +353,38 @@ KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName element, std::vect
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName element)
+KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
 {
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregForegroundDispatch, expired");
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->DisableForegroundDispatch(element)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
+KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback)
+{
+    if (nfcPollingManager_.expired()) {
+        ErrorLog("RegReaderMode, expired");
+        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
+KITS::ErrorCode TagSession::UnregReaderMode(ElementName &element)
+{
+    if (nfcPollingManager_.expired()) {
+        ErrorLog("UnregReaderMode, expired");
+        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    if (nfcPollingManager_.lock()->DisableReaderMode(element)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;

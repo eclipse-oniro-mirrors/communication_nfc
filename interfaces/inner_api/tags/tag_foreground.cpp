@@ -54,7 +54,7 @@ TagForeground &TagForeground::GetInstance()
     return instance;
 }
 
-ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName element,
+ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
     std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback)
 {
     DebugLog("TagForeground::RegForeground");
@@ -66,7 +66,7 @@ ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName element,
     return tagSession->RegForegroundDispatch(element, discTech, callback);
 }
 
-ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName element)
+ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregForeground");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
@@ -75,6 +75,30 @@ ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName element)
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     return tagSession->UnregForegroundDispatch(element);
+}
+
+ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
+                                       std::vector<uint32_t> &discTech,
+                                       const sptr<KITS::IReaderModeCallback> &callback)
+{
+    DebugLog("TagForeground::RegReaderMode");
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr) {
+        ErrorLog("TagForeground::RegReaderMode, ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
+    }
+    return tagSession->RegReaderMode(element, discTech, callback);
+}
+
+ErrorCode TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
+{
+    DebugLog("TagForeground::UnregReaderMode");
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr) {
+        ErrorLog("TagForeground::UnregReaderMode, ERR_TAG_STATE_UNBIND");
+        return ErrorCode::ERR_TAG_STATE_UNBIND;
+    }
+    return tagSession->UnregReaderMode(element);
 }
 }  // namespace KITS
 }  // namespace NFC

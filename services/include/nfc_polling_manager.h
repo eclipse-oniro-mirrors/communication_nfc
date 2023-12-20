@@ -17,6 +17,7 @@
 #include "access_token.h"
 #include "common_event_manager.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 #include "nfc_polling_params.h"
 #include "taginfo_parcelable.h"
 #include "inci_nfcc_interface.h"
@@ -42,6 +43,15 @@ public:
         sptr<KITS::IForegroundCallback> callback_ = nullptr;
     };
 
+    class ReaderModeRegistryData {
+    public:
+        bool isEnabled_ = false;
+        uint16_t techMask_ = 0xFFFF;
+        AppExecFwk::ElementName element_;
+        Security::AccessToken::AccessTokenID callerToken_ = 0;
+        sptr<KITS::IReaderModeCallback> callback_ = nullptr;
+    };
+
     void ResetCurrPollingParams();
     std::shared_ptr<NfcPollingParams> GetCurrentParameters();
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
@@ -53,17 +63,26 @@ public:
     // package updated
     void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
-    bool EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+    bool EnableForegroundDispatch(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
                                   const sptr<KITS::IForegroundCallback> &callback);
-    bool DisableForegroundDispatch(AppExecFwk::ElementName element);
+    bool DisableForegroundDispatch(AppExecFwk::ElementName &element);
     bool DisableForegroundByDeathRcpt();
     bool IsForegroundEnabled();
-    void SendTagToForeground(KITS::TagInfoParcelable tagInfo);
+    void SendTagToForeground(KITS::TagInfoParcelable* tagInfo);
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> GetForegroundData();
+
+    bool EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+                          const sptr<KITS::IReaderModeCallback> &callback);
+    bool DisableReaderMode(AppExecFwk::ElementName &element);
+    bool DisableReaderModeByDeathRcpt();
+    bool IsReaderModeEnabled();
+    void SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo);
+    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> GetReaderModeData();
 
 private:
     int screenState_ = 0;
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData_ {};
+    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> readerModeData_ {};
     std::shared_ptr<NfcPollingParams> currPollingParams_ {};
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};

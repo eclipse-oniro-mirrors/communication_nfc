@@ -169,6 +169,35 @@ uint64_t NfcSdkCommon::GetCurrentTime()
     gettimeofday(&time, nullptr);
     return static_cast<uint64_t>(time.tv_sec * timeRate + static_cast<uint64_t>(time.tv_usec / timeRate));
 }
+
+std::string NfcSdkCommon::CodeMiddlePart(const std::string &src)
+{
+    std::string res = "";
+    if (src.empty()) {
+        return res;
+    }
+    const char code = 'X';
+    const uint32_t maxStrLen = 1024;
+    uint32_t len = src.length();
+    if (len > maxStrLen) {
+        return res;
+    }
+
+    uint32_t head = (len / 2) / 2; // mask the half middle part
+    if (len <= head * 2) {  // tail uses the same length
+        return src;
+    }
+    for (uint32_t i = 0; i < head; i++) {
+        res.push_back(src[i]);
+    }
+    for (uint32_t i = head; i < (len - head); i++) {
+        res.push_back(code);
+    }
+    for (uint32_t i = (len - head); i < len; i++) {
+        res.push_back(src[i]);
+    }
+    return res;
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS

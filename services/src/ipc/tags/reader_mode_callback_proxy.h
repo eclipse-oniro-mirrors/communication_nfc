@@ -12,37 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef READER_MODE_CALLBACK_PROXY_H
+#define READER_MODE_CALLBACK_PROXY_H
 
-#ifndef OHOS_FOREGROUND_DISPATCH_STUB_H
-#define OHOS_FOREGROUND_DISPATCH_STUB_H
-
-#include <shared_mutex>
+#include "ireader_mode_callback.h"
+#include "iremote_proxy.h"
+#include "message_parcel.h"
 #include "nfc_sdk_common.h"
-#include "iforeground_callback.h"
-#include "iremote_object.h"
-#include "iremote_stub.h"
 #include "taginfo_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-class ForegroundCallbackStub : public IRemoteStub<KITS::IForegroundCallback> {
+class ReaderModeCallbackProxy : public IRemoteProxy<KITS::IReaderModeCallback> {
 public:
-    ForegroundCallbackStub();
-    virtual ~ForegroundCallbackStub();
-    static ForegroundCallbackStub* GetInstance();
-    KITS::ErrorCode RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback);
+    explicit ReaderModeCallbackProxy(const sptr<IRemoteObject> &remote);
 
-    virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    virtual ~ReaderModeCallbackProxy() {}
 
     void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override;
 
 private:
-    int RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply);
-    sptr<KITS::IForegroundCallback> callback_;
-    std::shared_mutex callbackMutex;
-    bool mRemoteDied;
+    static inline BrokerDelegator<ReaderModeCallbackProxy> g_delegator;
 };
 }  // namespace TAG
 }  // namespace NFC

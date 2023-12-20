@@ -147,6 +147,7 @@ public:
     static void StringToAsciiBytes(const std::string &src, std::vector<unsigned char> &bytes);
     static std::string StringToHexString(const std::string &src);
     static uint64_t GetCurrentTime();
+    static std::string CodeMiddlePart(const std::string &src);
 };
 }  // namespace KITS
 }  // namespace NFC

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
- # any change to interfaces/inner_api/include/nfc_service_ipc_interface_code.h
+ # any change to interfaces/inner_api/common/nfc_service_ipc_interface_code.h
  # needs to be reviewed by @leonchan5
 
- interfaces/inner_api/include/nfc_service_ipc_interface_code.h @leonchan5
+ interfaces/inner_api/common/nfc_service_ipc_interface_code.h @leonchan5

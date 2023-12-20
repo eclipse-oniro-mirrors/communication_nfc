@@ -86,6 +86,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
+    KITS::TagInfoParcelable* tagInfo = nullptr;
     do {
         if (ndefMessage == nullptr) {
             if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
@@ -96,8 +97,13 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         }
         lastNdefMsg_ = ndefMsg;
         nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
+        tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
+        if (nfcService_->GetNfcPollingManager().lock()->IsReaderModeEnabled()) {
+            nfcService_->GetNfcPollingManager().lock()->SendTagToReaderApp(tagInfo);
+            break;
+        }
         if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
-            nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(GetTagInfoParcelableFromTag(tagDiscId));
+            nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
             break;
         }
         if (ndefMessage != nullptr && HandleNdefDispatch(ndefMsg)) {
@@ -106,6 +112,10 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         DispatchTag(tagDiscId);
         break;
     } while (0);
+    if (tagInfo != nullptr) {
+        delete tagInfo;
+        tagInfo = nullptr;
+    }
     ExternalDepsProxy::GetInstance().StartVibratorOnce();
 }
 
@@ -119,22 +129,26 @@ std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDisc
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
-    DebugLog("GetTagInfoFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, rfID = %{public}d",
+    DebugLog("GetTagInfoFromTag: tag uid = %{public}s, techListLen = %{public}zu, extrasLen = %{public}zu,"
+        "rfID = %{public}d", KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(),
         techList.size(), tagTechExtras.size(), tagDiscId);
     return std::make_shared<KITS::TagInfo>(techList, tagTechExtras, tagUid, tagDiscId,
         nfcService_->GetTagServiceIface());
 }
 
-KITS::TagInfoParcelable TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagDiscId)
+KITS::TagInfoParcelable* TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagDiscId)
 {
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
-    DebugLog("GetTagInfoParcelableFromTag: techListLen = %{public}zu, extrasLen = %{public}zu, rfID = %{public}d",
+    DebugLog("GetTagInfoParcelableFromTag: tag uid = %{public}s, techListLen = %{public}zu, extrasLen = %{public}zu,"
+        "rfID = %{public}d", KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(),
         techList.size(), tagTechExtras.size(), tagDiscId);
-    KITS::TagInfoParcelable *tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
+
+    // tagInfo should be deleted at where it is used (HandleTagFound)
+    KITS::TagInfoParcelable* tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
         tagUid, tagDiscId, nfcService_->GetTagServiceIface());
-    return *(tagInfo);
+    return tagInfo;
 }
 
 void TagDispatcher::DispatchTag(uint32_t tagDiscId)

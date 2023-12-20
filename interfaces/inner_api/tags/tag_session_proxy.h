@@ -17,6 +17,7 @@
 
 #include "element_name.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 #include "iremote_proxy.h"
 #include "itag_session.h"
 #include "nfc_basic_proxy.h"
@@ -50,9 +51,12 @@ public:
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
     int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
     int IsSupportedApdusExtended(bool &isSupported) override;
-    KITS::ErrorCode RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
+    KITS::ErrorCode RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback) override;
-    KITS::ErrorCode UnregForegroundDispatch(ElementName element) override;
+    KITS::ErrorCode UnregForegroundDispatch(ElementName &element) override;
+    KITS::ErrorCode RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IReaderModeCallback> &callback) override;
+    KITS::ErrorCode UnregReaderMode(ElementName &element) override;
 };
 }  // namespace TAG
 }  // namespace NFC

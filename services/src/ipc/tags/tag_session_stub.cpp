@@ -13,13 +13,15 @@
  * limitations under the License.
  */
 #include "tag_session_stub.h"
+
+#include "external_deps_proxy.h"
 #include "foreground_death_recipient.h"
 #include "ipc_skeleton.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_permission_checker.h"
-#include "external_deps_proxy.h"
+#include "reader_mode_death_recipient.h"
 
 namespace OHOS {
 namespace NFC {
@@ -73,6 +75,10 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleRegForegroundDispatch(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND):
             return HandleUnregForegroundDispatch(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_READER_MODE):
+            return HandleRegReaderMode(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_READER_MODE):
+            return HandleUnregReaderMode(data, reply);
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -294,7 +300,7 @@ void TagSessionStub::RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote
     }
     auto serviceRemote = foregroundCallback_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        serviceRemote->RemoveDeathRecipient(foregroundDeathRecipient_);
         foregroundCallback_ = nullptr;
         ErrorLog("on remote died");
     }
@@ -306,7 +312,11 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
         ErrorLog("HandleRegForegroundDispatch, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    ElementName element = (*ElementName::Unmarshalling(data));
+    ElementName* element = ElementName::Unmarshalling(data);
+    if (element == nullptr) {
+        ErrorLog("HandleRegForegroundDispatch, unmarshalled element is null");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
     std::vector<uint32_t> discTech;
     data.ReadUInt32Vector(&discTech);
     KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
@@ -321,34 +331,135 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
         sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
         if ((remote->IsProxyObject()) && (!remote->AddDeathRecipient(dr))) {
             ErrorLog("Failed to add death recipient");
-            return ERR_NONE;
+            break;
         }
         {
             std::lock_guard<std::mutex> guard(mutex_);
-            deathRecipient_ = dr;
+            foregroundDeathRecipient_ = dr;
             foregroundCallback_ = iface_cast<KITS::IForegroundCallback>(remote);
             if (foregroundCallback_ == nullptr) {
                 foregroundCallback_ = new (std::nothrow) ForegroundCallbackProxy(remote);
                 DebugLog("create new `ForegroundCallbackProxy`!");
             }
-            ret = RegForegroundDispatch(element, discTech, foregroundCallback_);
+            ret = RegForegroundDispatch(*(element), discTech, foregroundCallback_);
         }
     } while (0);
     reply.WriteInt32(ret);
+
+    // element is newed by Unmarshalling, should be deleted
+    delete element;
+    element = nullptr;
     return ERR_NONE;
 }
 
 int TagSessionStub::HandleUnregForegroundDispatch(MessageParcel &data, MessageParcel &reply)
 {
     InfoLog("HandleUnregForegroundDispatch");
-    ElementName element = (*ElementName::Unmarshalling(data));
-    int exception = data.ReadInt32();
-    if (exception) {
+    ElementName* element = ElementName::Unmarshalling(data);
+    if (element == nullptr) {
+        ErrorLog("HandleUnregForegroundDispatch, unmarshalled element is null");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::ErrorCode ret = UnregForegroundDispatch(element);
+    int exception = data.ReadInt32();
+    if (exception) {
+        // element is newed by Unmarshalling, should be deleted
+        delete element;
+        element = nullptr;
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    KITS::ErrorCode ret = UnregForegroundDispatch(*(element));
     DebugLog("HandleUnregForegroundDispatch end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
+
+    // element is newed by Unmarshalling, should be deleted
+    delete element;
+    element = nullptr;
+    return ERR_NONE;
+}
+
+void TagSessionStub::RemoveReaderModeDeathRcpt(const wptr<IRemoteObject> &remote)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (readerModeCallback_ == nullptr) {
+        ErrorLog("OnRemoteDied callback_ is nullptr");
+        return;
+    }
+    auto serviceRemote = readerModeCallback_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        serviceRemote->RemoveDeathRecipient(readerModeDeathRecipient_);
+        readerModeCallback_ = nullptr;
+        ErrorLog("on remote died");
+    }
+}
+
+int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &reply)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleRegReaderMode, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    ElementName* element = ElementName::Unmarshalling(data);
+    if (element == nullptr) {
+        ErrorLog("HandleRegReaderMode, unmarshalled element is null");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    std::vector<uint32_t> discTech;
+    data.ReadUInt32Vector(&discTech);
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    do {
+        sptr<IRemoteObject> remote = data.ReadRemoteObject();
+        if (remote == nullptr) {
+            DebugLog("Failed to readRemoteObject!");
+            break;
+        }
+        std::unique_ptr<ReaderModeDeathRecipient> recipient
+            = std::make_unique<ReaderModeDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+        sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+        if ((remote->IsProxyObject()) && (!remote->AddDeathRecipient(dr))) {
+            ErrorLog("Failed to add death recipient");
+            break;
+        }
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            readerModeDeathRecipient_ = dr;
+            readerModeCallback_ = iface_cast<KITS::IReaderModeCallback>(remote);
+            if (readerModeCallback_ == nullptr) {
+                readerModeCallback_ = new (std::nothrow) ReaderModeCallbackProxy(remote);
+                DebugLog("create new `ReaderModeCallbackProxy`!");
+            }
+            ret = RegReaderMode(*(element), discTech, readerModeCallback_);
+        }
+    } while (0);
+    reply.WriteInt32(ret);
+
+    // element is newed by Unmarshalling, should be deleted
+    delete element;
+    element = nullptr;
+    return ERR_NONE;
+}
+
+int TagSessionStub::HandleUnregReaderMode(MessageParcel &data, MessageParcel &reply)
+{
+    InfoLog("HandleUnregReaderMode");
+    ElementName* element = ElementName::Unmarshalling(data);
+    if (element == nullptr) {
+        ErrorLog("HandleUnregReaderMode, unmarshalled element is null");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    int exception = data.ReadInt32();
+    if (exception) {
+        // element is newed by Unmarshalling, should be deleted
+        delete element;
+        element = nullptr;
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    KITS::ErrorCode ret = UnregReaderMode(*(element));
+    DebugLog("HandleUnregReaderMode end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+
+    // element is newed by Unmarshalling, should be deleted
+    delete element;
+    element = nullptr;
     return ERR_NONE;
 }
 }  // namespace TAG

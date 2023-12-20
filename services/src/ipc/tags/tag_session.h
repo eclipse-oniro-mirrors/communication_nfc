@@ -128,7 +128,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    KITS::ErrorCode RegForegroundDispatch(ElementName element,
+    KITS::ErrorCode RegForegroundDispatch(ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) override;
 
     /**
@@ -137,7 +137,26 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    KITS::ErrorCode UnregForegroundDispatch(ElementName element) override;
+    KITS::ErrorCode UnregForegroundDispatch(ElementName &element) override;
+
+    /**
+     * @brief register reader mode
+     *
+     * @param element the element name of the hap that request to register reader mode.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @return The status code for register operation.
+     */
+    KITS::ErrorCode RegReaderMode(ElementName &element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback) override;
+
+    /**
+     * @brief unregister reader mode
+     *
+     * @param element the element name of the hap that request to unregister reader mode
+     * @return The status code for unregister operation.
+     */
+    KITS::ErrorCode UnregReaderMode(ElementName &element) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 

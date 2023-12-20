@@ -26,24 +26,42 @@ namespace NFC {
 namespace KITS {
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 static std::mutex g_mutex {};
-static RegObj g_eventRegInfo;
+static RegObj g_foregroundRegInfo;
+static RegObj g_readerModeRegInfo;
 bool ForegroundEventRegister::isEvtRegistered = false;
+bool ReaderModeEvtRegister::isReaderModeRegistered = false;
+const std::string TYPE_FOREGROUND = "foreground";
+const std::string TYPE_READER_MODE = "readerMode";
 
 class NapiEvent {
 public:
-    napi_value CreateResult(const napi_env &env, TagInfoParcelable tagInfo);
+    napi_value CreateResult(const napi_env &env, TagInfoParcelable* tagInfo);
     static bool IsForegroundRegistered();
+    static bool IsReaderModeRegistered();
     void EventNotify(AsyncEventData *asyncEvent);
 
     template<typename T>
-    void CheckAndNotify(const T& obj)
+    void CheckAndNotify(const T& obj, const std::string &type)
     {
         std::lock_guard<std::mutex> lock(g_mutex);
-        if (!IsForegroundRegistered()) {
-            ErrorLog("CheckAndNotify: not registered.");
+        RegObj regObj;
+        if (type.compare(TYPE_FOREGROUND) == 0) {
+            if (!IsForegroundRegistered()) {
+                ErrorLog("CheckAndNotify: foreground not registered.");
+                return;
+            }
+            regObj = g_foregroundRegInfo;
+        } else if (type.compare(TYPE_READER_MODE) == 0) {
+            if (!IsReaderModeRegistered()) {
+                ErrorLog("CheckAndNotify: reader mode not registered.");
+                return;
+            }
+            regObj = g_readerModeRegInfo;
+        } else {
+            ErrorLog("CheckAndNotify: unknown type: %{public}s", type.c_str());
             return;
         }
-        const RegObj& regObj = g_eventRegInfo;
+
         auto result = [this, env = regObj.regEnv, obj] () -> napi_value {
             return CreateResult(env, obj);
         };
@@ -132,9 +150,13 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         tmpAfterWorkCb);
 }
 
-static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable &tagInfo)
+static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable* tagInfo)
 {
-    uint32_t length = tagInfo.GetTechExtrasDataList().size();
+    uint32_t length = tagInfo->GetTechExtrasDataList().size();
+    if (length > MAX_NUM_TECH_LIST) {
+        ErrorLog("SetTagExtraData: invalid tag extras data length");
+        return;
+    }
     napi_value extrasData;
     napi_create_array_with_length(env, length, &extrasData);
 
@@ -143,8 +165,8 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
     for (uint32_t i = 0; i < length; i++) {
         napi_value eachElement;
         napi_create_object(env, &eachElement);
-        AppExecFwk::PacMap extra = tagInfo.GetTechExtrasDataList()[i];
-        int technology = tagInfo.GetTechList()[i];
+        AppExecFwk::PacMap extra = tagInfo->GetTechExtrasDataList()[i];
+        int technology = tagInfo->GetTechList()[i];
         if (technology == static_cast<int>(TagTechnology::NFC_A_TECH) ||
             technology == static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
             // for NFCA, parse extra SAK and ATQA
@@ -213,7 +235,7 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
     napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
 }
 
-napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInfo)
+napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable* tagInfo)
 {
     // build tagInfo Js Object
     napi_value tagInfoObj = nullptr;
@@ -222,9 +244,9 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
     napi_value rfIdValue;
     napi_create_object(env, &tagInfoObj);
 
-    std::string uid = tagInfo.GetUid();
-    std::vector<int> techList = tagInfo.GetTechList();
-    int rfId = tagInfo.GetDiscId();
+    std::string uid = tagInfo->GetUid();
+    std::vector<int> techList = tagInfo->GetTechList();
+    int rfId = tagInfo->GetDiscId();
     std::vector<unsigned char> uidBytes;
     NfcSdkCommon::HexStringToBytes(uid, uidBytes);
     BytesVectorToJS(env, uidValue, uidBytes);
@@ -246,7 +268,12 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
 
 bool NapiEvent::IsForegroundRegistered()
 {
-    return (!g_eventRegInfo.IsEmpty());
+    return (!g_foregroundRegInfo.IsEmpty());
+}
+
+bool NapiEvent::IsReaderModeRegistered()
+{
+    return (!g_readerModeRegInfo.IsEmpty());
 }
 
 class ForegroundListenerEvent : public IForegroundCallback, public NapiEvent {
@@ -254,10 +281,10 @@ public:
     ForegroundListenerEvent() {}
     virtual ~ForegroundListenerEvent() {}
 public:
-    void OnTagDiscovered(KITS::TagInfoParcelable tagInfo) override
+    void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override
     {
-        InfoLog("OnNotify rcvd tagInfo: %{public}s", tagInfo.ToString().c_str());
-        CheckAndNotify(tagInfo);
+        InfoLog("OnNotify rcvd tagInfo: %{public}s", tagInfo->ToString().c_str());
+        CheckAndNotify(tagInfo, TYPE_FOREGROUND);
     }
 
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override
@@ -313,7 +340,7 @@ void ForegroundEventRegister::Register(const napi_env &env, ElementName &element
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
     RegObj regObj(env, handlerRef, element, discTech);
-    g_eventRegInfo = regObj;
+    g_foregroundRegInfo = regObj;
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
         napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
@@ -336,17 +363,17 @@ void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &reg
 void ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
-    if (!g_eventRegInfo.IsEmpty()) {
+    if (!g_foregroundRegInfo.IsEmpty()) {
         if (UnregisterForegroundEvents(element) != KITS::ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Unregister, unreg event failed.");
             return;
         }
     }
     if (handler != nullptr) {
-        DeleteRegisterObj(env, g_eventRegInfo, handler);
+        DeleteRegisterObj(env, g_foregroundRegInfo, handler);
     }
-    if (!g_eventRegInfo.IsEmpty()) {
-        g_eventRegInfo.Clear();
+    if (!g_foregroundRegInfo.IsEmpty()) {
+        g_foregroundRegInfo.Clear();
         isEvtRegistered = false;
     }
     InfoLog("ForegroundEventRegister::Unregister, isEvtRegistered = %{public}d", isEvtRegistered);
@@ -393,6 +420,179 @@ napi_value UnregisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
         return CreateUndefined(env);
     }
     ForegroundEventRegister::GetInstance().Unregister(env, element, argv[ARGV_INDEX_0]);
+    napi_value result = nullptr;
+    napi_get_undefined(env, &result);
+    return result;
+}
+
+class ReaderModeListenerEvt : public IReaderModeCallback, public NapiEvent {
+public:
+    ReaderModeListenerEvt() {}
+    virtual ~ReaderModeListenerEvt() {}
+public:
+    void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override
+    {
+        InfoLog("ReaderModeListenerEvt::OnNotify rcvd tagInfo: %{public}s", tagInfo->ToString().c_str());
+        CheckAndNotify(tagInfo, TYPE_READER_MODE);
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
+sptr<ReaderModeListenerEvt> readerModeListenerEvt =
+    sptr<ReaderModeListenerEvt>(new (std::nothrow) ReaderModeListenerEvt());
+
+ErrorCode ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
+                                                  std::vector<uint32_t> &discTech)
+{
+    if (type.compare(TYPE_READER_MODE) != 0) {
+        ErrorLog("RegReaderModeEvt invalid type: %{public}s", type.c_str());
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    TagForeground tagForeground = TagForeground::GetInstance();
+    ErrorCode ret = tagForeground.RegReaderMode(element, discTech, readerModeListenerEvt);
+    if (ret != KITS::ERR_NONE) {
+        DebugLog("RegReaderModeEvt register failed!");
+        return ret;
+    }
+    return ret;
+}
+
+ErrorCode ReaderModeEvtRegister::UnregReaderModeEvt(std::string &type, ElementName &element)
+{
+    if (type.compare(TYPE_READER_MODE) != 0) {
+        ErrorLog("UnregReaderModeEvt invalid type: %{public}s", type.c_str());
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    TagForeground tagForeground = TagForeground::GetInstance();
+    ErrorCode ret = tagForeground.UnregReaderMode(element);
+    if (ret != KITS::ERR_NONE) {
+        DebugLog("UnregReaderModeEvt nfcListenerEvent failed!");
+        return ret;
+    }
+    return ret;
+}
+
+ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
+{
+    static ReaderModeEvtRegister inst;
+    return inst;
+}
+
+void ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
+                                     std::vector<uint32_t> &discTech, napi_value handler)
+{
+    InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
+    std::lock_guard<std::mutex> lock(g_mutex);
+    if (!isReaderModeRegistered) {
+        if (RegReaderModeEvt(type, element, discTech) != KITS::ERR_NONE) {
+            ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
+            return;
+        }
+        isReaderModeRegistered = true;
+    }
+    napi_ref handlerRef = nullptr;
+    napi_create_reference(env, handler, 1, &handlerRef);
+    RegObj regObj(env, handlerRef, element, discTech);
+    g_readerModeRegInfo = regObj;
+    if (env == regObj.regEnv) {
+        napi_value handlerTemp = nullptr;
+        napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+    }
+}
+
+void ReaderModeEvtRegister::DeleteRegisteredObj(const napi_env &env, RegObj &regObj, napi_value &handler)
+{
+    if (env == regObj.regEnv) {
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_unref(regObj.regEnv, regObj.regHandlerRef, &refCount);
+        InfoLog("ReaderModeEvtRegister::DeleteRegisteredObj: delete ref, refCount: %{public}d", refCount);
+        if (refCount == 0) {
+            napi_delete_reference(regObj.regEnv, regObj.regHandlerRef);
+            DebugLog("ReaderModeEvtRegister::DeleteRegisteredObj: ref obj deleted.");
+        }
+    }
+}
+
+void ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, ElementName &element,
+                                       napi_value handler)
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    if (!g_readerModeRegInfo.IsEmpty()) {
+        if (UnregReaderModeEvt(type, element) != KITS::ERR_NONE) {
+            ErrorLog("ReaderModeEvtRegister::Unregister, unreg event failed.");
+            return;
+        }
+    }
+    DeleteRegisteredObj(env, g_readerModeRegInfo, handler);
+    if (!g_readerModeRegInfo.IsEmpty()) {
+        g_readerModeRegInfo.Clear();
+        isReaderModeRegistered = false;
+    }
+    InfoLog("ReaderModeEvtRegister::Unregister, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
+}
+
+napi_value On(napi_env env, napi_callback_info cbinfo)
+{
+    DebugLog("On ReaderMode");
+    size_t argc = ARGV_NUM_4;
+    napi_value argv[ARGV_NUM_4] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    std::string type = "";
+    ElementName element;
+    std::vector<uint32_t> dataVec;
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_4) ||
+        !ParseString(env, type, argv[ARGV_INDEX_0]) ||
+        !ParseElementName(env, element, argv[ARGV_INDEX_1]) ||
+        !ParseUInt32Vector(env, dataVec, argv[ARGV_INDEX_2])) {
+        ErrorLog("On: parse args failed");
+        return CreateUndefined(env);
+    }
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[ARGV_INDEX_3], &valueType);
+    if (valueType != napi_function) {
+        ErrorLog("On ReaderMode: parse arg 4 failed");
+        return CreateUndefined(env);
+    }
+    ReaderModeEvtRegister::GetInstance().Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
+    napi_value result = nullptr;
+    napi_get_undefined(env, &result);
+    return result;
+}
+
+napi_value Off(napi_env env, napi_callback_info cbinfo)
+{
+    DebugLog("Off ReaderMode");
+    size_t requiredArgc = ARGV_NUM_2;
+    size_t requiredArgcWithCb = ARGV_NUM_3;
+    size_t argc = ARGV_NUM_3;
+    napi_value argv[ARGV_NUM_3] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    NAPI_ASSERT(env, argc >= requiredArgc, "requires at least 2 parameters");
+    std::string type;
+    ElementName element;
+    if (!ParseString(env, type, argv[ARGV_INDEX_0]) ||
+        !ParseElementName(env, element, argv[ARGV_INDEX_1])) {
+        ErrorLog("Off ReaderMode: parse args failed");
+        return CreateUndefined(env);
+    }
+    if (argc >= requiredArgcWithCb) {
+        napi_valuetype handler = napi_undefined;
+        napi_typeof(env, argv[1], &handler);
+        if (handler == napi_null || handler == napi_undefined) {
+            argc -= 1;
+            DebugLog("argv[2] is null or undefined, handle as no argv[2] input");
+        } else {
+            NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 3");
+        }
+    }
+    ReaderModeEvtRegister::GetInstance().Unregister(env, type, element,
+                                                    argc >= requiredArgcWithCb ? argv[ARGV_INDEX_2] : nullptr);
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     return result;

@@ -17,9 +17,11 @@
 #include "access_token.h"
 #include "foreground_callback_proxy.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 #include "iremote_stub.h"
 #include "itag_session.h"
 #include "message_parcel.h"
+#include "reader_mode_callback_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -33,6 +35,7 @@ public:
     TagSessionStub() {}
     virtual ~TagSessionStub() {}
     void RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote);
+    void RemoveReaderModeDeathRcpt(const wptr<IRemoteObject> &remote);
 
 private:
     int HandleConnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
@@ -53,11 +56,15 @@ private:
     int HandleIsSupportedApdusExtended(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleRegForegroundDispatch(MessageParcel& data, MessageParcel& reply);
     int HandleUnregForegroundDispatch(MessageParcel& data, MessageParcel& reply);
+    int HandleRegReaderMode(MessageParcel& data, MessageParcel& reply);
+    int HandleUnregReaderMode(MessageParcel& data, MessageParcel& reply);
 
 private:
     std::mutex mutex_ {};
     sptr<KITS::IForegroundCallback> foregroundCallback_;
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    sptr<KITS::IReaderModeCallback> readerModeCallback_;
+    sptr<IRemoteObject::DeathRecipient> foregroundDeathRecipient_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> readerModeDeathRecipient_ {nullptr};
 };
 }  // namespace TAG
 }  // namespace NFC

@@ -27,12 +27,14 @@ NfcPollingManager::NfcPollingManager(std::weak_ptr<NfcService> nfcService,
     : nfcService_(nfcService), nciNfccProxy_(nciNfccProxy), nciTagProxy_(nciTagProxy)
 {
     foregroundData_ = std::make_shared<NfcPollingManager::ForegroundRegistryData>();
+    readerModeData_ = std::make_shared<NfcPollingManager::ReaderModeRegistryData>();
     currPollingParams_ = NfcPollingParams::GetNfcOffParameters();
 }
 
 NfcPollingManager::~NfcPollingManager()
 {
     foregroundData_ = nullptr;
+    readerModeData_ = nullptr;
     currPollingParams_ = nullptr;
 }
 
@@ -47,6 +49,12 @@ std::shared_ptr<NfcPollingManager::ForegroundRegistryData> NfcPollingManager::Ge
     return foregroundData_;
 }
 
+std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> NfcPollingManager::GetReaderModeData()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return readerModeData_;
+}
+
 std::shared_ptr<NfcPollingParams> NfcPollingManager::GetCurrentParameters()
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -58,7 +66,10 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int sc
     // Recompute polling parameters based on screen state
     std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
 
-    if (foregroundData_->isEnabled_) {
+    if (readerModeData_->isEnabled_) {
+        params->SetTechMask(readerModeData_->techMask_);
+        params->SetEnableReaderMode(true);
+    } else if (foregroundData_->isEnabled_) {
         params->SetTechMask(foregroundData_->techMask_);
         params->SetEnableReaderMode(true);
     } else {
@@ -132,7 +143,7 @@ void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
     }
 }
 
-bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName element, std::vector<uint32_t> &discTech,
+bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
@@ -160,7 +171,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName element
     return true;
 }
 
-bool NfcPollingManager::DisableForegroundDispatch(AppExecFwk::ElementName element)
+bool NfcPollingManager::DisableForegroundDispatch(AppExecFwk::ElementName &element)
 {
     DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
@@ -183,14 +194,75 @@ bool NfcPollingManager::IsForegroundEnabled()
     return foregroundData_->isEnabled_;
 }
 
-void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable tagInfo)
+void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
 {
     if (!IsForegroundEnabled() || foregroundData_->callback_ == nullptr) {
         ErrorLog("SendTagToForeground: invalid foreground state");
         return;
     }
-    DebugLog("SendTagToForeground: OnTagDiscovered, tagInfo = %{public}s", tagInfo.ToString().c_str());
+    DebugLog("SendTagToForeground: OnTagDiscovered, tagInfo = %{public}s", tagInfo->ToString().c_str());
     foregroundData_->callback_->OnTagDiscovered(tagInfo);
+}
+
+bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback)
+{
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("EnableReaderMode: nfcService_ is nullptr.");
+        return false;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("EnableReaderMode: NFC not enabled, do not set reader mode");
+        return false;
+    }
+    if (callback == nullptr) {
+        ErrorLog("EnableReaderMode: ReaderModeCallback invalid");
+        return false;
+    }
+    bool isDisablePolling = (discTech.size() == 0);
+    DebugLog("EnableReaderMode: element: %{public}s/%{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    if (!isDisablePolling) {
+        readerModeData_->isEnabled_ = true;
+        readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
+        readerModeData_->element_ = element;
+        readerModeData_->callback_ = callback;
+    }
+    StartPollingLoop(true);
+    return true;
+}
+
+bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
+{
+    DebugLog("DisableReaderMode: element: %{public}s/%{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    readerModeData_->isEnabled_ = false;
+    readerModeData_->techMask_ = 0xFFFF;
+    readerModeData_->callerToken_ = 0;
+    readerModeData_->callback_ = nullptr;
+
+    StartPollingLoop(true);
+    return true;
+}
+
+bool NfcPollingManager::DisableReaderModeByDeathRcpt()
+{
+    return DisableReaderMode(readerModeData_->element_);
+}
+
+bool NfcPollingManager::IsReaderModeEnabled()
+{
+    return readerModeData_->isEnabled_;
+}
+
+void NfcPollingManager::SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo)
+{
+    if (!IsReaderModeEnabled() || readerModeData_->callback_ == nullptr) {
+        ErrorLog("SendTagToReaderApp: invalid readermode state");
+        return;
+    }
+    DebugLog("SendTagToReaderApp: OnTagDiscovered, tagInfo = %{public}s", tagInfo->ToString().c_str());
+    readerModeData_->callback_->OnTagDiscovered(tagInfo);
 }
 } // namespace NFC
 } // namespace OHOS

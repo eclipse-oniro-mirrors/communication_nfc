@@ -58,6 +58,8 @@ nfc_service_source = [
   "src/ipc/controller/query_app_info_callback_proxy.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
   "src/ipc/tags/foreground_death_recipient.cpp",
+  "src/ipc/tags/reader_mode_callback_proxy.cpp",
+  "src/ipc/tags/reader_mode_death_recipient.cpp",
   "src/ipc/tags/tag_session.cpp",
   "src/ipc/tags/tag_session_stub.cpp",
   "src/nci_adapter/nci_ce_proxy.cpp",
