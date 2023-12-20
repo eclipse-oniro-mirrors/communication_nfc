@@ -147,7 +147,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 
     queueHceData_.clear();
     ErrCode releaseCallRet =
-        AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(connect_, connect_.GetConnectedElement());
+        AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(connect_, connect_->GetConnectedElement());
     InfoLog("Release call end. ret = %{public}d", releaseCallRet);
 }
 
