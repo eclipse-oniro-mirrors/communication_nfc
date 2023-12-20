@@ -27,25 +27,42 @@ NfcAbilityConnectionCallback::~NfcAbilityConnectionCallback()
     serviceConnected_ = false;
 }
 
-void NfcAbilityConnectionCallback::OnAbilityConnectDone(
-    const AppExecFwk::ElementName &element,
-    const sptr<IRemoteObject> &remoteObject, int resultCode)
+void NfcAbilityConnectionCallback::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+                                                        const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    InfoLog("service connected: %{public}s, result code %{public}d",
-            element.GetAbilityName().c_str(), resultCode);
+    InfoLog("service connected: %{public}s, result code %{public}d", element.GetURI().c_str(), resultCode);
     serviceConnected_ = true;
+    connectedElement_.SetBundleName(element.GetBundleName());
+    connectedElement_.SetAbilityName(element.GetAbilityName());
+    connectedElement_.SetDeviceID(element.GetDeviceID());
+    connectedElement_.SetModuleName(element.GetModuleName());
+    if (hceManager_.expired()) {
+        ErrorLog("hce manager is expired");
+        return;
+    }
+    hceManager_.lock()->HandleQueueData();
 }
 
-void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(
-    const AppExecFwk::ElementName &element, int resultCode)
+void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    InfoLog("service disconnected done: %{public}s, result code %{public}d",
-            element.GetAbilityName().c_str(), resultCode);
+    InfoLog("service disconnected done: %{public}s, result code %{public}d", element.GetURI().c_str(), resultCode);
     serviceConnected_ = false;
+    connectedElement_.SetBundleName("");
+    connectedElement_.SetAbilityName("");
+    connectedElement_.SetDeviceID("");
+    connectedElement_.SetModuleName("");
 }
 bool NfcAbilityConnectionCallback::ServiceConnected()
 {
     return serviceConnected_;
+}
+void NfcAbilityConnectionCallback::SetHceManager(std::weak_ptr<HostCardEmulationManager> hceManager)
+{
+    hceManager_ = hceManager;
+}
+AppExecFwk::ElementName NfcAbilityConnectionCallback::GetConnectedElement()
+{
+    return connectedElement_;
 }
 } // namespace NFC
 } // namespace OHOS
