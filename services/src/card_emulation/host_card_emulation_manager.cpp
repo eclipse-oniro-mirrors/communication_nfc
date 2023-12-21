@@ -66,6 +66,8 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     std::string aid = ParseSelectAid(data);
     InfoLog("selectAid = %{public}s", aid.c_str());
     InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
+    ElementName aidElement;
+    SearchElementByAid(aid, aidElement);
 
     switch (hceState_) {
         case HostCardEmulationManager::INITIAL_STATE: {
@@ -73,7 +75,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
             return;
         }
         case HostCardEmulationManager::WAIT_FOR_SELECT: {
-            HandleDataOnW4Select(aid, data);
+            HandleDataOnW4Select(aid, aidElement, data);
             break;
         }
         case HostCardEmulationManager::WAIT_FOR_SERVICE: {
@@ -81,7 +83,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
             return;
         }
         case HostCardEmulationManager::DATA_TRANSFER: {
-            HandleDataOnDataTransfer(aid, data);
+            HandleDataOnDataTransfer(aid, aidElement, data);
             break;
         }
         case HostCardEmulationManager::WAIT_FOR_DEACTIVATE: {
@@ -90,6 +92,32 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
         }
         default: break;
     }
+}
+
+void HostCardEmulationManager::SearchElementByAid(const std::string aid, ElementName& aidElement)
+{
+    if (aid.empty()) {
+        InfoLog("aid is empty");
+        return;
+    }
+    std::vector<ElementName> searchElementNames;
+    ExternalDepsProxy::GetInstance().GetHceAppsByAid(aid, searchElementNames);
+    if (searchElementNames.empty()) {
+        InfoLog("No applications found");
+        return;
+    }
+    if (searchElementNames.size() > 1) {
+        InfoLog("Found too many applications");
+    }
+    for (const ElementName& elementName : searchElementNames) {
+        InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
+        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
+    }
+    ElementName element = searchElementNames[0];
+    aidElement.SetBundleName(element.GetBundleName());
+    aidElement.SetAbilityName(element.GetAbilityName());
+    aidElement.SetDeviceID(element.GetDeviceID());
+    aidElement.SetModuleName(element.GetModuleName());
 }
 
 void HostCardEmulationManager::OnCardEmulationActivated()
@@ -102,7 +130,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback != nullptr) {
-        std::string data {};
+        std::string data{};
         notifyApduDataCallback->OnCardEmulationNotify(1, data);
     }
 #endif
@@ -120,25 +148,21 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback != nullptr) {
-        std::string data {};
+        std::string data{};
         notifyApduDataCallback->OnCardEmulationNotify(0, data);
     }
 #endif
 
     queueHceData_.clear();
-    hceCmdRegistryData_->isEnabled_ = false;
-    hceCmdRegistryData_->callerToken_ = 0;
-    hceCmdRegistryData_->element_.SetBundleName("");
-    hceCmdRegistryData_->element_.SetAbilityName("");
-    hceCmdRegistryData_->element_.SetDeviceID("");
-    hceCmdRegistryData_->element_.SetModuleName("");
-
-    hceCmdRegistryData_->callback_ = nullptr;
+    ErrCode releaseCallRet =
+        AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(connect_, connect_->GetConnectedElement());
+    InfoLog("Release call end. ret = %{public}d", releaseCallRet);
 }
 
-void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, const std::vector<uint8_t>& data)
+void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, ElementName& aidElement,
+                                                    const std::vector<uint8_t>& data)
 {
-    bool exitService = ExistService();
+    bool exitService = ExistService(aidElement);
     if (!aid.empty()) {
         if (exitService) {
             InfoLog("HandleDataOnW4Select: existing service, try to send data "
@@ -149,7 +173,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, const
         } else {
             InfoLog("HandleDataOnW4Select: try to connect service.");
             queueHceData_ = std::move(data);
-            bool startService = DispatchAbilitySingleApp(aid);
+            bool startService = DispatchAbilitySingleApp(aidElement);
             if (startService) {
                 hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
             }
@@ -166,10 +190,10 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, const
     }
 }
 
-void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid,
+void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid, ElementName& aidElement,
                                                         const std::vector<uint8_t>& data)
 {
-    bool exitService = ExistService();
+    bool exitService = ExistService(aidElement);
     if (!aid.empty()) {
         if (exitService) {
             InfoLog("HandleDataOnDataTransfer: existing service, try to send "
@@ -181,7 +205,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid,
             InfoLog("HandleDataOnDataTransfer: existing service, try to "
                     "connect service.");
             queueHceData_ = std::move(data);
-            bool startService = DispatchAbilitySingleApp(aid);
+            bool startService = DispatchAbilitySingleApp(aidElement);
             if (startService) {
                 hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
             }
@@ -197,7 +221,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid,
         InfoLog("no service, drop apdu data.");
     }
 }
-bool HostCardEmulationManager::ExistService()
+bool HostCardEmulationManager::ExistService(ElementName& aidElement)
 {
     if (hceCmdRegistryData_->callback_ == nullptr) {
         InfoLog("no callback info.");
@@ -207,7 +231,19 @@ bool HostCardEmulationManager::ExistService()
         InfoLog("no service connected.");
         return false;
     }
-    return true;
+    if (aidElement.GetBundleName().empty()) {
+        InfoLog("aid is empty.");
+        // normal data not select data
+        return true;
+    }
+    if (aidElement.GetBundleName() == connect_->GetConnectedElement().GetBundleName() &&
+        aidElement.GetAbilityName() == connect_->GetConnectedElement().GetAbilityName()) {
+        InfoLog("ability is already connected.");
+        return true;
+    } else {
+        WarnLog("not the same element");
+        return false;
+    }
 }
 
 const uint32_t SELECT_APDU_HDR_LENGTH = 5;
@@ -260,25 +296,11 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
         return false;
     }
     hceCmdRegistryData_->callback_ = callback;
-    bool shouldSendQueueData =
-        hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
-
-    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
-    InfoLog("RegHceCmdCallback queue data %{public}s, hceState= %{public}d, "
-            "service connected= %{public}d",
-            queueData.c_str(), hceState_, connect_->ServiceConnected());
-    if (shouldSendQueueData) {
-        DebugLog("RegHceCmdCallback should send queue data");
-        hceState_ = HostCardEmulationManager::DATA_TRANSFER;
-        SendDataToService(queueHceData_);
-        queueHceData_.clear();
-    }
     DebugLog("RegHceCmdCallback success ");
     return true;
 }
 
-bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw,
-                                                const std::string& hexRespData)
+bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData)
 {
     if (nfcService_.expired()) {
         ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
@@ -291,6 +313,22 @@ bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw
     return nciCeProxy_.lock()->SendRawFrame(hexCmdData);
 }
 
+void HostCardEmulationManager::HandleQueueData()
+{
+    bool shouldSendQueueData = hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
+
+    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
+    InfoLog("RegHceCmdCallback queue data %{public}s, hceState= %{public}d, "
+            "service connected= %{public}d",
+            queueData.c_str(), hceState_, connect_->ServiceConnected());
+    if (shouldSendQueueData) {
+        DebugLog("RegHceCmdCallback should send queue data");
+        hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        SendDataToService(queueHceData_);
+        queueHceData_.clear();
+    }
+}
+
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
     if (hceCmdRegistryData_->callback_ == nullptr) {
@@ -300,29 +338,15 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
     hceCmdRegistryData_->callback_->OnCeApduData(data);
 }
 
-bool HostCardEmulationManager::DispatchAbilitySingleApp(const std::string aid)
+bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
 {
-    std::vector<ElementName> searchElementNames;
-    ExternalDepsProxy::GetInstance().GetHceAppsByAid(aid, searchElementNames);
-    if (searchElementNames.empty()) {
-        InfoLog("No applications found");
-        return false;
-    }
-    if (searchElementNames.size() > 1) {
-        InfoLog("Found too many applications");
-    }
-    for (const ElementName& elementName : searchElementNames) {
-        InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
-        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
-    }
-    ElementName element = searchElementNames[0];
+    connect_->SetHceManager(shared_from_this());
     if (element.GetBundleName().empty()) {
         ErrorLog("DispatchAbilitySingleApp element empty");
         return false;
     }
 
-    InfoLog("DispatchAbilitySingleApp for app %{public}s, ability = %{public}s",
-            element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    InfoLog("DispatchAbilitySingleApp for element  %{public}s", element.GetURI().c_str());
     AAFwk::Want want;
     want.SetElement(element);
 
