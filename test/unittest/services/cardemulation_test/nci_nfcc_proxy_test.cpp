@@ -88,8 +88,8 @@ HWTEST_F(NciNfccProxyTest, DisableDiscovery001, TestSize.Level1)
 {
     std::shared_ptr<NciNfccProxy> nciNfccProxy = std::make_shared<NciNfccProxy>();
     nciNfccProxy->DisableDiscovery();
-    int disableDiscovery = nciNfccProxy->DisableDiscovery();
-    ASSERT_TRUE(disableDiscovery == 0);
+    int getNciVersion = nciNfccProxy->GetNciVersion();
+    ASSERT_TRUE(getNciVersion == 0);
 }
 
 /**
@@ -124,7 +124,6 @@ HWTEST_F(NciNfccProxyTest, GetNciVersion001, TestSize.Level1)
  */
 HWTEST_F(NciNfccProxyTest, FactoryReset001, TestSize.Level1)
 {
-    uint8_t screenStateMask = 0;
     std::shared_ptr<NciNfccProxy> nciNfccProxy = std::make_shared<NciNfccProxy>();
     nciNfccProxy->FactoryReset();
     int getNciVersion = nciNfccProxy->GetNciVersion();
@@ -138,7 +137,6 @@ HWTEST_F(NciNfccProxyTest, FactoryReset001, TestSize.Level1)
  */
 HWTEST_F(NciNfccProxyTest, Shutdown001, TestSize.Level1)
 {
-    uint8_t screenStateMask = 0;
     std::shared_ptr<NciNfccProxy> nciNfccProxy = std::make_shared<NciNfccProxy>();
     nciNfccProxy->Shutdown();
     int getNciVersion = nciNfccProxy->GetNciVersion();

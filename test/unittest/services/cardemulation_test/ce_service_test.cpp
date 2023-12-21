@@ -76,7 +76,7 @@ HWTEST_F(CeServiceTest, SendHostApduData001, TestSize.Level1)
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::string hexCmdData = "";
-    bool raw = false
+    bool raw = false;
     std::string hexRespData = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     bool sendHostApduData = ceService->SendHostApduData(hexCmdData, raw, hexRespData);

@@ -125,7 +125,7 @@ HWTEST_F(NciTagProxyTest, GetTagUid001, TestSize.Level1)
 HWTEST_F(NciTagProxyTest, Connect001, TestSize.Level1)
 {
     uint32_t tagDiscId = 0;
-    uuint32_t technology = 0;
+    uint32_t technology = 0;
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     bool connect = nciTagProxy->Connect(tagDiscId, technology);
     ASSERT_TRUE(connect == false);
@@ -290,7 +290,6 @@ HWTEST_F(NciTagProxyTest, StartFieldOnChecking001, TestSize.Level1)
     uint32_t delayedMs = 0;
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     nciTagProxy->StartFieldOnChecking(tagDiscId, delayedMs);
-    uint32_t tagDiscId = 0;
     std::vector<AppExecFwk::PacMap> getTechExtrasData = nciTagProxy->GetTechExtrasData(tagDiscId);
     ASSERT_TRUE(getTechExtrasData.size() == 0);
 }
@@ -307,7 +306,6 @@ HWTEST_F(NciTagProxyTest, SetTimeout001, TestSize.Level1)
     uint32_t technology = 0;
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     nciTagProxy->SetTimeout(tagDiscId, timeout, technology);
-    uint32_t tagDiscId = 0;
     std::vector<AppExecFwk::PacMap> getTechExtrasData = nciTagProxy->GetTechExtrasData(tagDiscId);
     ASSERT_TRUE(getTechExtrasData.size() == 0);
 }
@@ -320,10 +318,8 @@ HWTEST_F(NciTagProxyTest, SetTimeout001, TestSize.Level1)
 HWTEST_F(NciTagProxyTest, GetIsoDepMaxTransceiveLength001, TestSize.Level1)
 {
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
-    nciTagProxy->GetIsoDepMaxTransceiveLength();
-    uint32_t tagDiscId = 0;
-    std::vector<AppExecFwk::PacMap> getTechExtrasData = nciTagProxy->GetTechExtrasData(tagDiscId);
-    ASSERT_TRUE(getTechExtrasData.size() == 0);
+    int getIsoDepMaxTransceiveLength = nciTagProxy->GetIsoDepMaxTransceiveLength();
+    ASSERT_TRUE(getIsoDepMaxTransceiveLength != 0);
 }
 }
 }
