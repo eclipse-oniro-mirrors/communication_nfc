@@ -18,7 +18,9 @@
 #include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "iquery_app_info_callback.h"
+#endif
 #include "iremote_stub.h"
 #include "nfc_controller_callback_proxy.h"
 #include "nfc_sdk_common.h"
@@ -53,8 +55,10 @@ private:
     int HandleUnRegisterCallBack(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply);
     int HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply);
+#ifdef VENDOR_APPLICATIONS_ENABLED
     int HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply);
     int HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply);
+#endif
     int HandleGetNfcHceInterface(MessageParcel &data, MessageParcel &reply);
 
 private:
@@ -67,8 +71,10 @@ private:
     std::mutex mutex_ {};
     sptr<INfcControllerCallback> callback_;
     sptr<INdefMsgCallback> ndefCallback_;
+#ifdef VENDOR_APPLICATIONS_ENABLED
     sptr<IQueryAppInfoCallback> queryAppInfoCallback_ {nullptr};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotifyCb_ {nullptr};
+#endif
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
 };
 }  // namespace NFC

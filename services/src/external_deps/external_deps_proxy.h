@@ -44,10 +44,12 @@ public:
     void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
+#ifdef VENDOR_APPLICATIONS_ENABLED
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int> discTechList);
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
+#endif
 
     KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);
     KITS::ErrorCode NfcDataSetValue(Uri &uri, const std::string &column, int &value);

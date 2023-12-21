@@ -21,8 +21,10 @@
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_controller_death_recipient.h"
 #include "nfc_permission_checker.h"
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "on_card_emulation_notify_cb_proxy.h"
 #include "query_app_info_callback_proxy.h"
+#endif
 #include "external_deps_proxy.h"
 
 namespace OHOS {
@@ -54,10 +56,12 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleGetNfcTagInterface(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK):
             return HandleRegNdefMsgCb(data, reply);
+#ifdef VENDOR_APPLICATIONS_ENABLED
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK):
             return HandleRegQueryApplicationCb(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY):
             return HandleRegCardEmulationNotifyCb(data, reply);
+#endif
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE):
             return HandleGetNfcHceInterface(data, reply);
         default:
@@ -228,6 +232,7 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
     return ERR_NONE;
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
 {
     InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
@@ -269,6 +274,7 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
     }
     return ERR_NONE;
 }
+#endif
 
 KITS::ErrorCode NfcControllerStub::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {

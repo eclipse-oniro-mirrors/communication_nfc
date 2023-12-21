@@ -43,7 +43,8 @@
             "SystemCapability.Communication.NFC.CardEmulation"
         ],
         "features": [
-            "nfc_use_vendor_nci_native"
+            "nfc_use_vendor_nci_native",
+            "nfc_service_feature_vendor_applications_enabled"
         ],
         "adapted_system_type": [
             "standard"

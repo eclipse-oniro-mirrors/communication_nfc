@@ -416,6 +416,7 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
     return elements;
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList)
 {
     std::vector<ElementName> elements {};
@@ -442,6 +443,7 @@ sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback()
 {
     return onCardEmulationNotify_;
 }
+#endif
 
 void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementName>& elementNames)
 {
@@ -455,12 +457,9 @@ void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementN
     }
 }
 
-void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
+#ifdef VENDOR_APPLICATIONS_ENABLED
+void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
 {
-    for (const HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
-        hceApps.push_back(appAidInfo);
-    }
-
     if (queryApplicationByVendor_ == nullptr) {
         WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
         return;
@@ -493,6 +492,17 @@ void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
         }
     }
 }
+#endif
+
+void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
+{
+    for (const HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
+        hceApps.push_back(appAidInfo);
+    }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    GetHceAppsFromVendor(hceApps);
+#endif
+}
 
 bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
 {
@@ -503,6 +513,7 @@ bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
     }
     return false;
 }
+
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
