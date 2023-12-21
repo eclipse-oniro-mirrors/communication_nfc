@@ -91,9 +91,12 @@ ohos_unittest("cardemulation_test") {
 
   sources = [
     "cardemulation_test/cardemulation_test.cpp",
+    "cardemulation_test/ce_service_test.cpp",
     "cardemulation_test/hce_cmd_callback_stub_test.cpp",
     "cardemulation_test/hce_session_test.cpp",
     "cardemulation_test/host_card_emulation_manager_test.cpp",
+    "cardemulation_test/nci_nfcc_proxy_test.cpp",
+    "cardemulation_test/nci_tag_proxy_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
