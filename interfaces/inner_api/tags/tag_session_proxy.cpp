@@ -21,6 +21,7 @@
 #include "message_parcel.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include "reader_mode_callback_stub.h"
 
 namespace OHOS {
 namespace NFC {
@@ -261,7 +262,7 @@ int TagSessionProxy::IsSupportedApdusExtended(bool &isSupported)
         data, option, isSupported);
 }
 
-KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName element, std::vector<uint32_t> &discTech,
+KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     MessageParcel data;
@@ -294,7 +295,7 @@ KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName element, std:
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode TagSessionProxy::UnregForegroundDispatch(ElementName element)
+KITS::ErrorCode TagSessionProxy::UnregForegroundDispatch(ElementName &element)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -312,6 +313,62 @@ KITS::ErrorCode TagSessionProxy::UnregForegroundDispatch(ElementName element)
         static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND), data, option);
     if (error != ERR_NONE) {
         ErrorLog("UnregForegroundDispatch failed, error code is %{public}d", error);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode TagSessionProxy::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    ReaderModeCallbackStub::GetInstance()->RegReaderMode(callback);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("RegReaderMode: Write interface token error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!element.Marshalling(data)) {
+        ErrorLog("RegReaderMode: Write element error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteUInt32Vector(discTech)) {
+        ErrorLog("RegReaderMode: Write discTech error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteRemoteObject(ReaderModeCallbackStub::GetInstance()->AsObject())) {
+        ErrorLog("RegReaderMode: WriteRemoteObject failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    int res = SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_READER_MODE),
+        data, option);
+    if (res != ERR_NONE) {
+        ErrorLog("RegReaderMode failed, error code is %{public}d", res);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode TagSessionProxy::UnregReaderMode(ElementName &element)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("UnregReaderMode:Write interface token error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!element.Marshalling(data)) {
+        ErrorLog("UnregReaderMode:Write element error");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    data.WriteInt32(0);
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_READER_MODE), data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("UnregReaderMode failed, error code is %{public}d", error);
         return KITS::ERR_NFC_PARAMETERS;
     }
     return KITS::ERR_NONE;

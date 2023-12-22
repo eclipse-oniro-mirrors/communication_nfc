@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "foreground_callback_stub.h"
+#include "reader_mode_callback_stub.h"
 
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
@@ -22,43 +22,43 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-ForegroundCallbackStub *g_foregroundCallbackStub = nullptr;
+ReaderModeCallbackStub *g_readerModeCallbackStub = nullptr;
 
-ForegroundCallbackStub::ForegroundCallbackStub() : callback_(nullptr), mRemoteDied(false)
+ReaderModeCallbackStub::ReaderModeCallbackStub() : callback_(nullptr), mRemoteDied(false)
 {
-    InfoLog("ForegroundCallbackStub");
+    InfoLog("ReaderModeCallbackStub");
 }
 
-ForegroundCallbackStub::~ForegroundCallbackStub()
+ReaderModeCallbackStub::~ReaderModeCallbackStub()
 {
-    if (g_foregroundCallbackStub != nullptr) {
-        DebugLog("g_foregroundCallbackStub != nullptr");
-        g_foregroundCallbackStub = nullptr;
+    if (g_readerModeCallbackStub != nullptr) {
+        DebugLog("g_readerModeCallbackStub != nullptr");
+        g_readerModeCallbackStub = nullptr;
     }
-    InfoLog("~ForegroundCallbackStub");
+    InfoLog("~ReaderModeCallbackStub");
 }
 
-ForegroundCallbackStub* ForegroundCallbackStub::GetInstance()
+ReaderModeCallbackStub* ReaderModeCallbackStub::GetInstance()
 {
-    if (g_foregroundCallbackStub == nullptr) {
-        DebugLog("new ForegroundCallbackStub");
-        g_foregroundCallbackStub = new ForegroundCallbackStub();
+    if (g_readerModeCallbackStub == nullptr) {
+        DebugLog("new ReaderModeCallbackStub");
+        g_readerModeCallbackStub = new ReaderModeCallbackStub();
     }
-    return g_foregroundCallbackStub;
+    return g_readerModeCallbackStub;
 }
 
-void ForegroundCallbackStub::OnTagDiscovered(KITS::TagInfoParcelable* tagInfo)
+void ReaderModeCallbackStub::OnTagDiscovered(KITS::TagInfoParcelable* tagInfo)
 {
     if (callback_) {
-        DebugLog(" callback_");
+        DebugLog("callback_ is not null");
         callback_->OnTagDiscovered(tagInfo);
     }
 }
 
-int ForegroundCallbackStub::OnRemoteRequest(
+int ReaderModeCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    DebugLog("ForegroundCallbackStub::OnRemoteRequest,code = %{public}d", code);
+    DebugLog("ReaderModeCallbackStub::OnRemoteRequest,code = %{public}d", code);
     if (mRemoteDied) {
         return KITS::ERR_NFC_STATE_UNBIND;
     }
@@ -68,12 +68,12 @@ int ForegroundCallbackStub::OnRemoteRequest(
     }
     int exception = data.ReadInt32();
     if (exception) {
-        ErrorLog("ForegroundCallbackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
+        ErrorLog("ReaderModeCallbackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
         return exception;
     }
     int ret = KITS::ERR_NFC_STATE_UNBIND;
     switch (code) {
-        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TAG_FOUND_FOREGROUND): {
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TAG_FOUND_READER_MODE): {
             ret = RemoteTagDiscovered(data, reply);
             break;
         }
@@ -85,12 +85,12 @@ int ForegroundCallbackStub::OnRemoteRequest(
     return ret;
 }
 
-KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback)
+KITS::ErrorCode ReaderModeCallbackStub::RegReaderMode(const sptr<KITS::IReaderModeCallback> &callback)
 {
-    DebugLog("ForegroundCallbackStub RegForegroundCallback");
+    DebugLog("ReaderModeCallbackStub RegReaderMode");
     std::shared_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
-        ErrorLog("RegForegroundCallback:callback is nullptr!");
+        ErrorLog("ReaderModeCallbackStub RegReaderMode:callback is nullptr!");
         callback_ = callback;
         return KITS::ERR_NFC_PARAMETERS;
     }
@@ -98,7 +98,7 @@ KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::I
     return KITS::ERR_NONE;
 }
 
-int ForegroundCallbackStub::RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply)
+int ReaderModeCallbackStub::RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply)
 {
     KITS::TagInfoParcelable* tagInfo = KITS::TagInfoParcelable::Unmarshalling(data);
     if (tagInfo == nullptr) {

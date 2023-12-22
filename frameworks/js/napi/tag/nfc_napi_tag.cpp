@@ -343,7 +343,7 @@ std::shared_ptr<TagInfo> BuildNativeTagFromJsObj(napi_env env, napi_value obj)
     std::vector<unsigned char> bytes;
     ParseBytesVector(env, bytes, uidValue);
     std::string tagUid = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(bytes.data()), bytes.size());
-    DebugLog("BuildNativeTagFromJsObj, tag uid:%{public}s", tagUid.c_str());
+    DebugLog("BuildNativeTagFromJsObj, tag uid:%{public}s", NfcSdkCommon::CodeMiddlePart(tagUid).c_str());
 
     // parse technology: number[], extrasData: PacMap[] from TagInfo object.
     std::vector<int> tagTechList;
@@ -952,6 +952,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
         DECLARE_NAPI_FUNCTION("registerForegroundDispatch", RegisterForegroundDispatch),
         DECLARE_NAPI_FUNCTION("unregisterForegroundDispatch", UnregisterForegroundDispatch),
+        DECLARE_NAPI_FUNCTION("on", On),
+        DECLARE_NAPI_FUNCTION("off", Off),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

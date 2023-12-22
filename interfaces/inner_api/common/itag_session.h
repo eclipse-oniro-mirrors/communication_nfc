@@ -16,6 +16,7 @@
 #define I_TAG_SESSION_H
 #include "element_name.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 #include "iremote_broker.h"
 #include "nfc_sdk_common.h"
 #include "parcel.h"
@@ -143,7 +144,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    virtual KITS::ErrorCode RegForegroundDispatch(AppExecFwk::ElementName element,
+    virtual KITS::ErrorCode RegForegroundDispatch(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) = 0;
 
     /**
@@ -152,7 +153,26 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    virtual KITS::ErrorCode UnregForegroundDispatch(AppExecFwk::ElementName element) = 0;
+    virtual KITS::ErrorCode UnregForegroundDispatch(AppExecFwk::ElementName &element) = 0;
+
+    /**
+     * @brief register reader mode
+     *
+     * @param element the element name of the hap that request to register reader mode.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @return The status code for register operation.
+     */
+    virtual KITS::ErrorCode RegReaderMode(AppExecFwk::ElementName &element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback) = 0;
+
+    /**
+     * @brief unregister reader mode
+     *
+     * @param element the element name of the hap that request to unregister reader mode.
+     * @return The status code for unregister operation.
+     */
+    virtual KITS::ErrorCode UnregReaderMode(AppExecFwk::ElementName &element) = 0;
 private:
 };
 }  // namespace TAG

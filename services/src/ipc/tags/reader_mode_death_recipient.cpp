@@ -12,29 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_I_FOREGROUND_CALLBACK_H
-#define OHOS_I_FOREGROUND_CALLBACK_H
-
-#include <iremote_broker.h>
-#include <string>
-#include <string_ex.h>
-
-#include "message_parcel.h"
-#include "message_option.h"
-#include "taginfo_parcelable.h"
+#include "reader_mode_death_recipient.h"
+#include "loghelper.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
-namespace KITS {
-class IForegroundCallback : public IRemoteBroker {
-public:
-    virtual void OnTagDiscovered(TagInfoParcelable* taginfo) = 0;
+ReaderModeDeathRecipient::ReaderModeDeathRecipient(
+    sptr<TAG::TagSessionStub> tagSession, Security::AccessToken::AccessTokenID callerToken)
+{
+    tagSession_ = tagSession;
+    callerToken_ = callerToken;
+}
 
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.IForegroundCallback");
-};
-}  // namespace KITS
-}  // namespace NFC
-}  // namespace OHOS
-#endif
-
+void ReaderModeDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+}
+} // namespace NFC
+} // namespace OHOS

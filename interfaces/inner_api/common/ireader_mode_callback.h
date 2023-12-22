@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_I_FOREGROUND_CALLBACK_H
-#define OHOS_I_FOREGROUND_CALLBACK_H
+#ifndef OHOS_I_READER_MODE_CALLBACK_H
+#define OHOS_I_READER_MODE_CALLBACK_H
 
 #include <iremote_broker.h>
 #include <string>
@@ -26,15 +26,15 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-class IForegroundCallback : public IRemoteBroker {
+class IReaderModeCallback : public IRemoteBroker {
 public:
     virtual void OnTagDiscovered(TagInfoParcelable* taginfo) = 0;
 
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.IForegroundCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.IReaderModeCallback");
 };
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
-#endif
+#endif // OHOS_I_READER_MODE_CALLBACK_H
 

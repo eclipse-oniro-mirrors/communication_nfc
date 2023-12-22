@@ -53,6 +53,7 @@ ohos_shared_library("nfc_inner_kits_tags") {
     "nfca_tag.cpp",
     "nfcb_tag.cpp",
     "nfcf_tag.cpp",
+    "reader_mode_callback_stub.cpp",
     "tag_foreground.cpp",
     "tag_session_proxy.cpp",
   ]

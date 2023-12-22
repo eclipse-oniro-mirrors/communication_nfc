@@ -157,8 +157,9 @@ bool ParseElementName(napi_env &env, ElementName &element, napi_value &args)
 
     DebugLog("ParseElementName: bundleName:%{public}s, moduleName:%{public}s, abilityName:%{public}s",
         bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
-    ElementName elementName("", bundleName, abilityName, moduleName);
-    element = elementName;
+    element.SetBundleName(bundleName);
+    element.SetModuleName(moduleName);
+    element.SetAbilityName(abilityName);
     return true;
 }
 

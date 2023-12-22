@@ -17,6 +17,7 @@
 
 #include "element_name.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 #include "itag_session.h"
 #include "taginfo.h"
 
@@ -32,19 +33,37 @@ public:
 
     /**
      * @Description Registers the callback for tag foreground dispatch.
-     * @param callback the callback to be registered.
-     * @param type the type for this callback, it's "nfcStateChange"
+     * @param element the element name of the hap that request to register foreground dispatch.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    ErrorCode RegForeground(AppExecFwk::ElementName element,
+    ErrorCode RegForeground(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
 
     /**
      * @Description Unregisters the callback for tag foreground dispatch.
-     * @param type the type for this callback, it's "nfcStateChange"
+     * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    ErrorCode UnregForeground(AppExecFwk::ElementName element);
+    ErrorCode UnregForeground(AppExecFwk::ElementName &element);
+
+    /**
+     * @Description Registers the callback for tag reader mode.
+     * @param element the element name of the hap that request to register reader mode.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @return The status code for register operation.
+     */
+    ErrorCode RegReaderMode(AppExecFwk::ElementName &element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
+
+    /**
+     * @Description Unregisters the callback for tag reader mode.
+     * @param element the element name of the hap that request to unregister reader mode.
+     * @return The status code for unregister operation.
+     */
+    ErrorCode UnregReaderMode(AppExecFwk::ElementName &element);
 
 protected:
     OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();

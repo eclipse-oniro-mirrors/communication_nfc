@@ -32,6 +32,7 @@ const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
 
 const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
+const static uint32_t MAX_NUM_TECH_LIST = 12;
 
 const std::string KEY_CODE = "code";
 const std::string TAG_PERM_DESC = "ohos.permission.NFC_TAG";

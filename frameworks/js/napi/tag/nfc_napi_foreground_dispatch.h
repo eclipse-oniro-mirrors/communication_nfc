@@ -22,6 +22,7 @@
 #include "nfc_napi_tag_utils.h"
 #include "nfc_sdk_common.h"
 #include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 
 namespace OHOS {
 namespace NFC {
@@ -86,8 +87,27 @@ private:
     static bool isEvtRegistered;
 };
 
+class ReaderModeEvtRegister {
+public:
+    ReaderModeEvtRegister() {}
+    ~ReaderModeEvtRegister() {}
+    static ReaderModeEvtRegister& GetInstance();
+    void Register(const napi_env &env, std::string &type, ElementName &element,
+                  std::vector<uint32_t> &discTech, napi_value handler);
+    void Unregister(const napi_env &env, std::string &type, ElementName &element, napi_value handler);
+
+private:
+    ErrorCode RegReaderModeEvt(std::string &type, ElementName &element, std::vector<uint32_t> &discTech);
+    ErrorCode UnregReaderModeEvt(std::string &type, ElementName &element);
+    void DeleteRegisteredObj(const napi_env &env, RegObj &regObj, napi_value &handler);
+
+    static bool isReaderModeRegistered;
+};
+
 napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo);
 napi_value UnregisterForegroundDispatch(napi_env env, napi_callback_info cbinfo);
+napi_value On(napi_env env, napi_callback_info cbinfo);
+napi_value Off(napi_env env, napi_callback_info cbinfo);
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
