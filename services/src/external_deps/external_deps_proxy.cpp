@@ -36,6 +36,7 @@ std::vector<ElementName> ExternalDepsProxy::GetDispatchTagAppsByTech(std::vector
     return AppDataParser::GetInstance().GetDispatchTagAppsByTech(discTechList);
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 std::vector<ElementName> ExternalDepsProxy::GetVendorDispatchTagAppsByTech(std::vector<int> discTechList)
 {
     return AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(discTechList);
@@ -55,6 +56,7 @@ sptr<IOnCardEmulationNotifyCb> ExternalDepsProxy::GetNotifyCardEmulationCallback
 {
     return AppDataParser::GetInstance().GetNotifyCardEmulationCallback();
 }
+#endif
 
 KITS::ErrorCode ExternalDepsProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
 {
@@ -171,14 +173,17 @@ void ExternalDepsProxy::StartVibratorOnce()
 {
     TAG::TagAbilityDispatcher::StartVibratorOnce();
 }
+
 void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos)
 {
     AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
 }
+
 void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<ElementName>& elementNames)
 {
     AppDataParser::GetInstance().GetHceAppsByAid(aid, elementNames);
 }
+
 void ExternalDepsProxy::GetHceApps(std::vector<AppDataParser::HceAppAidInfo>& hceApps)
 {
     AppDataParser::GetInstance().GetHceApps(hceApps);

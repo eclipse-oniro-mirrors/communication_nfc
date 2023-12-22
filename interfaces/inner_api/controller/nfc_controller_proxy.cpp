@@ -14,7 +14,10 @@
  */
 #include "nfc_controller_proxy.h"
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "iquery_app_info_callback.h"
+#endif
+
 #include "loghelper.h"
 #include "ndef_msg_callback_stub.h"
 #include "nfc_controller_callback_stub.h"
@@ -194,6 +197,7 @@ KITS::ErrorCode NfcControllerProxy::RegNdefMsgCb(const sptr<INdefMsgCallback> &c
     return KITS::ERR_NONE;
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 KITS::ErrorCode NfcControllerProxy::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
     MessageParcel data;
@@ -247,6 +251,7 @@ KITS::ErrorCode NfcControllerProxy::RegCardEmulationNotifyCb(sptr<IOnCardEmulati
     }
     return KITS::ERR_NONE;
 }
+#endif
 
 OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()
 {

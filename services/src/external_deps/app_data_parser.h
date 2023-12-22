@@ -21,8 +21,10 @@
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
 #include "element_name.h"
+#ifdef VENDOR_APPLICATIONS_ENABLED
 #include "ion_card_emulation_notify_cb.h"
 #include "iquery_app_info_callback.h"
+#endif
 #include "nfc_sdk_common.h"
 #include "want.h"
 
@@ -63,10 +65,12 @@ public:
     void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
+#ifdef VENDOR_APPLICATIONS_ENABLED
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
+#endif
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
@@ -86,8 +90,11 @@ private:
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
     bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
+#endif
 };
 }  // namespace NFC
 }  // namespace OHOS

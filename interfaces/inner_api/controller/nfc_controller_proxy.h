@@ -44,8 +44,11 @@ public:
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
     OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
     KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) override;
+#ifdef VENDOR_APPLICATIONS_ENABLED
     KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) override;
     KITS::ErrorCode RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback) override;
+#endif
+
 private:
 };
 }  // namespace NFC

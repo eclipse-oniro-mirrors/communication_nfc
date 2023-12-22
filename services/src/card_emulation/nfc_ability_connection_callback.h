@@ -17,9 +17,11 @@
 
 #include "ability_connect_callback_interface.h"
 #include "ability_connect_callback_stub.h"
+#include "host_card_emulation_manager.h"
 
 namespace OHOS {
 namespace NFC {
+class HostCardEmulationManager;
 class NfcAbilityConnectionCallback : public AAFwk::AbilityConnectionStub {
 public:
     NfcAbilityConnectionCallback();
@@ -31,9 +33,13 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
                                  int resultCode) override;
     bool ServiceConnected();
+    void SetHceManager(std::weak_ptr<HostCardEmulationManager> hceManager);
+    AppExecFwk::ElementName GetConnectedElement();
 
 private:
     bool serviceConnected_;
+    std::weak_ptr<HostCardEmulationManager> hceManager_{};
+    AppExecFwk::ElementName connectedElement_;
 };
 } // namespace NFC
 } // namespace OHOS

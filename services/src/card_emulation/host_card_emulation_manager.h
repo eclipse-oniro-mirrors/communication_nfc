@@ -29,7 +29,8 @@ namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
 class NfcService;
-class HostCardEmulationManager {
+class NfcAbilityConnectionCallback;
+class HostCardEmulationManager : public std::enable_shared_from_this<HostCardEmulationManager> {
 public:
     enum HceState {
         INITIAL_STATE = 0,
@@ -55,13 +56,17 @@ public:
 
     bool SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData);
 
+    void HandleQueueData();
+
 private:
-    void HandleDataOnW4Select(const std::string aid, const std::vector<uint8_t>& data);
-    void HandleDataOnDataTransfer(const std::string aid, const std::vector<uint8_t>& data);
-    bool ExistService();
+    void HandleDataOnW4Select(const std::string aid, ElementName& aidElement, const std::vector<uint8_t>& data);
+    void HandleDataOnDataTransfer(const std::string aid, ElementName& aidElement,
+                                  const std::vector<uint8_t>& data);
+    bool ExistService(ElementName& aidElement);
     std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
-    bool DispatchAbilitySingleApp(const std::string aid);
+    bool DispatchAbilitySingleApp(ElementName& element);
+    void SearchElementByAid(const std::string aid, ElementName& aidElement);
 
     std::weak_ptr<NfcService> nfcService_{};
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
@@ -70,6 +75,8 @@ private:
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
     sptr<NfcAbilityConnectionCallback> connect_{};
+
+    friend class NfcAbilityConnectionCallback;
 };
 } // namespace NFC
 } // namespace OHOS

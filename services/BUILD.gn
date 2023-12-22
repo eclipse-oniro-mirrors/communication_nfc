@@ -23,6 +23,10 @@ config("nfc_config") {
     defines += [ "USE_VENDOR_NCI_NATIVE" ]
   }
 
+  if (nfc_service_feature_vendor_applications_enabled) {
+    defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
+  }
+
   include_dirs = [
     "include",
     "src/ipc/controller",
@@ -54,8 +58,6 @@ nfc_service_source = [
   "src/ipc/controller/nfc_controller_death_recipient.cpp",
   "src/ipc/controller/nfc_controller_impl.cpp",
   "src/ipc/controller/nfc_controller_stub.cpp",
-  "src/ipc/controller/on_card_emulation_notify_cb_proxy.cpp",
-  "src/ipc/controller/query_app_info_callback_proxy.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
   "src/ipc/tags/foreground_death_recipient.cpp",
   "src/ipc/tags/reader_mode_callback_proxy.cpp",
@@ -81,6 +83,12 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_session.cpp",
   "src/ipc/card_emulation/hce_session_stub.cpp",
 ]
+if (nfc_service_feature_vendor_applications_enabled) {
+  nfc_service_source += [
+    "src/ipc/controller/on_card_emulation_notify_cb_proxy.cpp",
+    "src/ipc/controller/query_app_info_callback_proxy.cpp",
+  ]
+}
 
 nfc_service_external_deps = [
   "ability_base:want",
