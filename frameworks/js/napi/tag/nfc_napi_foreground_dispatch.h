@@ -19,7 +19,7 @@
 #include "element_name.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "nfc_napi_tag_utils.h"
+#include "nfc_napi_common_utils.h"
 #include "nfc_sdk_common.h"
 #include "iforeground_callback.h"
 #include "ireader_mode_callback.h"

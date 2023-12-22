@@ -184,9 +184,9 @@ bool EventRegister::IsEventSupport(const std::string& type)
 
 void EventRegister::Register(const napi_env& env, const std::string& type, napi_value handler)
 {
-    InfoLog("Register event: %{public}s", type.c_str());
+    InfoLog("Register eventType: %{public}s", type.c_str());
     if (!IsEventSupport(type)) {
-        DebugLog("Register type error or not support!");
+        DebugLog("Register eventType error or not support!");
         return;
     }
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
@@ -244,13 +244,13 @@ static void after_work_cb(uv_work_t* work, int status)
     uint32_t refCount = INVALID_REF_COUNT;
     napi_open_handle_scope(asyncData->env, &scope);
     if (scope == nullptr) {
-        ErrorLog("scope is nullptr");
+        ErrorLog("after_work_cb: scope is nullptr");
         goto EXIT;
     }
 
     napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
     if (handler == nullptr) {
-        ErrorLog("handler is nullptr");
+        ErrorLog("after_work_cb: handler is nullptr");
         goto EXIT;
     }
     napi_value resArgs[ARGV_INDEX_2];
@@ -283,7 +283,7 @@ void NapiEvent::EventNotify(AsyncEventData* asyncEvent)
 {
     DebugLog("Enter hce cmd event notify");
     if (asyncEvent == nullptr) {
-        DebugLog("asyncEvent is null.");
+        DebugLog("hce asyncEvent is null.");
         return;
     }
     uv_loop_s* loop = nullptr;
@@ -291,7 +291,7 @@ void NapiEvent::EventNotify(AsyncEventData* asyncEvent)
 
     uv_work_t* work = new uv_work_t;
     if (work == nullptr) {
-        DebugLog("uv_work_t work is null.");
+        DebugLog("hce uv_work_t work is null.");
         delete asyncEvent;
         asyncEvent = nullptr;
         return;

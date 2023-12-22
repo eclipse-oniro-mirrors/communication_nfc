@@ -48,7 +48,7 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
         return nullptr;
     }
     std::vector<AbilityInfo> abilityInfos;
-    for (int i = 0; i < extraLen; i++) {
+    for (uint32_t i = 0; i < extraLen; i++) {
         AbilityInfo *ability = AbilityInfo::Unmarshalling(parcel);
         abilityInfos.push_back(*(ability));
     }

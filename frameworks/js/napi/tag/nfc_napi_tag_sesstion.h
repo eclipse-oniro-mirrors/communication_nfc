@@ -19,7 +19,7 @@
 #include <memory>
 #include "basic_tag_session.h"
 #include "napi/native_node_api.h"
-#include "nfc_napi_tag_utils.h"
+#include "nfc_napi_common_utils.h"
 
 namespace OHOS {
 namespace NFC {

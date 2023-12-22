@@ -28,7 +28,7 @@
 #include "nfc_napi_tag_mifare_ul.h"
 #include "nfc_napi_tag_ndef.h"
 #include "nfc_napi_tag_ndef_formatable.h"
-#include "nfc_napi_tag_utils.h"
+#include "nfc_napi_common_utils.h"
 #include "taginfo.h"
 
 namespace OHOS {

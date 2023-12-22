@@ -196,7 +196,8 @@ static bool MatchSendDataParameters(napi_env env, const napi_value parameters[],
     return isTypeMatched;
 }
 
-static void NativeSendData(napi_env env, void *data)
+// native function called, add the 'inner_api' calling to request to service.
+static void NativeTransmit(napi_env env, void *data)
 {
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
@@ -207,7 +208,7 @@ static void NativeSendData(napi_env env, void *data)
         context->errorCode = nfcTagSessionPtr->SendCommand(context->dataBytes, true, hexRespData);
         context->value = hexRespData;
     } else {
-        ErrorLog("NativeSendData, nfcTagSessionPtr failed.");
+        ErrorLog("NativeTransmit, nfcTagSessionPtr failed.");
     }
     context->resolved = true;
 }
@@ -270,7 +271,7 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
     }
 
     context->objectInfo = objectInfoCb;
-    napi_value result = HandleAsyncWork(env, context, "SendData", NativeSendData, SendDataCallback);
+    napi_value result = HandleAsyncWork(env, context, "SendData", NativeTransmit, SendDataCallback);
     return result;
 }
 
@@ -402,23 +403,6 @@ static bool CheckTransmitParametersAndThrow(napi_env env, const napi_value param
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
         return false;
     }
-}
-
-// native function called, add the 'inner_api' calling to request to service.
-static void NativeTransmit(napi_env env, void *data)
-{
-    auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
-    context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
-    BasicTagSession *nfcTagSessionPtr =
-        static_cast<BasicTagSession *>(static_cast<void *>(context->objectInfo->tagSession.get()));
-    if (nfcTagSessionPtr != nullptr) {
-        std::string hexRespData;
-        context->errorCode = nfcTagSessionPtr->SendCommand(context->dataBytes, true, hexRespData);
-        context->value = hexRespData;
-    } else {
-        ErrorLog("NativeSendData, nfcTagSessionPtr failed.");
-    }
-    context->resolved = true;
 }
 
 // the aysnc callback to check the status and throw error.
