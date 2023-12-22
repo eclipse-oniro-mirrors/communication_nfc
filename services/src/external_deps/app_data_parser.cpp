@@ -469,7 +469,7 @@ void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
     std::vector<AppExecFwk::ElementName> elementNameList {};
     queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
     if (vendorHceAppAndAidList.size() != 0) {
-        for (const auto appAidInfoWant : vendorHceAppAndAidList) {
+        for (auto appAidInfoWant : vendorHceAppAndAidList) {
             std::shared_ptr<HceAppAidInfo> appAidInfo = std::make_shared<HceAppAidInfo>();
             appAidInfo->element = appAidInfoWant.GetElement();
             const std::string KEY_OTHER_AID = "other-aid";

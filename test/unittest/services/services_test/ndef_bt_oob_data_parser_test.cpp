@@ -16,7 +16,6 @@
 #include <thread>
 
 #include "ndef_bt_oob_data_parser.h"
-#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {

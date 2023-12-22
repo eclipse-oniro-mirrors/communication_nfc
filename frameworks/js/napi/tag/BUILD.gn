@@ -29,9 +29,11 @@ ohos_shared_library("tag") {
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/common",
     "$NFC_DIR/interfaces/inner_api/tags",
+    "$NFC_DIR/frameworks/js/napi/common",
   ]
 
   sources = [
+    "$NFC_DIR/frameworks/js/napi/common/nfc_napi_common_utils.cpp",
     "nfc_napi_foreground_dispatch.cpp",
     "nfc_napi_ndef_message.cpp",
     "nfc_napi_tag.cpp",
@@ -41,7 +43,6 @@ ohos_shared_library("tag") {
     "nfc_napi_tag_ndef.cpp",
     "nfc_napi_tag_ndef_formatable.cpp",
     "nfc_napi_tag_sesstion.cpp",
-    "nfc_napi_tag_utils.cpp",
     "nfc_napi_taga.cpp",
     "nfc_napi_tagb.cpp",
     "nfc_napi_tagf.cpp",

@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include "app_data_parser.h"
 #include "nfc_event_handler.h"
-#include "loghelper.h"
 #include "nfc_controller.h"
 #include "nfc_polling_params.h"
 #include "nfc_sdk_common.h"

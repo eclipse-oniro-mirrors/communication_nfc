@@ -23,7 +23,7 @@
 #include "ndef_message.h"
 #include "nfc_napi_ndef_message.h"
 #include "nfc_napi_tag_sesstion.h"
-#include "nfc_napi_tag_utils.h"
+#include "nfc_napi_common_utils.h"
 
 namespace OHOS {
 namespace NFC {

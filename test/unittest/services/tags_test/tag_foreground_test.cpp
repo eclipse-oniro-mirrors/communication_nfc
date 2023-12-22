@@ -17,14 +17,9 @@
 
 #include "tag_foreground.h"
 
-#include "loghelper.h"
 #include "iforeground_callback.h"
-#include "foreground_callback_stub.h"
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
-#include "tag_session_proxy.h"
 
 namespace OHOS {
 namespace NFC {

@@ -339,7 +339,7 @@ napi_value NapiMifareClassicTag::AuthenticateSector(napi_env env, napi_callback_
     return result;
 }
 
-static bool CheckReadSingleBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
+static bool CheckParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
 {
     if (parameterCount == ARGV_NUM_1) {
         if (!CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number")) {
@@ -402,7 +402,7 @@ napi_value NapiMifareClassicTag::ReadSingleBlock(napi_env env, napi_callback_inf
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
-        !CheckReadSingleBlockParameters(env, params, paramsCount)) {
+        !CheckParameters(env, params, paramsCount)) {
         return CreateUndefined(env);
     }
     auto context = std::make_unique<MifareClassicContext<std::string, NapiMifareClassicTag>>().release();
@@ -670,26 +670,6 @@ napi_value NapiMifareClassicTag::DecrementBlock(napi_env env, napi_callback_info
     return result;
 }
 
-static bool CheckTransferToBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
-{
-    if (parameterCount == ARGV_NUM_1) {
-        if (!CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number")) {
-            return false;
-        }
-        return true;
-    } else if (parameterCount == ARGV_NUM_2) {
-        if (!CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
-            "blockIndex & callback", "number & function")) {
-            return false;
-        }
-        return true;
-    } else {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-        return false;
-    }
-}
-
 static void NativeTransferToBlock(napi_env env, void *data)
 {
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
@@ -730,7 +710,7 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
-        !CheckTransferToBlockParameters(env, params, paramsCount)) {
+        !CheckParameters(env, params, paramsCount)) {
         return CreateUndefined(env);
     }
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();
@@ -748,26 +728,6 @@ napi_value NapiMifareClassicTag::TransferToBlock(napi_env env, napi_callback_inf
     napi_value result =
         HandleAsyncWork(env, context, "TransferToBlock", NativeTransferToBlock, TransferToBlockCallback);
     return result;
-}
-
-static bool CheckRestoreFromBlockParameters(napi_env env, const napi_value parameters[], size_t parameterCount)
-{
-    if (parameterCount == ARGV_NUM_1) {
-        if (!CheckParametersAndThrow(env, parameters, {napi_number}, "blockIndex", "number")) {
-            return false;
-        }
-        return true;
-    } else if (parameterCount == ARGV_NUM_2) {
-        if (!CheckParametersAndThrow(env, parameters, {napi_number, napi_function},
-            "blockIndex & callback", "number & function")) {
-            return false;
-        }
-        return true;
-    } else {
-        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
-            BuildErrorMessage(BUSI_ERR_PARAM, "", "", "", "")));
-        return false;
-    }
 }
 
 static void NativeRestoreFromBlock(napi_env env, void *data)
@@ -810,7 +770,7 @@ napi_value NapiMifareClassicTag::RestoreFromBlock(napi_env env, napi_callback_in
     // unwrap from thisVar to retrieve the native instance
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&objectInfoCb));
     if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID) ||
-        !CheckRestoreFromBlockParameters(env, params, paramsCount)) {
+        !CheckParameters(env, params, paramsCount)) {
         return CreateUndefined(env);
     }
     auto context = std::make_unique<MifareClassicContext<int, NapiMifareClassicTag>>().release();

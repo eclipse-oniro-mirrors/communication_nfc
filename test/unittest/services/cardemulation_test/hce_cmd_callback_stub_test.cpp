@@ -18,7 +18,6 @@
 #include "hce_cmd_callback_stub.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
-#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
