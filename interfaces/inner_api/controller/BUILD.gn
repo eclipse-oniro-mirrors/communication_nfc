@@ -25,6 +25,7 @@ config("nfc_inner_kits_config") {
 
 config("nfc_inner_kits_public_config") {
   visibility = [ ":*" ]
+  defines = []
   if (nfc_service_feature_vendor_applications_enabled) {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
@@ -50,10 +51,13 @@ ohos_shared_library("nfc_inner_kits_controller") {
     "nfc_controller_proxy.cpp",
     "nfc_data_share_impl.cpp",
     "nfc_sa_client.cpp",
-    "on_card_emulation_notify_cb_stub.cpp",
-    "query_app_info_callback_stub.cpp",
   ]
-
+  if (nfc_service_feature_vendor_applications_enabled) {
+    sources += [
+      "on_card_emulation_notify_cb_stub.cpp",
+      "query_app_info_callback_stub.cpp",
+    ]
+  }
   configs = [ ":nfc_inner_kits_config" ]
 
   public_configs = [ ":nfc_inner_kits_public_config" ]

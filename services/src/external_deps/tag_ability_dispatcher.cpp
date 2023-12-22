@@ -91,11 +91,7 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
 
     std::vector<int> techList = tagInfo->GetTagTechList();
     std::vector<ElementName> elements = AppDataParser::GetInstance().GetDispatchTagAppsByTech(techList);
-    InfoLog("DispatchTagAbility: try start ability elements size = %{public}zu", elements.size());
-    if (elements.size() == 0) {
-        return;
-    }
-#if 0
+#ifdef VENDOR_APPLICATIONS_ENABLED
     std::vector<ElementName> vendorElements = AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(techList);
     if (elements.size() == 0 && vendorElements.size() == 0) {
         return;
@@ -122,7 +118,10 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
         want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
         DispatchAbilitySingleApp(want);
     }
-#endif
+#else
+    if (elements.size() == 0) {
+        return;
+    }
     AAFwk::Want want;
     want.SetParam("remoteTagService", tagServiceIface);
     SetWantExtraParam(tagInfo, want);
@@ -132,6 +131,7 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     } else {
         DispatchAbilityMultiApp(tagInfo, want);
     }
+#endif
 }
 
 void TagAbilityDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo, AAFwk::Want& want)
