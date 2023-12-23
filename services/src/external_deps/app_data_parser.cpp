@@ -208,7 +208,7 @@ bool AppDataParser::InitAppListByAction(const std::string action)
                 offHostAbilityInfo.moduleName);
             UpdateOffHostAppList(offHostAbilityInfo, element);
         }
-    }else {
+    } else {
         WarnLog("InitAppListByAction,unknown action = %{public}s", action.c_str());
     }
     return true;
