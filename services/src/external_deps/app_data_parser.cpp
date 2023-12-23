@@ -344,7 +344,7 @@ void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &
 {
     if (HaveMatchedOffHostKeyElement(element)) {
         WarnLog("UpdateOffHostAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
-        RemoveHceAppInfo(element);
+        RemoveOffHostAppInfo(element);
     }
     HceAppAidInfo offHostAppAidInfo;
     offHostAppAidInfo.element = element;
