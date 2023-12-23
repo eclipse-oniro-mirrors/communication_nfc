@@ -58,6 +58,7 @@ public:
 
     std::vector<TagAppTechInfo> g_tagAppAndTechMap;
     std::vector<HceAppAidInfo> g_hceAppAndAidMap;
+    std::vector<HceAppAidInfo> g_offHostAppAndAidMap;
 
     static AppDataParser& GetInstance();
 
@@ -87,8 +88,11 @@ private:
     bool UpdateAppListInfo(ElementName &element, const std::string action);
     void UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element);
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
+    void UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &element);
+    bool HaveMatchedOffHostKeyElement(ElementName &element);
     void RemoveTagAppInfo(ElementName &element);
     void RemoveHceAppInfo(ElementName &element);
+    void RemoveOffHostAppInfo(ElementName &element);
     bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);

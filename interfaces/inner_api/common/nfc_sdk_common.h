@@ -86,6 +86,9 @@ const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 /** Action for HCE application declared */
 const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
 
+/** Action for off host*/
+const std::string ACTION_OFF_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.OFF_HOST_APDU_SERVICE";
+
 /** Database key for nfc state. */
 const std::string NFC_DATA_URI_ID =
     "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=data_key_nfc_state";

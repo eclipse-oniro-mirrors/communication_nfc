@@ -77,6 +77,7 @@ void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
     DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s", bundleName.c_str());
     UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
     UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
+    UpdateAppListInfo(element, KITS::ACTION_OFF_HOST_APDU_SERVICE);
 }
 
 void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -97,6 +98,7 @@ void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
         g_hceAppAndAidMap.size());
     RemoveTagAppInfo(element);
     RemoveHceAppInfo(element);
+    RemoveOffHostAppInfo(element);
 }
 
 bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std::string action)
@@ -105,7 +107,8 @@ bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std:
     OHOS::Security::AccessToken::AccessTokenID tokenID;
     std::map<std::string, std::string> permissionMap = {
         {KITS::ACTION_TAG_FOUND, TAG_PERM},
-        {KITS::ACTION_HOST_APDU_SERVICE, CARD_EMU_PERM}
+        {KITS::ACTION_HOST_APDU_SERVICE, CARD_EMU_PERM},
+        {KITS::ACTION_OFF_HOST_APDU_SERVICE, CARD_EMU_PERM}
     };
     std::map<std::string, std::string>::iterator it = permissionMap.find(action.c_str());
     if (it != permissionMap.end()) {
@@ -149,7 +152,8 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
 
 bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
 {
-    if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0) {
+    if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0 &&
+        action != KITS::ACTION_OFF_HOST_APDU_SERVICE) {
         ErrorLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
         return false;
     }
@@ -173,6 +177,9 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
         if (action.compare(KITS::ACTION_HOST_APDU_SERVICE) == 0) {
             UpdateHceAppList(abilityInfo, element);
         }
+        if (action.compare(KITS::ACTION_OFF_HOST_APDU_SERVICE) == 0) {
+            UpdateOffHostAppList(abilityInfo, element);
+        }
     }
     return true;
 }
@@ -195,7 +202,13 @@ bool AppDataParser::InitAppListByAction(const std::string action)
                 hceAbilityInfo.moduleName);
             UpdateHceAppList(hceAbilityInfo, element);
         }
-    } else {
+    } else if (KITS::ACTION_OFF_HOST_APDU_SERVICE.compare(action) == 0) {
+        for (auto& offHostAbilityInfo : abilityInfos) {
+            ElementName element(offHostAbilityInfo.deviceId, offHostAbilityInfo.bundleName, offHostAbilityInfo.name,
+                offHostAbilityInfo.moduleName);
+            UpdateOffHostAppList(offHostAbilityInfo, element);
+        }
+    }else {
         WarnLog("InitAppListByAction,unknown action = %{public}s", action.c_str());
     }
     return true;
@@ -327,6 +340,32 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
         element.GetAbilityName().c_str());
 }
 
+void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &element)
+{
+    if (HaveMatchedOffHostKeyElement(element)) {
+        WarnLog("UpdateOffHostAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
+        RemoveHceAppInfo(element);
+    }
+    HceAppAidInfo offHostAppAidInfo;
+    offHostAppAidInfo.element = element;
+    offHostAppAidInfo.iconId = abilityInfo.iconId;
+    offHostAppAidInfo.labelId = abilityInfo.labelId;
+    g_offHostAppAndAidMap.push_back(offHostAppAidInfo);
+    DebugLog("UpdateOffHostAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+}
+
+bool AppDataParser::HaveMatchedOffHostKeyElement(ElementName &element)
+{
+    std::vector<HceAppAidInfo>::iterator iter;
+    for (iter = g_offHostAppAndAidMap.begin(); iter != g_offHostAppAndAidMap.end(); ++iter) {
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void AppDataParser::RemoveTagAppInfo(ElementName &element)
 {
     ElementName keyElement = GetMatchedTagKeyElement(element);
@@ -365,6 +404,25 @@ void AppDataParser::RemoveHceAppInfo(ElementName &element)
     }
 }
 
+void AppDataParser::RemoveOffHostAppInfo(ElementName &element)
+{
+    if (!HaveMatchedOffHostKeyElement(element)) {
+        WarnLog("RemoveOffHostAppInfo, keyElement is none, ignore it.");
+        return;
+    }
+
+    DebugLog("RemoveOffHostAppInfo, app %{public}s", element.GetBundleName().c_str());
+    std::vector<HceAppAidInfo>::iterator iter;
+    for (iter = g_offHostAppAndAidMap.begin(); iter != g_offHostAppAndAidMap.end(); ++iter) {
+        // compare only bundle name to remote the app.
+        if (IsMatchedByBundleName(element, (*iter).element)) {
+            DebugLog("RemoveOffHostAppInfo, erase app %{public}s", element.GetBundleName().c_str());
+            g_offHostAppAndAidMap.erase(iter);
+            break;
+        }
+    }
+}
+
 void AppDataParser::InitAppList()
 {
     bundleMgrProxy_ = GetBundleMgrProxy();
@@ -374,8 +432,9 @@ void AppDataParser::InitAppList()
     }
     InitAppListByAction(KITS::ACTION_TAG_FOUND);
     InitAppListByAction(KITS::ACTION_HOST_APDU_SERVICE);
-    DebugLog("InitAppList, tag size %{public}zu, hce size %{public}zu", g_tagAppAndTechMap.size(),
-        g_hceAppAndAidMap.size());
+    InitAppListByAction(KITS::ACTION_OFF_HOST_APDU_SERVICE);
+    InfoLog("InitAppList, tag size %{public}zu, hce size %{public}zu, off host app  %{public}zu",
+            g_tagAppAndTechMap.size(), g_hceAppAndAidMap.size(), g_offHostAppAndAidMap.size());
 }
 
 std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int> discTechList)
@@ -520,6 +579,15 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         if (!IsPaymentApp(appAidInfo)) {
             continue;
         }
+        AbilityInfo ability;
+        ability.name = appAidInfo.element.GetAbilityName();
+        ability.bundleName = appAidInfo.element.GetBundleName();
+        ability.labelId = appAidInfo.labelId;
+        ability.iconId = appAidInfo.iconId;
+        paymentAbilityInfos.push_back(ability);
+    }
+
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_offHostAppAndAidMap) {
         AbilityInfo ability;
         ability.name = appAidInfo.element.GetAbilityName();
         ability.bundleName = appAidInfo.element.GetBundleName();
