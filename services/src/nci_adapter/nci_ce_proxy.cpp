@@ -80,6 +80,14 @@ bool NciCeProxy::AddAidRouting(const std::string aidStr, int route, int aidInfo,
     }
     return false;
 }
+
+bool NciCeProxy::ClearAidTable()
+{
+    if (nciCeInterface_) {
+        return nciCeInterface_->ClearAidTable();
+    }
+    return false;
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS

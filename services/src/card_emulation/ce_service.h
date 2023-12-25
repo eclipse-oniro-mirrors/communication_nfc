@@ -57,8 +57,10 @@ public:
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
     void Initialize();
     void Deinitialize();
+    void OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data);
 
 private:
+    void ConfigRoutingAndCommit();
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
 

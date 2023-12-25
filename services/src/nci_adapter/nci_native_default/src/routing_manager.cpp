@@ -183,6 +183,18 @@ bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
     return false;
 }
 
+bool RoutingManager::ClearAidTable()
+{
+    tNFA_STATUS status = NFA_EeRemoveAidRouting(NFA_REMOVE_ALL_AID_LEN, (uint8_t *)NFA_REMOVE_ALL_AID);
+    if (status == NFA_STATUS_OK) {
+        InfoLog("ClearAidTable: Succeed ");
+        return true;
+    } else {
+        ErrorLog("ClearAidTable: failed ");
+        return false;
+    }
+}
+
 bool RoutingManager::SetRoutingEntry(uint32_t type, uint32_t value, uint32_t route, uint32_t power)
 {
     InfoLog("SetRoutingEntry: type:0x%{public}X, value:0x%{public}X, route:0x%{public}X, power:0x%{public}X",

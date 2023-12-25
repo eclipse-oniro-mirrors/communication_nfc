@@ -89,6 +89,11 @@ public:
      * @return True if success, otherwise false.
      */
     virtual bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) = 0;
+    /**
+     * @brief  clear aid table
+     * @return True if success, otherwise false.
+     */
+    virtual bool ClearAidTable() = 0;
 };
 } // namespace NCI
 } // namespace NFC
