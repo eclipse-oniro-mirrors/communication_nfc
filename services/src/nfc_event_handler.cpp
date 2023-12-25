@@ -280,6 +280,7 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
             nfcPollingManager_.lock()->HandlePackageUpdated(event->GetSharedObject<EventFwk::CommonEventData>());
+            ceService_.lock()->OnAppAddOrChangeOrRemove(event->GetSharedObject<EventFwk::CommonEventData>());
             break;
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {

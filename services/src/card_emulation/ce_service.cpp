@@ -63,6 +63,7 @@ bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &
 void CeService::InitConfigAidRouting()
 {
     DebugLog("AddAidRoutingHceOtherAids: start");
+    nciCeProxy_.lock()->ClearAidTable();
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
     if (hceApps.empty()) {
@@ -108,19 +109,71 @@ void CeService::OnDefaultPaymentServiceChange()
         InfoLog("OnDefaultPaymentServiceChange: payment service not change");
         return;
     }
-    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
-        defaultPaymentElement_.GetBundleName(), newElement.GetBundleName());
-    defaultPaymentElement_ = newElement;
-    InitConfigAidRouting();
+
     if (nfcService_.expired()) {
-        ErrorLog("OnDefaultPaymentServiceChange: nfc service is null");
+        ErrorLog("nfcService_ is nullptr.");
+        return;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("NFC not enabled, should not happen.The default payment app is be set when nfc is enabled.");
+        return;
+    }
+    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
+                                                                            newElement.GetBundleName());
+    defaultPaymentElement_ = newElement;
+
+    ConfigRoutingAndCommit();
+}
+void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    DebugLog("OnAppAddOrChangeOrRemove start");
+    if (data == nullptr) {
+        ErrorLog("invalid event data");
+        return;
+    }
+    std::string action = data->GetWant().GetAction();
+    if (action.empty()) {
+        ErrorLog("action is empty");
+        return;
+    }
+    if ((action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) &&
+        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) &&
+        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED)) {
+        InfoLog("not the interested action");
+        return;
+    }
+
+    ElementName element = data->GetWant().GetElement();
+    std::string bundleName = element.GetBundleName();
+    if (bundleName.empty()) {
+        ErrorLog("invalid bundleName.");
+        return;
+    }
+
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ is nullptr.");
+        return;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog(" NFC not enabled, not need to update routing entry ");
+        return;
+    }
+    ConfigRoutingAndCommit();
+    DebugLog("OnAppAddOrChangeOrRemove end");
+}
+
+void CeService::ConfigRoutingAndCommit()
+{
+    if (nfcService_.expired()) {
+        ErrorLog("ConfigRoutingAndCommit: nfc service is null");
         return;
     }
     std::weak_ptr<NfcRoutingManager> routingManager = nfcService_.lock()->GetNfcRoutingManager();
     if (routingManager.expired()) {
-        ErrorLog("OnDefaultPaymentServiceChange: routing manager is null");
+        ErrorLog("ConfigRoutingAndCommit: routing manager is null");
         return;
     }
+    InitConfigAidRouting();
     routingManager.lock()->ComputeRoutingParams();
     routingManager.lock()->CommitRouting();
 }

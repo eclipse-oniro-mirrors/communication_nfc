@@ -53,6 +53,10 @@ bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route,
     return RoutingManager::GetInstance().AddAidRouting(aidStr, route, aidInfo,
                                                        power);
 }
+bool NciCeImplDefault::ClearAidTable()
+{
+    return RoutingManager::GetInstance().ClearAidTable();
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS

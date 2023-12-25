@@ -58,6 +58,11 @@ public:
      */
     bool AddAidRouting(const std::string aidStr, int route, int aidInfo,
                        int power) override;
+    /**
+     * @brief  clear aid table
+     * @return True if success, otherwise false.
+     */
+    bool ClearAidTable() override;
 
 private:
     std::shared_ptr<INciCeInterface> nciCeInterface_;
