@@ -15,6 +15,7 @@
 #include "nfc_sa_manager.h"
 #include "loghelper.h"
 #include "system_ability_definition.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -39,6 +40,11 @@ void NfcSaManager::OnStart()
 
     if (!Init()) {
         InfoLog("failed to init NfcSaManager");
+        // record init sa failed event.
+        NfcFailedParams err;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::INIT_SA_FAILED,
+            SubErrorCode::DEFAULT_ERR_DEF);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
