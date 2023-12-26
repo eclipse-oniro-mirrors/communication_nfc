@@ -123,6 +123,8 @@ int TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool 
         data, reply, option);
     if (statusCode == ERR_NONE) {
         hexRespData = reply.ReadString();
+        statusCode = reply.ReadInt32();
+        DebugLog("TagSessionProxy::SendRawFrame, statusCode=0x%{public}X", statusCode);
     }
     return statusCode;
 }

@@ -210,11 +210,14 @@ int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, 
     }
 
     int result = nciTagProxy_.lock()->Transceive(tagRfDiscId, hexCmdData, hexRespData);
-    if (!hexRespData.empty()) {
+    DebugLog("TagSession::SendRawFrame, result = 0x%{public}X", result);
+    if ((result == 0) && (!hexRespData.empty())) {
         return NFC::KITS::ErrorCode::ERR_NONE;
     } else if (result == 1) {  // result == 1 means that Tag lost
+        ErrorLog("TagSession::SendRawFrame: tag lost.");
         return NFC::KITS::ErrorCode::ERR_TAG_STATE_LOST;
     }
+    ErrorLog("TagSession::SendRawFrame: result failed.");
     return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
 }
 /**

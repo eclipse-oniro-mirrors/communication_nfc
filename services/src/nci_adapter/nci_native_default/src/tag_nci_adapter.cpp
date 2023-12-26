@@ -591,12 +591,18 @@ tNFA_STATUS TagNciAdapter::HandleMfcTransceiveData(std::string& response)
     bool shouldReconnect = false;
 
     if (isLegacyMifareReader_) {
-        status = Extns::GetInstance().EXTNS_CheckMfcResponse(&data, &len) == NFA_STATUS_FAILED;
+        status = Extns::GetInstance().EXTNS_CheckMfcResponse(&data, &len);
         ErrorLog("TagNciAdapter::HandleMfcTransceiveData: status: %{public}d, isMfcTransRspErr_: %{public}d",
                  status, isMfcTransRspErr_);
-        shouldReconnect = (status == NFA_STATUS_FAILED || isMfcTransRspErr_);
+        shouldReconnect = ((status == NFA_STATUS_FAILED) || isMfcTransRspErr_) ? true : false;
     } else {
         shouldReconnect = ((len == 1) && (data[0] != 0x00));
+        if (!shouldReconnect) {
+            status = NFA_STATUS_OK;
+        } else {
+            ErrorLog("TagNciAdapter::HandleMfcTransceiveData: data[0] = %{public}d, len = %{public}d",
+                data[0], len);
+        }
     }
 
     if (shouldReconnect) {
@@ -611,6 +617,7 @@ tNFA_STATUS TagNciAdapter::HandleMfcTransceiveData(std::string& response)
             status = NFA_STATUS_OK;
         }
     }
+    DebugLog("TagNciAdapter::HandleMfcTransceiveData: status = %{public}d", status);
     return status;
 }
 

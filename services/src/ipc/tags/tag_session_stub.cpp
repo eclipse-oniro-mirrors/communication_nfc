@@ -198,6 +198,8 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
     std::string hexRespData;
     int statusCode = SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
     reply.WriteString(hexRespData);
+    DebugLog("TagSessionStub::HandleSendRawFrame:statusCode=0x%{public}X", statusCode);
+    reply.WriteInt32(statusCode);
     return statusCode;
 }
 
