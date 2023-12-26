@@ -138,7 +138,11 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     }
     AAFwk::Want want;
     want.SetAction(action);
-    want.SetType("*/*"); // skip the type, matched action only.
+    if (KITS::ACTION_TAG_FOUND == action) {
+        // only tag action have uris
+        want.SetType("*/*");
+    }
+
     bool withDefault = false;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
