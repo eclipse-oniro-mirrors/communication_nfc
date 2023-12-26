@@ -37,6 +37,8 @@ public:
 
 private:
     void Initialize();
+    bool ParseElementURI(const std::string &uri, ElementName &value);
+    void Split(const std::string &str, const std::string &delim, std::vector<std::string> &vec);
 
     sptr<IRemoteObject> remoteObj_;
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
