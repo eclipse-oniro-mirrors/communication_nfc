@@ -70,6 +70,7 @@ ohos_unittest("controller_test") {
   module_out_path = "nfc/services"
 
   sources = [
+    "controller_test/app_data_parser_test.cpp",
     "controller_test/nfc_controller_callback_stub_test.cpp",
     "controller_test/nfc_controller_death_recipient_test.cpp",
     "controller_test/nfc_controller_impl_test.cpp",
@@ -95,6 +96,7 @@ ohos_unittest("cardemulation_test") {
     "cardemulation_test/hce_cmd_callback_stub_test.cpp",
     "cardemulation_test/hce_session_test.cpp",
     "cardemulation_test/host_card_emulation_manager_test.cpp",
+    "cardemulation_test/nci_ce_proxy_test.cpp",
     "cardemulation_test/nci_nfcc_proxy_test.cpp",
     "cardemulation_test/nci_tag_proxy_test.cpp",
   ]
