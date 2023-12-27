@@ -56,6 +56,7 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
             return nullptr;
         }
         abilityInfos.push_back(*(ability));
+        // push back copy the ability so it can be deleted
         delete ability;
     }
     CePaymentServicesParcelable *paymentService = new (std::nothrow) CePaymentServicesParcelable();
