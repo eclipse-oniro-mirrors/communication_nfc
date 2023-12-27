@@ -51,6 +51,7 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
     for (uint32_t i = 0; i < extraLen; i++) {
         AbilityInfo *ability = AbilityInfo::Unmarshalling(parcel);
         abilityInfos.push_back(*(ability));
+        delete ability;
     }
     CePaymentServicesParcelable *paymentService = new (std::nothrow) CePaymentServicesParcelable();
     paymentService->paymentAbilityInfos = std::move(abilityInfos);
