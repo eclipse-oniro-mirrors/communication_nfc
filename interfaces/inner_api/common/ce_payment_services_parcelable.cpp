@@ -45,11 +45,16 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
     uint32_t extraLen = 0;
     parcel.ReadUint32(extraLen);
     if (extraLen >= MAX_APP_LIST_NUM) {
+        ErrorLog("invalid length");
         return nullptr;
     }
     std::vector<AbilityInfo> abilityInfos;
     for (uint32_t i = 0; i < extraLen; i++) {
         AbilityInfo *ability = AbilityInfo::Unmarshalling(parcel);
+        if (ability == nullptr) {
+            ErrorLog("Unmarshalling ability failed");
+            return nullptr;
+        }
         abilityInfos.push_back(*(ability));
         delete ability;
     }

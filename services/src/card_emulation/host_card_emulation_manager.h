@@ -52,7 +52,10 @@ public:
         Security::AccessToken::AccessTokenID callerToken_ = 0;
         sptr<KITS::IHceCmdCallback> callback_ = nullptr;
     };
-    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback, const std::string& type);
+    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback, const std::string& type,
+                           Security::AccessToken::AccessTokenID &callerToken);
+    bool UnRegHceCmdCallback(const std::string& type, Security::AccessToken::AccessTokenID& callerToken);
+    bool UnRegAllCallback(Security::AccessToken::AccessTokenID& callerToken);
 
     bool SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData);
 
@@ -67,11 +70,13 @@ private:
     void SendDataToService(const std::vector<uint8_t>& data);
     bool DispatchAbilitySingleApp(ElementName& element);
     void SearchElementByAid(const std::string aid, ElementName& aidElement);
+    bool EraseHceCmdCallback(Security::AccessToken::AccessTokenID& callerToken);
 
     std::weak_ptr<NfcService> nfcService_{};
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     friend class NfcService;
-    std::shared_ptr<HostCardEmulationManager::HceCmdRegistryData> hceCmdRegistryData_{};
+
+    std::map<std::string,HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
     sptr<NfcAbilityConnectionCallback> connect_{};
