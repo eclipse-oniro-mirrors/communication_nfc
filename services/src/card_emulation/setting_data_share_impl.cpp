@@ -70,9 +70,42 @@ KITS::ErrorCode SettingDataShareImpl::GetElementName(Uri& uri, const std::string
         return KITS::ERR_NFC_DATABASE_RW;
     }
     rows->Close();
-    value.ParseURI(valueStr);
-    InfoLog("%{public}s: success, value = %{public}s.", __func__, valueStr.c_str());
+    ParseElementURI(valueStr, value);
+    InfoLog("%{public}s: success, value = %{public}s, element = %{public}s.", __func__, valueStr.c_str(),
+            value.GetURI().c_str());
     return KITS::ERR_NONE;
+}
+
+bool SettingDataShareImpl::ParseElementURI(const std::string& uri, ElementName& value)
+{
+    const size_t memberNum = 2;
+    if (std::count(uri.begin(), uri.end(), '/') != memberNum - 1) {
+        ErrorLog("Invalid uri: %{public}s.", uri.c_str());
+        return false;
+    }
+
+    std::vector<std::string> uriVec;
+    Split(uri, "/", uriVec);
+    uriVec.resize(memberNum);
+
+    int index = 0;
+    value.SetBundleName(uriVec[index++]);
+    value.SetAbilityName(uriVec[index++]);
+    return true;
+}
+
+void SettingDataShareImpl::Split(const std::string& str, const std::string& delim, std::vector<std::string>& vec)
+{
+    std::string::size_type pos1 = 0;
+    std::string::size_type pos2 = str.find(delim);
+    while (std::string::npos != pos2) {
+        vec.push_back(str.substr(pos1, pos2 - pos1));
+        pos1 = pos2 + delim.size();
+        pos2 = str.find(delim, pos1);
+    }
+    if (pos1 != str.size()) {
+        vec.push_back(str.substr(pos1));
+    }
 }
 KITS::ErrorCode SettingDataShareImpl::SetElementName(Uri& uri, const std::string& column, ElementName& value)
 {
