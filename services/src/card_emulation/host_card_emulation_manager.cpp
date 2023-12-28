@@ -36,6 +36,7 @@ const uint32_t INDEX_CLASS_BYTE = 0;
 const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
 const uint32_t INDEX_P1 = 2;
 const uint32_t INDEX_3 = 3;
+const uint32_t INDEX_AID_LEN = 4;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
@@ -278,7 +279,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
             return "";
         }
 
-        int aidLength = data[4];
+        int aidLength = data[INDEX_AID_LEN];
         if (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) {
             InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
