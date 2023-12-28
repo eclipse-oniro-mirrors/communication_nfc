@@ -79,7 +79,7 @@ private:
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     friend class NfcService;
 
-    std::map<std::string,HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
+    std::map<std::string, HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
     sptr<NfcAbilityConnectionCallback> connect_{};
