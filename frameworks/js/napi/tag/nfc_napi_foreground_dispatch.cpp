@@ -35,7 +35,7 @@ const std::string TYPE_READER_MODE = "readerMode";
 
 class NapiEvent {
 public:
-    napi_value CreateResult(const napi_env &env, TagInfoParcelable* tagInfo);
+    napi_value CreateResult(const napi_env &env, TagInfoParcelable tagInfo);
     static bool IsForegroundRegistered();
     static bool IsReaderModeRegistered();
     void EventNotify(AsyncEventData *asyncEvent);
@@ -150,9 +150,9 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         tmpAfterWorkCb);
 }
 
-static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable* tagInfo)
+static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable &tagInfo)
 {
-    uint32_t length = tagInfo->GetTechExtrasDataList().size();
+    uint32_t length = tagInfo.GetTechExtrasDataList().size();
     if (length > MAX_NUM_TECH_LIST) {
         ErrorLog("SetTagExtraData: invalid tag extras data length");
         return;
@@ -165,8 +165,8 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
     for (uint32_t i = 0; i < length; i++) {
         napi_value eachElement;
         napi_create_object(env, &eachElement);
-        AppExecFwk::PacMap extra = tagInfo->GetTechExtrasDataList()[i];
-        int technology = tagInfo->GetTechList()[i];
+        AppExecFwk::PacMap extra = tagInfo.GetTechExtrasDataList()[i];
+        int technology = tagInfo.GetTechList()[i];
         if (technology == static_cast<int>(TagTechnology::NFC_A_TECH) ||
             technology == static_cast<int>(TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
             // for NFCA, parse extra SAK and ATQA
@@ -235,7 +235,7 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
     napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
 }
 
-napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable* tagInfo)
+napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInfo)
 {
     // build tagInfo Js Object
     napi_value tagInfoObj = nullptr;
@@ -244,9 +244,9 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable* tagIn
     napi_value rfIdValue;
     napi_create_object(env, &tagInfoObj);
 
-    std::string uid = tagInfo->GetUid();
-    std::vector<int> techList = tagInfo->GetTechList();
-    int rfId = tagInfo->GetDiscId();
+    std::string uid = tagInfo.GetUid();
+    std::vector<int> techList = tagInfo.GetTechList();
+    int rfId = tagInfo.GetDiscId();
     std::vector<unsigned char> uidBytes;
     NfcSdkCommon::HexStringToBytes(uid, uidBytes);
     BytesVectorToJS(env, uidValue, uidBytes);
@@ -284,7 +284,7 @@ public:
     void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override
     {
         InfoLog("OnNotify rcvd tagInfo: %{public}s", tagInfo->ToString().c_str());
-        CheckAndNotify(tagInfo, TYPE_FOREGROUND);
+        CheckAndNotify(*(tagInfo), TYPE_FOREGROUND);
     }
 
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override
@@ -433,7 +433,7 @@ public:
     void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override
     {
         InfoLog("ReaderModeListenerEvt::OnNotify rcvd tagInfo: %{public}s", tagInfo->ToString().c_str());
-        CheckAndNotify(tagInfo, TYPE_READER_MODE);
+        CheckAndNotify(*(tagInfo), TYPE_READER_MODE);
     }
 
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override
