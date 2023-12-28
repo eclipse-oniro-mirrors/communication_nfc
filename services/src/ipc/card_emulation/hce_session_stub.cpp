@@ -128,6 +128,32 @@ int HceSessionStub::HandleGetPaymentServices(MessageParcel &data, MessageParcel 
     }
     return ERR_NONE;
 }
+
+KITS::ErrorCode HceSessionStub::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                                                  const std::string &type)
+{
+    return RegHceCmdCallbackByToken(callback, type, IPCSkeleton::GetCallingTokenID());
+}
+
+int HceSessionStub::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
+{
+    return SendRawFrameByToken(hexCmdData, raw, hexRespData, IPCSkeleton::GetCallingTokenID());
+}
+
+void HceSessionStub::RemoveHceDeathRecipient(const wptr<IRemoteObject> &remote)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (hceCmdCallback_ == nullptr) {
+        ErrorLog("hce OnRemoteDied callback_ is nullptr");
+        return;
+    }
+    auto serviceRemote = hceCmdCallback_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        hceCmdCallback_ = nullptr;
+        ErrorLog("hce on remote died");
+    }
+}
 } // namespace HCE
 } // namespace NFC
 } // namespace OHOS

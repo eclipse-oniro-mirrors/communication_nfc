@@ -27,7 +27,17 @@ HceCmdDeathRecipient::HceCmdDeathRecipient(
     hceSession_ = hceSession;
     callerToken_ = callerToken;
 }
-void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote) {}
+void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    if (hceSession_ == nullptr) {
+        ErrorLog("HceCmdDeathRecipient hceSession_ is nullptr!");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(mutex_);
+    KITS::ErrorCode ret = hceSession_->UnRegAllCallback(callerToken_);
+    InfoLog("OnRemoteDied, UnRegAllCallback ret=%{public}d", ret);
+    hceSession_->RemoveHceDeathRecipient(remote);
+}
 } // namespace NFC
 // namespace NFC
 } // namespace OHOS

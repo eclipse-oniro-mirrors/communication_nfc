@@ -19,28 +19,39 @@
 #include "host_card_emulation_manager.h"
 #include "ability_manager_client.h"
 #include "nfc_sdk_common.h"
+#include "accesstoken_kit.h"
+#include "hap_token_info.h"
 
 namespace OHOS {
 namespace NFC {
 #ifdef VENDOR_APPLICATIONS_ENABLED
 static const int CODE_SEND_APDU_DATA = 2;
 #endif
+const uint32_t SELECT_APDU_HDR_LENGTH = 5;
+const uint8_t INSTR_SELECT = 0xA4;
+const uint32_t MINIMUM_AID_LENGTH = 5;
+const uint8_t SELECT_00 = 0x00;
+const uint8_t SELECT_P1 = 0x04;
+const uint32_t INDEX_CLASS_BYTE = 0;
+const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
+const uint32_t INDEX_P1 = 2;
+const uint32_t INDEX_3 = 3;
+const uint32_t INDEX_AID_LEN = 4;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
 {
-    hceCmdRegistryData_ = std::make_shared<HostCardEmulationManager::HceCmdRegistryData>();
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     connect_ = new (std::nothrow) NfcAbilityConnectionCallback();
 }
 HostCardEmulationManager::~HostCardEmulationManager()
 {
-    hceCmdRegistryData_ = nullptr;
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     connect_ = nullptr;
+    bundleNameToHceCmdRegData_.clear();
 }
 
 void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uint8_t>& data)
@@ -223,19 +234,27 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid, E
 }
 bool HostCardEmulationManager::ExistService(ElementName& aidElement)
 {
-    if (hceCmdRegistryData_->callback_ == nullptr) {
-        InfoLog("no callback info.");
-        return false;
-    }
     if (!connect_->ServiceConnected()) {
         InfoLog("no service connected.");
         return false;
     }
+    std::string bundleName = connect_->GetConnectedElement().GetBundleName();
+    auto it = bundleNameToHceCmdRegData_.find(bundleName);
+    if (it == bundleNameToHceCmdRegData_.end()) {
+        ErrorLog("no register data for %{public}s", connect_->GetConnectedElement().GetURI().c_str());
+        return false;
+    }
+    if (it->second.callback_ == nullptr) {
+        ErrorLog("callback is null");
+        return false;
+    }
+
     if (aidElement.GetBundleName().empty()) {
         InfoLog("aid is empty.");
         // normal data not select data
         return true;
     }
+    // only verify the element name for select data
     if (aidElement.GetBundleName() == connect_->GetConnectedElement().GetBundleName() &&
         aidElement.GetAbilityName() == connect_->GetConnectedElement().GetAbilityName()) {
         InfoLog("ability is already connected.");
@@ -245,16 +264,6 @@ bool HostCardEmulationManager::ExistService(ElementName& aidElement)
         return false;
     }
 }
-
-const uint32_t SELECT_APDU_HDR_LENGTH = 5;
-const uint8_t INSTR_SELECT = 0xA4;
-const uint32_t MINIMUM_AID_LENGTH = 5;
-const uint8_t SELECT_00 = 0x00;
-const uint8_t SELECT_P1 = 0x04;
-const uint32_t INDEX_CLASS_BYTE = 0;
-const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
-const uint32_t INDEX_P1 = 2;
-const uint32_t INDEX_3 = 3;
 
 std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>& data)
 {
@@ -270,7 +279,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
             return "";
         }
 
-        int aidLength = data[4];
+        int aidLength = data[INDEX_AID_LEN];
         if (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) {
             InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
@@ -285,7 +294,8 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
 }
 
 bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
-                                                 const std::string& type)
+                                                 const std::string& type,
+                                                 Security::AccessToken::AccessTokenID callerToken)
 {
     if (nfcService_.expired()) {
         ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
@@ -295,22 +305,62 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
         ErrorLog("RegHceCmdCallback: NFC not enabled, do not set ");
         return false;
     }
-    hceCmdRegistryData_->callback_ = callback;
-    DebugLog("RegHceCmdCallback success ");
+    InfoLog("RegHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return false;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("RegHceCmdCallback: not got bundle name");
+        return false;
+    }
+    HostCardEmulationManager::HceCmdRegistryData regData;
+
+    regData.callback_ = callback;
+    regData.callerToken_ = callerToken;
+    if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
+        InfoLog("override the register data for  %{public}s", hapTokenInfo.bundleName.c_str());
+    }
+    bundleNameToHceCmdRegData_[hapTokenInfo.bundleName] = regData;
+
+    InfoLog("RegHceCmdCallback end, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     return true;
 }
 
-bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData)
+bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData,
+                                                Security::AccessToken::AccessTokenID callerToken)
 {
     if (nfcService_.expired()) {
-        ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
+        ErrorLog("SendHostApduData: nfcService_ is nullptr.");
         return false;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("RegHceCmdCallback: NFC not enabled, do not set ");
+        ErrorLog("SendHostApduData: NFC not enabled, do not send.");
         return false;
     }
+    if (!IsCorrespondentService(callerToken)) {
+        ErrorLog("SendHostApduData: not the connected app, do not send.");
+        return false;
+    }
+
     return nciCeProxy_.lock()->SendRawFrame(hexCmdData);
+}
+bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken)
+{
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (!hapTokenInfo.bundleName.empty() &&
+        hapTokenInfo.bundleName == connect_->GetConnectedElement().GetBundleName()) {
+        return true;
+    }
+    ErrorLog("SendHostApduData: diff app, the call app %{public}s , the connected app %{public}s",
+             hapTokenInfo.bundleName.c_str(), connect_->GetConnectedElement().GetBundleName().c_str());
+    return false;
 }
 
 void HostCardEmulationManager::HandleQueueData()
@@ -322,7 +372,7 @@ void HostCardEmulationManager::HandleQueueData()
             "service connected= %{public}d",
             queueData.c_str(), hceState_, connect_->ServiceConnected());
     if (shouldSendQueueData) {
-        DebugLog("RegHceCmdCallback should send queue data");
+        InfoLog("RegHceCmdCallback should send queue data");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
         SendDataToService(queueHceData_);
         queueHceData_.clear();
@@ -331,11 +381,18 @@ void HostCardEmulationManager::HandleQueueData()
 
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
-    if (hceCmdRegistryData_->callback_ == nullptr) {
+    std::string bundleName = connect_->GetConnectedElement().GetBundleName();
+    InfoLog("SendDataToService register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    auto it = bundleNameToHceCmdRegData_.find(bundleName);
+    if (it == bundleNameToHceCmdRegData_.end()) {
+        ErrorLog("no register data for %{public}s", connect_->GetConnectedElement().GetURI().c_str());
+        return;
+    }
+    if (it->second.callback_ == nullptr) {
         ErrorLog("callback is null");
         return;
     }
-    hceCmdRegistryData_->callback_->OnCeApduData(data);
+    it->second.callback_->OnCeApduData(data);
 }
 
 bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
@@ -361,6 +418,38 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
         return true;
     }
     return false;
+}
+bool HostCardEmulationManager::UnRegHceCmdCallback(const std::string& type,
+                                                   Security::AccessToken::AccessTokenID callerToken)
+{
+    return EraseHceCmdCallback(callerToken);
+}
+bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken)
+{
+    InfoLog("EraseHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return false;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("EraseHceCmdCallback: not got bundle name");
+        return false;
+    }
+
+    if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
+        InfoLog("unregister data for  %{public}s", hapTokenInfo.bundleName.c_str());
+    }
+    bundleNameToHceCmdRegData_.erase(hapTokenInfo.bundleName);
+    InfoLog("EraseHceCmdCallback end, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    return true;
+}
+
+bool HostCardEmulationManager::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken)
+{
+    return EraseHceCmdCallback(callerToken);
 }
 } // namespace NFC
 } // namespace OHOS

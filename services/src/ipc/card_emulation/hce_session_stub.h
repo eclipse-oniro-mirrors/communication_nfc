@@ -33,12 +33,30 @@ public:
     HceSessionStub() {}
     virtual ~HceSessionStub() {}
 
+    virtual KITS::ErrorCode RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback>& callback,
+                                                     const std::string& type,
+                                                     Security::AccessToken::AccessTokenID callerToken) = 0;
+
+    virtual KITS::ErrorCode UnRegHceCmdCallback(const std::string& type,
+                                                Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) = 0;
+
+    virtual int SendRawFrameByToken(std::string hexCmdData, bool raw, std::string& hexRespData,
+                                    Security::AccessToken::AccessTokenID callerToken) = 0;
+
+    void RemoveHceDeathRecipient(const wptr<IRemoteObject>& remote);
+
 private:
     int HandleRegHceCmdCallback(MessageParcel& data, MessageParcel& reply);
 
     int HandleSendRawFrame(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
 
     int HandleGetPaymentServices(MessageParcel& data, MessageParcel& reply);
+
+    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
+                                      const std::string& type) override;
+
+    int SendRawFrame(std::string hexCmdData, bool raw, std::string& hexRespData) override;
 
 private:
     std::mutex mutex_{};

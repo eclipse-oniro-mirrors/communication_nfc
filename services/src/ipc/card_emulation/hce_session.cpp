@@ -33,27 +33,57 @@ HceSession::HceSession(std::shared_ptr<INfcService> service) : nfcService_(servi
     ceService_ = service->GetCeService();
 }
 
-HceSession::~HceSession() {}
+HceSession::~HceSession()
+{
+}
 
-KITS::ErrorCode HceSession::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceSession::RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback> &callback,
+                                                     const std::string &type,
+                                                     Security::AccessToken::AccessTokenID callerToken)
 {
     if (ceService_.expired()) {
-        ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
+        ErrorLog("RegHceCmdCallback:ceService_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->RegHceCmdCallback(callback, type)) {
+    if (ceService_.lock()->RegHceCmdCallback(callback, type, callerToken)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-int HceSession::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
+KITS::ErrorCode HceSession::UnRegHceCmdCallback(const std::string &type,
+                                                Security::AccessToken::AccessTokenID callerToken)
 {
     if (ceService_.expired()) {
-        ErrorLog("RegHceCmdCallback:hostCardEmulationManager_ is nullptr");
+        ErrorLog("UnRegHceCmdCallback ceService_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
-    bool success = ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData);
+    if (ceService_.lock()->UnRegHceCmdCallback(type, callerToken)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_HCE_PARAMETERS;
+}
+
+KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken)
+{
+    if (ceService_.expired()) {
+        ErrorLog("UnRegAllCallback ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.lock()->UnRegAllCallback(callerToken)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_HCE_PARAMETERS;
+}
+
+int HceSession::SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
+                                    Security::AccessToken::AccessTokenID callerToken)
+{
+    if (ceService_.expired()) {
+        ErrorLog("SendRawFrame ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    bool success = ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
     if (success) {
         return NFC::KITS::ErrorCode::ERR_NONE;
     } else {
