@@ -50,14 +50,26 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
     ExternalDepsProxy::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
 }
 
-bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
+                                  Security::AccessToken::AccessTokenID callerToken)
 {
-    return hostCardEmulationManager_->RegHceCmdCallback(callback, type);
+    return hostCardEmulationManager_->RegHceCmdCallback(callback, type, callerToken);
 }
 
-bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData)
+bool CeService::UnRegHceCmdCallback(const std::string &type, Security::AccessToken::AccessTokenID callerToken)
 {
-    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData);
+    return hostCardEmulationManager_->UnRegHceCmdCallback(type, callerToken);
+}
+
+bool CeService::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken)
+{
+    return hostCardEmulationManager_->UnRegAllCallback(callerToken);
+}
+
+bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData,
+                                 Security::AccessToken::AccessTokenID callerToken)
+{
+    return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
 }
 
 void CeService::InitConfigAidRouting()

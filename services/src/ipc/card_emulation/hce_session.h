@@ -32,12 +32,19 @@ public:
     // Constructor/Destructor
     explicit HceSession(std::shared_ptr<NFC::INfcService> service);
     ~HceSession() override;
+    
     HceSession(const HceSession &) = delete;
     HceSession &operator=(const HceSession &) = delete;
 
-    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
+    KITS::ErrorCode RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
+                                      Security::AccessToken::AccessTokenID callerToken) override;
 
-    int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    KITS::ErrorCode UnRegHceCmdCallback(const std::string &type,
+                                        Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) override;
+
+    int SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
+                     Security::AccessToken::AccessTokenID callerToken) override;
 
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 

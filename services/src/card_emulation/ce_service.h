@@ -48,9 +48,15 @@ public:
     void OnCardEmulationActivated();
     void OnCardEmulationDeactivated();
     static void PublishFieldOnOrOffCommonEvent(bool isFieldOn);
-    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
+    bool RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
+                           Security::AccessToken::AccessTokenID callerToken);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData);
+    bool UnRegHceCmdCallback(const std::string &type, Security::AccessToken::AccessTokenID callerToken);
+
+    bool UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken);
+
+    bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData,
+                          Security::AccessToken::AccessTokenID callerToken);
 
     void InitConfigAidRouting();
     void OnDefaultPaymentServiceChange() override;
