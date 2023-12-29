@@ -76,6 +76,7 @@ nfc_service_source = [
   "src/nfc_sa_manager.cpp",
   "src/nfc_service.cpp",
   "src/tag_dispatcher.cpp",
+  "src/utils/app_state_observer.cpp",
   "src/utils/nfc_timer.cpp",
   "src/utils/nfc_watch_dog.cpp",
   "src/ipc/card_emulation/hce_cmd_callback_proxy.cpp",
