@@ -65,7 +65,8 @@ HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA001, TestSize.
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
     hostCardEmulationManager->OnHostCardEmulationDataNfcA(data);
-    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -84,7 +85,8 @@ HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA002, TestSize.
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
     hostCardEmulationManager->OnHostCardEmulationDataNfcA(data);
-    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -102,7 +104,8 @@ HWTEST_F(HostCardEmulationManagerTest, OnCardEmulationActivated001, TestSize.Lev
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
     hostCardEmulationManager->OnCardEmulationActivated();
-    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -120,7 +123,8 @@ HWTEST_F(HostCardEmulationManagerTest, OnCardEmulationDeactivated001, TestSize.L
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
     hostCardEmulationManager->OnCardEmulationDeactivated();
-    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -138,7 +142,8 @@ HWTEST_F(HostCardEmulationManagerTest, SendHostApduData001, TestSize.Level1)
     std::string hexRespData = "";
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
-    bool sendHostApduData = hostCardEmulationManager->SendHostApduData(hexCmdData, raw, hexRespData);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool sendHostApduData = hostCardEmulationManager->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
     ASSERT_TRUE(sendHostApduData == false);
 }
 }

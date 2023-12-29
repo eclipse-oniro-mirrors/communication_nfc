@@ -61,7 +61,8 @@ HWTEST_F(HceSessionTest, RegHceCmdCallback001, TestSize.Level1)
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
-    KITS::ErrorCode regHceCmdCallback = hceSession->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    KITS::ErrorCode regHceCmdCallback = hceSession->RegHceCmdCallbackByToken(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
 }
 
@@ -77,7 +78,8 @@ HWTEST_F(HceSessionTest, SendRawFrame001, TestSize.Level1)
     bool raw = false;
     std::string hexRespData = "";
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
-    int sendRawFrame = hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    int sendRawFrame = hceSession->SendRawFrameByToken(hexCmdData, raw, hexRespData, callerToken);
     ASSERT_TRUE(sendRawFrame == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
 }
 
