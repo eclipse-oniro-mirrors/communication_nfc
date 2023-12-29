@@ -321,6 +321,31 @@ HWTEST_F(NciTagProxyTest, GetIsoDepMaxTransceiveLength001, TestSize.Level1)
     int getIsoDepMaxTransceiveLength = nciTagProxy->GetIsoDepMaxTransceiveLength();
     ASSERT_TRUE(getIsoDepMaxTransceiveLength != 0);
 }
+
+/**
+ * @tc.name: IsExtendedLengthApduSupported001
+ * @tc.desc: Test NciTagProxyTest IsExtendedLengthApduSupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NciTagProxyTest, IsExtendedLengthApduSupported001, TestSize.Level1)
+{
+    std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
+    bool isExtendedLengthApduSupported = nciTagProxy->IsExtendedLengthApduSupported();
+    ASSERT_TRUE(isExtendedLengthApduSupported == true);
+}
+
+/**
+ * @tc.name: GetTechMaskFromTechList001
+ * @tc.desc: Test NciTagProxyTest GetTechMaskFromTechList.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NciTagProxyTest, GetTechMaskFromTechList001, TestSize.Level1)
+{
+    std::vector<uint32_t> discTech = {0, 1, 2, 3, 4, 5};
+    std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
+    int getTechMaskFromTechList = nciTagProxy->GetTechMaskFromTechList(discTech);
+    ASSERT_TRUE(getTechMaskFromTechList != 0);
+}
 }
 }
 }
