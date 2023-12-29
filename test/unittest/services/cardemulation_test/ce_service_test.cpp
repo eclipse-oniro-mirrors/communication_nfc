@@ -62,7 +62,8 @@ HWTEST_F(CeServiceTest, RegHceCmdCallback001, TestSize.Level1)
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -79,7 +80,8 @@ HWTEST_F(CeServiceTest, SendHostApduData001, TestSize.Level1)
     bool raw = false;
     std::string hexRespData = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    bool sendHostApduData = ceService->SendHostApduData(hexCmdData, raw, hexRespData);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool sendHostApduData = ceService->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
     ASSERT_TRUE(sendHostApduData == false);
 }
 
@@ -96,7 +98,8 @@ HWTEST_F(CeServiceTest, HandleFieldDeactivated001, TestSize.Level1)
     std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->HandleFieldDeactivated();
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -114,7 +117,8 @@ HWTEST_F(CeServiceTest, OnCardEmulationData001, TestSize.Level1)
     std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->OnCardEmulationData(data);
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -131,7 +135,8 @@ HWTEST_F(CeServiceTest, OnCardEmulationActivated001, TestSize.Level1)
     std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->OnCardEmulationActivated();
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
@@ -148,7 +153,8 @@ HWTEST_F(CeServiceTest, OnCardEmulationDeactivated001, TestSize.Level1)
     std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->OnCardEmulationDeactivated();
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 }
