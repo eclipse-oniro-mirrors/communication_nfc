@@ -49,6 +49,8 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleSetTimeout(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT):
             return HandleGetTimeout(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RESET_TIMEOUT):
+            return HandleResetTimeout(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST):
             return HandleGetTechList(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT):
@@ -144,10 +146,22 @@ int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int timeout = 0;
+    int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
-    int statusCode = GetTimeout(tech, timeout);
+    int statusCode = GetTimeout(tagRfDiscId, tech, timeout);
     reply.WriteInt32(timeout);
     return statusCode;
+}
+
+int TagSessionStub::HandleResetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleResetTimeout, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    int tagRfDiscId = data.ReadInt32();
+    ResetTimeout(tagRfDiscId);
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleGetTechList(MessageParcel& data, MessageParcel& reply)

@@ -102,7 +102,17 @@ int BasicTagSession::GetTimeout(int &timeout)
         ErrorLog("GetTimeout, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->GetTimeout(static_cast<int>(tagTechnology_), timeout);
+    return tagSession->GetTimeout(GetTagRfDiscId(), static_cast<int>(tagTechnology_), timeout);
+}
+
+void BasicTagSession::ResetTimeout()
+{
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr) {
+        ErrorLog("ResetTimeout, ERR_TAG_STATE_UNBIND");
+        return;
+    }
+    tagSession->ResetTimeout(GetTagRfDiscId());
 }
 
 std::string BasicTagSession::GetTagUid()

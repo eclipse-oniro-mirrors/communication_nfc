@@ -163,6 +163,20 @@ public:
     void SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_t technology) override;
 
     /**
+     * @brief Get the timeout value to nfc controller when read or write tag.
+     * @param tagDiscId The tag discovered id given from nci stack.
+     * @param timeout The timeout value to config.
+     * @param technology The technology to config.
+     */
+    void GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology) override;
+
+    /**
+     * @brief Reset the timeout value to nfc controller when read or write tag.
+     * @param tagDiscId The tag discovered id given from nci stack.
+     */
+    void ResetTimeout(uint32_t tagDiscId) override;
+
+    /**
      * @brief Get the max transceive length of ISO-DEP technology.
      * @return The max transceive length of ISO-DEP technology.
      */

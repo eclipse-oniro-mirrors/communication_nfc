@@ -25,6 +25,8 @@
 namespace OHOS {
 namespace NFC {
 #ifdef VENDOR_APPLICATIONS_ENABLED
+static const int CODE_SEND_FIELD_DEACTIVATE = 0;
+static const int CODE_SEND_FIELD_ACTIVATE = 1;
 static const int CODE_SEND_APDU_DATA = 2;
 #endif
 const uint32_t SELECT_APDU_HDR_LENGTH = 5;
@@ -142,7 +144,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback != nullptr) {
         std::string data{};
-        notifyApduDataCallback->OnCardEmulationNotify(1, data);
+        notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_FIELD_ACTIVATE, data);
     }
 #endif
 
@@ -160,7 +162,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback != nullptr) {
         std::string data{};
-        notifyApduDataCallback->OnCardEmulationNotify(0, data);
+        notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_FIELD_DEACTIVATE, data);
     }
 #endif
 

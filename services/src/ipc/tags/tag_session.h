@@ -63,12 +63,18 @@ public:
     int SetTimeout(int tagRfDiscId, int timeout, int technology) override;
     /**
      * @brief Get the Timeout value of tag operations
-     *
+     * @param tagRfDiscId the rf disc id of tag
      * @param technology the tag technology
      * @param timeout the output to read the timeout value.
      * @return the status code of function calling.
      */
-    int GetTimeout(int technology, int &timeout) override;
+    int GetTimeout(int tagRfDiscId, int technology, int &timeout) override;
+    /**
+     * @brief Reset the Timeout value of tag operations
+     *
+     * @param tagRfDiscId the rf disc id of tag
+     */
+    void ResetTimeout(int tagRfDiscId) override;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag

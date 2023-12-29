@@ -57,12 +57,18 @@ public:
     virtual int SetTimeout(int tagRfDiscId, int timeout, int technology) = 0;
     /**
      * @brief Get the Timeout value of tag operations
-     *
+     * @param tagRfDiscId the rf disc id of tag
      * @param technology the tag technology
      * @param timeout the output argument to read the timeout.
      * @return the tatus code for function calling.
      */
-    virtual int GetTimeout(int technology, int &timeout) = 0;
+    virtual int GetTimeout(int tagRfDiscId, int technology, int &timeout) = 0;
+    /**
+     * @brief Reset the Timeout value of tag operations
+     *
+     * @param tagRfDiscId the rf disc id of tag
+     */
+    virtual void ResetTimeout(int tagRfDiscId) = 0;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag

@@ -276,6 +276,30 @@ void NciTagProxy::SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_t tech
 }
 
 /**
+ * @brief Get the timeout value to nfc controller when read or write tag.
+ * @param tagDiscId The tag discovered id given from nci stack.
+ * @param timeout The timeout value to config.
+ * @param technology The technology to config.
+ */
+void NciTagProxy::GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology)
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->GetTimeout(tagDiscId, timeout, technology);
+    }
+}
+
+/**
+ * @brief Reset the timeout value to nfc controller when read or write tag.
+ * @param tagDiscId The tag discovered id given from nci stack.
+ */
+void NciTagProxy::ResetTimeout(uint32_t tagDiscId)
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->ResetTimeout(tagDiscId);
+    }
+}
+
+/**
  * @brief Get the max transceive length of ISO-DEP technology.
  * @return The max transceive length of ISO-DEP technology.
  */
