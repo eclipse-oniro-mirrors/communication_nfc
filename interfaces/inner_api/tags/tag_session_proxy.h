@@ -39,7 +39,8 @@ public:
     void Disconnect(int tagRfDiscId) override;
     int GetMaxTransceiveLength(int technology, int &maxSize) override;
     int SetTimeout(int tagRfDiscId, int timeout, int technology) override;
-    int GetTimeout(int technology, int &timeout) override;
+    int GetTimeout(int tagRfDiscId, int technology, int &timeout) override;
+    void ResetTimeout(int tagRfDiscId) override;
     int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
 
     std::vector<int> GetTechList(int tagRfDiscId) override;

@@ -547,7 +547,7 @@ void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
             }
             for (std::string paymentAid : paymentAidList) {
                 std::shared_ptr<AidInfo> aidInfo = std::make_shared<AidInfo>();
-                aidInfo->name = KEY_OTHER_AID;
+                aidInfo->name = KEY_PAYMENT_AID;
                 aidInfo->value = paymentAid;
                 appAidInfo->customDataAid.push_back(*aidInfo);
             }

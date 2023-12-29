@@ -83,16 +83,29 @@ int TagSessionProxy::SetTimeout(int tagRfDiscId, int timeout, int technology)
         data, option);
 }
 
-int TagSessionProxy::GetTimeout(int technology, int &timeout)
+int TagSessionProxy::GetTimeout(int tagRfDiscId, int technology, int &timeout)
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
+    data.WriteInt32(tagRfDiscId);
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
     return SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT),
         data, option, timeout);
+}
+
+void TagSessionProxy::ResetTimeout(int tagRfDiscId)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    data.WriteInt32(tagRfDiscId);
+    MessageOption option(MessageOption::TF_SYNC);
+    SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RESET_TIMEOUT),
+        data, option);
 }
 
 int TagSessionProxy::GetMaxTransceiveLength(int technology, int &maxSize)

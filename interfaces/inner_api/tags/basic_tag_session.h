@@ -31,6 +31,7 @@ public:
     int Close();
     int SetTimeout(int timeout);
     int GetTimeout(int &timeout);
+    void ResetTimeout();
     std::string GetTagUid();
     int SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData);
     int GetMaxSendCommandLength(int &maxSize);

@@ -127,20 +127,38 @@ int TagSession::SetTimeout(int tagRfDiscId, int timeout, int technology)
         return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    g_techTimeout[technology] = timeout;
     nciTagProxy_.lock()->SetTimeout(tagRfDiscId, timeout, technology);
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
-int TagSession::GetTimeout(int technology, int &timeout)
+int TagSession::GetTimeout(int tagRfDiscId, int technology, int &timeout)
 {
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("GetTimeout, invalid technology %{public}d", technology);
         return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    timeout = g_techTimeout[technology];
+    // Check if NFC is enabled
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("GetTimeout, expired");
+        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("GetTimeout, IsNfcEnabled error");
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
+
+    uint32_t timeoutTemp = 0;
+    nciTagProxy_.lock()->GetTimeout(tagRfDiscId, timeoutTemp, technology);
+    timeout = timeoutTemp;
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
+
+void TagSession::ResetTimeout(int tagRfDiscId)
+{
+    nciTagProxy_.lock()->ResetTimeout(tagRfDiscId);
+    return;
+}
+
 /**
  * @brief Get the TechList of the tagRfDiscId.
  * @param tagRfDiscId the rf disc id of tag

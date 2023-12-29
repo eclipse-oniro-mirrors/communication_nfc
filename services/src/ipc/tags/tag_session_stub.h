@@ -43,6 +43,7 @@ private:
     int HandleDisconnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleResetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleGetTechList(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleIsTagFieldOn(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleIsNdef(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);

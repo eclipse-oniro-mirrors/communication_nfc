@@ -171,6 +171,21 @@ public:
     virtual void SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_t technology) = 0;
 
     /**
+     * @brief Get the Timeout value of tag operations
+     * @param tagDiscId the rf disc id of tag
+     * @param technology the tag technology
+     * @param timeout the output argument to read the timeout.
+     */
+    virtual void GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology) = 0;
+
+    /**
+     * @brief Reset the Timeout value of tag operations
+     *
+     * @param tagDiscId the rf disc id of tag
+     */
+    virtual void ResetTimeout(uint32_t tagDiscId) = 0;
+
+    /**
      * @brief Get the max transceive length of ISO-DEP technology.
      * @return The max transceive length of ISO-DEP technology.
      */
