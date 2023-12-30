@@ -53,6 +53,7 @@ void NfcSaManager::OnStart()
 
 bool NfcSaManager::Init()
 {
+    std::lock_guard<std::mutex> guard(initMutex_);
     InfoLog("NfcSaManager::Init ready to init.");
     if (!registerToService_) {
         nfcService_ = std::make_shared<NfcService>();

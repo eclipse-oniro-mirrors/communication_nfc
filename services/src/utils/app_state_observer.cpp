@@ -105,8 +105,6 @@ bool AppStateObserver::Connect()
 void AppStateObserver::AppStateAwareObserver::OnAbilityStateChanged(
     const AppExecFwk::AbilityStateData &abilityStateData)
 {
-    DebugLog("OnAbilityStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
-        abilityStateData.bundleName.c_str(), abilityStateData.abilityName.c_str(), abilityStateData.abilityState);
     if (tagSession_->GetFgDataVecSize() == 0) {
         return;
     }
