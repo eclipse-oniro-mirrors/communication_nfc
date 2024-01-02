@@ -43,6 +43,8 @@ public:
     bool IsTagFieldOn(uint32_t tagDiscId) override;
     void StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs) override;
     void SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_t technology) override;
+    void GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology) override;
+    void ResetTimeout(uint32_t tagDiscId) override;
     uint32_t GetIsoDepMaxTransceiveLength() override;
     bool IsExtendedLengthApduSupported() override;
     uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) override;
