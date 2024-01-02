@@ -181,6 +181,24 @@ void NciTagImplDefault::SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_
     }
 }
 
+void NciTagImplDefault::GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology)
+{
+    auto tag = TagNativeImpl::GetInstance().GetTag(tagDiscId).lock();
+    if (tag) {
+        timeout = tag->GetTimeout(technology);
+    }
+    return;
+}
+
+void NciTagImplDefault::ResetTimeout(uint32_t tagDiscId)
+{
+    auto tag = TagNativeImpl::GetInstance().GetTag(tagDiscId).lock();
+    if (tag) {
+        tag->ResetTimeout();
+    }
+    return;
+}
+
 uint32_t NciTagImplDefault::GetIsoDepMaxTransceiveLength()
 {
     return TagNativeImpl::GetInstance().GetIsoDepMaxTransceiveLength();

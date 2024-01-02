@@ -107,6 +107,9 @@ public:
     void StopFieldChecking();
 
     void SetTimeout(uint32_t timeout, int technology);
+    uint32_t GetTimeout(uint32_t technology);
+    void ResetTimeout();
+
 private:
     AppExecFwk::PacMap ParseTechExtras(uint32_t index);
     void FieldCheckingThread(uint32_t delayedMs);

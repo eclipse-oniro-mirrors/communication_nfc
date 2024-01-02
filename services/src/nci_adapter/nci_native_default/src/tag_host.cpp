@@ -228,6 +228,18 @@ void TagHost::SetTimeout(uint32_t timeout, int technology)
     TagNciAdapter::GetInstance().SetTimeout(timeout, technology);
 }
 
+uint32_t TagHost::GetTimeout(uint32_t technology)
+{
+    DebugLog("TagHost::GetTimeout, technology = %{public}d", technology);
+    return TagNciAdapter::GetInstance().GetTimeout(technology);
+}
+
+void TagHost::ResetTimeout()
+{
+    DebugLog("TagHost::ResetTimeout");
+    TagNciAdapter::GetInstance().ResetTimeout();
+}
+
 std::vector<int> TagHost::GetTechList()
 {
     for (std::vector<int>::iterator it = tagTechList_.begin(); it != tagTechList_.end(); ++it) {
