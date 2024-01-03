@@ -43,7 +43,7 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
         ErrorLog("HceCmdCallbackStub:Callback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("HceCmdCallbackStub:callBack is nullptr!");
         callback_ = callback;

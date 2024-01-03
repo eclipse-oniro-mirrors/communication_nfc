@@ -78,7 +78,7 @@ KITS::ErrorCode NdefMsgCallbackStub::RegisterCallback(const sptr<INdefMsgCallbac
         ErrorLog("NdefMsgCallbackStub:Callback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (callback == nullptr) {
         ErrorLog("RegisterUserCallBack:callBack is nullptr!");
         callback_ = callback;

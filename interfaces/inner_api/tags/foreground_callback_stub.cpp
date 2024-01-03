@@ -88,7 +88,7 @@ int ForegroundCallbackStub::OnRemoteRequest(
 KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback)
 {
     DebugLog("ForegroundCallbackStub RegForegroundCallback");
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("RegForegroundCallback:callback is nullptr!");
         callback_ = callback;

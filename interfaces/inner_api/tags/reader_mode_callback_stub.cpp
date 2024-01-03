@@ -88,7 +88,7 @@ int ReaderModeCallbackStub::OnRemoteRequest(
 KITS::ErrorCode ReaderModeCallbackStub::RegReaderMode(const sptr<KITS::IReaderModeCallback> &callback)
 {
     DebugLog("ReaderModeCallbackStub RegReaderMode");
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("ReaderModeCallbackStub RegReaderMode:callback is nullptr!");
         callback_ = callback;

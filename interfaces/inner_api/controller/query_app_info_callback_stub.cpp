@@ -107,7 +107,7 @@ KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryHceAppCallback(const Quer
         InfoLog("RegisterQueryHceAppCallback::queryHceAppCallback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (hceCallback == nullptr) {
         InfoLog("RegisterQueryHceAppCallback::callback is nullptr!");
         queryHceAppCallback_ = hceCallback;
