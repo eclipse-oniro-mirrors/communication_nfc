@@ -24,6 +24,7 @@
 #include "element_name.h"
 #include "inci_ce_interface.h"
 #include "nfc_ability_connection_callback.h"
+#include <shared_mutex>
 
 namespace OHOS {
 namespace NFC {
@@ -82,7 +83,10 @@ private:
     std::map<std::string, HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
-    sptr<NfcAbilityConnectionCallback> connect_{};
+    sptr<NfcAbilityConnectionCallback> abilityConnection_{};
+
+    std::shared_mutex regInfoMutex_ {};
+    std::mutex hceStateMutex_ {};
 
     friend class NfcAbilityConnectionCallback;
 };
