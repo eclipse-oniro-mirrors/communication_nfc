@@ -75,6 +75,9 @@ ohos_unittest("controller_test") {
     "controller_test/nfc_controller_death_recipient_test.cpp",
     "controller_test/nfc_controller_impl_test.cpp",
     "controller_test/nfc_controller_test.cpp",
+    "controller_test/nfc_preferences_test.cpp",
+    "controller_test/query_app_info_callback_stub_test.cpp",
+    "controller_test/tag_ability_dispatcher_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
