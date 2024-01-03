@@ -14,6 +14,7 @@
  */
 #ifndef TAG_SESSION_H
 #define TAG_SESSION_H
+#include <shared_mutex>
 #include "element_name.h"
 #include "itag_session.h"
 #include "nfc_service.h"
@@ -21,11 +22,29 @@
 #include "tag_session_stub.h"
 #include "nfc_polling_manager.h"
 #include "inci_tag_interface.h"
+#include "app_mgr_constants.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 using OHOS::AppExecFwk::ElementName;
+class FgData {
+public:
+    // Indicates whether to enable the application to be foreground dispatcher
+    bool isEnableForeground_ = false;
+    ElementName element_;
+    std::vector<uint32_t> techs_ = {};
+    sptr<KITS::IForegroundCallback> cb_ = nullptr;
+
+    explicit FgData(bool isEnable, ElementName element, std::vector<uint32_t> techs,
+        sptr<KITS::IForegroundCallback> cb)
+        : isEnableForeground_(isEnable),
+        element_(element),
+        techs_(techs),
+        cb_(cb) {};
+    ~FgData() {};
+};
+
 class TagSession final : public TagSessionStub {
 public:
     // Constructor/Destructor
@@ -166,12 +185,37 @@ public:
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
+    /**
+     * @brief Get RegForegroundDispatch Size.
+     *
+     * @return RegForegroundDispatch Size.
+     */
+    uint16_t GetFgDataVecSize();
+
+    /**
+     * @brief Handle app state changed.
+     *
+     * @param bundleName bundle name.
+     * @param abilityName ability name.
+     * @param abilityState ability state.
+     */
+    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
+
 private:
+    bool IsRegistered(ElementName &element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback);
+    bool IsUnregistered(ElementName &element, bool isAppUnregister);
+    KITS::ErrorCode RegForegroundDispatchInner(ElementName &element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
+    KITS::ErrorCode UnregForegroundDispatchInner(ElementName &element, bool isAppUnregister);
+    bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
+    std::vector<FgData> fgDataVec_;
+    std::shared_mutex fgMutex_;
 };
 }  // namespace TAG
 }  // namespace NFC

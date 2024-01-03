@@ -14,6 +14,7 @@
  */
 #include "tag_session.h"
 #include "loghelper.h"
+#include "app_state_observer.h"
 
 namespace OHOS {
 namespace NFC {
@@ -26,6 +27,7 @@ const std::string DUMP_END = "\n";
 const int MAX_TECH = 12;
 int g_techTimeout[MAX_TECH] = {0};
 int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+std::shared_ptr<AppStateObserver> g_appStateObserver = nullptr;
 
 TagSession::TagSession(std::shared_ptr<NfcService> service)
     : nfcService_(service)
@@ -34,6 +36,7 @@ TagSession::TagSession(std::shared_ptr<NfcService> service)
         nciTagProxy_ = service->GetNciTagProxy();
         nfcPollingManager_ = service->GetNfcPollingManager();
     }
+    g_appStateObserver = std::make_shared<AppStateObserver>(this);
 }
 
 TagSession::~TagSession()
@@ -361,9 +364,71 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 
+uint16_t TagSession::GetFgDataVecSize()
+{
+    std::shared_lock<std::shared_mutex> guard(fgMutex_);
+    return fgDataVec_.size();
+}
+
+void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+    int abilityState)
+{
+    InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
+        bundleName.c_str(), abilityName.c_str(), abilityState);
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    for (auto fgData = fgDataVec_.begin(); fgData != fgDataVec_.end(); fgData++) {
+        ElementName element = fgData->element_;
+        if (element.GetBundleName() == bundleName && element.GetAbilityName() == abilityName) {
+            // app changes to foreground, RegForegroundDispatch.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND) &&
+                !fgData->isEnableForeground_) {
+                InfoLog("app changes to foreground, RegForegroundDispatchInner");
+                RegForegroundDispatchInner(element, fgData->techs_, fgData->cb_);
+                return;
+            }
+            // app changes to background, UnregForegroundDispatchInner.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND) &&
+                fgData->isEnableForeground_) {
+                InfoLog("app changes to background, UnregForegroundDispatchInner");
+                UnregForegroundDispatchInner(element, false);
+                return;
+            }
+            // app death, UnregForegroundDispatchInner and erase from fgDtataVec_.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
+                InfoLog("app death, unregForegroundDispatchInner and erase fgData");
+                UnregForegroundDispatchInner(element, false);
+                fgDataVec_.erase(fgData);
+                return;
+            }
+        }
+    }
+}
+
+bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName &fgElement)
+{
+    if (element.GetBundleName() == fgElement.GetBundleName() &&
+        element.GetAbilityName() == fgElement.GetAbilityName()) {
+        return true;
+    }
+    return false;
+}
+
 KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    return RegForegroundDispatchInner(element, discTech, callback);
+}
+
+KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IForegroundCallback> &callback)
+{
+    if (IsRegistered(element, discTech, callback)) {
+        WarnLog("%{public}s already RegForegroundDispatch", element.GetBundleName().c_str());
+        return KITS::ERR_NONE;
+    }
+    InfoLog("RegForegroundDispatch: bundleName = %{public}s, abilityName = %{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("RegForegroundDispatch, expired");
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
@@ -374,8 +439,42 @@ KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vec
     return KITS::ERR_NFC_PARAMETERS;
 }
 
+bool TagSession::IsRegistered(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IForegroundCallback> &callback)
+{
+    for (FgData &fgData : fgDataVec_) {
+        ElementName fgElement = fgData.element_;
+        if (IsSameAppAbility(element, fgElement)) {
+            if (fgData.isEnableForeground_) {
+                return true;
+            }
+            InfoLog("Enable FgData: bundleName = %{public}s, abilityName = %{public}s",
+                fgElement.GetBundleName().c_str(), fgElement.GetAbilityName().c_str());
+            fgData.isEnableForeground_ = true;
+            return false;
+        }
+    }
+    FgData fgData(true, element, discTech, callback);
+    fgDataVec_.push_back(fgData);
+    InfoLog("Add new FgData to vector: %{public}s, %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+    return false;
+}
+
 KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
 {
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    return UnregForegroundDispatchInner(element, true);
+}
+
+KITS::ErrorCode TagSession::UnregForegroundDispatchInner(ElementName &element, bool isAppUnregister)
+{
+    if (IsUnregistered(element, isAppUnregister)) {
+        WarnLog("%{public}s already UnregForegroundDispatch", element.GetBundleName().c_str());
+        return KITS::ERR_NONE;
+    }
+    InfoLog("UnregForegroundDispatchInner: bundleName = %{public}s, abilityName = %{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregForegroundDispatch, expired");
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
@@ -384,6 +483,32 @@ KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
+}
+
+bool TagSession::IsUnregistered(ElementName &element, bool isAppUnregister)
+{
+    if (fgDataVec_.size() == 0) {
+        return true;
+    }
+    bool isUnregistered = false;
+    for (auto fgData = fgDataVec_.begin(); fgData != fgDataVec_.end(); fgData++) {
+        if (IsSameAppAbility(element, fgData->element_)) {
+            // isEnableForeground_ is false => is already unregistered.
+            if (!fgData->isEnableForeground_) {
+                isUnregistered = true;
+            }
+            fgData->isEnableForeground_ = false;
+            // app unregister, delete record
+            // background unregister, retain record, re-register when switching to foreground
+            if (isAppUnregister) {
+                InfoLog("isAppUnregister: erase fgData");
+                fgDataVec_.erase(fgData);
+            }
+            return isUnregistered;
+        }
+    }
+    // No record, indicating has not registered(or IsUnregistered).
+    return true;
 }
 
 KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
