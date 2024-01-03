@@ -242,7 +242,7 @@ bool HostCardEmulationManager::ExistService(ElementName& aidElement)
         return false;
     }
     std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
-    std::shared_lock<std::shared_mutex> lock(regInfoMutex_);
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
         ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
@@ -325,7 +325,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
 
     regData.callback_ = callback;
     regData.callerToken_ = callerToken;
-    std::unique_lock<std::shared_mutex> lock(regInfoMutex_);
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("override the register data for  %{public}s", hapTokenInfo.bundleName.c_str());
     }
@@ -388,7 +388,7 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
 {
     std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
     InfoLog("SendDataToService register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
-    std::shared_lock<std::shared_mutex> lock(regInfoMutex_);
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
         ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
@@ -444,7 +444,7 @@ bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::Access
         ErrorLog("EraseHceCmdCallback: not got bundle name");
         return false;
     }
-    std::unique_lock<std::shared_mutex> lock(regInfoMutex_);
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
 
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("unregister data for  %{public}s", hapTokenInfo.bundleName.c_str());
