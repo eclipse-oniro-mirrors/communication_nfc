@@ -82,7 +82,10 @@ private:
     std::map<std::string, HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
-    sptr<NfcAbilityConnectionCallback> connect_{};
+    sptr<NfcAbilityConnectionCallback> abilityConnection_{};
+
+    std::mutex regInfoMutex_ {};
+    std::mutex hceStateMutex_ {};
 
     friend class NfcAbilityConnectionCallback;
 };

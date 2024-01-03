@@ -46,13 +46,13 @@ HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfc
 {
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
-    connect_ = new (std::nothrow) NfcAbilityConnectionCallback();
+    abilityConnection_ = new (std::nothrow) NfcAbilityConnectionCallback();
 }
 HostCardEmulationManager::~HostCardEmulationManager()
 {
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
-    connect_ = nullptr;
+    abilityConnection_ = nullptr;
     bundleNameToHceCmdRegData_.clear();
 }
 
@@ -82,6 +82,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     ElementName aidElement;
     SearchElementByAid(aid, aidElement);
 
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
     switch (hceState_) {
         case HostCardEmulationManager::INITIAL_STATE: {
             InfoLog("got data on state INITIAL_STATE");
@@ -136,6 +137,7 @@ void HostCardEmulationManager::SearchElementByAid(const std::string aid, Element
 void HostCardEmulationManager::OnCardEmulationActivated()
 {
     InfoLog("OnCardEmulationActivated: state %{public}d", hceState_);
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
     hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -154,6 +156,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
 void HostCardEmulationManager::OnCardEmulationDeactivated()
 {
     InfoLog("OnCardEmulationDeactivated: state %{public}d", hceState_);
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -167,8 +170,8 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 #endif
 
     queueHceData_.clear();
-    ErrCode releaseCallRet =
-        AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(connect_, connect_->GetConnectedElement());
+    ErrCode releaseCallRet = AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(
+        abilityConnection_, abilityConnection_->GetConnectedElement());
     InfoLog("Release call end. ret = %{public}d", releaseCallRet);
 }
 
@@ -236,14 +239,15 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid, E
 }
 bool HostCardEmulationManager::ExistService(ElementName& aidElement)
 {
-    if (!connect_->ServiceConnected()) {
+    if (!abilityConnection_->ServiceConnected()) {
         InfoLog("no service connected.");
         return false;
     }
-    std::string bundleName = connect_->GetConnectedElement().GetBundleName();
+    std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
-        ErrorLog("no register data for %{public}s", connect_->GetConnectedElement().GetURI().c_str());
+        ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
         return false;
     }
     if (it->second.callback_ == nullptr) {
@@ -257,8 +261,8 @@ bool HostCardEmulationManager::ExistService(ElementName& aidElement)
         return true;
     }
     // only verify the element name for select data
-    if (aidElement.GetBundleName() == connect_->GetConnectedElement().GetBundleName() &&
-        aidElement.GetAbilityName() == connect_->GetConnectedElement().GetAbilityName()) {
+    if (aidElement.GetBundleName() == abilityConnection_->GetConnectedElement().GetBundleName() &&
+        aidElement.GetAbilityName() == abilityConnection_->GetConnectedElement().GetAbilityName()) {
         InfoLog("ability is already connected.");
         return true;
     } else {
@@ -323,6 +327,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
 
     regData.callback_ = callback;
     regData.callerToken_ = callerToken;
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("override the register data for  %{public}s", hapTokenInfo.bundleName.c_str());
     }
@@ -357,11 +362,11 @@ bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::Acc
 
     InfoLog("get hap token info, result = %{public}d", result);
     if (!hapTokenInfo.bundleName.empty() &&
-        hapTokenInfo.bundleName == connect_->GetConnectedElement().GetBundleName()) {
+        hapTokenInfo.bundleName == abilityConnection_->GetConnectedElement().GetBundleName()) {
         return true;
     }
     ErrorLog("SendHostApduData: diff app, the call app %{public}s , the connected app %{public}s",
-             hapTokenInfo.bundleName.c_str(), connect_->GetConnectedElement().GetBundleName().c_str());
+             hapTokenInfo.bundleName.c_str(), abilityConnection_->GetConnectedElement().GetBundleName().c_str());
     return false;
 }
 
@@ -372,7 +377,7 @@ void HostCardEmulationManager::HandleQueueData()
     std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
     InfoLog("RegHceCmdCallback queue data %{public}s, hceState= %{public}d, "
             "service connected= %{public}d",
-            queueData.c_str(), hceState_, connect_->ServiceConnected());
+            queueData.c_str(), hceState_, abilityConnection_->ServiceConnected());
     if (shouldSendQueueData) {
         InfoLog("RegHceCmdCallback should send queue data");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
@@ -383,11 +388,12 @@ void HostCardEmulationManager::HandleQueueData()
 
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
-    std::string bundleName = connect_->GetConnectedElement().GetBundleName();
+    std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
     InfoLog("SendDataToService register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
-        ErrorLog("no register data for %{public}s", connect_->GetConnectedElement().GetURI().c_str());
+        ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
         return;
     }
     if (it->second.callback_ == nullptr) {
@@ -399,7 +405,7 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
 
 bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
 {
-    connect_->SetHceManager(shared_from_this());
+    abilityConnection_->SetHceManager(shared_from_this());
     if (element.GetBundleName().empty()) {
         ErrorLog("DispatchAbilitySingleApp element empty");
         return false;
@@ -413,7 +419,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
         ErrorLog("DispatchAbilitySingleApp AbilityManagerClient is null");
         return false;
     }
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, connect_);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, abilityConnection_);
     InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
         ExternalDepsProxy::GetInstance().WriteHceSwipeResultHiSysEvent(element.GetBundleName(), DEFAULT_COUNT);
@@ -440,6 +446,7 @@ bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::Access
         ErrorLog("EraseHceCmdCallback: not got bundle name");
         return false;
     }
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
 
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("unregister data for  %{public}s", hapTokenInfo.bundleName.c_str());

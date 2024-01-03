@@ -87,6 +87,7 @@ void CeService::InitConfigAidRouting()
         bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
         for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
+            // add payment aid of default payment app and other aid of all apps
             bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isDefaultPayment;
             if (shouldAdd) {
                 AidEntry aidEntry;
