@@ -32,7 +32,7 @@ public:
     static OnCardEmulationNotifyCbStub& GetInstance();
     KITS::ErrorCode RegisterCallback(const OnCardEmulationNotifyCb callback);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) override;

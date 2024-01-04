@@ -33,7 +33,7 @@ public:
     static ReaderModeCallbackStub* GetInstance();
     KITS::ErrorCode RegReaderMode(const sptr<KITS::IReaderModeCallback> &callback);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override;

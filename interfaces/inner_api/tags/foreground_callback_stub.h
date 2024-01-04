@@ -33,7 +33,7 @@ public:
     static ForegroundCallbackStub* GetInstance();
     KITS::ErrorCode RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override;

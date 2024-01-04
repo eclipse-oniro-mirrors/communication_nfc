@@ -23,7 +23,7 @@ namespace KITS {
 class NfcFTag final : public BasicTagSession {
 public:
     explicit NfcFTag(std::weak_ptr<TagInfo> tag);
-    ~NfcFTag() {}
+    ~NfcFTag() override {}
 
     /**
      * @Description Get an object of NfcFTag for the given tag.

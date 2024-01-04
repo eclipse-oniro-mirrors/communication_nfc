@@ -32,8 +32,8 @@ HceCmdCallbackStub::~HceCmdCallbackStub()
 
 HceCmdCallbackStub &HceCmdCallbackStub::GetInstance()
 {
-    static HceCmdCallbackStub HceCmdCallbackStub;
-    return HceCmdCallbackStub;
+    static HceCmdCallbackStub hceCmdCallbackStub;
+    return hceCmdCallbackStub;
 }
 
 KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)

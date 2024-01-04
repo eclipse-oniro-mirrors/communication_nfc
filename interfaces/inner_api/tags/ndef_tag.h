@@ -34,7 +34,7 @@ public:
 
 public:
     explicit NdefTag(std::weak_ptr<TagInfo> tag);
-    ~NdefTag() {}
+    ~NdefTag() override {}
 
     /**
      * @Description Get an object of NdefTag for the given tag.

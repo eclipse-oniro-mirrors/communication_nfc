@@ -33,7 +33,7 @@ public:
 
 public:
     explicit MifareUltralightTag(std::weak_ptr<TagInfo> tag);
-    ~MifareUltralightTag();
+    ~MifareUltralightTag() override;
 
     /**
      * @Description Get an object of MifareUltralightTag for the given tag.

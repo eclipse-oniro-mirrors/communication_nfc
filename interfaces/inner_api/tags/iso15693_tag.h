@@ -33,7 +33,7 @@ public:
 
 public:
     explicit Iso15693Tag(std::weak_ptr<TagInfo> tag);
-    ~Iso15693Tag();
+    ~Iso15693Tag() override;
 
     /**
      * @Description Get an object of Iso15693 for the given tag

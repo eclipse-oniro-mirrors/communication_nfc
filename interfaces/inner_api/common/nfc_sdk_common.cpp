@@ -183,8 +183,8 @@ std::string NfcSdkCommon::CodeMiddlePart(const std::string &src)
         return res;
     }
 
-    uint32_t head = (len / 2) / 2; // mask the half middle part
-    if (len <= head * 2) {  // tail uses the same length
+    uint32_t head = (len / 2) / 2; // Divide the string evenly into 2 * 2 parts
+    if (len <= head * 2) {  // The length of the head * 2 is greater than src
         return src;
     }
     for (uint32_t i = 0; i < head; i++) {

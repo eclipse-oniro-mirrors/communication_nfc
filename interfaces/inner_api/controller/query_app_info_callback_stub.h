@@ -32,7 +32,7 @@ public:
     KITS::ErrorCode RegisterQueryTagAppCallback(const QueryApplicationByVendor tagCallback);
     KITS::ErrorCode RegisterQueryHceAppCallback(const QueryHceAppByVendor hceCallback);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<AAFwk::Want> &hceAppList,
