@@ -599,6 +599,41 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         ability.iconId = appAidInfo.iconId;
         paymentAbilityInfos.push_back(ability);
     }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    std::vector<HceAppAidInfo> hceApps;
+    std::set<std::string> bundleNames;
+    GetHceAppsFromVendor(hceApps);
+    DebugLog("The hceApps len %{public}lu", hceApps.size());
+    for (auto& appAidInfo : hceApps) {
+        if (appAidInfo.element.GetBundleName().empty()) {
+            continue;
+        }
+        if (!IsPaymentApp(appAidInfo)) {
+            continue;
+        }
+        if (bundleNames.count(appAidInfo.element.GetBundleName()) > 0) {
+            DebugLog("The bundleName:%{public}s is in the bundleNames", appAidInfo.element.GetBundleName());
+            continue;
+        }
+        bundleNames.insert(appAidInfo.element.GetBundleName());
+        AbilityInfo ability;
+        ability.name = appAidInfo.element.GetAbilityName();
+        ability.bundleName = appAidInfo.element.GetBundleName();
+        AppExecFwk::BundleInfo bundleInfo{};
+        int32_t bundleInfoFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) |
+                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) |
+                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
+        if (bundleMgrProxy_ == nullptr) {
+            ErrorLog("bundleMgrProxy_ is nullptr!");
+            break;
+        }
+        bundleMgrProxy_->GettBundleInfoV9(
+            ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
+        ability.labelId = bundleInfo.applicationInfo.labelId;
+        ability.iconId = bundleInfo.applicationInfo.iconId;
+        paymentAbilityInfos.push_back(ability);
+    }
+#endif
 }
 } // namespace NFC
 } // namespace OHOS
