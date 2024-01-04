@@ -71,12 +71,15 @@ ohos_unittest("controller_test") {
 
   sources = [
     "controller_test/app_data_parser_test.cpp",
+    "controller_test/ndef_msg_callback_stub_test.cpp",
+    "controller_test/nfc_ability_connection_callback_test.cpp",
     "controller_test/nfc_controller_callback_stub_test.cpp",
     "controller_test/nfc_controller_death_recipient_test.cpp",
     "controller_test/nfc_controller_impl_test.cpp",
     "controller_test/nfc_controller_test.cpp",
     "controller_test/nfc_preferences_test.cpp",
     "controller_test/query_app_info_callback_stub_test.cpp",
+    "controller_test/reader_mode_callback_stub_test.cpp",
     "controller_test/tag_ability_dispatcher_test.cpp",
   ]
 
