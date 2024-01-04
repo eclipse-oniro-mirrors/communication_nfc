@@ -24,7 +24,7 @@ namespace KITS {
 class NdefFormatableTag final : public BasicTagSession {
 public:
     explicit NdefFormatableTag(std::weak_ptr<TagInfo> tag);
-    ~NdefFormatableTag() {}
+    ~NdefFormatableTag() override {}
 
     /**
      * @Description Get an object of NdefFormatableTag for the given tag.

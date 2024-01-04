@@ -28,8 +28,8 @@ static constexpr int32_t NFC_LOADSA_TIMEOUT_MS = 1000; // ms
 NfcSaClient &NfcSaClient::GetInstance()
 {
     DebugLog("NfcSaClient::%{public}s enter", __func__);
-    static NfcSaClient NfcSaClient;
-    return NfcSaClient;
+    static NfcSaClient nfcSaClient;
+    return nfcSaClient;
 }
 
 sptr<IRemoteObject> NfcSaClient::LoadNfcSa(int32_t systemAbilityId)

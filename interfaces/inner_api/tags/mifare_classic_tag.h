@@ -73,7 +73,7 @@ public:
 
 public:
     explicit MifareClassicTag(std::weak_ptr<TagInfo> tag);
-    ~MifareClassicTag() {}
+    ~MifareClassicTag() override {}
 
     /**
      * @Description Get an object of MifareClassicTag for the given tag.

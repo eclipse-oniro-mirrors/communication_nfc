@@ -33,7 +33,7 @@ public:
     static NfcControllerCallBackStub& GetInstance();
     KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callBack);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     void OnNfcStateChanged(int nfcRfState) override;

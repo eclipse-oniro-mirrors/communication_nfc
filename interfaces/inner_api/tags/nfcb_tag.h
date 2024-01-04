@@ -23,7 +23,7 @@ namespace KITS {
 class NfcBTag final : public BasicTagSession {
 public:
     explicit NfcBTag(std::weak_ptr<TagInfo> tag);
-    ~NfcBTag() {}
+    ~NfcBTag() override {}
 
     /**
      * @Description Get an object of IsoDep for the given tag. It corresponding T1T(14443A-3) and T4T(14443A-4,

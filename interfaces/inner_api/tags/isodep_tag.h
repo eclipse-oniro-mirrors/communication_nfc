@@ -23,7 +23,7 @@ namespace KITS {
 class IsoDepTag final : public BasicTagSession {
 public:
     explicit IsoDepTag(std::weak_ptr<TagInfo> tag);
-    ~IsoDepTag() {}
+    ~IsoDepTag() override {}
 
     /**
      * @Description Get an object of IsoDep for the given tag. It corresponding T1T(14443A-3) and T4T(14443A-4,

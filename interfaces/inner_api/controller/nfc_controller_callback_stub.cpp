@@ -29,8 +29,8 @@ NfcControllerCallBackStub::~NfcControllerCallBackStub()
 
 NfcControllerCallBackStub& NfcControllerCallBackStub::GetInstance()
 {
-    static NfcControllerCallBackStub NfcControllerCallBackStub;
-    return NfcControllerCallBackStub;
+    static NfcControllerCallBackStub nfcControllerCallBackStub;
+    return nfcControllerCallBackStub;
 }
 
 void NfcControllerCallBackStub::OnNfcStateChanged(int nfcRfState)

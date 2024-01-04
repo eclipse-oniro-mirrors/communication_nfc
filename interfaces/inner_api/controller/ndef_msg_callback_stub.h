@@ -32,7 +32,7 @@ public:
     static NdefMsgCallbackStub& GetInstance();
     KITS::ErrorCode RegisterCallback(const sptr<INdefMsgCallback> &callback);
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     bool OnNdefMsgDiscovered(std::string msg, int vendorType) override;
