@@ -612,7 +612,7 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
             continue;
         }
         if (bundleNames.count(appAidInfo.element.GetBundleName()) > 0) {
-            DebugLog("The bundleName:%{public}s is in the bundleNames", appAidInfo.element.GetBundleName());
+            DebugLog("The bundleName:%{public}s is in the bundleNames", appAidInfo.element.GetBundleName().c_str());
             continue;
         }
         bundleNames.insert(appAidInfo.element.GetBundleName());
@@ -627,7 +627,7 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
             ErrorLog("bundleMgrProxy_ is nullptr!");
             break;
         }
-        bundleMgrProxy_->GettBundleInfoV9(
+        bundleMgrProxy_->GetBundleInfoV9(
             ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
         ability.labelId = bundleInfo.applicationInfo.labelId;
         ability.iconId = bundleInfo.applicationInfo.iconId;
