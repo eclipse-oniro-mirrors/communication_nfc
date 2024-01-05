@@ -71,6 +71,7 @@ ohos_unittest("controller_test") {
 
   sources = [
     "controller_test/app_data_parser_test.cpp",
+    "controller_test/external_deps_proxy_test.cpp",
     "controller_test/ndef_msg_callback_stub_test.cpp",
     "controller_test/nfc_ability_connection_callback_test.cpp",
     "controller_test/nfc_controller_callback_stub_test.cpp",
