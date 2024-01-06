@@ -153,7 +153,8 @@ KITS::ErrorCode HceSessionProxy::IsDefaultService(ElementName &element, const st
     }
     data.WriteInt32(0);
     int error = SendRequestExpectReplyBool(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_IS_DEFAULT_SERVICE), data, option,isDefaultService);
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_IS_DEFAULT_SERVICE), data, option,
+        isDefaultService);
     if (error != ERR_NONE) {
         ErrorLog("IsDefaultService failed, error code is %{public}d", error);
         return KITS::ERR_HCE_PARAMETERS;

@@ -64,7 +64,7 @@ public:
      * @brief  whether the element is default service or not
      * @param  element: element to be judged
      * @param  type: card type
-     * @param  isDefaultService:  is default service 
+     * @param  isDefaultService:  is default service
      * @return result
      */
     virtual KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type,
