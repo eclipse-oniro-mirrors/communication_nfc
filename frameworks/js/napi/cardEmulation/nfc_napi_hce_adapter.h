@@ -28,10 +28,12 @@
 #include "ihce_cmd_callback.h"
 #include "nfc_napi_common_utils.h"
 #include "nfc_sdk_common.h"
+#include "element_name.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+using OHOS::AppExecFwk::ElementName;
 class NfcNapiHceAdapter {
 public:
     static napi_value Init(napi_env env, napi_value exports);
@@ -39,6 +41,7 @@ public:
     static void Destructor(napi_env env, void* nativeObject, void* /*finalize_hint*/);
     static napi_value OnHceCmd(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
+    static napi_value StopHce(napi_env env, napi_callback_info info);
 };
 
 struct NfcHceSessionContext : BaseContext {
@@ -89,10 +92,12 @@ public:
     static EventRegister& GetInstance();
 
     void Register(const napi_env& env, const std::string& type, napi_value handler);
-
+    void Unregister(const napi_env& env, ElementName& element);
 private:
     ErrorCode RegHceCmdCallbackEvents(const std::string& type);
+    ErrorCode UnregisterHceEvents(ElementName &element);
     bool IsEventSupport(const std::string& type);
+    void DeleteHceCmdRegisterObj(const napi_env& env);
 
     static bool isEventRegistered;
 };

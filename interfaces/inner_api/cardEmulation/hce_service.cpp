@@ -27,9 +27,15 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
-HceService::HceService() { DebugLog("[HceService] new HceService"); }
+HceService::HceService()
+{
+    DebugLog("[HceService] new HceService");
+}
 
-HceService::~HceService() { DebugLog("destruct HceService"); }
+HceService::~HceService()
+{
+    DebugLog("destruct HceService");
+}
 
 HceService &HceService::GetInstance()
 {
@@ -37,8 +43,7 @@ HceService &HceService::GetInstance()
     return instance;
 }
 
-ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback,
-                                        const std::string &type)
+ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
 {
     DebugLog("HceService::RegHceCmdCallback");
     OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
@@ -48,8 +53,27 @@ ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback,
     }
     return hceSession->RegHceCmdCallback(callback, type);
 }
-int HceService::SendRawFrame(std::string hexCmdData, bool raw,
-                             std::string &hexRespData)
+ErrorCode HceService::StopHce(ElementName &element)
+{
+    DebugLog("HceService::StopHce");
+    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
+    if (hceSession == nullptr) {
+        ErrorLog("HceService::StopHce, ERR_HCE_STATE_UNBIND");
+        return ErrorCode::ERR_HCE_STATE_UNBIND;
+    }
+    return hceSession->StopHce(element);
+}
+ErrorCode HceService::IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService)
+{
+    DebugLog("HceService::IsDefaultService");
+    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
+    if (hceSession == nullptr) {
+        ErrorLog("HceService::IsDefaultService, ERR_HCE_STATE_UNBIND");
+        return ErrorCode::ERR_HCE_STATE_UNBIND;
+    }
+    return hceSession->IsDefaultService(element, type, isDefaultService);
+}
+int HceService::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     DebugLog("HceService::SendRawFrame");
     OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
@@ -72,8 +96,7 @@ int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
 {
     if (hceSessionProxy_ == nullptr) {
-        OHOS::sptr<IRemoteObject> iface =
-            NfcController::GetInstance().GetHceServiceIface();
+        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetHceServiceIface();
         if (iface != nullptr) {
             hceSessionProxy_ = new HCE::HceSessionProxy(iface);
         }

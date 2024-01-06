@@ -18,11 +18,15 @@
 #include "loghelper.h"
 #include "hce_service.h"
 #include "ability_info.h"
+#include "nfc_napi_common_utils.h"
+#include "element_name.h"
+
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 using AppExecFwk::AbilityInfo;
+using AppExecFwk::ElementName;
 napi_value IsSupported(napi_env env, napi_callback_info info)
 {
     bool isSupported = false;
@@ -39,9 +43,31 @@ napi_value HasHceCapability(napi_env env, napi_callback_info info)
     return result;
 }
 
-napi_value IsDefaultService(napi_env env, napi_callback_info info)
+napi_value IsDefaultService(napi_env env, napi_callback_info cbinfo)
 {
     bool isDefaultService = false;
+
+    size_t argc = ARGV_NUM_2;
+    napi_value argv[ARGV_NUM_2] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    ElementName element;
+    std::string type;
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) || !ParseElementName(env, element, argv[ARGV_INDEX_0]) ||
+        !ParseString(env, type, argv[ARGV_INDEX_1])) {
+        ErrorLog("IsDefaultService: parse args failed");
+        return CreateUndefined(env);
+    }
+    if (type != KITS::TYPE_PAYMENT) {
+        ErrorLog("IsDefaultService: unsupported card type");
+        return CreateUndefined(env);
+    }
+
+    HceService hceService = HceService::GetInstance();
+    int statusCode = hceService.IsDefaultService(element, type, isDefaultService);
+    if (statusCode != KITS::ERR_NONE) {
+        ErrorLog("IsDefaultService, statusCode = %{public}d", statusCode);
+    }
     napi_value result;
     napi_get_boolean(env, isDefaultService, &result);
     return result;

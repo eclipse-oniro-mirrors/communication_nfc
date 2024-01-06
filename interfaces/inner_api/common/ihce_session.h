@@ -26,6 +26,7 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using AppExecFwk::AbilityInfo;
+using AppExecFwk::ElementName;
 class IHceSession : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.cardemulation.IHceSession");
@@ -53,6 +54,22 @@ public:
      * @return result
      */
     virtual int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) = 0;
+    /**
+     * @brief  stop hce, unregister callback and unset foreground service
+     * @param  element: the element service want to stop hce
+     * @return result
+     */
+    virtual KITS::ErrorCode StopHce(ElementName &element) = 0;
+    /**
+     * @brief  whether the element is default service or not
+     * @param  element: element to be judged
+     * @param  type: card type
+     * @param  isDefaultService:  is default service 
+     * @return result
+     */
+    virtual KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type,
+                                             bool &isDefaultService) = 0;
+
 private:
 };
 } // namespace HCE

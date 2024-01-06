@@ -91,6 +91,16 @@ int HceSession::SendRawFrameByToken(std::string hexCmdData, bool raw, std::strin
     }
 }
 
+KITS::ErrorCode HceSession::IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService)
+{
+    if (ceService_.expired()) {
+        ErrorLog("IsDefaultService ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    isDefaultService = ceService_.lock()->IsDefaultService(element, type);
+    return KITS::ERR_NONE;
+}
+
 int32_t HceSession::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     std::string info = GetDumpInfo();
