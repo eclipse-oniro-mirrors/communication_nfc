@@ -361,6 +361,10 @@ bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::Acc
     int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
 
     InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        // if access token kit failed, shall pass.
+        return true;
+    }
     if (!hapTokenInfo.bundleName.empty() &&
         hapTokenInfo.bundleName == abilityConnection_->GetConnectedElement().GetBundleName()) {
         return true;
