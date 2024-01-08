@@ -361,6 +361,12 @@ bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::Acc
     int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
 
     InfoLog("get hap token info, result = %{public}d", result);
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    if (result) {
+        WarnLog("vendor application, allow to send raw frame.");
+        return true;
+    }
+#endif
     if (!hapTokenInfo.bundleName.empty() &&
         hapTokenInfo.bundleName == abilityConnection_->GetConnectedElement().GetBundleName()) {
         return true;
