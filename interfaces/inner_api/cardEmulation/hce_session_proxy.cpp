@@ -29,8 +29,8 @@ namespace HCE {
 using OHOS::AppExecFwk::ElementName;
 static HceCmdCallbackStub *g_hceCmdCallbackStub = new HceCmdCallbackStub;
 
-KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(
-    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
+                                                   const std::string &type)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -63,8 +63,7 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(
     return KITS::ERR_NONE;
 }
 
-int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw,
-                                  std::string &hexRespData)
+int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -109,6 +108,58 @@ int HceSessionProxy::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
     DebugLog("GetPaymentServices size %{public}zu", paymentAbilityInfos.size());
     abilityInfos = std::move(paymentAbilityInfos);
     return statusCode;
+}
+KITS::ErrorCode HceSessionProxy::StopHce(ElementName &element)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("Write interface token error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (!element.Marshalling(data)) {
+        ErrorLog("Write element error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    data.WriteInt32(0);
+    int error = SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_STOP),
+                                           data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("StopHce failed, error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
+KITS::ErrorCode HceSessionProxy::IsDefaultService(ElementName &element, const std::string &type,
+                                                  bool &isDefaultService)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("Write interface token error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (!element.Marshalling(data)) {
+        ErrorLog("Write element error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    if (!data.WriteString(type)) {
+        ErrorLog("Write type error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    data.WriteInt32(0);
+    int error = SendRequestExpectReplyBool(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_IS_DEFAULT_SERVICE), data, option,
+        isDefaultService);
+    if (error != ERR_NONE) {
+        ErrorLog("IsDefaultService failed, error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
 }
 } // namespace HCE
 } // namespace NFC

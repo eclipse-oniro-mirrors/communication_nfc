@@ -40,6 +40,8 @@ public:
 
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
+    KITS::ErrorCode StopHce(ElementName &element) override;
+    KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService) override;
 };
 } // namespace HCE
 } // namespace NFC

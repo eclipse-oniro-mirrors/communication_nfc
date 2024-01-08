@@ -110,6 +110,9 @@ const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.n
 
 const int DATA_SHARE_INVALID_VALUE = -1;
 
+/** type const of hce napi on */
+const std::string EVENT_HCE_CMD = "hceCmd";
+
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,
     NFC_A_TECH = 1,

@@ -53,10 +53,15 @@ private:
 
     int HandleGetPaymentServices(MessageParcel& data, MessageParcel& reply);
 
+    int HandleStopHce(MessageParcel& data, MessageParcel& reply);
+
+    int HandleIsDefaultService(MessageParcel& data, MessageParcel& reply);
+
     KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
                                       const std::string& type) override;
 
     int SendRawFrame(std::string hexCmdData, bool raw, std::string& hexRespData) override;
+    KITS::ErrorCode StopHce(ElementName &element) override;
 
 private:
     std::mutex mutex_{};

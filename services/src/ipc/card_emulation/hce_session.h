@@ -48,6 +48,8 @@ public:
 
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 
+    KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService) override;
+
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 
 private:

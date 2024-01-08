@@ -21,16 +21,15 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-const std::string EVENT_HCE_CMD = "hceCmd";
 static const uint16_t DEFAULT_REF_COUNT = 1;
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 static std::set<std::string> g_supportEventList = {
-    EVENT_HCE_CMD,
+    KITS::EVENT_HCE_CMD,
 };
 
 bool EventRegister::isEventRegistered = false;
 
-static std::shared_mutex g_regInfoMutex;
+static std::mutex g_regInfoMutex;
 static std::map<std::string, RegObj> g_eventRegisterInfo;
 
 class NapiEvent {
@@ -42,7 +41,7 @@ public:
     template <typename T>
     void CheckAndNotify(const std::string& type, const T& obj)
     {
-        std::shared_lock<std::shared_mutex> guard(g_regInfoMutex);
+        std::lock_guard<std::mutex> guard(g_regInfoMutex);
         if (!CheckIsRegister(type)) {
             return;
         }
@@ -72,7 +71,7 @@ public:
         InfoLog("OnNotify rcvd ce adpu data: Data Length = %{public}zu; Data "
                 "as String = %{public}s",
                 data.size(), dataStr.c_str());
-        CheckAndNotify(EVENT_HCE_CMD, data);
+        CheckAndNotify(KITS::EVENT_HCE_CMD, data);
     }
 
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override { return nullptr; }
@@ -87,6 +86,7 @@ napi_value NfcNapiHceAdapter::Init(napi_env env, napi_value exports)
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("on", NfcNapiHceAdapter::OnHceCmd),
         DECLARE_NAPI_FUNCTION("transmit", NfcNapiHceAdapter::Transmit),
+        DECLARE_NAPI_FUNCTION("stop", NfcNapiHceAdapter::StopHce),
     };
 
     char hceClassName[] = "HceService";
@@ -189,7 +189,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
         DebugLog("Register eventType error or not support!");
         return;
     }
-    std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
+    std::lock_guard<std::mutex> guard(g_regInfoMutex);
     if (!isEventRegistered) {
         if (RegHceCmdCallbackEvents(type) != KITS::ERR_NONE) {
             return;
@@ -230,6 +230,62 @@ ErrorCode EventRegister::RegHceCmdCallbackEvents(const std::string& type)
     ErrorCode ret = hceService.RegHceCmdCallback(hceCmdListenerEvent, type);
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegHceCmdCallbackEvents failed!");
+        return ret;
+    }
+    return ret;
+}
+
+void EventRegister::Unregister(const napi_env& env, ElementName& element)
+{
+    std::lock_guard<std::mutex> guard(g_regInfoMutex);
+    if (!g_eventRegisterInfo.empty()) {
+        if (UnregisterHceEvents(element) != KITS::ERR_NONE) {
+            ErrorLog("hce EventRegister::Unregister, unreg event failed.");
+            return;
+        }
+    }
+
+    DeleteHceCmdRegisterObj(env);
+
+    if (!g_eventRegisterInfo.empty()) {
+        g_eventRegisterInfo.erase(KITS::EVENT_HCE_CMD);
+        isEventRegistered = false;
+    }
+    InfoLog("hce EventRegister, isEvtRegistered = %{public}d", isEventRegistered);
+}
+
+void EventRegister::DeleteHceCmdRegisterObj(const napi_env& env)
+{
+    auto iter = g_eventRegisterInfo.find(KITS::EVENT_HCE_CMD);
+    if (iter == g_eventRegisterInfo.end()) {
+        InfoLog("no hce cmd register info.");
+        return;
+    }
+
+    auto oldRegObj = iter->second;
+    if (env == oldRegObj.m_regEnv) {
+        DebugLog("env is same");
+        uint32_t refCount = INVALID_REF_COUNT;
+        napi_reference_unref(oldRegObj.m_regEnv, oldRegObj.m_regHanderRef, &refCount);
+        InfoLog(
+            "DeleteHceCmdRegisterObj, m_regEnv: %{private}p, m_regHanderRef: %{private}p, refCount: %{public}d",
+            oldRegObj.m_regEnv, oldRegObj.m_regHanderRef, refCount);
+        if (refCount == 0) {
+            InfoLog("DeleteHceCmdRegisterObj, ref count is zero");
+            napi_delete_reference(oldRegObj.m_regEnv, oldRegObj.m_regHanderRef);
+        }
+    } else {
+        InfoLog("DeleteHceCmdRegisterObj, env is different, env: %{private}p m_regEnv:: %{private}p", env,
+                oldRegObj.m_regEnv);
+    }
+}
+
+ErrorCode EventRegister::UnregisterHceEvents(ElementName& element)
+{
+    HceService hceService = HceService::GetInstance();
+    ErrorCode ret = hceService.StopHce(element);
+    if (ret != KITS::ERR_NONE) {
+        ErrorLog("UnregisterHceEvents  failed!");
         return ret;
     }
     return ret;
@@ -388,6 +444,24 @@ napi_value NfcNapiHceAdapter::Transmit(napi_env env, napi_callback_info info)
     return result;
 }
 
+napi_value NfcNapiHceAdapter::StopHce(napi_env env, napi_callback_info cbinfo)
+{
+    size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    ElementName element;
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !ParseElementName(env, element, argv[ARGV_INDEX_0])) {
+        ErrorLog("Stop hce: parse args failed");
+        return CreateUndefined(env);
+    }
+
+    EventRegister::GetInstance().Unregister(env, element);
+    napi_value result = nullptr;
+    napi_get_undefined(env, &result);
+    return result;
+}
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
