@@ -58,6 +58,9 @@ enum class NfcCommonEvent {
 
     // device shutdown
     MSG_SHUTDOWN,
+
+    // vendor event
+    MSG_VENDOR_EVENT,
 };
 
 enum class ScreenState {

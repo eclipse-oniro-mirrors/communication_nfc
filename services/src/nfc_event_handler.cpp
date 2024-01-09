@@ -315,6 +315,15 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             nfcService_.lock()->HandleShutdown();
             break;
         }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        case NfcCommonEvent::MSG_VENDOR_EVENT: {
+            int eventType= event->GetParam();
+            if(eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE){
+                ceService_.lock()->ConfigRoutingAndCommit();
+            }
+            break;
+        }
+#endif
         default:
             ErrorLog("Unknown message received: id %{public}d", eventId);
             break;

@@ -54,6 +54,9 @@ public:
     void OnTagLost(uint32_t tagDiscId) override;
     void FieldActivated() override;
     void FieldDeactivated() override;
+    #ifdef VENDOR_APPLICATIONS_ENABLED
+    void OnVendorEvent(int eventType, int arg1, std::string arg2);
+    #endif
     void OnCardEmulationData(const std::vector<uint8_t>& data) override;
     void OnCardEmulationActivated() override;
     void OnCardEmulationDeactivated() override;

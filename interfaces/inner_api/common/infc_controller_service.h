@@ -63,6 +63,7 @@ public:
 #ifdef VENDOR_APPLICATIONS_ENABLED
     virtual KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) = 0;
     virtual KITS::ErrorCode RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback) = 0;
+    virtual KITS::ErrorCode NotifyEventStatus(int eventType, int arg1, std::string arg2) = 0;
 #endif
 };
 }  // namespace NFC

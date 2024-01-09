@@ -61,6 +61,8 @@ int NfcControllerStub::OnRemoteRequest(uint32_t code,         /* [in] */
             return HandleRegQueryApplicationCb(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY):
             return HandleRegCardEmulationNotifyCb(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_VENDOR_NOTIFY):
+            return HandleNotifyEventStatus(data, reply);
 #endif
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE):
             return HandleGetNfcHceInterface(data, reply);
@@ -272,6 +274,20 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
         int ret = RegCardEmulationNotifyCb(onCardEmulationNotifyCb_);
         reply.WriteInt32(ret);
     }
+    return ERR_NONE;
+}
+int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParcel& reply)
+{
+    int eventType = data.ReadInt32();
+    int arg1 = data.ReadInt32();
+    std::string arg2 = data.ReadString();
+    int exception = data.ReadInt32();
+    if (exception) {
+        ErrorLog("HandleNotifyEventStatus::read param failed.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    KITS::ErrorCode ret = NotifyEventStatus(eventType, arg1, arg2);
+    reply.WriteInt32(ret);
     return ERR_NONE;
 }
 #endif

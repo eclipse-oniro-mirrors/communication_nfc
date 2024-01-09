@@ -58,6 +58,7 @@ private:
 #ifdef VENDOR_APPLICATIONS_ENABLED
     int HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply);
     int HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply);
+    int HandleNotifyEventStatus(MessageParcel& data, MessageParcel& reply);
 #endif
     int HandleGetNfcHceInterface(MessageParcel &data, MessageParcel &reply);
 
