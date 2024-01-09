@@ -139,6 +139,8 @@ KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, st
     if (nfcService_.lock() == nullptr) {
         return KITS::ERR_NFC_PARAMETERS;
     }
+
+    nfcService_.lock()->OnVendorEvent(eventType, arg1, arg2);
     return KITS::ErrorCode();
 }
 #endif
