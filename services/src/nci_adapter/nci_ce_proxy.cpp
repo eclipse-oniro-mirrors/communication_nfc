@@ -72,7 +72,7 @@ bool NciCeProxy::SendRawFrame(std::string &hexCmdData)
     return false;
 }
 
-bool NciCeProxy::AddAidRouting(const std::string aidStr, int route, int aidInfo,
+bool NciCeProxy::AddAidRouting(const std::string &aidStr, int route, int aidInfo,
                                int power)
 {
     if (nciCeInterface_) {

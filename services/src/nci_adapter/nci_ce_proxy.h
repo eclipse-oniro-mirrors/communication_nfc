@@ -56,7 +56,7 @@ public:
      * @param  power: power state
      * @return True if success, otherwise false.
      */
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo,
+    bool AddAidRouting(const std::string &aidStr, int route, int aidInfo,
                        int power) override;
     /**
      * @brief  clear aid table

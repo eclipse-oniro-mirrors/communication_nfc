@@ -29,10 +29,9 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
-    : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
+    : nfcService_(nfcService), nciCeProxy_(nciCeProxy),
+    hostCardEmulationManager_(std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy))
 {
-    hostCardEmulationManager_ = std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy);
-
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
         nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
@@ -72,7 +71,7 @@ bool CeService::IsDefaultService(ElementName &element, const std::string &type)
            element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
 }
 
-bool CeService::SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData,
+bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                                  Security::AccessToken::AccessTokenID callerToken)
 {
     return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);

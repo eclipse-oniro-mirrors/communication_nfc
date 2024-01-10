@@ -199,7 +199,7 @@ ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 }
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-ErrorCode NfcController::RegQueryApplicationCb(std::string type,
+ErrorCode NfcController::RegQueryApplicationCb(const std::string& type,
     QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback)
 {
     DebugLog("NfcController::RegQueryApplicationCb");

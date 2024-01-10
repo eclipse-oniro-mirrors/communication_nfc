@@ -47,7 +47,7 @@ bool NciCeImplDefault::SendRawFrame(std::string &hexCmdData)
 {
     return NfccNciAdapter::GetInstance().SendRawFrame(hexCmdData);
 }
-bool NciCeImplDefault::AddAidRouting(const std::string aidStr, int route,
+bool NciCeImplDefault::AddAidRouting(const std::string &aidStr, int route,
                                      int aidInfo, int power)
 {
     return RoutingManager::GetInstance().AddAidRouting(aidStr, route, aidInfo,

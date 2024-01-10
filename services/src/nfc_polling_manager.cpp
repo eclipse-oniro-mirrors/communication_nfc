@@ -143,8 +143,8 @@ void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
     }
 }
 
-bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
+bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &element,
+    const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("EnableForegroundDispatch: nfcService_ is nullptr.");
@@ -171,7 +171,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
     return true;
 }
 
-bool NfcPollingManager::DisableForegroundDispatch(AppExecFwk::ElementName &element)
+bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName &element)
 {
     DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());

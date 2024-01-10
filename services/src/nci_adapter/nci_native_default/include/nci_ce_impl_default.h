@@ -28,7 +28,7 @@ public:
     bool ComputeRoutingParams() override;
     bool CommitRouting() override;
     bool SendRawFrame(std::string &hexCmdData) override;
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) override;
+    bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power) override;
     bool ClearAidTable() override;
 };
 }  // namespace NCI

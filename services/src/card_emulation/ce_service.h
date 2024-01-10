@@ -56,7 +56,7 @@ public:
     bool UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken);
     bool IsDefaultService(ElementName &element, const std::string &type);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw, std::string &hexRespData,
+    bool SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                           Security::AccessToken::AccessTokenID callerToken);
 
     void InitConfigAidRouting();

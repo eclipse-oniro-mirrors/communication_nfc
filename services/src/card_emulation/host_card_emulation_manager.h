@@ -58,20 +58,20 @@ public:
     bool UnRegHceCmdCallback(const std::string& type, Security::AccessToken::AccessTokenID callerToken);
     bool UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken);
 
-    bool SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData,
+    bool SendHostApduData(std::string hexCmdData, bool raw, std::string& hexRespData,
                           Security::AccessToken::AccessTokenID callerToken);
 
     void HandleQueueData();
 
 private:
-    void HandleDataOnW4Select(const std::string aid, ElementName& aidElement, const std::vector<uint8_t>& data);
-    void HandleDataOnDataTransfer(const std::string aid, ElementName& aidElement,
+    void HandleDataOnW4Select(const std::string& aid, ElementName& aidElement, const std::vector<uint8_t>& data);
+    void HandleDataOnDataTransfer(const std::string& aid, ElementName& aidElement,
                                   const std::vector<uint8_t>& data);
     bool ExistService(ElementName& aidElement);
     std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
     bool DispatchAbilitySingleApp(ElementName& element);
-    void SearchElementByAid(const std::string aid, ElementName& aidElement);
+    void SearchElementByAid(const std::string& aid, ElementName& aidElement);
     bool EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken);
     bool IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken);
 

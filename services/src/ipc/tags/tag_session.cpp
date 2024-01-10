@@ -420,7 +420,7 @@ KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vec
     return RegForegroundDispatchInner(element, discTech, callback);
 }
 
-KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, std::vector<uint32_t> &discTech,
+KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     if (IsRegistered(element, discTech, callback)) {
@@ -439,7 +439,7 @@ KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, std
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-bool TagSession::IsRegistered(ElementName &element, std::vector<uint32_t> &discTech,
+bool TagSession::IsRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     for (FgData &fgData : fgDataVec_) {
@@ -467,7 +467,7 @@ KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
     return UnregForegroundDispatchInner(element, true);
 }
 
-KITS::ErrorCode TagSession::UnregForegroundDispatchInner(ElementName &element, bool isAppUnregister)
+KITS::ErrorCode TagSession::UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister)
 {
     if (IsUnregistered(element, isAppUnregister)) {
         WarnLog("%{public}s already UnregForegroundDispatch", element.GetBundleName().c_str());
@@ -485,7 +485,7 @@ KITS::ErrorCode TagSession::UnregForegroundDispatchInner(ElementName &element, b
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-bool TagSession::IsUnregistered(ElementName &element, bool isAppUnregister)
+bool TagSession::IsUnregistered(const ElementName &element, bool isAppUnregister)
 {
     if (fgDataVec_.size() == 0) {
         return true;

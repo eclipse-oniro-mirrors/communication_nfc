@@ -98,7 +98,6 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     }
 
     bool isFromVendor = (vendorElements.size() != 0) ? true : false;
-    bool isOH = true;
     AAFwk::Want want;
     std::vector<std::string> vendorElementNameList;
     for (auto vendorElement : vendorElements) {
@@ -111,7 +110,7 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
     if ((vendorElementNameList.size() + elements.size()) > TAG_APP_MATCHED_SIZE_SINGLE) {
         want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
         DispatchAbilityMultiApp(tagInfo, want);
-    } else if ((elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isOH) {
+    } else if (elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) {
         want.SetElement(elements[0]);
         DispatchAbilitySingleApp(want);
     } else if ((vendorElementNameList.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isFromVendor) {

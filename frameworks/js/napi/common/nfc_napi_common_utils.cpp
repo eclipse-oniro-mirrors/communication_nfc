@@ -533,14 +533,11 @@ void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode,
         DebugLog("ThrowAsyncError for promise");
         NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, businessError));
     }
-
-    if (baseContext != nullptr) {
-        if (baseContext->work != nullptr) {
-            napi_delete_async_work(env, baseContext->work);
-        }
-        delete baseContext;
-        baseContext = nullptr;
+    if (baseContext->work != nullptr) {
+        napi_delete_async_work(env, baseContext->work);
     }
+    delete baseContext;
+    baseContext = nullptr;
 }
 
 bool IsNumberArray(const napi_env &env, const napi_value &param)

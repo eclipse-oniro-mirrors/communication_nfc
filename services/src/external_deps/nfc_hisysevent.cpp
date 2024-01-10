@@ -111,14 +111,14 @@ void NfcHisysEvent::BuildFailedParams(NfcFailedParams &nfcFailedParams,
     nfcFailedParams.version = "VERSION";
     nfcFailedParams.appPackageName = "APPNAME";
 }
-void NfcHisysEvent::WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt)
+void NfcHisysEvent::WriteHceSwipeResultHiSysEvent(const std::string &appPackageName, int hceSwipeCnt)
 {
     WriteEvent("HCE_SWIPE_RESULT", HiviewDFX::HiSysEvent::EventType::STATISTIC,
                "HCE_SWIPE_CNT", hceSwipeCnt,
                "APP_PACKAGE_NAME", appPackageName);
 }
-void NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
-                                                           std::string newAppPackageName)
+void NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
+                                                           const std::string &newAppPackageName)
 {
     WriteEvent("HCE_DEFAULT_PAYMENT_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                "OLD_APP_PACKAGE_NAME", oldAppPackageName, "NEW_APP_PACKAGE_NAME", newAppPackageName);

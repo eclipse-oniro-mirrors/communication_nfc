@@ -108,7 +108,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     }
 }
 
-void HostCardEmulationManager::SearchElementByAid(const std::string aid, ElementName& aidElement)
+void HostCardEmulationManager::SearchElementByAid(const std::string& aid, ElementName& aidElement)
 {
     if (aid.empty()) {
         InfoLog("aid is empty");
@@ -175,7 +175,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
     InfoLog("Release call end. ret = %{public}d", releaseCallRet);
 }
 
-void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, ElementName& aidElement,
+void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, ElementName& aidElement,
                                                     const std::vector<uint8_t>& data)
 {
     bool exitService = ExistService(aidElement);
@@ -206,7 +206,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string aid, Eleme
     }
 }
 
-void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string aid, ElementName& aidElement,
+void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, ElementName& aidElement,
                                                         const std::vector<uint8_t>& data)
 {
     bool exitService = ExistService(aidElement);
@@ -337,7 +337,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
     return true;
 }
 
-bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, const std::string& hexRespData,
+bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, std::string& hexRespData,
                                                 Security::AccessToken::AccessTokenID callerToken)
 {
     if (nfcService_.expired()) {

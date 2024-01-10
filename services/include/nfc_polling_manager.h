@@ -63,9 +63,9 @@ public:
     // package updated
     void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
-    bool EnableForegroundDispatch(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+    bool EnableForegroundDispatch(AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
                                   const sptr<KITS::IForegroundCallback> &callback);
-    bool DisableForegroundDispatch(AppExecFwk::ElementName &element);
+    bool DisableForegroundDispatch(const AppExecFwk::ElementName &element);
     bool DisableForegroundByDeathRcpt();
     bool IsForegroundEnabled();
     void SendTagToForeground(KITS::TagInfoParcelable* tagInfo);

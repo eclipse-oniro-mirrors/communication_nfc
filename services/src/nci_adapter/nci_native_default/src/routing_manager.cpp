@@ -166,7 +166,7 @@ bool RoutingManager::ComputeRoutingParams()
     return true;
 }
 
-bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
+bool RoutingManager::AddAidRouting(const std::string &aidStr, int route,
                                    int aidInfo, int power)
 {
     std::vector<unsigned char> aidBytes;
@@ -185,7 +185,8 @@ bool RoutingManager::AddAidRouting(const std::string aidStr, int route,
 
 bool RoutingManager::ClearAidTable()
 {
-    tNFA_STATUS status = NFA_EeRemoveAidRouting(NFA_REMOVE_ALL_AID_LEN, (uint8_t *)NFA_REMOVE_ALL_AID);
+    tNFA_STATUS status = NFA_EeRemoveAidRouting(NFA_REMOVE_ALL_AID_LEN,
+        reinterpret_cast<uint8_t *>(NFA_REMOVE_ALL_AID));
     if (status == NFA_STATUS_OK) {
         InfoLog("ClearAidTable: Succeed ");
         return true;

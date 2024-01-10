@@ -36,7 +36,7 @@ public:
     void Deinitialize();
     bool CommitRouting();
     bool ComputeRoutingParams();
-    bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power);
+    bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power);
     bool ClearAidTable();
 
 private:
