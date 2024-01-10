@@ -82,30 +82,13 @@ bool CeService::InitConfigAidRouting()
 {
     DebugLog("AddAidRoutingHceOtherAids: start");
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
-    std::vector<AppDataParser::HceAppAidInfo> hceApps;
-    ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
-    InfoLog("AddAidRoutingHceOtherAids: hce apps size %{public}zu", hceApps.size());
     std::map<std::string, AidEntry> aidEntries;
-    for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
-        bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
-                                appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
-        for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
-            // add payment aid of default payment app and other aid of all apps
-            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isDefaultPayment;
-            if (shouldAdd) {
-                AidEntry aidEntry;
-                aidEntry.aid = aidInfo.value;
-                aidEntry.aidInfo = 0;
-                aidEntry.power = DEFAULT_PWR_STA_HOST;
-                aidEntry.route = DEFAULT_HOST_ROUTE_DEST;
-                aidEntries[aidInfo.value] = aidEntry;
-            }
-        }
-    }
+    BuildAidEntries(aidEntries);
     if (aidEntries == aidToAidEntry_) {
         InfoLog("aid entries do not change.");
         return false;
     }
+    
     nciCeProxy_.lock()->ClearAidTable();
     bool addAllResult = true;
     for (const auto &pair : aidEntries) {
@@ -130,6 +113,29 @@ bool CeService::InitConfigAidRouting()
     }
     DebugLog("AddAidRoutingHceOtherAids: end");
     return true;
+}
+
+void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
+{
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
+    ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
+    InfoLog("AddAidRoutingHceOtherAids: hce apps size %{public}zu", hceApps.size());
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
+        bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
+                                appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
+        for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
+            // add payment aid of default payment app and other aid of all apps
+            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isDefaultPayment;
+            if (shouldAdd) {
+                AidEntry aidEntry;
+                aidEntry.aid = aidInfo.value;
+                aidEntry.aidInfo = 0;
+                aidEntry.power = DEFAULT_PWR_STA_HOST;
+                aidEntry.route = DEFAULT_HOST_ROUTE_DEST;
+                aidEntries[aidInfo.value] = aidEntry;
+            }
+        }
+    }
 }
 
 void CeService::OnDefaultPaymentServiceChange()

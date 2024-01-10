@@ -317,8 +317,8 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
 #ifdef VENDOR_APPLICATIONS_ENABLED
         case NfcCommonEvent::MSG_VENDOR_EVENT: {
-            int eventType= event->GetParam();
-            if(eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE){
+            int eventType = event->GetParam();
+            if (eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE) {
                 ceService_.lock()->ConfigRoutingAndCommit();
             }
             break;
