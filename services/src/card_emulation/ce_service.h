@@ -72,6 +72,7 @@ public:
     void ConfigRoutingAndCommit();
 
 private:
+    void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
 

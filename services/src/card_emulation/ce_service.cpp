@@ -88,7 +88,7 @@ bool CeService::InitConfigAidRouting()
         InfoLog("aid entries do not change.");
         return false;
     }
-    
+
     nciCeProxy_.lock()->ClearAidTable();
     bool addAllResult = true;
     for (const auto &pair : aidEntries) {
@@ -115,7 +115,7 @@ bool CeService::InitConfigAidRouting()
     return true;
 }
 
-void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
+void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
 {
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
