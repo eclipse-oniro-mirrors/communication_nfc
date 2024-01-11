@@ -103,10 +103,10 @@ public:
         QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback);
 
     ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);
+    ErrorCode NotifyEventStatus(int eventType, int arg1 = 0, std::string arg2 = "");
 #endif
 
-private:
-    class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+        private : class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {
         public:
             explicit NfcServiceDeathRecipient(NfcController &client) : client_(client) {}
             ~NfcServiceDeathRecipient() override = default;

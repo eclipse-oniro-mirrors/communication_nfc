@@ -227,6 +227,16 @@ ErrorCode NfcController::RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callba
     g_onCardEmulationNotifyCbStub->RegisterCallback(callback);
     return nfcControllerService_.lock()->RegCardEmulationNotifyCb(g_onCardEmulationNotifyCbStub);
 }
+ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string arg2)
+{
+    DebugLog("NfcController::NotifyEventStatus");
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::NotifyEventStatus nfcControllerService_ expired");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return nfcControllerService_.lock()->NotifyEventStatus(eventType, arg1, arg2);
+}
 #endif
 
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface()
