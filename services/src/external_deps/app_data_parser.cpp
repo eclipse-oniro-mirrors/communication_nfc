@@ -555,6 +555,47 @@ void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
         }
     }
 }
+
+void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &paymentAbilityInfos)
+{
+    std::vector<HceAppAidInfo> hceApps;
+    std::set<std::string> bundleNames;
+    GetHceAppsFromVendor(hceApps);
+    DebugLog("The hceApps len %{public}lu", hceApps.size());
+    for (auto& appAidInfo : hceApps) {
+        DebugLog("The bundlename : %{public}s", appAidInfo.element.GetBundleName().c_str());
+        if (appAidInfo.element.GetBundleName().empty() || !IsPaymentApp(appAidInfo)) {
+            continue;
+        }
+        if (bundleNames.count(appAidInfo.element.GetBundleName()) > 0) {
+            DebugLog("The bundlename : %{public}s is in the bundleNames", appAidInfo.element.GetBundleName().c_str());
+            continue;
+        }
+        bundleNames.insert(appAidInfo.element.GetBundleName());
+        AbilityInfo ability;
+        ability.name = appAidInfo.element.GetAbilityName();
+        ability.bundleName = appAidInfo.element.GetBundleName();
+        AppExecFwk::BundleInfo bundleInfo{};
+        int32_t bundleInfoFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) |
+                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) |
+                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
+        if (bundleMgrProxy_ == nullptr) {
+            ErrorLog("bundleMgrProxy_ is nullptr!");
+            break;
+        }
+        bundleMgrProxy_->GetBundleInfoV9(
+            ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
+        DebugLog("The bundlename : %{public}s,the labelId : %{public}d,the iconId : %{public}d",
+            appAidInfo.element.GetBundleName().c_str(),
+            bundleInfo.applicationInfo.labelId,
+            bundleInfo.applicationInfo.iconId);
+        if (bundleInfo.applicationInfo.labelId != 0 && bundleInfo.applicationInfo.iconId != 0) {
+            ability.labelId = bundleInfo.applicationInfo.labelId;
+            ability.iconId = bundleInfo.applicationInfo.iconId;
+            paymentAbilityInfos.push_back(ability);
+        }
+    }
+}
 #endif
 
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
@@ -600,39 +641,7 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         paymentAbilityInfos.push_back(ability);
     }
 #ifdef VENDOR_APPLICATIONS_ENABLED
-    std::vector<HceAppAidInfo> hceApps;
-    std::set<std::string> bundleNames;
-    GetHceAppsFromVendor(hceApps);
-    DebugLog("The hceApps len %{public}lu", hceApps.size());
-    for (auto& appAidInfo : hceApps) {
-        if (appAidInfo.element.GetBundleName().empty()) {
-            continue;
-        }
-        if (!IsPaymentApp(appAidInfo)) {
-            continue;
-        }
-        if (bundleNames.count(appAidInfo.element.GetBundleName()) > 0) {
-            DebugLog("The bundleName:%{public}s is in the bundleNames", appAidInfo.element.GetBundleName().c_str());
-            continue;
-        }
-        bundleNames.insert(appAidInfo.element.GetBundleName());
-        AbilityInfo ability;
-        ability.name = appAidInfo.element.GetAbilityName();
-        ability.bundleName = appAidInfo.element.GetBundleName();
-        AppExecFwk::BundleInfo bundleInfo{};
-        int32_t bundleInfoFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) |
-                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) |
-                                 static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
-        if (bundleMgrProxy_ == nullptr) {
-            ErrorLog("bundleMgrProxy_ is nullptr!");
-            break;
-        }
-        bundleMgrProxy_->GetBundleInfoV9(
-            ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
-        ability.labelId = bundleInfo.applicationInfo.labelId;
-        ability.iconId = bundleInfo.applicationInfo.iconId;
-        paymentAbilityInfos.push_back(ability);
-    }
+    GetPaymentAbilityInfosFromVendor(paymentAbilityInfos);
 #endif
 }
 } // namespace NFC
