@@ -53,6 +53,7 @@ private:
 
     std::shared_ptr<NfcService> nfcService_;
     sptr<NfcControllerImpl> nfcControllerImpl_;
+    std::mutex initMutex_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS
