@@ -426,7 +426,7 @@ bool AppDataParser::RemoveOffHostAppInfo(ElementName &element)
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveOffHostAppInfo, erase app %{public}s", element.GetBundleName().c_str());
             g_offHostAppAndAidMap.erase(iter);
-            return true;;
+            return true;
         }
     }
     return false;
