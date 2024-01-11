@@ -80,16 +80,19 @@ bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::s
 
 bool CeService::InitConfigAidRouting()
 {
-    DebugLog("AddAidRoutingHceOtherAids: start");
+    DebugLog("AddAidRoutingHceAids: start");
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     std::map<std::string, AidEntry> aidEntries;
     BuildAidEntries(aidEntries);
+    InfoLog("AddAidRoutingHceAids, aid entries cache size %{public}zu,aid entries newly builded size %{public}zu",
+            aidToAidEntry_.size(), aidEntries.size());
     if (aidEntries == aidToAidEntry_) {
         InfoLog("aid entries do not change.");
         return false;
     }
 
     nciCeProxy_.lock()->ClearAidTable();
+    aidToAidEntry_.clear();
     bool addAllResult = true;
     for (const auto &pair : aidEntries) {
         AidEntry entry = pair.second;
@@ -97,21 +100,20 @@ bool CeService::InitConfigAidRouting()
         int aidInfo = entry.aidInfo;
         int power = entry.power;
         int route = entry.route;
-        InfoLog("AddAidRoutingHceOtherAids: aid= %{public}s, aidInfo= "
+        InfoLog("AddAidRoutingHceAids: aid= %{public}s, aidInfo= "
                 "0x%{public}x, route=0x%{public}x, power=0x%{public}x",
                 aid.c_str(), aidInfo, route, power);
         bool addResult = nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
         if (!addResult) {
-            ErrorLog("AddAidRoutingHceOtherAids: add aid failed aid= %{public}s", aid.c_str());
+            ErrorLog("AddAidRoutingHceAids: add aid failed aid= %{public}s", aid.c_str());
             addAllResult = false;
         }
     }
-    aidToAidEntry_.clear();
     if (addAllResult) {
-        InfoLog("AddAidRoutingHceOtherAids: add aids success, update the aid entries cache");
+        InfoLog("AddAidRoutingHceAids: add aids success, update the aid entries cache");
         aidToAidEntry_ = std::move(aidEntries);
     }
-    DebugLog("AddAidRoutingHceOtherAids: end");
+    DebugLog("AddAidRoutingHceAids: end");
     return true;
 }
 
