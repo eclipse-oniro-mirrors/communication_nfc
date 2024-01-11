@@ -125,21 +125,22 @@ void NfcPollingManager::HandleScreenChanged(int screenState)
     nciNfccProxy_.lock()->SetScreenStatus(screenState_);
 }
 
-void NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
+bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     std::string action = data->GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");
-        return;
+        return false;
     }
     if ((action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) ||
         (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED)) {
-        ExternalDepsProxy::GetInstance().HandleAppAddOrChangedEvent(data);
+        return ExternalDepsProxy::GetInstance().HandleAppAddOrChangedEvent(data);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        ExternalDepsProxy::GetInstance().HandleAppRemovedEvent(data);
+        return ExternalDepsProxy::GetInstance().HandleAppRemovedEvent(data);
     } else {
         DebugLog("not need event.");
+        return false;
     }
 }
 

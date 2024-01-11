@@ -16,14 +16,14 @@
 
 namespace OHOS {
 namespace NFC {
-void ExternalDepsProxy::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+bool ExternalDepsProxy::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    AppDataParser::GetInstance().HandleAppAddOrChangedEvent(data);
+    return AppDataParser::GetInstance().HandleAppAddOrChangedEvent(data);
 }
 
-void ExternalDepsProxy::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+bool ExternalDepsProxy::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    AppDataParser::GetInstance().HandleAppRemovedEvent(data);
+    return AppDataParser::GetInstance().HandleAppRemovedEvent(data);
 }
 
 void ExternalDepsProxy::InitAppList()

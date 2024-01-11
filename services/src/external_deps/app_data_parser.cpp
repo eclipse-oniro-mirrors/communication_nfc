@@ -62,43 +62,45 @@ sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
     return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
 }
 
-void AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     if (data == nullptr) {
         ErrorLog("HandleAppAddOrChangedEvent, invalid data.");
-        return;
+        return false;
     }
     ElementName element = data->GetWant().GetElement();
     std::string bundleName = element.GetBundleName();
     if (bundleName.empty()) {
         ErrorLog("HandleAppAddOrChangedEvent, invaid bundleName.");
-        return;
+        return false;
     }
     DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s", bundleName.c_str());
-    UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
-    UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
-    UpdateAppListInfo(element, KITS::ACTION_OFF_HOST_APDU_SERVICE);
+    bool tag = UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
+    bool host = UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
+    bool offHost = UpdateAppListInfo(element, KITS::ACTION_OFF_HOST_APDU_SERVICE);
+    return tag | host | offHost;
 }
 
-void AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
+bool AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     if (data == nullptr) {
         ErrorLog("HandleAppRemovedEvent, invalid data.");
-        return;
+        return false;
     }
     ElementName element = data->GetWant().GetElement();
     std::string bundleName = element.GetBundleName();
     if (bundleName.empty()) {
         ErrorLog("HandleAppRemovedEvent, invalid bundleName.");
-        return;
+        return false;
     }
     DebugLog("HandleAppRemovedEvent, bundleName %{public}s tag size %{public}zu, hce size %{public}zu",
         bundleName.c_str(),
         g_tagAppAndTechMap.size(),
         g_hceAppAndAidMap.size());
-    RemoveTagAppInfo(element);
-    RemoveHceAppInfo(element);
-    RemoveOffHostAppInfo(element);
+    bool tag = RemoveTagAppInfo(element);
+    bool hce = RemoveHceAppInfo(element);
+    bool offHost = RemoveOffHostAppInfo(element);
+    return tag | hce | offHost;
 }
 
 bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std::string action)
@@ -370,12 +372,12 @@ bool AppDataParser::HaveMatchedOffHostKeyElement(ElementName &element)
     return false;
 }
 
-void AppDataParser::RemoveTagAppInfo(ElementName &element)
+bool AppDataParser::RemoveTagAppInfo(ElementName &element)
 {
     ElementName keyElement = GetMatchedTagKeyElement(element);
     if (keyElement.GetBundleName().empty()) {
         WarnLog("RemoveTagAppInfo, keyElement is none, ignore it.");
-        return;
+        return false;
     }
     DebugLog("RemoveTagAppInfo, request app %{public}s", keyElement.GetBundleName().c_str());
     std::vector<TagAppTechInfo>::iterator iter;
@@ -384,17 +386,18 @@ void AppDataParser::RemoveTagAppInfo(ElementName &element)
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveTagAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
             g_tagAppAndTechMap.erase(iter);
-            break;
+            return true;
         }
     }
+    return false;
 }
 
-void AppDataParser::RemoveHceAppInfo(ElementName &element)
+bool AppDataParser::RemoveHceAppInfo(ElementName &element)
 {
     ElementName keyElement = GetMatchedHceKeyElement(element);
     if (keyElement.GetBundleName().empty()) {
         WarnLog("RemoveHceAppInfo, keyElement is none, ignore it.");
-        return;
+        return false;
     }
     DebugLog("RemoveHceAppInfo, app %{public}s", keyElement.GetBundleName().c_str());
     std::vector<HceAppAidInfo>::iterator iter;
@@ -403,16 +406,17 @@ void AppDataParser::RemoveHceAppInfo(ElementName &element)
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveHceAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
             g_hceAppAndAidMap.erase(iter);
-            break;
+            return true;
         }
     }
+    return false;
 }
 
-void AppDataParser::RemoveOffHostAppInfo(ElementName &element)
+bool AppDataParser::RemoveOffHostAppInfo(ElementName &element)
 {
     if (!HaveMatchedOffHostKeyElement(element)) {
         WarnLog("RemoveOffHostAppInfo, keyElement is none, ignore it.");
-        return;
+        return false;
     }
 
     DebugLog("RemoveOffHostAppInfo, app %{public}s", element.GetBundleName().c_str());
@@ -422,9 +426,10 @@ void AppDataParser::RemoveOffHostAppInfo(ElementName &element)
         if (IsMatchedByBundleName(element, (*iter).element)) {
             DebugLog("RemoveOffHostAppInfo, erase app %{public}s", element.GetBundleName().c_str());
             g_offHostAppAndAidMap.erase(iter);
-            break;
+            return true;;
         }
     }
+    return false;
 }
 
 void AppDataParser::InitAppList()

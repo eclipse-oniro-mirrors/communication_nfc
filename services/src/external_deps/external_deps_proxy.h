@@ -40,8 +40,8 @@ public:
         return instance;
     }
 
-    void HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
-    void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
 #ifdef VENDOR_APPLICATIONS_ENABLED
