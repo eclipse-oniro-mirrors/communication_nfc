@@ -96,6 +96,7 @@ private:
     bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);
+    void GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &paymentAbilityInfos);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 #endif
