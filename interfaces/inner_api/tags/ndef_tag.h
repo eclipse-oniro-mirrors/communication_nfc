@@ -101,7 +101,7 @@ public:
      * @param emNfcForumType Nfc forum type of ndef tag
      * @return Nfc forum type byte array
      */
-    std::string GetNdefTagTypeString(EmNfcForumType emNfcForumType);
+    std::string GetNdefTagTypeString(EmNfcForumType emNfcForumType) const;
 
 private:
     EmNfcForumType nfcForumType_ {};

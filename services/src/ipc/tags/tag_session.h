@@ -36,7 +36,7 @@ public:
     std::vector<uint32_t> techs_ = {};
     sptr<KITS::IForegroundCallback> cb_ = nullptr;
 
-    explicit FgData(bool isEnable, ElementName element, std::vector<uint32_t> techs,
+    explicit FgData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
         sptr<KITS::IForegroundCallback> cb)
         : isEnableForeground_(isEnable),
         element_(element),
@@ -202,12 +202,12 @@ public:
     void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
 
 private:
-    bool IsRegistered(ElementName &element, std::vector<uint32_t> &discTech,
+    bool IsRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback);
-    bool IsUnregistered(ElementName &element, bool isAppUnregister);
+    bool IsUnregistered(const ElementName &element, bool isAppUnregister);
     KITS::ErrorCode RegForegroundDispatchInner(ElementName &element,
-        std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
-    KITS::ErrorCode UnregForegroundDispatchInner(ElementName &element, bool isAppUnregister);
+        const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
+    KITS::ErrorCode UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};

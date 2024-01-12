@@ -502,7 +502,7 @@ void AppDataParser::RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> call
     onCardEmulationNotify_ = callback;
 }
 
-sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback()
+sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback() const
 {
     return onCardEmulationNotify_;
 }

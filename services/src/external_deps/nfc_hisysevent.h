@@ -54,8 +54,9 @@ public:
     static void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
     static void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                             int closeRequestCnt, int closeFailCnt);
-    static void WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt);
-    static void WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName, std::string newAppPackageName);
+    static void WriteHceSwipeResultHiSysEvent(const std::string &appPackageName, int hceSwipeCnt);
+    static void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
+                                                       const std::string &newAppPackageName);
     static void WriteTagFoundHiSysEvent(const std::vector<int>& techList);
     static void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     static void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);

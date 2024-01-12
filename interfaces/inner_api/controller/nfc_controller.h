@@ -99,7 +99,7 @@ public:
     ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-    ErrorCode RegQueryApplicationCb(std::string type,
+    ErrorCode RegQueryApplicationCb(const std::string& type,
         QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback);
 
     ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);

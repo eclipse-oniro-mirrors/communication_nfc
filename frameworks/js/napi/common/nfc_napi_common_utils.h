@@ -183,7 +183,7 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
 bool MatchParameters(napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
 napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::string &workName,
     napi_async_execute_callback execute, napi_async_complete_callback complete);
-void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *basecontext, napi_value callbackValue);
+void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *baseContext, napi_value callbackValue);
 void ThrowAsyncError(const napi_env &env, BaseContext *baseContext, int errCode, const std::string &errMsg);
 bool IsNumberArray(const napi_env &env, const napi_value &param);
 bool IsObjectArray(const napi_env &env, const napi_value &param);

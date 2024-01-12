@@ -128,7 +128,7 @@ int Iso15693Tag::WriteMultipleBlock(uint32_t flag, uint32_t blockIndex, uint32_t
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
     if (flag >= ISO15693_MAX_FLAG_COUNT || (blockIndex >= ISO15693_MAX_BLOCK_INDEX) ||
-        (blockNum <= 0 || blockNum > ISO15693_MAX_BLOCK_INDEX)) {
+        (blockNum == 0 || blockNum > ISO15693_MAX_BLOCK_INDEX)) {
         ErrorLog("[Iso15693Tag::WriteMultipleBlock] flag=%{public}d blockIndex= %{public}d err", flag, blockIndex);
         return ErrorCode::ERR_TAG_PARAMETERS;
     }

@@ -88,7 +88,7 @@ public:
      * @param  power: power state
      * @return True if success, otherwise false.
      */
-    virtual bool AddAidRouting(const std::string aidStr, int route, int aidInfo, int power) = 0;
+    virtual bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power) = 0;
     /**
      * @brief  clear aid table
      * @return True if success, otherwise false.

@@ -23,10 +23,7 @@ namespace NFC {
 HceCmdDeathRecipient::HceCmdDeathRecipient(
     sptr<HCE::HceSessionStub> hceSession,
     Security::AccessToken::AccessTokenID callerToken)
-{
-    hceSession_ = hceSession;
-    callerToken_ = callerToken;
-}
+    : hceSession_(hceSession), callerToken_(callerToken) {}
 void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (hceSession_ == nullptr) {

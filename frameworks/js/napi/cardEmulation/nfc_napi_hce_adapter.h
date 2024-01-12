@@ -41,7 +41,7 @@ public:
     static void Destructor(napi_env env, void* nativeObject, void* /*finalize_hint*/);
     static napi_value OnHceCmd(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
-    static napi_value StopHce(napi_env env, napi_callback_info info);
+    static napi_value StopHce(napi_env env, napi_callback_info cbinfo);
 };
 
 struct NfcHceSessionContext : BaseContext {
@@ -55,12 +55,9 @@ public:
     napi_ref callbackRef;
     std::function<napi_value()> packResult;
 
-    explicit AsyncEventData(napi_env e, napi_ref r, std::function<napi_value()> v)
-    {
-        env = e;
-        callbackRef = r;
-        packResult = v;
-    }
+    explicit AsyncEventData(napi_env e,
+                            napi_ref r,
+                            std::function<napi_value()> v) : env(e), callbackRef(r), packResult(v) {}
 
     AsyncEventData() = delete;
 
@@ -73,11 +70,7 @@ class RegObj {
 public:
     RegObj() : m_regEnv(0), m_regHanderRef(nullptr) {}
 
-    explicit RegObj(const napi_env& env, const napi_ref& ref)
-    {
-        m_regEnv = env;
-        m_regHanderRef = ref;
-    }
+    explicit RegObj(const napi_env& env, const napi_ref& ref) : m_regEnv(env), m_regHanderRef(ref) {}
 
     ~RegObj() {}
 

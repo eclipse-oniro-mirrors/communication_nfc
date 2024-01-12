@@ -70,7 +70,7 @@ public:
     std::vector<ElementName> GetVendorDispatchTagAppsByTech(std::vector<int>& discTechList);
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
-    sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
+    sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback() const;
 #endif
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);

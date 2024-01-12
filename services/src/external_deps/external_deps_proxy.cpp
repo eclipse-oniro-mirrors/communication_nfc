@@ -125,13 +125,13 @@ void ExternalDepsProxy::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int open
         closeRequestCnt, closeFailCnt);
 }
 
-void ExternalDepsProxy::WriteHceSwipeResultHiSysEvent(std::string appPackageName, int hceSwipeCnt)
+void ExternalDepsProxy::WriteHceSwipeResultHiSysEvent(const std::string &appPackageName, int hceSwipeCnt)
 {
     NfcHisysEvent::WriteHceSwipeResultHiSysEvent(appPackageName, hceSwipeCnt);
 }
 
-void ExternalDepsProxy::WriteDefaultPaymentAppChangeHiSysEvent(std::string oldAppPackageName,
-                                                               std::string newAppPackageName)
+void ExternalDepsProxy::WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
+                                                               const std::string &newAppPackageName)
 {
     NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(oldAppPackageName, newAppPackageName);
 }

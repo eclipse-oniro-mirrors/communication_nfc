@@ -65,7 +65,7 @@ std::shared_ptr<NdefMessage> NdefTag::GetCachedNdefMsg() const
     return NdefMessage::GetNdefMessage(ndefMsg_);
 }
 
-std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType)
+std::string NdefTag::GetNdefTagTypeString(EmNfcForumType emNfcForumType) const
 {
     std::string typeString;
     switch (emNfcForumType) {
