@@ -27,7 +27,7 @@ const std::string TAG_PERM = "ohos.permission.NFC_TAG";
 // the app need request the permission for card emulation operations.
 const std::string CARD_EMU_PERM = "ohos.permission.NFC_CARD_EMULATION";
 
-const int32_t VENDOR_SYSTEM_UID=1000;
+const int32_t vendor_system_uid=1000;
 
 class NfcPermissionChecker {
 public:
