@@ -237,6 +237,9 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
 #ifdef VENDOR_APPLICATIONS_ENABLED
 int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
     if (remote == nullptr) {
@@ -258,6 +261,9 @@ int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageP
 
 int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     InfoLog("NfcControllerStub::HandleRegCardEmulationNotifyCb");
     sptr<IRemoteObject> remote = data.ReadRemoteObject();
     if (remote == nullptr) {
@@ -278,6 +284,9 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
 }
 int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     int eventType = data.ReadInt32();
     int arg1 = data.ReadInt32();
     std::string arg2 = data.ReadString();
