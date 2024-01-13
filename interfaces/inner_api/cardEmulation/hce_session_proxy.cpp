@@ -71,6 +71,11 @@ int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string 
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
+
+    if (hexCmdData.size() > KITS::MAX_APDU_DATA_HEX_STR) {
+        ErrorLog("raw frame too long");
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
     data.WriteString(hexCmdData);
     data.WriteBool(raw);
     int statusCode = Remote()->SendRequest(

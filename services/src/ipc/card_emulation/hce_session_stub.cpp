@@ -98,11 +98,15 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &
 int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageParcel &reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
-        ErrorLog("HandleRegHceCmdCallback, ERR_NO_PERMISSION");
+        ErrorLog("HandleSendRawFrame, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     std::string hexCmdData = data.ReadString();
+    if (hexCmdData.size() > KITS::MAX_APDU_DATA_HEX_STR) {
+        ErrorLog("raw frame too long");
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
     bool raw = data.ReadBool();
     std::string hexRespData;
     int statusCode = SendRawFrame(hexCmdData, raw, hexRespData);
