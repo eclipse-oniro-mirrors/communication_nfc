@@ -27,7 +27,8 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-static HceCmdCallbackStub *g_hceCmdCallbackStub = new HceCmdCallbackStub;
+static sptr<HceCmdCallbackStub> g_hceCmdCallbackStub =
+    sptr<HceCmdCallbackStub>(new (std::nothrow) HceCmdCallbackStub);
 
 KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
                                                    const std::string &type)
