@@ -35,7 +35,6 @@ public:
      * @return true: granted; false: not granted
      */
     static bool IsGranted(std::string permission);
-
 };
 }  // namespace NFC
 }  // namespace OHOS
