@@ -15,6 +15,7 @@
 #include "nfc_permission_checker.h"
 #include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -31,5 +32,5 @@ bool NfcPermissionChecker::IsGranted(std::string permission)
     }
     return result == Security::AccessToken::PermissionState::PERMISSION_GRANTED;
 }
-}  // namespace NFC
+} // namespace NFC
 }  // namespace OHOS

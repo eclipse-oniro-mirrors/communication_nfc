@@ -27,7 +27,8 @@ namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-static HceCmdCallbackStub *g_hceCmdCallbackStub = new HceCmdCallbackStub;
+static sptr<HceCmdCallbackStub> g_hceCmdCallbackStub =
+    sptr<HceCmdCallbackStub>(new (std::nothrow) HceCmdCallbackStub);
 
 KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
                                                    const std::string &type)
@@ -69,6 +70,11 @@ int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string 
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+
+    if (hexCmdData.size() > KITS::MAX_APDU_DATA_HEX_STR) {
+        ErrorLog("raw frame too long");
         return KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }
     data.WriteString(hexCmdData);

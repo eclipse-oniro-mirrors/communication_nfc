@@ -41,6 +41,7 @@ CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::IN
 CeService::~CeService()
 {
     hostCardEmulationManager_ = nullptr;
+    aidToAidEntry_.clear();
     DebugLog("CeService deconstructor end");
 }
 
@@ -77,17 +78,50 @@ bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::s
     return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
 }
 
-void CeService::InitConfigAidRouting()
+bool CeService::InitConfigAidRouting()
 {
-    DebugLog("AddAidRoutingHceOtherAids: start");
+    DebugLog("AddAidRoutingHceAids: start");
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    std::map<std::string, AidEntry> aidEntries;
+    BuildAidEntries(aidEntries);
+    InfoLog("AddAidRoutingHceAids, aid entries cache size %{public}zu,aid entries newly builded size %{public}zu",
+            aidToAidEntry_.size(), aidEntries.size());
+    if (aidEntries == aidToAidEntry_) {
+        InfoLog("aid entries do not change.");
+        return false;
+    }
+
     nciCeProxy_.lock()->ClearAidTable();
+    aidToAidEntry_.clear();
+    bool addAllResult = true;
+    for (const auto &pair : aidEntries) {
+        AidEntry entry = pair.second;
+        std::string aid = entry.aid;
+        int aidInfo = entry.aidInfo;
+        int power = entry.power;
+        int route = entry.route;
+        InfoLog("AddAidRoutingHceAids: aid= %{public}s, aidInfo= "
+                "0x%{public}x, route=0x%{public}x, power=0x%{public}x",
+                aid.c_str(), aidInfo, route, power);
+        bool addResult = nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
+        if (!addResult) {
+            ErrorLog("AddAidRoutingHceAids: add aid failed aid= %{public}s", aid.c_str());
+            addAllResult = false;
+        }
+    }
+    if (addAllResult) {
+        InfoLog("AddAidRoutingHceAids: add aids success, update the aid entries cache");
+        aidToAidEntry_ = std::move(aidEntries);
+    }
+    DebugLog("AddAidRoutingHceAids: end");
+    return true;
+}
+
+void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
+{
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
-    if (hceApps.empty()) {
-        InfoLog("AddAidRoutingHceOtherAids: no hce apps");
-        return;
-    }
-    std::vector<AidEntry> aidEntries;
+    InfoLog("AddAidRoutingHceOtherAids: hce apps size %{public}zu", hceApps.size());
     for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
         bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
@@ -100,21 +134,10 @@ void CeService::InitConfigAidRouting()
                 aidEntry.aidInfo = 0;
                 aidEntry.power = DEFAULT_PWR_STA_HOST;
                 aidEntry.route = DEFAULT_HOST_ROUTE_DEST;
-                aidEntries.push_back(aidEntry);
+                aidEntries[aidInfo.value] = aidEntry;
             }
         }
     }
-    for (const AidEntry &entry : aidEntries) {
-        std::string aid = entry.aid;
-        int aidInfo = entry.aidInfo;
-        int power = entry.power;
-        int route = entry.route;
-        InfoLog("AddAidRoutingHceOtherAids: aid= %{public}s, aidInfo= "
-                "0x%{public}x, route=0x%{public}x, power=0x%{public}x",
-                aid.c_str(), aidInfo, route, power);
-        nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
-    }
-    DebugLog("AddAidRoutingHceOtherAids: end");
 }
 
 void CeService::OnDefaultPaymentServiceChange()
@@ -191,9 +214,13 @@ void CeService::ConfigRoutingAndCommit()
         ErrorLog("ConfigRoutingAndCommit: routing manager is null");
         return;
     }
-    InitConfigAidRouting();
-    routingManager.lock()->ComputeRoutingParams();
-    routingManager.lock()->CommitRouting();
+
+    bool updateAids = InitConfigAidRouting();
+    if (updateAids) {
+        std::lock_guard<std::mutex> lock(configRoutingMutex_);
+        routingManager.lock()->ComputeRoutingParams();
+        routingManager.lock()->CommitRouting();
+    }
 }
 
 void CeService::HandleFieldActivated()
@@ -201,8 +228,7 @@ void CeService::HandleFieldActivated()
     if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
         return;
     }
-    nfcService_.lock()->eventHandler_->RemoveEvent(
-        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
     nfcService_.lock()->eventHandler_->RemoveEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
     nfcService_.lock()->eventHandler_->SendEvent(
@@ -211,8 +237,7 @@ void CeService::HandleFieldActivated()
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOnTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(
-            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
+        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
     }
 }
 
@@ -223,14 +248,13 @@ void CeService::HandleFieldDeactivated()
     }
     nfcService_.lock()->eventHandler_->RemoveEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
-    nfcService_.lock()->eventHandler_->RemoveEvent(
-        static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(
-            static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF), FIELD_COMMON_EVENT_INTERVAL);
+        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
+                                                     FIELD_COMMON_EVENT_INTERVAL);
     }
 }
 void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)

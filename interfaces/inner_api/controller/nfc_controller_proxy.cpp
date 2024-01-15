@@ -251,6 +251,38 @@ KITS::ErrorCode NfcControllerProxy::RegCardEmulationNotifyCb(sptr<IOnCardEmulati
     }
     return KITS::ERR_NONE;
 }
+KITS::ErrorCode NfcControllerProxy::NotifyEventStatus(int eventType, int arg1, std::string arg2)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("NfcControllerProxy::NotifyEventStatus failed, write interface token error.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteInt32(eventType)) {
+        ErrorLog("NfcControllerProxy::NotifyEventStatus Write event type failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (!data.WriteInt32(arg1)) {
+        ErrorLog("NfcControllerProxy::NotifyEventStatus Write arg1 failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    if (!data.WriteString(arg2)) {
+        ErrorLog("NfcControllerProxy::NotifyEventStatus Write arg2 failed!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    data.WriteInt32(0);
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_VENDOR_NOTIFY),
+        data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("NfcControllerProxy::NotifyEventStatus failed, error code: %{public}d.", error);
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
 #endif
 
 OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()

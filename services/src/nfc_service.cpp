@@ -165,6 +165,13 @@ void NfcService::FieldDeactivated()
     InfoLog("NfcService::FiledDeactivated");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED));
 }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+void NfcService::OnVendorEvent(int eventType, int arg1, std::string arg2)
+{
+    InfoLog("NfcService::OnVendorEvent");
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT), eventType, 0);
+}
+#endif
 
 void NfcService::OnCardEmulationData(const std::vector<uint8_t> &data)
 {

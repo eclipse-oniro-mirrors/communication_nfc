@@ -62,8 +62,8 @@ public:
 
     static AppDataParser& GetInstance();
 
-    void HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
-    void HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     void InitAppList();
     std::vector<ElementName> GetDispatchTagAppsByTech(std::vector<int> discTechList);
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -90,9 +90,9 @@ private:
     void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
     void UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &element);
     bool HaveMatchedOffHostKeyElement(ElementName &element);
-    void RemoveTagAppInfo(ElementName &element);
-    void RemoveHceAppInfo(ElementName &element);
-    void RemoveOffHostAppInfo(ElementName &element);
+    bool RemoveTagAppInfo(ElementName &element);
+    bool RemoveHceAppInfo(ElementName &element);
+    bool RemoveOffHostAppInfo(ElementName &element);
     bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);

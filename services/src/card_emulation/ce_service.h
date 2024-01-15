@@ -37,6 +37,10 @@ public:
         int route;
         int aidInfo;
         int power;
+        bool operator==(const AidEntry &other) const
+        {
+            return aid == other.aid && route == other.route && aidInfo == other.aidInfo && power == other.power;
+        }
     };
 
     explicit CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
@@ -59,15 +63,16 @@ public:
     bool SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                           Security::AccessToken::AccessTokenID callerToken);
 
-    void InitConfigAidRouting();
+    bool InitConfigAidRouting();
     void OnDefaultPaymentServiceChange() override;
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
     void Initialize();
     void Deinitialize();
     void OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data);
+    void ConfigRoutingAndCommit();
 
 private:
-    void ConfigRoutingAndCommit();
+    void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
 
@@ -78,6 +83,9 @@ private:
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
     ElementName defaultPaymentElement_;
     sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
+
+    std::mutex configRoutingMutex_ {};
+    std::map<std::string, AidEntry> aidToAidEntry_{};
 };
 } // namespace NFC
 } // namespace OHOS

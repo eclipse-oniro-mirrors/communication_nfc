@@ -41,6 +41,7 @@ public:
 #ifdef VENDOR_APPLICATIONS_ENABLED
     KITS::ErrorCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback) override;
     KITS::ErrorCode RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb> callback) override;
+    KITS::ErrorCode NotifyEventStatus(int eventType, int arg1, std::string arg2) override;
 #endif
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 

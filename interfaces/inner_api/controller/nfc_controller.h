@@ -103,6 +103,7 @@ public:
         QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback);
 
     ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);
+    ErrorCode NotifyEventStatus(int eventType, int arg1 = 0, std::string arg2 = "");
 #endif
 
 private:

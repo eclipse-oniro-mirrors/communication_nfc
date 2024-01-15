@@ -61,7 +61,7 @@ public:
     // screen changed
     void HandleScreenChanged(int screenState);
     // package updated
-    void HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
+    bool HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
     bool EnableForegroundDispatch(AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
                                   const sptr<KITS::IForegroundCallback> &callback);

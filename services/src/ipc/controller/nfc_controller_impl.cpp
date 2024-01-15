@@ -134,6 +134,15 @@ KITS::ErrorCode NfcControllerImpl::RegCardEmulationNotifyCb(const sptr<IOnCardEm
     ExternalDepsProxy::GetInstance().RegCardEmulationNotifyCb(callback);
     return KITS::ERR_NONE;
 }
+KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, std::string arg2)
+{
+    if (nfcService_.lock() == nullptr) {
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    nfcService_.lock()->OnVendorEvent(eventType, arg1, arg2);
+    return KITS::ErrorCode();
+}
 #endif
 
 OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface()
