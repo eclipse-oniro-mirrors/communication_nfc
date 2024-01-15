@@ -146,7 +146,9 @@ napi_value NapiIsoDepTag::IsExtendedApduSupported(napi_env env, napi_callback_in
     if (!CheckContextAndThrow(env, context, BUSI_ERR_TAG_STATE_INVALID)) {
         return CreateUndefined(env);
     }
-    napi_create_reference(env, params[0], DEFAULT_REF_COUNT, &context->callbackRef);
+    if (paramsCount == ARGV_NUM_1) {
+        napi_create_reference(env, params[ARGV_NUM_0], DEFAULT_REF_COUNT, &context->callbackRef);
+    }
 
     context->objectInfo = objectInfoCb;
     napi_value result = HandleAsyncWork(
