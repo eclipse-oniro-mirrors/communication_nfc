@@ -237,7 +237,7 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
 #ifdef VENDOR_APPLICATIONS_ENABLED
 int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
 {
-    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
@@ -261,7 +261,7 @@ int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageP
 
 int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply)
 {
-    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("NfcControllerStub::HandleRegCardEmulationNotifyCb");
@@ -284,7 +284,7 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
 }
 int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParcel& reply)
 {
-    if (!ExternalDepsProxy::GetInstance().IsCallingFromVendorSystem()) {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int eventType = data.ReadInt32();

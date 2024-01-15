@@ -49,7 +49,6 @@ public:
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
-    bool IsCallingFromVendorSystem();
 #endif
 
     KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);

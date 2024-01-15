@@ -56,10 +56,6 @@ sptr<IOnCardEmulationNotifyCb> ExternalDepsProxy::GetNotifyCardEmulationCallback
 {
     return AppDataParser::GetInstance().GetNotifyCardEmulationCallback();
 }
-bool ExternalDepsProxy::IsCallingFromVendorSystem()
-{
-    return NfcPermissionChecker::IsCallingFromVendorSystem();
-}
 #endif
 
 KITS::ErrorCode ExternalDepsProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)

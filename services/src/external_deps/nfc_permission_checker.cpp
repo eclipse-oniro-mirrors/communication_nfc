@@ -32,11 +32,5 @@ bool NfcPermissionChecker::IsGranted(std::string permission)
     }
     return result == Security::AccessToken::PermissionState::PERMISSION_GRANTED;
 }
-bool NfcPermissionChecker::IsCallingFromVendorSystem()
-{
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    InfoLog("calling uid %{public}d", uid);
-    return uid == VENDOR_SYSTEM_UID;
-}
 } // namespace NFC
 }  // namespace OHOS
