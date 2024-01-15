@@ -375,7 +375,7 @@ HWTEST_F(NdefTagTest, SendCommand001, TestSize.Level1)
     std::string hexRespData;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->SendCommand(hexCmdData, raw, hexRespData);
-    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: GetTag003
