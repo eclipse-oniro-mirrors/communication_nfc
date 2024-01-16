@@ -348,7 +348,24 @@ void NfcService::DoInitialize()
     eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
-    int lastState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
+    // if the nfc status in the xml file is different from that in the datashare file,
+    // use the nfc status in xml file.
+    int lastState = KITS::STATE_OFF;
+    int prefKeyNfcState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
+    int dataShareNfcState = KITS::STATE_OFF;
+    Uri nfcEnableUri(KITS::NFC_DATA_URI);
+    DelayedSingleton<NfcDataShareImpl>::GetInstance()->GetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, dataShareNfcState);
+    InfoLog("NfcService DoInitialize: prefKeyNfcState = %{public}d, dataShareNfcState = %{public}d",
+        prefKeyNfcState, dataShareNfcState);
+    if (dataShareNfcState != prefKeyNfcState) {
+        ErrorLog("NfcService DoInitialize: Nfc state is inconsistent, update dataShareNfcState");
+        KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
+            SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, prefKeyNfcState);
+        if (err != ERR_NONE) {
+            ErrorLog("NfcService DoInitialize: update dataShareNfcState failed, errCode = %{public}d", err);
+        }
+    }
+    lastState = prefKeyNfcState;
     if (lastState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
     }
@@ -419,7 +436,7 @@ int NfcService::RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID c
 
 void NfcService::UpdateNfcState(int newState)
 {
-    DebugLog("Update nfc state: oldState %{public}d, newState %{public}d", nfcState_, newState);
+    InfoLog("Update nfc state: oldState %{public}d, newState %{public}d", nfcState_, newState);
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (newState == nfcState_) {
@@ -429,7 +446,7 @@ void NfcService::UpdateNfcState(int newState)
     }
     ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
     ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
-    InfoLog("Update nfc state: oldState %{public}d, newState %{public}d succ", nfcState_, newState);
+    InfoLog("Update nfc state: nfcState_ %{public}d, newState %{public}d succ", nfcState_, newState);
 
     // notify the nfc state changed by callback to JS APP
     std::lock_guard<std::mutex> lock(mutex_);

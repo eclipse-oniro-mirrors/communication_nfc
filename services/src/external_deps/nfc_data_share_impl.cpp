@@ -52,8 +52,12 @@ std::shared_ptr<DataShare::DataShareHelper> NfcDataShareImpl::CreateDataShareHel
 KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init.", __func__);
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     DataShare::DataSharePredicates predicates;
     std::vector<std::string> columns;
@@ -81,8 +85,12 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
 KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, int &value)
 {
     if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init.", __func__);
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     int oldVal = 0;
     int errorCode = GetValue(uri, column, oldVal);

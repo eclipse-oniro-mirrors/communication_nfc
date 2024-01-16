@@ -115,7 +115,11 @@ void NfcPreferences::UpdateNfcState(int newState)
     SetInt(PREF_KEY_STATE, newState);
 
     Uri nfcEnableUri(KITS::NFC_DATA_URI);
-    DelayedSingleton<NfcDataShareImpl>::GetInstance()->SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, newState);
+    KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
+        SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, newState);
+    if (err != ERR_NONE) {
+        ErrorLog("NfcPreferences: UpdateNfcState set datashare fail, newState = %{public}d", newState);
+    }
 }
 
 int NfcPreferences::GetNfcState()
