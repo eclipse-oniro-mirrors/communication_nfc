@@ -188,6 +188,9 @@ KITS::ErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
 
 int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     OHOS::sptr<IRemoteObject> remoteOjbect = GetTagServiceIface();
     if (remoteOjbect == nullptr) {
         ErrorLog("HandleGetNfcTagInterface remoteOjbect null!");
@@ -200,6 +203,9 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
 
 int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface();
     if (remoteOjbect == nullptr) {
         ErrorLog("HandleGetNfcHceInterface remoteOjbect null!");
@@ -303,6 +309,9 @@ int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParce
 
 KITS::ErrorCode NfcControllerStub::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     InfoLog("NfcControllerStub::RegNdefMsgCb");
     return RegNdefMsgCallback(callback);
 }
