@@ -29,8 +29,9 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
-    : nfcService_(nfcService), nciCeProxy_(nciCeProxy),
-    hostCardEmulationManager_(std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy))
+    : nfcService_(nfcService),
+      nciCeProxy_(nciCeProxy),
+      hostCardEmulationManager_(std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy))
 {
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
@@ -138,6 +139,13 @@ void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
             }
         }
     }
+}
+
+void CeService::ClearAidEntriesCache()
+{
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    aidToAidEntry_.clear();
+    DebugLog("ClearAidEntriesCache end");
 }
 
 void CeService::OnDefaultPaymentServiceChange()
@@ -286,6 +294,7 @@ void CeService::Initialize()
 void CeService::Deinitialize()
 {
     DebugLog("CeService Deinitialize start");
+    ClearAidEntriesCache();
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
                                                                                dataRdbObserver_);
