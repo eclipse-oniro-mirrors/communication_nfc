@@ -112,21 +112,6 @@ namespace NFC {
         ExternalDepsProxy::GetInstance().NfcDataGetString(key);
     }
 
-    void FuzzNfcDataSetString(const uint8_t* data, size_t size)
-    {
-        uint32_t timeOutArray[1];
-        ConvertToUint32s(data, timeOutArray, 1);
-        std::string key = NfcSdkCommon::IntToHexString(timeOutArray[0]);
-        std::string value = NfcSdkCommon::BytesVecToHexString(data, size);
-        ExternalDepsProxy::GetInstance().NfcDataSetString(key, value);
-    }
-
-    void FuzzNfcDataGetString(const uint8_t* data, size_t size)
-    {
-        std::string key = NfcSdkCommon::BytesVecToHexString(data, size);
-        ExternalDepsProxy::GetInstance().NfcDataGetString(key);
-    }
-
     void FuzzNfcDataSetInt(const uint8_t* data, size_t size)
     {
         uint32_t timeOutArray[1];
