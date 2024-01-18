@@ -12,7 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "nfcc_nci_adapter.h"
+
+#include <unistd.h>
+
 #include "loghelper.h"
 #include "nfc_config.h"
 #include "nfc_sdk_common.h"
@@ -941,8 +945,8 @@ uint32_t NfccNciAdapter::GetLastError()
 
 void NfccNciAdapter::Abort()
 {
-    DebugLog("NfccNciAdapter::Abort");
-    abort();
+    InfoLog("NfccNciAdapter::Abort");
+    _exit(0);
 }
 
 /**
