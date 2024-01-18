@@ -174,7 +174,7 @@ HWTEST_F(NfcControllerImplTest, RegNdefMsgCallback001, TestSize.Level1)
     KITS::ErrorCode error = nfcControllerImpl->RegNdefMsgCallback(callback);
     ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
 }
-
+#ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @tc.name: RegQueryApplicationCb001
  * @tc.desc: Test NfcControllerImplTest RegQueryApplicationCb.
@@ -202,7 +202,7 @@ HWTEST_F(NfcControllerImplTest, RegCardEmulationNotifyCb001, TestSize.Level1)
     KITS::ErrorCode error = nfcControllerImpl->RegCardEmulationNotifyCb(callback);
     ASSERT_TRUE(error == KITS::ERR_NONE);
 }
-
+#endif
 /**
  * @tc.name: GetHceServiceIface001
  * @tc.desc: Test NfcControllerImplTest GetHceServiceIface.

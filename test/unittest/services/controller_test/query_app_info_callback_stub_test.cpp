@@ -49,7 +49,7 @@ void QueryAppInfoCallbackStubTest::TearDown()
 {
     std::cout << " TearDown QueryAppInfoCallbackStubTest." << std::endl;
 }
-
+#ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @tc.name: OnQueryAppInfo001
  * @tc.desc: Test QueryAppInfoCallbackStubTest OnQueryAppInfo.
@@ -81,6 +81,7 @@ HWTEST_F(QueryAppInfoCallbackStubTest, OnRemoteRequest001, TestSize.Level1)
     int onRemoteRequest = queryAppInfoCallbackStub->OnRemoteRequest(code, data, reply, option);
     ASSERT_TRUE(onRemoteRequest == KITS::ERR_NFC_PARAMETERS);
 }
+#endif
 }
 }
 }

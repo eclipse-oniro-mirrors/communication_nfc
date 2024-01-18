@@ -49,7 +49,7 @@ void AppDataParserTest::TearDown()
 {
     std::cout << " TearDown AppDataParserTest." << std::endl;
 }
-
+#ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @tc.name: GetVendorDispatchTagAppsByTech001
  * @tc.desc: Test AppDataParserTest GetVendorDispatchTagAppsByTech.
@@ -119,6 +119,7 @@ HWTEST_F(AppDataParserTest, GetHceApps001, TestSize.Level1)
     std::vector<ElementName> elementName = appDataParser.GetVendorDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(elementName.size() == 0);
 }
+#endif
 }
 }
 }
