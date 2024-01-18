@@ -77,7 +77,7 @@ HWTEST_F(ExternalDepsProxyTest, GetDispatchTagAppsByTech001, TestSize.Level1)
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
-
+#ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @tc.name: GetVendorDispatchTagAppsByTech001
  * @tc.desc: Test ExternalDepsProxyTest GetVendorDispatchTagAppsByTech.
@@ -135,7 +135,7 @@ HWTEST_F(ExternalDepsProxyTest, GetNotifyCardEmulationCallback001, TestSize.Leve
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
-
+#endif
 /**
  * @tc.name: NfcDataGetValue001
  * @tc.desc: Test ExternalDepsProxyTest NfcDataGetValue.

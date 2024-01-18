@@ -35,6 +35,9 @@ config("nfc_service_unit_test_config") {
   ]
 
   defines = []
+  if (nfc_service_feature_vendor_applications_enabled) {
+    defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
+  }
   cflags_cc = []
   ldflags = []
   libs = []
