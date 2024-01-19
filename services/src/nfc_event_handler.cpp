@@ -283,8 +283,8 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
                 event->GetSharedObject<EventFwk::CommonEventData>());
             if (updated) {
                 ceService_.lock()->OnAppAddOrChangeOrRemove(event->GetSharedObject<EventFwk::CommonEventData>());
-                break;
             }
+            break;
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {
             nfcRoutingManager_.lock()->HandleCommitRouting();

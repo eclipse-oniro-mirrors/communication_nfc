@@ -350,7 +350,6 @@ void NfcService::DoInitialize()
 
     // if the nfc status in the xml file is different from that in the datashare file,
     // use the nfc status in xml file.
-    int lastState = KITS::STATE_OFF;
     int prefKeyNfcState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
     int dataShareNfcState = KITS::STATE_OFF;
     Uri nfcEnableUri(KITS::NFC_DATA_URI);
@@ -365,8 +364,7 @@ void NfcService::DoInitialize()
             ErrorLog("NfcService DoInitialize: update dataShareNfcState failed, errCode = %{public}d", err);
         }
     }
-    lastState = prefKeyNfcState;
-    if (lastState == KITS::STATE_ON) {
+    if (prefKeyNfcState == KITS::STATE_ON) {
         ExecuteTask(KITS::TASK_TURN_ON);
     }
 }

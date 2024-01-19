@@ -78,7 +78,7 @@ bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
     bool tag = UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
     bool host = UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
     bool offHost = UpdateAppListInfo(element, KITS::ACTION_OFF_HOST_APDU_SERVICE);
-    return tag | host | offHost;
+    return tag || host || offHost;
 }
 
 bool AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -100,7 +100,7 @@ bool AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
     bool tag = RemoveTagAppInfo(element);
     bool hce = RemoveHceAppInfo(element);
     bool offHost = RemoveOffHostAppInfo(element);
-    return tag | hce | offHost;
+    return tag || hce || offHost;
 }
 
 bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std::string action)

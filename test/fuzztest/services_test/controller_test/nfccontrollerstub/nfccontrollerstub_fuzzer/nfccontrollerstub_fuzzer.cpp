@@ -199,6 +199,7 @@ public:
         nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
     }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
     void FuzzHandleRegQueryApplicationCb(const uint8_t* data, size_t size)
     {
         std::weak_ptr<NFC::NfcService> nfcService;
@@ -228,6 +229,7 @@ public:
         uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY);
         nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
     }
+#endif
 
     void FuzzHandleGetNfcHceInterface(const uint8_t* data, size_t size)
     {
@@ -278,8 +280,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzUnregisterCallback(data, size);
     OHOS::FuzzregisterCallback(data, size);
     OHOS::FuzzHandleRegNdefMsgCb(data, size);
+#ifdef VENDOR_APPLICATIONS_ENABLED
     OHOS::FuzzHandleRegQueryApplicationCb(data, size);
     OHOS::FuzzHandleRegCardEmulationNotifyCb(data, size);
+#endif
     OHOS::FuzzHandleGetNfcHceInterface(data, size);
     OHOS::FuzzOnRemoteRequest(data, size);
     return 0;
