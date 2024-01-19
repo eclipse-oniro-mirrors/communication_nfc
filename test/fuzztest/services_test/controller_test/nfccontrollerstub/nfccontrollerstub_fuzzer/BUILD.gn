@@ -26,6 +26,11 @@ ohos_fuzztest("NfcControllerStubFuzzTest") {
     "$NFC_DIR/interfaces/inner_api/controller",
   ]
 
+  defines = []
+  if (nfc_service_feature_vendor_applications_enabled) {
+    defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
+  }
+
   cflags = [
     "-g",
     "-O0",
