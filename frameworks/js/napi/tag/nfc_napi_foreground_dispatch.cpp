@@ -143,11 +143,16 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
     napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
     work->data = asyncEvent;
     uv_after_work_cb tmpAfterWorkCb = AfterWorkCb;
-    uv_queue_work(
+    int ret = uv_queue_work(
         loop,
         work,
         [](uv_work_t *work) {},
         tmpAfterWorkCb);
+    if (ret != 0) {
+        ErrorLog("uv_queue_work failed");
+        delete asyncEvent;
+        delete work;
+    }
 }
 
 static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfoParcelable &tagInfo)
