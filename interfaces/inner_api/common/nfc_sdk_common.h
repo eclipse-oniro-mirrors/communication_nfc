@@ -43,6 +43,8 @@ enum ErrorCode : const int {
     ERR_TAG_STATE_DISCONNECTED,
     ERR_TAG_STATE_IO_FAILED,
     ERR_TAG_STATE_UNBIND,
+    ERR_TAG_APP_NOT_FOREGROUND,
+    ERR_TAG_APP_NOT_REGISTERED,
 
     // error for card emulation operations
     ERR_CE_BASE = 3100300,

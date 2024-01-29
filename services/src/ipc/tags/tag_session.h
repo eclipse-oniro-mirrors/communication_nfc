@@ -45,6 +45,23 @@ public:
     ~FgData() {};
 };
 
+class ReaderData {
+public:
+    // Indicates whether to enable the application to be foreground dispatcher
+    bool isEnabled_ = false;
+    ElementName element_;
+    std::vector<uint32_t> techs_ = {};
+    sptr<KITS::IReaderModeCallback> cb_ = nullptr;
+
+    explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
+        sptr<KITS::IReaderModeCallback> cb)
+        : isEnabled_(isEnable),
+        element_(element),
+        techs_(techs),
+        cb_(cb) {};
+    ~ReaderData() {};
+};
+
 class TagSession final : public TagSessionStub {
 public:
     // Constructor/Destructor
@@ -186,11 +203,18 @@ public:
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
     /**
-     * @brief Get RegForegroundDispatch Size.
+     * @brief Get numbers of apps in registration of foregroundDispatch.
      *
-     * @return RegForegroundDispatch Size.
+     * @return FgDataVector Size.
      */
     uint16_t GetFgDataVecSize();
+
+    /**
+     * @brief Get numbers of apps in registration of readerMode.
+     *
+     * @return readerDataVector Size.
+     */
+    uint16_t GetReaderDataVecSize();
 
     /**
      * @brief Handle app state changed.
@@ -202,12 +226,20 @@ public:
     void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
 
 private:
-    bool IsRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
+    void CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
+    void CheckReaderAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
+    bool IsFgRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback);
-    bool IsUnregistered(const ElementName &element, bool isAppUnregister);
+    bool IsFgUnregistered(const ElementName &element, bool isAppUnregister);
     KITS::ErrorCode RegForegroundDispatchInner(ElementName &element,
         const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
     KITS::ErrorCode UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
+    bool IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
+        const sptr<KITS::IReaderModeCallback> &callback);
+    bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
+    KITS::ErrorCode RegReaderModeInner(ElementName &element,
+        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
+    KITS::ErrorCode UnregReaderModeInner(ElementName &element, bool isAppUnregistered);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};
@@ -215,6 +247,7 @@ private:
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
     std::vector<FgData> fgDataVec_;
+    std::vector<ReaderData> readerDataVec_;
     std::shared_mutex fgMutex_;
 };
 }  // namespace TAG

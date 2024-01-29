@@ -32,11 +32,11 @@ NdefMsgCallbackStub& NdefMsgCallbackStub::GetInstance()
     return instance;
 }
 
-bool NdefMsgCallbackStub::OnNdefMsgDiscovered(std::string msg, int vendorType)
+bool NdefMsgCallbackStub::OnNdefMsgDiscovered(std::string msg, int ndefMsgType)
 {
     if (callback_) {
         DebugLog("NdefMsgCallbackStub callback_");
-        return callback_->OnNdefMsgDiscovered(msg, vendorType);
+        return callback_->OnNdefMsgDiscovered(msg, ndefMsgType);
     }
     return false;
 }

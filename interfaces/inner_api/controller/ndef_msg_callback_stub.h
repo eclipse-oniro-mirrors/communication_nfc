@@ -35,7 +35,7 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    bool OnNdefMsgDiscovered(std::string msg, int vendorType) override;
+    bool OnNdefMsgDiscovered(std::string msg, int ndefMsgType) override;
 
 private:
     int RemoteNdefMsgDiscovered(MessageParcel &data, MessageParcel &reply);

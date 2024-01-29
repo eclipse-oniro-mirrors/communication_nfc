@@ -326,7 +326,9 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleRegForegroundDispatch, ERR_NO_PERMISSION");
-        return KITS::ErrorCode::ERR_NO_PERMISSION;
+        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
+        reply.WriteInt32(ret);
+        return ret;
     }
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {
@@ -370,6 +372,12 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
 
 int TagSessionStub::HandleUnregForegroundDispatch(MessageParcel &data, MessageParcel &reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleUnregForegroundDispatch, ERR_NO_PERMISSION");
+        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
+        reply.WriteInt32(ret);
+        return ret;
+    }
     InfoLog("HandleUnregForegroundDispatch");
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {
@@ -412,7 +420,9 @@ int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &repl
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleRegReaderMode, ERR_NO_PERMISSION");
-        return KITS::ErrorCode::ERR_NO_PERMISSION;
+        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
+        reply.WriteInt32(ret);
+        return ret;
     }
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {
@@ -456,6 +466,12 @@ int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &repl
 
 int TagSessionStub::HandleUnregReaderMode(MessageParcel &data, MessageParcel &reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleUnregReaderMode, ERR_NO_PERMISSION");
+        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
+        reply.WriteInt32(ret);
+        return ret;
+    }
     InfoLog("HandleUnregReaderMode");
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {

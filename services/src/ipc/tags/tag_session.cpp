@@ -370,11 +370,15 @@ uint16_t TagSession::GetFgDataVecSize()
     return fgDataVec_.size();
 }
 
-void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+uint16_t TagSession::GetReaderDataVecSize()
+{
+    std::shared_lock<std::shared_mutex> guard(fgMutex_);
+    return readerDataVec_.size();
+}
+
+void TagSession::CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
-    InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
-        bundleName.c_str(), abilityName.c_str(), abilityState);
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     for (auto fgData = fgDataVec_.begin(); fgData != fgDataVec_.end(); fgData++) {
         ElementName element = fgData->element_;
@@ -395,13 +399,54 @@ void TagSession::HandleAppStateChanged(const std::string &bundleName, const std:
             }
             // app death, UnregForegroundDispatchInner and erase from fgDtataVec_.
             if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
-                InfoLog("app death, unregForegroundDispatchInner and erase fgData");
+                InfoLog("app died, unregForegroundDispatchInner and erase fgData");
                 UnregForegroundDispatchInner(element, false);
                 fgDataVec_.erase(fgData);
                 return;
             }
         }
     }
+}
+
+void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+    int abilityState)
+{
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    for (auto readerData = readerDataVec_.begin(); readerData != readerDataVec_.end(); readerData++) {
+        ElementName element = readerData->element_;
+        if (element.GetBundleName() == bundleName && element.GetAbilityName() == abilityName) {
+            // app changes to foreground, RegReaderModeInner.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND) &&
+                !readerData->isEnabled_) {
+                InfoLog("app changes to foreground, RegReaderModeInner");
+                RegReaderModeInner(element, readerData->techs_, readerData->cb_);
+                return;
+            }
+            // app changes to background, UnregReaderModeInner.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND) &&
+                readerData->isEnabled_) {
+                InfoLog("app changes to background, UnregReaderModeInner");
+                UnregReaderModeInner(element, false);
+                return;
+            }
+            // app death, UnregReaderModeInner and erase from readerDataVec_.
+            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
+                InfoLog("app died, UnregReaderModeInner and erase readerData");
+                UnregReaderModeInner(element, false);
+                readerDataVec_.erase(readerData);
+                return;
+            }
+        }
+    }
+}
+
+void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+    int abilityState)
+{
+    InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
+        bundleName.c_str(), abilityName.c_str(), abilityState);
+    CheckFgAppStateChanged(bundleName, abilityName, abilityState);
+    CheckReaderAppStateChanged(bundleName, abilityName, abilityState);
 }
 
 bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName &fgElement)
@@ -423,7 +468,7 @@ KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vec
 KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
-    if (IsRegistered(element, discTech, callback)) {
+    if (IsFgRegistered(element, discTech, callback)) {
         WarnLog("%{public}s already RegForegroundDispatch", element.GetBundleName().c_str());
         return KITS::ERR_NONE;
     }
@@ -439,7 +484,7 @@ KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, con
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-bool TagSession::IsRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
+bool TagSession::IsFgRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     for (FgData &fgData : fgDataVec_) {
@@ -469,7 +514,7 @@ KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
 
 KITS::ErrorCode TagSession::UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister)
 {
-    if (IsUnregistered(element, isAppUnregister)) {
+    if (IsFgUnregistered(element, isAppUnregister)) {
         WarnLog("%{public}s already UnregForegroundDispatch", element.GetBundleName().c_str());
         return KITS::ERR_NONE;
     }
@@ -485,7 +530,7 @@ KITS::ErrorCode TagSession::UnregForegroundDispatchInner(const ElementName &elem
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-bool TagSession::IsUnregistered(const ElementName &element, bool isAppUnregister)
+bool TagSession::IsFgUnregistered(const ElementName &element, bool isAppUnregister)
 {
     if (fgDataVec_.size() == 0) {
         return true;
@@ -507,15 +552,69 @@ bool TagSession::IsUnregistered(const ElementName &element, bool isAppUnregister
             return isUnregistered;
         }
     }
-    // No record, indicating has not registered(or IsUnregistered).
+    // No record, indicating has not registered(or IsFgUnregistered).
     return true;
 }
 
-KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+bool TagSession::IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback)
 {
+    for (ReaderData &readerData : readerDataVec_) {
+        ElementName readerElement = readerData.element_;
+        if (IsSameAppAbility(element, readerElement)) {
+            if (readerData.isEnabled_) {
+                return true;
+            }
+            InfoLog("Enable ReaderData: bundleName = %{public}s, abilityName = %{public}s",
+                readerElement.GetBundleName().c_str(), readerElement.GetAbilityName().c_str());
+            readerData.isEnabled_ = true;
+            return false;
+        }
+    }
+    ReaderData readerData(true, element, discTech, callback);
+    readerDataVec_.push_back(readerData);
+    InfoLog("Add new ReaderData to vector: %{public}s, %{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+    return false;
+}
+
+bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnregistered)
+{
+    if (readerDataVec_.size() == 0) {
+        return true;
+    }
+    bool isUnregistered = false;
+    for (auto readerData = readerDataVec_.begin(); readerData != readerDataVec_.end(); readerData++) {
+        if (IsSameAppAbility(element, readerData->element_)) {
+            // isEnabled_ is false => is already unregistered.
+            if (!readerData->isEnabled_) {
+                isUnregistered = true;
+            }
+            readerData->isEnabled_ = false;
+            // app unregister, delete record
+            // background unregister, retain record, re-register when switching to foreground
+            if (isAppUnregistered) {
+                InfoLog("isAppUnregister: erase readerData");
+                readerDataVec_.erase(readerData);
+            }
+            return isUnregistered;
+        }
+    }
+    // No record, indicating has not registered(or IsReaderUnregistered).
+    return true;
+}
+
+KITS::ErrorCode TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback)
+{
+    if (IsReaderRegistered(element, discTech, callback)) {
+        WarnLog("%{public}s already RegReaderMode", element.GetBundleName().c_str());
+        return KITS::ERR_NONE;
+    }
+    InfoLog("RegReaderModeInner: bundleName = %{public}s, abilityName = %{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
-        ErrorLog("RegReaderMode, expired");
+        ErrorLog("RegReaderModeInner, expired");
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
@@ -524,8 +623,14 @@ KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode TagSession::UnregReaderMode(ElementName &element)
+KITS::ErrorCode TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
 {
+    if (IsReaderUnregistered(element, isAppUnregister)) {
+        WarnLog("%{public}s already UnregReaderMode", element.GetBundleName().c_str());
+        return KITS::ERR_NONE;
+    }
+    InfoLog("UnregReaderModeInner: bundleName = %{public}s, abilityName = %{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregReaderMode, expired");
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
@@ -534,6 +639,22 @@ KITS::ErrorCode TagSession::UnregReaderMode(ElementName &element)
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
+}
+
+KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback)
+{
+    if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+        return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+    }
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    return RegReaderModeInner(element, discTech, callback);
+}
+
+KITS::ErrorCode TagSession::UnregReaderMode(ElementName &element)
+{
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    return UnregReaderModeInner(element, true);
 }
 
 int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
