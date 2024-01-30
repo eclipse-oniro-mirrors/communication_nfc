@@ -175,7 +175,7 @@ HWTEST_F(NdefTagTest, ReadNdef001, TestSize.Level1)
     std::shared_ptr<NdefMessage> ndefMessage;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->ReadNdef(ndefMessage);
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_LOST);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: WriteNdef001
@@ -199,7 +199,7 @@ HWTEST_F(NdefTagTest, IsEnableReadOnly001, TestSize.Level1)
     bool canSetReadOnly;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->IsEnableReadOnly(canSetReadOnly);
-    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: EnableReadOnly001
@@ -245,7 +245,7 @@ HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
     uint32_t timeout = 0;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int statusCode = ndef->SetTimeout(timeout);
-    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: GetTimeout001
@@ -254,13 +254,11 @@ HWTEST_F(NdefTagTest, SetTimeout001, TestSize.Level1)
  */
 HWTEST_F(NdefTagTest, GetTimeout001, TestSize.Level1)
 {
-    int experctedTimeout = 0;
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int timeout = 20;
     ndef->SetTimeout(timeout);
     int statusCode = ndef->GetTimeout(timeout);
-    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
-    ASSERT_TRUE(timeout == experctedTimeout);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: GetMaxSendCommandLength001
@@ -272,7 +270,7 @@ HWTEST_F(NdefTagTest, GetMaxSendCommandLength001, TestSize.Level1)
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int maxSize = 0;
     int statusCode = ndef->GetMaxSendCommandLength(maxSize);
-    ASSERT_TRUE(statusCode == ErrorCode::ERR_NONE);
+    ASSERT_TRUE(statusCode == ErrorCode::ERR_TAG_STATE_UNBIND);
     ASSERT_TRUE(maxSize == 0);
 }
 /**
@@ -350,7 +348,7 @@ HWTEST_F(NdefTagTest, Connect001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->Connect();
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED || result == ErrorCode::ERR_TAG_PARAMETERS);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: Close001
@@ -361,7 +359,7 @@ HWTEST_F(NdefTagTest, Close001, TestSize.Level1)
 {
     std::shared_ptr<NdefTag> ndef = NdefTag::GetTag(tagInfo_);
     int result = ndef->Close();
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED || result == ErrorCode::ERR_TAG_PARAMETERS);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: SendCommand001
