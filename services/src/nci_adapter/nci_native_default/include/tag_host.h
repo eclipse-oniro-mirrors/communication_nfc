@@ -54,17 +54,6 @@ public:
     static const auto NDEF_TYPE4_TAG = 4;
     static const auto NDEF_MIFARE_CLASSIC_TAG = 101;
 
-    static const auto TARGET_TYPE_UNKNOWN = 0;
-    static const auto TARGET_TYPE_ISO14443_3A = 1;
-    static const auto TARGET_TYPE_ISO14443_3B = 2;
-    static const auto TARGET_TYPE_ISO14443_4 = 3;
-    static const auto TARGET_TYPE_FELICA = 4;
-    static const auto TARGET_TYPE_V = 5;
-    static const auto TARGET_TYPE_NDEF = 6;
-    static const auto TARGET_TYPE_NDEF_FORMATABLE = 7;
-    static const auto TARGET_TYPE_MIFARE_CLASSIC = 8;
-    static const auto TARGET_TYPE_MIFARE_UL = 9;
-
     // NfcF, Felica
     static const uint32_t SENSF_RES_LENGTH = 8;
     static const uint32_t F_POLL_LENGTH = 10;

@@ -20,7 +20,8 @@
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
 #include "tag_native_impl.h"
-#include "tag_nci_adapter.h"
+#include "tag_nci_adapter_rw.h"
+#include "tag_nci_adapter_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -73,13 +74,13 @@ bool TagHost::Connect(int technology)
         }
         // try connect the tag
         if (connectedTagDiscId_ != tagRfDiscIdList_[i]) {
-            status = TagNciAdapter::GetInstance().Connect(i);
+            status = TagNciAdapterRw::GetInstance().Connect(i);
         } else {
             if (technology == static_cast<int>(KITS::TagTechnology::NFC_NDEF_TECH)) {
                 // special for ndef
                 i = 0;
             }
-            status = TagNciAdapter::GetInstance().Connect(i);
+            status = TagNciAdapterRw::GetInstance().Connect(i);
         }
         if (status == NFA_STATUS_OK) {
             DebugLog("TagHost::Connect, connected to index = %{public}zu", i);
@@ -102,7 +103,7 @@ bool TagHost::Disconnect()
     connectedTagDiscId_ = DEFAULT_VALUE;
     connectedTechIndex_ = DEFAULT_VALUE;
     isTagFieldOn_ = false;
-    bool result = TagNciAdapter::GetInstance().Disconnect();
+    bool result = TagNciAdapterRw::GetInstance().Disconnect();
     {
         NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
         fieldCheckWatchDog_.NotifyOne();
@@ -121,7 +122,7 @@ bool TagHost::Reconnect()
     }
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().Reconnect();
+    bool result = TagNciAdapterRw::GetInstance().Reconnect();
     ResumeFieldChecking();
     DebugLog("TagHost::Reconnect exit, result = %{public}d", result);
     return result;
@@ -132,7 +133,7 @@ int TagHost::Transceive(const std::string& request, std::string& response)
     DebugLog("TagHost::Transceive");
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    int status = TagNciAdapter::GetInstance().Transceive(request, response);
+    int status = TagNciAdapterRw::GetInstance().Transceive(request, response);
     ResumeFieldChecking();
     DebugLog("TagHost::Transceive exit, result = %{public}d", status);
     return status;
@@ -143,7 +144,7 @@ bool TagHost::FieldOnCheckingThread()
     DebugLog("TagHost::FieldOnCheckingThread");
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    isTagFieldOn_ = TagNciAdapter::GetInstance().IsTagFieldOn();
+    isTagFieldOn_ = TagNciAdapterRw::GetInstance().IsTagFieldOn();
     ResumeFieldChecking();
     return isTagFieldOn_;
 }
@@ -185,7 +186,7 @@ void TagHost::FieldCheckingThread(uint32_t delayedMs)
             // if field checking is paused or resumed in this interval, no checking this time
             continue;
         }
-        bool result = TagNciAdapter::GetInstance().IsTagFieldOn();
+        bool result = TagNciAdapterRw::GetInstance().IsTagFieldOn();
         DebugLog("FieldCheckingThread::is tag field on = %{public}d", result);
         if (!result) {
             DebugLog("FieldCheckingThread::Tag lost...");
@@ -193,8 +194,8 @@ void TagHost::FieldCheckingThread(uint32_t delayedMs)
         }
     }
     isTagFieldOn_ = false;
-    TagNciAdapter::GetInstance().ResetTag();
-    TagNciAdapter::GetInstance().Disconnect();
+    TagNciAdapterCommon::GetInstance().ResetTag();
+    TagNciAdapterRw::GetInstance().Disconnect();
     if (isFieldChecking_ && tagRfDiscIdList_.size() > 0) {
         DebugLog("FieldCheckingThread::Disconnect callback %{public}d", tagRfDiscIdList_[0]);
         TagNativeImpl::GetInstance().OnTagLost(tagRfDiscIdList_[0]);
@@ -225,19 +226,19 @@ void TagHost::StopFieldChecking()
 void TagHost::SetTimeout(uint32_t timeout, int technology)
 {
     DebugLog("TagHost::SetTimeout");
-    TagNciAdapter::GetInstance().SetTimeout(timeout, technology);
+    TagNciAdapterRw::GetInstance().SetTimeout(timeout, technology);
 }
 
 uint32_t TagHost::GetTimeout(uint32_t technology)
 {
     DebugLog("TagHost::GetTimeout, technology = %{public}d", technology);
-    return TagNciAdapter::GetInstance().GetTimeout(technology);
+    return TagNciAdapterRw::GetInstance().GetTimeout(technology);
 }
 
 void TagHost::ResetTimeout()
 {
     DebugLog("TagHost::ResetTimeout");
-    TagNciAdapter::GetInstance().ResetTimeout();
+    TagNciAdapterCommon::GetInstance().ResetTimeout();
 }
 
 std::vector<int> TagHost::GetTechList()
@@ -245,34 +246,34 @@ std::vector<int> TagHost::GetTechList()
     for (std::vector<int>::iterator it = tagTechList_.begin(); it != tagTechList_.end(); ++it) {
         KITS::TagTechnology technology = KITS::TagTechnology::NFC_INVALID_TECH;
         switch (*it) {
-            case TARGET_TYPE_ISO14443_3A:
+            case TagNciAdapterCommon::TARGET_TYPE_ISO14443_3A:
                 technology = KITS::TagTechnology::NFC_A_TECH;
                 break;
-            case TARGET_TYPE_ISO14443_3B:
+            case TagNciAdapterCommon::TARGET_TYPE_ISO14443_3B:
                 technology = KITS::TagTechnology::NFC_B_TECH;
                 break;
-            case TARGET_TYPE_ISO14443_4:
+            case TagNciAdapterCommon::TARGET_TYPE_ISO14443_4:
                 technology = KITS::TagTechnology::NFC_ISODEP_TECH;
                 break;
-            case TARGET_TYPE_FELICA:
+            case TagNciAdapterCommon::TARGET_TYPE_FELICA:
                 technology = KITS::TagTechnology::NFC_F_TECH;
                 break;
-            case TARGET_TYPE_V:
+            case TagNciAdapterCommon::TARGET_TYPE_V:
                 technology = KITS::TagTechnology::NFC_V_TECH;
                 break;
-            case TARGET_TYPE_NDEF:
+            case TagNciAdapterCommon::TARGET_TYPE_NDEF:
                 technology = KITS::TagTechnology::NFC_NDEF_TECH;
                 break;
-            case TARGET_TYPE_NDEF_FORMATABLE:
+            case TagNciAdapterCommon::TARGET_TYPE_NDEF_FORMATABLE:
                 technology = KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH;
                 break;
-            case TARGET_TYPE_MIFARE_CLASSIC:
+            case TagNciAdapterCommon::TARGET_TYPE_MIFARE_CLASSIC:
                 technology = KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH;
                 break;
-            case TARGET_TYPE_MIFARE_UL:
+            case TagNciAdapterCommon::TARGET_TYPE_MIFARE_UL:
                 technology = KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH;
                 break;
-            case TARGET_TYPE_UNKNOWN:
+            case TagNciAdapterCommon::TARGET_TYPE_UNKNOWN:
                 break;
             default:
                 technology = KITS::TagTechnology::NFC_INVALID_TECH;
@@ -335,7 +336,7 @@ void TagHost::DoTargetTypeIso144434(AppExecFwk::PacMap &pacMap, uint32_t index)
     bool hasNfcA = false;
     std::string act = tagActivatedBytes_[index];
     for (std::size_t i = 0; i < tagTechList_.size(); i++) {
-        if (tagTechList_[i] == TARGET_TYPE_ISO14443_3A) {
+        if (tagTechList_[i] == TagNciAdapterCommon::TARGET_TYPE_ISO14443_3A) {
             hasNfcA = true;
             break;
         }
@@ -403,42 +404,42 @@ AppExecFwk::PacMap TagHost::ParseTechExtras(uint32_t index)
     uint32_t targetType = static_cast<uint32_t>(tagTechList_[index]);
     DebugLog("ParseTechExtras::targetType: %{public}d", targetType);
     switch (targetType) {
-        case TARGET_TYPE_MIFARE_CLASSIC:
+        case TagNciAdapterCommon::TARGET_TYPE_MIFARE_CLASSIC:
             DoTargetTypeIso144433a(pacMap, index);
             break;
-        case TARGET_TYPE_ISO14443_3A: {
+        case TagNciAdapterCommon::TARGET_TYPE_ISO14443_3A: {
             DoTargetTypeIso144433a(pacMap, index);
             break;
         }
-        case TARGET_TYPE_ISO14443_3B: {
+        case TagNciAdapterCommon::TARGET_TYPE_ISO14443_3B: {
             DoTargetTypeIso144433b(pacMap, index);
             break;
         }
-        case TARGET_TYPE_ISO14443_4: {
+        case TagNciAdapterCommon::TARGET_TYPE_ISO14443_4: {
             DoTargetTypeIso144434(pacMap, index);
             break;
         }
-        case TARGET_TYPE_V: {
+        case TagNciAdapterCommon::TARGET_TYPE_V: {
             DoTargetTypeV(pacMap, index);
             break;
         }
-        case TARGET_TYPE_MIFARE_UL: {
+        case TagNciAdapterCommon::TARGET_TYPE_MIFARE_UL: {
             bool isUlC = IsUltralightC();
             pacMap.PutBooleanValue(KITS::TagInfo::MIFARE_ULTRALIGHT_C_TYPE, isUlC);
             DebugLog("ParseTechExtras::TARGET_TYPE_MIFARE_UL MIFARE_ULTRALIGHT_C_TYPE: %{public}d", isUlC);
             break;
         }
-        case TARGET_TYPE_FELICA: {
+        case TagNciAdapterCommon::TARGET_TYPE_FELICA: {
             DoTargetTypeF(pacMap, index);
             break;
         }
-        case TARGET_TYPE_NDEF: {
+        case TagNciAdapterCommon::TARGET_TYPE_NDEF: {
             DoTargetTypeNdef(pacMap);
             break;
         }
-        case TARGET_TYPE_NDEF_FORMATABLE:
+        case TagNciAdapterCommon::TARGET_TYPE_NDEF_FORMATABLE:
             break;
-        case TARGET_TYPE_UNKNOWN:
+        case TagNciAdapterCommon::TARGET_TYPE_UNKNOWN:
             break;
         default:
             DebugLog("ParseTechExtras::unhandle for : %{public}d", targetType);
@@ -471,7 +472,7 @@ bool TagHost::SetNdefReadOnly()
     DebugLog("TagHost::SetNdefReadOnly");
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().SetReadOnly();
+    bool result = TagNciAdapterRw::GetInstance().SetReadOnly();
     ResumeFieldChecking();
     return result;
 }
@@ -482,7 +483,7 @@ std::string TagHost::ReadNdef()
     PauseFieldChecking();
     std::string response = "";
     std::lock_guard<std::mutex> lock(mutex_);
-    TagNciAdapter::GetInstance().ReadNdef(response);
+    TagNciAdapterRw::GetInstance().ReadNdef(response);
     ResumeFieldChecking();
     return response;
 }
@@ -509,7 +510,7 @@ std::string TagHost::FindNdefTech()
             continue;
         }
         if (!foundFormat) {
-            if (TagNciAdapter::GetInstance().IsNdefFormattable()) { // no need to pause and resume
+            if (TagNciAdapterRw::GetInstance().IsNdefFormattable()) { // no need to pause and resume
                 formatHandle = tagRfDiscIdList_[i];
                 formatLibNfcType = tagRfProtocols_[i];
                 foundFormat = true;
@@ -517,7 +518,7 @@ std::string TagHost::FindNdefTech()
             Reconnect();
         }
         std::vector<int> ndefInfo;
-        if (TagNciAdapter::GetInstance().DetectNdefInfo(ndefInfo)) {
+        if (TagNciAdapterRw::GetInstance().DetectNdefInfo(ndefInfo)) {
             if (ndefInfo.size() < NDEF_INFO_SIZE) {
                 WarnLog("TagHost::FindNdefTech, invalid size = %{public}zu", ndefInfo.size());
                 return "";
@@ -535,7 +536,8 @@ std::string TagHost::FindNdefTech()
                 pacMap.PutIntValue(KITS::TagInfo::NDEF_TAG_MODE, ndefInfo[NDEF_MODE_INDEX]);
                 DebugLog("ParseTechExtras::TARGET_TYPE_NDEF NDEF_TAG_MODE: %{public}d", ndefInfo[1]);
 
-                AddNdefTechToTagInfo(TARGET_TYPE_NDEF, tagRfDiscIdList_[i], tagRfProtocols_[i], pacMap);
+                AddNdefTechToTagInfo(TagNciAdapterCommon::TARGET_TYPE_NDEF, tagRfDiscIdList_[i],
+                    tagRfProtocols_[i], pacMap);
                 foundFormat = false;
                 Reconnect();
             }
@@ -545,7 +547,7 @@ std::string TagHost::FindNdefTech()
     if (foundFormat) {
         DebugLog("Add ndef formatable tag info, index: %{public}d", index);
         AppExecFwk::PacMap pacMap;
-        AddNdefTechToTagInfo(TARGET_TYPE_NDEF_FORMATABLE, formatHandle, formatLibNfcType, pacMap);
+        AddNdefTechToTagInfo(TagNciAdapterCommon::TARGET_TYPE_NDEF_FORMATABLE, formatHandle, formatLibNfcType, pacMap);
     }
     return ndefMsg;
 }
@@ -584,7 +586,7 @@ bool TagHost::WriteNdef(std::string& data)
     DebugLog("TagHost::WriteNdef");
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().WriteNdef(data);
+    bool result = TagNciAdapterRw::GetInstance().WriteNdef(data);
     ResumeFieldChecking();
     DebugLog("TagHost::WriteNdef exit, result = %{public}d", result);
     return result;
@@ -599,7 +601,7 @@ bool TagHost::FormatNdef(const std::string& key)
     }
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().FormatNdef();
+    bool result = TagNciAdapterRw::GetInstance().FormatNdef();
     ResumeFieldChecking();
     DebugLog("TagHost::FormatNdef exit, result = %{public}d", result);
     return result;
@@ -608,7 +610,7 @@ bool TagHost::FormatNdef(const std::string& key)
 bool TagHost::IsNdefFormatable()
 {
     DebugLog("TagHost::IsNdefFormatable");
-    bool result = TagNciAdapter::GetInstance().IsNdefFormatable();
+    bool result = TagNciAdapterRw::GetInstance().IsNdefFormatable();
     DebugLog("TagHost::IsNdefFormatable exit, result = %{public}d", result);
     return result;
 }
@@ -618,7 +620,7 @@ bool TagHost::DetectNdefInfo(std::vector<int>& ndefInfo)
     DebugLog("TagHost::DetectNdefInfo");
     PauseFieldChecking();
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = TagNciAdapter::GetInstance().DetectNdefInfo(ndefInfo);
+    bool result = TagNciAdapterRw::GetInstance().DetectNdefInfo(ndefInfo);
     ResumeFieldChecking();
     if (result) {
         DebugLog("NDEF supported by the tag");
@@ -646,7 +648,7 @@ bool TagHost::IsUltralightC()
     // read the date content of speci addressed pages, see MIFARE Ultralight C
     std::string command = "3002"; // 0x30 for mifare read, 0x02 for page address
     std::string response;
-    TagNciAdapter::GetInstance().Transceive(command, response);
+    TagNciAdapterRw::GetInstance().Transceive(command, response);
     if (KITS::NfcSdkCommon::GetHexStrBytesLen(response) == NCI_MIFARE_ULTRALIGHT_C_RESPONSE_LENGTH) {
         if (response[DATA_BYTE2] == NCI_MIFARE_ULTRALIGHT_C_BLANK_CARD &&
             response[DATA_BYTE3] == NCI_MIFARE_ULTRALIGHT_C_BLANK_CARD &&
