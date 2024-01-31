@@ -75,6 +75,23 @@ HWTEST_F(NdefBtOobDataParserTest, CheckBtRecord002, TestSize.Level1)
     std::shared_ptr<BtOobData> btOobData = ndefBtOobDataParser->CheckBtRecord(msg);
     ASSERT_TRUE(btOobData != nullptr);
 }
+
+/**
+ * @tc.name: CheckBtRecord003
+ * @tc.desc: Test NdefBtOobDataParserTest CheckBtRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtOobDataParserTest, CheckBtRecord003, TestSize.Level1)
+{
+    std::string msg = "D220566170706C69636174696F6E2F766E642E626C7565746F6F74682E65"
+                      "702E6F6F625600BE17010E7F04050949435341040D14042C0B030B110C11"
+                      "0E111E11001236FF027D0320010240005A45303031810800113000190103"
+                      "021901010101020306047F0E0117BE020E52726364687A5238363739393532";
+    std::shared_ptr<NdefBtOobDataParser> ndefBtOobDataParser = std::make_shared<NdefBtOobDataParser>();
+    std::shared_ptr<BtOobData> btOobData = ndefBtOobDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(btOobData != nullptr);
+}
+
 }
 }
 }

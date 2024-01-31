@@ -104,6 +104,7 @@ ohos_unittest("cardemulation_test") {
     "cardemulation_test/cardemulation_test.cpp",
     "cardemulation_test/ce_service_test.cpp",
     "cardemulation_test/hce_cmd_callback_stub_test.cpp",
+    "cardemulation_test/hce_service_test.cpp",
     "cardemulation_test/hce_session_test.cpp",
     "cardemulation_test/host_card_emulation_manager_test.cpp",
     "cardemulation_test/nci_ce_proxy_test.cpp",
