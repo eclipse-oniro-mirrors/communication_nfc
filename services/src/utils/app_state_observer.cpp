@@ -28,6 +28,9 @@ AppStateObserver::AppStateObserver(TAG::TagSession *tagSession)
 {
     tagSession_ = tagSession;
     SubscribeAppState();
+    if (appStateAwareObserver_) {
+        appStateAwareObserver_->foregroundAppBundleName_ = GetForegroundApp();
+    }
 }
 
 AppStateObserver::~AppStateObserver()
@@ -102,14 +105,71 @@ bool AppStateObserver::Connect()
     return true;
 }
 
+std::string AppStateObserver::GetForegroundApp()
+{
+    if (!Connect()) {
+        return "";
+    }
+    std::vector<AppExecFwk::AppStateData> fgAppList;
+    appMgrProxy_->GetForegroundApplications(fgAppList);
+    if (fgAppList.size() > 0) {
+        InfoLog("fgApp: %{public}s, state = %{public}d", fgAppList[0].bundleName.c_str(), fgAppList[0].state);
+        return fgAppList[0].bundleName;
+    }
+    return "";
+}
+
 void AppStateObserver::AppStateAwareObserver::OnAbilityStateChanged(
     const AppExecFwk::AbilityStateData &abilityStateData)
 {
-    if (tagSession_->GetFgDataVecSize() == 0) {
+    if (tagSession_->GetFgDataVecSize() == 0 && tagSession_->GetReaderDataVecSize() == 0) {
         return;
     }
     tagSession_->HandleAppStateChanged(abilityStateData.bundleName, abilityStateData.abilityName,
         abilityStateData.abilityState);
+}
+
+void AppStateObserver::AppStateAwareObserver::OnForegroundApplicationChanged(
+    const AppExecFwk::AppStateData &appStateData)
+{
+    if (!ValidateAppStateData(appStateData)) {
+        ErrorLog("OnForegroundApplicationChanged, validate app state data failed");
+        return;
+    }
+    InfoLog("OnForegroundApplicationChanged, name = %{public}s, state = %{public}d",
+        appStateData.bundleName.c_str(), appStateData.state);
+    if (appStateData.state == static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND)) {
+        foregroundAppBundleName_ = appStateData.bundleName;
+    } else if (appStateData.state == static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND) &&
+        foregroundAppBundleName_ == appStateData.bundleName) {
+        foregroundAppBundleName_ = "";
+    }
+}
+
+void AppStateObserver::AppStateAwareObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
+{
+    // The process died on the foreground, can not update foregroundAppBundleName_ by OnForegroundApplicationChanged
+    if (foregroundAppBundleName_ == processData.bundleName) {
+        foregroundAppBundleName_ = "";
+    }
+}
+
+inline bool AppStateObserver::AppStateAwareObserver::ValidateAppStateData(const AppExecFwk::AppStateData &appStateData)
+{
+    return appStateData.uid > 0 && appStateData.bundleName.length() > 0;
+}
+
+bool AppStateObserver::IsForegroundApp(std::string bundleName)
+{
+    if (!appStateAwareObserver_) {
+        SubscribeAppState();
+        if (!appStateAwareObserver_) {
+            ErrorLog("IsForegroundApp: appStateAwareObserver_ is nullptr");
+            return false;
+        }
+    }
+    InfoLog("IsForegroundApp: foreground app: %{public}s", appStateAwareObserver_->foregroundAppBundleName_.c_str());
+    return bundleName == appStateAwareObserver_->foregroundAppBundleName_;
 }
 } // namespace NFC
 } // namespace OHOS

@@ -76,8 +76,8 @@ public:
     ForegroundEventRegister() {}
     ~ForegroundEventRegister() {}
     static ForegroundEventRegister& GetInstance();
-    void Register(const napi_env &env, ElementName &element, std::vector<uint32_t> &discTech, napi_value handler);
-    void Unregister(const napi_env &env, ElementName &element, napi_value handler);
+    ErrorCode Register(const napi_env &env, ElementName &element, std::vector<uint32_t> &discTech, napi_value handler);
+    ErrorCode Unregister(const napi_env &env, ElementName &element, napi_value handler);
 
 private:
     ErrorCode RegisterForegroundEvents(ElementName &element, std::vector<uint32_t> &discTech);
@@ -92,9 +92,9 @@ public:
     ReaderModeEvtRegister() {}
     ~ReaderModeEvtRegister() {}
     static ReaderModeEvtRegister& GetInstance();
-    void Register(const napi_env &env, std::string &type, ElementName &element,
-                  std::vector<uint32_t> &discTech, napi_value handler);
-    void Unregister(const napi_env &env, std::string &type, ElementName &element, napi_value handler);
+    ErrorCode Register(const napi_env &env, std::string &type, ElementName &element,
+                       std::vector<uint32_t> &discTech, napi_value handler);
+    ErrorCode Unregister(const napi_env &env, std::string &type, ElementName &element, napi_value handler);
 
 private:
     ErrorCode RegReaderModeEvt(std::string &type, ElementName &element, std::vector<uint32_t> &discTech);

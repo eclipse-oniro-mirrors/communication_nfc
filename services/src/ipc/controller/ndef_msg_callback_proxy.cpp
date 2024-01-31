@@ -24,7 +24,7 @@ NdefMsgCallbackProxy::NdefMsgCallbackProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<INdefMsgCallback>(remote)
 {}
 
-bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(std::string msg, int vendorType)
+bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(std::string msg, int ndefMsgType)
 {
     DebugLog("NdefMsgCallbackProxy::OnNdefMsgDiscovered");
     MessageOption option = {MessageOption::TF_ASYNC};
@@ -36,7 +36,7 @@ bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(std::string msg, int vendorType)
     }
     data.WriteInt32(0);
     data.WriteString(msg);
-    data.WriteInt32(vendorType);
+    data.WriteInt32(ndefMsgType);
 
     int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NDEF_MSG_NOTIFY),
         data, reply, option);
