@@ -190,7 +190,7 @@ void ExternalDepsProxy::GetHceApps(std::vector<AppDataParser::HceAppAidInfo>& hc
 }
 bool ExternalDepsProxy::IsSystemApp(uint32_t uid)
 {
-    return AppDataParser::GetInstance().IsSystemApp(uid);;
+    return AppDataParser::GetInstance().IsSystemApp(uid);
 }
 } // namespace NFC
 } // OHOS

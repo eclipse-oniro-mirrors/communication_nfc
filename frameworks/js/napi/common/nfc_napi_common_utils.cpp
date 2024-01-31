@@ -808,9 +808,9 @@ bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
         return false;
     }
     if (statusCode == BUSI_ERR_PERM) {
-        napi_throw(env, GenerateBusinessError(
-                            env, BUSI_ERR_PERM,
-                            BuildErrorMessage(BUSI_ERR_PERM, funcName, CARD_EMULATION_PERM_DESC, "", "")));
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
+                                              BuildErrorMessage(BUSI_ERR_PERM, funcName,
+                                              CARD_EMULATION_PERM_DESC, "", "")));
         return false;
     }
 
