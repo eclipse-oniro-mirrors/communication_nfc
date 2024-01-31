@@ -75,6 +75,7 @@ public:
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+    bool IsSystemApp(uint32_t uid);
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();

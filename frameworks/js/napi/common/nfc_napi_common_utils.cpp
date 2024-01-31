@@ -636,6 +636,20 @@ int BuildOutputErrorCode(int errCode)
     return errCode;
 }
 
+int BuildOutputErrorCodeHce(int errCode)
+{
+    if (errCode == BUSI_ERR_PERM) {
+        return BUSI_ERR_PERM;
+    }
+    if (errCode == BUSI_ERR_PARAM) {
+        return BUSI_ERR_PARAM;
+    }
+    if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
+        return BUSI_ERR_NOT_SYSTEM_APP;
+    }
+    return BUSI_ERR_HCE_STATE_INVALID;
+}
+
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType)
 {
@@ -662,7 +676,11 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         return "The element state is invalid.";
     } else if (errCode == BUSI_ERR_REGISTER_STATE_INVALID) {
         return "The off() can be called only when the on() has been called.";
-    }
+    }else if (errCode == BUSI_ERR_HCE_STATE_INVALID) {
+             return "HCE running state is abnormal in service.";
+         } else if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
+             return "Not system application.";
+         }
     return "Unknown error message";
 }
 
@@ -777,6 +795,28 @@ bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
         return false;
     }
     return true;
+}
+
+bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName)
+{
+    if (statusCode == KITS::ERR_NONE) {
+        return true;
+    }
+    if (statusCode == BUSI_ERR_NOT_SYSTEM_APP) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_NOT_SYSTEM_APP,
+                                              BuildErrorMessage(BUSI_ERR_NOT_SYSTEM_APP, funcName, "", "", "")));
+        return false;
+    }
+    if (statusCode == BUSI_ERR_PERM) {
+        napi_throw(env, GenerateBusinessError(
+                            env, BUSI_ERR_PERM,
+                            BuildErrorMessage(BUSI_ERR_PERM, funcName, CARD_EMULATION_PERM_DESC, "", "")));
+        return false;
+    }
+
+    napi_throw(env, GenerateBusinessError(env, BUSI_ERR_HCE_STATE_INVALID,
+                                          BuildErrorMessage(BUSI_ERR_HCE_STATE_INVALID, "", "", "", "")));
+    return false;
 }
 } // namespace KITS
 } // namespace NFC

@@ -649,5 +649,16 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
     GetPaymentAbilityInfosFromVendor(paymentAbilityInfos);
 #endif
 }
+bool AppDataParser::IsSystemApp(uint32_t uid)
+{
+    if (bundleMgrProxy_ == nullptr) {
+        bundleMgrProxy_ = GetBundleMgrProxy();
+    }
+    if (bundleMgrProxy_ == nullptr) {
+        ErrorLog(" bundleMgrProxy_ is nullptr.");
+        return false;
+    }
+    return bundleMgrProxy_->CheckIsSystemAppByUid(uid);
+}
 } // namespace NFC
 } // namespace OHOS

@@ -119,6 +119,11 @@ int HceSessionStub::HandleGetPaymentServices(MessageParcel &data, MessageParcel 
         ErrorLog("HandleGetPaymentServices, ERR_NO_PERMISSION");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+
+    if (!ExternalDepsProxy::GetInstance().IsSystemApp(IPCSkeleton::GetCallingUid())) {
+        ErrorLog("HandleGetPaymentServices, ERR_NOT_SYSTEM_APP");
+        return KITS::ErrorCode::ERR_NOT_SYSTEM_APP;
+    }
     int exception = data.ReadInt32();
     if (exception) {
         ErrorLog("HandleGetPaymentServices, exception");
