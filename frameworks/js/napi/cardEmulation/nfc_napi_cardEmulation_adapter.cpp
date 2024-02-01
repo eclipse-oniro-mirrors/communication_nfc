@@ -27,9 +27,19 @@ namespace NFC {
 namespace KITS {
 using AppExecFwk::AbilityInfo;
 using AppExecFwk::ElementName;
-napi_value IsSupported(napi_env env, napi_callback_info info)
+napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
 {
     bool isSupported = false;
+    size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    int32_t type;
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) || !ParseInt32(env, type, argv[ARGV_INDEX_0])) {
+        ErrorLog("IsSupported: parse args failed");
+        return CreateUndefined(env);
+    }
+    isSupported = type == FeatureType::HCE;
     napi_value result;
     napi_get_boolean(env, isSupported, &result);
     return result;
@@ -37,7 +47,7 @@ napi_value IsSupported(napi_env env, napi_callback_info info)
 
 napi_value HasHceCapability(napi_env env, napi_callback_info info)
 {
-    bool hasHceCapability = false;
+    bool hasHceCapability = true;
     napi_value result;
     napi_get_boolean(env, hasHceCapability, &result);
     return result;
@@ -65,8 +75,9 @@ napi_value IsDefaultService(napi_env env, napi_callback_info cbinfo)
 
     HceService hceService = HceService::GetInstance();
     int statusCode = hceService.IsDefaultService(element, type, isDefaultService);
-    if (statusCode != KITS::ERR_NONE) {
+    if (!CheckHceStatusCodeAndThrow(env, statusCode, "isDefaultService")) {
         ErrorLog("IsDefaultService, statusCode = %{public}d", statusCode);
+        return CreateUndefined(env);
     }
     napi_value result;
     napi_get_boolean(env, isDefaultService, &result);
@@ -118,9 +129,13 @@ napi_value GetPaymentServices(napi_env env, napi_callback_info info)
     DebugLog("GetPaymentServices ability start.");
     HceService hceService = HceService::GetInstance();
     std::vector<AbilityInfo> paymentAbilityInfos;
-    hceService.GetPaymentServices(paymentAbilityInfos);
+    int statusCode = hceService.GetPaymentServices(paymentAbilityInfos);
     DebugLog("GetPaymentServices ability size %{public}zu.", paymentAbilityInfos.size());
 
+    if (!CheckHceStatusCodeAndThrow(env, statusCode, "getPaymentServices")) {
+        ErrorLog("GetPaymentServices, statusCode = %{public}d", statusCode);
+        return CreateUndefined(env);
+    }
     napi_value result = nullptr;
     ConvertAbilityInfoVectorToJS(env, result, paymentAbilityInfos);
     DebugLog("GetPaymentServices ability end.");

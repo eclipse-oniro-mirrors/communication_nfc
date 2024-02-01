@@ -42,6 +42,10 @@ public:
     static napi_value OnHceCmd(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
     static napi_value StopHce(napi_env env, napi_callback_info cbinfo);
+    static napi_value StartHCEDeprecated(napi_env env, napi_callback_info cbinfo);
+    static napi_value StartHCE(napi_env env, napi_callback_info cbinfo);
+    static napi_value StopHCEDeprecated(napi_env env, napi_callback_info cbinfo);
+    static napi_value SendResponse(napi_env env, napi_callback_info cbinfo);
 };
 
 struct NfcHceSessionContext : BaseContext {
@@ -87,8 +91,8 @@ public:
     void Register(const napi_env& env, const std::string& type, napi_value handler);
     void Unregister(const napi_env& env, ElementName& element);
 private:
-    ErrorCode RegHceCmdCallbackEvents(const std::string& type);
-    ErrorCode UnregisterHceEvents(ElementName &element);
+    ErrorCode RegHceCmdCallbackEvents(const napi_env& env, const std::string& type);
+    ErrorCode UnregisterHceEvents(const napi_env& env, ElementName &element);
     bool IsEventSupport(const std::string& type);
     void DeleteHceCmdRegisterObj(const napi_env& env);
 

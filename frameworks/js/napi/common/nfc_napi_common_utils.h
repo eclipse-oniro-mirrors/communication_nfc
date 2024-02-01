@@ -28,6 +28,7 @@ using OHOS::AppExecFwk::ElementName;
 
 // business error code, throw these errors to applcation.
 const static int BUSI_ERR_PERM = 201; // Permission denied.
+const static int BUSI_ERR_NOT_SYSTEM_APP = 202; // not system app.
 const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
 
@@ -37,7 +38,7 @@ const static int BUSI_ERR_REGISTER_STATE_INVALID = 3100203; // The off() can be 
                                                             // has been called.
 const static uint32_t MAX_NUM_TECH_LIST = 12;
 
-const  int BUSI_ERR_HCE_STATE_INVALID = 4100201; // nfc hce state invalid.
+const static int BUSI_ERR_HCE_STATE_INVALID = 3100301; // nfc hce state invalid.
 
 const std::string KEY_CODE = "code";
 const std::string TAG_PERM_DESC = "ohos.permission.NFC_TAG";
@@ -196,6 +197,7 @@ bool IsString(const napi_env &env, const napi_value &param);
 bool IsObject(const napi_env &env, const napi_value &param);
 bool IsFunction(const napi_env &env, const napi_value &param);
 int BuildOutputErrorCode(int errCode);
+int BuildOutputErrorCodeHce(int errCode);
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage);
@@ -215,6 +217,7 @@ bool CheckFunctionAndThrow(const napi_env &env, const napi_value &param, const s
     const std::string &argType);
 bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
 bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
+bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

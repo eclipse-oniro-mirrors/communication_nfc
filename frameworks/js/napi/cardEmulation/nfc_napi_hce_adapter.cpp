@@ -87,6 +87,10 @@ napi_value NfcNapiHceAdapter::Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("on", NfcNapiHceAdapter::OnHceCmd),
         DECLARE_NAPI_FUNCTION("transmit", NfcNapiHceAdapter::Transmit),
         DECLARE_NAPI_FUNCTION("stop", NfcNapiHceAdapter::StopHce),
+        DECLARE_NAPI_FUNCTION("stopHCE", NfcNapiHceAdapter::StopHCEDeprecated),
+        DECLARE_NAPI_FUNCTION("startHCE", NfcNapiHceAdapter::StartHCEDeprecated),
+        DECLARE_NAPI_FUNCTION("start", NfcNapiHceAdapter::StartHCE),
+        DECLARE_NAPI_FUNCTION("sendResponse", NfcNapiHceAdapter::SendResponse),
     };
 
     char hceClassName[] = "HceService";
@@ -191,7 +195,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
     if (!isEventRegistered) {
-        if (RegHceCmdCallbackEvents(type) != KITS::ERR_NONE) {
+        if (RegHceCmdCallbackEvents(env, type) != KITS::ERR_NONE) {
             return;
         }
         isEventRegistered = true;
@@ -224,10 +228,13 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
 }
 
-ErrorCode EventRegister::RegHceCmdCallbackEvents(const std::string& type)
+ErrorCode EventRegister::RegHceCmdCallbackEvents(const napi_env& env, const std::string& type)
 {
     HceService hceService = HceService::GetInstance();
     ErrorCode ret = hceService.RegHceCmdCallback(hceCmdListenerEvent, type);
+    if (!CheckHceStatusCodeAndThrow(env, ret, "on")) {
+        ErrorLog("RegHceCmdCallback, statusCode = %{public}d", ret);
+    }
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegHceCmdCallbackEvents failed!");
         return ret;
@@ -239,7 +246,7 @@ void EventRegister::Unregister(const napi_env& env, ElementName& element)
 {
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
     if (!g_eventRegisterInfo.empty()) {
-        if (UnregisterHceEvents(element) != KITS::ERR_NONE) {
+        if (UnregisterHceEvents(env, element) != KITS::ERR_NONE) {
             ErrorLog("hce EventRegister::Unregister, unreg event failed.");
             return;
         }
@@ -280,10 +287,13 @@ void EventRegister::DeleteHceCmdRegisterObj(const napi_env& env)
     }
 }
 
-ErrorCode EventRegister::UnregisterHceEvents(ElementName& element)
+ErrorCode EventRegister::UnregisterHceEvents(const napi_env& env, ElementName& element)
 {
     HceService hceService = HceService::GetInstance();
     ErrorCode ret = hceService.StopHce(element);
+    if (!CheckHceStatusCodeAndThrow(env, ret, "stop")) {
+        ErrorLog("StopHce, statusCode = %{public}d", ret);
+    }
     if (ret != KITS::ERR_NONE) {
         ErrorLog("UnregisterHceEvents  failed!");
         return ret;
@@ -401,7 +411,7 @@ static void TransmitCallback(napi_env env, napi_status status, void* data)
         napi_get_undefined(env, &callbackValue);
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
-        int errCode = BuildOutputErrorCode(context->errorCode);
+        int errCode = BuildOutputErrorCodeHce(context->errorCode);
         std::string errMessage = BuildErrorMessage(errCode, "transmit", CARD_EMULATION_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -465,6 +475,22 @@ napi_value NfcNapiHceAdapter::StopHce(napi_env env, napi_callback_info cbinfo)
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     return result;
+}
+napi_value NfcNapiHceAdapter::StartHCEDeprecated(napi_env env, napi_callback_info cbinfo)
+{
+    return CreateUndefined(env);
+}
+napi_value NfcNapiHceAdapter::StartHCE(napi_env env, napi_callback_info cbinfo)
+{
+    return CreateUndefined(env);
+}
+napi_value NfcNapiHceAdapter::StopHCEDeprecated(napi_env env, napi_callback_info cbinfo)
+{
+    return CreateUndefined(env);
+}
+napi_value NfcNapiHceAdapter::SendResponse(napi_env env, napi_callback_info cbinfo)
+{
+    return CreateUndefined(env);
 }
 } // namespace KITS
 } // namespace NFC

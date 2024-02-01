@@ -83,6 +83,7 @@ public:
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
+    bool IsSystemApp(uint32_t uid);
 };
 } // NFC
 } // OHOS
