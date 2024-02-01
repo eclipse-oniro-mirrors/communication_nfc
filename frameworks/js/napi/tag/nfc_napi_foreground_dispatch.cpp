@@ -330,15 +330,16 @@ ForegroundEventRegister& ForegroundEventRegister::GetInstance()
     return inst;
 }
 
-void ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
+ErrorCode ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     std::vector<uint32_t> &discTech, napi_value handler)
 {
     InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!isEvtRegistered) {
-        if (RegisterForegroundEvents(element, discTech) != KITS::ERR_NONE) {
+        ErrorCode ret = RegisterForegroundEvents(element, discTech);
+        if (ret != ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Register, reg event failed");
-            return;
+            return ret;
         }
         isEvtRegistered = true;
     }
@@ -350,6 +351,7 @@ void ForegroundEventRegister::Register(const napi_env &env, ElementName &element
         napi_value handlerTemp = nullptr;
         napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
     }
+    return ERR_NONE;
 }
 
 void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &regObj, napi_value &handler)
@@ -365,13 +367,14 @@ void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &reg
     }
 }
 
-void ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
+ErrorCode ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!g_foregroundRegInfo.IsEmpty()) {
-        if (UnregisterForegroundEvents(element) != KITS::ERR_NONE) {
+        ErrorCode ret = UnregisterForegroundEvents(element);
+        if (ret != ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Unregister, unreg event failed.");
-            return;
+            return ret;
         }
     }
     if (handler != nullptr) {
@@ -382,6 +385,42 @@ void ForegroundEventRegister::Unregister(const napi_env &env, ElementName &eleme
         isEvtRegistered = false;
     }
     InfoLog("ForegroundEventRegister::Unregister, isEvtRegistered = %{public}d", isEvtRegistered);
+    return ERR_NONE;
+}
+
+bool ParseDiscTechVector(napi_env &env, std::vector<uint32_t> &dataVec, napi_value arg)
+{
+    if (!CheckArrayNumberAndThrow(env, arg, "discTech", "nummber[]") ||
+        !ParseUInt32Vector(env, dataVec, arg)) {
+        ErrorLog("ParseDiscTechVector: parse failed");
+        return false;
+    }
+    if (dataVec.size() == 0) {
+        ErrorLog("ParseDiscTechVector: size = 0");
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", "discTech", "nummber[]")));
+        return false;
+    }
+    return true;
+}
+
+bool CheckResultAndThrow(napi_env &env, int result, std::string funcName)
+{
+    if (result == ERR_NONE) {
+        return true;
+    }
+    ErrorLog("CheckResultAndThrow, result = %{public}d", result);
+    if (result == ERR_TAG_APP_NOT_FOREGROUND) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_ELEMENT_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_ELEMENT_STATE_INVALID, "", "", "", "")));
+    } else if (result == ERR_NO_PERMISSION) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
+            BuildErrorMessage(BUSI_ERR_PERM, funcName, TAG_PERM_DESC, "", "")));
+    } else if (result == ERR_TAG_APP_NOT_REGISTERED) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_REGISTER_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_REGISTER_STATE_INVALID, "", "", "", "")));
+    }
+    return false;
 }
 
 napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
@@ -394,21 +433,16 @@ napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
     ElementName element;
     std::vector<uint32_t> dataVec;
     if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_3) ||
+        !CheckObjectAndThrow(env, argv[ARGV_INDEX_0], "elementName", "ElementName") ||
         !ParseElementName(env, element, argv[ARGV_INDEX_0]) ||
-        !ParseUInt32Vector(env, dataVec, argv[ARGV_INDEX_1])) {
+        !ParseDiscTechVector(env, dataVec, argv[ARGV_INDEX_1]) ||
+        !CheckFunctionAndThrow(env, argv[ARGV_INDEX_2], "callback", "AsyncCallback<TagInfo>")) {
         ErrorLog("RegisterForegroundDispatch: parse args failed");
         return CreateUndefined(env);
     }
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[ARGV_INDEX_2], &valueType);
-    if (valueType != napi_function) {
-        ErrorLog("RegisterForegroundDispatch: parse arg 3 failed");
-        return CreateUndefined(env);
-    }
-    ForegroundEventRegister::GetInstance().Register(env, element, dataVec, argv[ARGV_INDEX_2]);
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-    return result;
+    int ret  = ForegroundEventRegister::GetInstance().Register(env, element, dataVec, argv[ARGV_INDEX_2]);
+    CheckResultAndThrow(env, ret, "RegisterForegroundDispatch");
+    return CreateUndefined(env);
 }
 
 napi_value UnregisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
@@ -420,14 +454,14 @@ napi_value UnregisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
     ElementName element;
     if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !CheckObjectAndThrow(env, argv[ARGV_INDEX_0], "elementName", "ElementName") ||
         !ParseElementName(env, element, argv[ARGV_INDEX_0])) {
         ErrorLog("UnregisterForegroundDispatch: parse args failed");
         return CreateUndefined(env);
     }
-    ForegroundEventRegister::GetInstance().Unregister(env, element, argv[ARGV_INDEX_0]);
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-    return result;
+    int ret = ForegroundEventRegister::GetInstance().Unregister(env, element, argv[ARGV_INDEX_0]);
+    CheckResultAndThrow(env, ret, "UnregisterForegroundDispatch");
+    return CreateUndefined(env);
 }
 
 class ReaderModeListenerEvt : public IReaderModeCallback, public NapiEvent {
@@ -487,15 +521,16 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
     return inst;
 }
 
-void ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
-                                     std::vector<uint32_t> &discTech, napi_value handler)
+ErrorCode ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
+                                          std::vector<uint32_t> &discTech, napi_value handler)
 {
     InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!isReaderModeRegistered) {
-        if (RegReaderModeEvt(type, element, discTech) != KITS::ERR_NONE) {
+        ErrorCode ret = RegReaderModeEvt(type, element, discTech);
+        if (ret != KITS::ERR_NONE) {
             ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
-            return;
+            return ret;
         }
         isReaderModeRegistered = true;
     }
@@ -507,6 +542,7 @@ void ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, Ele
         napi_value handlerTemp = nullptr;
         napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
     }
+    return ERR_NONE;
 }
 
 void ReaderModeEvtRegister::DeleteRegisteredObj(const napi_env &env, RegObj &regObj, napi_value &handler)
@@ -522,15 +558,18 @@ void ReaderModeEvtRegister::DeleteRegisteredObj(const napi_env &env, RegObj &reg
     }
 }
 
-void ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, ElementName &element,
-                                       napi_value handler)
+ErrorCode ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, ElementName &element,
+                                            napi_value handler)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
-    if (!g_readerModeRegInfo.IsEmpty()) {
-        if (UnregReaderModeEvt(type, element) != KITS::ERR_NONE) {
-            ErrorLog("ReaderModeEvtRegister::Unregister, unreg event failed.");
-            return;
-        }
+    if (g_readerModeRegInfo.IsEmpty()) {
+        ErrorLog("ReaderModeEvtRegister::Unregister, reader not registered");
+        return ERR_TAG_APP_NOT_REGISTERED;
+    }
+    ErrorCode ret = UnregReaderModeEvt(type, element);
+    if (ret != ERR_NONE) {
+        ErrorLog("ReaderModeEvtRegister::Unregister, unreg event failed.");
+        return ret;
     }
     DeleteRegisteredObj(env, g_readerModeRegInfo, handler);
     if (!g_readerModeRegInfo.IsEmpty()) {
@@ -538,6 +577,7 @@ void ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, E
         isReaderModeRegistered = false;
     }
     InfoLog("ReaderModeEvtRegister::Unregister, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
+    return ERR_NONE;
 }
 
 napi_value On(napi_env env, napi_callback_info cbinfo)
@@ -551,22 +591,18 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     ElementName element;
     std::vector<uint32_t> dataVec;
     if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_4) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
         !ParseString(env, type, argv[ARGV_INDEX_0]) ||
+        !CheckObjectAndThrow(env, argv[ARGV_INDEX_1], "elementName", "ElementName") ||
         !ParseElementName(env, element, argv[ARGV_INDEX_1]) ||
-        !ParseUInt32Vector(env, dataVec, argv[ARGV_INDEX_2])) {
+        !ParseDiscTechVector(env, dataVec, argv[ARGV_INDEX_2]) ||
+        !CheckFunctionAndThrow(env, argv[ARGV_INDEX_3], "callback", "AsyncCallback<TagInfo>")) {
         ErrorLog("On: parse args failed");
         return CreateUndefined(env);
     }
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[ARGV_INDEX_3], &valueType);
-    if (valueType != napi_function) {
-        ErrorLog("On ReaderMode: parse arg 4 failed");
-        return CreateUndefined(env);
-    }
-    ReaderModeEvtRegister::GetInstance().Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-    return result;
+    int ret = ReaderModeEvtRegister::GetInstance().Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
+    CheckResultAndThrow(env, ret, "On");
+    return CreateUndefined(env);
 }
 
 napi_value Off(napi_env env, napi_callback_info cbinfo)
@@ -581,7 +617,9 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, argc >= requiredArgc, "requires at least 2 parameters");
     std::string type;
     ElementName element;
-    if (!ParseString(env, type, argv[ARGV_INDEX_0]) ||
+    if (!CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
+        !ParseString(env, type, argv[ARGV_INDEX_0]) ||
+        !CheckObjectAndThrow(env, argv[ARGV_INDEX_1], "elementName", "ElementName") ||
         !ParseElementName(env, element, argv[ARGV_INDEX_1])) {
         ErrorLog("Off ReaderMode: parse args failed");
         return CreateUndefined(env);
@@ -593,14 +631,16 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
             argc -= 1;
             DebugLog("argv[2] is null or undefined, handle as no argv[2] input");
         } else {
-            NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 3");
+            if (!CheckFunctionAndThrow(env, argv[ARGV_INDEX_2], "callback", "AsyncCallback<TagInfo>")) {
+                ErrorLog("Off ReaderMode: parse function failed");
+                return CreateUndefined(env);
+            }
         }
     }
-    ReaderModeEvtRegister::GetInstance().Unregister(env, type, element,
-                                                    argc >= requiredArgcWithCb ? argv[ARGV_INDEX_2] : nullptr);
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-    return result;
+    int ret = ReaderModeEvtRegister::GetInstance().Unregister(env, type, element,
+        argc >= requiredArgcWithCb ? argv[ARGV_INDEX_2] : nullptr);
+    CheckResultAndThrow(env, ret, "Off");
+    return CreateUndefined(env);
 }
 }  // namespace KITS
 }  // namespace NFC

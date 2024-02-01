@@ -617,6 +617,13 @@ bool IsObject(const napi_env &env, const napi_value &param)
     return valueType == napi_object;
 }
 
+bool IsFunction(const napi_env &env, const napi_value &param)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, param, &valueType);
+    return valueType == napi_function;
+}
+
 int BuildOutputErrorCode(int errCode)
 {
     if (errCode == BUSI_ERR_PERM) {
@@ -651,6 +658,10 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         }
     } else if (errCode == BUSI_ERR_TAG_STATE_INVALID) {
         return "Tag running state is abnormal in service.";
+    } else if (errCode == BUSI_ERR_ELEMENT_STATE_INVALID) {
+        return "The element state is invalid.";
+    } else if (errCode == BUSI_ERR_REGISTER_STATE_INVALID) {
+        return "The off() can be called only when the on() has been called.";
     }
     return "Unknown error message";
 }
@@ -733,6 +744,18 @@ bool CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std
     }
     return true;
 }
+
+bool CheckFunctionAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType)
+{
+    if (!IsFunction(env, param)) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM, BuildErrorMessage(BUSI_ERR_PARAM,
+            "", "", argName, argType)));
+        return false;
+    }
+    return true;
+}
+
 bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount)
 {
     if (argCount != expCount) {

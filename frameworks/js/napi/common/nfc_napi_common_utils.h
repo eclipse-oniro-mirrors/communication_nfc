@@ -32,6 +32,9 @@ const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
 
 const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
+const static int BUSI_ERR_ELEMENT_STATE_INVALID = 3100202; // The element state is invalid.
+const static int BUSI_ERR_REGISTER_STATE_INVALID = 3100203; // The off() can be called only when the on()
+                                                            // has been called.
 const static uint32_t MAX_NUM_TECH_LIST = 12;
 
 const  int BUSI_ERR_HCE_STATE_INVALID = 4100201; // nfc hce state invalid.
@@ -191,6 +194,7 @@ bool IsArray(const napi_env &env, const napi_value &param);
 bool IsNumber(const napi_env &env, const napi_value &param);
 bool IsString(const napi_env &env, const napi_value &param);
 bool IsObject(const napi_env &env, const napi_value &param);
+bool IsFunction(const napi_env &env, const napi_value &param);
 int BuildOutputErrorCode(int errCode);
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType);
@@ -206,6 +210,8 @@ bool CheckNumberAndThrow(const napi_env &env, const napi_value &param, const std
 bool CheckStringAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
 bool CheckObjectAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
+    const std::string &argType);
+bool CheckFunctionAndThrow(const napi_env &env, const napi_value &param, const std::string &argName,
     const std::string &argType);
 bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
 bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);

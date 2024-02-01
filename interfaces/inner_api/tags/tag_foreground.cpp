@@ -60,8 +60,8 @@ ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
     DebugLog("TagForeground::RegForeground");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("TagForeground::RegForeground, ERR_TAG_STATE_UNBIND");
-        return ErrorCode::ERR_TAG_STATE_UNBIND;
+        ErrorLog("TagForeground::RegForeground, ERR_NO_PERMISSION");
+        return ErrorCode::ERR_NO_PERMISSION;
     }
     return tagSession->RegForegroundDispatch(element, discTech, callback);
 }
@@ -71,8 +71,8 @@ ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName &element)
     DebugLog("TagForeground::UnregForeground");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("TagForeground::UnregForeground, ERR_TAG_STATE_UNBIND");
-        return ErrorCode::ERR_TAG_STATE_UNBIND;
+        ErrorLog("TagForeground::UnregForeground, ERR_NO_PERMISSION");
+        return ErrorCode::ERR_NO_PERMISSION;
     }
     return tagSession->UnregForegroundDispatch(element);
 }
@@ -84,8 +84,8 @@ ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
     DebugLog("TagForeground::RegReaderMode");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("TagForeground::RegReaderMode, ERR_TAG_STATE_UNBIND");
-        return ErrorCode::ERR_TAG_STATE_UNBIND;
+        ErrorLog("TagForeground::RegReaderMode, ERR_NO_PERMISSION");
+        return ErrorCode::ERR_NO_PERMISSION;
     }
     return tagSession->RegReaderMode(element, discTech, callback);
 }
@@ -95,8 +95,8 @@ ErrorCode TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
     DebugLog("TagForeground::UnregReaderMode");
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
-        ErrorLog("TagForeground::UnregReaderMode, ERR_TAG_STATE_UNBIND");
-        return ErrorCode::ERR_TAG_STATE_UNBIND;
+        ErrorLog("TagForeground::UnregReaderMode, ERR_NO_PERMISSION");
+        return ErrorCode::ERR_NO_PERMISSION;
     }
     return tagSession->UnregReaderMode(element);
 }
