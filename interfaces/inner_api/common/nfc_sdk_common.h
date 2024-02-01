@@ -29,6 +29,7 @@ enum ErrorCode : const int {
     ERR_NONE = 0,
 
     ERR_NO_PERMISSION = 201,
+    ERR_NOT_SYSTEM_APP = 202,
 
     // error for nfc state operations
     ERR_NFC_BASE = 3100100,

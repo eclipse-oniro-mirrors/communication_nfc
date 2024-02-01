@@ -81,6 +81,7 @@ int NfcControllerStub::HandleGetState(MessageParcel& data, MessageParcel& reply)
 int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("HandleTurnOn no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     return TurnOn();
@@ -89,6 +90,7 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("HandleTurnOff no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     return TurnOff();
@@ -189,6 +191,7 @@ KITS::ErrorCode NfcControllerStub::UnRegisterCallBack(const std::string& type)
 int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleGetNfcTagInterface no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     OHOS::sptr<IRemoteObject> remoteOjbect = GetTagServiceIface();
@@ -204,6 +207,7 @@ int NfcControllerStub::HandleGetNfcTagInterface(MessageParcel& data, MessageParc
 int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleGetNfcHceInterface no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface();
@@ -244,6 +248,7 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
 int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleRegQueryApplicationCb no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("NfcControllerStub::HandleRegQueryApplicationCb");
@@ -268,6 +273,7 @@ int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageP
 int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleRegCardEmulationNotifyCb no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("NfcControllerStub::HandleRegCardEmulationNotifyCb");
@@ -291,6 +297,7 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
 int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleNotifyEventStatus no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int eventType = data.ReadInt32();
@@ -310,6 +317,7 @@ int NfcControllerStub::HandleNotifyEventStatus(MessageParcel& data, MessageParce
 KITS::ErrorCode NfcControllerStub::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("RegNdefMsgCb no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("NfcControllerStub::RegNdefMsgCb");
