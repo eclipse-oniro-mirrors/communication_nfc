@@ -676,11 +676,11 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         return "The element state is invalid.";
     } else if (errCode == BUSI_ERR_REGISTER_STATE_INVALID) {
         return "The off() can be called only when the on() has been called.";
-    }else if (errCode == BUSI_ERR_HCE_STATE_INVALID) {
-             return "HCE running state is abnormal in service.";
-         } else if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
-             return "Not system application.";
-         }
+    } else if (errCode == BUSI_ERR_HCE_STATE_INVALID) {
+        return "HCE running state is abnormal in service.";
+    } else if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
+        return "Not system application.";
+    }
     return "Unknown error message";
 }
 
