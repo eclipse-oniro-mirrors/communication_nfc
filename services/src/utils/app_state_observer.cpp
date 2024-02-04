@@ -159,7 +159,7 @@ inline bool AppStateObserver::AppStateAwareObserver::ValidateAppStateData(const 
     return appStateData.uid > 0 && appStateData.bundleName.length() > 0;
 }
 
-bool AppStateObserver::IsForegroundApp(std::string bundleName)
+bool AppStateObserver::IsForegroundApp(const std::string &bundleName)
 {
     if (!appStateAwareObserver_) {
         SubscribeAppState();
