@@ -239,7 +239,7 @@ private:
     bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
     KITS::ErrorCode RegReaderModeInner(ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
-    KITS::ErrorCode UnregReaderModeInner(ElementName &element, bool isAppUnregistered);
+    KITS::ErrorCode UnregReaderModeInner(ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};

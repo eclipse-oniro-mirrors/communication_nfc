@@ -31,7 +31,7 @@ public:
     AppStateObserver &operator=(const AppStateObserver &) = delete;
     bool SubscribeAppState();
     bool UnSubscribeAppState();
-    bool IsForegroundApp(std::string bundleName);
+    bool IsForegroundApp(const std::string &bundleName);
 
 private:
     class AppStateAwareObserver : public AppExecFwk::ApplicationStateObserverStub {
