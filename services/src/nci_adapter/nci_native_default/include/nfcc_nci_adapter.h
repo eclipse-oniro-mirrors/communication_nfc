@@ -150,6 +150,12 @@ public:
      * @return True/false to be successful/failed to computer params.
      */
     bool ComputeRoutingParams();
+
+    /**
+     * @brief Whether rf field is on or off.
+     * @return True/false to be field on/off.
+     */
+    bool isRfFieldOn();
     void OnCardEmulationData(const std::vector<uint8_t> &data);
     void OnCardEmulationActivated();
     void OnCardEmulationDeactivated();
@@ -203,6 +209,8 @@ private:
     unsigned long discoveryDuration_ = 0;
     bool isTagActive_ = false;
     unsigned char curScreenState_ = NFA_SCREEN_STATE_OFF_LOCKED;
+    uint64_t lastRfFieldTime = 0;
+    bool isRfFieldOn_ = false;
     std::weak_ptr<INciCeInterface::ICeHostListener> cardEmulationListener_;
 };
 }  // namespace NCI

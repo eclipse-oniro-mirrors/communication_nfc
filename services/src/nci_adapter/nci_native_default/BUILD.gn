@@ -54,7 +54,9 @@ ohos_shared_library("nci_native_default") {
     "src/synchronize_event.cpp",
     "src/tag_host.cpp",
     "src/tag_native_impl.cpp",
-    "src/tag_nci_adapter.cpp",
+    "src/tag_nci_adapter_common.cpp",
+    "src/tag_nci_adapter_ntf.cpp",
+    "src/tag_nci_adapter_rw.cpp",
   ]
 
   public_configs = [ ":nci_native_default_config" ]
