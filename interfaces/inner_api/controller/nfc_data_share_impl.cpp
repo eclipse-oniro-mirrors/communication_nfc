@@ -53,8 +53,12 @@ KITS::ErrorCode NfcDataShareImpl::RegisterDataObserver(
     const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        ErrorLog("RegisterDataObserver: dataShareHelper_ is nullptr, retry init.");
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("RegisterDataObserver: dataShareHelper_ is nullptr, retry failed");
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     dataShareHelper_->RegisterObserver(uri, dataObserver);
     return KITS::ERR_NONE;
@@ -64,8 +68,12 @@ KITS::ErrorCode NfcDataShareImpl::UnregisterDataObserver(
     const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        ErrorLog("UnregisterDataObserver: dataShareHelper_ is nullptr, retry init.");
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("UnregisterDataObserver: dataShareHelper_ is nullptr, retry failed");
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     dataShareHelper_->UnregisterObserver(uri, dataObserver);
     return KITS::ERR_NONE;
@@ -74,8 +82,12 @@ KITS::ErrorCode NfcDataShareImpl::UnregisterDataObserver(
 KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, int32_t &value)
 {
     if (dataShareHelper_ == nullptr) {
-        ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        ErrorLog("GetValue: dataShareHelper_ is nullptr, retry init.");
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("GetValue: dataShareHelper_ is nullptr, retry failed");
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     DataShare::DataSharePredicates predicates;
     std::vector<std::string> columns;
