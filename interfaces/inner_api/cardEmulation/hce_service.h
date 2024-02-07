@@ -38,6 +38,7 @@ public:
     ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService);
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData);
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos);
+    KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids);
 
 protected:
     OHOS::sptr<HCE::IHceSession> GetHceSessionProxy();

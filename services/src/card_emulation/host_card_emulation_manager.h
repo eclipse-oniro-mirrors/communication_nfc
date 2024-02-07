@@ -24,12 +24,14 @@
 #include "element_name.h"
 #include "inci_ce_interface.h"
 #include "nfc_ability_connection_callback.h"
+#include "ce_service.h"
 
 namespace OHOS {
 namespace NFC {
 using OHOS::AppExecFwk::ElementName;
 class NfcService;
 class NfcAbilityConnectionCallback;
+class CeService;
 class HostCardEmulationManager : public std::enable_shared_from_this<HostCardEmulationManager> {
 public:
     enum HceState {
@@ -40,7 +42,8 @@ public:
         DATA_TRANSFER,
     };
     explicit HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
-                                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy);
+                                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
+                                      std::weak_ptr<CeService> ceService);
     ~HostCardEmulationManager();
     void OnHostCardEmulationDataNfcA(const std::vector<uint8_t>& data);
     void OnCardEmulationActivated();
@@ -71,7 +74,6 @@ private:
     std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
     bool DispatchAbilitySingleApp(ElementName& element);
-    void SearchElementByAid(const std::string& aid, ElementName& aidElement);
     bool EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken);
     bool IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken);
 
@@ -79,15 +81,18 @@ private:
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     friend class NfcService;
 
+    std::weak_ptr<CeService> ceService_{};
+    friend class CeService;
+
     std::map<std::string, HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
     std::vector<uint8_t> queueHceData_{};
+
     sptr<NfcAbilityConnectionCallback> abilityConnection_{};
+    friend class NfcAbilityConnectionCallback;
 
     std::mutex regInfoMutex_ {};
     std::mutex hceStateMutex_ {};
-
-    friend class NfcAbilityConnectionCallback;
 };
 } // namespace NFC
 } // namespace OHOS

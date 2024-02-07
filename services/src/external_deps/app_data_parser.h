@@ -72,7 +72,7 @@ public:
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback() const;
 #endif
-    void GetHceAppsByAid(const std::string &aid, std::vector<ElementName>& elementNames);
+    void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     bool IsSystemApp(uint32_t uid);

@@ -68,12 +68,21 @@ public:
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
     void Initialize();
     void Deinitialize();
+    bool StartHce(const ElementName &element, const std::vector<std::string> &aids);
+    bool StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken);
+    bool HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken);
     void OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data);
     void ConfigRoutingAndCommit();
+    void SearchElementByAid(const std::string& aid, ElementName& aidElement);
 
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();
+    bool IsDynamicAid(const std::string &aid);
+    bool IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp);
+    void SetHceInfo(const ElementName &element, const std::vector<std::string> &aids);
+    void ClearHceInfo();
+
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
 
@@ -84,6 +93,10 @@ private:
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
     ElementName defaultPaymentElement_;
     sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
+
+    ElementName foregroundElement_ {};
+    std::vector<std::string> dynamicAids_ {};
+    std::mutex updateForegroundMutex_ {};
 
     std::mutex configRoutingMutex_ {};
     std::map<std::string, AidEntry> aidToAidEntry_{};

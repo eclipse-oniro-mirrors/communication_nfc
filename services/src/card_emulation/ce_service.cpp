@@ -19,6 +19,8 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "setting_data_share_impl.h"
+#include "accesstoken_kit.h"
+#include "hap_token_info.h"
 
 namespace OHOS {
 namespace NFC {
@@ -29,9 +31,8 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
-    : nfcService_(nfcService),
-      nciCeProxy_(nciCeProxy),
-      hostCardEmulationManager_(std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy))
+    : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
+
 {
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
@@ -43,6 +44,15 @@ CeService::~CeService()
 {
     hostCardEmulationManager_ = nullptr;
     aidToAidEntry_.clear();
+    foregroundElement_.SetBundleName("");
+    foregroundElement_.SetAbilityName("");
+    foregroundElement_.SetDeviceID("");
+    foregroundElement_.SetModuleName("");
+    defaultPaymentElement_.SetBundleName("");
+    defaultPaymentElement_.SetAbilityName("");
+    defaultPaymentElement_.SetDeviceID("");
+    defaultPaymentElement_.SetModuleName("");
+    dynamicAids_.clear();
     DebugLog("CeService deconstructor end");
 }
 
@@ -139,6 +149,14 @@ void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
             }
         }
     }
+    for (const std::string &aid : dynamicAids_) {
+        AidEntry aidEntry;
+        aidEntry.aid = aid;
+        aidEntry.aidInfo = 0;
+        aidEntry.power = DEFAULT_PWR_STA_HOST;
+        aidEntry.route = DEFAULT_HOST_ROUTE_DEST;
+        aidEntries[aid] = aidEntry;
+    }
 }
 
 void CeService::ClearAidEntriesCache()
@@ -146,6 +164,16 @@ void CeService::ClearAidEntriesCache()
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     aidToAidEntry_.clear();
     DebugLog("ClearAidEntriesCache end");
+}
+
+bool CeService::IsDynamicAid(const std::string &targetAid)
+{
+    for (const std::string aid : dynamicAids_) {
+        if (aid == targetAid) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void CeService::OnDefaultPaymentServiceChange()
@@ -231,6 +259,63 @@ void CeService::ConfigRoutingAndCommit()
     }
 }
 
+void CeService::SearchElementByAid(const std::string &aid, ElementName &aidElement)
+{
+    if (aid.empty()) {
+        InfoLog("aid is empty");
+        return;
+    }
+    if (IsDynamicAid(aid) && !foregroundElement_.GetBundleName().empty()) {
+        InfoLog("is foreground element");
+        aidElement.SetBundleName(foregroundElement_.GetBundleName());
+        aidElement.SetAbilityName(foregroundElement_.GetAbilityName());
+        return;
+    }
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
+    ExternalDepsProxy::GetInstance().GetHceAppsByAid(aid, hceApps);
+    if (hceApps.empty()) {
+        InfoLog("No applications found");
+        return;
+    }
+    if (hceApps.size() == 1) {
+        ElementName element = hceApps[0].element;
+        aidElement.SetBundleName(element.GetBundleName());
+        aidElement.SetAbilityName(element.GetAbilityName());
+        return;
+    }
+    InfoLog("Found too many applications");
+    for (const AppDataParser::HceAppAidInfo &hceApp : hceApps) {
+        ElementName elementName = hceApp.element;
+        InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
+        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
+
+        bool isForegroud = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
+                           elementName.GetAbilityName() == foregroundElement_.GetAbilityName();
+        bool isDefaultPayment = elementName.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
+                                elementName.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
+        if (isForegroud) {
+            aidElement.SetBundleName(elementName.GetBundleName());
+            aidElement.SetAbilityName(elementName.GetAbilityName());
+            return;
+        } else if (isDefaultPayment && IsPaymentAid(aid, hceApp)) {
+            aidElement.SetBundleName(elementName.GetBundleName());
+            aidElement.SetAbilityName(elementName.GetAbilityName());
+            return;
+        }
+    }
+    InfoLog("No applications found");
+}
+
+bool CeService::IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp)
+{
+    for (const AppDataParser::AidInfo &aidInfo : hceApp.customDataAid) {
+        if (KITS::KEY_PAYMENT_AID == aidInfo.name &&aid = aidInfo.value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void CeService::HandleFieldActivated()
 {
     if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
@@ -289,16 +374,91 @@ void CeService::Initialize()
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->RegisterDataObserver(nfcDefaultPaymentApp,
                                                                                 dataRdbObserver_);
+    hostCardEmulationManager_ =
+        std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
     DebugLog("CeService Initialize end");
 }
 void CeService::Deinitialize()
 {
     DebugLog("CeService Deinitialize start");
     ClearAidEntriesCache();
+    foregroundElement_.SetBundleName("");
+    foregroundElement_.SetAbilityName("");
+    foregroundElement_.SetDeviceID("");
+    foregroundElement_.SetModuleName("");
+    dynamicAids_.clear();
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
                                                                                dataRdbObserver_);
     DebugLog("CeService Deinitialize end");
+}
+
+bool CeService::StartHce(const ElementName &element, const std::vector<std::string> &aids)
+{
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ is nullptr.");
+        return false;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("NFC not enabled, should not happen.");
+        return false;
+    }
+    SetHceInfo(element, aids);
+    ConfigRoutingAndCommit();
+    return true;
+}
+
+void CeService::SetHceInfo(const ElementName &element, const std::vector<std::string> &aids)
+{
+    InfoLog("SetHceInfo start.");
+    std::lock_guard<std::mutex> lock(updateForegroundMutex_);
+    foregroundElement_ = element;
+    dynamicAids_.clear();
+    dynamicAids_ = std::move(aids);
+}
+
+void CeService::ClearHceInfo()
+{
+    InfoLog("ClearHceInfo start.");
+    std::lock_guard<std::mutex> lock(updateForegroundMutex_);
+    foregroundElement_.SetBundleName("");
+    foregroundElement_.SetAbilityName("");
+    foregroundElement_.SetDeviceID("");
+    foregroundElement_.SetModuleName("");
+    dynamicAids_.clear();
+}
+
+bool CeService::StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken)
+{
+    bool isForegroud = element.GetBundleName() == foregroundElement_.GetBundleName() &&
+                       element.GetAbilityName() == foregroundElement_.GetAbilityName();
+    if (isForegroud) {
+        ClearHceInfo();
+        ConfigRoutingAndCommit();
+    }
+    return hostCardEmulationManager_->UnRegAllCallback(callerToken);
+}
+
+bool CeService::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken)
+{
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return false;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("HandleWhenRemoteDie: not got bundle name");
+        return false;
+    }
+
+    bool isForegroud = hapTokenInfo.bundleName == foregroundElement_.GetBundleName();
+    if (isForegroud) {
+        ClearHceInfo();
+        ConfigRoutingAndCommit();
+    }
+    return hostCardEmulationManager_->UnRegAllCallback(callerToken);
 }
 } // namespace NFC
 } // namespace OHOS

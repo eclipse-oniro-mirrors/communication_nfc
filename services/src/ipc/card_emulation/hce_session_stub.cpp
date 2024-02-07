@@ -52,6 +52,8 @@ int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OH
             return HandleStopHce(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_IS_DEFAULT_SERVICE):
             return HandleIsDefaultService(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_START):
+            return HandleStartHce(data, reply);
         default: return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
@@ -173,6 +175,53 @@ int HceSessionStub::HandleStopHce(MessageParcel &data, MessageParcel &reply)
     return ERR_NONE;
 }
 
+int HceSessionStub::HandleStartHce(MessageParcel &data, MessageParcel &reply)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleStartHce, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    InfoLog("HandleStartHce");
+    std::shared_ptr<KITS::StartHceInfoParcelable> startHceInfo = std::make_shared<StartHceInfoParcelable>(data);
+    if (startHceInfo == nullptr) {
+        ErrorLog("HandleStartHce, unmarshalled satrtHceInfo is null");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    int exception = data.ReadInt32();
+    if (exception) {
+        ErrorLog("HandleStartHce, unmarshalled exception ");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    KITS::ErrorCode ret = StartHceInner(startHceInfo);
+    DebugLog("HandleStartHce end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+    return ERR_NONE;
+}
+
+KITS::ErrorCode HceSessionStub::StartHceInner(std::shared_ptr<StartHceInfoParcelable> startHceInfo)
+{
+     Security::AccessToken::HapTokenInfo hapTokenInfo;
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("StartHce: not got bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    ElementName element= startHceInfo->GetElement();
+    std::vector<std::string> aids= startHceInfo->GetAids();
+    if (hapTokenInfo.bundleName != element.GetBundleName()) {
+        ErrorLog("StartHce: wrong bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    return StartHce(element, aids);
+}
+
+
 int HceSessionStub::HandleIsDefaultService(MessageParcel &data, MessageParcel &reply)
 {
     InfoLog("HandleIsDefaultService");
@@ -230,7 +279,7 @@ KITS::ErrorCode HceSessionStub::StopHce(ElementName &element)
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    return UnRegHceCmdCallback(KITS::EVENT_HCE_CMD, IPCSkeleton::GetCallingTokenID());
+    return StopHce(element, IPCSkeleton::GetCallingTokenID());
 }
 
 void HceSessionStub::RemoveHceDeathRecipient(const wptr<IRemoteObject> &remote)

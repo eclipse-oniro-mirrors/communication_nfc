@@ -391,9 +391,9 @@ HWTEST_F(ExternalDepsProxyTest, GetPaymentAbilityInfos001, TestSize.Level1)
 HWTEST_F(ExternalDepsProxyTest, GetHceAppsByAid001, TestSize.Level1)
 {
     std::string aid = "";
-    std::vector<ElementName> elementNames;
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
     std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
-    externalDepsProxy->GetHceAppsByAid(aid, elementNames);
+    externalDepsProxy->GetHceAppsByAid(aid, hceApps);
     std::vector<int> discTechList;
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);

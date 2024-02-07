@@ -179,9 +179,9 @@ void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& payment
     AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
 }
 
-void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<ElementName>& elementNames)
+void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps)
 {
-    AppDataParser::GetInstance().GetHceAppsByAid(aid, elementNames);
+    AppDataParser::GetInstance().GetHceAppsByAid(aid, hceApps);
 }
 
 void ExternalDepsProxy::GetHceApps(std::vector<AppDataParser::HceAppAidInfo>& hceApps)

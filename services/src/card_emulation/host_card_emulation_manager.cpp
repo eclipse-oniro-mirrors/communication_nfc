@@ -41,8 +41,9 @@ const uint32_t INDEX_3 = 3;
 const uint32_t INDEX_AID_LEN = 4;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
-                                                   std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
-    : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
+                                                   std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
+                                                   std::weak_ptr<CeService> ceService)
+    : nfcService_(nfcService), nciCeProxy_(nciCeProxy), ceService_(ceService)
 {
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
@@ -80,7 +81,11 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     InfoLog("selectAid = %{public}s", aid.c_str());
     InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
     ElementName aidElement;
-    SearchElementByAid(aid, aidElement);
+    if(ceService_.expired()){
+        ErrorLog("ce service expired.");
+        return;
+    }
+    ceService_.lock()->SearchElementByAid(aid, aidElement);
 
     std::lock_guard<std::mutex> lock(hceStateMutex_);
     switch (hceState_) {
@@ -106,32 +111,6 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
         }
         default: break;
     }
-}
-
-void HostCardEmulationManager::SearchElementByAid(const std::string& aid, ElementName& aidElement)
-{
-    if (aid.empty()) {
-        InfoLog("aid is empty");
-        return;
-    }
-    std::vector<ElementName> searchElementNames;
-    ExternalDepsProxy::GetInstance().GetHceAppsByAid(aid, searchElementNames);
-    if (searchElementNames.empty()) {
-        InfoLog("No applications found");
-        return;
-    }
-    if (searchElementNames.size() > 1) {
-        InfoLog("Found too many applications");
-    }
-    for (const ElementName& elementName : searchElementNames) {
-        InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
-        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
-    }
-    ElementName element = searchElementNames[0];
-    aidElement.SetBundleName(element.GetBundleName());
-    aidElement.SetAbilityName(element.GetAbilityName());
-    aidElement.SetDeviceID(element.GetDeviceID());
-    aidElement.SetModuleName(element.GetModuleName());
 }
 
 void HostCardEmulationManager::OnCardEmulationActivated()

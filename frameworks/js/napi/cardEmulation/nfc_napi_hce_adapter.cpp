@@ -482,6 +482,24 @@ napi_value NfcNapiHceAdapter::StartHCEDeprecated(napi_env env, napi_callback_inf
 }
 napi_value NfcNapiHceAdapter::StartHCE(napi_env env, napi_callback_info cbinfo)
 {
+    size_t argc = ARGV_NUM_2;
+    napi_value argv[ARGV_NUM_2] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
+    ElementName element;
+    std::vector<std::string> aidVec;
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) ||
+        !ParseElementName(env, element, argv[ARGV_INDEX_0]) !ParseStringVector(env, aidVec, argv[ARGV_INDEX_1],
+                                                                               MAX_AID_LIST_NUM_PER_APP)) {
+        ErrorLog("Start hce: parse args failed");
+        return CreateUndefined(env);
+    }
+
+    HceService hceService = HceService::GetInstance();
+    ErrorCode ret = hceService.StartHce(element, aidVec);
+    if (!CheckHceStatusCodeAndThrow(env, ret, "start")) {
+        ErrorLog("StartHce, statusCode = %{public}d", ret);
+    }
     return CreateUndefined(env);
 }
 napi_value NfcNapiHceAdapter::StopHCEDeprecated(napi_env env, napi_callback_info cbinfo)

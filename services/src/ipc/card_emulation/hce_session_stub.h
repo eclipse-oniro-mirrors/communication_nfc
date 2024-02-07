@@ -20,6 +20,7 @@
 #include "iremote_stub.h"
 #include "ihce_session.h"
 #include "message_parcel.h"
+#include "start_hce_info_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
@@ -40,6 +41,10 @@ public:
     virtual KITS::ErrorCode UnRegHceCmdCallback(const std::string& type,
                                                 Security::AccessToken::AccessTokenID callerToken) = 0;
     virtual KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken) = 0;
+
+    virtual KITS::ErrorCode StopHce(const ElementName& element,
+                                    Security::AccessToken::AccessTokenID callerToken) = 0;
 
     virtual int SendRawFrameByToken(std::string hexCmdData, bool raw, std::string& hexRespData,
                                     Security::AccessToken::AccessTokenID callerToken) = 0;
@@ -54,6 +59,10 @@ private:
     int HandleGetPaymentServices(MessageParcel& data, MessageParcel& reply);
 
     int HandleStopHce(MessageParcel& data, MessageParcel& reply);
+
+    int HandleStartHce(MessageParcel& data, MessageParcel& reply);
+
+    KITS::ErrorCode StartHceInner(std::shared_ptr<KITS::StartHceInfoParcelable> startHceInfo);
 
     int HandleIsDefaultService(MessageParcel& data, MessageParcel& reply);
 
