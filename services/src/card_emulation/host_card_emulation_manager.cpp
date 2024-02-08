@@ -81,7 +81,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     InfoLog("selectAid = %{public}s", aid.c_str());
     InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
     ElementName aidElement;
-    if(ceService_.expired()){
+    if (ceService_.expired()) {
         ErrorLog("ce service expired.");
         return;
     }

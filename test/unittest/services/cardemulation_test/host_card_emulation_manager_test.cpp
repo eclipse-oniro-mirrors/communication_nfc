@@ -86,7 +86,7 @@ HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA002, TestSize.
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
-        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy,ceService);
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
     hostCardEmulationManager->OnHostCardEmulationDataNfcA(data);
     Security::AccessToken::AccessTokenID callerToken = 0;
     bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);

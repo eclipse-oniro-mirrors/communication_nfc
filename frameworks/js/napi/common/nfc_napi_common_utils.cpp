@@ -132,7 +132,8 @@ bool ParseUInt32Vector(napi_env& env, std::vector<uint32_t>& vec, napi_value &ar
     return true;
 }
 
-bool ParseStringVector(napi_env& env, std::vector<std::string>& vec, napi_value &args, uint32_t maxLen){
+bool ParseStringVector(napi_env &env, std::vector<std::string> &vec, napi_value &args, uint32_t maxLen)
+{
     bool isArray = false;
     napi_status status = napi_is_array(env, args, &isArray);
     if (status != napi_ok || !isArray) {
@@ -141,7 +142,7 @@ bool ParseStringVector(napi_env& env, std::vector<std::string>& vec, napi_value 
     }
     uint32_t arrayLen = 0;
     napi_get_array_length(env, args, &arrayLen);
-    if(arrayLen> maxLen){
+    if (arrayLen > maxLen) {
         ErrorLog("ParseStringVector, too big array!");
         return false;
     }

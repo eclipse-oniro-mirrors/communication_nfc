@@ -78,7 +78,7 @@ KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenI
 
 KITS::ErrorCode HceSession::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken)
 {
-   if (ceService_.expired()) {
+    if (ceService_.expired()) {
         ErrorLog("HandleWhenRemoteDie ceService_ is nullptr");
         return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
     }

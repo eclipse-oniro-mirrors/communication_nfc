@@ -200,7 +200,7 @@ int HceSessionStub::HandleStartHce(MessageParcel &data, MessageParcel &reply)
 
 KITS::ErrorCode HceSessionStub::StartHceInner(std::shared_ptr<StartHceInfoParcelable> startHceInfo)
 {
-     Security::AccessToken::HapTokenInfo hapTokenInfo;
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
 
@@ -212,15 +212,14 @@ KITS::ErrorCode HceSessionStub::StartHceInner(std::shared_ptr<StartHceInfoParcel
         ErrorLog("StartHce: not got bundle name");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    ElementName element= startHceInfo->GetElement();
-    std::vector<std::string> aids= startHceInfo->GetAids();
+    ElementName element = startHceInfo->GetElement();
+    std::vector<std::string> aids = startHceInfo->GetAids();
     if (hapTokenInfo.bundleName != element.GetBundleName()) {
         ErrorLog("StartHce: wrong bundle name");
         return KITS::ERR_HCE_PARAMETERS;
     }
     return StartHce(element, aids);
 }
-
 
 int HceSessionStub::HandleIsDefaultService(MessageParcel &data, MessageParcel &reply)
 {

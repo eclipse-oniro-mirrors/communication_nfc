@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@ namespace KITS {
 using AppExecFwk::ElementName;
 class StartHceInfoParcelable : public Parcelable {
     StartHceInfoParcelable(const std::vector<std::string> &aids, const ElementName &element);
-    StartHceInfoParcelable(Parcel &parcel);
+    explicit StartHceInfoParcelable(Parcel &parcel);
     ~StartHceInfoParcelable();
     bool Marshalling(Parcel &parcel) const override;
     void SetAids(const std::vector<std::string> &aids);
