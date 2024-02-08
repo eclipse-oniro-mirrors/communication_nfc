@@ -488,9 +488,8 @@ napi_value NfcNapiHceAdapter::StartHCE(napi_env env, napi_callback_info cbinfo)
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
     ElementName element;
     std::vector<std::string> aidVec;
-    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) ||
-        !ParseElementName(env, element, argv[ARGV_INDEX_0]) !ParseStringVector(env, aidVec, argv[ARGV_INDEX_1],
-                                                                               MAX_AID_LIST_NUM_PER_APP)) {
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_2) || !ParseElementName(env, element, argv[ARGV_INDEX_0]) ||
+        !ParseStringVector(env, aidVec, argv[ARGV_INDEX_1], MAX_AID_LIST_NUM_PER_APP)) {
         ErrorLog("Start hce: parse args failed");
         return CreateUndefined(env);
     }

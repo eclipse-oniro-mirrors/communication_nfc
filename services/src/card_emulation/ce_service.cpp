@@ -309,7 +309,7 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
 bool CeService::IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp)
 {
     for (const AppDataParser::AidInfo &aidInfo : hceApp.customDataAid) {
-        if (KITS::KEY_PAYMENT_AID == aidInfo.name &&aid = aidInfo.value) {
+        if (KITS::KEY_PAYMENT_AID == aidInfo.name && aid == aidInfo.value) {
             return true;
         }
     }
