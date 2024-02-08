@@ -168,7 +168,7 @@ void CeService::ClearAidEntriesCache()
 
 bool CeService::IsDynamicAid(const std::string &targetAid)
 {
-    for (const std::string aid : dynamicAids_) {
+    for (const std::string &aid : dynamicAids_) {
         if (aid == targetAid) {
             return true;
         }

@@ -22,8 +22,10 @@ namespace NFC {
 namespace KITS {
 using AppExecFwk::ElementName;
 class StartHceInfoParcelable : public Parcelable {
+public:
     StartHceInfoParcelable(const std::vector<std::string> &aids, const ElementName &element);
     explicit StartHceInfoParcelable(Parcel &parcel);
+    StartHceInfoParcelable();
     ~StartHceInfoParcelable();
     bool Marshalling(Parcel &parcel) const override;
     void SetAids(const std::vector<std::string> &aids);

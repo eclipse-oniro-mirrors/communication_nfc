@@ -182,7 +182,7 @@ int HceSessionStub::HandleStartHce(MessageParcel &data, MessageParcel &reply)
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("HandleStartHce");
-    std::shared_ptr<KITS::StartHceInfoParcelable> startHceInfo = std::make_shared<StartHceInfoParcelable>(data);
+    std::shared_ptr<KITS::StartHceInfoParcelable> startHceInfo = std::make_shared<KITS::StartHceInfoParcelable>(data);
     if (startHceInfo == nullptr) {
         ErrorLog("HandleStartHce, unmarshalled satrtHceInfo is null");
         return KITS::ERR_HCE_PARAMETERS;
@@ -198,7 +198,7 @@ int HceSessionStub::HandleStartHce(MessageParcel &data, MessageParcel &reply)
     return ERR_NONE;
 }
 
-KITS::ErrorCode HceSessionStub::StartHceInner(std::shared_ptr<StartHceInfoParcelable> startHceInfo)
+KITS::ErrorCode HceSessionStub::StartHceInner(std::shared_ptr<KITS::StartHceInfoParcelable> startHceInfo)
 {
     Security::AccessToken::HapTokenInfo hapTokenInfo;
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();

@@ -43,6 +43,9 @@ StartHceInfoParcelable::StartHceInfoParcelable(Parcel &parcel)
 
     element_.ReadFromParcel(parcel);
 }
+StartHceInfoParcelable::StartHceInfoParcelable()
+{
+}
 StartHceInfoParcelable::~StartHceInfoParcelable()
 {
     aids_.clear();
@@ -57,7 +60,7 @@ bool StartHceInfoParcelable::Marshalling(Parcel &parcel) const
         ErrorLog("write size failed");
         return false;
     }
-    for (uint32_t i = 0; i < aids.size(); i++) {
+    for (uint32_t i = 0; i < aids_.size(); i++) {
         if (!parcel.WriteString(aids_[i])) {
             ErrorLog("write aid failed");
             return false;
