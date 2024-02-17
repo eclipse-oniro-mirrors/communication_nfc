@@ -74,10 +74,6 @@ int NdefMsgCallbackStub::OnRemoteRequest(
 KITS::ErrorCode NdefMsgCallbackStub::RegisterCallback(const sptr<INdefMsgCallback> &callback)
 {
     DebugLog("NdefMsgCallbackStub RegisterCallBack");
-    if (callback_ != nullptr) {
-        ErrorLog("NdefMsgCallbackStub:Callback_ has registered!");
-        return KITS::ERR_NFC_PARAMETERS;
-    }
     std::unique_lock<std::shared_mutex> guard(mutex_);
     if (callback == nullptr) {
         ErrorLog("RegisterUserCallBack:callBack is nullptr!");
