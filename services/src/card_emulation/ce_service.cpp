@@ -134,8 +134,8 @@ void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
     InfoLog("AddAidRoutingHceOtherAids: hce apps size %{public}zu", hceApps.size());
     for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
-        bool isForeground = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
-                           elementName.GetAbilityName() == foregroundElement_.GetAbilityName();
+        bool isForeground = appAidInfo.element.GetBundleName() == foregroundElement_.GetBundleName() &&
+                           appAidInfo.element.GetAbilityName() == foregroundElement_.GetAbilityName();
         bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
         for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
