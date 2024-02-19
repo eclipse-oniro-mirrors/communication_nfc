@@ -134,11 +134,14 @@ void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
     InfoLog("AddAidRoutingHceOtherAids: hce apps size %{public}zu", hceApps.size());
     for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
+        bool isForeground = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
+                           elementName.GetAbilityName() == foregroundElement_.GetAbilityName();
         bool isDefaultPayment = appAidInfo.element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 appAidInfo.element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
         for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
-            // add payment aid of default payment app and other aid of all apps
-            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isDefaultPayment;
+            // add payment aid of default payment app and foreground app
+            // add other aid of all apps
+            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isForeground || isDefaultPayment;
             if (shouldAdd) {
                 AidEntry aidEntry;
                 aidEntry.aid = aidInfo.value;
@@ -289,15 +292,17 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
         InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
         InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
 
-        bool isForegroud = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
+        bool isForeground = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
                            elementName.GetAbilityName() == foregroundElement_.GetAbilityName();
         bool isDefaultPayment = elementName.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 elementName.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
-        if (isForegroud) {
+        if (isForeground) {
+            InfoLog("is foreground element");
             aidElement.SetBundleName(elementName.GetBundleName());
             aidElement.SetAbilityName(elementName.GetAbilityName());
             return;
         } else if (isDefaultPayment && IsPaymentAid(aid, hceApp)) {
+            InfoLog("is default payment element");
             aidElement.SetBundleName(elementName.GetBundleName());
             aidElement.SetAbilityName(elementName.GetAbilityName());
             return;
