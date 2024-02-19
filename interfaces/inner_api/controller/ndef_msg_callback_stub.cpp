@@ -32,11 +32,11 @@ NdefMsgCallbackStub& NdefMsgCallbackStub::GetInstance()
     return instance;
 }
 
-bool NdefMsgCallbackStub::OnNdefMsgDiscovered(std::string msg, int ndefMsgType)
+bool NdefMsgCallbackStub::OnNdefMsgDiscovered(std::string &tagUid, std::string &ndef, int ndefMsgType)
 {
     if (callback_) {
         DebugLog("NdefMsgCallbackStub callback_");
-        return callback_->OnNdefMsgDiscovered(msg, ndefMsgType);
+        return callback_->OnNdefMsgDiscovered(tagUid, ndef, ndefMsgType);
     }
     return false;
 }
@@ -87,10 +87,11 @@ KITS::ErrorCode NdefMsgCallbackStub::RegisterCallback(const sptr<INdefMsgCallbac
 int NdefMsgCallbackStub::RemoteNdefMsgDiscovered(MessageParcel &data, MessageParcel &reply)
 {
     InfoLog("NdefMsgCallbackStub::RemoteNdefMsgDiscovered");
-    std::string msg = data.ReadString();
+    std::string tagUid = data.ReadString();
+    std::string ndef = data.ReadString();
     int type = data.ReadInt32();
     std::shared_lock<std::shared_mutex> guard(mutex_);
-    bool res = OnNdefMsgDiscovered(msg, type);
+    bool res = OnNdefMsgDiscovered(tagUid, ndef, type);
     reply.WriteBool(res); // Reply for ndef parse result
     return KITS::ERR_NONE;
 }

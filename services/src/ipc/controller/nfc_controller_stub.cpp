@@ -222,6 +222,10 @@ int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParc
 
 int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& reply)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleRegNdefMsgCb no permission");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
     InfoLog("NfcControllerStub::HandleRegNdefMsgCb");
     KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
     do {
