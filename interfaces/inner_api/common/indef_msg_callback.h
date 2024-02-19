@@ -21,7 +21,7 @@ namespace OHOS {
 namespace NFC {
 class INdefMsgCallback : public IRemoteBroker {
 public:
-    virtual bool OnNdefMsgDiscovered(std::string msg, int ndefMsgType) = 0;
+    virtual bool OnNdefMsgDiscovered(std::string &tagUid, std::string &ndef, int ndefMsgType) = 0;
 
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.INdefMsgCallback");

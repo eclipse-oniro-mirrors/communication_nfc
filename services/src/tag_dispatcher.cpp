@@ -49,21 +49,22 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
     ndefCb_ = callback;
 }
 
-bool TagDispatcher::HandleNdefDispatch(std::string &msg)
+bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
     if (msg.empty()) {
         return false;
     }
     bool ndefCbRes = false;
+    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     if (ndefCb_ != nullptr) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(msg, NDEF_TYPE_NORMAL);
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, msg, NDEF_TYPE_NORMAL);
     }
     if (ndefCbRes) {
         return true;
     }
     std::shared_ptr<BtOobData> btData = NdefBtOobDataParser::CheckBtRecord(msg);
     if (btData->isValid_ && !btData->vendorPayload_.empty()) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(btData->vendorPayload_, NDEF_TYPE_BT_OOB);
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, btData->vendorPayload_, NDEF_TYPE_BT_OOB);
     }
     if (ndefCbRes) {
         return true;
@@ -106,7 +107,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
             break;
         }
-        if (ndefMessage != nullptr && HandleNdefDispatch(ndefMsg)) {
+        if (ndefMessage != nullptr && HandleNdefDispatch(tagDiscId, ndefMsg)) {
             break;
         }
         DispatchTag(tagDiscId);
