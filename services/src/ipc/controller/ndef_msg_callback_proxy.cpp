@@ -24,7 +24,7 @@ NdefMsgCallbackProxy::NdefMsgCallbackProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<INdefMsgCallback>(remote)
 {}
 
-bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(std::string &tagUid, std::string &ndef, int ndefMsgType)
+bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType)
 {
     DebugLog("NdefMsgCallbackProxy::OnNdefMsgDiscovered");
     MessageOption option = {MessageOption::TF_ASYNC};
