@@ -27,7 +27,7 @@ public:
 
     virtual ~NdefMsgCallbackProxy() {}
 
-    bool OnNdefMsgDiscovered(std::string &tagUid, std::string &ndef, int ndefMsgType) override;
+    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType) override;
 
 private:
     static inline BrokerDelegator<NdefMsgCallbackProxy> g_delegator;

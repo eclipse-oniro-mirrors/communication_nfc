@@ -32,7 +32,7 @@ NdefMsgCallbackStub& NdefMsgCallbackStub::GetInstance()
     return instance;
 }
 
-bool NdefMsgCallbackStub::OnNdefMsgDiscovered(std::string &tagUid, std::string &ndef, int ndefMsgType)
+bool NdefMsgCallbackStub::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType)
 {
     if (callback_) {
         DebugLog("NdefMsgCallbackStub callback_");
