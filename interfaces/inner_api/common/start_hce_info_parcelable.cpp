@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,10 @@ StartHceInfoParcelable::~StartHceInfoParcelable()
 }
 bool StartHceInfoParcelable::Marshalling(Parcel &parcel) const
 {
+    if (aids_.size() > MAX_AID_LIST_NUM_PER_APP) {
+        ErrorLog("invalid length");
+        return false;
+    }
     if (!parcel.WriteUint32(aids_.size())) {
         ErrorLog("write size failed");
         return false;

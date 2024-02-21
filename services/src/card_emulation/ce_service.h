@@ -75,6 +75,8 @@ public:
     void ConfigRoutingAndCommit();
     void SearchElementByAid(const std::string& aid, ElementName& aidElement);
 
+    void LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
+
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();

@@ -268,6 +268,7 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
         InfoLog("aid is empty");
         return;
     }
+    // find dynamic aid
     if (IsDynamicAid(aid) && !foregroundElement_.GetBundleName().empty()) {
         InfoLog("is foreground element");
         aidElement.SetBundleName(foregroundElement_.GetBundleName());
@@ -280,6 +281,7 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
         InfoLog("No applications found");
         return;
     }
+    // only one element, resolved
     if (hceApps.size() == 1) {
         ElementName element = hceApps[0].element;
         aidElement.SetBundleName(element.GetBundleName());
@@ -297,18 +299,26 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
         bool isDefaultPayment = elementName.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
                                 elementName.GetAbilityName() == defaultPaymentElement_.GetAbilityName();
         if (isForeground) {
+            // is foregroud, resolved
             InfoLog("is foreground element");
             aidElement.SetBundleName(elementName.GetBundleName());
             aidElement.SetAbilityName(elementName.GetAbilityName());
             return;
         } else if (isDefaultPayment && IsPaymentAid(aid, hceApp)) {
+            // is default payment, resolved
             InfoLog("is default payment element");
             aidElement.SetBundleName(elementName.GetBundleName());
             aidElement.SetAbilityName(elementName.GetAbilityName());
             return;
         }
     }
-    InfoLog("No applications found");
+    
+    LetUserDecide(hceApps);
+    InfoLog("SearchElementByAid end.");
+}
+void CeService::LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
+{
+    InfoLog("too many applications found, let user decide.");
 }
 
 bool CeService::IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp)
