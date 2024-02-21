@@ -69,6 +69,13 @@ public:
      */
     virtual KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type,
                                              bool &isDefaultService) = 0;
+    /**
+     * @brief start hce
+     * @param  element: foreground element
+     * @param  aids: dynamic aid
+     * @return result
+     */
+    virtual KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids) = 0;
 
 private:
 };

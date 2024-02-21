@@ -132,6 +132,38 @@ bool ParseUInt32Vector(napi_env& env, std::vector<uint32_t>& vec, napi_value &ar
     return true;
 }
 
+bool ParseStringVector(napi_env &env, std::vector<std::string> &vec, napi_value &args, uint32_t maxLen)
+{
+    bool isArray = false;
+    napi_status status = napi_is_array(env, args, &isArray);
+    if (status != napi_ok || !isArray) {
+        ErrorLog("ParseStringVector: not array");
+        return false;
+    }
+    uint32_t arrayLen = 0;
+    napi_get_array_length(env, args, &arrayLen);
+    if (arrayLen > maxLen) {
+        ErrorLog("ParseStringVector, too big array!");
+        return false;
+    }
+    for (uint32_t i = 0; i < arrayLen; i++) {
+        napi_value element = nullptr;
+        napi_get_element(env, args, i, &element);
+
+        napi_valuetype valueType;
+        napi_typeof(env, element, &valueType);
+        if (valueType != napi_string) {
+            ErrorLog("ParseStringVector, not string!");
+            return false;
+        }
+
+        std::string stringValue;
+        ParseString(env, stringValue, element);
+        vec.push_back(stringValue);
+    }
+    return true;
+}
+
 bool ParseElementName(napi_env &env, ElementName &element, napi_value &args)
 {
     napi_valuetype valueType = napi_undefined;

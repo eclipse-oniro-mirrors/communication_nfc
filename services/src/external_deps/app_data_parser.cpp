@@ -513,12 +513,12 @@ sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback() c
 }
 #endif
 
-void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<ElementName>& elementNames)
+void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps)
 {
     for (const HceAppAidInfo& appAidInfo : g_hceAppAndAidMap) {
         for (const AidInfo& aidInfo : appAidInfo.customDataAid) {
             if (aid == aidInfo.value) {
-                elementNames.push_back(appAidInfo.element);
+                hceApps.push_back(appAidInfo);
                 break;
             }
         }

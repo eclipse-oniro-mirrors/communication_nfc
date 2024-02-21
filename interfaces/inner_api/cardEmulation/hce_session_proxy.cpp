@@ -22,6 +22,7 @@
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "ce_payment_services_parcelable.h"
+#include "start_hce_info_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
@@ -163,6 +164,34 @@ KITS::ErrorCode HceSessionProxy::IsDefaultService(ElementName &element, const st
         isDefaultService);
     if (error != ERR_NONE) {
         ErrorLog("IsDefaultService failed, error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode HceSessionProxy::StartHce(const ElementName &element, const std::vector<std::string> &aids)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("Write interface token error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    KITS::StartHceInfoParcelable startHceInfo;
+    startHceInfo.SetAids(aids);
+    startHceInfo.SetElement(element);
+    if (!startHceInfo.Marshalling(data)) {
+        ErrorLog("Write start info error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    data.WriteInt32(0);
+    int error = SendRequestExpectReplyNone(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_START), data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("StartHce failed, error code is %{public}d", error);
         return KITS::ERR_HCE_PARAMETERS;
     }
     return KITS::ERR_NONE;

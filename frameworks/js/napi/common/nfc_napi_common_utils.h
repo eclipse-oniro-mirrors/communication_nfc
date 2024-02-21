@@ -166,6 +166,7 @@ bool ParseInt32(napi_env env, int32_t &param, napi_value args);
 bool ParseBool(napi_env env, bool &param, napi_value args);
 bool ParseBytesVector(napi_env env, std::vector<unsigned char> &vec, napi_value args);
 bool ParseUInt32Vector(napi_env &env, std::vector<uint32_t> &vec, napi_value &args);
+bool ParseStringVector(napi_env& env, std::vector<std::string>& vec, napi_value &args, uint32_t maxLen);
 bool ParseElementName(napi_env &env, ElementName &element, napi_value &args);
 bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value args);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);

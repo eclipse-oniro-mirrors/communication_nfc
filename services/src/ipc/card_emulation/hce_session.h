@@ -42,6 +42,7 @@ public:
     KITS::ErrorCode UnRegHceCmdCallback(const std::string &type,
                                         Security::AccessToken::AccessTokenID callerToken) override;
     KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken) override;
 
     int SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
                      Security::AccessToken::AccessTokenID callerToken) override;
@@ -49,6 +50,10 @@ public:
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 
     KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService) override;
+
+    KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids) override;
+
+    KITS::ErrorCode StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
 

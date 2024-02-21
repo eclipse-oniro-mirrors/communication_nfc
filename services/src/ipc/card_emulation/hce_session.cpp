@@ -76,6 +76,18 @@ KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenI
     return KITS::ERR_HCE_PARAMETERS;
 }
 
+KITS::ErrorCode HceSession::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken)
+{
+    if (ceService_.expired()) {
+        ErrorLog("HandleWhenRemoteDie ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.lock()->HandleWhenRemoteDie(callerToken)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_HCE_PARAMETERS;
+}
+
 int HceSession::SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
                                     Security::AccessToken::AccessTokenID callerToken)
 {
@@ -99,6 +111,30 @@ KITS::ErrorCode HceSession::IsDefaultService(ElementName &element, const std::st
     }
     isDefaultService = ceService_.lock()->IsDefaultService(element, type);
     return KITS::ERR_NONE;
+}
+
+KITS::ErrorCode HceSession::StartHce(const ElementName &element, const std::vector<std::string> &aids)
+{
+    if (ceService_.expired()) {
+        ErrorLog("StartHce ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.lock()->StartHce(element, aids)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_HCE_PARAMETERS;
+}
+
+KITS::ErrorCode HceSession::StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken)
+{
+    if (ceService_.expired()) {
+        ErrorLog("StopHce ceService_ is nullptr");
+        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.lock()->StopHce(element, callerToken)) {
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_HCE_PARAMETERS;
 }
 
 int32_t HceSession::Dump(int32_t fd, const std::vector<std::u16string> &args)

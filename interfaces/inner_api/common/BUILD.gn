@@ -46,6 +46,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     "ndef_message.cpp",
     "nfc_basic_proxy.cpp",
     "nfc_sdk_common.cpp",
+    "start_hce_info_parcelable.cpp",
     "taginfo.cpp",
     "taginfo_parcelable.cpp",
   ]

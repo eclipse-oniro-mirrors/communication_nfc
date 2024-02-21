@@ -93,6 +93,17 @@ int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
     }
     return hceSession->GetPaymentServices(abilityInfos);
 }
+
+KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vector<std::string> &aids)
+{
+    DebugLog("HceService::StartHce");
+    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
+    if (hceSession == nullptr) {
+        ErrorLog("HceService::StartHce, ERR_HCE_STATE_UNBIND");
+        return ErrorCode::ERR_HCE_STATE_UNBIND;
+    }
+    return hceSession->StartHce(element, aids);
+}
 OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
 {
     if (hceSessionProxy_ == nullptr) {
