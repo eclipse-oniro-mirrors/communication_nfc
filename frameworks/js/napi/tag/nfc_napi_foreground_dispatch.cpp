@@ -419,6 +419,9 @@ bool CheckResultAndThrow(napi_env &env, int result, std::string funcName)
     } else if (result == ERR_TAG_APP_NOT_REGISTERED) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_REGISTER_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_REGISTER_STATE_INVALID, "", "", "", "")));
+    } else if (result == ERR_TAG_STATE_NFC_CLOSED) {
+        napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
+            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
     }
     return false;
 }
@@ -626,7 +629,7 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
     }
     if (argc >= requiredArgcWithCb) {
         napi_valuetype handler = napi_undefined;
-        napi_typeof(env, argv[1], &handler);
+        napi_typeof(env, argv[ARGV_INDEX_2], &handler);
         if (handler == napi_null || handler == napi_undefined) {
             argc -= 1;
             DebugLog("argv[2] is null or undefined, handle as no argv[2] input");

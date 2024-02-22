@@ -28,6 +28,12 @@ BasicTagSession::BasicTagSession(std::weak_ptr<TagInfo> tagInfo, KITS::TagTechno
 
 OHOS::sptr<TAG::ITagSession> BasicTagSession::GetTagSessionProxy()
 {
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("GetTagSessionProxy: nfc is not open");
+        return nullptr;
+    }
     if (tagSessionProxy_ == nullptr) {
         OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
         if (iface != nullptr) {
