@@ -63,7 +63,7 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         return true;
     }
     std::shared_ptr<BtOobData> btData = NdefBtOobDataParser::CheckBtRecord(msg);
-    if (btData->isValid_ && !btData->vendorPayload_.empty()) {
+    if (ndefCb_ != nullptr && btData->isValid_ && !btData->vendorPayload_.empty()) {
         ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, btData->vendorPayload_, NDEF_TYPE_BT_OOB);
     }
     if (ndefCbRes) {
