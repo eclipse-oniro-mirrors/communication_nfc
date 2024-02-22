@@ -414,7 +414,8 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         return recordList;
     }
 
-    std::string tagRtdType, id;
+    std::string tagRtdType;
+    std::string id;
     std::vector<std::string> chunks;
     bool isChunkFound = false;
     char chunkTnf = 0;
