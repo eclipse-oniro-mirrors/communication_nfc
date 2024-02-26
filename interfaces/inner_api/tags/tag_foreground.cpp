@@ -58,6 +58,12 @@ ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
     std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback)
 {
     DebugLog("TagForeground::RegForeground");
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("RegForeground: nfc is not open");
+        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("TagForeground::RegForeground, ERR_NO_PERMISSION");
@@ -69,6 +75,12 @@ ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
 ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregForeground");
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("UnregForeground: nfc is not open");
+        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("TagForeground::UnregForeground, ERR_NO_PERMISSION");
@@ -82,6 +94,12 @@ ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
                                        const sptr<KITS::IReaderModeCallback> &callback)
 {
     DebugLog("TagForeground::RegReaderMode");
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("RegReaderMode: nfc is not open");
+        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("TagForeground::RegReaderMode, ERR_NO_PERMISSION");
@@ -93,6 +111,12 @@ ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
 ErrorCode TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregReaderMode");
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("UnregReaderMode: nfc is not open");
+        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("TagForeground::UnregReaderMode, ERR_NO_PERMISSION");
