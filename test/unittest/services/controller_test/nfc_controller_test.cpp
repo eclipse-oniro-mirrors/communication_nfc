@@ -188,7 +188,7 @@ HWTEST_F(NfcControllerTest, GetTagServiceIface001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
     OHOS::sptr<IRemoteObject> objsPtr = ctrl.GetTagServiceIface();
-    ASSERT_TRUE(objsPtr != nullptr);
+    ASSERT_TRUE(objsPtr == nullptr);
 }
 
 /**

@@ -51,11 +51,11 @@ void HceSessionTest::TearDown()
 }
 
 /**
- * @tc.name: RegHceCmdCallback001
- * @tc.desc: Test HceSessionTest RegHceCmdCallback.
+ * @tc.name: RegHceCmdCallbackByToken001
+ * @tc.desc: Test HceSessionTest RegHceCmdCallbackByToken.
  * @tc.type: FUNC
  */
-HWTEST_F(HceSessionTest, RegHceCmdCallback001, TestSize.Level1)
+HWTEST_F(HceSessionTest, RegHceCmdCallbackByToken001, TestSize.Level1)
 {
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
@@ -67,11 +67,11 @@ HWTEST_F(HceSessionTest, RegHceCmdCallback001, TestSize.Level1)
 }
 
 /**
- * @tc.name: SendRawFrame001
- * @tc.desc: Test HceSessionTest SendRawFrame.
+ * @tc.name: SendRawFrameByToken001
+ * @tc.desc: Test HceSessionTest SendRawFrameByToken.
  * @tc.type: FUNC
  */
-HWTEST_F(HceSessionTest, SendRawFrame001, TestSize.Level1)
+HWTEST_F(HceSessionTest, SendRawFrameByToken001, TestSize.Level1)
 {
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
     std::string hexCmdData = "";
@@ -96,6 +96,35 @@ HWTEST_F(HceSessionTest, Dump001, TestSize.Level1)
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
     int dump = hceSession->Dump(fd, args);
     ASSERT_TRUE(dump == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
+}
+
+/**
+ * @tc.name: UnRegHceCmdCallback001
+ * @tc.desc: Test HceSessionTest UnRegHceCmdCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, UnRegHceCmdCallback001, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    const std::string type = "";
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    KITS::ErrorCode errorCode = hceSession->UnRegHceCmdCallback(type, callerToken);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
+}
+
+/**
+ * @tc.name: UnRegAllCallback001
+ * @tc.desc: Test HceSessionTest UnRegAllCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, UnRegAllCallback001, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    KITS::ErrorCode errorCode = hceSession->UnRegAllCallback(callerToken);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
 }
 }
 }
