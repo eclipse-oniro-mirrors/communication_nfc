@@ -366,13 +366,13 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
 
 uint16_t TagSession::GetFgDataVecSize()
 {
-    std::shared_lock<std::shared_mutex> guard(fgMutex_);
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return fgDataVec_.size();
 }
 
 uint16_t TagSession::GetReaderDataVecSize()
 {
-    std::shared_lock<std::shared_mutex> guard(fgMutex_);
+    std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return readerDataVec_.size();
 }
 

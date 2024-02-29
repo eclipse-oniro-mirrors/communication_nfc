@@ -93,7 +93,7 @@ KITS::ErrorCode OnCardEmulationNotifyCbStub::RegisterCallback(const OnCardEmulat
 
 int OnCardEmulationNotifyCbStub::RemoteCardEmulationNotify(MessageParcel &data, MessageParcel &reply)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     uint32_t eventType = data.ReadInt32();
     std::string apduData = data.ReadString();
     OnCardEmulationNotify(eventType, apduData);

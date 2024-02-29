@@ -86,7 +86,7 @@ int HceCmdCallbackStub::RemoteOnCeApduData(MessageParcel &data, MessageParcel &r
     InfoLog("run %{public}zu datasize ", data.GetRawDataSize());
     std::vector<uint8_t> apduData;
     data.ReadUInt8Vector(&apduData);
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     OnCeApduData(apduData);
     reply.WriteInt32(KITS::ERR_NONE); /* Reply 0 to indicate that no exception occurs. */
     return KITS::ERR_NONE;

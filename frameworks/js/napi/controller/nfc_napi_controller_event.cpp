@@ -45,7 +45,7 @@ public:
     template<typename T>
     void CheckAndNotify(const std::string& type, const T& obj)
     {
-        std::shared_lock<std::shared_mutex> guard(g_regInfoMutex);
+        std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
         if (!CheckIsRegister(type)) {
             return;
         }
