@@ -90,7 +90,7 @@ int NdefMsgCallbackStub::RemoteNdefMsgDiscovered(MessageParcel &data, MessagePar
     std::string tagUid = data.ReadString();
     std::string ndef = data.ReadString();
     int type = data.ReadInt32();
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     bool res = OnNdefMsgDiscovered(tagUid, ndef, type);
     reply.WriteBool(res); // Reply for ndef parse result
     return KITS::ERR_NONE;

@@ -92,7 +92,7 @@ int NfcControllerCallBackStub::RemoteNfcStateChanged(MessageParcel &data, Messag
 {
     InfoLog("run %{public}zu datasize ", data.GetRawDataSize());
     int state = data.ReadInt32();
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     OnNfcStateChanged(state);
     reply.WriteInt32(KITS::ERR_NONE); /* Reply 0 to indicate that no exception occurs. */
     return KITS::ERR_NONE;

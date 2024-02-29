@@ -91,7 +91,7 @@ KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryTagAppCallback(const Quer
         InfoLog("RegisterQueryTagAppCallback::queryTagAppByTechCallback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (tagCallback == nullptr) {
         InfoLog("RegisterQueryTagAppCallback::callback is nullptr!");
         queryTagAppByTechCallback_ = tagCallback;
@@ -119,7 +119,7 @@ KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryHceAppCallback(const Quer
 
 int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessageParcel &reply)
 {
-    std::shared_lock<std::shared_mutex> guard(mutex_);
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     std::string type = data.ReadString();
     std::vector<AppExecFwk::ElementName> elementNameList;
     std::vector<AAFwk::Want> hceAppList;
