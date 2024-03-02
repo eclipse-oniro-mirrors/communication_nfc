@@ -218,6 +218,7 @@ std::shared_ptr<BtOobData> NdefBtOobDataParser::ParseBtOobRecord(const std::stri
             }
             default: {
                 offset += (len - 1);
+                isValid = true;
                 ErrorLog("NdefBtOobDataParser::ParseBtOobRecord, unknown type = %{public}d", type);
                 break;
             }
