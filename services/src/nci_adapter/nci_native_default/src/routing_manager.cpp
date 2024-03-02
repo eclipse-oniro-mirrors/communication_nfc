@@ -311,7 +311,6 @@ void RoutingManager::SetDefaultAidRoute(int defaultPaymentType)
         } else {
             InfoLog("SetDefaultAidRoute: Succeed to register zero length AID");
         }
-
     } else {
         ErrorLog("SetDefaultAidRoute: failed to register zero length AID");
     }
