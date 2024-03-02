@@ -39,10 +39,10 @@ void NciCeProxy::SetCeHostListener(std::weak_ptr<ICeHostListener> listener)
  * all installed app.
  * @return True if success, otherwise false.
  */
-bool NciCeProxy::ComputeRoutingParams()
+bool NciCeProxy::ComputeRoutingParams(int defaultPaymentType)
 {
     if (nciCeInterface_) {
-        return nciCeInterface_->ComputeRoutingParams();
+        return nciCeInterface_->ComputeRoutingParams(defaultPaymentType);
     }
     return true;
 }

@@ -29,11 +29,14 @@ static const uint8_t DEFAULT_OFF_HOST_ROUTE_DEST = 0x01;
 static const uint8_t DEFAULT_FELICA_ROUTE_DEST = 0x02;
 static const uint8_t DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const uint8_t DEFAULT_EE_ROUTE_DEST = 0x01; // ese
+static const uint8_t DEFAULT_UICC1_ROUTE_DEST = 0x02; // sim1
+static const uint8_t DEFAULT_UICC2_ROUTE_DEST = 0x03; // sim2
 static const std::vector<uint8_t> DEFAULT_UICC_ROUTE_DEST = {0x02, 0x03};
 static const tNFA_EE_PWR_STATE DEFAULT_SYS_CODE_PWR_STA = 0x00;
 static const tNFA_HANDLE DEFAULT_SYS_CODE_ROUTE_DEST = 0xC0;
 static const uint8_t MAX_NUM_OF_EE = 5;
 static const int EE_INFO_WAITE_INTERVAL = 100 * 1000; // ms for usleep
+static const int AID_DEFAULT_ROUTING_WAIT_TIME_MS = 2000; // 
 
 // power state masks
 static const uint8_t PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
@@ -51,7 +54,10 @@ static const uint8_t NFA_SET_TECH_ROUTING = 0x01;
 static const uint8_t NFA_SET_PROTO_ROUTING = 0x02;
 static const uint32_t ROUTE_LOC_HOST_ID = 0x400;
 static const uint32_t ROUTE_LOC_ESE_ID = 0x4C0;
-static const uint32_t DEFAULT_PROTO_ROUTE_AND_POWER = 0x013B;
+static const uint32_t ROUTE_UICC1_ID = 0x480;
+static const uint32_t ROUTE_UICC2_ID = 0x481;
+static const uint32_t DEFAULT_PROTO_ROUTE_AND_POWER_ESE = 0x013B;
+static const uint32_t DEFAULT_PROTO_ROUTE_AND_POWER_SIM1 = 0x023B;
 static const uint8_t ROUTE_LOC_MASK = 8;
 static const uint8_t PWR_STA_MASK = 0x3F;
 static const uint8_t DEFAULT_LISTEN_TECH_MASK = 0x07;
@@ -143,16 +149,17 @@ void RoutingManager::SetOffHostNfceeTechMask()
     }
 }
 
-bool RoutingManager::ComputeRoutingParams()
+bool RoutingManager::ComputeRoutingParams(int defaultPaymentType)
 {
     InfoLog("ComputeRoutingParams");
     uint8_t valueProtoIsoDep = 0x01;
 
     // route for protocol
     ClearRoutingEntry(NFA_SET_PROTO_ROUTING);
+    uint32_t defaultRouteAndPower = GetDefaultProtoRouteAndPower(defaultPaymentType);
     SetRoutingEntry(NFA_SET_PROTO_ROUTING, valueProtoIsoDep,
-        ((DEFAULT_PROTO_ROUTE_AND_POWER >> ROUTE_LOC_MASK) & DEFAULT_LISTEN_TECH_MASK),
-        DEFAULT_PROTO_ROUTE_AND_POWER & PWR_STA_MASK);
+                    ((defaultRouteAndPower >> ROUTE_LOC_MASK) & DEFAULT_LISTEN_TECH_MASK),
+                    defaultRouteAndPower & PWR_STA_MASK);
 
     // route for technology
     // currently set tech F default to ese with power 0x3B
@@ -163,7 +170,34 @@ bool RoutingManager::ComputeRoutingParams()
     ClearRoutingEntry(NFA_SET_TECH_ROUTING);
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeAB, techSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
     SetRoutingEntry(NFA_SET_TECH_ROUTING, techRouteForTypeF, techFSeId, DEFAULT_PWR_STA_FOR_TECH_A_B);
+
+    SetDefaultAidRoute(defaultPaymentType);
     return true;
+}
+
+tNFA_HANDLE RoutingManager::GetEeHandle(uint32_t route)
+{
+    switch (route) {
+        case DEFAULT_HOST_ROUTE_DEST:
+            return ROUTE_LOC_HOST_ID;
+        case DEFAULT_EE_ROUTE_DEST:
+            return ROUTE_LOC_ESE_ID;
+        case DEFAULT_UICC1_ROUTE_DEST:
+            return ROUTE_UICC1_ID;
+        case DEFAULT_UICC2_ROUTE_DEST:
+            return ROUTE_UICC2_ID;
+        default:
+            return ROUTE_LOC_HOST_ID;
+    }
+}
+
+uint32_t RoutingManager::GetDefaultProtoRouteAndPower(int defaultPaymentType)
+{
+    if (defaultPaymentType ==static_cast<int>(KITS::DefaultPaymentType::TYPE_ESE)) {
+        return DEFAULT_PROTO_ROUTE_AND_POWER_ESE;
+    }
+
+    return DEFAULT_PROTO_ROUTE_AND_POWER_SIM1;
 }
 
 bool RoutingManager::AddAidRouting(const std::string &aidStr, int route,
@@ -203,7 +237,7 @@ bool RoutingManager::SetRoutingEntry(uint32_t type, uint32_t value, uint32_t rou
     uint8_t maxTechMask = 0x03; // 0x01 for type A, 0x02 for type B, 0x03 for both
     uint8_t last4BitsMask = 0xF0;
     tNFA_STATUS status = NFA_STATUS_FAILED;
-    tNFA_HANDLE handle = ((route == DEFAULT_HOST_ROUTE_DEST) ? ROUTE_LOC_HOST_ID : ROUTE_LOC_ESE_ID);
+    tNFA_HANDLE handle = GetEeHandle(route);
     uint8_t swtchOnMask = 0;
     uint8_t swtchOffMask = 0;
     uint8_t battOffMask = 0;
@@ -253,6 +287,34 @@ bool RoutingManager::SetRoutingEntry(uint32_t type, uint32_t value, uint32_t rou
         }
     }
     return status;
+}
+
+void RoutingManager::SetDefaultAidRoute(int defaultPaymentType)
+{
+    tNFA_STATUS status = NFA_STATUS_FAILED;
+    SynchronizeGuard guard(routingEvent_);
+    uint32_t defaultRouteAndPower = GetDefaultProtoRouteAndPower(defaultPaymentType);
+    uint32_t routeLoc = (defaultRouteAndPower >> ROUTE_LOC_MASK) & DEFAULT_LISTEN_TECH_MASK;
+    uint32_t power = defaultRouteAndPower & PWR_STA_MASK;
+    tNFA_HANDLE handle = GetEeHandle(routeLoc);
+    if (handle == ROUTE_LOC_HOST_ID) {
+        power = PWR_STA_SWTCH_ON_SCRN_UNLCK;
+    }
+
+    if (isSecureNfcEnabled_) {
+        power = PWR_STA_SWTCH_ON_SCRN_UNLCK;
+    }
+    status = NFA_EeAddAidRouting(handle, 0, NULL, power, AID_ROUTE_QUAL_PREFIX);
+    if (status == NFA_STATUS_OK) {
+        if (routingEvent_.Wait(AID_DEFAULT_ROUTING_WAIT_TIME_MS) == false) {
+            ErrorLog("SetDefaultAidRoute:  register zero length AID time out ");
+        } else {
+            InfoLog("SetDefaultAidRoute: Succeed to register zero length AID");
+        }
+
+    } else {
+        ErrorLog("SetDefaultAidRoute: failed to register zero length AID");
+    }
 }
 
 uint8_t RoutingManager::GetProtoMaskFromTechMask(uint32_t& value)

@@ -291,7 +291,8 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
         }
         case NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS: {
-            nfcRoutingManager_.lock()->HandleComputeRoutingParams();
+            int defaultPaymentType = event->GetParam();
+            nfcRoutingManager_.lock()->HandleComputeRoutingParams(defaultPaymentType);
             break;
         }
         case NfcCommonEvent::MSG_FIELD_ACTIVATED: {

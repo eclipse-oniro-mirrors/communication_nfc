@@ -26,9 +26,9 @@ void NciCeImplDefault::SetCeHostListener(
     NfccNciAdapter::GetInstance().SetCeHostListener(listener);
 }
 
-bool NciCeImplDefault::ComputeRoutingParams()
+bool NciCeImplDefault::ComputeRoutingParams(int defaultPaymentType)
 {
-    return NfccNciAdapter::GetInstance().ComputeRoutingParams();
+    return NfccNciAdapter::GetInstance().ComputeRoutingParams(defaultPaymentType);
 }
 
 bool NciCeImplDefault::CommitRouting()

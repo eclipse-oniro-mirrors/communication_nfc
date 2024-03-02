@@ -1036,9 +1036,9 @@ bool NfccNciAdapter::CommitRouting()
  * @brief Computer routing params.
  * @return True/false to be successful/failed to computer params.
  */
-bool NfccNciAdapter::ComputeRoutingParams()
+bool NfccNciAdapter::ComputeRoutingParams(int defaultPaymentType)
 {
-    return RoutingManager::GetInstance().ComputeRoutingParams();
+    return RoutingManager::GetInstance().ComputeRoutingParams(defaultPaymentType);
 }
 
 void NfccNciAdapter::OnCardEmulationData(const std::vector<uint8_t> &data)

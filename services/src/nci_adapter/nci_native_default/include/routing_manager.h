@@ -35,13 +35,14 @@ public:
     bool Initialize();
     void Deinitialize();
     bool CommitRouting();
-    bool ComputeRoutingParams();
-    bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power);
+    bool ComputeRoutingParams(int defaultPaymentType);
+    bool AddAidRouting(const std::string& aidStr, int route, int aidInfo, int power);
     bool ClearAidTable();
 
 private:
     RoutingManager();
     ~RoutingManager();
+    uint32_t GetDefaultProtoRouteAndPower(int defaultPaymentType);
 
     // update route settings
     tNFA_TECHNOLOGY_MASK UpdateEeTechRouteSetting();
@@ -52,16 +53,18 @@ private:
     // routing entries
     bool ClearRoutingEntry(uint32_t type);
     bool SetRoutingEntry(uint32_t type, uint32_t value, uint32_t route, uint32_t power);
-    void RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle,
-        tNFA_PROTOCOL_MASK protoSwitchOn, tNFA_PROTOCOL_MASK protoSwitchOff,
-        tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
-        tNFA_PROTOCOL_MASK protoScreenOff, tNFA_PROTOCOL_MASK protoSwitchOffLock);
+    void SetDefaultAidRoute(int defaultPaymentType);
+    void RegisterProtoRoutingEntry(tNFA_HANDLE eeHandle, tNFA_PROTOCOL_MASK protoSwitchOn,
+                                   tNFA_PROTOCOL_MASK protoSwitchOff, tNFA_PROTOCOL_MASK protoBatteryOn,
+                                   tNFA_PROTOCOL_MASK protoScreenLock, tNFA_PROTOCOL_MASK protoScreenOff,
+                                   tNFA_PROTOCOL_MASK protoSwitchOffLock);
     void RegisterTechRoutingEntry(tNFA_HANDLE eeHandle,
         tNFA_PROTOCOL_MASK protoSwitchOn, tNFA_PROTOCOL_MASK protoSwitchOff,
         tNFA_PROTOCOL_MASK protoBatteryOn, tNFA_PROTOCOL_MASK protoScreenLock,
         tNFA_PROTOCOL_MASK protoScreenOff, tNFA_PROTOCOL_MASK protoSwitchOffLock);
     bool IsTypeABSupportedInEe(tNFA_HANDLE eeHandle);
     uint8_t GetProtoMaskFromTechMask(uint32_t& value);
+    tNFA_HANDLE GetEeHandle(uint32_t route);
 
     void DoNfaEeRegisterEvent();
     void DoNfaEeModeSetEvent(tNFA_EE_CBACK_DATA* eventData);

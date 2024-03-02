@@ -16,6 +16,7 @@
 #define NFC_ROUTING_MANAGER_H
 #include "nfc_event_handler.h"
 #include "inci_ce_interface.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -29,9 +30,9 @@ public:
 
     // commit routing
     void HandleCommitRouting();
-    void HandleComputeRoutingParams();
+    void HandleComputeRoutingParams(int defaultPaymentType);
     void CommitRouting();
-    void ComputeRoutingParams();
+    void ComputeRoutingParams(KITS::DefaultPaymentType defaultPaymentType);
 
 private:
     std::shared_ptr<NfcEventHandler> eventHandler_ {};

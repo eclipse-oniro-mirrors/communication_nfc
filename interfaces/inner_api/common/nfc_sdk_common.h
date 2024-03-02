@@ -126,6 +126,13 @@ const int VENDOR_APP_INIT_DONE = 1;
 const int VENDOR_APP_CHANGE = 2;
 #endif
 
+enum class DefaultPaymentType {
+    TYPE_HCE = 0,
+    TYPE_UICC = 1,
+    TYPE_ESE = 2,
+    TYPE_EMPTY = 3,
+};
+
 enum class TagTechnology {
     NFC_INVALID_TECH = 0,
     NFC_A_TECH = 1,

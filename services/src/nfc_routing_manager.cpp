@@ -59,19 +59,20 @@ void NfcRoutingManager::HandleCommitRouting()
     }
 }
 
-void NfcRoutingManager::ComputeRoutingParams()
+void NfcRoutingManager::ComputeRoutingParams(KITS::DefaultPaymentType defaultPaymentType)
 {
-    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS), ROUTING_DELAY_TIME);
+    eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS),
+                             static_cast<int>(defaultPaymentType), ROUTING_DELAY_TIME);
 }
 
-void NfcRoutingManager::HandleComputeRoutingParams()
+void NfcRoutingManager::HandleComputeRoutingParams(int defaultPaymentType)
 {
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("HandleComputeRoutingParams: NFC not enabled, do not Compute Routing Params");
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    bool result = nciCeProxy_.lock()->ComputeRoutingParams();
+    bool result = nciCeProxy_.lock()->ComputeRoutingParams(defaultPaymentType);
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
 }
 } // namespace NFC

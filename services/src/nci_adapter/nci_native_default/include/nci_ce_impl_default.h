@@ -25,7 +25,7 @@ class NciCeImplDefault : public INciCeInterface {
 public:
     ~NciCeImplDefault() override = default;
     void SetCeHostListener(std::weak_ptr<ICeHostListener> listener) override;
-    bool ComputeRoutingParams() override;
+    bool ComputeRoutingParams(int defaultPaymentType) override;
     bool CommitRouting() override;
     bool SendRawFrame(std::string &hexCmdData) override;
     bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power) override;

@@ -623,6 +623,17 @@ bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
     return false;
 }
 
+bool AppDataParser::IsHceApp(const ElementName &elementName)
+{
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
+        if (appAidInfo.element.GetBundleName() == elementName.GetBundleName() &&
+            appAidInfo.element.GetAbilityName() == elementName.GetAbilityName()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
