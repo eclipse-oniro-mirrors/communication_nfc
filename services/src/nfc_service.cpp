@@ -326,10 +326,6 @@ bool NfcService::DoTurnOff()
 
     nfcPollingManager_->ResetCurrPollingParams();
 
-    if (nfcPollingManager_->IsForegroundEnabled()) {
-        nfcPollingManager_->DisableForegroundDispatch(nfcPollingManager_->GetForegroundData()->element_);
-    }
-
     UpdateNfcState(KITS::STATE_OFF);
     TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
     if (unloadStaSaTimerId != 0) {
