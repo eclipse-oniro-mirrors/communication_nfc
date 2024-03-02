@@ -75,6 +75,7 @@ public:
    
     void ConfigRoutingAndCommit();
     void SearchElementByAid(const std::string &aid, ElementName &aidElement);
+    KITS::DefaultPaymentType GetDefaultRoute();
 
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
@@ -84,7 +85,7 @@ private:
     void SetHceInfo(const ElementName &element, const std::vector<std::string> &aids);
     void ClearHceInfo();
     void UpdateDefaultPaymentBundleNameDeleted(const std::string &bundleName);
-    KITS::DefaultPaymentType GetDefaultRoute();
+    
     void LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
 
     uint64_t lastFieldOnTime_ = 0;

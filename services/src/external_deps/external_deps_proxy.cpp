@@ -193,7 +193,8 @@ bool ExternalDepsProxy::IsSystemApp(uint32_t uid)
     return AppDataParser::GetInstance().IsSystemApp(uid);
 }
 
-bool ExternalDepsProxy::IsHceApp(const ElementName &elementName){
+bool ExternalDepsProxy::IsHceApp(const ElementName& elementName)
+{
     return AppDataParser::GetInstance().IsHceApp(elementName);
 }
 } // namespace NFC

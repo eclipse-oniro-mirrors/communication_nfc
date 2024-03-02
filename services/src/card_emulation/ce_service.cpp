@@ -284,7 +284,8 @@ KITS::DefaultPaymentType CeService::GetDefaultRoute()
     return KITS::DefaultPaymentType::TYPE_ESE;
 }
 
-void CeService::ConfigRoutingAndCommit(){
+void CeService::ConfigRoutingAndCommit()
+{
     if (nfcService_.expired()) {
         ErrorLog("ConfigRoutingAndCommit: nfc service is null");
         return;

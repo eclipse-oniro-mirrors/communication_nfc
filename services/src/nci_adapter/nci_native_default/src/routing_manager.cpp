@@ -36,7 +36,7 @@ static const tNFA_EE_PWR_STATE DEFAULT_SYS_CODE_PWR_STA = 0x00;
 static const tNFA_HANDLE DEFAULT_SYS_CODE_ROUTE_DEST = 0xC0;
 static const uint8_t MAX_NUM_OF_EE = 5;
 static const int EE_INFO_WAITE_INTERVAL = 100 * 1000; // ms for usleep
-static const int AID_DEFAULT_ROUTING_WAIT_TIME_MS = 2000; // 
+static const int AID_DEFAULT_ROUTING_WAIT_TIME_MS = 2000;
 
 // power state masks
 static const uint8_t PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
