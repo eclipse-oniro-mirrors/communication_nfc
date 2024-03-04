@@ -126,6 +126,22 @@ HWTEST_F(HceSessionTest, UnRegAllCallback001, TestSize.Level1)
     KITS::ErrorCode errorCode = hceSession->UnRegAllCallback(callerToken);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
 }
+
+/**
+ * @tc.name: IsDefaultService001
+ * @tc.desc: Test HceSessionTest IsDefaultService.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, IsDefaultService001, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    ElementName element;
+    const std::string type = "";
+    bool isDefaultService = false;
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    KITS::ErrorCode errorCode = hceSession->IsDefaultService(element, type, isDefaultService);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
+}
 }
 }
 }
