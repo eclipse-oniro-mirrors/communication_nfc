@@ -64,10 +64,9 @@ public:
      */
     bool ClearAidTable() override;
 
-
     /**
-     * @brief get sim bundle name of the vendor 
-     * @return sim bundle name of the vendor  
+     * @brief get sim bundle name of the vendor
+     * @return sim bundle name of the vendor
      */
     std::string GetSimVendorBundleName() override;
 

@@ -97,8 +97,8 @@ public:
     virtual bool ClearAidTable() = 0;
 
     /**
-     * @brief get sim bundle name of the vendor 
-     * @return sim bundle name of the vendor  
+     * @brief get sim bundle name of the vendor
+     * @return sim bundle name of the vendor
      */
     virtual std::string GetSimVendorBundleName() = 0;
 };
