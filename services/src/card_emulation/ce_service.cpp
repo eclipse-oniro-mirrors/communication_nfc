@@ -29,7 +29,6 @@ const int DEACTIVATE_TIMEOUT = 6000;
 static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
-const std::string SIM_BUNDLE_NAME = "com.huawei.hmos.simtoolkits";
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
@@ -276,7 +275,7 @@ KITS::DefaultPaymentType CeService::GetDefaultRoute()
     if (!defaultPaymentBundleInstalled_) {
         return KITS::DefaultPaymentType::TYPE_UNINSTALLED;
     }
-    if (defaultPaymentElement_.GetBundleName() ==  nciCeProxy_.lock()->GetSimVendorBundleName();) {
+    if (defaultPaymentElement_.GetBundleName() ==  nciCeProxy_.lock()->GetSimVendorBundleName()) {
         return KITS::DefaultPaymentType::TYPE_UICC;
     }
     if (ExternalDepsProxy::GetInstance().IsHceApp(defaultPaymentElement_)) {
