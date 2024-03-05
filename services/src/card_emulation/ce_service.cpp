@@ -38,7 +38,6 @@ CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::IN
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
         nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
-    defaultPaymentBundleNameDeleted_ = "";
     DebugLog("CeService constructor end");
 }
 
@@ -55,7 +54,6 @@ CeService::~CeService()
     defaultPaymentElement_.SetDeviceID("");
     defaultPaymentElement_.SetModuleName("");
     dynamicAids_.clear();
-    defaultPaymentBundleNameDeleted_ = "";
     DebugLog("CeService deconstructor end");
 }
 
@@ -234,18 +232,18 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
     }
 
     InfoLog("OnAppAddOrChangeOrRemove: change bundleName %{public}s, default payment bundle name %{public}s, "
-            "deleted bundle name %{public}s",
+            "installed status %{public}d",
             bundleName.c_str(), defaultPaymentElement_.GetBundleName().c_str(),
-            defaultPaymentBundleNameDeleted_.c_str());
+            defaultPaymentBundleInstalled_);
 
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
-        UpdateDefaultPaymentBundleNameDeleted(bundleName);
+        UpdateDefaultPaymentBundleInstalledStatus(false);
     }
 
-    if (bundleName == defaultPaymentBundleNameDeleted_ &&
+    if (bundleName == defaultPaymentElement_.GetBundleName() &&
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
-        UpdateDefaultPaymentBundleNameDeleted("");
+        UpdateDefaultPaymentBundleInstalledStatus(true);
     }
 
     if (nfcService_.expired()) {
@@ -260,21 +258,25 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
     ConfigRoutingAndCommit();
     DebugLog("OnAppAddOrChangeOrRemove end");
 }
-void CeService::UpdateDefaultPaymentBundleNameDeleted(const std::string &bundleName)
+void CeService::UpdateDefaultPaymentBundleInstalledStatus(bool installed)
 {
-    InfoLog("UpdateDefaultPaymentBundleNameDeleted: bundleName %{public}s", bundleName.c_str());
+    InfoLog("UpdateDefaultPaymentBundleInstalledStatus: bundleName %{public}d", installed);
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
-    defaultPaymentBundleNameDeleted_ = bundleName;
+    defaultPaymentBundleInstalled_ = installed;
 }
 KITS::DefaultPaymentType CeService::GetDefaultRoute()
 {
     InfoLog("GetDefaultRoute: default payment bundle name %{public}s, "
-            "deleted bundle name %{public}s",
-            defaultPaymentElement_.GetBundleName().c_str(), defaultPaymentBundleNameDeleted_.c_str());
-    if (defaultPaymentBundleNameDeleted_ == defaultPaymentElement_.GetBundleName()) {
+            "installed status %{public}d",
+            defaultPaymentElement_.GetBundleName().c_str(), defaultPaymentBundleInstalled_);
+
+    if (defaultPaymentElement_.GetBundleName().empty()) {
         return KITS::DefaultPaymentType::TYPE_EMPTY;
     }
-    if (defaultPaymentElement_.GetBundleName() == SIM_BUNDLE_NAME) {
+    if (!defaultPaymentBundleInstalled_) {
+        return KITS::DefaultPaymentType::TYPE_UNINSTALLED;
+    }
+    if (defaultPaymentElement_.GetBundleName() ==  nciCeProxy_.lock()->GetSimVendorBundleName();) {
         return KITS::DefaultPaymentType::TYPE_UICC;
     }
     if (ExternalDepsProxy::GetInstance().IsHceApp(defaultPaymentElement_)) {
@@ -354,11 +356,11 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
             return;
         }
     }
-
-    LetUserDecide(hceApps);
+    
+    HandleOtherAidConflicted(hceApps);
     InfoLog("SearchElementByAid end.");
 }
-void CeService::LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
+void CeService::HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
 {
     InfoLog("too many applications found, let user decide.");
 }
@@ -445,6 +447,9 @@ void CeService::Initialize()
         nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
     hostCardEmulationManager_ =
         std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
+
+    defaultPaymentBundleInstalled_ =
+        ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
     DebugLog("CeService Initialize end");
 }
 void CeService::Deinitialize()

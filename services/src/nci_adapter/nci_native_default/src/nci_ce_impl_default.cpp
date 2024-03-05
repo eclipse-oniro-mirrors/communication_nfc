@@ -57,6 +57,10 @@ bool NciCeImplDefault::ClearAidTable()
 {
     return RoutingManager::GetInstance().ClearAidTable();
 }
+std::string NciCeImplDefault::GetSimVendorBundleName()
+{
+    return "";
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS

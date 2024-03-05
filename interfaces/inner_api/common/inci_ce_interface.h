@@ -95,6 +95,12 @@ public:
      * @return True if success, otherwise false.
      */
     virtual bool ClearAidTable() = 0;
+
+    /**
+     * @brief get sim bundle name of the vendor 
+     * @return sim bundle name of the vendor  
+     */
+    virtual std::string GetSimVendorBundleName() = 0;
 };
 } // namespace NCI
 } // namespace NFC

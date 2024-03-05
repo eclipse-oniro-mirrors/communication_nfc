@@ -88,6 +88,13 @@ bool NciCeProxy::ClearAidTable()
     }
     return false;
 }
+std::string NciCeProxy::GetSimVendorBundleName()
+{
+    if (nciCeInterface_) {
+        return nciCeInterface_->GetSimVendorBundleName();
+    }
+    return "";
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS

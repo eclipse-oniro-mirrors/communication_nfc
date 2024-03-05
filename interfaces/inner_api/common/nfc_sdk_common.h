@@ -131,6 +131,7 @@ enum class DefaultPaymentType {
     TYPE_UICC = 1,
     TYPE_ESE = 2,
     TYPE_EMPTY = 3,
+    TYPE_UNINSTALLED = 4,
 };
 
 enum class TagTechnology {

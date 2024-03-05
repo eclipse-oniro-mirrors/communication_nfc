@@ -84,9 +84,9 @@ private:
     bool IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp);
     void SetHceInfo(const ElementName &element, const std::vector<std::string> &aids);
     void ClearHceInfo();
-    void UpdateDefaultPaymentBundleNameDeleted(const std::string &bundleName);
+    void UpdateDefaultPaymentBundleInstalledStatus(bool installed);
     
-    void LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
+    void HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
 
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
@@ -97,7 +97,7 @@ private:
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
     ElementName defaultPaymentElement_;
-    std::string defaultPaymentBundleNameDeleted_ {};
+    bool defaultPaymentBundleInstalled_ {};
     sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
 
     ElementName foregroundElement_ {};

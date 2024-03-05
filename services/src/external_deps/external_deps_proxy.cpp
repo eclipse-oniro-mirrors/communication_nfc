@@ -197,5 +197,10 @@ bool ExternalDepsProxy::IsHceApp(const ElementName& elementName)
 {
     return AppDataParser::GetInstance().IsHceApp(elementName);
 }
+
+bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
+{
+    return AppDataParser::GetInstance().IsBundleInstalled(bundleName);
+}
 } // namespace NFC
 } // OHOS

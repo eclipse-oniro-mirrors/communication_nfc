@@ -30,6 +30,7 @@ public:
     bool SendRawFrame(std::string &hexCmdData) override;
     bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power) override;
     bool ClearAidTable() override;
+    std::string GetSimVendorBundleName() override;
 };
 }  // namespace NCI
 }  // namespace NFC
