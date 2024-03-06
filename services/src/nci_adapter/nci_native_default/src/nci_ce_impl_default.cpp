@@ -26,9 +26,9 @@ void NciCeImplDefault::SetCeHostListener(
     NfccNciAdapter::GetInstance().SetCeHostListener(listener);
 }
 
-bool NciCeImplDefault::ComputeRoutingParams()
+bool NciCeImplDefault::ComputeRoutingParams(int defaultPaymentType)
 {
-    return NfccNciAdapter::GetInstance().ComputeRoutingParams();
+    return NfccNciAdapter::GetInstance().ComputeRoutingParams(defaultPaymentType);
 }
 
 bool NciCeImplDefault::CommitRouting()
@@ -56,6 +56,11 @@ bool NciCeImplDefault::AddAidRouting(const std::string &aidStr, int route,
 bool NciCeImplDefault::ClearAidTable()
 {
     return RoutingManager::GetInstance().ClearAidTable();
+}
+std::string NciCeImplDefault::GetSimVendorBundleName()
+{
+    // please change it to the sim bundle name of your vendor
+    return "";
 }
 } // namespace NCI
 } // namespace NFC

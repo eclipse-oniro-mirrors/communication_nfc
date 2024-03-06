@@ -602,7 +602,22 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
     }
 }
 #endif
-
+bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
+{
+    if (bundleMgrProxy_ == nullptr) {
+        ErrorLog("bundleMgrProxy_ is nullptr!");
+        return false;
+    }
+    if (bundleName.empty()) {
+        ErrorLog("bundle name is empty");
+        return false;
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+                                                 bundleInfo, USER_ID);
+    ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
+    return result;
+}
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
 {
     for (const HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
@@ -617,6 +632,17 @@ bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
 {
     for (const AppDataParser::AidInfo &aidInfo : hceAppInfo.customDataAid) {
         if (KITS::KEY_PAYMENT_AID == aidInfo.name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AppDataParser::IsHceApp(const ElementName &elementName)
+{
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
+        if (appAidInfo.element.GetBundleName() == elementName.GetBundleName() &&
+            appAidInfo.element.GetAbilityName() == elementName.GetAbilityName()) {
             return true;
         }
     }

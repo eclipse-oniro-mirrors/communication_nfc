@@ -84,6 +84,8 @@ public:
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool IsSystemApp(uint32_t uid);
+    bool IsHceApp(const ElementName &elementName);
+    bool IsBundleInstalled(const std::string &bundleName);
 };
 } // NFC
 } // OHOS

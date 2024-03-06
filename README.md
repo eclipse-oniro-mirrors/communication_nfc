@@ -57,3 +57,4 @@ Please reference: docs/zh-cn/application-dev/reference/apis/js-apis-cardEmulatio
 
 hmf/communication/nfc
 
+

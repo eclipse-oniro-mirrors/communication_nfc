@@ -303,7 +303,7 @@ bool NfcService::DoTurnOn()
     ceService_->Initialize();
     ceService_->InitConfigAidRouting();
 
-    nfcRoutingManager_->ComputeRoutingParams();
+    nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultRoute());
     nfcRoutingManager_->CommitRouting();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);

@@ -201,7 +201,7 @@ void CeService::OnDefaultPaymentServiceChange()
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             newElement.GetBundleName());
     defaultPaymentElement_ = newElement;
-
+    InfoLog("OnDefaultPaymentServiceChange: refresh route table");
     ConfigRoutingAndCommit();
 }
 void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -230,6 +230,21 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
         return;
     }
 
+    InfoLog("OnAppAddOrChangeOrRemove: change bundleName %{public}s, default payment bundle name %{public}s, "
+            "installed status %{public}d",
+            bundleName.c_str(), defaultPaymentElement_.GetBundleName().c_str(),
+            defaultPaymentBundleInstalled_);
+
+    if (bundleName == defaultPaymentElement_.GetBundleName() &&
+        action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+        UpdateDefaultPaymentBundleInstalledStatus(false);
+    }
+
+    if (bundleName == defaultPaymentElement_.GetBundleName() &&
+        action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
+        UpdateDefaultPaymentBundleInstalledStatus(true);
+    }
+
     if (nfcService_.expired()) {
         ErrorLog("nfcService_ is nullptr.");
         return;
@@ -238,8 +253,36 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
         ErrorLog(" NFC not enabled, not need to update routing entry ");
         return;
     }
+    InfoLog("OnAppAddOrChangeOrRemove: refresh route table");
     ConfigRoutingAndCommit();
     DebugLog("OnAppAddOrChangeOrRemove end");
+}
+void CeService::UpdateDefaultPaymentBundleInstalledStatus(bool installed)
+{
+    InfoLog("UpdateDefaultPaymentBundleInstalledStatus: bundleName %{public}d", installed);
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    defaultPaymentBundleInstalled_ = installed;
+}
+KITS::DefaultPaymentType CeService::GetDefaultRoute()
+{
+    InfoLog("GetDefaultRoute: default payment bundle name %{public}s, "
+            "installed status %{public}d",
+            defaultPaymentElement_.GetBundleName().c_str(), defaultPaymentBundleInstalled_);
+
+    if (defaultPaymentElement_.GetBundleName().empty()) {
+        return KITS::DefaultPaymentType::TYPE_EMPTY;
+    }
+    if (!defaultPaymentBundleInstalled_) {
+        return KITS::DefaultPaymentType::TYPE_UNINSTALLED;
+    }
+    if (defaultPaymentElement_.GetBundleName() ==  nciCeProxy_.lock()->GetSimVendorBundleName()) {
+        return KITS::DefaultPaymentType::TYPE_UICC;
+    }
+    if (ExternalDepsProxy::GetInstance().IsHceApp(defaultPaymentElement_)) {
+        return KITS::DefaultPaymentType::TYPE_HCE;
+    }
+
+    return KITS::DefaultPaymentType::TYPE_ESE;
 }
 
 void CeService::ConfigRoutingAndCommit()
@@ -256,8 +299,8 @@ void CeService::ConfigRoutingAndCommit()
 
     bool updateAids = InitConfigAidRouting();
     if (updateAids) {
-        std::lock_guard<std::mutex> lock(configRoutingMutex_);
-        routingManager.lock()->ComputeRoutingParams();
+        KITS::DefaultPaymentType defaultPaymentType = GetDefaultRoute();
+        routingManager.lock()->ComputeRoutingParams(defaultPaymentType);
         routingManager.lock()->CommitRouting();
     }
 }
@@ -312,11 +355,11 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
             return;
         }
     }
-
-    LetUserDecide(hceApps);
+    
+    HandleOtherAidConflicted(hceApps);
     InfoLog("SearchElementByAid end.");
 }
-void CeService::LetUserDecide(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
+void CeService::HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
 {
     InfoLog("too many applications found, let user decide.");
 }
@@ -399,8 +442,13 @@ void CeService::Initialize()
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->RegisterDataObserver(nfcDefaultPaymentApp,
                                                                                 dataRdbObserver_);
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
+        nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
     hostCardEmulationManager_ =
         std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
+
+    defaultPaymentBundleInstalled_ =
+        ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
     DebugLog("CeService Initialize end");
 }
 void CeService::Deinitialize()
@@ -411,6 +459,10 @@ void CeService::Deinitialize()
     foregroundElement_.SetAbilityName("");
     foregroundElement_.SetDeviceID("");
     foregroundElement_.SetModuleName("");
+    defaultPaymentElement_.SetBundleName("");
+    defaultPaymentElement_.SetAbilityName("");
+    defaultPaymentElement_.SetDeviceID("");
+    defaultPaymentElement_.SetModuleName("");
     dynamicAids_.clear();
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
@@ -429,6 +481,7 @@ bool CeService::StartHce(const ElementName &element, const std::vector<std::stri
         return false;
     }
     SetHceInfo(element, aids);
+    InfoLog("StartHce: refresh route table");
     ConfigRoutingAndCommit();
     return true;
 }
@@ -436,7 +489,7 @@ bool CeService::StartHce(const ElementName &element, const std::vector<std::stri
 void CeService::SetHceInfo(const ElementName &element, const std::vector<std::string> &aids)
 {
     InfoLog("SetHceInfo start.");
-    std::lock_guard<std::mutex> lock(updateForegroundMutex_);
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
     foregroundElement_ = element;
     dynamicAids_.clear();
     dynamicAids_ = std::move(aids);
@@ -445,7 +498,7 @@ void CeService::SetHceInfo(const ElementName &element, const std::vector<std::st
 void CeService::ClearHceInfo()
 {
     InfoLog("ClearHceInfo start.");
-    std::lock_guard<std::mutex> lock(updateForegroundMutex_);
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
     foregroundElement_.SetBundleName("");
     foregroundElement_.SetAbilityName("");
     foregroundElement_.SetDeviceID("");
@@ -459,6 +512,7 @@ bool CeService::StopHce(const ElementName &element, Security::AccessToken::Acces
                        element.GetAbilityName() == foregroundElement_.GetAbilityName();
     if (isForegroud) {
         ClearHceInfo();
+        InfoLog("StopHce: refresh route table");
         ConfigRoutingAndCommit();
     }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
@@ -481,6 +535,7 @@ bool CeService::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerT
     bool isForegroud = hapTokenInfo.bundleName == foregroundElement_.GetBundleName();
     if (isForegroud) {
         ClearHceInfo();
+        InfoLog("remote die: refresh route table");
         ConfigRoutingAndCommit();
     }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);

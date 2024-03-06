@@ -149,7 +149,7 @@ public:
      * @brief Computer routing params.
      * @return True/false to be successful/failed to computer params.
      */
-    bool ComputeRoutingParams();
+    bool ComputeRoutingParams(int defaultPaymentType);
 
     /**
      * @brief Whether rf field is on or off.

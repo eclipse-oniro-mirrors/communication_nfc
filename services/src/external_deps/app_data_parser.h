@@ -73,9 +73,11 @@ public:
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback() const;
 #endif
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
+    bool IsBundleInstalled(const std::string &bundleName);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     bool IsSystemApp(uint32_t uid);
+    bool IsHceApp(const ElementName &elementName);
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();

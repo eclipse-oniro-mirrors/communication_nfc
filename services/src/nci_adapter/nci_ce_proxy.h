@@ -34,7 +34,7 @@ public:
      * and all installed app.
      * @return True if success, otherwise false.
      */
-    bool ComputeRoutingParams() override;
+    bool ComputeRoutingParams(int defaultPaymentType) override;
 
     /**
      * @brief Commit the routing parameters to nfc controller.
@@ -63,6 +63,12 @@ public:
      * @return True if success, otherwise false.
      */
     bool ClearAidTable() override;
+
+    /**
+     * @brief get sim bundle name of the vendor
+     * @return sim bundle name of the vendor
+     */
+    std::string GetSimVendorBundleName() override;
 
 private:
     std::shared_ptr<INciCeInterface> nciCeInterface_;

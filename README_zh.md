@@ -64,4 +64,3 @@ NFC服务提供NFC开关控制、NFC标签发现和分发、NFC标签读写、NF
 ## 相关仓<a name="section1371113476307"></a>
 
 hmf/communication/nfc
-

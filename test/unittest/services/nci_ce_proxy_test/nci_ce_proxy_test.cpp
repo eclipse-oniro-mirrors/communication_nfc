@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "nci_ce_proxy.h"
+#include "nfc_sdk_common.h"
 
 namespace OHOS {
 namespace NFC {
@@ -60,7 +61,7 @@ HWTEST_F(NciCeProxyTest, SetCeHostListener001, TestSize.Level1)
     std::shared_ptr<NCI::INciCeInterface::ICeHostListener> listener = nullptr;
     std::shared_ptr<NciCeProxy> nciCeProxy = std::make_shared<NciCeProxy>();
     nciCeProxy->SetCeHostListener(listener);
-    bool computeRoutingParams = nciCeProxy->ComputeRoutingParams();
+    bool computeRoutingParams = nciCeProxy->ComputeRoutingParams(static_cast<int>(KITS::DefaultPaymentType::TYPE_ESE));
     ASSERT_TRUE(computeRoutingParams == true);
 }
 
@@ -72,7 +73,7 @@ HWTEST_F(NciCeProxyTest, SetCeHostListener001, TestSize.Level1)
 HWTEST_F(NciCeProxyTest, ComputeRoutingParams001, TestSize.Level1)
 {
     std::shared_ptr<NciCeProxy> nciCeProxy = std::make_shared<NciCeProxy>();
-    bool computeRoutingParams = nciCeProxy->ComputeRoutingParams();
+    bool computeRoutingParams = nciCeProxy->ComputeRoutingParams(static_cast<int>(KITS::DefaultPaymentType::TYPE_ESE));
     ASSERT_TRUE(computeRoutingParams == true);
 }
 

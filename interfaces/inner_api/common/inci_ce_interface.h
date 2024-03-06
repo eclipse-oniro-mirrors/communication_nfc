@@ -63,9 +63,10 @@ public:
     /**
      * @brief compute the routing parameters based on the default payment app
      * and all installed app.
+     * @param  defaultPaymentType: default payment type
      * @return True if success, otherwise false.
      */
-    virtual bool ComputeRoutingParams() = 0;
+    virtual bool ComputeRoutingParams(int defaultPaymentType) = 0;
 
     /**
      * @brief Commit the routing parameters to nfc controller.
@@ -94,6 +95,12 @@ public:
      * @return True if success, otherwise false.
      */
     virtual bool ClearAidTable() = 0;
+
+    /**
+     * @brief get sim bundle name of the vendor
+     * @return sim bundle name of the vendor
+     */
+    virtual std::string GetSimVendorBundleName() = 0;
 };
 } // namespace NCI
 } // namespace NFC
