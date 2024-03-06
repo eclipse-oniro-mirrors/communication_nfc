@@ -59,7 +59,7 @@ bool NciCeImplDefault::ClearAidTable()
 }
 std::string NciCeImplDefault::GetSimVendorBundleName()
 {
-    // todo please change it to the sim bundle name of your vendor
+    // please change it to the sim bundle name of your vendor
     return "";
 }
 } // namespace NCI
