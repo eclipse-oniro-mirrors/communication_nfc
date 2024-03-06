@@ -64,13 +64,3 @@ NFC服务提供NFC开关控制、NFC标签发现和分发、NFC标签读写、NF
 ## 相关仓<a name="section1371113476307"></a>
 
 hmf/communication/nfc
-
-## 注意事项
-如果您需要开发SIM卡相关功能，且拥有自己的SIM应用，请修改其为您的SIM卡包名.
-```cpp
-std::string NciCeImplDefault::GetSimVendorBundleName()
-{
-    // todo please change it to the sim bundle name of your vendor
-    return "";
-}
-```
