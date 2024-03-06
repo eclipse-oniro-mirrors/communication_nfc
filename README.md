@@ -57,3 +57,13 @@ Please reference: docs/zh-cn/application-dev/reference/apis/js-apis-cardEmulatio
 
 hmf/communication/nfc
 
+## Note
+Please change it to the sim bundle name of your vendor if needed.
+```cpp
+std::string NciCeImplDefault::GetSimVendorBundleName()
+{
+    // todo please change it to the sim bundle name of your vendor
+    return "";
+}
+```
+
