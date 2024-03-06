@@ -364,9 +364,9 @@ void CeService::HandleFieldDeactivated()
     nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetRelativeTime();
-    if (currentTime < lastFieldOnTime_) {
-        WarnLog("currentTime = %{public}lu, lastFieldOnTime_ = %{public}lu", currentTime, lastFieldOnTime_);
-        lastFieldOnTime_ = 0;
+    if (currentTime < lastFieldOffTime_) {
+        WarnLog("currentTime = %{public}lu, lastFieldOffTime_ = %{public}lu", currentTime, lastFieldOffTime_);
+        lastFieldOffTime_ = 0;
         return;
     }
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
