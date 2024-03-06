@@ -312,7 +312,7 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
             return;
         }
     }
-    
+
     LetUserDecide(hceApps);
     InfoLog("SearchElementByAid end.");
 }
@@ -342,7 +342,12 @@ void CeService::HandleFieldActivated()
     nfcService_.lock()->eventHandler_->SendEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT), DEACTIVATE_TIMEOUT);
 
-    uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
+    uint64_t currentTime = KITS::NfcSdkCommon::GetRelativeTime();
+    if (currentTime < lastFieldOnTime_) {
+        WarnLog("currentTime = %{public}lu, lastFieldOnTime_ = %{public}lu", currentTime, lastFieldOnTime_);
+        lastFieldOnTime_ = 0;
+        return;
+    }
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOnTime_ = currentTime;
         nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
@@ -358,7 +363,12 @@ void CeService::HandleFieldDeactivated()
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
     nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
 
-    uint64_t currentTime = KITS::NfcSdkCommon::GetCurrentTime();
+    uint64_t currentTime = KITS::NfcSdkCommon::GetRelativeTime();
+    if (currentTime < lastFieldOnTime_) {
+        WarnLog("currentTime = %{public}lu, lastFieldOnTime_ = %{public}lu", currentTime, lastFieldOnTime_);
+        lastFieldOnTime_ = 0;
+        return;
+    }
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
         nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),

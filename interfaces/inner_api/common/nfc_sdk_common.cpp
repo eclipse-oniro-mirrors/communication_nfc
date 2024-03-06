@@ -164,10 +164,21 @@ std::string NfcSdkCommon::StringToHexString(const std::string &src)
 
 uint64_t NfcSdkCommon::GetCurrentTime()
 {
+    // get the time since 1970/1/1
     constexpr int timeRate = 1000;
     struct timeval time = {0};
     gettimeofday(&time, nullptr);
     return static_cast<uint64_t>(time.tv_sec * timeRate + static_cast<uint64_t>(time.tv_usec / timeRate));
+}
+
+uint64_t NfcSdkCommon::GetRelativeTime()
+{
+    // get the time since the system was booted
+    constexpr int64_t MS_PER_SECOND = 1000;
+    constexpr long NS_PER_MS = 1000000;
+    struct timeval times = {0};
+    clock_gettime(CLOCK_MONOTONIC, &times);
+    return ((times.tv_sec * MS_PER_SECOND) + (times.tv_nsec / NS_PER_MS));
 }
 
 std::string NfcSdkCommon::CodeMiddlePart(const std::string &src)
