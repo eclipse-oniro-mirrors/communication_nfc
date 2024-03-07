@@ -66,7 +66,7 @@ HWTEST_F(TagForegroundTest, RegForeground001, TestSize.Level1)
     const sptr<KITS::IForegroundCallback> callback = nullptr;
     TagForeground instance = TagForeground::GetInstance();
     ErrorCode result = instance.RegForeground(element, discTech, callback);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 /**
  * @tc.name: UnregForeground001
@@ -78,7 +78,7 @@ HWTEST_F(TagForegroundTest, UnregForeground001, TestSize.Level1)
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     ErrorCode result = instance.UnregForeground(element);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 }
 }

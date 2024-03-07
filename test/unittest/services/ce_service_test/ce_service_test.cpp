@@ -59,9 +59,10 @@ HWTEST_F(CeServiceTest, RegHceCmdCallback001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
-    sptr<KITS::IHceCmdCallback> callback = nullptr;
-    std::string type = "";
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
+    const sptr<KITS::IHceCmdCallback> callback = nullptr;
+    const std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
@@ -76,10 +77,11 @@ HWTEST_F(CeServiceTest, SendHostApduData001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     std::string hexCmdData = "";
     bool raw = false;
     std::string hexRespData = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     Security::AccessToken::AccessTokenID callerToken = 0;
     bool sendHostApduData = ceService->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
     ASSERT_TRUE(sendHostApduData == false);
@@ -108,9 +110,10 @@ HWTEST_F(CeServiceTest, OnDefaultPaymentServiceChange001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->OnDefaultPaymentServiceChange();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
@@ -126,10 +129,11 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     std::shared_ptr<EventFwk::CommonEventData> data = nullptr;
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->OnAppAddOrChangeOrRemove(data);
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
@@ -145,10 +149,11 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->OnAppAddOrChangeOrRemove(data);
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
@@ -164,9 +169,10 @@ HWTEST_F(CeServiceTest, ConfigRoutingAndCommit001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->ConfigRoutingAndCommit();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
@@ -183,11 +189,12 @@ HWTEST_F(CeServiceTest, HandleFieldDeactivated001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    ceService->HandleFieldDeactivated();
     Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->HandleFieldDeactivated();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
@@ -201,12 +208,13 @@ HWTEST_F(CeServiceTest, OnCardEmulationData001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     std::vector<uint8_t> data;
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    ceService->OnCardEmulationData(data);
     Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->OnCardEmulationData(data);
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
@@ -220,11 +228,12 @@ HWTEST_F(CeServiceTest, OnCardEmulationActivated001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    ceService->OnCardEmulationActivated();
     Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->OnCardEmulationActivated();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
@@ -238,11 +247,12 @@ HWTEST_F(CeServiceTest, OnCardEmulationDeactivated001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    ceService->OnCardEmulationDeactivated();
     Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->OnCardEmulationDeactivated();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
@@ -256,11 +266,12 @@ HWTEST_F(CeServiceTest, PublishFieldOnOrOffCommonEvent001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     bool isFieldOn = false;
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->PublishFieldOnOrOffCommonEvent(isFieldOn);
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
@@ -275,11 +286,12 @@ HWTEST_F(CeServiceTest, PublishFieldOnOrOffCommonEvent002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     bool isFieldOn = true;
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->PublishFieldOnOrOffCommonEvent(isFieldOn);
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
@@ -294,9 +306,10 @@ HWTEST_F(CeServiceTest, UnRegHceCmdCallback001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
     const std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     bool unRegHceCmdCallback = ceService->UnRegHceCmdCallback(type, callerToken);
     ASSERT_TRUE(unRegHceCmdCallback == false);
 }
@@ -310,8 +323,9 @@ HWTEST_F(CeServiceTest, UnRegAllCallback001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
-    Security::AccessToken::AccessTokenID callerToken = 0;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
+    Security::AccessToken::AccessTokenID callerToken = 0;
     bool unRegAllCallback = ceService->UnRegAllCallback(callerToken);
     ASSERT_TRUE(unRegAllCallback == false);
 }
@@ -325,8 +339,9 @@ HWTEST_F(CeServiceTest, HandleFieldActivated001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
-    Security::AccessToken::AccessTokenID callerToken = 0;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
+    Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->HandleFieldActivated();
     bool unRegAllCallback = ceService->UnRegAllCallback(callerToken);
     ASSERT_TRUE(unRegAllCallback == false);
