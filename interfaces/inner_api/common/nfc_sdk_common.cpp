@@ -174,11 +174,11 @@ uint64_t NfcSdkCommon::GetCurrentTime()
 uint64_t NfcSdkCommon::GetRelativeTime()
 {
     // get the time since the system was booted
-    constexpr int64_t MS_PER_SECOND = 1000;
-    constexpr long NS_PER_MS = 1000000;
-    struct timeval times = {0};
+    constexpr int64_t ms_per_second = 1000;
+    constexpr int64_t ns_per_ms = 1000000;
+    struct timespec times = {0};
     clock_gettime(CLOCK_MONOTONIC, &times);
-    return ((times.tv_sec * MS_PER_SECOND) + (times.tv_nsec / NS_PER_MS));
+    return ((times.tv_sec * ms_per_second) + (times.tv_nsec / ns_per_ms));
 }
 
 std::string NfcSdkCommon::CodeMiddlePart(const std::string &src)

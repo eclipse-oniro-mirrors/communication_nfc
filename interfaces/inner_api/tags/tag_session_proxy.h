@@ -41,7 +41,7 @@ public:
     int SetTimeout(int tagRfDiscId, int timeout, int technology) override;
     int GetTimeout(int tagRfDiscId, int technology, int &timeout) override;
     void ResetTimeout(int tagRfDiscId) override;
-    int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    int SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
 
     std::vector<int> GetTechList(int tagRfDiscId) override;
     bool IsTagFieldOn(int tagRfDiscId) override;

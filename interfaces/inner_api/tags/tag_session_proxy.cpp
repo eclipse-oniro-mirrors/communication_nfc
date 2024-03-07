@@ -121,7 +121,7 @@ int TagSessionProxy::GetMaxTransceiveLength(int technology, int &maxSize)
         data, option, maxSize);
 }
 
-int TagSessionProxy::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
+int TagSessionProxy::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     MessageParcel data;
     MessageParcel reply;

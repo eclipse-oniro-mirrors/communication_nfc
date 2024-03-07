@@ -95,7 +95,7 @@ public:
      * @param raw to send whether original data or un-original data
      * @return the error code of calling function.
      */
-    virtual int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
+    virtual int SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) = 0;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
