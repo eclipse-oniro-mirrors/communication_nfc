@@ -21,6 +21,7 @@
 #include "nfc_service.h"
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
+#include "isodep_card_handler.h"
 
 namespace OHOS {
 namespace NFC {
@@ -43,6 +44,7 @@ private:
     KITS::TagInfoParcelable* GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     void DispatchTag(uint32_t rfDiscId);
     bool HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
+    void PublishNotification(uint32_t tagDiscId, bool isIsoDep);
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
@@ -55,6 +57,8 @@ private:
     // ndef message
     std::string lastNdefMsg_ {};
     sptr<INdefMsgCallback> ndefCb_;
+
+    std::shared_ptr<IsodepCardHandler> isodepCardHandler_ {};
 };
 }  // namespace TAG
 }  // namespace NFC

@@ -22,6 +22,7 @@
 #include "nfc_sdk_common.h"
 #include "external_deps_proxy.h"
 #include "tag_ability_dispatcher.h"
+#include "tag_notification.h"
 
 namespace OHOS {
 namespace NFC {
@@ -37,6 +38,12 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
 {
     if (nfcService_) {
         nciTagProxy_ = nfcService_->GetNciTagProxy();
+        if (!nciTagProxy_.expired()) {
+            isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
+        }
+    }
+    if (isodepCardHandler_) {
+        isodepCardHandler_->InitTrafficCardInfo();
     }
 }
 
@@ -79,9 +86,11 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         return;
     }
 
+    bool isIsoDep = false;
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
     if (nciTagProxy_.lock()->GetConnectedTech(tagDiscId) == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
+        isIsoDep = true;
     }
     DebugLog("HandleTagFound fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
 
@@ -110,6 +119,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         if (ndefMessage != nullptr && HandleNdefDispatch(tagDiscId, ndefMsg)) {
             break;
         }
+        PublishNotification(tagDiscId, isIsoDep);
         DispatchTag(tagDiscId);
         break;
     } while (0);
@@ -172,6 +182,26 @@ void TagDispatcher::DispatchTag(uint32_t tagDiscId)
 void TagDispatcher::HandleTagDebounce()
 {
     DebugLog("HandleTagDebounce, unimplimentation...");
+}
+
+void TagDispatcher::PublishNotification(uint32_t tagDiscId, bool isIsoDep)
+{
+    NfcNotificationId notificationId = NFC_TAG_NOTIFICATION_ID;
+    std::string cardName = "";
+    uint8_t cardIndex = INVALID_CARD_INDEX;
+    int balance = INVALID_BALANCE;
+    if (isIsoDep && isodepCardHandler_ != nullptr) {
+        if (isodepCardHandler_->IsSupportedTrafficCard(tagDiscId, cardIndex)) {
+            isodepCardHandler_->GetBalance(tagDiscId, cardIndex, balance);
+            if (balance < 0) {
+                WarnLog("failed to get card balance.");
+            } else {
+                isodepCardHandler_->GetCardName(cardIndex, cardName);
+                notificationId = NFC_TRAFFIC_CARD_NOTIFICATION_ID;
+            }
+        }
+    }
+    TagNotification::GetInstance().PublishTagNotification(notificationId, cardName, balance);
 }
 }  // namespace TAG
 }  // namespace NFC

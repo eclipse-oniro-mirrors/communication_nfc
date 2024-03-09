@@ -26,6 +26,7 @@ config("nfc_service_unit_test_config") {
     "$NFC_DIR/services/src/nci_adapter/nci_native_default/include",
     "$NFC_DIR/services/src",
     "$NFC_DIR/services/src/external_deps",
+    "$NFC_DIR/services/src/tag",
     "//third_party/libnfc-nci/SN100x/src/gki/common/",
     "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
     "//third_party/libnfc-nci/SN100x/src/include",
