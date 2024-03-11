@@ -372,7 +372,7 @@ bool CeService::UpdateDefaultPaymentType()
     KITS::DefaultPaymentType defaultPaymentType = GetDefaultPaymentType();
     InfoLog("The last default payment type %{public}d, the new one %{public}d.", defaultPaymentType_,
             defaultPaymentType);
-    if(defaultPaymentType == defaultPaymentType_){
+    if (defaultPaymentType == defaultPaymentType_) {
         return false;
     }
     std::lock_guard<std::mutex> lock(configRoutingMutex_);

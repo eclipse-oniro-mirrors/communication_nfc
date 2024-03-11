@@ -174,7 +174,8 @@ void ExternalDepsProxy::StartVibratorOnce()
     TAG::TagAbilityDispatcher::StartVibratorOnce();
 }
 
-void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos,const std::string& simBundleName)
+void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos,
+                                               const std::string& simBundleName)
 {
     AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
 }

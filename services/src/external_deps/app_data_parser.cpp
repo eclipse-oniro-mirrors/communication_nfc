@@ -649,7 +649,8 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
     return false;
 }
 
-void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,const std::string& simBundleName)
+void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,
+                                           const std::string &simBundleName)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (!IsPaymentApp(appAidInfo)) {
@@ -691,13 +692,13 @@ void AppDataParser::PushSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos,
         ErrorLog("bundleMgrProxy_ is nullptr!");
         return;
     }
-        AbilityInfo simAbility;
+    AbilityInfo simAbility;
     simAbility.bundleName = simBundleName;
     AppExecFwk::BundleInfo bundleInfo;
     bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
                                                  bundleInfo, USER_ID);
     ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
-    if(!result){
+    if (!result) {
         return;
     }
     simAbility.labelId = bundleInfo.applicationInfo.labelId;

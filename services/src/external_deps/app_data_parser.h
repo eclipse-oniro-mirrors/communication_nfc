@@ -75,8 +75,8 @@ public:
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     bool IsBundleInstalled(const std::string &bundleName);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
-    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,const std::string& simBundleName);
-   
+    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName);
+
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
 
