@@ -36,8 +36,16 @@ config("nfc_config") {
     "src/utils",
     "src/card_emulation",
     "src/external_deps",
+    "src/tag",
     "$NFC_DIR/interfaces/inner_api/common",
   ]
+}
+
+ohos_prebuilt_etc("nfc_prebuilt_config") {
+  source = "nfc_card_apdu.json"
+  relative_install_dir = "nfc"
+  part_name = "nfc"
+  subsystem_name = "communication"
 }
 
 nfc_service_source = [
@@ -68,14 +76,12 @@ nfc_service_source = [
   "src/nci_adapter/nci_native_selector.cpp",
   "src/nci_adapter/nci_nfcc_proxy.cpp",
   "src/nci_adapter/nci_tag_proxy.cpp",
-  "src/ndef_bt_oob_data_parser.cpp",
   "src/nfc_event_handler.cpp",
   "src/nfc_polling_manager.cpp",
   "src/nfc_polling_params.cpp",
   "src/nfc_routing_manager.cpp",
   "src/nfc_sa_manager.cpp",
   "src/nfc_service.cpp",
-  "src/tag_dispatcher.cpp",
   "src/utils/app_state_observer.cpp",
   "src/utils/nfc_timer.cpp",
   "src/utils/nfc_watch_dog.cpp",
@@ -83,6 +89,10 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_cmd_death_recipient.cpp",
   "src/ipc/card_emulation/hce_session.cpp",
   "src/ipc/card_emulation/hce_session_stub.cpp",
+  "src/tag/isodep_card_handler.cpp",
+  "src/tag/ndef_bt_oob_data_parser.cpp",
+  "src/tag/tag_dispatcher.cpp",
+  "src/tag/tag_notification.cpp",
 ]
 if (nfc_service_feature_vendor_applications_enabled) {
   nfc_service_source += [
@@ -97,6 +107,7 @@ nfc_service_external_deps = [
   "ability_runtime:ability_manager",
   "ability_runtime:app_manager",
   "ability_runtime:dataobs_manager",
+  "ability_runtime:wantagent_innerkits",
   "access_token:libaccesstoken_sdk",
   "bundle_framework:appexecfwk_base",
   "bundle_framework:appexecfwk_core",
@@ -104,6 +115,7 @@ nfc_service_external_deps = [
   "common_event_service:cesfwk_core",
   "common_event_service:cesfwk_innerkits",
   "data_share:datashare_consumer",
+  "distributed_notification_service:ans_innerkits",
   "eventhandler:libeventhandler",
   "hilog:libhilog",
   "hisysevent:libhisysevent",
@@ -134,8 +146,10 @@ ohos_shared_library("nfc_service") {
   version_script = "libnfc_service_version_script.txt"
 
   deps = [
+    ":nfc_prebuilt_config",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
+    "//third_party/cJSON:cjson_static",
   ]
 
   if (!nfc_use_vendor_nci_native) {
@@ -164,6 +178,7 @@ ohos_static_library("nfc_service_static") {
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
+    "//third_party/cJSON:cjson_static",
   ]
 
   if (!nfc_use_vendor_nci_native) {

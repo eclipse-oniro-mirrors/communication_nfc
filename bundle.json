@@ -72,9 +72,11 @@
                 "hisysevent",
                 "data_share",
                 "screenlock_mgr",
-                "power_manager"
+                "power_manager",
+                "distributed_notification_service"
             ],
             "third_party": [
+                "cJSON",
                 "libnfc-nci",
                 "zlib"
             ]
