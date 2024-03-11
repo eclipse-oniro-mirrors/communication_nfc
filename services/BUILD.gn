@@ -26,6 +26,10 @@ config("nfc_config") {
   if (nfc_service_feature_vendor_applications_enabled) {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
+  if (nfc_sim_feature) {
+    defines += [ "NFC_SIM_FEATURE" ]
+  }
+  
 
   include_dirs = [
     "include",

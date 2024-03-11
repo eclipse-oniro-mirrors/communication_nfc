@@ -75,7 +75,7 @@ public:
    
     void ConfigRoutingAndCommit();
     void SearchElementByAid(const std::string &aid, ElementName &aidElement);
-    KITS::DefaultPaymentType GetDefaultRoute();
+    KITS::DefaultPaymentType GetDefaultPaymentType();
 
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
@@ -87,6 +87,7 @@ private:
     void UpdateDefaultPaymentBundleInstalledStatus(bool installed);
     
     void HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
+    bool UpdateDefaultPaymentType();
 
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
@@ -98,6 +99,7 @@ private:
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
     ElementName defaultPaymentElement_;
     bool defaultPaymentBundleInstalled_ {};
+    KITS::DefaultPaymentType defaultPaymentType_;
     sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
 
     ElementName foregroundElement_ {};

@@ -649,7 +649,7 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
     return false;
 }
 
-void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
+void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,const std::string& simBundleName)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (!IsPaymentApp(appAidInfo)) {
@@ -671,10 +671,40 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         ability.iconId = appAidInfo.iconId;
         paymentAbilityInfos.push_back(ability);
     }
+#ifdef NFC_SIM_FEATURE
+    PushSimBundle(paymentAbilityInfos, simBundleName);
+#endif
 #ifdef VENDOR_APPLICATIONS_ENABLED
     GetPaymentAbilityInfosFromVendor(paymentAbilityInfos);
 #endif
 }
+
+#ifdef NFC_SIM_FEATURE
+void AppDataParser::PushSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName)
+{
+    if (simBundleName.empty()) {
+        InfoLog("sim bundle name is empty.");
+        return;
+    }
+
+    if (bundleMgrProxy_ == nullptr) {
+        ErrorLog("bundleMgrProxy_ is nullptr!");
+        return;
+    }
+        AbilityInfo simAbility;
+    simAbility.bundleName = simBundleName;
+    AppExecFwk::BundleInfo bundleInfo;
+    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+                                                 bundleInfo, USER_ID);
+    ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
+    if(!result){
+        return;
+    }
+    simAbility.labelId = bundleInfo.applicationInfo.labelId;
+    simAbility.iconId = bundleInfo.applicationInfo.iconId;
+    paymentAbilityInfos.push_back(simAbility);
+}
+#endif
 bool AppDataParser::IsSystemApp(uint32_t uid)
 {
     if (bundleMgrProxy_ == nullptr) {

@@ -80,7 +80,7 @@ public:
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     void StartVibratorOnce();
-    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,const std::string& simBundleName);
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool IsSystemApp(uint32_t uid);

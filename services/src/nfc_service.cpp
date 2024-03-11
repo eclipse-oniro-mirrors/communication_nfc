@@ -85,6 +85,11 @@ std::weak_ptr<CeService> NfcService::GetCeService()
     return ceService_;
 }
 
+std::string NfcService::GetSimVendorBundleName()
+{
+    return nciCeProxy_->GetSimVendorBundleName();
+}
+
 bool NfcService::Initialize()
 {
     nfcService_ = shared_from_this();
@@ -303,7 +308,7 @@ bool NfcService::DoTurnOn()
     ceService_->Initialize();
     ceService_->InitConfigAidRouting();
 
-    nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultRoute());
+    nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
     nfcRoutingManager_->CommitRouting();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
