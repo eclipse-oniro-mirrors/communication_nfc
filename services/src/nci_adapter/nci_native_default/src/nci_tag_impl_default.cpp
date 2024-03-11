@@ -213,6 +213,11 @@ uint16_t NciTagImplDefault::GetTechMaskFromTechList(const std::vector<uint32_t> 
 {
     return TagNativeImpl::GetInstance().GetTechMaskFromTechList(discTech);
 }
+
+std::string NciTagImplDefault::GetVendorBrowserBundleName()
+{
+    return "";
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

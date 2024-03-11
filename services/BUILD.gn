@@ -91,6 +91,8 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_session_stub.cpp",
   "src/tag/isodep_card_handler.cpp",
   "src/tag/ndef_bt_oob_data_parser.cpp",
+  "src/tag/ndef_har_data_parser.cpp",
+  "src/tag/ndef_har_dispatch.cpp",
   "src/tag/tag_dispatcher.cpp",
   "src/tag/tag_notification.cpp",
 ]

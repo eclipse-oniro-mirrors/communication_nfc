@@ -162,6 +162,26 @@ std::string NfcSdkCommon::StringToHexString(const std::string &src)
     return result;
 }
 
+std::string NfcSdkCommon::HexStringToAsciiString(const std::string &src)
+{
+    if (src.size() % HEX_BYTE_LEN != 0 || src.empty()) {  // 2 is Even number judgement
+        ErrorLog("HexStringToAsciiString length error");
+        return "";
+    }
+    std::string result = "";
+    for (size_t i = 0; i < src.size() / HEX_BYTE_LEN; i++) {
+        unsigned char byteVal = GetByteFromHexStr(src, i);
+        const char MIN_PRINT_CHAR = ' ';
+        const char MAX_PRINT_CHAR = '~';
+        /* ' ' to '~' is the printable char range */
+        if (static_cast<char>(byteVal) < MIN_PRINT_CHAR || static_cast<char>(byteVal) > MAX_PRINT_CHAR) {
+            return "";
+        }
+        result.push_back(static_cast<char>(byteVal));
+    }
+    return result;
+}
+
 uint64_t NfcSdkCommon::GetCurrentTime()
 {
     // get the time since 1970/1/1

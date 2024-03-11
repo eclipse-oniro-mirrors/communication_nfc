@@ -194,6 +194,12 @@ public:
      * @return The technology mask.
      */
     uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) override;
+
+    /**
+     * @brief Get browser bundle name of the vendor.
+     * @return Browser bundle name of the vendor.
+     */
+    std::string GetVendorBrowserBundleName() override;
 private:
     std::shared_ptr<INciTagInterface> nciTagInterface_;
 };

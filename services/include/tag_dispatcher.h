@@ -22,6 +22,7 @@
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
 #include "isodep_card_handler.h"
+#include "ndef_har_data_parser.h"
 
 namespace OHOS {
 namespace NFC {
@@ -59,6 +60,7 @@ private:
     sptr<INdefMsgCallback> ndefCb_;
 
     std::shared_ptr<IsodepCardHandler> isodepCardHandler_ {};
+    std::shared_ptr<NdefHarDataParser> ndefHarDataParser_ {nullptr};
 };
 }  // namespace TAG
 }  // namespace NFC

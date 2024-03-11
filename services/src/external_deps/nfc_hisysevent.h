@@ -26,7 +26,13 @@ enum MainErrorCode {
     SET_READER_MODE_EVENT = 105,
     OPEN_NFC_EVENT = 106,
     CLOSE_NFC_EVENT = 107,
-    INIT_SA_FAILED = 201 // error code for init sa failed
+    INIT_SA_FAILED = 201, // error code for init sa failed
+    NDEF_TEL_EVENT = 301,
+    NDEF_SMS_EVENT = 302,
+    NDEF_MAIL_EVENT = 303,
+    NDEF_TEXT_EVENT = 304,
+    NDEF_VCARD_EVENT = 305,
+    NDEF_APP_NOT_INSTALL = 306,
 };
 
 enum SubErrorCode {

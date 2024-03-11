@@ -203,6 +203,12 @@ public:
      * @return The technology mask.
      */
     virtual uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) = 0;
+
+    /**
+     * @brief Get browser bundle name of the vendor.
+     * @return Browser bundle name of the vendor.
+     */
+    virtual std::string GetVendorBrowserBundleName() = 0;
 };
 }  // namespace NCI
 }  // namespace NFC
