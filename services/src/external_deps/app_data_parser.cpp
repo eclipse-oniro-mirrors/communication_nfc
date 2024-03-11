@@ -695,10 +695,11 @@ void AppDataParser::PushSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos,
     AbilityInfo simAbility;
     simAbility.bundleName = simBundleName;
     AppExecFwk::BundleInfo bundleInfo;
-    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+    bool result = bundleMgrProxy_->GetBundleInfo(simBundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
                                                  bundleInfo, USER_ID);
-    ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
+    InfoLog("get bundle %{public}s result %{public}d ", simBundleName.c_str(), result);
     if (!result) {
+        ErrorLog("get bundle %{public}s failed ", simBundleName.c_str());
         return;
     }
     simAbility.labelId = bundleInfo.applicationInfo.labelId;

@@ -177,7 +177,7 @@ void ExternalDepsProxy::StartVibratorOnce()
 void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos,
                                                const std::string& simBundleName)
 {
-    AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
+    AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos, simBundleName);
 }
 
 void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps)
