@@ -201,8 +201,7 @@ static void NativeTransmit(napi_env env, void *data)
 {
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
     context->errorCode = BUSI_ERR_TAG_STATE_INVALID;
-    BasicTagSession *nfcTagSessionPtr =
-        static_cast<BasicTagSession *>(static_cast<void *>(context->objectInfo->tagSession.get()));
+    std::shared_ptr<BasicTagSession> nfcTagSessionPtr = context->objectInfo->tagSession;
     if (nfcTagSessionPtr != nullptr) {
         std::string hexRespData;
         context->errorCode = nfcTagSessionPtr->SendCommand(context->dataBytes, true, hexRespData);

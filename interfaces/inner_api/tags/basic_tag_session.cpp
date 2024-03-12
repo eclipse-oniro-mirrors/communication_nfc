@@ -129,7 +129,8 @@ std::string BasicTagSession::GetTagUid()
     return tagInfo_.lock()->GetTagUid();
 }
 
-int BasicTagSession::SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData)
+int BasicTagSession::SendCommand(std::string& hexCmdData,
+    bool raw, std::string &hexRespData)
 {
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {

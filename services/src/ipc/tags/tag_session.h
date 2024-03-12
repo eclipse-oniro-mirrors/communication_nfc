@@ -130,7 +130,7 @@ public:
      */
     bool IsNdef(int tagRfDiscId) override;
 
-    int SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    int SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
