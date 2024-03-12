@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace NFC {
-const static std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
 const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
 const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
 
