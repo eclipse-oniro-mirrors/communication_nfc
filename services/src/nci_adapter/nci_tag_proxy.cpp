@@ -335,6 +335,18 @@ uint16_t NciTagProxy::GetTechMaskFromTechList(const std::vector<uint32_t> &discT
     }
     return 0;
 }
+
+/**
+ * @brief Get browser bundle name of the vendor.
+ * @return Browser bundle name of the vendor.
+ */
+std::string NciTagProxy::GetVendorBrowserBundleName()
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->GetVendorBrowserBundleName();
+    }
+    return "";
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

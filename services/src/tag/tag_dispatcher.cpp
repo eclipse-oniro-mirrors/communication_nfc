@@ -23,6 +23,7 @@
 #include "external_deps_proxy.h"
 #include "tag_ability_dispatcher.h"
 #include "tag_notification.h"
+#include "ndef_har_data_parser.h"
 
 namespace OHOS {
 namespace NFC {
@@ -40,6 +41,7 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
         nciTagProxy_ = nfcService_->GetNciTagProxy();
         if (!nciTagProxy_.expired()) {
             isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
+            ndefHarDataParser_ = std::make_shared<NdefHarDataParser>(nciTagProxy_);
         }
     }
     if (isodepCardHandler_) {
@@ -74,6 +76,9 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, btData->vendorPayload_, NDEF_TYPE_BT_OOB);
     }
     if (ndefCbRes) {
+        return true;
+    }
+    if (ndefHarDataParser_ != nullptr && ndefHarDataParser_->TryNdef(msg)) {
         return true;
     }
     return false;
