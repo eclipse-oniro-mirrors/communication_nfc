@@ -349,13 +349,14 @@ void NfcService::DoInitialize()
     int prefKeyNfcState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
     int dataShareNfcState = KITS::STATE_OFF;
     Uri nfcEnableUri(KITS::NFC_DATA_URI);
-    DelayedSingleton<NfcDataShareImpl>::GetInstance()->GetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, dataShareNfcState);
+    DelayedSingleton<NfcDataShareImpl>::GetInstance()->GetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE,
+        dataShareNfcState);
     InfoLog("NfcService DoInitialize: prefKeyNfcState = %{public}d, dataShareNfcState = %{public}d",
         prefKeyNfcState, dataShareNfcState);
     if (dataShareNfcState != prefKeyNfcState) {
         ErrorLog("NfcService DoInitialize: Nfc state is inconsistent, update dataShareNfcState");
         KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-            SetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, prefKeyNfcState);
+            SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, prefKeyNfcState);
         if (err != ERR_NONE) {
             ErrorLog("NfcService DoInitialize: update dataShareNfcState failed, errCode = %{public}d", err);
         }

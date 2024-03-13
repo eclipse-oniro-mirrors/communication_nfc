@@ -171,10 +171,10 @@ std::string NfcSdkCommon::HexStringToAsciiString(const std::string &src)
     std::string result = "";
     for (size_t i = 0; i < src.size() / HEX_BYTE_LEN; i++) {
         unsigned char byteVal = GetByteFromHexStr(src, i);
-        const char MIN_PRINT_CHAR = ' ';
-        const char MAX_PRINT_CHAR = '~';
+        const char minPrintChar = ' ';
+        const char maxPrintChar = '~';
         /* ' ' to '~' is the printable char range */
-        if (static_cast<char>(byteVal) < MIN_PRINT_CHAR || static_cast<char>(byteVal) > MAX_PRINT_CHAR) {
+        if (static_cast<char>(byteVal) < minPrintChar || static_cast<char>(byteVal) > maxPrintChar) {
             return "";
         }
         result.push_back(static_cast<char>(byteVal));
