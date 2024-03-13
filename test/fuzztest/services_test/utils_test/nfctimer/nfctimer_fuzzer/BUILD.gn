@@ -51,6 +51,7 @@ ohos_fuzztest("NfcTimerFuzzTest") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "data_share:datashare_consumer",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
