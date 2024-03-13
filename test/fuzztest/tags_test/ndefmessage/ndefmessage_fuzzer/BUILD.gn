@@ -48,6 +48,7 @@ ohos_fuzztest("NdefMessageFuzzTest") {
     "ability_runtime:dataobs_manager",
     "c_utils:utils",
     "data_share:datashare_consumer",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
