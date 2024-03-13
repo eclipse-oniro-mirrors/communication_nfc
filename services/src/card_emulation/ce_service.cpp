@@ -200,7 +200,7 @@ void CeService::OnDefaultPaymentServiceChange()
     }
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             newElement.GetBundleName());
-    defaultPaymentElement_ = newElement;
+    UpdateDefaultPaymentElement(newElement);
     InfoLog("OnDefaultPaymentServiceChange: refresh route table");
     ConfigRoutingAndCommit();
 }
@@ -262,6 +262,14 @@ void CeService::UpdateDefaultPaymentBundleInstalledStatus(bool installed)
     InfoLog("UpdateDefaultPaymentBundleInstalledStatus: bundleName %{public}d", installed);
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     defaultPaymentBundleInstalled_ = installed;
+}
+
+void CeService::UpdateDefaultPaymentElement(const ElementName &element)
+{
+    InfoLog("UpdateDefaultPaymentElement: bundleName %{public}s", element.GetURI().c_str());
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    defaultPaymentElement_ = element;
+    defaultPaymentBundleInstalled_ = true;
 }
 KITS::DefaultPaymentType CeService::GetDefaultPaymentType()
 {
