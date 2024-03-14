@@ -21,6 +21,7 @@
 #include "nfc_config.h"
 #include "nfc_sdk_common.h"
 #include "routing_manager.h"
+#include "securec.h"
 #include "tag_nci_adapter_ntf.h"
 #include "tag_nci_adapter_common.h"
 

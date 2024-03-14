@@ -21,7 +21,7 @@
 #include "nfa_api.h"
 #include "rw_int.h"
 #include "securec.h"
-#inculde "extns.h"
+#include "extns.h"
 
 namespace OHOS {
 namespace NFC {
