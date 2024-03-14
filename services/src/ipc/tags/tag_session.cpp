@@ -210,7 +210,7 @@ bool TagSession::IsNdef(int tagRfDiscId)
     return nciTagProxy_.lock()->DetectNdefInfo(tagRfDiscId, ndefInfo);
 }
 
-int TagSession::SendRawFrame(int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
+int TagSession::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     DebugLog("Send Raw(%{public}d) Frame", raw);
     // Check if NFC is enabled
