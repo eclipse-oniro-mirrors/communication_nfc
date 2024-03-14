@@ -75,7 +75,7 @@ int ForegroundCallbackStub::OnRemoteRequest(
 KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::IForegroundCallback> &callback)
 {
     DebugLog("ForegroundCallbackStub RegForegroundCallback");
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("RegForegroundCallback:callback is nullptr!");
         callback_ = callback;
@@ -88,7 +88,7 @@ KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::I
 int ForegroundCallbackStub::RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply)
 {
     KITS::TagInfoParcelable tagInfo = *(KITS::TagInfoParcelable::Unmarshalling(data));
-    std::shared_lock<std::shared_mutex> guard(callbackMutex);
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     OnTagDiscovered(tagInfo);
     reply.WriteInt32(KITS::ERR_NONE); /* Reply 0 to indicate that no exception occurs. */
     return KITS::ERR_NONE;
