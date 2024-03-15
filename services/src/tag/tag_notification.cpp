@@ -133,8 +133,11 @@ void TagNotification::PublishTagNotification(NfcNotificationId notificationId, s
     request.SetNotificationId(static_cast<int>(notificationId));
     request.SetContent(content);
     request.SetCreatorUid(NFC_SERVICE_SA_ID);
+    request.SetCreatorBundleName(NFC_SERVICE_NAME);
     request.SetAutoDeletedTime(NTF_AUTO_DELETE_TIME);
     request.SetTapDismissed(true);
+    request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
+    request.SetNotificationControlFlags(NFC_NTF_CONTROL_FLAG);
 
     if (GetNeedActionButton(notificationId)) {
         auto want = std::make_shared<AAFwk::Want>();
