@@ -167,8 +167,12 @@ std::string HceSession::GetDumpInfo()
 }
 int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 {
+    
+    ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos);
+#ifdef NFC_SIM_FEATURE
     std::string simBundleName = nfcService_.lock()->GetSimVendorBundleName();
-    ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos, simBundleName);
+    ExternalDepsProxy::GetInstance().AppendSimBundle(paymentAbilityInfos, simBundleName);
+#endif
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 } // namespace HCE

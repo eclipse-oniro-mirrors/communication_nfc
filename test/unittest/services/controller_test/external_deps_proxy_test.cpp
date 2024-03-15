@@ -377,7 +377,7 @@ HWTEST_F(ExternalDepsProxyTest, GetPaymentAbilityInfos001, TestSize.Level1)
 {
     std::vector<AbilityInfo> paymentAbilityInfos;
     std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
-    externalDepsProxy->GetPaymentAbilityInfos(paymentAbilityInfos, "");
+    externalDepsProxy->GetPaymentAbilityInfos(paymentAbilityInfos);
     std::vector<int> discTechList;
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);

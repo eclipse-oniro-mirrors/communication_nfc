@@ -649,8 +649,7 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
     return false;
 }
 
-void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos,
-                                           const std::string &simBundleName)
+void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (!IsPaymentApp(appAidInfo)) {
@@ -672,16 +671,13 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         ability.iconId = appAidInfo.iconId;
         paymentAbilityInfos.push_back(ability);
     }
-#ifdef NFC_SIM_FEATURE
-    PushSimBundle(paymentAbilityInfos, simBundleName);
-#endif
 #ifdef VENDOR_APPLICATIONS_ENABLED
     GetPaymentAbilityInfosFromVendor(paymentAbilityInfos);
 #endif
 }
 
 #ifdef NFC_SIM_FEATURE
-void AppDataParser::PushSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName)
+void AppDataParser::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName)
 {
     if (simBundleName.empty()) {
         InfoLog("sim bundle name is empty.");

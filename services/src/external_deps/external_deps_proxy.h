@@ -80,12 +80,15 @@ public:
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     void StartVibratorOnce();
-    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName);
+    void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
     bool IsBundleInstalled(const std::string &bundleName);
+#ifdef NFC_SIM_FEATURE
+    void AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName);
+#endif
 };
 } // NFC
 } // OHOS

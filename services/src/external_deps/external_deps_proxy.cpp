@@ -174,10 +174,9 @@ void ExternalDepsProxy::StartVibratorOnce()
     TAG::TagAbilityDispatcher::StartVibratorOnce();
 }
 
-void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos,
-                                               const std::string& simBundleName)
+void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos)
 {
-    AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos, simBundleName);
+    AppDataParser::GetInstance().GetPaymentAbilityInfos(paymentAbilityInfos);
 }
 
 void ExternalDepsProxy::GetHceAppsByAid(const std::string& aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps)
@@ -203,5 +202,12 @@ bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
 {
     return AppDataParser::GetInstance().IsBundleInstalled(bundleName);
 }
+#ifdef NFC_SIM_FEATURE
+void ExternalDepsProxy::AppendSimBundle(std::vector<AbilityInfo>& paymentAbilityInfos,
+                                        const std::string& simBundleName)
+{
+    return AppDataParser::GetInstance().AppendSimBundle(paymentAbilityInfos, simBundleName);
+}
+#endif
 } // namespace NFC
 } // OHOS
