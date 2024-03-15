@@ -52,6 +52,7 @@ private:
     bool GetNeedActionButton(NfcNotificationId notificationId);
 
     static const int NFC_SERVICE_SA_ID = 1140;
+    static const int NFC_NTF_CONTROL_FLAG = 0;  
 
     const std::string NFC_SERVICE_NAME = "nfc_service"; 
 };
