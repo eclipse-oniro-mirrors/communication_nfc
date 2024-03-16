@@ -166,7 +166,7 @@ std::string HceSession::GetDumpInfo()
         .append(DUMP_END);
 }
 int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
-{ 
+{
     ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos);
 #ifdef NFC_SIM_FEATURE
     std::string simBundleName = nfcService_.lock()->GetSimVendorBundleName();
