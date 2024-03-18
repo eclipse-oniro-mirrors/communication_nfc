@@ -76,9 +76,9 @@ public:
     bool IsBundleInstalled(const std::string &bundleName);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+    bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
-
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);

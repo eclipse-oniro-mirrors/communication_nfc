@@ -59,6 +59,9 @@ public:
 
 private:
     std::string GetDumpInfo();
+#ifdef NFC_SIM_FEATURE
+    void AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos);
+#endif
     std::weak_ptr<NFC::INfcService> nfcService_{};
     std::weak_ptr<CeService> ceService_{};
 };

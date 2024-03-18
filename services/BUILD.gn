@@ -27,6 +27,10 @@ config("nfc_config") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
 
+  if (nfc_sim_feature) {
+    defines += [ "NFC_SIM_FEATURE" ]
+  }
+
   include_dirs = [
     "include",
     "src/ipc/controller",

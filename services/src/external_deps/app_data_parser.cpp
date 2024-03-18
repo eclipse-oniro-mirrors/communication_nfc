@@ -675,6 +675,31 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
     GetPaymentAbilityInfosFromVendor(paymentAbilityInfos);
 #endif
 }
+
+bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName)
+{
+    if (bundleName.empty()) {
+        InfoLog("sim bundle name is empty.");
+        return false;
+    }
+
+    if (bundleMgrProxy_ == nullptr) {
+        bundleMgrProxy_ = GetBundleMgrProxy();
+    }
+    if (bundleMgrProxy_ == nullptr) {
+        ErrorLog("bundleMgrProxy_ is nullptr.");
+        return false;
+    }
+    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+                                                 bundleInfo, USER_ID);
+    InfoLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
+    if (!result) {
+        ErrorLog("get bundle %{public}s failed ", bundleName.c_str());
+        return false;
+    }
+    return true;
+}
+
 bool AppDataParser::IsSystemApp(uint32_t uid)
 {
     if (bundleMgrProxy_ == nullptr) {

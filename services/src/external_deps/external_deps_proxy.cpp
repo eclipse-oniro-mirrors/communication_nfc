@@ -202,5 +202,10 @@ bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
 {
     return AppDataParser::GetInstance().IsBundleInstalled(bundleName);
 }
+
+bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const std::string& bundleName)
+{
+    return AppDataParser::GetInstance().GetBundleInfo(bundleInfo, bundleName);
+}
 } // namespace NFC
 } // OHOS
