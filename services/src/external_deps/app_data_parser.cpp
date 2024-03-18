@@ -677,30 +677,28 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
 }
 
 #ifdef NFC_SIM_FEATURE
-void AppDataParser::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName)
+bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName)
 {
-    if (simBundleName.empty()) {
+    if (bundleName.empty()) {
         InfoLog("sim bundle name is empty.");
-        return;
+        return false;
     }
 
     if (bundleMgrProxy_ == nullptr) {
-        ErrorLog("bundleMgrProxy_ is nullptr!");
-        return;
+        bundleMgrProxy_ = GetBundleMgrProxy();
     }
-    AbilityInfo simAbility;
-    simAbility.bundleName = simBundleName;
-    AppExecFwk::BundleInfo bundleInfo;
-    bool result = bundleMgrProxy_->GetBundleInfo(simBundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+    if (bundleMgrProxy_ == nullptr) {
+        ErrorLog("bundleMgrProxy_ is nullptr.");
+        return false;
+    }
+    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
                                                  bundleInfo, USER_ID);
-    InfoLog("get bundle %{public}s result %{public}d ", simBundleName.c_str(), result);
+    InfoLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
     if (!result) {
-        ErrorLog("get bundle %{public}s failed ", simBundleName.c_str());
-        return;
+        ErrorLog("get bundle %{public}s failed ", bundleName.c_str());
+        return false;
     }
-    simAbility.labelId = bundleInfo.applicationInfo.labelId;
-    simAbility.iconId = bundleInfo.applicationInfo.iconId;
-    paymentAbilityInfos.push_back(simAbility);
+    return true; 
 }
 #endif
 bool AppDataParser::IsSystemApp(uint32_t uid)

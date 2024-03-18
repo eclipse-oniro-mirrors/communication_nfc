@@ -49,6 +49,7 @@ public:
 
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
 
+
     KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService) override;
 
     KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids) override;
@@ -59,6 +60,7 @@ public:
 
 private:
     std::string GetDumpInfo();
+    void AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos);
     std::weak_ptr<NFC::INfcService> nfcService_{};
     std::weak_ptr<CeService> ceService_{};
 };

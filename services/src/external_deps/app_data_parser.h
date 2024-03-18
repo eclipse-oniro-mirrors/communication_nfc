@@ -76,11 +76,9 @@ public:
     bool IsBundleInstalled(const std::string &bundleName);
     void GetHceApps(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
+    bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
-#ifdef NFC_SIM_FEATURE
-    void AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos, const std::string &simBundleName);
-#endif
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);

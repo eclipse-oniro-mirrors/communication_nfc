@@ -202,12 +202,10 @@ bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
 {
     return AppDataParser::GetInstance().IsBundleInstalled(bundleName);
 }
-#ifdef NFC_SIM_FEATURE
-void ExternalDepsProxy::AppendSimBundle(std::vector<AbilityInfo>& paymentAbilityInfos,
-                                        const std::string& simBundleName)
+
+bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const std::string& bundleName)
 {
-    return AppDataParser::GetInstance().AppendSimBundle(paymentAbilityInfos, simBundleName);
+    return AppDataParser::GetInstance().GetBundleInfo(bundleInfo, bundleName);
 }
-#endif
 } // namespace NFC
 } // OHOS
