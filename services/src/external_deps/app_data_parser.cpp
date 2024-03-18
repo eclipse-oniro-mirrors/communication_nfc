@@ -676,7 +676,6 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
 #endif
 }
 
-#ifdef NFC_SIM_FEATURE
 bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName)
 {
     if (bundleName.empty()) {
@@ -700,7 +699,7 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
     }
     return true; 
 }
-#endif
+
 bool AppDataParser::IsSystemApp(uint32_t uid)
 {
     if (bundleMgrProxy_ == nullptr) {
