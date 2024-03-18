@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef NDEF_BT_SSP_DATA_PARSER_H
-#define NDEF_BT_SSP_DATA_PARSER_H
+#ifndef NDEF_BT_DATA_PARSER_H
+#define NDEF_BT_DATA_PARSER_H
 
 #include <string>
 
 namespace OHOS {
 namespace NFC {
-class BtOobData {
+namespace TAG {
+class BtData {
 public:
     bool isValid_ = false;
     std::string name_;
@@ -31,21 +32,22 @@ public:
     std::string vendorPayload_ = "";
 };
 
-class NdefBtOobDataParser {
+class NdefBtDataParser {
 public:
-    NdefBtOobDataParser();
-    ~NdefBtOobDataParser() {}
-    static std::shared_ptr<BtOobData> CheckBtRecord(const std::string& msg);
+    NdefBtDataParser();
+    ~NdefBtDataParser() {}
+    static std::shared_ptr<BtData> CheckBtRecord(const std::string& msg);
 
 private:
-    static std::shared_ptr<BtOobData> ParseBtOobRecord(const std::string& payload);
-    static std::shared_ptr<BtOobData> ParseBleOobRecord(const std::string& payload);
+    static std::shared_ptr<BtData> ParseBtRecord(const std::string& payload);
+    static std::shared_ptr<BtData> ParseBleRecord(const std::string& payload);
     static std::string GetUuidFromPayload(const std::string& payload, uint32_t& offset, uint32_t type, uint32_t len);
     static std::string GetDataFromPayload(const std::string& payload, uint32_t& offset, uint32_t datalen);
     static std::string GetBtMacFromPayload(const std::string& payload, uint32_t& offset);
 
 private:
 };
+} // namespace TAG
 } // namespace NFC
 } // namespace OHOS
-#endif // NDEF_BT_OOB_DATA_PARSER_H
+#endif // NDEF_BT_DATA_PARSER_H

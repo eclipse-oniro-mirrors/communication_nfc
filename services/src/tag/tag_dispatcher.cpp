@@ -13,23 +13,30 @@
  * limitations under the License.
  */
 #include "tag_dispatcher.h"
+
 #include <functional>
 #include "app_data_parser.h"
+#include "external_deps_proxy.h"
 #include "loghelper.h"
-#include "ndef_bt_oob_data_parser.h"
+#include "ndef_bt_data_parser.h"
+#include "ndef_har_data_parser.h"
 #include "ndef_message.h"
 #include "nfc_hisysevent.h"
 #include "nfc_sdk_common.h"
-#include "external_deps_proxy.h"
 #include "tag_ability_dispatcher.h"
 #include "tag_notification.h"
-#include "ndef_har_data_parser.h"
+
+#ifdef NDEF_WIFI_ENABLED
+#include "ndef_wifi_data_parser.h"
+#include "wifi_connection_manager.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 #define NDEF_TYPE_NORMAL  1
-#define NDEF_TYPE_BT_OOB  2
+#define NDEF_TYPE_BT      2
+#define NDEF_TYPE_WIFI    3
 
 using OHOS::NFC::KITS::TagTechnology;
 TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
@@ -63,21 +70,40 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     if (msg.empty()) {
         return false;
     }
-    bool ndefCbRes = false;
+    int msgType = NDEF_TYPE_NORMAL;
+    std::string ndef = msg;
+    std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
+    if (btData && btData->isValid_) {
+        msgType = NDEF_TYPE_BT;
+        ndef = btData->vendorPayload_;
+    }
+#ifdef NDEF_WIFI_ENABLED
+    std::shared_ptr<WifiData> wifiData;
+    if (msgType == NDEF_TYPE_NORMAL) {
+        wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
+        if (wifiData && wifiData->isValid_) {
+            msgType = NDEF_TYPE_WIFI;
+            ndef = wifiData->vendorPayload_;
+        }
+    }
+#endif
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
-    if (ndefCb_ != nullptr) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, msg, NDEF_TYPE_NORMAL);
+    InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
+        KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
+    bool ndefCbRes = false;
+    if (ndefCb_ != nullptr && !ndef.empty()) {
+        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
     }
     if (ndefCbRes) {
         return true;
     }
-    std::shared_ptr<BtOobData> btData = NdefBtOobDataParser::CheckBtRecord(msg);
-    if (ndefCb_ != nullptr && btData->isValid_ && !btData->vendorPayload_.empty()) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, btData->vendorPayload_, NDEF_TYPE_BT_OOB);
-    }
-    if (ndefCbRes) {
+#ifdef NDEF_WIFI_ENABLED
+    if (msgType == NDEF_TYPE_WIFI) {
+        WifiConnectionManager::GetInstance().Initialize(nfcService_);
+        WifiConnectionManager::GetInstance().TryConnectWifi(wifiData);
         return true;
     }
+#endif
     if (ndefHarDataParser_ != nullptr && ndefHarDataParser_->TryNdef(msg)) {
         return true;
     }

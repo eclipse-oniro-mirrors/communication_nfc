@@ -27,6 +27,10 @@ config("nfc_config") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
 
+  if (nfc_service_feature_ndef_wifi_enabled) {
+    defines += [ "NDEF_WIFI_ENABLED" ]
+  }
+
   include_dirs = [
     "include",
     "src/ipc/controller",
@@ -90,7 +94,7 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_session.cpp",
   "src/ipc/card_emulation/hce_session_stub.cpp",
   "src/tag/isodep_card_handler.cpp",
-  "src/tag/ndef_bt_oob_data_parser.cpp",
+  "src/tag/ndef_bt_data_parser.cpp",
   "src/tag/ndef_har_data_parser.cpp",
   "src/tag/ndef_har_dispatch.cpp",
   "src/tag/tag_dispatcher.cpp",
@@ -129,6 +133,14 @@ nfc_service_external_deps = [
   "samgr:samgr_proxy",
   "screenlock_mgr:screenlock_client",
 ]
+
+if (nfc_service_feature_ndef_wifi_enabled) {
+  nfc_service_source += [
+    "src/tag/ndef_wifi_data_parser.cpp",
+    "src/tag/wifi_connection_manager.cpp",
+  ]
+  nfc_service_external_deps += [ "wifi:wifi_sdk" ]
+}
 
 ####################### nfc_service ################
 ohos_shared_library("nfc_service") {

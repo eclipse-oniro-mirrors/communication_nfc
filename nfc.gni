@@ -25,4 +25,8 @@ declare_args() {
       global_parts_info.nfc_service_feature_vendor_applications_enabled)) {
     nfc_service_feature_vendor_applications_enabled = true
   }
+  nfc_service_feature_ndef_wifi_enabled = false
+  if (defined(global_parts_info.communication_wifi)) {
+    nfc_service_feature_ndef_wifi_enabled = true
+  }
 }

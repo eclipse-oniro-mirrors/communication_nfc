@@ -21,6 +21,9 @@ namespace OHOS {
 namespace NFC {
 namespace TAG {
     class TagDispatcher;
+#ifdef NDEF_WIFI_ENABLED
+    class WifiConnectionManager;
+#endif
 }
 class NfcEventHandler;
 class NfcPollingManager;
@@ -61,6 +64,11 @@ enum class NfcCommonEvent {
 #ifdef VENDOR_APPLICATIONS_ENABLED
     // vendor event
     MSG_VENDOR_EVENT,
+#endif
+#ifdef NDEF_WIFI_ENABLED
+    // for connect wifi by ndef wifi tag
+    MSG_ENABLE_WIFI_TIMEOUT,
+    MSG_CONNECT_WIFI_TIMEOUT
 #endif
 };
 

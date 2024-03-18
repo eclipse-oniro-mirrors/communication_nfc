@@ -73,7 +73,8 @@
                 "data_share",
                 "screenlock_mgr",
                 "power_manager",
-                "distributed_notification_service"
+                "distributed_notification_service",
+                "wifi"
             ],
             "third_party": [
                 "cJSON",

@@ -34,8 +34,10 @@ static const int NTF_AUTO_DELETE_TIME = 1000;
 static const std::string NFC_TAG_DEFAULT_NTF_TITLE  = "NFC found tag, click to start app";
 static const std::string NFC_TAG_DEFAULT_NTF_TEXT   = "Some apps need to turn on nfc inner switch";
 static const std::string NFC_TRAFFIC_CARD_NTF_TITLE = "NFC found traffic card";
+static const std::string NFC_WIFI_NTF_TITLE         = "Connect to network";
 
 static const std::string NFC_ACTION_BUTTON_NAME     = "Deal";
+static const std::string NFC_WIFI_BUTTON_NAME       = "Connect";
 
 class TagNotification {
 public:
@@ -49,12 +51,7 @@ private:
     TagNotification(const TagNotification&) = delete;
     TagNotification& operator=(const TagNotification&) = delete;
 
-    bool GetNeedActionButton(NfcNotificationId notificationId);
-
-    static const int NFC_SERVICE_SA_ID = 1140;
     static const int NFC_NTF_CONTROL_FLAG = 0;
-
-    const std::string NFC_SERVICE_NAME = "nfc_service";
 };
 }  // namespace TAG
 }  // namespace NFC
