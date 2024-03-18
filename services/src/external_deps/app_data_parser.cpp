@@ -697,7 +697,7 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
         ErrorLog("get bundle %{public}s failed ", bundleName.c_str());
         return false;
     }
-    return true; 
+    return true;
 }
 
 bool AppDataParser::IsSystemApp(uint32_t uid)

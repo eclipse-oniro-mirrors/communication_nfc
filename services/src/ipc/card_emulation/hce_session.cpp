@@ -168,7 +168,7 @@ std::string HceSession::GetDumpInfo()
 int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 {
     ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos);
-#ifdef NFC_SIM_FEATURE 
+#ifdef NFC_SIM_FEATURE
     AppendSimBundle(abilityInfos);
 #endif
     return NFC::KITS::ErrorCode::ERR_NONE;
