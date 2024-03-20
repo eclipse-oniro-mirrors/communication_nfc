@@ -97,6 +97,7 @@ public:
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
     virtual OHOS::sptr<IRemoteObject> GetHceServiceIface() = 0;
     virtual std::weak_ptr<CeService> GetCeService() = 0 ;
+    virtual std::string GetSimVendorBundleName() = 0;
 };
 }  // namespace NFC
 }  // namespace OHOS

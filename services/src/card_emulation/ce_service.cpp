@@ -200,7 +200,7 @@ void CeService::OnDefaultPaymentServiceChange()
     }
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             newElement.GetBundleName());
-    defaultPaymentElement_ = newElement;
+    UpdateDefaultPaymentElement(newElement);
     InfoLog("OnDefaultPaymentServiceChange: refresh route table");
     ConfigRoutingAndCommit();
 }
@@ -263,9 +263,17 @@ void CeService::UpdateDefaultPaymentBundleInstalledStatus(bool installed)
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     defaultPaymentBundleInstalled_ = installed;
 }
-KITS::DefaultPaymentType CeService::GetDefaultRoute()
+
+void CeService::UpdateDefaultPaymentElement(const ElementName &element)
 {
-    InfoLog("GetDefaultRoute: default payment bundle name %{public}s, "
+    InfoLog("UpdateDefaultPaymentElement: bundleName %{public}s", element.GetURI().c_str());
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    defaultPaymentElement_ = element;
+    defaultPaymentBundleInstalled_ = true;
+}
+KITS::DefaultPaymentType CeService::GetDefaultPaymentType()
+{
+    InfoLog("GetDefaultPaymentType: default payment bundle name %{public}s, "
             "installed status %{public}d",
             defaultPaymentElement_.GetBundleName().c_str(), defaultPaymentBundleInstalled_);
 
@@ -298,9 +306,12 @@ void CeService::ConfigRoutingAndCommit()
     }
 
     bool updateAids = InitConfigAidRouting();
-    if (updateAids) {
-        KITS::DefaultPaymentType defaultPaymentType = GetDefaultRoute();
-        routingManager.lock()->ComputeRoutingParams(defaultPaymentType);
+    bool updatePaymentType = UpdateDefaultPaymentType();
+    InfoLog(
+        "ConfigRoutingAndCommit: aids updated status %{public}d, default payment type updated status %{public}d.",
+        updateAids, updatePaymentType);
+    if (updateAids || updatePaymentType) {
+        routingManager.lock()->ComputeRoutingParams(defaultPaymentType_);
         routingManager.lock()->CommitRouting();
     }
 }
@@ -362,6 +373,19 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
 void CeService::HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
 {
     InfoLog("too many applications found, let user decide.");
+}
+
+bool CeService::UpdateDefaultPaymentType()
+{
+    KITS::DefaultPaymentType defaultPaymentType = GetDefaultPaymentType();
+    InfoLog("The last default payment type %{public}d, the new one %{public}d.", defaultPaymentType_,
+            defaultPaymentType);
+    if (defaultPaymentType == defaultPaymentType_) {
+        return false;
+    }
+    std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    defaultPaymentType_ =defaultPaymentType;
+    return true;
 }
 
 bool CeService::IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp)
@@ -449,6 +473,8 @@ void CeService::Initialize()
 
     defaultPaymentBundleInstalled_ =
         ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
+
+    defaultPaymentType_ = GetDefaultPaymentType();
     DebugLog("CeService Initialize end");
 }
 void CeService::Deinitialize()

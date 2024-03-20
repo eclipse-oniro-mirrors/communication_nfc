@@ -72,6 +72,7 @@ public:
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;
 
     std::weak_ptr<CeService> GetCeService() override;
+    std::string GetSimVendorBundleName() override;
 
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;

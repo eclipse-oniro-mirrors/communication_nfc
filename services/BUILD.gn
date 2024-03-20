@@ -27,6 +27,10 @@ config("nfc_config") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
 
+  if (nfc_sim_feature) {
+    defines += [ "NFC_SIM_FEATURE" ]
+  }
+
   if (nfc_service_feature_ndef_wifi_enabled) {
     defines += [ "NDEF_WIFI_ENABLED" ]
   }
