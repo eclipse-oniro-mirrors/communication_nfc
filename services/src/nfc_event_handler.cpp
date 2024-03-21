@@ -24,6 +24,10 @@
 #include "screenlock_manager.h"
 #include "power_mgr_client.h"
 
+#ifdef NDEF_WIFI_ENABLED
+#include "wifi_connection_manager.h"
+#endif
+
 namespace OHOS {
 namespace NFC {
 class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
@@ -325,6 +329,16 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             if (eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE) {
                 ceService_.lock()->ConfigRoutingAndCommit();
             }
+            break;
+        }
+#endif
+#ifdef NDEF_WIFI_ENABLED
+        case NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT: {
+            TAG::WifiConnectionManager::GetInstance().HandleWifiEnableFailed();
+            break;
+        }
+        case NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT: {
+            TAG::WifiConnectionManager::GetInstance().HandleWifiConnectFailed();
             break;
         }
 #endif

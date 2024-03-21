@@ -22,7 +22,7 @@ namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
-class NdefBtOobDataParserTest : public testing::Test {
+class NdefBtDataParserTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -30,50 +30,50 @@ public:
     void TearDown();
 };
 
-void NdefBtOobDataParserTest::SetUpTestCase()
+void NdefBtDataParserTest::SetUpTestCase()
 {
-    std::cout << " SetUpTestCase NdefBtOobDataParserTest." << std::endl;
+    std::cout << " SetUpTestCase NdefBtDataParserTest." << std::endl;
 }
 
-void NdefBtOobDataParserTest::TearDownTestCase()
+void NdefBtDataParserTest::TearDownTestCase()
 {
-    std::cout << " TearDownTestCase NdefBtOobDataParserTest." << std::endl;
+    std::cout << " TearDownTestCase NdefBtDataParserTest." << std::endl;
 }
 
-void NdefBtOobDataParserTest::SetUp()
+void NdefBtDataParserTest::SetUp()
 {
-    std::cout << " SetUp NdefBtOobDataParserTest." << std::endl;
+    std::cout << " SetUp NdefBtDataParserTest." << std::endl;
 }
 
-void NdefBtOobDataParserTest::TearDown()
+void NdefBtDataParserTest::TearDown()
 {
-    std::cout << " TearDown NdefBtOobDataParserTest." << std::endl;
+    std::cout << " TearDown NdefBtDataParserTest." << std::endl;
 }
 
 /**
  * @tc.name: CheckBtRecord001
- * @tc.desc: Test NdefBtOobDataParserTest CheckBtRecord.
+ * @tc.desc: Test NdefBtDataParserTest CheckBtRecord.
  * @tc.type: FUNC
  */
-HWTEST_F(NdefBtOobDataParserTest, CheckBtRecord001, TestSize.Level1)
+HWTEST_F(NdefBtDataParserTest, CheckBtRecord001, TestSize.Level1)
 {
     std::string msg = "";
-    std::shared_ptr<NdefBtOobDataParser> ndefBtOobDataParser = std::make_shared<NdefBtOobDataParser>();
-    std::shared_ptr<BtOobData> btOobData = ndefBtOobDataParser->CheckBtRecord(msg);
-    ASSERT_TRUE(btOobData != nullptr);
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    std::shared_ptr<BtData> BtData = ndefBtDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(BtData != nullptr);
 }
 
 /**
  * @tc.name: CheckBtRecord002
- * @tc.desc: Test NdefBtOobDataParserTest CheckBtRecord.
+ * @tc.desc: Test NdefBtDataParserTest CheckBtRecord.
  * @tc.type: FUNC
  */
-HWTEST_F(NdefBtOobDataParserTest, CheckBtRecord002, TestSize.Level1)
+HWTEST_F(NdefBtDataParserTest, CheckBtRecord002, TestSize.Level1)
 {
     std::string msg = "CheckBtRecord";
-    std::shared_ptr<NdefBtOobDataParser> ndefBtOobDataParser = std::make_shared<NdefBtOobDataParser>();
-    std::shared_ptr<BtOobData> btOobData = ndefBtOobDataParser->CheckBtRecord(msg);
-    ASSERT_TRUE(btOobData != nullptr);
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    std::shared_ptr<BtData> BtData = ndefBtDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(BtData != nullptr);
 }
 }
 }

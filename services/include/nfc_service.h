@@ -138,6 +138,9 @@ private:
     friend class NfcSaManager;
     friend class NfcEventHandler;
     friend class CeService;
+#ifdef NDEF_WIFI_ENABLED
+    friend class TAG::WifiConnectionManager;
+#endif
 };
 }  // namespace NFC
 }  // namespace OHOS

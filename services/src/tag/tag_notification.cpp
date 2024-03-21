@@ -16,8 +16,13 @@
 #include "tag_notification.h"
 
 #include "loghelper.h"
+#include "nfc_sdk_common.h"
 #include "want_agent_helper.h"
 #include "want_agent_info.h"
+
+#ifdef NDEF_WIFI_ENABLED
+#include "wifi_connection_manager.h"
+#endif
 
 #ifdef DEBUG
 #undef DEBUG
@@ -42,6 +47,11 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
         int notificationId = request->GetId();
         InfoLog("Oncanceled, creatorUid = %{public}d, notificationId = %{public}d, deleteReason = %{public}d",
             creatorUid, notificationId, deleteReason);
+#ifdef NDEF_WIFI_ENABLED
+        if (deleteReason == 1 && notificationId == NFC_WIFI_NOTIFICATION_ID) {
+            WifiConnectionManager::GetInstance().OnWifiNtfClicked();
+        }
+#endif
     }
     void OnConsumed(const std::shared_ptr<OHOS::Notification::Notification> &notification,
         const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap) {}
@@ -59,6 +69,13 @@ static std::string GetTrafficCardNotificationText(std::string cardName, int bala
             + "." + std::to_string(balance % NFC_UNIT_CHANGE_CONSTANT) + " yuan");
 }
 
+#ifdef NDEF_WIFI_ENABLED
+static std::string GetWifiNotificationText(std::string ssid)
+{
+    return ("Connect to network: " + ssid + "?");
+}
+#endif
+
 static bool SetTitleAndText(NfcNotificationId notificationId,
     std::shared_ptr<Notification::NotificationNormalContent> nfcContent, std::string name, int balance)
 {
@@ -72,9 +89,15 @@ static bool SetTitleAndText(NfcNotificationId notificationId,
             nfcContent->SetText(GetTrafficCardNotificationText(name, balance));
             break;
         case NFC_WIFI_NOTIFICATION_ID:
+#ifdef NDEF_WIFI_ENABLED
+            nfcContent->SetTitle(NFC_WIFI_NTF_TITLE);
+            nfcContent->SetText(GetWifiNotificationText(name));
             break;
+#else
+            return false;
+#endif
         case NFC_BT_NOTIFICATION_ID:
-            break;
+            return false;
         case NFC_TAG_NOTIFICATION_ID:
             nfcContent->SetTitle(NFC_TAG_DEFAULT_NTF_TITLE);
             nfcContent->SetText(NFC_TAG_DEFAULT_NTF_TEXT);
@@ -84,6 +107,41 @@ static bool SetTitleAndText(NfcNotificationId notificationId,
             return false;
     }
     return true;
+}
+
+static std::string GetButtonName(NfcNotificationId notificationId)
+{
+    switch (notificationId) {
+        case NFC_BT_NOTIFICATION_ID:
+            return "";
+        case NFC_WIFI_NOTIFICATION_ID:
+            return NFC_WIFI_BUTTON_NAME;
+        case NFC_TRAFFIC_CARD_NOTIFICATION_ID:
+            return NFC_ACTION_BUTTON_NAME;
+        default:
+            return "";
+    }
+}
+
+static void SetActionButton(const std::string& buttonName, Notification::NotificationRequest& request)
+{
+    auto want = std::make_shared<AAFwk::Want>();
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    wants.push_back(want);
+    std::vector<AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
+    flags.push_back(AbilityRuntime::WantAgent::WantAgentConstant::Flags::CONSTANT_FLAG);
+    AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
+        0, AbilityRuntime::WantAgent::WantAgentConstant::OperationType::UNKNOWN_TYPE,
+        flags, wants, nullptr
+    );
+    auto wantAgentDeal = AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
+    std::shared_ptr<Notification::NotificationActionButton> actionButtonDeal =
+        Notification::NotificationActionButton::Create(nullptr, buttonName, wantAgentDeal);
+    if (actionButtonDeal == nullptr) {
+        ErrorLog("get notification actionButton nullptr");
+        return;
+    }
+    request.AddActionButton(actionButtonDeal);
 }
 
 TagNotification& TagNotification::GetInstance()
@@ -132,41 +190,19 @@ void TagNotification::PublishTagNotification(NfcNotificationId notificationId, s
     Notification::NotificationRequest request;
     request.SetNotificationId(static_cast<int>(notificationId));
     request.SetContent(content);
-    request.SetCreatorUid(NFC_SERVICE_SA_ID);
-    request.SetCreatorBundleName(NFC_SERVICE_NAME);
+    request.SetCreatorUid(KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    request.SetCreatorBundleName(KITS::NFC_MANAGER_SYS_ABILITY_NAME);
     request.SetAutoDeletedTime(NTF_AUTO_DELETE_TIME);
     request.SetTapDismissed(true);
     request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
     request.SetNotificationControlFlags(NFC_NTF_CONTROL_FLAG);
-
-    if (GetNeedActionButton(notificationId)) {
-        auto want = std::make_shared<AAFwk::Want>();
-        std::vector<std::shared_ptr<AAFwk::Want>> wants;
-        wants.push_back(want);
-        std::vector<AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
-        flags.push_back(AbilityRuntime::WantAgent::WantAgentConstant::Flags::CONSTANT_FLAG);
-        AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
-            0, AbilityRuntime::WantAgent::WantAgentConstant::OperationType::UNKNOWN_TYPE,
-            flags, wants, nullptr
-        );
-
-        auto wantAgentDeal = AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
-        std::shared_ptr<Notification::NotificationActionButton> actionButtonDeal =
-            Notification::NotificationActionButton::Create(nullptr, NFC_ACTION_BUTTON_NAME, wantAgentDeal);
-        if (actionButtonDeal == nullptr) {
-            ErrorLog("get notification actionButton nullptr");
-            return;
-        }
-        request.AddActionButton(actionButtonDeal);
+    
+    std::string buttonName = GetButtonName(notificationId);
+    if (!buttonName.empty()) {
+        SetActionButton(buttonName, request);
     }
-
     int ret = Notification::NotificationHelper::PublishNotification(request);
     InfoLog("NFC service publish notification result = %{public}d", ret);
-}
-
-bool TagNotification::GetNeedActionButton(NfcNotificationId notificationId)
-{
-    return (notificationId > NFC_TAG_NOTIFICATION_ID && notificationId <= NFC_TRAFFIC_CARD_NOTIFICATION_ID);
 }
 }  // namespace TAG
 }  // namespace NFC

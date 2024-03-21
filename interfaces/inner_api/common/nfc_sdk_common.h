@@ -24,6 +24,7 @@ const static uint32_t HEX_BYTE_LEN = 2;
 const static uint32_t HEX_VALUE = 16;
 const static uint32_t HALF_BYTE_BITS = 4;
 static const uint32_t NFC_MANAGER_SYS_ABILITY_ID = 1140;
+static const std::string NFC_MANAGER_SYS_ABILITY_NAME = "nfc_service";
 
 enum ErrorCode : const int {
     ERR_NONE = 0,
