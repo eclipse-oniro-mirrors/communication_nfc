@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
 const std::string HTTP_PREFIX = "http";
 const std::string TEL_PREFIX = "tel";
 const std::string SMS_PREFIX = "sms";
@@ -350,5 +351,6 @@ bool NdefHarDataParser::IsOtherPlatformAppType(const std::string &appType)
     InfoLog("NdefHarDataParser::IsOtherPlatformAppType exit");
     return false;
 }
+} // namespace TAG
 } // namespace NFC
 } // namespace OHOS

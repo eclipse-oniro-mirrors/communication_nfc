@@ -19,6 +19,7 @@
 #include "nfc_sdk_common.h"
 #include "want_agent_helper.h"
 #include "want_agent_info.h"
+#include "ndef_har_dispatch.h"
 
 #ifdef NDEF_WIFI_ENABLED
 #include "wifi_connection_manager.h"
@@ -45,13 +46,19 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
     {
         int creatorUid = request->GetUid();
         int notificationId = request->GetId();
+        const int clickButtomReason = 1;
         InfoLog("Oncanceled, creatorUid = %{public}d, notificationId = %{public}d, deleteReason = %{public}d",
             creatorUid, notificationId, deleteReason);
 #ifdef NDEF_WIFI_ENABLED
-        if (deleteReason == 1 && notificationId == NFC_WIFI_NOTIFICATION_ID) {
+        if (deleteReason == clickButtomReason && notificationId == NFC_WIFI_NOTIFICATION_ID) {
             WifiConnectionManager::GetInstance().OnWifiNtfClicked();
+            return;
         }
 #endif
+        if (deleteReason == clickButtomReason && notificationId == NFC_BROWSER_NOTIFICATION_ID) {
+            NdefHarDispatch::GetInstance().OnBrowserOpenLink();
+            return;
+        }
     }
     void OnConsumed(const std::shared_ptr<OHOS::Notification::Notification> &notification,
         const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap) {}
@@ -102,6 +109,11 @@ static bool SetTitleAndText(NfcNotificationId notificationId,
             nfcContent->SetTitle(NFC_TAG_DEFAULT_NTF_TITLE);
             nfcContent->SetText(NFC_TAG_DEFAULT_NTF_TEXT);
             break;
+        case NFC_BROWSER_NOTIFICATION_ID:
+            const std::string nfcOpenLinkTextHead = "Open link: ";
+            nfcContent->SetTitle(NFC_TAG_DEFAULT_NTF_TITLE);
+            nfcContent->SetText(nfcOpenLinkTextHead + name);
+            break;
         default:
             WarnLog("unknown notification ID");
             return false;
@@ -118,6 +130,8 @@ static std::string GetButtonName(NfcNotificationId notificationId)
             return NFC_WIFI_BUTTON_NAME;
         case NFC_TRAFFIC_CARD_NOTIFICATION_ID:
             return NFC_ACTION_BUTTON_NAME;
+        case NFC_BROWSER_NOTIFICATION_ID:
+            return NFC_OPEN_LINK_BUTTON_NAME;
         default:
             return "";
     }

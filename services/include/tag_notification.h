@@ -26,6 +26,7 @@ enum NfcNotificationId {
     NFC_BT_NOTIFICATION_ID = 114001,
     NFC_WIFI_NOTIFICATION_ID = 114002,
     NFC_TRAFFIC_CARD_NOTIFICATION_ID = 114003,
+    NFC_BROWSER_NOTIFICATION_ID = 114004,
 };
 
 static const int NFC_UNIT_CHANGE_CONSTANT = 100;
@@ -38,6 +39,7 @@ static const std::string NFC_WIFI_NTF_TITLE         = "Connect to network";
 
 static const std::string NFC_ACTION_BUTTON_NAME     = "Deal";
 static const std::string NFC_WIFI_BUTTON_NAME       = "Connect";
+static const std::string NFC_OPEN_LINK_BUTTON_NAME  = "Open Link";
 
 class TagNotification {
 public:
