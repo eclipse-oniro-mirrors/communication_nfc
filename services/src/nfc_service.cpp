@@ -221,10 +221,12 @@ void NfcService::ExecuteTask(KITS::NfcTask param)
     // Check the current state
     if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
         WarnLog("NFC Turn On, already On");
+        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
         return;
     }
     if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
         WarnLog("NFC Turn Off, already Off");
+        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
         return;
     }
 
@@ -472,7 +474,7 @@ int NfcService::GetNfcState()
             NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
             unloadStaSaTimerId = 0;
         }
-        NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
+        NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA_AFTER_GET_STATE);
     }
     return nfcState_;
 }
