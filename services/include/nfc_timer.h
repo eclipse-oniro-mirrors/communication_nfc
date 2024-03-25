@@ -22,6 +22,7 @@ namespace OHOS {
 namespace NFC {
 using TimeOutCallback = std::function<void()>;
 const uint32_t TIMEOUT_UNLOAD_NFC_SA = 5 * 60 * 1000; // ms
+const uint32_t TIMEOUT_UNLOAD_NFC_SA_AFTER_GET_STATE = 10 * 1000; // ms
 
 class NfcTimer {
 public:
