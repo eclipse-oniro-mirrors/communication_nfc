@@ -15,24 +15,30 @@
 #ifndef NDEF_HAR_DISPATCH_H
 #define NDEF_HAR_DISPATCH_H
 
+#include <shared_mutex>
 #include <string>
 #include "app_data_parser.h"
 #include "if_system_ability_manager.h"
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
 class NdefHarDispatch {
 public:
     NdefHarDispatch();
     ~NdefHarDispatch() {}
+    static NdefHarDispatch& GetInstance();
     bool DispatchBundleAbility(const std::string &harPackage);
     bool DispatchUriToBundleAbility(const std::string &uri);
     bool DispatchMimeType(const std::string &type);
     bool DispatchWebLink(const std::string &webAddress, const std::string &browserBundleName);
+    void OnBrowserOpenLink();
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
+    std::shared_mutex mutex_ {};
 };
+} // namespace TAG
 } // namespace NFC
 } // namespace OHOS
 #endif // NDEF_HAR_DISPATCH_H

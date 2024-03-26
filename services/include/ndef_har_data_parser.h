@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
 using namespace OHOS::NFC::KITS;
 
 class NdefHarDataParser {
@@ -46,6 +47,7 @@ private:
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 };
+} // namespace TAG
 } // namespace NFC
 } // namespace OHOS
 #endif // NDEF_HAR_DATA_PARSER_H

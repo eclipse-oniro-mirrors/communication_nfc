@@ -21,15 +21,26 @@
 #include "loghelper.h"
 #include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
+#include "tag_notification.h"
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
 const int USER_ID = 100;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 using namespace OHOS::NFC::KITS;
 
+std::string uri_ {};
+std::string browserBundleName_ {};
+
 NdefHarDispatch::NdefHarDispatch()
 {
+}
+
+NdefHarDispatch& NdefHarDispatch::GetInstance()
+{
+    static NdefHarDispatch instance;
+    return instance;
 }
 
 sptr<AppExecFwk::IBundleMgr> NdefHarDispatch::GetBundleMgrProxy()
@@ -112,24 +123,36 @@ bool NdefHarDispatch::DispatchUriToBundleAbility(const std::string &uri)
 /* Pulling web page links through browser */
 bool NdefHarDispatch::DispatchWebLink(const std::string &webAddress, const std::string &browserBundleName)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
+    InfoLog("NdefHarDispatch::DispatchWebLink enter");
     if (webAddress.empty() || browserBundleName.empty()) {
         ErrorLog("NdefHarDispatch::DispatchWebLink is empty");
         return false;
     }
+    uri_ = webAddress;
+    browserBundleName_ = browserBundleName;
+    TagNotification::GetInstance().PublishTagNotification(NFC_BROWSER_NOTIFICATION_ID, uri_, 0);
+    return true;
+}
+
+void NdefHarDispatch::OnBrowserOpenLink()
+{
+    std::unique_lock<std::shared_mutex> guard(mutex_);
+    InfoLog("NdefHarDispatch::OnBrowserOpenLink, %{public}s, %{public}s",
+        NfcSdkCommon::CodeMiddlePart(browserBundleName_).c_str(), NfcSdkCommon::CodeMiddlePart(uri_).c_str());
     AAFwk::Want want;
     const std::string ABILITY_NAME = "MainAbility";
     const std::string ACTION_NAME = "ohos.want.action.viewData";
     const std::string ENTITY_NAME = "entity.system.browsable";
-    want.SetElementName(browserBundleName, ABILITY_NAME);
+    want.SetElementName(browserBundleName_, ABILITY_NAME);
     want.SetAction(ACTION_NAME);
-    want.SetUri(webAddress);
+    want.SetUri(uri_);
     want.AddEntity(ENTITY_NAME);
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchWebLink call StartAbility fail. ret = %{public}d", errCode);
-        return false;
     }
-    return true;
 }
+} // namespace TAG
 } // namespace NFC
 } // namespace OHOS
