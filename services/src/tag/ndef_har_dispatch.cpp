@@ -71,8 +71,9 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type)
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
+        return false;
     }
-    return false;
+    return true;
 }
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
