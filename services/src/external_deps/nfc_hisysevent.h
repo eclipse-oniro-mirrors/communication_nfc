@@ -33,6 +33,7 @@ enum MainErrorCode {
     NDEF_TEXT_EVENT = 304,
     NDEF_VCARD_EVENT = 305,
     NDEF_APP_NOT_INSTALL = 306,
+    HCE_SWIPE_CARD = 307,
 };
 
 enum SubErrorCode {
@@ -63,7 +64,8 @@ public:
     static void WriteHceSwipeResultHiSysEvent(const std::string &appPackageName, int hceSwipeCnt);
     static void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
                                                        const std::string &newAppPackageName);
-    static void WriteTagFoundHiSysEvent(const std::vector<int>& techList);
+    static void WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName);
+    static void WriteTagFoundHiSysEvent(const std::vector<int> &techList);
     static void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     static void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     static void BuildFailedParams(NfcFailedParams &nfcFailedParams,

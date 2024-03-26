@@ -73,7 +73,8 @@ public:
     void WriteHceSwipeResultHiSysEvent(const std::string &appPackageName, int hceSwipeCnt);
     void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
                                                 const std::string &newAppPackageName);
-    void WriteTagFoundHiSysEvent(const std::vector<int>& techList);
+    void WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName);
+    void WriteTagFoundHiSysEvent(const std::vector<int> &techList);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);

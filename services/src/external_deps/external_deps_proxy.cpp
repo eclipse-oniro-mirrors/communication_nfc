@@ -136,6 +136,11 @@ void ExternalDepsProxy::WriteDefaultPaymentAppChangeHiSysEvent(const std::string
     NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(oldAppPackageName, newAppPackageName);
 }
 
+void ExternalDepsProxy::WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName)
+{
+    NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(appPackageName);
+}
+
 void ExternalDepsProxy::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
     NfcHisysEvent::WriteTagFoundHiSysEvent(techList);

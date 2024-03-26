@@ -21,6 +21,7 @@
 #include "setting_data_share_impl.h"
 #include "accesstoken_kit.h"
 #include "hap_token_info.h"
+#include "tag_notification.h"
 
 namespace OHOS {
 namespace NFC {
@@ -29,6 +30,8 @@ const int DEACTIVATE_TIMEOUT = 6000;
 static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
+const std::string APP_REMOVED = "app_removed";
+const std::string APP_ADDED = "app_added";
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
@@ -238,11 +241,15 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         UpdateDefaultPaymentBundleInstalledStatus(false);
+        ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
+            defaultPaymentElement_.GetBundleName(), APP_REMOVED);
     }
 
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
         UpdateDefaultPaymentBundleInstalledStatus(true);
+        ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
+            defaultPaymentElement_.GetBundleName(), APP_ADDED);
     }
 
     if (nfcService_.expired()) {
@@ -373,6 +380,8 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
 void CeService::HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps)
 {
     InfoLog("too many applications found, let user decide.");
+    TAG::NfcNotificationId notificationId = TAG::NFC_HCE_AID_CONFLICTED_ID;
+    TAG::TagNotification::GetInstance().PublishTagNotification(notificationId);
 }
 
 bool CeService::UpdateDefaultPaymentType()
@@ -384,7 +393,7 @@ bool CeService::UpdateDefaultPaymentType()
         return false;
     }
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
-    defaultPaymentType_ =defaultPaymentType;
+    defaultPaymentType_ = defaultPaymentType;
     return true;
 }
 
@@ -474,6 +483,10 @@ void CeService::Initialize()
     defaultPaymentBundleInstalled_ =
         ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
 
+    std::string appStatus = defaultPaymentBundleInstalled_ ? APP_ADDED : APP_REMOVED;
+    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
+            defaultPaymentElement_.GetBundleName(), appStatus);
+
     defaultPaymentType_ = GetDefaultPaymentType();
     DebugLog("CeService Initialize end");
 }
@@ -517,6 +530,7 @@ void CeService::SetHceInfo(const ElementName &element, const std::vector<std::st
     InfoLog("SetHceInfo start.");
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     foregroundElement_ = element;
+    ExternalDepsProxy::GetInstance().WriteForegroundAppChangeHiSysEvent(foregroundElement_.GetBundleName());
     dynamicAids_.clear();
     dynamicAids_ = std::move(aids);
 }
@@ -529,6 +543,7 @@ void CeService::ClearHceInfo()
     foregroundElement_.SetAbilityName("");
     foregroundElement_.SetDeviceID("");
     foregroundElement_.SetModuleName("");
+    ExternalDepsProxy::GetInstance().WriteForegroundAppChangeHiSysEvent(foregroundElement_.GetBundleName());
     dynamicAids_.clear();
 }
 

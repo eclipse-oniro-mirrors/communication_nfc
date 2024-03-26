@@ -408,6 +408,12 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
     InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
         ExternalDepsProxy::GetInstance().WriteHceSwipeResultHiSysEvent(element.GetBundleName(), DEFAULT_COUNT);
+        
+        NfcFailedParams params;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(params, MainErrorCode::HCE_SWIPE_CARD,
+                                                           SubErrorCode::DEFAULT_ERR_DEF);
+        params.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&params);
         return true;
     }
     return false;
