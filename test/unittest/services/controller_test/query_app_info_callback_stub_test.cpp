@@ -49,23 +49,8 @@ void QueryAppInfoCallbackStubTest::TearDown()
 {
     std::cout << " TearDown QueryAppInfoCallbackStubTest." << std::endl;
 }
-#ifdef VENDOR_APPLICATIONS_ENABLED
-/**
- * @tc.name: OnQueryAppInfo001
- * @tc.desc: Test QueryAppInfoCallbackStubTest OnQueryAppInfo.
- * @tc.type: FUNC
- */
-HWTEST_F(QueryAppInfoCallbackStubTest, OnQueryAppInfo001, TestSize.Level1)
-{
-    std::string type = "tag";
-    std::vector<int> techList = {0, 1, 2, 3, 4, 5};
-    std::vector<AAFwk::Want> hceAppList;
-    std::vector<AppExecFwk::ElementName> elementNameList;
-    std::shared_ptr<QueryAppInfoCallbackStub> queryAppInfoCallbackStub = std::make_shared<QueryAppInfoCallbackStub>();
-    bool onQueryAppInfo = queryAppInfoCallbackStub->OnQueryAppInfo(type, techList, hceAppList, elementNameList);
-    ASSERT_TRUE(onQueryAppInfo);
-}
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @tc.name: OnRemoteRequest001
  * @tc.desc: Test QueryAppInfoCallbackStubTest OnRemoteRequest.

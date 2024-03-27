@@ -35,9 +35,8 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) override;
-
 private:
+    bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) override;
     int RemoteCardEmulationNotify(MessageParcel &data, MessageParcel &reply);
     OnCardEmulationNotifyCb callback_;
     std::shared_mutex mutex_;
