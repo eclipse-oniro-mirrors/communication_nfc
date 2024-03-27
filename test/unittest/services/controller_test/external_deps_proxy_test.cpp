@@ -272,7 +272,7 @@ HWTEST_F(ExternalDepsProxyTest, WriteTagFoundHiSysEvent001, TestSize.Level1)
     std::vector<int> techList;
     std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
     externalDepsProxy->WriteTagFoundHiSysEvent(techList);
-    techlist = {1, 2};
+    techList = {1, 2};
     externalDepsProxy->WriteTagFoundHiSysEvent(techList);
     std::vector<int> discTechList;
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);

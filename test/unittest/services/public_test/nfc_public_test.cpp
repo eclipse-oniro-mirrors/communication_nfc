@@ -323,7 +323,7 @@ HWTEST_F(NfcPublicTest, CodeMiddlePart002, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, CodeMiddlePart003, TestSize.Level1)
 {
-    std::string src= "CodeMiddlePart";
+    std::string src = "CodeMiddlePart";
     std::string res = NfcSdkCommon::CodeMiddlePart(src);
     ASSERT_TRUE(res.empty() == false);
 }
@@ -363,19 +363,20 @@ HWTEST_F(NfcPublicTest, NfcPermissionChecker001, TestSize.Level1)
 
 /**
  * @tc.name: NfcWatchDog001
- * @tc.desc: Test NfcPublic NfcWatchDog001.
+ * @tc.desc: Test NfcWatchDog001
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPublicTest, CodeMiddlePart003, TestSize.Level1)
+HWTEST_F(NfcPublicTest, NfcWatchDog001, TestSize.Level1)
 {
     NfcTimer::GetInstance()->UnRegister(0);
-    std::stared_ptr<NCI::INciNfccInterface> nciNfcProxy = nullptr;
-    NfcWatchDog nfcWatchDog("Test", 90 * 1000, nciNfcProxy);
+    std::shared_ptr<NCI::INciNfccInterface> nciNfccProxy = nullptr;
+    NfcWatchDog nfcWatchDog("Test", 90 * 1000, nciNfccProxy);
     nfcWatchDog.Run();
     nfcWatchDog.Cancel();
     uint64_t currentTime = NfcSdkCommon::GetCurrentTime();
     ASSERT_TRUE(currentTime != 0);
 }
+
 }
 }
 }
