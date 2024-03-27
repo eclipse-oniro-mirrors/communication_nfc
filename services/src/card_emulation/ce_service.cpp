@@ -210,28 +210,14 @@ void CeService::OnDefaultPaymentServiceChange()
 void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     DebugLog("OnAppAddOrChangeOrRemove start");
-    if (data == nullptr) {
-        ErrorLog("invalid event data");
-        return;
-    }
-    std::string action = data->GetWant().GetAction();
-    if (action.empty()) {
-        ErrorLog("action is empty");
-        return;
-    }
-    if ((action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) &&
-        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) &&
-        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED)) {
-        InfoLog("not the interested action");
+
+    if (!AppEventCheckValid(data)) {
         return;
     }
 
+    std::string action = data->GetWant().GetAction();
     ElementName element = data->GetWant().GetElement();
     std::string bundleName = element.GetBundleName();
-    if (bundleName.empty()) {
-        ErrorLog("invalid bundleName.");
-        return;
-    }
 
     InfoLog("OnAppAddOrChangeOrRemove: change bundleName %{public}s, default payment bundle name %{public}s, "
             "installed status %{public}d",
@@ -263,6 +249,33 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
     InfoLog("OnAppAddOrChangeOrRemove: refresh route table");
     ConfigRoutingAndCommit();
     DebugLog("OnAppAddOrChangeOrRemove end");
+}
+
+void CeService::AppEventCheckValid(std::shared_ptr<EventFwk::CommonEventData> data)
+{
+    if (data == nullptr) {
+        ErrorLog("invalid event data");
+        return false;
+    }
+    std::string action = data->GetWant().GetAction();
+    if (action.empty()) {
+        ErrorLog("action is empty");
+        return false;
+    }
+    if ((action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) &&
+        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) &&
+        (action != EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED)) {
+        InfoLog("not the interested action");
+        return false;
+    }
+
+    ElementName element = data->GetWant().GetElement();
+    std::string bundleName = element.GetBundleName();
+    if (bundleName.empty()) {
+        ErrorLog("invalid bundleName.");
+        return false;
+    }
+    return true;
 }
 void CeService::UpdateDefaultPaymentBundleInstalledStatus(bool installed)
 {
@@ -484,8 +497,8 @@ void CeService::Initialize()
         ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
 
     std::string appStatus = defaultPaymentBundleInstalled_ ? APP_ADDED : APP_REMOVED;
-    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
-            defaultPaymentElement_.GetBundleName(), appStatus);
+    ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
+                                                                            appStatus);
 
     defaultPaymentType_ = GetDefaultPaymentType();
     DebugLog("CeService Initialize end");

@@ -84,8 +84,9 @@ private:
     bool IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp);
     void SetHceInfo(const ElementName &element, const std::vector<std::string> &aids);
     void ClearHceInfo();
+    void AppEventCheckValid(std::shared_ptr<EventFwk::CommonEventData> data);
     void UpdateDefaultPaymentBundleInstalledStatus(bool installed);
-    
+
     void HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool UpdateDefaultPaymentType();
     void UpdateDefaultPaymentElement(const ElementName &element);
