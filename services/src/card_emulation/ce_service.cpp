@@ -251,7 +251,7 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
     DebugLog("OnAppAddOrChangeOrRemove end");
 }
 
-void CeService::AppEventCheckValid(std::shared_ptr<EventFwk::CommonEventData> data)
+bool CeService::AppEventCheckValid(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     if (data == nullptr) {
         ErrorLog("invalid event data");
