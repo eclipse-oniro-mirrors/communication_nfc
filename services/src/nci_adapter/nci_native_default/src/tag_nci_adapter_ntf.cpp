@@ -146,7 +146,7 @@ void TagNciAdapterNtf::RegisterNdefHandler()
 {
     DebugLog("TagNciAdapterNtf::RegisterNdefHandler");
     ndefTypeHandle_ = NFA_HANDLE_INVALID;
-    NFA_RegisterNDefTypeHandler(true, NFA_TNF_DEFAULT, (uint8_t*)"", 0, NdefCallback);
+    NFA_RegisterNDefTypeHandler(true, NFA_TNF_DEFAULT, static_cast<uint8_t *>(""), 0, NdefCallback);
     if (g_commonIsLegacyMifareReader) {
         Extns::GetInstance().EXTNS_MfcRegisterNDefTypeHandler(NdefCallback);
     }
@@ -413,7 +413,7 @@ void TagNciAdapterNtf::SetIsoDepFwt(tNFA_ACTIVATED activated, uint32_t technolog
         (activated.activate_ntf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A_ACTIVE)) {
         // get frame Waiting time Integer(fwi) from activated data
         uint8_t fwi = activated.activate_ntf.intf_param.intf_param.pa_iso.fwi;
-        if (fwi >= MIN_FWI && fwi <= MAX_FWI) {
+        if (fwi <= MAX_FWI) {
             // 2^MIN_FWI * 256 * 16 * 1000 / 13560000 is approximately 618
             int fwt = (1 << (fwi - MIN_FWI)) * 618;
             InfoLog("TagNciAdapterNtf::GetTechFromData timeout = %{public}d, fwi = %{public}0#x", fwt, fwi);
@@ -759,12 +759,11 @@ void TagNciAdapterNtf::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
     DebugLog("TagNciAdapterNtf::HandleDiscResult, discId: %{public}d, protocol: %{public}d, discNtfIndex_: %{public}d",
         discoveryNtf.rf_disc_id, discoveryNtf.protocol, TagNciAdapterCommon::GetInstance().discNtfIndex_);
     uint8_t nfcID2[NCI_NFCID1_MAX_LEN] = {0};
-    errno_t err = EOK;
 
     if (discoveryNtf.rf_disc_id == 1) { // first UID
         (void)memset_s(nfcID1_, sizeof(nfcID1_), 0, sizeof(nfcID1_));
         if (discoveryNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
-            err = memcpy_s(nfcID1_, sizeof(nfcID1_), discoveryNtf.rf_tech_param.param.pa.nfcid1,
+            errno_t err = memcpy_s(nfcID1_, sizeof(nfcID1_), discoveryNtf.rf_tech_param.param.pa.nfcid1,
                            discoveryNtf.rf_tech_param.param.pa.nfcid1_len);
             if (err != EOK) {
                 ErrorLog("TagNciAdapterNtf::HandleDiscResult, memcpy nfcid1 error: %{public}d", err);
@@ -772,7 +771,7 @@ void TagNciAdapterNtf::HandleDiscResult(tNFA_CONN_EVT_DATA* eventData)
         }
     } else if (discoveryNtf.rf_disc_id == 2) {  // 2 represents the second uid
         if (discoveryNtf.rf_tech_param.mode == NFC_DISCOVERY_TYPE_POLL_A) {
-            err = memcpy_s(nfcID2, sizeof(nfcID2), discoveryNtf.rf_tech_param.param.pa.nfcid1,
+            errno_t err = memcpy_s(nfcID2, sizeof(nfcID2), discoveryNtf.rf_tech_param.param.pa.nfcid1,
                            discoveryNtf.rf_tech_param.param.pa.nfcid1_len);
             if (err != EOK) {
                 ErrorLog("TagNciAdapterNtf::HandleDiscResult, memcpy nfcid2 error: %{public}d", err);

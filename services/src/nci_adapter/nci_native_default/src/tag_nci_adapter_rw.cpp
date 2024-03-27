@@ -437,8 +437,8 @@ int TagNciAdapterRw::Transceive(const std::string& request, std::string& respons
     tNFA_STATUS status = NFA_STATUS_FAILED;
     isInTransceive_ = true;
     isTransceiveTimeout_ = false;
-    bool wait = true;
     do {
+        bool wait = true;
         {
             NFC::SynchronizeGuard guard(transceiveEvent_);
             uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(request);
@@ -846,7 +846,7 @@ tNFA_STATUS TagNciAdapterRw::HandleMfcTransceiveData(std::string& response)
 {
     tNFA_STATUS status = NFA_STATUS_FAILED;
     uint32_t len = static_cast<uint32_t>(receivedData_.size());
-    uint8_t* data = (uint8_t*)receivedData_.data();
+    uint8_t* data = static_cast<uint8_t *>(receivedData_.data());
     bool shouldReconnect = false;
 
     if (g_commonIsLegacyMifareReader) {
