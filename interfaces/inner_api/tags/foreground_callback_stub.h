@@ -36,9 +36,8 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override;
-
 private:
+    void OnTagDiscovered(KITS::TagInfoParcelable* tagInfo) override;
     int RemoteTagDiscovered(MessageParcel &data, MessageParcel &reply);
     sptr<KITS::IForegroundCallback> callback_;
     std::shared_mutex callbackMutex;

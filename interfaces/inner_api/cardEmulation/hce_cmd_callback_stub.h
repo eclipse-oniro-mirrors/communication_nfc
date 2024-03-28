@@ -35,11 +35,9 @@ public:
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                 MessageOption &option) override;
 
-    int RemoteOnCeApduData(MessageParcel &data, MessageParcel &reply);
-
-    void OnCeApduData(const std::vector<uint8_t> &data) override;
-
 private:
+    int RemoteOnCeApduData(MessageParcel &data, MessageParcel &reply);
+    void OnCeApduData(const std::vector<uint8_t> &data) override;
     sptr<KITS::IHceCmdCallback> callback_;
     std::shared_mutex callbackMutex;
     bool mRemoteDied;

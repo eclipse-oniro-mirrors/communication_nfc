@@ -35,10 +35,9 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
+private:
     bool OnQueryAppInfo(std::string type, std::vector<int> techList, std::vector<AAFwk::Want> &hceAppList,
         std::vector<AppExecFwk::ElementName> &elementNameList) override;
-
-private:
     int RemoteQueryAppInfo(MessageParcel &data, MessageParcel &reply);
     QueryApplicationByVendor queryTagAppByTechCallback_;
     QueryHceAppByVendor queryHceAppCallback_;

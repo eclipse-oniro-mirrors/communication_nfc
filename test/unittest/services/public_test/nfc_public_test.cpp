@@ -16,8 +16,10 @@
 #include <thread>
 
 #include "nfc_sdk_common.h"
+#include "nfc_timer.h"
 #include "nfc_preferences.h"
 #include "nfc_permission_checker.h"
+#include "nfc_watch_dog.h"
 #include "synchronize_event.h"
 
 namespace OHOS {
@@ -291,6 +293,42 @@ HWTEST_F(NfcPublicTest, HexStringToBytes003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: CodeMiddlePart001
+ * @tc.desc: Test NfcPublic CodeMiddlePart001.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, CodeMiddlePart001, TestSize.Level1)
+{
+    std::string src = "";
+    std::string res = NfcSdkCommon::CodeMiddlePart(src);
+    ASSERT_TRUE(res.empty() == true);
+}
+
+/**
+ * @tc.name: CodeMiddlePart002
+ * @tc.desc: Test NfcPublic CodeMiddlePart002.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, CodeMiddlePart002, TestSize.Level1)
+{
+    std::string src(1025, 'a');
+    std::string res = NfcSdkCommon::CodeMiddlePart(src);
+    ASSERT_TRUE(res.empty() == true);
+}
+
+/**
+ * @tc.name: CodeMiddlePart003
+ * @tc.desc: Test NfcPublic CodeMiddlePart003.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, CodeMiddlePart003, TestSize.Level1)
+{
+    std::string src = "CodeMiddlePart";
+    std::string res = NfcSdkCommon::CodeMiddlePart(src);
+    ASSERT_TRUE(res.empty() == false);
+}
+
+/**
  * @tc.name: NfcPrefImpl001
  * @tc.desc: Test NfcPublic NfcPrefImpl001.
  * @tc.type: FUNC
@@ -322,6 +360,23 @@ HWTEST_F(NfcPublicTest, NfcPermissionChecker001, TestSize.Level1)
     bool granted = NfcPermissionChecker::IsGranted("unitest.permission.nfc");
     ASSERT_TRUE(granted == true);
 }
+
+/**
+ * @tc.name: NfcWatchDog001
+ * @tc.desc: Test NfcWatchDog001
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, NfcWatchDog001, TestSize.Level1)
+{
+    NfcTimer::GetInstance()->UnRegister(0);
+    std::shared_ptr<NCI::INciNfccInterface> nciNfccProxy = nullptr;
+    NfcWatchDog nfcWatchDog("Test", 90 * 1000, nciNfccProxy);
+    nfcWatchDog.Run();
+    nfcWatchDog.Cancel();
+    uint64_t currentTime = NfcSdkCommon::GetCurrentTime();
+    ASSERT_TRUE(currentTime != 0);
+}
+
 }
 }
 }

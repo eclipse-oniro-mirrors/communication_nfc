@@ -35,9 +35,8 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType) override;
-
 private:
+    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType) override;
     int RemoteNdefMsgDiscovered(MessageParcel &data, MessageParcel &reply);
     sptr<INdefMsgCallback> callback_;
     std::shared_mutex mutex_;

@@ -36,9 +36,8 @@ public:
     int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    void OnNfcStateChanged(int nfcRfState) override;
-
 private:
+    void OnNfcStateChanged(int nfcRfState) override;
     int RemoteNfcStateChanged(MessageParcel &data, MessageParcel &reply);
     sptr<INfcControllerCallback> callback_;
     std::shared_mutex callbackMutex;
