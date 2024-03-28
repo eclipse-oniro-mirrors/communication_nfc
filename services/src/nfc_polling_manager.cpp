@@ -168,7 +168,6 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
         foregroundData_->element_ = element;
         foregroundData_->callback_ = callback;
     }
-    StartPollingLoop(true);
     return true;
 }
 
@@ -180,8 +179,6 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
     foregroundData_->techMask_ = 0xFFFF;
     foregroundData_->callerToken_ = 0;
     foregroundData_->callback_ = nullptr;
-
-    StartPollingLoop(true);
     return true;
 }
 
