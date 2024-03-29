@@ -29,7 +29,6 @@
 #include "inci_tag_interface.h"
 #include "host_card_emulation_manager.h"
 
-
 namespace OHOS {
 namespace NFC {
 class NfcStateRegistryRecord {
@@ -54,9 +53,9 @@ public:
     void OnTagLost(uint32_t tagDiscId) override;
     void FieldActivated() override;
     void FieldDeactivated() override;
-    #ifdef VENDOR_APPLICATIONS_ENABLED
+#ifdef VENDOR_APPLICATIONS_ENABLED
     void OnVendorEvent(int eventType, int arg1, std::string arg2);
-    #endif
+#endif
     void OnCardEmulationData(const std::vector<uint8_t>& data) override;
     void OnCardEmulationActivated() override;
     void OnCardEmulationDeactivated() override;
@@ -74,8 +73,9 @@ public:
     std::weak_ptr<CeService> GetCeService() override;
     std::string GetSimVendorBundleName() override;
 
-private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
+
+private:
     bool IsNfcTaskReady(std::future<int>& future) const;
     void ExecuteTask(KITS::NfcTask param);
     void UpdateNfcState(int newState);

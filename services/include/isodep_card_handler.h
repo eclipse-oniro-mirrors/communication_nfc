@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-struct TrafficCardInfo {
+struct TransportCardInfo {
     std::string name;
     std::string aid;
     std::vector<std::string> checkApdus;
@@ -55,8 +55,8 @@ public:
     IsodepCardHandler(const IsodepCardHandler&) = delete;
     IsodepCardHandler& operator=(const IsodepCardHandler&) = delete;
 
-    void InitTrafficCardInfo(void);
-    bool IsSupportedTrafficCard(uint32_t rfDiscId, uint8_t &cardIndex);
+    void InitTransportCardInfo(void);
+    bool IsSupportedTransportCard(uint32_t rfDiscId, uint8_t &cardIndex);
     void GetBalance(uint32_t rfDiscId, uint8_t cardIndex, int &balance);
     void GetCardName(uint8_t cardIndex, std::string &cardName);
 
@@ -69,8 +69,9 @@ private:
 
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 
-    // traffic card info
-    std::vector<TrafficCardInfo> cardInfoVec_;
+    // transport card info
+    std::vector<TransportCardInfo> cardInfoVec_;
+    bool isInitialized_ = false;
 
     static const int BYTE_ZERO = 0;
     static const int BYTE_ONE = 1;

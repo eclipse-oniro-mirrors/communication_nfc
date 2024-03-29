@@ -75,7 +75,8 @@
                 "screenlock_mgr",
                 "power_manager",
                 "distributed_notification_service",
-                "wifi"
+                "wifi",
+                "i18n"
             ],
             "third_party": [
                 "cJSON",

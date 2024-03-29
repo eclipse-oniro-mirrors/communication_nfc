@@ -1,0 +1,42 @@
+{
+	"string":	[{
+			"name":	"ShenZhenTong",
+			"value":	"深圳通"
+		}, {
+			"name":	"LingNanTong",
+			"value":	"岭南通"
+		}, {
+			"name":	"BeiJingYiKaTong",
+			"value":	"北京一卡通"
+		}, {
+			"name":	"ShangHaiJiaoTongKa",
+			"value":	"上海交通卡"
+		}, {
+			"name":	"GuiMinHuLianHuTongKa",
+			"value":	"桂民互联互通卡"
+		}, {
+			"name":	"DefaultTitle",
+			"value":	"发现NFC标签"
+		}, {
+			"name":	"DefaultText",
+			"value":	"部分应用需开启内部NFC开关"
+		}, {
+			"name":	"TransportCardTitle",
+			"value":	"发现公交卡"
+		}, {
+			"name":	"TransportCardText",
+			"value":	"发现%s，余额：%.2f元"
+		}, {
+			"name":	"NfcWifiNtfTitle",
+			"value":	"连接到网络"
+		}, {
+			"name":	"NfcWifiNtfText",
+			"value":	"连接到网络：%s？"
+		}, {
+			"name":	"ActionButtonName",
+			"value":	"处理卡片数据"
+		}, {
+			"name":	"NfcWifiButtonName",
+			"value":	"连接"
+		}]
+}

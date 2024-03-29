@@ -1,0 +1,59 @@
+# Copyright (C) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+import("../../../nfc.gni")
+
+config("nfc_notification_config") {
+  include_dirs = [ "$NFC_DIR/interfaces/inner_api/common" ]
+}
+
+ohos_shared_library("nfc_notification") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    integer_overflow = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  public_configs = [ ":nfc_notification_config" ]
+
+  sources = [ "nfc_notification.cpp" ]
+
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "//third_party/cJSON:cjson_static",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:wantagent_innerkits",
+    "c_utils:utils",
+    "distributed_notification_service:ans_innerkits",
+    "hilog:libhilog",
+    "i18n:intl_util",
+  ]
+
+  defines = [ "DEBUG" ]
+  if (nfc_service_feature_ndef_wifi_enabled) {
+    defines += [ "NDEF_WIFI_ENABLED" ]
+  }
+
+  part_name = "nfc"
+  subsystem_name = "communication"
+}

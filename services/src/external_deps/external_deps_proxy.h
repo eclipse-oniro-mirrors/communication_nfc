@@ -24,6 +24,7 @@
 #include "nfc_event_publisher.h"
 #include "nfc_hisysevent.h"
 #include "nfc_permission_checker.h"
+#include "nfc_notification_publisher.h"
 #include "tag_ability_dispatcher.h"
 #include "taginfo.h"
 #include "ability_info.h"
@@ -87,6 +88,9 @@ public:
     bool IsHceApp(const ElementName &elementName);
     bool IsBundleInstalled(const std::string &bundleName);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
+
+    void PublishNfcNotification(int notificationId, const std::string &name, int balance);
+    void RegNotificationCallback(std::weak_ptr<NfcService> nfcService);
 };
 } // NFC
 } // OHOS

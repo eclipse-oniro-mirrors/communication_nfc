@@ -15,16 +15,17 @@
 #include "tag_dispatcher.h"
 
 #include <functional>
+
 #include "app_data_parser.h"
 #include "external_deps_proxy.h"
 #include "loghelper.h"
 #include "ndef_bt_data_parser.h"
 #include "ndef_har_data_parser.h"
+#include "ndef_har_dispatch.h"
 #include "ndef_message.h"
 #include "nfc_hisysevent.h"
 #include "nfc_sdk_common.h"
 #include "tag_ability_dispatcher.h"
-#include "tag_notification.h"
 
 #ifdef NDEF_WIFI_ENABLED
 #include "ndef_wifi_data_parser.h"
@@ -39,6 +40,7 @@ namespace TAG {
 #define NDEF_TYPE_WIFI    3
 
 using OHOS::NFC::KITS::TagTechnology;
+
 TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
     : nfcService_(nfcService),
     lastNdefMsg_(""),
@@ -50,9 +52,6 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
             isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
             ndefHarDataParser_ = std::make_shared<NdefHarDataParser>(nciTagProxy_);
         }
-    }
-    if (isodepCardHandler_) {
-        isodepCardHandler_->InitTrafficCardInfo();
     }
 }
 
@@ -147,10 +146,11 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
             break;
         }
+        ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
         if (ndefMessage != nullptr && HandleNdefDispatch(tagDiscId, ndefMsg)) {
             break;
         }
-        PublishNotification(tagDiscId, isIsoDep);
+        PublishTagNotification(tagDiscId, isIsoDep);
         DispatchTag(tagDiscId);
         break;
     } while (0);
@@ -195,8 +195,8 @@ KITS::TagInfoParcelable* TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tag
 
 void TagDispatcher::DispatchTag(uint32_t tagDiscId)
 {
-    std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tagDiscId);
-    if (tagInfo == nullptr) {
+    tagInfo_ = GetTagInfoFromTag(tagDiscId);
+    if (tagInfo_ == nullptr) {
         ErrorLog("DispatchTag: taginfo is null");
         return;
     }
@@ -205,9 +205,6 @@ void TagDispatcher::DispatchTag(uint32_t tagDiscId)
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     // Record types of read tags.
     ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
-
-    // start application ability for tag found.
-    ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo, nfcService_->GetTagServiceIface());
 }
 
 void TagDispatcher::HandleTagDebounce()
@@ -215,24 +212,53 @@ void TagDispatcher::HandleTagDebounce()
     DebugLog("HandleTagDebounce, unimplimentation...");
 }
 
-void TagDispatcher::PublishNotification(uint32_t tagDiscId, bool isIsoDep)
+void TagDispatcher::OnNotificationButtonClicked(int notificationId)
 {
-    NfcNotificationId notificationId = NFC_TAG_NOTIFICATION_ID;
+    InfoLog("notificationId[%{public}d]", notificationId);
+    switch (notificationId) {
+        case NFC_TRANSPORT_CARD_NOTIFICATION_ID:
+            // start application ability for tag found.
+            ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            break;
+        case NFC_WIFI_NOTIFICATION_ID:
+#ifdef NDEF_WIFI_ENABLED
+            WifiConnectionManager::GetInstance().OnWifiNtfClicked();
+#endif
+            break;
+        case NFC_BT_NOTIFICATION_ID:
+            break;
+        case NFC_TAG_DEFAULT_NOTIFICATION_ID:
+            // start application ability for tag found.
+            ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            break;
+        case NFC_BROWSER_NOTIFICATION_ID:
+            NdefHarDispatch::GetInstance().OnBrowserOpenLink();
+            break;
+        default:
+            WarnLog("unknown notification Id");
+            break;
+    }
+}
+
+void TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
+{
+    NfcNotificationId notificationId = NFC_TAG_DEFAULT_NOTIFICATION_ID;
     std::string cardName = "";
     uint8_t cardIndex = INVALID_CARD_INDEX;
     int balance = INVALID_BALANCE;
     if (isIsoDep && isodepCardHandler_ != nullptr) {
-        if (isodepCardHandler_->IsSupportedTrafficCard(tagDiscId, cardIndex)) {
+        isodepCardHandler_->InitTransportCardInfo();
+        if (isodepCardHandler_->IsSupportedTransportCard(tagDiscId, cardIndex)) {
             isodepCardHandler_->GetBalance(tagDiscId, cardIndex, balance);
             if (balance < 0) {
                 WarnLog("failed to get card balance.");
             } else {
                 isodepCardHandler_->GetCardName(cardIndex, cardName);
-                notificationId = NFC_TRAFFIC_CARD_NOTIFICATION_ID;
+                notificationId = NFC_TRANSPORT_CARD_NOTIFICATION_ID;
             }
         }
     }
-    TagNotification::GetInstance().PublishTagNotification(notificationId, cardName, balance);
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(notificationId, cardName, balance);
 }
 }  // namespace TAG
 }  // namespace NFC
