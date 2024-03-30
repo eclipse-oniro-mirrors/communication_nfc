@@ -170,6 +170,7 @@ void NfcService::FieldDeactivated()
     InfoLog("NfcService::FiledDeactivated");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED));
 }
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
 void NfcService::OnVendorEvent(int eventType, int arg1, std::string arg2)
 {
@@ -189,6 +190,7 @@ void NfcService::OnCardEmulationActivated()
     InfoLog("NfcService::OnCardEmulationActivated");
     ceService_->OnCardEmulationActivated();
 }
+
 OHOS::sptr<IRemoteObject> NfcService::GetHceServiceIface()
 {
     return hceSessionIface_;

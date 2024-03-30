@@ -15,10 +15,11 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "ndef_bt_oob_data_parser.h"
+#include "ndef_bt_data_parser.h"
 
 namespace OHOS {
 namespace NFC {
+namespace TAG {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
@@ -59,8 +60,8 @@ HWTEST_F(NdefBtDataParserTest, CheckBtRecord001, TestSize.Level1)
 {
     std::string msg = "";
     std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-    std::shared_ptr<BtData> BtData = ndefBtDataParser->CheckBtRecord(msg);
-    ASSERT_TRUE(BtData != nullptr);
+    std::shared_ptr<BtData> btData = ndefBtDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(btData != nullptr);
 }
 
 /**
@@ -72,9 +73,26 @@ HWTEST_F(NdefBtDataParserTest, CheckBtRecord002, TestSize.Level1)
 {
     std::string msg = "CheckBtRecord";
     std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-    std::shared_ptr<BtData> BtData = ndefBtDataParser->CheckBtRecord(msg);
-    ASSERT_TRUE(BtData != nullptr);
+    std::shared_ptr<BtData> btData = ndefBtDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(btData != nullptr);
 }
+
+/**
+ * @tc.name: CheckBtRecord003
+ * @tc.desc: Test NdefBtDataParserTest CheckBtRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtDataParserTest, CheckBtRecord003, TestSize.Level1)
+{
+    std::string msg = "D220566170706C69636174696F6E2F766E642E626C7565746F6F74682E65"
+                      "702E6F6F625600BE17010E7F04050949435341040D14042C0B030B110C11"
+                      "0E111E11001236FF027D0320010240005A45303031810800113000190103"
+                      "021901010101020306047F0E0117BE020E52726364687A5238363739393532";
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    std::shared_ptr<BtData> btData = ndefBtDataParser->CheckBtRecord(msg);
+    ASSERT_TRUE(btData != nullptr);
 }
-}
-}
+} // namespace TEST
+} // namespace TAG
+} // namespace NFC
+} // namespace OHOS

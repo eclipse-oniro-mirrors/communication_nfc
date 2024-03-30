@@ -19,7 +19,6 @@
 #include "file_ex.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
-#include "tag_notification.h"
 
 namespace OHOS {
 namespace NFC {
@@ -35,13 +34,20 @@ IsodepCardHandler::~IsodepCardHandler()
     InfoLog("IsodepCardHandler destructor enter.");
 }
 
-void IsodepCardHandler::InitTrafficCardInfo()
+void IsodepCardHandler::InitTransportCardInfo()
 {
+    if (isInitialized_) {
+        DebugLog("already initialized.");
+        return;
+    }
     cardInfoVec_.clear();
-    DoJsonRead();
+    if (DoJsonRead()) {
+        InfoLog("transport card info initialized.");
+        isInitialized_ = true;
+    }
 }
 
-static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TrafficCardInfo *cardInfoList, int index)
+static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCardInfo *cardInfoList, int index)
 {
     cJSON *checkApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_CHECK_APDUS.c_str());
     if (checkApdus == nullptr || !cJSON_IsArray(checkApdus)) {
@@ -61,7 +67,7 @@ static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TrafficCardIn
     return true;
 }
 
-static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TrafficCardInfo *cardInfoList, int index)
+static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCardInfo *cardInfoList, int index)
 {
     cJSON *balanceApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_BALANCE_APDUS.c_str());
     if (balanceApdus == nullptr || !cJSON_IsArray(balanceApdus)) {
@@ -80,7 +86,7 @@ static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TrafficCard
     return true;
 }
 
-static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo, TrafficCardInfo *cardInfoList)
+static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo, TransportCardInfo *cardInfoList)
 {
     cJSON *cardInfoEach = nullptr;
     int index = 0;
@@ -130,7 +136,7 @@ static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo, TrafficCardInf
 bool IsodepCardHandler::DoJsonRead()
 {
     InfoLog("Reading apdu from json config.");
-    TrafficCardInfo cardInfoList[MAX_CARD_INFO_VEC_LEN];
+    TransportCardInfo cardInfoList[MAX_CARD_INFO_VEC_LEN];
     std::string content;
     LoadStringFromFile(NFC_CARD_APDU_JSON_FILEPATH, content);
     cJSON *json = cJSON_Parse(content.c_str());
@@ -155,12 +161,13 @@ bool IsodepCardHandler::DoJsonRead()
     for (uint8_t i = 0; i < MAX_CARD_INFO_VEC_LEN; ++i) {
         cardInfoVec_.push_back(cardInfoList[i]);
     }
+    cJSON_Delete(json);
     return true;
 }
 
-bool IsodepCardHandler::IsSupportedTrafficCard(uint32_t rfDiscId, uint8_t &cardIndex)
+bool IsodepCardHandler::IsSupportedTransportCard(uint32_t rfDiscId, uint8_t &cardIndex)
 {
-    InfoLog("IsSupportedTrafficCard, cardInfoVec_ size = [%{public}lu]", cardInfoVec_.size());
+    InfoLog("IsSupportedTransportCard, cardInfoVec_ size = [%{public}lu]", cardInfoVec_.size());
     if (nciTagProxy_.expired()) {
         WarnLog("nciTagProxy_ expired.");
         return false;
@@ -201,6 +208,10 @@ bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
 
 bool IsodepCardHandler::CheckApduResponse(const std::string &response, uint8_t cardIndex)
 {
+    if (response.length() < APDU_RSP_OK_STR_LEN) {
+        ErrorLog("invalid response length");
+        return false;
+    }
     if (cardInfoVec_[cardIndex].rspContain == "") {
         return CheckApduResponse(response);
     }
@@ -263,10 +274,9 @@ void IsodepCardHandler::GetBalanceValue(const std::string &balanceStr, int &bala
         ErrorLog("bytes size error.");
         return;
     }
-    balanceValue = ((bytes[BYTE_ZERO] & 0xFF) << THREE_BYTES_SHIFT)
-                + ((bytes[BYTE_ONE] & 0xFF) << TWO_BYTES_SHIFT)
+    balanceValue = ((bytes[BYTE_ONE] & 0xFF) << TWO_BYTES_SHIFT)
                 + ((bytes[BYTE_TWO] & 0xFF) << ONE_BYTES_SHIFT)
-                + (bytes[BYTE_THREE] & 0xFF);
+                + (bytes[BYTE_THREE] & 0xFF); // ignore BYTE_ZERO, in case of large balance
 }
 
 void IsodepCardHandler::GetCardName(uint8_t cardIndex, std::string &cardName)

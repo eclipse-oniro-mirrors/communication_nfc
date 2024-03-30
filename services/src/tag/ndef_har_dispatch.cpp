@@ -14,6 +14,7 @@
  */
 #include "ndef_har_dispatch.h"
 
+#include "external_deps_proxy.h"
 #include "iservice_registry.h"
 #include "ndef_har_data_parser.h"
 #include "tag_ability_dispatcher.h"
@@ -21,7 +22,6 @@
 #include "loghelper.h"
 #include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
-#include "tag_notification.h"
 
 namespace OHOS {
 namespace NFC {
@@ -71,8 +71,9 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type)
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
+        return false;
     }
-    return false;
+    return true;
 }
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
@@ -131,7 +132,7 @@ bool NdefHarDispatch::DispatchWebLink(const std::string &webAddress, const std::
     }
     uri_ = webAddress;
     browserBundleName_ = browserBundleName;
-    TagNotification::GetInstance().PublishTagNotification(NFC_BROWSER_NOTIFICATION_ID, uri_, 0);
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_BROWSER_NOTIFICATION_ID, uri_, 0);
     return true;
 }
 

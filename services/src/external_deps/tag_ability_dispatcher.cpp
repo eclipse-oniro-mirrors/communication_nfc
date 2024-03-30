@@ -75,6 +75,7 @@ static void SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Wa
 
 void TagAbilityDispatcher::StartVibratorOnce()
 {
+    InfoLog("Start vibrator once.");
     OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
 }
 

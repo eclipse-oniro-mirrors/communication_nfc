@@ -207,5 +207,15 @@ bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const 
 {
     return AppDataParser::GetInstance().GetBundleInfo(bundleInfo, bundleName);
 }
+
+void ExternalDepsProxy::PublishNfcNotification(int notificationId, const std::string &name, int balance)
+{
+    TAG::NfcNotificationPublisher::GetInstance().PublishNfcNotification(notificationId, name, balance);
+}
+
+void ExternalDepsProxy::RegNotificationCallback(std::weak_ptr<NfcService> nfcService)
+{
+    TAG::NfcNotificationPublisher::GetInstance().RegNotificationCallback(nfcService);
+}
 } // namespace NFC
 } // OHOS

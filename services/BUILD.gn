@@ -49,8 +49,22 @@ config("nfc_config") {
   ]
 }
 
-ohos_prebuilt_etc("nfc_prebuilt_config") {
-  source = "nfc_card_apdu.json"
+ohos_prebuilt_etc("nfc_prebuilt_config_apdu") {
+  source = "res/nfc_card_apdu.json"
+  relative_install_dir = "nfc"
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
+
+ohos_prebuilt_etc("nfc_prebuilt_config_string_en") {
+  source = "res/en/string_en.json"
+  relative_install_dir = "nfc"
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
+
+ohos_prebuilt_etc("nfc_prebuilt_config_string_zh") {
+  source = "res/zh/string_zh.json"
   relative_install_dir = "nfc"
   part_name = "nfc"
   subsystem_name = "communication"
@@ -66,6 +80,7 @@ nfc_service_source = [
   "src/external_deps/nfc_data_share_impl.cpp",
   "src/external_deps/nfc_event_publisher.cpp",
   "src/external_deps/nfc_hisysevent.cpp",
+  "src/external_deps/nfc_notification_publisher.cpp",
   "src/external_deps/nfc_permission_checker.cpp",
   "src/external_deps/nfc_preferences.cpp",
   "src/external_deps/tag_ability_dispatcher.cpp",
@@ -102,8 +117,8 @@ nfc_service_source = [
   "src/tag/ndef_har_data_parser.cpp",
   "src/tag/ndef_har_dispatch.cpp",
   "src/tag/tag_dispatcher.cpp",
-  "src/tag/tag_notification.cpp",
 ]
+
 if (nfc_service_feature_vendor_applications_enabled) {
   nfc_service_source += [
     "src/ipc/controller/on_card_emulation_notify_cb_proxy.cpp",
@@ -117,7 +132,6 @@ nfc_service_external_deps = [
   "ability_runtime:ability_manager",
   "ability_runtime:app_manager",
   "ability_runtime:dataobs_manager",
-  "ability_runtime:wantagent_innerkits",
   "access_token:libaccesstoken_sdk",
   "bundle_framework:appexecfwk_base",
   "bundle_framework:appexecfwk_core",
@@ -125,7 +139,6 @@ nfc_service_external_deps = [
   "common_event_service:cesfwk_core",
   "common_event_service:cesfwk_innerkits",
   "data_share:datashare_consumer",
-  "distributed_notification_service:ans_innerkits",
   "eventhandler:libeventhandler",
   "hilog:libhilog",
   "hisysevent:libhisysevent",
@@ -164,9 +177,12 @@ ohos_shared_library("nfc_service") {
   version_script = "libnfc_service_version_script.txt"
 
   deps = [
-    ":nfc_prebuilt_config",
+    ":nfc_prebuilt_config_apdu",
+    ":nfc_prebuilt_config_string_en",
+    ":nfc_prebuilt_config_string_zh",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
+    "src/notification:nfc_notification",
     "//third_party/cJSON:cjson_static",
   ]
 

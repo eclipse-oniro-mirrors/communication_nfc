@@ -17,10 +17,10 @@
 
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "external_deps_proxy.h"
 #include "infc_service.h"
 #include "loghelper.h"
 #include "nfc_service.h"
-#include "tag_notification.h"
 #include "wifi_errcode.h"
 #include "wifi_msg.h"
 
@@ -240,7 +240,7 @@ void WifiConnectionManager::TryConnectWifi(std::shared_ptr<WifiData> data)
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT);
     config_ = data->config_;
     InfoLog("TryConnectWifi: Publish notification ssid: %{private}s", config_->ssid.c_str());
-    TagNotification::GetInstance().PublishTagNotification(NFC_WIFI_NOTIFICATION_ID, config_->ssid, 0);
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_WIFI_NOTIFICATION_ID, config_->ssid, 0);
 }
 
 __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWifi()
