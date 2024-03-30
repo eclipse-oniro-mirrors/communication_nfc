@@ -21,6 +21,7 @@
 #include "basic_tag_session.h"
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
+#include "nfc_data_share_impl.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -61,6 +62,7 @@ namespace OHOS {
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
         basicTagSession.SetTimeout(timeOutArray[0]);
+        DelayedSingleton<NFC::NfcDataShareImpl>::DestoryInstance();
     }
 
     void FuzzSendCommand(const uint8_t* data, size_t size)
@@ -76,6 +78,7 @@ namespace OHOS {
         // 2 is the subscript. Convert this parameter to string type
         std::string hexRespData = NfcSdkCommon::UnsignedCharToHexString(data[2]);
         basicTagSession.SendCommand(hexCmdData, raw, hexRespData);
+        DelayedSingleton<NFC::NfcDataShareImpl>::DestoryInstance();
     }
 }
 
