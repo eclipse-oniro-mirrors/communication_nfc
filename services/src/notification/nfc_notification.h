@@ -73,8 +73,8 @@ const std::string KEY_NFC_BT_BUTTON_NAME       = "NfcBtButtonName";
 const std::string NFC_OPEN_LINK_BUTTON_NAME    = "Open Link";
 const std::string NFC_OPEN_LINK_TEXT_HEAD      = "Open link: ";
 
-static const std::string KEY_HCE_AID_CONFLICTED_TITLE = "NfcHceAidConflictedTitle";
-static const std::string KEY_HCE_AID_CONFLICTED_TEXT = "NfcHceAidConflictedText";
+const std::string KEY_HCE_AID_CONFLICTED_TITLE = "NfcHceAidConflictedTitle";
+const std::string KEY_HCE_AID_CONFLICTED_TEXT = "NfcHceAidConflictedText";
 
 class NfcNotification {
 public:
