@@ -21,7 +21,6 @@
 #include "setting_data_share_impl.h"
 #include "accesstoken_kit.h"
 #include "hap_token_info.h"
-#include "nfc_notification.h"
 
 namespace OHOS {
 namespace NFC {
