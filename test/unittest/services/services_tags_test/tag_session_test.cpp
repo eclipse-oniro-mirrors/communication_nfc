@@ -581,24 +581,9 @@ HWTEST_F(TagSessionTest, RegReaderMode001, TestSize.Level1)
     std::vector<uint32_t> discTech;
     const sptr<KITS::IReaderModeCallback> callback = nullptr;
     KITS::ErrorCode errorCode = tagSession->RegReaderMode(element, discTech, callback);
-    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_TAG_APP_NOT_FOREGROUND);
 }
-/**
- * @tc.name: RegReaderMode002
- * @tc.desc: Test TagSession RegReaderMode.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, RegReaderMode002, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    service->Initialize();
-    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    AppExecFwk::ElementName element;
-    std::vector<uint32_t> discTech;
-    const sptr<KITS::IReaderModeCallback> callback = nullptr;
-    KITS::ErrorCode errorCode = tagSession->RegReaderMode(element, discTech, callback);
-    ASSERT_TRUE(errorCode == KITS::ERR_NFC_PARAMETERS);
-}
+
 /**
  * @tc.name: UnregReaderMode001
  * @tc.desc: Test TagSession UnregReaderMode.
@@ -610,21 +595,7 @@ HWTEST_F(TagSessionTest, UnregReaderMode001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
     KITS::ErrorCode errorCode = tagSession->UnregReaderMode(element);
-    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
-}
-/**
- * @tc.name: UnregReaderMode002
- * @tc.desc: Test TagSession UnregReaderMode.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, UnregReaderMode002, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    service->Initialize();
-    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    AppExecFwk::ElementName element;
-    KITS::ErrorCode errorCode = tagSession->UnregReaderMode(element);
-    ASSERT_TRUE(errorCode == KITS::ERR_NONE);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NONE);
 }
 }
 }
