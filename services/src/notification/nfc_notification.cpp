@@ -228,6 +228,13 @@ static bool SetTitleAndText(int notificationId,
                 nfcContent->SetText(NFC_OPEN_LINK_TEXT_HEAD + name);
             }
             break;
+        case NFC_HCE_AID_CONFLICTED_ID:
+            if (g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TEXT) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_HCE_AID_CONFLICTED_TITLE]);
+                nfcContent->SetText(g_resourceMap[KEY_HCE_AID_CONFLICTED_TEXT]);
+            }
+            break;
         default:
             WarnLog("unknown notification ID");
             return false;

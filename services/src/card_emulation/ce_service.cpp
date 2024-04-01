@@ -21,7 +21,7 @@
 #include "setting_data_share_impl.h"
 #include "accesstoken_kit.h"
 #include "hap_token_info.h"
-#include "tag_notification.h"
+#include "nfc_notification.h"
 
 namespace OHOS {
 namespace NFC {
@@ -394,7 +394,7 @@ void CeService::HandleOtherAidConflicted(const std::vector<AppDataParser::HceApp
 {
     InfoLog("too many applications found, let user decide.");
     TAG::NfcNotificationId notificationId = TAG::NFC_HCE_AID_CONFLICTED_ID;
-    TAG::TagNotification::GetInstance().PublishTagNotification(notificationId);
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(notificationId, "", 0);
 }
 
 bool CeService::UpdateDefaultPaymentType()
