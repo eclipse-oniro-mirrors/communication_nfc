@@ -103,7 +103,8 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         return true;
     }
 #endif
-    if (ndefHarDataParser_ != nullptr && ndefHarDataParser_->TryNdef(msg)) {
+    std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tagDiscId);
+    if (ndefHarDataParser_ != nullptr && ndefHarDataParser_->TryNdef(msg, tagInfo)) {
         return true;
     }
     return false;

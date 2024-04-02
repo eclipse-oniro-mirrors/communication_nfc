@@ -21,6 +21,7 @@
 #include "loghelper.h"
 #include "nfc_hisysevent.h"
 #include "external_deps_proxy.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
@@ -64,44 +65,46 @@ void NdefHarDataParserTest::TearDown()
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest001, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<NdefHarDataParser> ndefHarDataParserTest = std::make_shared<NdefHarDataParser>(testPtr);
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+
     std::string ndefMessage = "";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "DA060F01";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D400023231";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D40F00616E64726F69642E636F6D3A706B67";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D40F01616E64726F69642E636F6D3A706B6763";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D40F16616E64726F69642E636F6D3A706B67636F6D2E6875617765692E686D6F732E6865616C7468";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D100023132";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D1010055";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D1010A550262616964752E636F6D";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D10216537091010A550162616964752E636F6D51010451027A6861";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D101015520";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D10102550068";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D101065500736D733A31";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D101095506314071712E636F6D";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
 
     ndefMessage = "D101045402656E31";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D20A02746578742F76636172642021";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D20301612F6231";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D2000131";
-    ndefHarDataParserTest->TryNdef(ndefMessage);
+    ndefHarDataParserTest->TryNdef(ndefMessage, tagInfo);
     ASSERT_TRUE(ndefHarDataParserTest != nullptr);
 }
 

@@ -22,6 +22,7 @@
 #include "loghelper.h"
 #include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
@@ -64,11 +65,25 @@ void NdefHarDispatchTest::TearDown()
  */
 HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
 {
-    std::shared_ptr<NdefHarDispatch> ndefHarDispatchTest = std::make_shared<NdefHarDispatch>();
+    std::shared_ptr<TAG::NdefHarDispatch> ndefHarDispatchTest = std::make_shared<TAG::NdefHarDispatch>();
+
+    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+    std::string mimeType = "";
     std::string harPackage = "";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage);
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType);
+
+    std::vector<int> tagTechList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    AppExecFwk::PacMap tagTechExtrasData;
+    AppExecFwk::PacMap isoDepExtrasData;
+    tagTechExtras.push_back(tagTechExtrasData);
+    tagTechExtras.push_back(isoDepExtrasData);
+    std::string tagUid = "5B7FCFA9";
+    int tagRfDisId = 1;
+    tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDisId, nullptr);
     harPackage = "ABC";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage);
+    mimeType = "A/B";
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType);
 
     std::string uri = "";
     ndefHarDispatchTest->DispatchUriToBundleAbility(uri);
@@ -76,16 +91,15 @@ HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
     ndefHarDispatchTest->DispatchUriToBundleAbility(uri);
 
     std::string type = "";
-    ndefHarDispatchTest->DispatchMimeType(type);
+    ndefHarDispatchTest->DispatchMimeType(type, tagInfo);
     type = "ABC";
-    ndefHarDispatchTest->DispatchMimeType(type);
+    ndefHarDispatchTest->DispatchMimeType(type, tagInfo);
 
     std::string webAddress = "";
     std::string browserBundleName = "";
     ndefHarDispatchTest->DispatchWebLink(webAddress, browserBundleName);
     ASSERT_TRUE(ndefHarDispatchTest != nullptr);
 }
-
 }
 }
 }

@@ -19,6 +19,7 @@
 #include "ndef_message.h"
 #include "ndef_har_dispatch.h"
 #include "inci_tag_interface.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
@@ -29,16 +30,17 @@ class NdefHarDataParser {
 public:
     NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTagProxy);
     ~NdefHarDataParser() {}
-    bool TryNdef(const std::string& msg);
+    bool TryNdef(const std::string& msg, std::shared_ptr<KITS::TagInfo> tagInfo);
 
 private:
     std::string IsWebUri(std::shared_ptr<NdefRecord> record);
     std::string GetUriPayload(std::shared_ptr<NdefRecord> record);
     std::string GetUriPayload(std::shared_ptr<NdefRecord> record, bool isSmartPoster);
     bool ParseWebLink(std::vector<std::shared_ptr<NdefRecord>> records);
-    bool ParseHarPackage(std::vector<std::string> harPackages);
+    bool ParseHarPackage(
+        std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType);
     bool ParseUriLink(std::vector<std::shared_ptr<NdefRecord>> records);
-    bool ParseOtherType(std::vector<std::shared_ptr<NdefRecord>> records);
+    bool ParseOtherType(std::vector<std::shared_ptr<NdefRecord>> records, std::shared_ptr<KITS::TagInfo> tagInfo);
     std::string ToMimeType(std::shared_ptr<NdefRecord> record);
     std::vector<std::string> ExtractHarPackages(std::vector<std::shared_ptr<NdefRecord>> records);
     std::string CheckForHar(std::shared_ptr<NdefRecord> record);
