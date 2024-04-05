@@ -38,5 +38,14 @@
 		}, {
 			"name":	"NfcWifiButtonName",
 			"value":	"Connect"
+		}, {
+			"name":	"NfcBtNtfTitle",
+			"value":	"Nfc pairing request"
+		}, {
+			"name":	"NfcBtNtfText",
+			"value":	"Pair with the Bluetooth device: %s?"
+		}, {
+			"name":	"NfcBtButtonName",
+			"value":	"Pair"
 		}]
 }

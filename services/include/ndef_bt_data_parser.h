@@ -16,6 +16,9 @@
 #define NDEF_BT_DATA_PARSER_H
 
 #include <string>
+#include "bluetooth_def.h"
+#include "bluetooth_device_class.h"
+#include "uuid.h"
 
 namespace OHOS {
 namespace NFC {
@@ -23,9 +26,12 @@ namespace TAG {
 class BtData {
 public:
     bool isValid_ = false;
-    std::string name_;
+    std::string name_ = "";
     std::string oobData_ = "";
-    std::string uuids_ = "";
+    bool carrierActivating_ = false;
+    uint8_t transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    std::vector<Bluetooth::UUID> uuids_ {};
+    Bluetooth::BluetoothDeviceClass btClass_ {};
 
     std::string macAddress_ = "";
     std::string vendorSerialNum_ = "";
@@ -41,11 +47,14 @@ public:
 private:
     static std::shared_ptr<BtData> ParseBtRecord(const std::string& payload);
     static std::shared_ptr<BtData> ParseBleRecord(const std::string& payload);
-    static std::string GetUuidFromPayload(const std::string& payload, uint32_t& offset, uint32_t type, uint32_t len);
+    static std::vector<Bluetooth::UUID> GetUuidFromPayload(const std::string& payload, uint32_t& offset,
+                                                           uint32_t type, uint32_t len);
     static std::string GetDataFromPayload(const std::string& payload, uint32_t& offset, uint32_t datalen);
     static std::string GetBtMacFromPayload(const std::string& payload, uint32_t& offset);
-
-private:
+    static bool GetBtDevClass(const std::string& payload, uint32_t& offset,
+                              Bluetooth::BluetoothDeviceClass& btClass);
+    static std::string RevertUuidStr(const std::string& uuid);
+    static Bluetooth::UUID FormatUuidTo128Bit(const std::string& uuid);
 };
 } // namespace TAG
 } // namespace NFC

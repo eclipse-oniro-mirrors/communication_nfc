@@ -24,6 +24,9 @@ namespace TAG {
 #ifdef NDEF_WIFI_ENABLED
     class WifiConnectionManager;
 #endif
+#ifdef NDEF_BT_ENABLED
+    class BtConnectionManager;
+#endif
 }
 class NfcEventHandler;
 class NfcPollingManager;
@@ -68,7 +71,13 @@ enum class NfcCommonEvent {
 #ifdef NDEF_WIFI_ENABLED
     // for connect wifi by ndef wifi tag
     MSG_ENABLE_WIFI_TIMEOUT,
-    MSG_CONNECT_WIFI_TIMEOUT
+    MSG_CONNECT_WIFI_TIMEOUT,
+#endif
+#ifdef NDEF_BT_ENABLED
+    // for connect BT by ndef bt tag
+    MSG_BT_ENABLE_TIMEOUT,
+    MSG_BT_PAIR_TIMEOUT,
+    MSG_BT_CONNECT_TIMEOUT,
 #endif
 };
 

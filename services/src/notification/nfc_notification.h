@@ -49,7 +49,7 @@ enum NfcNotificationId : int {
 const int MAX_BUFF_LEN = 100;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
 const int NTF_AUTO_DELETE_TIME = 10;
-const int RES_VEC_LEN = 13;
+const int RES_VEC_LEN = 16;
 
 const std::string NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
 const std::string NFC_RES_EN_JSON_FILEPATH = "system/etc/nfc/string_en.json";
@@ -66,6 +66,9 @@ const std::string KEY_NFC_WIFI_NTF_TITLE       = "NfcWifiNtfTitle";
 const std::string KEY_NFC_WIFI_NTF_TEXT        = "NfcWifiNtfText";
 const std::string KEY_ACTION_BUTTON_NAME       = "ActionButtonName";
 const std::string KEY_NFC_WIFI_BUTTON_NAME     = "NfcWifiButtonName";
+const std::string KEY_NFC_BT_NTF_TITLE         = "NfcBtNtfTitle";
+const std::string KEY_NFC_BT_NTF_TEXT          = "NfcBtNtfText";
+const std::string KEY_NFC_BT_BUTTON_NAME       = "NfcBtButtonName";
 const std::string NFC_OPEN_LINK_BUTTON_NAME    = "Open Link";
 const std::string NFC_OPEN_LINK_TEXT_HEAD      = "Open link: ";
 

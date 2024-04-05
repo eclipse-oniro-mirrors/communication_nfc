@@ -27,6 +27,9 @@
 #ifdef NDEF_WIFI_ENABLED
 #include "wifi_connection_manager.h"
 #endif
+#ifdef NDEF_BT_ENABLED
+#include "bt_connection_manager.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
@@ -339,6 +342,20 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT: {
             TAG::WifiConnectionManager::GetInstance().HandleWifiConnectFailed();
+            break;
+        }
+#endif
+#ifdef NDEF_BT_ENABLED
+        case NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT: {
+            TAG::BtConnectionManager::GetInstance().HandleBtEnableFailed();
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_PAIR_TIMEOUT: {
+            TAG::BtConnectionManager::GetInstance().HandleBtPairFailed();
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_CONNECT_TIMEOUT: {
+            TAG::BtConnectionManager::GetInstance().HandleBtConnectFailed();
             break;
         }
 #endif

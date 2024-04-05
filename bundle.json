@@ -76,7 +76,8 @@
                 "power_manager",
                 "distributed_notification_service",
                 "wifi",
-                "i18n"
+                "i18n",
+                "bluetooth"
             ],
             "third_party": [
                 "cJSON",

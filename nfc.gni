@@ -33,4 +33,8 @@ declare_args() {
   if (defined(global_parts_info.communication_wifi)) {
     nfc_service_feature_ndef_wifi_enabled = true
   }
+  nfc_service_feature_ndef_bt_enabled = false
+  if (defined(global_parts_info.communication_bluetooth)) {
+    nfc_service_feature_ndef_bt_enabled = true
+  }
 }
