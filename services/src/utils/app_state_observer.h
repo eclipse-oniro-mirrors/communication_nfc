@@ -39,17 +39,12 @@ private:
         void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
         void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;
         void OnForegroundApplicationChanged(const AppExecFwk::AppStateData &appStateData) override;
-        std::string foregroundAppBundleName_ = "";
-    private:
-        inline bool ValidateAppStateData(const AppExecFwk::AppStateData &appStateData);
     };
     bool Connect();
-    std::string GetForegroundApp();
 
 private:
     std::mutex mutex_{};
     sptr<AppExecFwk::IAppMgr> appMgrProxy_{nullptr};
-    std::string foregroundAppBundleName_ = "";
     sptr<AppStateAwareObserver> appStateAwareObserver_;
 };
 } //namespace NFC
