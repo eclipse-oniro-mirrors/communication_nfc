@@ -14,6 +14,7 @@
  */
 #include "ndef_bt_data_parser.h"
 
+#include <string>
 #include "loghelper.h"
 #include "ndef_message.h"
 #include "nfc_sdk_common.h"
@@ -21,15 +22,15 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-#define RTD_TYPE_BT             "application/vnd.bluetooth.ep.oob"
-#define RTD_TYPE_BLE            "application/vnd.bluetooth.le.oob"
+#define RTD_TYPE_BT                    "application/vnd.bluetooth.ep.oob"
+#define RTD_TYPE_BLE                   "application/vnd.bluetooth.le.oob"
 
-#define UNSIGNED_BYTE_TO_INT_MASK   0xFF
+#define UNSIGNED_BYTE_TO_INT_MASK       0xFF
 
-#define CARRIER_PWR_STA_INACTIVE    0
-#define CARRIER_PWR_STA_ACTIVE      1
-#define CARRIER_PWR_STA_ACTIVATING  2
-#define CARRIER_PWR_STA_UNKNOWN     3
+#define CARRIER_PWR_STA_INACTIVE        0
+#define CARRIER_PWR_STA_ACTIVE          1
+#define CARRIER_PWR_STA_ACTIVATING      2
+#define CARRIER_PWR_STA_UNKNOWN         3
 
 #define TYPE_MAC                         0x1B
 #define TYPE_LE_ROLE                     0x1C
@@ -48,17 +49,17 @@ namespace TAG {
 #define TYPE_LE_SC_RANDOM                0x23
 #define TYPE_VENDOR                      0xFF
 
-#define BLE_ROLE_CENTRAL_ONLY             0x01
+#define BLE_ROLE_CENTRAL_ONLY            0x01
 
-#define SEC_MGR_TK_SIZE         16
-#define SEC_MGR_LE_SC_C_SIZE    16
-#define SEC_MGR_LE_SC_R_SIZE    16
-#define CLASS_OF_DEVICE_SIZE    3
-#define VENDOR_SERIAL_NUM_SIZE  2
+#define SEC_MGR_TK_SIZE                  16
+#define SEC_MGR_LE_SC_C_SIZE             16
+#define SEC_MGR_LE_SC_R_SIZE             16
+#define CLASS_OF_DEVICE_SIZE             3
+#define VENDOR_SERIAL_NUM_SIZE           2
 
-#define UUID_BYTES_16_BIT_LEN    2
-#define UUID_BYTES_32_BIT_LEN    4
-#define UUID_BYTES_128_BIT_LEN   16
+#define UUID_SEPARATOR                   "-"
+#define MAC_SEPARATOR                    ":"
+#define SHIFT_ONE_BYTE                   8
 
 using namespace OHOS::NFC::KITS;
 
@@ -76,7 +77,68 @@ std::string NdefBtDataParser::GetBtMacFromPayload(const std::string& payload, ui
     }
     std::string mac = payload.substr(offset * HEX_BYTE_LEN, macLen * HEX_BYTE_LEN);
     offset += macLen;
-    return mac;
+
+    std::string result = "";
+    for (uint32_t i = macLen - 1; i > 0; i--) {
+        result += mac.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
+        result += MAC_SEPARATOR;
+    }
+    result += mac.substr(0, HEX_BYTE_LEN);
+    return result;
+}
+
+bool NdefBtDataParser::GetBtDevClass(const std::string& payload, uint32_t& offset,
+                                     Bluetooth::BluetoothDeviceClass& btClass)
+{
+    if (payload.length() == 0 || (payload.length() < (offset + CLASS_OF_DEVICE_SIZE) * HEX_BYTE_LEN)) {
+        return false;
+    }
+    unsigned char firstByte = KITS::NfcSdkCommon::GetByteFromHexStr(payload, offset++);
+    unsigned char secondByte = KITS::NfcSdkCommon::GetByteFromHexStr(payload, offset++);
+    unsigned char thirdByte = KITS::NfcSdkCommon::GetByteFromHexStr(payload, offset++);
+    int devClass = (firstByte << (SHIFT_ONE_BYTE * 2)) + (secondByte << SHIFT_ONE_BYTE) + thirdByte;
+    btClass = Bluetooth::BluetoothDeviceClass(devClass);
+    return true;
+}
+
+std::string NdefBtDataParser::RevertUuidStr(const std::string& uuid)
+{
+    std::string res = "";
+    uint32_t len = uuid.length();
+    if (len % HEX_BYTE_LEN != 0) {
+        ErrorLog("uuid len not even");
+        return res;
+    }
+    for (uint32_t i = len; i >= HEX_BYTE_LEN; i -= HEX_BYTE_LEN) {
+        res += uuid.substr(i - HEX_BYTE_LEN, HEX_BYTE_LEN);
+    }
+    return res;
+}
+
+Bluetooth::UUID  NdefBtDataParser::FormatUuidTo128Bit(const std::string& uuid)
+{
+    const uint32_t uuidPrefixLen = 8;
+    const uint32_t separatorPoz1 = 8;
+    const uint32_t separatorPoz2 = 12;
+    const uint32_t separatorPoz3 = 16;
+    const uint32_t separatorPoz4 = 20;
+    std::string uuidSubfix = Bluetooth::BLUETOOTH_UUID_BASE_UUID.substr(uuidPrefixLen,
+        Bluetooth::BLUETOOTH_UUID_BASE_UUID.length() - uuidPrefixLen);
+    std::string prefix16Bit = "0000";
+    std::string res = "";
+
+    if ((uuid.length() / HEX_BYTE_LEN) == Bluetooth::BLE_UUID_LEN_16) {
+        res = prefix16Bit + RevertUuidStr(uuid) + uuidSubfix;
+    } else if (uuid.length() == Bluetooth::BLE_UUID_LEN_32) {
+        res = RevertUuidStr(uuid) + uuidSubfix;
+    } else if (uuid.length() == Bluetooth::BLE_UUID_LEN_128) {
+        res = RevertUuidStr(uuid);
+        res.insert(separatorPoz4, UUID_SEPARATOR);
+        res.insert(separatorPoz3, UUID_SEPARATOR);
+        res.insert(separatorPoz2, UUID_SEPARATOR);
+        res.insert(separatorPoz1, UUID_SEPARATOR);
+    }
+    return Bluetooth::UUID::FromString(res);
 }
 
 std::string NdefBtDataParser::GetDataFromPayload(const std::string& payload, uint32_t& offset, uint32_t dataLen)
@@ -89,34 +151,39 @@ std::string NdefBtDataParser::GetDataFromPayload(const std::string& payload, uin
     return data;
 }
 
-std::string NdefBtDataParser::GetUuidFromPayload(const std::string& payload, uint32_t& offset,
-                                                 uint32_t type, uint32_t len)
+std::vector<Bluetooth::UUID> NdefBtDataParser::GetUuidFromPayload(const std::string& payload, uint32_t& offset,
+                                                                  uint32_t type, uint32_t len)
 {
     // uuids can have several groups, uuidsSize is the size of each group
     uint32_t uuidSize;
+    std::vector<Bluetooth::UUID> uuids;
     switch (type) {
         case TYPE_16_BIT_UUIDS_PARTIAL:
         case TYPE_16_BIT_UUIDS_COMPLETE:
-            uuidSize = UUID_BYTES_16_BIT_LEN;
+            uuidSize = Bluetooth::BLE_UUID_LEN_16;
             break;
         case TYPE_32_BIT_UUIDS_PARTIAL:
         case TYPE_32_BIT_UUIDS_COMPLETE:
-            uuidSize = UUID_BYTES_32_BIT_LEN;
+            uuidSize = Bluetooth::BLE_UUID_LEN_32;
             break;
         case TYPE_128_BIT_UUIDS_PARTIAL:
         case TYPE_128_BIT_UUIDS_COMPLETE:
-            uuidSize = UUID_BYTES_128_BIT_LEN;
+            uuidSize = Bluetooth::BLE_UUID_LEN_128;
             break;
         default:
             ErrorLog("NdefBtDataParser::GetUuidFromPayload, unknown type of UUID");
-            return "";
+            return uuids;
     }
     if (len == 0 || (len % uuidSize != 0) || len * HEX_BYTE_LEN > (payload.length() - (offset * HEX_BYTE_LEN))) {
-        return "";
+        return uuids;
     }
-    std::string uuid = payload.substr(offset * HEX_BYTE_LEN, len * HEX_BYTE_LEN);
-    offset += len;
-    return uuid;
+    uint32_t uuidNum = len / uuidSize;
+    for (uint32_t i = 0; i < uuidNum; i++) {
+        std::string uuid = payload.substr(offset * HEX_BYTE_LEN, uuidSize * HEX_BYTE_LEN);
+        offset += uuidSize;
+        uuids.push_back(FormatUuidTo128Bit(uuid));
+    }
+    return uuids;
 }
 
 /*
@@ -162,7 +229,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = name;
+                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
                 isValid = true;
                 break;
             }
@@ -182,7 +249,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = name;
+                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
                 isValid = true;
                 break;
             }
@@ -192,6 +259,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
             case TYPE_32_BIT_UUIDS_COMPLETE:
             case TYPE_128_BIT_UUIDS_PARTIAL:
             case TYPE_128_BIT_UUIDS_COMPLETE: {
+                data->uuids_.clear();
                 data->uuids_ = GetUuidFromPayload(payload, offset, type, tvLen - 1);
                 if (!data->uuids_.empty()) {
                     isValid = true;
@@ -203,8 +271,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                     ErrorLog("NdefBtDataParser::ParseBtRecord, invalid  class of Device len");
                     break;
                 }
-                offset += CLASS_OF_DEVICE_SIZE;
-                isValid = true;
+                isValid = GetBtDevClass(payload, offset, data->btClass_);
                 break;
             }
             case TYPE_VENDOR: {
@@ -239,6 +306,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBleRecord(const std::string& payl
 {
     std::shared_ptr<BtData> data = std::make_shared<BtData>();
     data->isValid_ = false;
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_LE;
     uint32_t offset = 0; // offset is for byte parse position, payload is hex string
                          // to compare need to * HEX_BYTE_LEN
 
@@ -286,7 +354,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBleRecord(const std::string& payl
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = name;
+                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
                 break;
             }
             case TYPE_SEC_MGR_TK: {

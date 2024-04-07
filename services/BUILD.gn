@@ -35,6 +35,10 @@ config("nfc_config") {
     defines += [ "NDEF_WIFI_ENABLED" ]
   }
 
+  if (nfc_service_feature_ndef_bt_enabled) {
+    defines += [ "NDEF_BT_ENABLED" ]
+  }
+
   include_dirs = [
     "include",
     "src/ipc/controller",
@@ -113,7 +117,6 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_session.cpp",
   "src/ipc/card_emulation/hce_session_stub.cpp",
   "src/tag/isodep_card_handler.cpp",
-  "src/tag/ndef_bt_data_parser.cpp",
   "src/tag/ndef_har_data_parser.cpp",
   "src/tag/ndef_har_dispatch.cpp",
   "src/tag/tag_dispatcher.cpp",
@@ -157,6 +160,14 @@ if (nfc_service_feature_ndef_wifi_enabled) {
     "src/tag/wifi_connection_manager.cpp",
   ]
   nfc_service_external_deps += [ "wifi:wifi_sdk" ]
+}
+
+if (nfc_service_feature_ndef_bt_enabled) {
+  nfc_service_source += [
+    "src/tag/ndef_bt_data_parser.cpp",
+    "src/tag/bt_connection_manager.cpp",
+  ]
+  nfc_service_external_deps += [ "bluetooth:btframework" ]
 }
 
 ####################### nfc_service ################

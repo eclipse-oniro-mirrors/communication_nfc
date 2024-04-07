@@ -159,6 +159,20 @@ static std::string GetWifiNotificationText(const std::string &ssid)
 }
 #endif
 
+#ifdef NDEF_BT_ENABLED
+static std::string GetBtNotificationText(const std::string &name)
+{
+    char buf[MAX_BUFF_LEN] = {0};
+    int ret = sprintf_s(buf, MAX_BUFF_LEN, g_resourceMap[KEY_NFC_BT_NTF_TEXT].c_str(), name.c_str());
+    if (ret <= 0) {
+        ErrorLog("sprintf_s failed, ret[%{public}d]", ret);
+        return "";
+    }
+
+    return std::string(buf);
+}
+#endif
+
 static bool SetTitleAndText(int notificationId,
     std::shared_ptr<Notification::NotificationNormalContent> nfcContent, const std::string &name, int balance)
 {
@@ -186,10 +200,21 @@ static bool SetTitleAndText(int notificationId,
             }
             break;
 #else
+            ErrorLog("nfc wifi notification not supported");
             return false;
 #endif
         case NFC_BT_NOTIFICATION_ID:
+#ifdef NDEF_BT_ENABLED
+            if (g_resourceMap.find(KEY_NFC_BT_NTF_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_NFC_BT_NTF_TEXT) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_NFC_BT_NTF_TITLE]);
+                nfcContent->SetText(GetBtNotificationText(name));
+            }
+            break;
+#else
+            ErrorLog("nfc bt notification not supported");
             return false;
+#endif
         case NFC_TAG_DEFAULT_NOTIFICATION_ID:
             if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
                 g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TEXT) != g_resourceMap.end()) {
@@ -214,6 +239,9 @@ static std::string GetButtonName(int notificationId)
 {
     switch (notificationId) {
         case NFC_BT_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_NFC_BT_BUTTON_NAME) != g_resourceMap.end()) {
+                return g_resourceMap[KEY_NFC_BT_BUTTON_NAME];
+            }
             return "";
         case NFC_WIFI_NOTIFICATION_ID:
             if (g_resourceMap.find(KEY_NFC_WIFI_BUTTON_NAME) != g_resourceMap.end()) {
@@ -320,7 +348,6 @@ void NfcNotification::RegNotificationCallback(NfcNtfCallback callback)
     std::lock_guard<std::mutex> lock(g_callbackMutex);
     g_ntfCallback = callback;
 }
-
 }  // namespace TAG
 }  // namespace NFC
 }  // namespace OHOS

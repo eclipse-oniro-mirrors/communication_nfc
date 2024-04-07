@@ -19,7 +19,6 @@
 #include "app_data_parser.h"
 #include "external_deps_proxy.h"
 #include "loghelper.h"
-#include "ndef_bt_data_parser.h"
 #include "ndef_har_data_parser.h"
 #include "ndef_har_dispatch.h"
 #include "ndef_message.h"
@@ -30,6 +29,11 @@
 #ifdef NDEF_WIFI_ENABLED
 #include "ndef_wifi_data_parser.h"
 #include "wifi_connection_manager.h"
+#endif
+
+#ifdef NDEF_BT_ENABLED
+#include "ndef_bt_data_parser.h"
+#include "bt_connection_manager.h"
 #endif
 
 namespace OHOS {
@@ -71,11 +75,13 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     }
     int msgType = NDEF_TYPE_NORMAL;
     std::string ndef = msg;
+#ifdef NDEF_BT_ENABLED
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
         msgType = NDEF_TYPE_BT;
         ndef = btData->vendorPayload_;
     }
+#endif
 #ifdef NDEF_WIFI_ENABLED
     std::shared_ptr<WifiData> wifiData;
     if (msgType == NDEF_TYPE_NORMAL) {
@@ -94,8 +100,16 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
     }
     if (ndefCbRes) {
+        InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
         return true;
     }
+#ifdef NDEF_BT_ENABLED
+    if (msgType == NDEF_TYPE_BT) {
+        BtConnectionManager::GetInstance().Initialize(nfcService_);
+        BtConnectionManager::GetInstance().TryPairBt(btData);
+        return true;
+    }
+#endif
 #ifdef NDEF_WIFI_ENABLED
     if (msgType == NDEF_TYPE_WIFI) {
         WifiConnectionManager::GetInstance().Initialize(nfcService_);
@@ -209,7 +223,7 @@ void TagDispatcher::DispatchTag(uint32_t tagDiscId)
 
 void TagDispatcher::HandleTagDebounce()
 {
-    DebugLog("HandleTagDebounce, unimplimentation...");
+    DebugLog("HandleTagDebounce, unimplemented...");
 }
 
 void TagDispatcher::OnNotificationButtonClicked(int notificationId)
@@ -226,6 +240,9 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
 #endif
             break;
         case NFC_BT_NOTIFICATION_ID:
+#ifdef NDEF_BT_ENABLED
+            BtConnectionManager::GetInstance().OnBtNtfClicked();
+#endif
             break;
         case NFC_TAG_DEFAULT_NOTIFICATION_ID:
             // start application ability for tag found.

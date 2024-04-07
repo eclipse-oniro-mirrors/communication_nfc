@@ -141,6 +141,9 @@ private:
 #ifdef NDEF_WIFI_ENABLED
     friend class TAG::WifiConnectionManager;
 #endif
+#ifdef NDEF_BT_ENABLED
+    friend class TAG::BtConnectionManager;
+#endif
 };
 }  // namespace NFC
 }  // namespace OHOS

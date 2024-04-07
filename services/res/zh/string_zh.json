@@ -38,5 +38,14 @@
 		}, {
 			"name":	"NfcWifiButtonName",
 			"value":	"连接"
+		}, {
+			"name":	"NfcBtNtfTitle",
+			"value":	"NFC 蓝牙配对请求"
+		}, {
+			"name":	"NfcBtNtfText",
+			"value":	"与蓝牙设备: %s 配对？"
+		}, {
+			"name":	"NfcBtButtonName",
+			"value":	"配对"
 		}]
 }

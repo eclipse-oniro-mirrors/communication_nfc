@@ -53,6 +53,9 @@ ohos_shared_library("nfc_notification") {
   if (nfc_service_feature_ndef_wifi_enabled) {
     defines += [ "NDEF_WIFI_ENABLED" ]
   }
+  if (nfc_service_feature_ndef_bt_enabled) {
+    defines += [ "NDEF_BT_ENABLED" ]
+  }
 
   part_name = "nfc"
   subsystem_name = "communication"
