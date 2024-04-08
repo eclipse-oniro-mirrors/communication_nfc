@@ -48,10 +48,11 @@
 			"name":	"NfcBtButtonName",
 			"value":	"配对"
 		},{
-      "name": "NfcHceAidConflictedTitle",
-      "value": "NFC刷卡"
-    },{
-      "name": "NfcHceAidConflictedText",
-      "value": "多个应用冲突，需要打开特定的应用刷卡"
-    }]
+			"name": "NfcHceAidConflictedTitle",
+			"value": "NFC刷卡"
+		},{
+			"name": "NfcHceAidConflictedText",
+			"value": "多个应用冲突，需要打开特定的应用刷卡"
+		}
+	]
 }
