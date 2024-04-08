@@ -31,7 +31,11 @@ KITS::ErrorCode SettingDataShareImpl::RegisterDataObserver(const Uri& uri,
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+            ErrorLog("%{public}s: dataShareHelper_ is nullptr. Retry failed.", __func__);
+            return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     dataShareHelper_->RegisterObserver(uri, dataObserver);
     return KITS::ERR_NONE;
@@ -41,7 +45,11 @@ KITS::ErrorCode SettingDataShareImpl::ReleaseDataObserver(const Uri& uri,
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+             ErrorLog("%{public}s: dataShareHelper_ is nullptr. Retry failed.", __func__);
+             return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     dataShareHelper_->UnregisterObserver(uri, dataObserver);
     return KITS::ERR_NONE;
@@ -50,7 +58,11 @@ KITS::ErrorCode SettingDataShareImpl::GetElementName(Uri& uri, const std::string
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+             ErrorLog("%{public}s: dataShareHelper_ is nullptr. Retry failed.", __func__);
+             return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     DataShare::DataSharePredicates predicates;
     std::vector<std::string> columns;
@@ -111,7 +123,11 @@ KITS::ErrorCode SettingDataShareImpl::SetElementName(Uri& uri, const std::string
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
-        return KITS::ERR_NFC_DATABASE_RW;
+        Initialize();
+        if (dataShareHelper_ == nullptr) {
+             ErrorLog("%{public}s: dataShareHelper_ is nullptr. Retry failed.", __func__);
+             return KITS::ERR_NFC_DATABASE_RW;
+        }
     }
     ElementName oldVal;
     int errorCode = GetElementName(uri, column, oldVal);
