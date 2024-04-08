@@ -234,16 +234,22 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             // start application ability for tag found.
             ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
             break;
-        case NFC_WIFI_NOTIFICATION_ID:
+        case NFC_WIFI_NOTIFICATION_ID: {
 #ifdef NDEF_WIFI_ENABLED
-            WifiConnectionManager::GetInstance().OnWifiNtfClicked();
+            if (nfcService_ && nfcService_->eventHandler_) {
+                nfcService_->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_NTF_CLICKED));
+            }
 #endif
             break;
-        case NFC_BT_NOTIFICATION_ID:
+        }
+        case NFC_BT_NOTIFICATION_ID: {
 #ifdef NDEF_BT_ENABLED
-            BtConnectionManager::GetInstance().OnBtNtfClicked();
+            if (nfcService_ && nfcService_->eventHandler_) {
+                nfcService_->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_NTF_CLICKED));
+            }
 #endif
             break;
+        }
         case NFC_TAG_DEFAULT_NOTIFICATION_ID:
             // start application ability for tag found.
             ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
