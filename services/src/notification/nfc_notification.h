@@ -44,6 +44,7 @@ enum NfcNotificationId : int {
     NFC_WIFI_NOTIFICATION_ID = 114002,
     NFC_TRANSPORT_CARD_NOTIFICATION_ID = 114003,
     NFC_BROWSER_NOTIFICATION_ID = 114004,
+    NFC_HCE_AID_CONFLICTED_ID = 114005,
 };
 
 const int MAX_BUFF_LEN = 100;
@@ -71,6 +72,9 @@ const std::string KEY_NFC_BT_NTF_TEXT          = "NfcBtNtfText";
 const std::string KEY_NFC_BT_BUTTON_NAME       = "NfcBtButtonName";
 const std::string NFC_OPEN_LINK_BUTTON_NAME    = "Open Link";
 const std::string NFC_OPEN_LINK_TEXT_HEAD      = "Open link: ";
+
+const std::string KEY_HCE_AID_CONFLICTED_TITLE = "NfcHceAidConflictedTitle";
+const std::string KEY_HCE_AID_CONFLICTED_TEXT = "NfcHceAidConflictedText";
 
 class NfcNotification {
 public:

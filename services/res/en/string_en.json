@@ -47,5 +47,12 @@
 		}, {
 			"name":	"NfcBtButtonName",
 			"value":	"Pair"
-		}]
+		},{
+			"name": "NfcHceAidConflictedTitle",
+			"value": "NFC SWIPING CARD"
+		},{
+			"name": "NfcHceAidConflictedText",
+			"value": "There are conflicts among multiple applications. It is required to open a specific application before swiping the card"
+		}
+	]
 }

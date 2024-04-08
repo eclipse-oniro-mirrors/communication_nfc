@@ -30,6 +30,7 @@ enum NfcNotificationId : int {
     NFC_WIFI_NOTIFICATION_ID = 114002,
     NFC_TRANSPORT_CARD_NOTIFICATION_ID = 114003,
     NFC_BROWSER_NOTIFICATION_ID = 114004,
+    NFC_HCE_AID_CONFLICTED_ID = 114005,
 };
 
 typedef void (NfcNtfCallback)(int notificationId);
