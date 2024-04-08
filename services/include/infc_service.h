@@ -70,8 +70,10 @@ enum class NfcCommonEvent {
 #endif
 #ifdef NDEF_WIFI_ENABLED
     // for connect wifi by ndef wifi tag
-    MSG_ENABLE_WIFI_TIMEOUT,
-    MSG_CONNECT_WIFI_TIMEOUT,
+    MSG_WIFI_ENABLE_TIMEOUT,
+    MSG_WIFI_CONNECT_TIMEOUT,
+    MSG_WIFI_ENABLED,
+    MSG_WIFI_CONNECTED,
 #endif
 #ifdef NDEF_BT_ENABLED
     // for connect BT by ndef bt tag

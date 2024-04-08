@@ -148,8 +148,8 @@ void WifiConnectionManager::OnFinish()
     g_isWaitingForWifiConnect = false;
     delete config_;
     config_ = nullptr;
-    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT);
-    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT);
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT);
     UnsubscribeWifiCommonEvents();
 }
 
@@ -197,7 +197,7 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleEnableWifi
         return false;
     }
     g_isWaitingForWifiEnable = true;
-    SendMsgToEvtHandler(NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT, ENABLE_WIFI_TIMEOUT);
+    SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT, ENABLE_WIFI_TIMEOUT);
     return true;
 }
 
@@ -236,8 +236,8 @@ void WifiConnectionManager::TryConnectWifi(std::shared_ptr<WifiData> data)
         ErrorLog("config is null");
         return;
     }
-    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT);
-    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT);
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT);
     config_ = data->config_;
     InfoLog("TryConnectWifi: Publish notification ssid: %{private}s", config_->ssid.c_str());
     ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_WIFI_NOTIFICATION_ID, config_->ssid, 0);
@@ -278,7 +278,7 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
         HandleWifiConnectFailed();
         return false;
     }
-    SendMsgToEvtHandler(NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT, CONNECT_WIFI_TIMEOUT);
+    SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT, CONNECT_WIFI_TIMEOUT);
     g_isWaitingForWifiConnect = true;
     return true;
 }
@@ -303,7 +303,7 @@ void WifiConnectionManager::OnWifiEnabled()
             ErrorLog("not waiting for wifi enable, exit");
             return;
         }
-        RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT);
+        RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
         g_isWaitingForWifiEnable = false;
     }
     HandleConnectWifi();
@@ -339,12 +339,12 @@ void WifiConnectionManager::WifiCommonEventReceiver::OnReceiveEvent(const EventF
         if (data.GetCode() != static_cast<uint32_t>(Wifi::WifiState::ENABLED)) {
             return;
         }
-        nfcWifiConnMgr_.OnWifiEnabled();
+        nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLED, 0);
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_CONN_STATE) == 0) {
         if (data.GetCode() != static_cast<uint32_t>(Wifi::ConnState::CONNECTED)) {
             return;
         }
-        nfcWifiConnMgr_.OnWifiConnected();
+        nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECTED, 0);
     }
 }
 } // namespace TAG
