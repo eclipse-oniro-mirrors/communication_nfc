@@ -60,14 +60,15 @@ sptr<AppExecFwk::IBundleMgr> NdefHarDispatch::GetBundleMgrProxy()
 }
 
 /* Implicit matching, using mimetype to pull up app */
-bool NdefHarDispatch::DispatchMimeType(const std::string &type)
+bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo)
 {
-    if (type.empty()) {
+    if (type.empty() || tagInfo == nullptr) {
         ErrorLog("NdefHarDispatch::DispatchMimeType type is empty");
         return false;
     }
     AAFwk::Want want;
     want.SetType(type);
+    ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
@@ -77,7 +78,8 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type)
 }
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
-bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage)
+bool NdefHarDispatch::DispatchBundleAbility(
+    const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType)
 {
     if (harPackage.empty()) {
         ErrorLog("NdefHarDispatch::DispatchBundleAbility harPackage is empty");
@@ -93,6 +95,10 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage)
     if (errCode) {
         ErrorLog("NdefHarDispatch::GetLaunchWantForBundle fail. ret = %{public}d", errCode);
         return false;
+    }
+    if (!mimeType.empty() && tagInfo != nullptr) {
+        want.SetType(mimeType);
+        ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
     }
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {

@@ -40,7 +40,7 @@ NdefHarDataParser::NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTag
 }
 
 /* Ndef process function provided to HandleNdefDispatch */
-bool NdefHarDataParser::TryNdef(const std::string& msg)
+bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::TagInfo> tagInfo)
 {
     InfoLog("NdefHarDataParser::TryNdef enter");
     if (msg.empty()) {
@@ -56,7 +56,8 @@ bool NdefHarDataParser::TryNdef(const std::string& msg)
     /* pull up app */
     std::vector<std::string> harPackages = ExtractHarPackages(records);
     if (harPackages.size() > 0) {
-        if (ParseHarPackage(harPackages)) {
+        std::string mimeType = ToMimeType(records[0]);
+        if (ParseHarPackage(harPackages, tagInfo, mimeType)) {
             InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
             return true;
         }
@@ -77,14 +78,15 @@ bool NdefHarDataParser::TryNdef(const std::string& msg)
         return true;
     }
     /* Handle notepads, contacts, and mimetype app */
-    if (ParseOtherType(records)) {
+    if (ParseOtherType(records, tagInfo)) {
         return true;
     }
     InfoLog("NdefHarDataParser::TryNdef exit");
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages)
+bool NdefHarDataParser::ParseHarPackage(
+    std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType)
 {
     InfoLog("NdefHarDataParser::ParseHarPackage enter");
     if (harPackages.size() <= 0) {
@@ -92,7 +94,7 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages)
         return false;
     }
     for (std::string harPackage : harPackages) {
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(harPackage)) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType)) {
             return true;
         }
     }
@@ -101,7 +103,8 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages)
 }
 
 /* Handle notepads, contacts, and mimetype app */
-bool NdefHarDataParser::ParseOtherType(std::vector<std::shared_ptr<NdefRecord>> records)
+bool NdefHarDataParser::ParseOtherType(
+    std::vector<std::shared_ptr<NdefRecord>> records, std::shared_ptr<KITS::TagInfo> tagInfo)
 {
     InfoLog("NdefHarDataParser::ParseOtherType enter");
     if (records.size() <= 0 || records[0] == nullptr) {
@@ -124,7 +127,7 @@ bool NdefHarDataParser::ParseOtherType(std::vector<std::shared_ptr<NdefRecord>> 
             ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
             return true;
         } else {
-            if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(type)) {
+            if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(type, tagInfo)) {
                 return true;
             }
         }

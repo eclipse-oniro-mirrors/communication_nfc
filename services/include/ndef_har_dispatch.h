@@ -19,6 +19,7 @@
 #include <string>
 #include "app_data_parser.h"
 #include "if_system_ability_manager.h"
+#include "taginfo.h"
 
 namespace OHOS {
 namespace NFC {
@@ -28,9 +29,10 @@ public:
     NdefHarDispatch();
     ~NdefHarDispatch() {}
     static NdefHarDispatch& GetInstance();
-    bool DispatchBundleAbility(const std::string &harPackage);
+    bool DispatchBundleAbility(
+        const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType);
     bool DispatchUriToBundleAbility(const std::string &uri);
-    bool DispatchMimeType(const std::string &type);
+    bool DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo);
     bool DispatchWebLink(const std::string &webAddress, const std::string &browserBundleName);
     void OnBrowserOpenLink();
 
