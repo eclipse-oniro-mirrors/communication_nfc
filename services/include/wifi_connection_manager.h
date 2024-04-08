@@ -32,6 +32,8 @@ public:
     void OnWifiNtfClicked();
     void HandleWifiEnableFailed();
     void HandleWifiConnectFailed();
+    void OnWifiEnabled();
+    void OnWifiConnected();
 protected:
     // wifi common event receiver
     class WifiCommonEventReceiver;
@@ -48,11 +50,9 @@ private:
     std::shared_ptr<Wifi::WifiDevice> GetWifiDevPtr();
     bool IsWifiEnabled();
     bool HandleEnableWifi();
-    void OnWifiEnabled();
     // step 2: wifi connect
     bool IsSameSsid();
     bool HandleConnectWifi();
-    void OnWifiConnected();
     // clear function
     void OnFinish();
 

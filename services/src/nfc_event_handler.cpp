@@ -336,12 +336,20 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
 #endif
 #ifdef NDEF_WIFI_ENABLED
-        case NfcCommonEvent::MSG_ENABLE_WIFI_TIMEOUT: {
+        case NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT: {
             TAG::WifiConnectionManager::GetInstance().HandleWifiEnableFailed();
             break;
         }
-        case NfcCommonEvent::MSG_CONNECT_WIFI_TIMEOUT: {
+        case NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT: {
             TAG::WifiConnectionManager::GetInstance().HandleWifiConnectFailed();
+            break;
+        }
+        case NfcCommonEvent::MSG_WIFI_ENABLED: {
+            TAG::WifiConnectionManager::GetInstance().OnWifiEnabled();
+            break;
+        }
+        case NfcCommonEvent::MSG_WIFI_CONNECTED: {
+            TAG::WifiConnectionManager::GetInstance().OnWifiConnected();
             break;
         }
 #endif
