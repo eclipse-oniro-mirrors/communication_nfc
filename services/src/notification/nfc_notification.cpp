@@ -84,7 +84,7 @@ static void UpdateResourceMap(const std::string &resourcePath)
     }
 
     cJSON *resJson = cJSON_GetObjectItemCaseSensitive(json, KEY_STRING.c_str());
-    if (resJson == nullptr || cJSON_GetArraySize(resJson) != RES_VEC_LEN) {
+    if (resJson == nullptr || cJSON_GetArraySize(resJson) > MAX_RES_VEC_LEN) {
         ErrorLog("fail to parse res json");
         cJSON_Delete(json);
         return;

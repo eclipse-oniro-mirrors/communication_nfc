@@ -50,7 +50,7 @@ enum NfcNotificationId : int {
 const int MAX_BUFF_LEN = 100;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
 const int NTF_AUTO_DELETE_TIME = 10;
-const int RES_VEC_LEN = 16;
+const int MAX_RES_VEC_LEN = 100;
 
 const std::string NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
 const std::string NFC_RES_EN_JSON_FILEPATH = "system/etc/nfc/string_en.json";
