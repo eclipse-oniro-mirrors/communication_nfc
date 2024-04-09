@@ -27,6 +27,13 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+class BtConnectionInfo {
+public:
+    std::string macAddr_;
+    int32_t state_;
+    uint8_t type_;
+};
+
 class BtConnectionManager {
 public:
     static BtConnectionManager& GetInstance();
@@ -37,6 +44,9 @@ public:
     void HandleBtEnableFailed();
     void HandleBtPairFailed();
     void HandleBtConnectFailed();
+    void OnBtEnabled();
+    void OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> info);
+    void OnConnectionStateChanged(std::shared_ptr<BtConnectionInfo> info);
 
     enum BtProfileType {
         A2DP_SRC,
@@ -125,11 +135,12 @@ private:
     void RegisterProfileObserver(BtProfileType type);
     // timeout event messages
     void SendMsgToEvtHandler(NfcCommonEvent evt, int64_t delay);
+    void SendConnMsgToEvtHandler(NfcCommonEvent evt, const Bluetooth::BluetoothRemoteDevice &device,
+                                 int32_t state, BtProfileType type);
     void RemoveMsgFromEvtHandler(NfcCommonEvent evt);
     // Bt state check
     bool IsBtEnabled();
     bool HandleEnableBt();
-    void OnBtEnabled();
     // status and action jump
     void NextAction();
     void NextActionInit();
@@ -143,14 +154,10 @@ private:
     bool DecideInitNextAction();
 
     bool HandleBtPair();
-    void OnPairStatusChanged(const Bluetooth::BluetoothRemoteDevice &device, int status);
-
     bool HandleBtConnect();
     bool HandleBtConnectWaiting();
     bool HandleBtDisconnect();
     bool HandleBtDisconnectWaiting();
-    void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                  int32_t state, BtProfileType type);
 
     // clear function
     void OnFinish();

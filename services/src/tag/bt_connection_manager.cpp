@@ -105,6 +105,25 @@ void BtConnectionManager::SendMsgToEvtHandler(NfcCommonEvent evt, int64_t delay)
     nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(evt), delay);
 }
 
+void BtConnectionManager::SendConnMsgToEvtHandler(NfcCommonEvent evt, const Bluetooth::BluetoothRemoteDevice &device,
+                                                  int32_t state, BtProfileType type)
+{
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService expired");
+        return;
+    }
+    if (nfcService_.lock()->eventHandler_ == nullptr) {
+        ErrorLog("event handler is null");
+        return;
+    }
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = device.GetDeviceAddr();
+    info->state_ = state;
+    info->type_ = static_cast<uint8_t>(type);
+    DebugLog("SendConnMsgToEvtHandler: event:%{public}d", evt);
+    nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(evt), info, 0);
+}
+
 void BtConnectionManager::RemoveMsgFromEvtHandler(NfcCommonEvent evt)
 {
     if (nfcService_.expired()) {
@@ -121,6 +140,7 @@ void BtConnectionManager::RemoveMsgFromEvtHandler(NfcCommonEvent evt)
 
 void BtConnectionManager::RegisterBtObserver()
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("RegisterBtStateObserver");
     if (btObserver_ == nullptr) {
         btObserver_ = BtConnectionManager::BtStateObserver::GetInstance();
@@ -309,6 +329,7 @@ bool BtConnectionManager::HandleBtInit()
         }
         g_isA2dpSupported = IsA2dpSupported();
         g_isHfpSupported = IsHfpSupported();
+        InfoLog("Init:a2dp: %{public}d, hfp: %{public}d", g_isA2dpSupported, g_isHfpSupported);
         if (!g_isA2dpSupported && !g_isHfpSupported) {
             // if both not supported, maybe the info is empty in ndef
             // try both
@@ -732,21 +753,25 @@ void BtConnectionManager::BtStateObserver::OnStateChanged(const int transport, c
     }
 }
 
-void BtConnectionManager::OnPairStatusChanged(const Bluetooth::BluetoothRemoteDevice &device, int status)
+void BtConnectionManager::OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> info)
 {
+    if (info == nullptr) {
+        ErrorLog("OnPairStatusChanged: info is null");
+        return;
+    }
     if (g_btData == nullptr) {
         ErrorLog("OnPairStatusChanged: g_btData error");
         return;
     }
-    if (device.GetDeviceAddr().compare(g_btData->macAddress_) != 0) {
+    if (info->macAddr_.compare(g_btData->macAddress_) != 0) {
         ErrorLog("OnPairStatusChanged not same device");
         return;
     }
     if (g_state == STATE_PAIRING) {
-        if (status == Bluetooth::PAIR_PAIRED) {
+        if (info->state_ == Bluetooth::PAIR_PAIRED) {
             RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT);
             NextAction();
-        } else if (status == Bluetooth::PAIR_NONE) {
+        } else if (info->state_ == Bluetooth::PAIR_NONE) {
             // timeout msg removed in OnFinish()
             OnFinish();
         }
@@ -757,49 +782,52 @@ void BtConnectionManager::BtRemoteDevObserver::OnPairStatusChanged(const Bluetoo
                                                                    int status)
 {
     InfoLog("OnPairStatusChanged status: %{public}d", status);
-    BtConnectionManager::GetInstance().OnPairStatusChanged(device, status);
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_PAIR_STATUS_CHANGED,
+        device, status, BtConnectionManager::BtProfileType::A2DP_SRC);
 }
 
-void BtConnectionManager::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                                   int32_t state, BtProfileType type)
+void BtConnectionManager::OnConnectionStateChanged(std::shared_ptr<BtConnectionInfo> info)
 {
+    if (info == nullptr) {
+        ErrorLog("OnConnectionStateChanged: info is null");
+        return;
+    }
     if (g_btData == nullptr) {
         ErrorLog("OnConnectionStateChanged: g_btData error");
         return;
     }
-    if (device.GetDeviceAddr().compare(g_btData->macAddress_) != 0) {
+    if (info->macAddr_.compare(g_btData->macAddress_) != 0) {
         ErrorLog("OnConnectionStateChanged not same device");
         return;
     }
-    if (state == static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED)) {
+    if (info->state_ == static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED)) {
         {
             std::unique_lock<std::shared_mutex> guard(mutex_);
-            if (type == HFP_AG) {
+            if (info->type_ == static_cast<uint8_t>(HFP_AG)) {
                 g_hfpConnState = CONN_RES_CONNECTED;
-            } else if (type == A2DP_SRC) {
+            } else if (info->type_ == static_cast<uint8_t>(A2DP_SRC)) {
                 g_a2dpConnState = CONN_RES_CONNECTED;
-            } else if (type == HID_HOST) {
+            } else if (info->type_ == static_cast<uint8_t>(HID_HOST)) {
                 g_hidConnState = CONN_RES_CONNECTED;
             }
         }
         NextAction();
-    } else if (state == static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED)) {
+    } else if (info->state_ == static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED)) {
         {
             std::unique_lock<std::shared_mutex> guard(mutex_);
             if (g_action == ACTION_CONNECT) {
                 // need retry
                 return;
             }
-            if (type == HFP_AG) {
+            if (info->type_ == static_cast<uint8_t>(HFP_AG)) {
                 g_hfpConnState = CONN_RES_DISCONNECTED;
-            } else if (type == A2DP_SRC) {
+            } else if (info->type_ == static_cast<uint8_t>(A2DP_SRC)) {
                 g_a2dpConnState = CONN_RES_DISCONNECTED;
-                NextAction();
-            } else if (type == HID_HOST) {
+            } else if (info->type_ == static_cast<uint8_t>(HID_HOST)) {
                 g_hidConnState = CONN_RES_DISCONNECTED;
-                NextAction();
             }
         }
+        NextAction();
     }
 }
 
@@ -807,24 +835,24 @@ void BtConnectionManager::BtA2dpObserver::OnConnectionStateChanged(const Bluetoo
                                                                    int32_t state)
 {
     InfoLog("BtA2dpObserver::OnConnectionStateChanged state: %{public}d", state);
-    BtConnectionManager::GetInstance().OnConnectionStateChanged(device, state,
-        BtConnectionManager::BtProfileType::A2DP_SRC);
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
+        device, state, BtConnectionManager::BtProfileType::A2DP_SRC);
 }
 
 void BtConnectionManager::BtHfpObserver::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                                                   int32_t state)
 {
     InfoLog("BtHfpObserver::OnConnectionStateChanged state: %{public}d", state);
-    BtConnectionManager::GetInstance().OnConnectionStateChanged(device, state,
-        BtConnectionManager::BtProfileType::HFP_AG);
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
+        device, state, BtConnectionManager::BtProfileType::HFP_AG);
 }
 
 void BtConnectionManager::BtHidObserver::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                                                   int state)
 {
     InfoLog("BtHidObserver::OnConnectionStateChanged state: %{public}d", state);
-    BtConnectionManager::GetInstance().OnConnectionStateChanged(device, state,
-        BtConnectionManager::BtProfileType::HID_HOST);
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
+        device, state, BtConnectionManager::BtProfileType::HID_HOST);
 }
 } // namespace TAG
 } // namespace NFC
