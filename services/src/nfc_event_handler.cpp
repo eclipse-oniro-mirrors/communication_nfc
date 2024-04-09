@@ -352,6 +352,10 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             TAG::WifiConnectionManager::GetInstance().OnWifiConnected();
             break;
         }
+        case NfcCommonEvent::MSG_WIFI_NTF_CLICKED: {
+            TAG::WifiConnectionManager::GetInstance().OnWifiNtfClicked();
+            break;
+        }
 #endif
 #ifdef NDEF_BT_ENABLED
         case NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT: {
@@ -364,6 +368,24 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case NfcCommonEvent::MSG_BT_CONNECT_TIMEOUT: {
             TAG::BtConnectionManager::GetInstance().HandleBtConnectFailed();
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_ENABLED: {
+            TAG::BtConnectionManager::GetInstance().OnBtEnabled();
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_PAIR_STATUS_CHANGED: {
+            TAG::BtConnectionManager::GetInstance().OnPairStatusChanged(
+                event->GetSharedObject<TAG::BtConnectionInfo>());
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED: {
+            TAG::BtConnectionManager::GetInstance().OnConnectionStateChanged(
+                event->GetSharedObject<TAG::BtConnectionInfo>());
+            break;
+        }
+        case NfcCommonEvent::MSG_BT_NTF_CLICKED: {
+            TAG::BtConnectionManager::GetInstance().OnBtNtfClicked();
             break;
         }
 #endif
