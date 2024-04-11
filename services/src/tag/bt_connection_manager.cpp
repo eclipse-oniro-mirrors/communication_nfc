@@ -779,7 +779,7 @@ void BtConnectionManager::OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> 
 }
 
 void BtConnectionManager::BtRemoteDevObserver::OnPairStatusChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                                                   int status)
+                                                                   int status, int cause)
 {
     InfoLog("OnPairStatusChanged status: %{public}d", status);
     BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_PAIR_STATUS_CHANGED,

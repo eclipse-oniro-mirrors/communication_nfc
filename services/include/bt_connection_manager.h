@@ -81,7 +81,7 @@ public:
         virtual ~BtRemoteDevObserver() = default;
         void OnAclStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                int state, unsigned int reason) override {};
-        void OnPairStatusChanged(const Bluetooth::BluetoothRemoteDevice &device, int status) override;
+        void OnPairStatusChanged(const Bluetooth::BluetoothRemoteDevice &device, int status, int cause) override;
         void OnRemoteUuidChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                  const std::vector<Bluetooth::ParcelUuid> &uuids) override {};
         void OnRemoteNameChanged(const Bluetooth::BluetoothRemoteDevice &device,
