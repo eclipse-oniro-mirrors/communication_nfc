@@ -26,6 +26,12 @@
 			"rspContains":	"04066230FFFFFFFF",
 			"balanceApdus":	["805C000204"]
 		}, {
+			"name":	"GuiMinHuLianHuTongKa",
+			"aid":	"A00000063201010500",
+			"checkApdus":	["00A4040008A00000063201010500"],
+			"rspContains":	"04126330FFFFFFFF",
+			"balanceApdus":	["805C000204"]
+		}, {
 			"name":	"BeiJingYiKaTong",
 			"checkApdus":	["00A4040008A00000063201010500"],
 			"rspContains":	"01011000FFFFFFFF",

@@ -38,7 +38,7 @@ static const int APDU_RSP_OK_STR_LEN = 4;
 static const int APDU_RSP_BALANCE_STR_LEN = 8;
 static const int APDU_RSP_BALANCE_BYTES_LEN = 4;
 static const int MAX_APDU_ARRAY_SIZE = 2;
-static const int MAX_CARD_INFO_VEC_LEN = 6;
+static const int MAX_CARD_INFO_VEC_LEN = 7;
 
 static const std::string KEY_CARD_INFO_LEN = "cardInfoLength";
 static const std::string KEY_CARD_INFO = "cardInfo";
