@@ -66,16 +66,28 @@ void CeService::PublishFieldOnOrOffCommonEvent(bool isFieldOn)
 bool CeService::RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
                                   Security::AccessToken::AccessTokenID callerToken)
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return false;
+    }
     return hostCardEmulationManager_->RegHceCmdCallback(callback, type, callerToken);
 }
 
 bool CeService::UnRegHceCmdCallback(const std::string &type, Security::AccessToken::AccessTokenID callerToken)
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return false;
+    }
     return hostCardEmulationManager_->UnRegHceCmdCallback(type, callerToken);
 }
 
 bool CeService::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken)
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return false;
+    }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
 }
 
@@ -88,6 +100,10 @@ bool CeService::IsDefaultService(ElementName &element, const std::string &type)
 bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                                  Security::AccessToken::AccessTokenID callerToken)
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return false;
+    }
     return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
 }
 
@@ -465,14 +481,26 @@ void CeService::HandleFieldDeactivated()
 }
 void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return;
+    }
     hostCardEmulationManager_->OnHostCardEmulationDataNfcA(data);
 }
 void CeService::OnCardEmulationActivated()
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return;
+    }
     hostCardEmulationManager_->OnCardEmulationActivated();
 }
 void CeService::OnCardEmulationDeactivated()
 {
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null");
+        return;
+    }
     hostCardEmulationManager_->OnCardEmulationDeactivated();
 }
 OHOS::sptr<OHOS::IRemoteObject> CeService::AsObject()

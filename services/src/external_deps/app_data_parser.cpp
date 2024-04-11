@@ -660,6 +660,8 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         ability.bundleName = appAidInfo.element.GetBundleName();
         ability.labelId = appAidInfo.labelId;
         ability.iconId = appAidInfo.iconId;
+        InfoLog("The bundlename : %{public}s,the labelId : %{public}d,the iconId : %{public}d",
+                ability.bundleName.c_str(), ability.labelId, ability.iconId);
         paymentAbilityInfos.push_back(ability);
     }
 
@@ -669,6 +671,8 @@ void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbil
         ability.bundleName = appAidInfo.element.GetBundleName();
         ability.labelId = appAidInfo.labelId;
         ability.iconId = appAidInfo.iconId;
+        InfoLog("The bundlename : %{public}s,the labelId : %{public}d,the iconId : %{public}d",
+                ability.bundleName.c_str(), ability.labelId, ability.iconId);
         paymentAbilityInfos.push_back(ability);
     }
 #ifdef VENDOR_APPLICATIONS_ENABLED
