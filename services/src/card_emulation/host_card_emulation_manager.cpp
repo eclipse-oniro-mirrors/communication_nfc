@@ -118,6 +118,7 @@ void HostCardEmulationManager::OnCardEmulationActivated()
     InfoLog("OnCardEmulationActivated: state %{public}d", hceState_);
     std::lock_guard<std::mutex> lock(hceStateMutex_);
     hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
+    InfoLog("hce state is %{public}d.", hceState_);
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     // send data to vendor
@@ -137,6 +138,7 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
     InfoLog("OnCardEmulationDeactivated: state %{public}d", hceState_);
     std::lock_guard<std::mutex> lock(hceStateMutex_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
+    InfoLog("hce state is %{public}d.", hceState_);
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     // send data to vendor
@@ -163,6 +165,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
             InfoLog("HandleDataOnW4Select: existing service, try to send data "
                     "directly.");
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+            InfoLog("hce state is %{public}d.", hceState_);
             SendDataToService(data);
             return;
         } else {
@@ -171,6 +174,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
             bool startService = DispatchAbilitySingleApp(aidElement);
             if (startService) {
                 hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+                InfoLog("hce state is %{public}d.", hceState_);
             }
             return;
         }
@@ -194,6 +198,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
             InfoLog("HandleDataOnDataTransfer: existing service, try to send "
                     "data directly.");
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+            InfoLog("hce state is %{public}d.", hceState_);
             SendDataToService(data);
             return;
         } else {
@@ -203,6 +208,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
             bool startService = DispatchAbilitySingleApp(aidElement);
             if (startService) {
                 hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+                InfoLog("hce state is %{public}d.", hceState_);
             }
             return;
         }
@@ -210,6 +216,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
         InfoLog("HandleDataOnDataTransfer: existing service, try to send data "
                 "directly.");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        InfoLog("hce state is %{public}d.", hceState_);
         SendDataToService(data);
         return;
     } else {
@@ -366,9 +373,12 @@ void HostCardEmulationManager::HandleQueueData()
     if (shouldSendQueueData) {
         InfoLog("RegHceCmdCallback should send queue data");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        InfoLog("hce state is %{public}d.", hceState_);
         SendDataToService(queueHceData_);
         queueHceData_.clear();
+        return;
     }
+    WarnLog("HandleQueueData can not send the data.");
 }
 
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
