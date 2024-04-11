@@ -452,6 +452,7 @@ bool CeService::UpdateDefaultPaymentType()
     }
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     defaultPaymentType_ = defaultPaymentType;
+    NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
     return true;
 }
 
@@ -650,6 +651,16 @@ bool CeService::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerT
         ConfigRoutingAndCommit();
     }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
+}
+
+void CeService::NotifyDefaultPaymentType(int paymentType)
+{
+    InfoLog("NotifyDefaultPaymentType: %{public}d", paymentType);
+    if (nciCeProxy_.expired()) {
+        ErrorLog("NotifyDefaultPaymentType: nciCeProxy_ is nullptr.");
+        return;
+    }
+    nciCeProxy_.lock()->NotifyDefaultPaymentType(paymentType);
 }
 } // namespace NFC
 } // namespace OHOS

@@ -70,6 +70,12 @@ public:
      */
     std::string GetSimVendorBundleName() override;
 
+    /**
+     * @brief Notify Default Payment Type
+     * @param paymentType see enum DefaultPaymentType
+     */
+    void NotifyDefaultPaymentType(int paymentType) override;
+
 private:
     std::shared_ptr<INciCeInterface> nciCeInterface_;
 };
