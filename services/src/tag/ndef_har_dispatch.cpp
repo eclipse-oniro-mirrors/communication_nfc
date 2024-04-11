@@ -69,6 +69,21 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<
     AAFwk::Want want;
     want.SetType(type);
     ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
+    if (GetBundleMgrProxy() == nullptr) {
+        ErrorLog("NdefHarDispatch::DispatchMimeType GetBundleMgrProxy is nullptr");
+        return false;
+    }
+    bool withDefault = false;
+    auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
+    std::vector<AbilityInfo> abilityInfos;
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    if (!GetBundleMgrProxy()->ImplicitQueryInfos(
+        want, abilityInfoFlag, USER_ID, withDefault, abilityInfos, extensionInfos)) {
+        ErrorLog("NdefHarDispatch::DispatchMimeType ImplicitQueryInfos false");
+        return false;
+    }
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
