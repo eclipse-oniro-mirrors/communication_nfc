@@ -483,7 +483,7 @@ void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
 {
     if (hostCardEmulationManager_ == nullptr) {
         ErrorLog("hce is null");
-        return false;
+        return;
     }
     hostCardEmulationManager_->OnHostCardEmulationDataNfcA(data);
 }
@@ -491,7 +491,7 @@ void CeService::OnCardEmulationActivated()
 {
     if (hostCardEmulationManager_ == nullptr) {
         ErrorLog("hce is null");
-        return false;
+        return;
     }
     hostCardEmulationManager_->OnCardEmulationActivated();
 }
@@ -499,7 +499,7 @@ void CeService::OnCardEmulationDeactivated()
 {
     if (hostCardEmulationManager_ == nullptr) {
         ErrorLog("hce is null");
-        return false;
+        return;
     }
     hostCardEmulationManager_->OnCardEmulationDeactivated();
 }
