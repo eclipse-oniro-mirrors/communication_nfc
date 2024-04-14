@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace NFC {
 // ms wait for setting the routing table.
-const int ROUTING_DELAY_TIME = 500; // ms
+const int ROUTING_DELAY_TIME = 0; // ms
 NfcRoutingManager::NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
                                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                                      std::weak_ptr<NfcService> nfcService)
