@@ -42,6 +42,7 @@ public:
     void SubscribeScreenChangedEvent();
     void SubscribePackageChangedEvent();
     void SubscribeShutdownEvent();
+    void SubscribeDataShareChangedEvent();
     bool IsScreenOn();
     bool IsScreenLocked();
     ScreenState CheckScreenState();
@@ -53,11 +54,14 @@ protected:
     class PackageChangedReceiver;
     // Shutdown Event Receiver
     class ShutdownEventReceiver;
+    // DataShare changed Receiver
+    class DataShareChangedReceiver;
 
 private:
     std::shared_ptr<EventFwk::CommonEventSubscriber> screenSubscriber_ {};
     std::shared_ptr<EventFwk::CommonEventSubscriber> pkgSubscriber_ {};
     std::shared_ptr<EventFwk::CommonEventSubscriber> shutdownSubscriber_ {};
+    std::shared_ptr<EventFwk::CommonEventSubscriber> dataShareSubscriber_ {};
 
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher_ {};

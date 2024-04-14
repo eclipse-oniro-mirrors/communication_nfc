@@ -31,6 +31,7 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 const std::string APP_REMOVED = "app_removed";
 const std::string APP_ADDED = "app_added";
+std::mutex g_defaultPaymentAppInitMutex = {};
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
     : nfcService_(nfcService), nciCeProxy_(nciCeProxy)
@@ -543,25 +544,41 @@ void CeService::Initialize()
     DebugLog("CeService Initialize start");
     dataRdbObserver_ = sptr<DefaultPaymentServiceChangeCallback>(
         new (std::nothrow) DefaultPaymentServiceChangeCallback(shared_from_this()));
-    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
-    DelayedSingleton<SettingDataShareImpl>::GetInstance()->RegisterDataObserver(nfcDefaultPaymentApp,
-                                                                                dataRdbObserver_);
-    DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
-        nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
+    InitDefaultPaymentApp();
+    defaultPaymentType_ = GetDefaultPaymentType();
+    NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
     hostCardEmulationManager_ =
         std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
+    DebugLog("CeService Initialize end");
+}
 
+bool CeService::InitDefaultPaymentApp()
+{
+    std::lock_guard<std::mutex> lock(g_defaultPaymentAppInitMutex);
+    if (initDefaultPaymentAppDone_) {
+        WarnLog("InitDefaultPaymentApp: already done");
+        return false;
+    }
+    Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    KITS::ErrorCode registerResult = DelayedSingleton<SettingDataShareImpl>::GetInstance()->
+        RegisterDataObserver(nfcDefaultPaymentApp, dataRdbObserver_);
+    if (registerResult != KITS::ERR_NONE) {
+        initDefaultPaymentAppDone_ = false;
+        ErrorLog("register default payment app failed");
+        return false;
+    }
+    DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
+        nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
     defaultPaymentBundleInstalled_ =
         ExternalDepsProxy::GetInstance().IsBundleInstalled(defaultPaymentElement_.GetBundleName());
 
     std::string appStatus = defaultPaymentBundleInstalled_ ? APP_ADDED : APP_REMOVED;
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             appStatus);
-
-    defaultPaymentType_ = GetDefaultPaymentType();
-    NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
-    DebugLog("CeService Initialize end");
+    initDefaultPaymentAppDone_ = true;
+    return true;
 }
+
 void CeService::Deinitialize()
 {
     DebugLog("CeService Deinitialize start");
@@ -662,6 +679,17 @@ void CeService::NotifyDefaultPaymentType(int paymentType)
         return;
     }
     nciCeProxy_.lock()->NotifyDefaultPaymentType(paymentType);
+}
+
+void CeService::HandleDataShareReady()
+{
+    // when bundle manager init done, when recv the event of dataShareReady;
+    // app list and default payment app need to get from bundle manager, need init if not been initialized.
+    InfoLog("HandleDataShareReady: Init app list and DefaultPayment App");
+    ExternalDepsProxy::GetInstance().InitAppList();
+    if (InitDefaultPaymentApp()) {
+        ConfigRoutingAndCommit();
+    }
 }
 } // namespace NFC
 } // namespace OHOS

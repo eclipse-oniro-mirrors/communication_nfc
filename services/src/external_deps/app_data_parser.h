@@ -105,7 +105,7 @@ private:
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 #endif
-    bool appListInit_ = false;
+    bool appListInitDone_ = false;
 };
 }  // namespace NFC
 }  // namespace OHOS
