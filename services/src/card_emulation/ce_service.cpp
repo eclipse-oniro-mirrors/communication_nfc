@@ -57,6 +57,7 @@ CeService::~CeService()
     defaultPaymentElement_.SetAbilityName("");
     defaultPaymentElement_.SetDeviceID("");
     defaultPaymentElement_.SetModuleName("");
+    initDefaultPaymentAppDone_ = false;
     dynamicAids_.clear();
     DebugLog("CeService deconstructor end");
 }
@@ -591,6 +592,7 @@ void CeService::Deinitialize()
     defaultPaymentElement_.SetAbilityName("");
     defaultPaymentElement_.SetDeviceID("");
     defaultPaymentElement_.SetModuleName("");
+    initDefaultPaymentAppDone_ = false;
     dynamicAids_.clear();
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->ReleaseDataObserver(nfcDefaultPaymentApp,
