@@ -41,7 +41,7 @@ namespace TAG {
 #define AUTH_TYPE_WPA_AND_WPA2_PSK  0x0022
 
 #define RECORDS_MAX_SIZE            2000
-#define NETWORK_KEY_MAX_SIZE        16
+#define NETWORK_KEY_MAX_SIZE        64
 #define AUTH_TYPE_SIZE              2
 #define MAX_VALUE_LENGTH            2000
 
