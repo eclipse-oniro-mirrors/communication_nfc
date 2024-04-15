@@ -16,9 +16,13 @@ import("//build/test.gni")
 group("fuzztest") {
   testonly = true
   deps = [
+    "cardemulation_test/hcesessionstub:hcesessionstub_fuzztest",
     "controller_test/nfccontroller:nfccontroller_fuzztest",
+    "services_test/cardemulation_test/hceservice:hceservice_fuzztest",
     "services_test/controller_test/nfccontrollerstub:nfccontrollerstub_fuzztest",
     "services_test/external_deps_test/externaldepsproxy:externaldepsproxy_fuzztest",
+    "services_test/hcecmdcallback_test/hcecmdcallbackstub:hcecmdcallbackstub_fuzztest",
+    "services_test/ndefmsgcallback_test/ndefmsgcallbackstub:ndefmsgcallbackstub_fuzztest",
     "services_test/tagdispatcher_test/tagdispatcher:tagdispatcher_fuzztest",
     "services_test/tags_test/tagsessionstub:tagsessionstub_fuzztest",
     "services_test/utils_test/nfctimer:nfctimer_fuzztest",
