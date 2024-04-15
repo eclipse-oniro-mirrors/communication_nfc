@@ -146,7 +146,10 @@ void TagNciAdapterNtf::RegisterNdefHandler()
 {
     DebugLog("TagNciAdapterNtf::RegisterNdefHandler");
     ndefTypeHandle_ = NFA_HANDLE_INVALID;
-    NFA_RegisterNDefTypeHandler(true, NFA_TNF_DEFAULT, static_cast<uint8_t *>(""), 0, NdefCallback);
+    NFA_RegisterNDefTypeHandler(true,
+                                NFA_TNF_DEFAULT,
+                                reinterpret_cast<uint8_t*>(const_cast<char*>("")),
+                                0, NdefCallback);
     if (g_commonIsLegacyMifareReader) {
         Extns::GetInstance().EXTNS_MfcRegisterNDefTypeHandler(NdefCallback);
     }
