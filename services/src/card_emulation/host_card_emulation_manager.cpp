@@ -171,11 +171,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
         } else {
             InfoLog("HandleDataOnW4Select: try to connect service.");
             queueHceData_ = std::move(data);
-            bool startService = DispatchAbilitySingleApp(aidElement);
-            if (startService) {
-                hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
-                InfoLog("hce state is %{public}d.", hceState_);
-            }
+            DispatchAbilitySingleApp(aidElement);
             return;
         }
     } else if (exitService) {
@@ -205,11 +201,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
             InfoLog("HandleDataOnDataTransfer: existing service, try to "
                     "connect service.");
             queueHceData_ = std::move(data);
-            bool startService = DispatchAbilitySingleApp(aidElement);
-            if (startService) {
-                hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
-                InfoLog("hce state is %{public}d.", hceState_);
-            }
+            DispatchAbilitySingleApp(aidElement);
             return;
         }
     } else if (exitService) {
@@ -417,6 +409,8 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, abilityConnection_);
     InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
+        hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+        InfoLog("hce state is %{public}d.", hceState_);
         ExternalDepsProxy::GetInstance().WriteHceSwipeResultHiSysEvent(element.GetBundleName(), DEFAULT_COUNT);
         
         NfcFailedParams params;
