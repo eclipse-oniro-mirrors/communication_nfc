@@ -102,7 +102,7 @@ public:
                                     int playingState, int error) override {};
         void OnConfigurationChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                     const Bluetooth::A2dpCodecInfo &info, int error) override {};
-        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device, int state) override;
+        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device, int state, int cause) override;
         void OnMediaStackChanged(const Bluetooth::BluetoothRemoteDevice &device, int action) override {};
     };
 
@@ -110,7 +110,8 @@ public:
     public:
         BtHfpObserver() = default;
         virtual ~BtHfpObserver() = default;
-        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device, int32_t state) override;
+        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
+            int32_t state, int32_t cause) override;
         void OnScoStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
                                int32_t state, int32_t reason) override {};
         void OnActiveDeviceChanged(const Bluetooth::BluetoothRemoteDevice &device) override {};
@@ -123,7 +124,7 @@ public:
     public:
         BtHidObserver() = default;
         virtual ~BtHidObserver() = default;
-        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device, int state) override;
+        void OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device, int state, int cause) override;
     };
 
 private:

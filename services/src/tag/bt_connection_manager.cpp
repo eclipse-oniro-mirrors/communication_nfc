@@ -833,24 +833,27 @@ void BtConnectionManager::OnConnectionStateChanged(std::shared_ptr<BtConnectionI
 }
 
 void BtConnectionManager::BtA2dpObserver::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                                                   int32_t state)
+                                                                   int32_t state, int32_t cause)
 {
+    (void)cause; // Unused param
     InfoLog("BtA2dpObserver::OnConnectionStateChanged state: %{public}d", state);
     BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
         device, state, BtConnectionManager::BtProfileType::A2DP_SRC);
 }
 
 void BtConnectionManager::BtHfpObserver::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                                                  int32_t state)
+                                                                  int32_t state, int32_t cause)
 {
+    (void)cause; // Unused param
     InfoLog("BtHfpObserver::OnConnectionStateChanged state: %{public}d", state);
     BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
         device, state, BtConnectionManager::BtProfileType::HFP_AG);
 }
 
 void BtConnectionManager::BtHidObserver::OnConnectionStateChanged(const Bluetooth::BluetoothRemoteDevice &device,
-                                                                  int state)
+                                                                  int state, int cause)
 {
+    (void)cause; // Unused param
     InfoLog("BtHidObserver::OnConnectionStateChanged state: %{public}d", state);
     BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED,
         device, state, BtConnectionManager::BtProfileType::HID_HOST);
