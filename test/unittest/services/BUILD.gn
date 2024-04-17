@@ -69,6 +69,7 @@ unit_test_external_deps = [
   "ipc:ipc_core",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
+  "wifi:wifi_sdk",
 ]
 
 ohos_unittest("controller_test") {
@@ -289,6 +290,7 @@ ohos_unittest("services_test") {
   sources = [
     "services_test/app_data_parser_test.cpp",
     "services_test/ndef_bt_data_parser_test.cpp",
+    "services_test/ndef_wifi_data_parser_test.cpp",
     "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
   ]
@@ -307,10 +309,12 @@ ohos_unittest("services_tags_test") {
   module_out_path = "nfc/services"
 
   sources = [
+    "services_tags_test/bt_connection_manager_test.cpp",
     "services_tags_test/nfc_service_tdd.cpp",
     "services_tags_test/tag_dispatcher_test.cpp",
     "services_tags_test/tag_session_stub_test.cpp",
     "services_tags_test/tag_session_test.cpp",
+    "services_tags_test/wifi_connection_manager_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
