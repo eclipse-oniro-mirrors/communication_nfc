@@ -18,6 +18,7 @@ group("fuzztest") {
   deps = [
     "cardemulation_test/hcesessionstub:hcesessionstub_fuzztest",
     "controller_test/nfccontroller:nfccontroller_fuzztest",
+    "services_test/btconnectionmanager_test/btconnectionmanager:btconnectionmanager_fuzztest",
     "services_test/cardemulation_test/hceservice:hceservice_fuzztest",
     "services_test/controller_test/nfccontrollerstub:nfccontrollerstub_fuzztest",
     "services_test/external_deps_test/externaldepsproxy:externaldepsproxy_fuzztest",
@@ -26,6 +27,7 @@ group("fuzztest") {
     "services_test/tagdispatcher_test/tagdispatcher:tagdispatcher_fuzztest",
     "services_test/tags_test/tagsessionstub:tagsessionstub_fuzztest",
     "services_test/utils_test/nfctimer:nfctimer_fuzztest",
+    "services_test/wificonnectionmanager_test/wificonnectionmanager:wificonnectionmanager_fuzztest",
     "tags_test/basictagsession:basictagsession_fuzztest",
     "tags_test/iso15693tag:iso15693tag_fuzztest",
     "tags_test/isodeptag:isodeptag_fuzztest",

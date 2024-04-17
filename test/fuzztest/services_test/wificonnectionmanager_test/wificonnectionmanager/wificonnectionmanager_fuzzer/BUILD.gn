@@ -1,0 +1,77 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("../../../../../../nfc.gni")
+
+ohos_fuzztest("WifiConnectionManagerFuzzTest") {
+  module_out_path = fuzz_module_out_path
+
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/wificonnectionmanager_test/wificonnectionmanager/wificonnectionmanager_fuzzer"
+
+  include_dirs = [
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/services/include",
+  ]
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+
+  sources = [ "wificonnectionmanager_fuzzer.cpp" ]
+
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/services:nfc_service",
+    "$NFC_DIR/services:nfc_service_static",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:dataobs_manager",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "data_share:datashare_consumer",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "ipc:ipc_core",
+    "miscdevice:vibrator_interface_native",
+    "power_manager:powermgr_client",
+    "preferences:native_preferences",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "screenlock_mgr:screenlock_client",
+    "wifi:wifi_sdk",
+  ]
+}
+
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":WifiConnectionManagerFuzzTest",
+  ]
+}
