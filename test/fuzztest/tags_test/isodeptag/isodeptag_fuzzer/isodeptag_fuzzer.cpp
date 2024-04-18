@@ -82,7 +82,7 @@ namespace OHOS {
         std::shared_ptr<IsoDepTag> isoDepTag = IsoDepTag::GetTag(tagInfo);
         bool isSupported = (static_cast<int>(data[0]) % 2) == 1;
         isoDepTag->IsExtendedApduSupported(isSupported);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestoryInstance();
+        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 }
 
