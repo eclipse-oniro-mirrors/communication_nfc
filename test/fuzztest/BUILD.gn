@@ -37,6 +37,7 @@ group("fuzztest") {
     "tags_test/ndefmessage:ndefmessage_fuzztest",
     "tags_test/ndeftag:ndeftag_fuzztest",
     "tags_test/nfca_tag:nfca_tag_fuzztest",
+    "tags_test/nfcsdkcommon:nfcsdkcommon_fuzztest",
     "tags_test/taginfo:taginfo_fuzztest",
   ]
 }
