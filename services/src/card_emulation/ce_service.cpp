@@ -39,6 +39,8 @@ CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::IN
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
     DelayedSingleton<SettingDataShareImpl>::GetInstance()->GetElementName(
         nfcDefaultPaymentApp, KITS::DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP, defaultPaymentElement_);
+
+    appStateObserver_ = std::make_shared<AppStateObserver>(this);
     DebugLog("CeService constructor end");
 }
 
@@ -144,6 +146,28 @@ bool CeService::InitConfigAidRouting()
     }
     DebugLog("AddAidRoutingHceAids: end");
     return true;
+}
+
+void CeService::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+                                      int abilityState)
+{
+    if (bundleName.empty()) {
+        ErrorLog("OnForegroundApplicationChanged bundle name is empty.");
+        return;
+    }
+
+    if (bundleName != foregroundElement_.GetBundleName()) {
+        InfoLog("OnForegroundApplicationChanged not equal to the foreground element, no need to handle.");
+        return;
+    }
+    if (abilityState == static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND)) {
+        InfoLog("OnForegroundApplicationChanged foreground state, no need to handle.");
+        return;
+    }
+
+    ClearHceInfo();
+    InfoLog("foreground app state change: refresh route table");
+    ConfigRoutingAndCommit();
 }
 
 void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)

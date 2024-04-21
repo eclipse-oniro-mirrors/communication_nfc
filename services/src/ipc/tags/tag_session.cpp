@@ -443,6 +443,9 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
 void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
+    if (GetFgDataVecSize() == 0 && GetReaderDataVecSize() == 0) {
+        return;
+    }
     InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
         bundleName.c_str(), abilityName.c_str(), abilityState);
     CheckFgAppStateChanged(bundleName, abilityName, abilityState);

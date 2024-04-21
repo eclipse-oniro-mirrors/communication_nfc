@@ -23,6 +23,7 @@
 #include "nfc_polling_manager.h"
 #include "inci_tag_interface.h"
 #include "app_mgr_constants.h"
+#include "infc_app_state_observer.h"
 
 namespace OHOS {
 namespace NFC {
@@ -62,7 +63,7 @@ public:
     ~ReaderData() {};
 };
 
-class TagSession final : public TagSessionStub {
+class TagSession final : public TagSessionStub, public INfcAppStateObserver{
 public:
     // Constructor/Destructor
     explicit TagSession(std::shared_ptr<NFC::NfcService> service);
@@ -223,7 +224,7 @@ public:
      * @param abilityName ability name.
      * @param abilityState ability state.
      */
-    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
+    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState) override;
 
 private:
     void CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
