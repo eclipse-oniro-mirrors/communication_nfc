@@ -63,7 +63,7 @@ public:
     ~ReaderData() {};
 };
 
-class TagSession final : public TagSessionStub, public INfcAppStateObserver{
+class TagSession final : public TagSessionStub, public INfcAppStateObserver {
 public:
     // Constructor/Destructor
     explicit TagSession(std::shared_ptr<NFC::NfcService> service);
@@ -224,7 +224,8 @@ public:
      * @param abilityName ability name.
      * @param abilityState ability state.
      */
-    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState) override;
+    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+                               int abilityState) override;
 
 private:
     void CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);

@@ -32,7 +32,9 @@ class NfcService;
 class NfcEventHandler;
 class HostCardEmulationManager;
 using OHOS::AppExecFwk::ElementName;
-class CeService : public IDefaultPaymentServiceChangeCallback, public std::enable_shared_from_this<CeService>, public INfcAppStateObserver{
+class CeService : public IDefaultPaymentServiceChangeCallback,
+                  public std::enable_shared_from_this<CeService>,
+                  public INfcAppStateObserver {
 public:
     struct AidEntry {
         std::string aid;
@@ -80,7 +82,8 @@ public:
     KITS::DefaultPaymentType GetDefaultPaymentType();
 
     void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
-                                  int abilityState) override;
+                               int abilityState) override;
+
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();
