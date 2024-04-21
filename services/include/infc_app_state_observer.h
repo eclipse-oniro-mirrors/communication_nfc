@@ -17,8 +17,7 @@
 
 namespace OHOS {
 namespace NFC {
-class INfcAppStateObserver
-{
+class INfcAppStateObserver {
 public:
     /**
      * @brief Handle app state changed.
