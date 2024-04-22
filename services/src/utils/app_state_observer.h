@@ -19,13 +19,13 @@
 #include "app_mgr_interface.h"
 #include "application_state_observer_stub.h"
 #include "iremote_object.h"
-#include "tag_session.h"
+#include "infc_app_state_observer.h"
 
 namespace OHOS {
 namespace NFC {
 class AppStateObserver {
 public:
-    explicit AppStateObserver(TAG::TagSession *tagSession);
+    explicit AppStateObserver(INfcAppStateObserver *nfcAppStateChangeCallback);
     ~AppStateObserver();
     AppStateObserver(const AppStateObserver &) = delete;
     AppStateObserver &operator=(const AppStateObserver &) = delete;
@@ -39,8 +39,13 @@ private:
         void OnProcessDied(const AppExecFwk::ProcessData &processData) override;
         void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;
         void OnForegroundApplicationChanged(const AppExecFwk::AppStateData &appStateData) override;
+        bool RegisterAppStateChangeCallback(INfcAppStateObserver *nfcAppStateChangeCallback);
+
+    private:
+        INfcAppStateObserver *nfcAppStateChangeCallback_;
     };
     bool Connect();
+    bool RegisterAppStateChangeCallback(INfcAppStateObserver *nfcAppStateChangeCallback);
 
 private:
     std::mutex mutex_{};

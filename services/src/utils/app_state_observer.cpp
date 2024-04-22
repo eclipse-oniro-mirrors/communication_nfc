@@ -23,11 +23,10 @@
 
 namespace OHOS {
 namespace NFC {
-TAG::TagSession *tagSession_ = nullptr;
-AppStateObserver::AppStateObserver(TAG::TagSession *tagSession)
+AppStateObserver::AppStateObserver(INfcAppStateObserver *nfcAppStateChangeCallback)
 {
-    tagSession_ = tagSession;
     SubscribeAppState();
+    RegisterAppStateChangeCallback(nfcAppStateChangeCallback);
 }
 
 AppStateObserver::~AppStateObserver()
@@ -102,19 +101,44 @@ bool AppStateObserver::Connect()
     return true;
 }
 
+bool AppStateObserver::RegisterAppStateChangeCallback(INfcAppStateObserver *nfcAppStateChangeCallback)
+{
+    if (!appStateAwareObserver_) {
+        ErrorLog("UnSubscribeAppState: appStateAwareObserver_ is nullptr");
+        return false;
+    }
+    if (nfcAppStateChangeCallback == nullptr) {
+        ErrorLog("nfcAppStateChangeCallback_ is nullptr");
+        return false;
+    }
+    return appStateAwareObserver_->RegisterAppStateChangeCallback(nfcAppStateChangeCallback);
+}
+
 void AppStateObserver::AppStateAwareObserver::OnAbilityStateChanged(
     const AppExecFwk::AbilityStateData &abilityStateData)
 {
-    if (tagSession_->GetFgDataVecSize() == 0 && tagSession_->GetReaderDataVecSize() == 0) {
+    if (nfcAppStateChangeCallback_ == nullptr) {
+        ErrorLog("nfcAppStateChangeCallback_ is nullptr");
         return;
     }
-    tagSession_->HandleAppStateChanged(abilityStateData.bundleName, abilityStateData.abilityName,
+    nfcAppStateChangeCallback_->HandleAppStateChanged(abilityStateData.bundleName, abilityStateData.abilityName,
         abilityStateData.abilityState);
 }
 
 void AppStateObserver::AppStateAwareObserver::OnForegroundApplicationChanged(
     const AppExecFwk::AppStateData &appStateData)
 {
+}
+
+bool AppStateObserver::AppStateAwareObserver::RegisterAppStateChangeCallback(
+    INfcAppStateObserver *nfcAppStateChangeCallback)
+{
+    if (nfcAppStateChangeCallback == nullptr) {
+        ErrorLog("nfcAppStateChangeCallback_ is nullptr");
+        return false;
+    }
+    nfcAppStateChangeCallback_ = nfcAppStateChangeCallback;
+    return true;
 }
 
 void AppStateObserver::AppStateAwareObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)

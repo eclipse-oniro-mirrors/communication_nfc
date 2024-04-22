@@ -23,6 +23,8 @@
 #include "element_name.h"
 #include "idefault_payment_service_change_callback.h"
 #include "default_payment_service_change_callback.h"
+#include "app_state_observer.h"
+#include "infc_app_state_observer.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,7 +32,9 @@ class NfcService;
 class NfcEventHandler;
 class HostCardEmulationManager;
 using OHOS::AppExecFwk::ElementName;
-class CeService : public IDefaultPaymentServiceChangeCallback, public std::enable_shared_from_this<CeService> {
+class CeService : public IDefaultPaymentServiceChangeCallback,
+                  public std::enable_shared_from_this<CeService>,
+                  public INfcAppStateObserver {
 public:
     struct AidEntry {
         std::string aid;
@@ -77,6 +81,9 @@ public:
     void SearchElementByAid(const std::string &aid, ElementName &aidElement);
     KITS::DefaultPaymentType GetDefaultPaymentType();
 
+    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+                               int abilityState) override;
+
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();
@@ -109,6 +116,7 @@ private:
 
     std::mutex configRoutingMutex_ {};
     std::map<std::string, AidEntry> aidToAidEntry_{};
+    std::shared_ptr<AppStateObserver> appStateObserver_;
 };
 } // namespace NFC
 } // namespace OHOS
