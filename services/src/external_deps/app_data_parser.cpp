@@ -651,6 +651,10 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
+    if (bundleMgrProxy_ == nullptr) {
+        InfoLog("bundleMgr is null, try to init again.");
+        InitAppList();
+    }
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (!IsPaymentApp(appAidInfo)) {
             continue;
