@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "nfc_controller_impl.h"
+#include "nfc_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -135,6 +136,21 @@ HWTEST_F(NfcControllerImplTest, UnRegisterCallBack001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UnRegisterCallBack002
+ * @tc.desc: Test NfcControllerImplTest UnRegisterCallBack.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, UnRegisterCallBack002, TestSize.Level1)
+{
+    std::string type = "";
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    KITS::ErrorCode error = nfcControllerImpl->UnRegisterCallBack(type, callerToken);
+    ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
  * @tc.name: UnRegisterAllCallBack001
  * @tc.desc: Test NfcControllerImplTest UnRegisterAllCallBack.
  * @tc.type: FUNC
@@ -149,6 +165,20 @@ HWTEST_F(NfcControllerImplTest, UnRegisterAllCallBack001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UnRegisterAllCallBack002
+ * @tc.desc: Test NfcControllerImplTest UnRegisterAllCallBack.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, UnRegisterAllCallBack002, TestSize.Level1)
+{
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    KITS::ErrorCode error = nfcControllerImpl->UnRegisterAllCallBack(callerToken);
+    ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
  * @tc.name: GetTagServiceIface001
  * @tc.desc: Test NfcControllerImplTest GetTagServiceIface.
  * @tc.type: FUNC
@@ -156,6 +186,19 @@ HWTEST_F(NfcControllerImplTest, UnRegisterAllCallBack001, TestSize.Level1)
 HWTEST_F(NfcControllerImplTest, GetTagServiceIface001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetTagServiceIface();
+    ASSERT_TRUE(iRemoteObject == nullptr);
+}
+
+/**
+ * @tc.name: GetTagServiceIface002
+ * @tc.desc: Test NfcControllerImplTest GetTagServiceIface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, GetTagServiceIface002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
     sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetTagServiceIface();
     ASSERT_TRUE(iRemoteObject == nullptr);
@@ -217,6 +260,19 @@ HWTEST_F(NfcControllerImplTest, GetHceServiceIface001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetHceServiceIface002
+ * @tc.desc: Test NfcControllerImplTest GetHceServiceIface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, GetHceServiceIface002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetHceServiceIface();
+    ASSERT_TRUE(iRemoteObject == nullptr);
+}
+
+/**
  * @tc.name: Dump001
  * @tc.desc: Test NfcControllerImplTest Dump.
  * @tc.type: FUNC
@@ -226,6 +282,21 @@ HWTEST_F(NfcControllerImplTest, Dump001, TestSize.Level1)
     int32_t fd = 0;
     std::vector<std::u16string> args;
     std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    int dump = nfcControllerImpl->Dump(fd, args);
+    ASSERT_TRUE(dump == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: Dump002
+ * @tc.desc: Test NfcControllerImplTest Dump.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, Dump002, TestSize.Level1)
+{
+    int32_t fd = 0;
+    std::vector<std::u16string> args;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
     int dump = nfcControllerImpl->Dump(fd, args);
     ASSERT_TRUE(dump == KITS::ERR_NFC_PARAMETERS);
