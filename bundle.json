@@ -77,7 +77,8 @@
                 "distributed_notification_service",
                 "wifi",
                 "i18n",
-                "bluetooth"
+                "bluetooth",
+                "image_framework"
             ],
             "third_party": [
                 "cJSON",

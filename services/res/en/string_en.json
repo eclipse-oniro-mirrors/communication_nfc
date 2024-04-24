@@ -53,6 +53,12 @@
 		},{
 			"name": "NfcHceAidConflictedText",
 			"value": "There are conflicts among multiple applications. It is required to open a specific application before swiping the card"
+		},{
+			"name": "NoHapSupportedNtfTitle",
+			"value": "NFC Notification"
+		},{
+			"name": "NoHapSupportedNtfText",
+			"value": "No supported applications available"
 		}
 	]
 }

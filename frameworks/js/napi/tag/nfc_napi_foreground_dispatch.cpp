@@ -138,7 +138,7 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
         return;
     }
 
-    InfoLog("foreground event notify: Get the event loop, napi_env: %p", asyncEvent->env);
+    InfoLog("foreground event notify: Get the event loop");
     uint32_t refCount = INVALID_REF_COUNT;
     napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
     work->data = asyncEvent;
