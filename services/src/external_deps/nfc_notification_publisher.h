@@ -31,6 +31,7 @@ enum NfcNotificationId : int {
     NFC_TRANSPORT_CARD_NOTIFICATION_ID = 114003,
     NFC_BROWSER_NOTIFICATION_ID = 114004,
     NFC_HCE_AID_CONFLICTED_ID = 114005,
+    NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID = 114006,
 };
 
 typedef void (NfcNtfCallback)(int notificationId);
@@ -39,6 +40,10 @@ struct NfcNtfInterface {
     void (*publishNotification)(int notificationId, const std::string &name, int balance);
     void (*regNtfCallback)(NfcNtfCallback *callback);
 };
+
+constexpr const char* NFC_NTF_LIB_PATH = "libnfc_notification.z.so";
+constexpr const char* REG_NFC_CALLBACK_FUNC_NAME = "RegNotificationCallback";
+constexpr const char* PUBLISH_NTF_FUNC_NAME = "PublishNfcNotification";
 
 class NfcNotificationPublisher {
 public:
@@ -57,9 +62,7 @@ private:
     void UnloadNfcNtfLib();
     void InitNfcNtfLib();
 
-    const std::string NFC_NTF_LIB_PATH = "libnfc_notification.z.so";
-    const std::string REG_NFC_CALLBACK_FUNC_NAME = "RegNotificationCallback";
-    const std::string PUBLISH_NTF_FUNC_NAME = "PublishNfcNotification";
+    const static int NOTIFICATION_WAIT_TIME_US = 150 * 1000;
 
     std::mutex mutex_ {};
     bool isNtfLibLoaded_ = false;

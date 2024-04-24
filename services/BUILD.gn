@@ -74,6 +74,13 @@ ohos_prebuilt_etc("nfc_prebuilt_config_string_zh") {
   subsystem_name = "communication"
 }
 
+ohos_prebuilt_etc("nfc_prebuilt_config_notification_icon") {
+  source = "res/nfc_icon.png"
+  relative_install_dir = "nfc"
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
+
 nfc_service_source = [
   "src/card_emulation/ce_service.cpp",
   "src/card_emulation/host_card_emulation_manager.cpp",
@@ -189,6 +196,7 @@ ohos_shared_library("nfc_service") {
 
   deps = [
     ":nfc_prebuilt_config_apdu",
+    ":nfc_prebuilt_config_notification_icon",
     ":nfc_prebuilt_config_string_en",
     ":nfc_prebuilt_config_string_zh",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",

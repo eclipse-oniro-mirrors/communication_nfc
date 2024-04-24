@@ -53,6 +53,12 @@
 		},{
 			"name": "NfcHceAidConflictedText",
 			"value": "多个应用冲突，需要打开特定的应用刷卡"
+		},{
+			"name": "NoHapSupportedNtfTitle",
+			"value": "NFC 通知"
+		},{
+			"name": "NoHapSupportedNtfText",
+			"value": "当前无支持应用，请前往应用市场下载"
 		}
 	]
 }

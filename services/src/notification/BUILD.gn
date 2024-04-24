@@ -47,6 +47,7 @@ ohos_shared_library("nfc_notification") {
     "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
     "i18n:intl_util",
+    "image_framework:image_native",
   ]
 
   defines = [ "DEBUG" ]

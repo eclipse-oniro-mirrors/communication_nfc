@@ -53,6 +53,9 @@ void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const 
         ErrorLog("func handle nullptr, fail to publish notification");
         return;
     }
+    if (notificationId == NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID) {
+        usleep(NOTIFICATION_WAIT_TIME_US);
+    }
     nfcNtfInf_.publishNotification(notificationId, name, balance);
 }
 
@@ -86,15 +89,15 @@ void NfcNotificationPublisher::InitNfcNtfLib()
         InfoLog("nfc notification lib already loaded.");
         return;
     }
-    nfcNtfHandle_ = dlopen(NFC_NTF_LIB_PATH.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+    nfcNtfHandle_ = dlopen(NFC_NTF_LIB_PATH, RTLD_LAZY | RTLD_GLOBAL);
     if (nfcNtfHandle_ == nullptr) {
         ErrorLog("fail to dlopen nfc notification lib.");
         return;
     }
     nfcNtfInf_.regNtfCallback = reinterpret_cast<void (*)(NfcNtfCallback *)>
-        (dlsym(nfcNtfHandle_, REG_NFC_CALLBACK_FUNC_NAME.c_str()));
+        (dlsym(nfcNtfHandle_, REG_NFC_CALLBACK_FUNC_NAME));
     nfcNtfInf_.publishNotification = reinterpret_cast<void (*)(int, const std::string &, int)>
-        (dlsym(nfcNtfHandle_, PUBLISH_NTF_FUNC_NAME.c_str()));
+        (dlsym(nfcNtfHandle_, PUBLISH_NTF_FUNC_NAME));
     if (nfcNtfInf_.regNtfCallback == nullptr || nfcNtfInf_.publishNotification == nullptr) {
         ErrorLog("fail to dlsym nfc notification lib.");
         UnloadNfcNtfLib();

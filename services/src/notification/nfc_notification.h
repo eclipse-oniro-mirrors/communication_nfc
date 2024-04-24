@@ -19,6 +19,9 @@
 #include <mutex>
 #include <string>
 
+#include "image_source.h"
+#include "pixel_map.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -45,36 +48,39 @@ enum NfcNotificationId : int {
     NFC_TRANSPORT_CARD_NOTIFICATION_ID = 114003,
     NFC_BROWSER_NOTIFICATION_ID = 114004,
     NFC_HCE_AID_CONFLICTED_ID = 114005,
+    NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID = 114006,
 };
 
 const int MAX_BUFF_LEN = 100;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
-const int NTF_AUTO_DELETE_TIME = 10;
+const int NTF_AUTO_DELETE_TIME = 10000;
 const int MAX_RES_VEC_LEN = 100;
 
-const std::string NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
-const std::string NFC_RES_EN_JSON_FILEPATH = "system/etc/nfc/string_en.json";
+constexpr const char* NFC_ICON_PATH = "system/etc/nfc/nfc_icon.png";
+constexpr const char* NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
+constexpr const char* NFC_RES_EN_JSON_FILEPATH = "system/etc/nfc/string_en.json";
 
-const std::string KEY_STRING = "string";
-const std::string KEY_NAME = "name";
-const std::string KEY_VALUE = "value";
+constexpr const char* KEY_STRING = "string";
+constexpr const char* KEY_NAME = "name";
+constexpr const char* KEY_VALUE = "value";
 
-const std::string KEY_TAG_DEFAULT_NTF_TITLE    = "DefaultTitle";
-const std::string KEY_TAG_DEFAULT_NTF_TEXT     = "DefaultText";
-const std::string KEY_TRANSPORT_CARD_NTF_TITLE = "TransportCardTitle";
-const std::string KEY_TRANSPORT_CARD_NTF_TEXT  = "TransportCardText";
-const std::string KEY_NFC_WIFI_NTF_TITLE       = "NfcWifiNtfTitle";
-const std::string KEY_NFC_WIFI_NTF_TEXT        = "NfcWifiNtfText";
-const std::string KEY_ACTION_BUTTON_NAME       = "ActionButtonName";
-const std::string KEY_NFC_WIFI_BUTTON_NAME     = "NfcWifiButtonName";
-const std::string KEY_NFC_BT_NTF_TITLE         = "NfcBtNtfTitle";
-const std::string KEY_NFC_BT_NTF_TEXT          = "NfcBtNtfText";
-const std::string KEY_NFC_BT_BUTTON_NAME       = "NfcBtButtonName";
-const std::string NFC_OPEN_LINK_BUTTON_NAME    = "Open Link";
-const std::string NFC_OPEN_LINK_TEXT_HEAD      = "Open link: ";
-
-const std::string KEY_HCE_AID_CONFLICTED_TITLE = "NfcHceAidConflictedTitle";
-const std::string KEY_HCE_AID_CONFLICTED_TEXT = "NfcHceAidConflictedText";
+constexpr const char* KEY_TAG_DEFAULT_NTF_TITLE     = "DefaultTitle";
+constexpr const char* KEY_TAG_DEFAULT_NTF_TEXT      = "DefaultText";
+constexpr const char* KEY_TRANSPORT_CARD_NTF_TITLE  = "TransportCardTitle";
+constexpr const char* KEY_TRANSPORT_CARD_NTF_TEXT   = "TransportCardText";
+constexpr const char* KEY_NFC_WIFI_NTF_TITLE        = "NfcWifiNtfTitle";
+constexpr const char* KEY_NFC_WIFI_NTF_TEXT         = "NfcWifiNtfText";
+constexpr const char* KEY_ACTION_BUTTON_NAME        = "ActionButtonName";
+constexpr const char* KEY_NFC_WIFI_BUTTON_NAME      = "NfcWifiButtonName";
+constexpr const char* KEY_NFC_BT_NTF_TITLE          = "NfcBtNtfTitle";
+constexpr const char* KEY_NFC_BT_NTF_TEXT           = "NfcBtNtfText";
+constexpr const char* KEY_NFC_BT_BUTTON_NAME        = "NfcBtButtonName";
+constexpr const char* NFC_OPEN_LINK_BUTTON_NAME     = "Open Link";
+constexpr const char* NFC_OPEN_LINK_TEXT_HEAD       = "Open link: ";
+constexpr const char* KEY_HCE_AID_CONFLICTED_TITLE  = "NfcHceAidConflictedTitle";
+constexpr const char* KEY_HCE_AID_CONFLICTED_TEXT   = "NfcHceAidConflictedText";
+constexpr const char* KEY_NO_HAP_TITLE              = "NoHapSupportedNtfTitle";
+constexpr const char* KEY_NO_HAP_TEXT               = "NoHapSupportedNtfText";
 
 class NfcNotification {
 public:
@@ -89,7 +95,10 @@ private:
     NfcNotification(const NfcNotification&) = delete;
     NfcNotification& operator=(const NfcNotification&) = delete;
 
+    void GetPixelMap(const std::string &path);
+
     std::mutex mutex_ {};
+    std::shared_ptr<Media::PixelMap> nfcIconPixelMap_ {};
 
     static const int NFC_NTF_CONTROL_FLAG = 0;
 };

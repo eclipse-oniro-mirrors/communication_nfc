@@ -83,7 +83,7 @@ static void UpdateResourceMap(const std::string &resourcePath)
         return;
     }
 
-    cJSON *resJson = cJSON_GetObjectItemCaseSensitive(json, KEY_STRING.c_str());
+    cJSON *resJson = cJSON_GetObjectItemCaseSensitive(json, KEY_STRING);
     if (resJson == nullptr || cJSON_GetArraySize(resJson) > MAX_RES_VEC_LEN) {
         ErrorLog("fail to parse res json");
         cJSON_Delete(json);
@@ -93,14 +93,14 @@ static void UpdateResourceMap(const std::string &resourcePath)
     g_resourceMap.clear();
     cJSON *resJsonEach = nullptr;
     cJSON_ArrayForEach(resJsonEach, resJson) {
-        cJSON *key = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_NAME.c_str());
+        cJSON *key = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_NAME);
         if (key == nullptr || !cJSON_IsString(key)) {
             ErrorLog("json param not string");
             cJSON_Delete(json);
             return;
         }
 
-        cJSON *value = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_VALUE.c_str());
+        cJSON *value = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_VALUE);
         if (value == nullptr || !cJSON_IsString(value)) {
             ErrorLog("json param not string");
             cJSON_Delete(json);
@@ -173,6 +173,44 @@ static std::string GetBtNotificationText(const std::string &name)
 }
 #endif
 
+static bool SetTitleAndTextForOtherNotificationId(int notificationId,
+    std::shared_ptr<Notification::NotificationNormalContent> nfcContent, const std::string &name, int balance)
+{
+    switch (notificationId) {
+        case NFC_TAG_DEFAULT_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TEXT) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
+                nfcContent->SetText(g_resourceMap[KEY_TAG_DEFAULT_NTF_TEXT]);
+            }
+            break;
+        case NFC_BROWSER_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
+                nfcContent->SetText(NFC_OPEN_LINK_TEXT_HEAD + name);
+            }
+            break;
+        case NFC_HCE_AID_CONFLICTED_ID:
+            if (g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TEXT) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_HCE_AID_CONFLICTED_TITLE]);
+                nfcContent->SetText(g_resourceMap[KEY_HCE_AID_CONFLICTED_TEXT]);
+            }
+            break;
+        case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_NO_HAP_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_NO_HAP_TEXT) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_NO_HAP_TITLE]);
+                nfcContent->SetText(g_resourceMap[KEY_NO_HAP_TEXT]);
+            }
+            break;
+        default:
+            WarnLog("unknown notification ID");
+            return false;
+    }
+    return true;
+}
+
 static bool SetTitleAndText(int notificationId,
     std::shared_ptr<Notification::NotificationNormalContent> nfcContent, const std::string &name, int balance)
 {
@@ -215,29 +253,8 @@ static bool SetTitleAndText(int notificationId,
             ErrorLog("nfc bt notification not supported");
             return false;
 #endif
-        case NFC_TAG_DEFAULT_NOTIFICATION_ID:
-            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
-                g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TEXT) != g_resourceMap.end()) {
-                nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
-                nfcContent->SetText(g_resourceMap[KEY_TAG_DEFAULT_NTF_TEXT]);
-            }
-            break;
-        case NFC_BROWSER_NOTIFICATION_ID:
-            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end()) {
-                nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
-                nfcContent->SetText(NFC_OPEN_LINK_TEXT_HEAD + name);
-            }
-            break;
-        case NFC_HCE_AID_CONFLICTED_ID:
-            if (g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TITLE) != g_resourceMap.end() &&
-                g_resourceMap.find(KEY_HCE_AID_CONFLICTED_TEXT) != g_resourceMap.end()) {
-                nfcContent->SetTitle(g_resourceMap[KEY_HCE_AID_CONFLICTED_TITLE]);
-                nfcContent->SetText(g_resourceMap[KEY_HCE_AID_CONFLICTED_TEXT]);
-            }
-            break;
         default:
-            WarnLog("unknown notification ID");
-            return false;
+            return SetTitleAndTextForOtherNotificationId(notificationId, nfcContent, name, balance);
     }
     return true;
 }
@@ -257,6 +274,8 @@ static std::string GetButtonName(int notificationId)
             return "";
         case NFC_BROWSER_NOTIFICATION_ID:
             return NFC_OPEN_LINK_BUTTON_NAME;
+        case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            return "";
         default:
             if (g_resourceMap.find(KEY_ACTION_BUTTON_NAME) != g_resourceMap.end()) {
                 return g_resourceMap[KEY_ACTION_BUTTON_NAME];
@@ -284,6 +303,32 @@ static void SetActionButton(const std::string& buttonName, Notification::Notific
         return;
     }
     request.AddActionButton(actionButtonDeal);
+}
+
+void NfcNotification::GetPixelMap(const std::string &path)
+{
+    if (nfcIconPixelMap_ != nullptr) {
+        InfoLog("nfc icon pixel map already exists.");
+        return;
+    }
+
+    if (!std::filesystem::exists(path)) {
+        ErrorLog("nfc icon file path not exists.");
+        nfcIconPixelMap_ = nullptr;
+        return;
+    }
+    uint32_t errorCode = 0;
+    Media::SourceOptions opts;
+    opts.formatHint = "image/png";
+    std::unique_ptr<Media::ImageSource> imageSource = Media::ImageSource::CreateImageSource(path, opts, errorCode);
+    if (imageSource == nullptr) {
+        ErrorLog("imageSource nullptr");
+        nfcIconPixelMap_ = nullptr;
+        return;
+    }
+    Media::DecodeOptions decodeOpts;
+    std::unique_ptr<Media::PixelMap> pixelMap = imageSource->CreatePixelMap(decodeOpts, errorCode);
+    nfcIconPixelMap_ = std::move(pixelMap);
 }
 
 NfcNotification& NfcNotification::GetInstance()
@@ -341,7 +386,13 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
     request.SetTapDismissed(true);
     request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
     request.SetNotificationControlFlags(NFC_NTF_CONTROL_FLAG);
-    
+
+    GetPixelMap(NFC_ICON_PATH);
+    if (nfcIconPixelMap_ != nullptr) {
+        request.SetLittleIcon(nfcIconPixelMap_);
+        request.SetBadgeIconStyle(Notification::NotificationRequest::BadgeStyle::LITTLE);
+    }
+
     std::string buttonName = GetButtonName(notificationId);
     if (!buttonName.empty()) {
         SetActionButton(buttonName, request);

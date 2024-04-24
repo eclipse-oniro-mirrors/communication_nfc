@@ -15,6 +15,7 @@
 #include "tag_ability_dispatcher.h"
 #include "ability_manager_client.h"
 #include "app_data_parser.h"
+#include "external_deps_proxy.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "vibrator_agent.h"
@@ -95,6 +96,7 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
 #ifdef VENDOR_APPLICATIONS_ENABLED
     std::vector<ElementName> vendorElements = AppDataParser::GetInstance().GetVendorDispatchTagAppsByTech(techList);
     if (elements.size() == 0 && vendorElements.size() == 0) {
+        ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID, "", 0);
         return;
     }
 
