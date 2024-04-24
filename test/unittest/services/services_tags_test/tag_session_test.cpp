@@ -597,6 +597,21 @@ HWTEST_F(TagSessionTest, UnregReaderMode001, TestSize.Level1)
     KITS::ErrorCode errorCode = tagSession->UnregReaderMode(element);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NONE);
 }
+
+/**
+ * @tc.name: HandleAppStateChanged001
+ * @tc.desc: Test TagSession HandleAppStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    std::string bundleName = "";
+    std::string abilityName = "";
+    int abilityState = 0;
+    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+}
 }
 }
 }
