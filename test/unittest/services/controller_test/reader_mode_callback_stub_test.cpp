@@ -78,6 +78,32 @@ HWTEST_F(ReaderModeCallbackStubTest, RegReaderMode001, TestSize.Level1)
     KITS::ErrorCode errorCode = readerModeCallbackStub->RegReaderMode(callback);
     ASSERT_TRUE(errorCode == KITS::ERR_NFC_PARAMETERS);
 }
+
+/**
+ * @tc.name: RegReaderMode002
+ * @tc.desc: Test ReaderModeCallbackStubTest RegReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ReaderModeCallbackStubTest, RegReaderMode002, TestSize.Level1)
+{
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    ReaderModeCallbackStub* readerModeCallbackStub = ReaderModeCallbackStub::GetInstance();
+    KITS::ErrorCode errorCode = readerModeCallbackStub->RegReaderMode(callback);
+    ASSERT_TRUE(errorCode == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: RegReaderMode003
+ * @tc.desc: Test ReaderModeCallbackStubTest RegReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ReaderModeCallbackStubTest, RegReaderMode003, TestSize.Level1)
+{
+    sptr<KITS::IReaderModeCallback> callback = new TAG::ReaderModeCallbackStub();
+    std::shared_ptr<ReaderModeCallbackStub> readerModeCallbackStub = std::make_shared<ReaderModeCallbackStub>();
+    KITS::ErrorCode errorCode = readerModeCallbackStub->RegReaderMode(callback);
+    ASSERT_TRUE(errorCode == KITS::ERR_NONE);
+}
 }
 }
 }

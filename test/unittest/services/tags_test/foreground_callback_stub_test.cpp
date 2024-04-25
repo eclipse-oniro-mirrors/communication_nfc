@@ -80,6 +80,19 @@ HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch002, TestSize.Level1)
     tagInfo = nullptr;
     ASSERT_TRUE(result == KITS::ERR_NONE);
 }
+
+/**
+ * @tc.name: RegForegroundDispatch003
+ * @tc.desc: Test ForegroundCallbackStub RegForegroundDispatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch003, TestSize.Level1)
+{
+    const sptr<KITS::IForegroundCallback> callback;
+    ForegroundCallbackStub* foregroundCallbackStub = ForegroundCallbackStub::GetInstance();
+    KITS::ErrorCode result = foregroundCallbackStub->RegForegroundDispatch(callback);
+    ASSERT_TRUE(result == KITS::ERR_NFC_PARAMETERS);
+}
 }
 }
 }
