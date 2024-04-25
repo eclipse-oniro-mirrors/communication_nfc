@@ -85,6 +85,20 @@ HWTEST_F(BtConnectionManagerTest, TryPairBt002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: TryPairBt003
+ * @tc.desc: Test BtConnectionManagerTest TryPairBt.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, TryPairBt003, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = nullptr;
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
  * @tc.name: OnBtNtfClicked001
  * @tc.desc: Test BtConnectionManagerTest OnBtNtfClicked.
  * @tc.type: FUNC

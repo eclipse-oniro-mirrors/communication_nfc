@@ -179,6 +179,110 @@ HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated001, TestSize.Level1)
     std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters(screenState);
     ASSERT_TRUE(nfcPollingParams != nullptr);
 }
+
+/**
+ * @tc.name: HandlePackageUpdated002
+ * @tc.desc: Test NfcPollingManager HandlePackageUpdated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated002, TestSize.Level1)
+{
+    std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
+    AAFwk::Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
+    data->SetWant(want);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool res = nfcPollingManager.lock()->HandlePackageUpdated(data);
+    ASSERT_TRUE(!res);
+}
+
+/**
+ * @tc.name: HandlePackageUpdated003
+ * @tc.desc: Test NfcPollingManager HandlePackageUpdated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated003, TestSize.Level1)
+{
+    std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
+    AAFwk::Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
+    data->SetWant(want);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool res = nfcPollingManager.lock()->HandlePackageUpdated(data);
+    ASSERT_TRUE(!res);
+}
+
+/**
+ * @tc.name: HandlePackageUpdated004
+ * @tc.desc: Test NfcPollingManager HandlePackageUpdated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated004, TestSize.Level1)
+{
+    std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
+    AAFwk::Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
+    data->SetWant(want);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool res = nfcPollingManager.lock()->HandlePackageUpdated(data);
+    ASSERT_TRUE(!res);
+}
+
+/**
+ * @tc.name: HandlePackageUpdated005
+ * @tc.desc: Test NfcPollingManager HandlePackageUpdated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated005, TestSize.Level1)
+{
+    std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
+    AAFwk::Want want;
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_USER_PRESENT);
+    data->SetWant(want);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool res = nfcPollingManager.lock()->HandlePackageUpdated(data);
+    ASSERT_TRUE(!res);
+}
+
+/**
+ * @tc.name: SendTagToForeground001
+ * @tc.desc: Test NfcPollingManager SendTagToForeground.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, SendTagToForeground001, TestSize.Level1)
+{
+    KITS::TagInfoParcelable* tagInfo = nullptr;
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    nfcPollingManager.lock()->SendTagToForeground(tagInfo);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: EnableReaderMode001
+ * @tc.desc: Test NfcPollingManager EnableReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, EnableReaderMode001, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech;
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool res = nfcPollingManager.lock()->EnableReaderMode(element, discTech, callback);
+    ASSERT_TRUE(!res);
+}
 }
 }
 }

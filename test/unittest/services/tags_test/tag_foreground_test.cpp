@@ -80,6 +80,34 @@ HWTEST_F(TagForegroundTest, UnregForeground001, TestSize.Level1)
     ErrorCode result = instance.UnregForeground(element);
     ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
+
+/**
+ * @tc.name: RegReaderMode001
+ * @tc.desc: Test TagForeground RegReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, RegReaderMode001, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech;
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    TagForeground instance = TagForeground::GetInstance();
+    ErrorCode result = instance.RegReaderMode(element, discTech, callback);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: UnregReaderMode001
+ * @tc.desc: Test TagForeground UnregReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, UnregReaderMode001, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    TagForeground instance = TagForeground::GetInstance();
+    ErrorCode result = instance.UnregReaderMode(element);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+}
 }
 }
 }
