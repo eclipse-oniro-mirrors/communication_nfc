@@ -182,6 +182,8 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
         return;
     } else {
         InfoLog("no aid got");
+        std::string unknowError="6F00";
+        nciCeProxy_.lock()->SendRawFrame(unknowError);
     }
 }
 
@@ -395,6 +397,8 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
     abilityConnection_->SetHceManager(shared_from_this());
     if (element.GetBundleName().empty()) {
         ErrorLog("DispatchAbilitySingleApp element empty");
+        std::string aidNotFound = "6A82";
+        nciCeProxy_.lock()->SendRawFrame(aidNotFound);
         return false;
     }
 
