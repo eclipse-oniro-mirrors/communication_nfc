@@ -182,7 +182,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
         return;
     } else {
         InfoLog("no aid got");
-        std::string unknowError="6F00";
+        std::string unknowError = "6F00";
         nciCeProxy_.lock()->SendRawFrame(unknowError);
     }
 }
