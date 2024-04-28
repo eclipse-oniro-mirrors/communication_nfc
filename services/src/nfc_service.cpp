@@ -167,7 +167,7 @@ void NfcService::FieldActivated()
 
 void NfcService::FieldDeactivated()
 {
-    InfoLog("NfcService::FiledDeactivated");
+    InfoLog("NfcService::FieldDeactivated");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED));
 }
 

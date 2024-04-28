@@ -20,7 +20,7 @@ namespace NFC {
 class NfcEventPublisher {
 public:
     static void PublishNfcStateChanged(int newState);
-    static void PublishNfcFieldStateChanged(bool isFiledOn);
+    static void PublishNfcFieldStateChanged(bool isFieldOn);
 };
 } // NFC
 } // OHOS

@@ -26,7 +26,7 @@ public:
         virtual ~ICeHostListener() {}
 
         /**
-         * @brief The notification for filed on.
+         * @brief The notification for field on.
          */
         virtual void FieldActivated() = 0;
 

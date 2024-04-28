@@ -69,8 +69,8 @@ bool NfccNciAdapter::IsTagActive() const
 }
 
 /**
- * @brief Set card emulation listener to receive filed on/off event.
- * @param listener The listener to receive filed on/off event.
+ * @brief Set card emulation listener to receive field on/off event.
+ * @param listener The listener to receive field on/off event.
  */
 void NfccNciAdapter::SetCeHostListener(std::weak_ptr<INciCeInterface::ICeHostListener> listener)
 {

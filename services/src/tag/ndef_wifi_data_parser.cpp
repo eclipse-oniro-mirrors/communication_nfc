@@ -27,7 +27,7 @@ namespace TAG {
 #define WIFI_TYPE_LEN               2
 #define WIFI_TYPE_TO_INT_MASK       0xFFFF
 
-#define CREDENTIAL_FILED_TYPE       0x100E
+#define CREDENTIAL_FIELD_TYPE       0x100E
 #define WIFI_SSID_TYPE              0x1045
 #define WIFI_NETWORK_KEY_TYPE       0x1027
 #define WIFI_AUTH_TYPE_TYPE         0x1003
@@ -112,7 +112,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     uint32_t offset = 0;
     uint16_t fieldId = GetTypeFromPayload(payload, offset);
-    if (fieldId != CREDENTIAL_FILED_TYPE) {
+    if (fieldId != CREDENTIAL_FIELD_TYPE) {
         return data;
     }
     uint32_t fieldLen = GetTypeFromPayload(payload, offset);

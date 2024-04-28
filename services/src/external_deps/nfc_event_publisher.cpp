@@ -32,11 +32,11 @@ void NfcEventPublisher::PublishNfcStateChanged(int newState)
     EventFwk::CommonEventManager::PublishCommonEvent(data);
 }
 
-void NfcEventPublisher::PublishNfcFieldStateChanged(bool isFiledOn)
+void NfcEventPublisher::PublishNfcFieldStateChanged(bool isFieldOn)
 {
     // notify the common event for field on/off.
     AAFwk::Want want;
-    if (isFiledOn) {
+    if (isFieldOn) {
         want.SetAction(KITS::COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED);
     } else {
         want.SetAction(KITS::COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED);
