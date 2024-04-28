@@ -108,7 +108,7 @@ const std::string NFC_PAYMENT_DEFAULT_APP =
 const std::string NFC_DATA_URI_PAYMENT_DEFAULT_APP = NFC_DATA_ABILITY_PREFIX + NFC_PAYMENT_DEFAULT_APP;
 const std::string DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP = "nfc_payment_default_app";
 
-/** NFC filed on/off common event */
+/** NFC field on/off common event */
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
 const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
 

@@ -172,7 +172,7 @@ private:
     // synchronized lock
     std::mutex rfDiscoveryMutex_;
     OHOS::NFC::SynchronizeEvent transceiveEvent_;
-    OHOS::NFC::SynchronizeEvent filedCheckEvent_;
+    OHOS::NFC::SynchronizeEvent fieldCheckEvent_;
     OHOS::NFC::SynchronizeEvent readNdefEvent_;
     OHOS::NFC::SynchronizeEvent writeNdefEvent_;
     OHOS::NFC::SynchronizeEvent formatNdefEvent_;

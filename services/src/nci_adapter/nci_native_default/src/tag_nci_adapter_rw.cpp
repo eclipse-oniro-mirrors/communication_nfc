@@ -487,9 +487,9 @@ int TagNciAdapterRw::Transceive(const std::string& request, std::string& respons
 
 void TagNciAdapterRw::HandleFieldCheckResult(uint8_t status)
 {
-    NFC::SynchronizeGuard guard(filedCheckEvent_);
+    NFC::SynchronizeGuard guard(fieldCheckEvent_);
     isTagFieldOn_ = (status == NFA_STATUS_OK);
-    filedCheckEvent_.NotifyOne();
+    fieldCheckEvent_.NotifyOne();
 }
 
 void TagNciAdapterRw::ResetTagFieldOnFlag()
@@ -568,10 +568,10 @@ bool TagNciAdapterRw::IsTagFieldOn()
     }
 #endif
     {
-        NFC::SynchronizeGuard guard(filedCheckEvent_);
+        NFC::SynchronizeGuard guard(fieldCheckEvent_);
         if (NFA_RwPresenceCheck(presChkOption_) == NFA_STATUS_OK) {
-            if (filedCheckEvent_.Wait(DEFAULT_TIMEOUT) == false) {
-                ErrorLog("filed on check timeout...");
+            if (fieldCheckEvent_.Wait(DEFAULT_TIMEOUT) == false) {
+                ErrorLog("field on check timeout...");
                 isTagFieldOn_ = false;
             }
         }
@@ -898,8 +898,8 @@ void TagNciAdapterRw::AbortWait()
         transceiveEvent_.NotifyOne();
     }
     {
-        NFC::SynchronizeGuard guard(filedCheckEvent_);
-        filedCheckEvent_.NotifyOne();
+        NFC::SynchronizeGuard guard(fieldCheckEvent_);
+        fieldCheckEvent_.NotifyOne();
     }
     {
         NFC::SynchronizeGuard guard(g_commonReadNdefEvent);

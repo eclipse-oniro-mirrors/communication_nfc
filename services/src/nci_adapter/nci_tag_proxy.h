@@ -148,14 +148,14 @@ public:
     bool IsTagFieldOn(uint32_t tagDiscId) override;
 
     /**
-     * @brief Start filed on checking for tag. If tag lost, callback to notify.
+     * @brief Start field on checking for tag. If tag lost, callback to notify.
      * @param tagDiscId The tag discovered id given from nci stack.
      * @param delayedMs The delayed time to check the tag lost.
      */
     void StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs) override;
 
     /**
-     * @brief Stop filed on checking for tag if tag is connected.
+     * @brief Stop field on checking for tag if tag is connected.
      */
     void StopFieldChecking() override;
 

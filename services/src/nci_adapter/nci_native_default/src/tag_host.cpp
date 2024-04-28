@@ -227,7 +227,7 @@ void TagHost::StopFieldCheckingInner()
     NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
     isFieldChecking_ = false;
     isSkipNextFieldChecking_ = true;
-    filedCheckWatchDog_.NotifyOne();
+    fieldCheckWatchDog_.NotifyOne();
 }
 
 void TagHost::SetTimeout(uint32_t timeout, int technology)

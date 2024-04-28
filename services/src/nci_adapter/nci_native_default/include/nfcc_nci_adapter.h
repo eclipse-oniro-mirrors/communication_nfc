@@ -37,8 +37,8 @@ public:
     ~NfccNciAdapter();
 
     /**
-     * @brief Set card emulation listener to receive filed on/off event.
-     * @param listener The listener to receive filed on/off event.
+     * @brief Set card emulation listener to receive field on/off event.
+     * @param listener The listener to receive field on/off event.
      */
     void SetCeHostListener(std::weak_ptr<INciCeInterface::ICeHostListener> listener);
     void ClearT3tIdentifiersCache();

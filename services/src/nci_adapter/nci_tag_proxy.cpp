@@ -250,7 +250,7 @@ bool NciTagProxy::IsTagFieldOn(uint32_t tagDiscId)
 }
 
 /**
- * @brief Start filed on checking for tag. If tag lost, callback to notify.
+ * @brief Start field on checking for tag. If tag lost, callback to notify.
  * @param tagDiscId The tag discovered id given from nci stack.
  * @param callback The callback to notify.
  * @param delayedMs The delayed time to check the tag lost.
@@ -263,7 +263,7 @@ void NciTagProxy::StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs)
 }
 
 /**
- * @brief Stop filed on checking for tag if tag is connected.
+ * @brief Stop field on checking for tag if tag is connected.
  */
 void NciTagProxy::StopFieldChecking()
 {
