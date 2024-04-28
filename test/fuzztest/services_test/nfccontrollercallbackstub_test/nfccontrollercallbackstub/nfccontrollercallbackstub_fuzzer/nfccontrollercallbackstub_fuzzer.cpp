@@ -12,24 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "hcesessionstub_fuzzer.h"
+#include "nfccontrollercallbackstub_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <securec.h>
 #include <string>
 
-#include "hce_session_stub.h"
-#include "hce_session.h"
+#include "nfc_controller_callback_stub.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "nfc_access_token_mock.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
-    using namespace OHOS::NFC::HCE;
 
-    constexpr uint32_t MESSAGE_SIZE = NFC::NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_SESSION_BUTT;
+    constexpr uint32_t MESSAGE_SIZE = NFC::NfcServiceIpcInterfaceCode::COMMAND_NFC_CONTROLLER_CALLBACK_STUB_BUTT;
     constexpr const auto FUZZER_THRESHOLD = 6;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
@@ -67,7 +65,7 @@ namespace OHOS {
         auto addr = BuildAddressString(data);
 
         MessageParcel datas;
-        std::u16string descriptor = HceSessionStub::GetDescriptor();
+        std::u16string descriptor = NFC::NfcControllerCallBackStub::GetDescriptor();
         datas.WriteInterfaceToken(descriptor);
         datas.WriteInt32(*(reinterpret_cast<const int32_t *>(data)));
         datas.WriteString(addr.c_str());
@@ -75,12 +73,9 @@ namespace OHOS {
         MessageParcel reply;
         MessageOption option;
 
-        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        hceSession->OnRemoteRequest(code, datas, reply, option);
+        NFC::NfcControllerCallBackStub::GetInstance().OnRemoteRequest(code, datas, reply, option);
         return true;
     }
-
 }
 
 /* Fuzzer entry point */

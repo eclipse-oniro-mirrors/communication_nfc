@@ -14,16 +14,16 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 import("//foundation/communication/nfc/test/utils/utils.gni")
-import("../../../../../nfc.gni")
+import("../../../../../../nfc.gni")
 
-ohos_fuzztest("HceSessionStubFuzzTest") {
+ohos_fuzztest("NfcControllerCallBackStubFuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/cardemulation_test/hcesessionstub/hcesessionstub_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/nfccontrollercallbackstub_test/nfccontrollercallbackstub/nfccontrollercallbackstub_fuzzer"
 
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/services/src/ipc/card_emulation",
+    "$NFC_DIR/interfaces/inner_api/controller",
     "$nfc_test_utils_path",
   ]
 
@@ -34,38 +34,25 @@ ohos_fuzztest("HceSessionStubFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "hcesessionstub_fuzzer.cpp" ]
+  sources = [ "nfccontrollercallbackstub_fuzzer.cpp" ]
 
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "$NFC_DIR/services:nfc_service",
-    "$NFC_DIR/services:nfc_service_static",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
     "$nfc_test_utils_path:test_utils_static",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
     "ability_runtime:dataobs_manager",
-    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_core",
-    "common_event_service:cesfwk_innerkits",
+    "data_share:datashare_common",
     "data_share:datashare_consumer",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_core",
-    "miscdevice:vibrator_interface_native",
-    "power_manager:powermgr_client",
-    "preferences:native_preferences",
-    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "screenlock_mgr:screenlock_client",
   ]
 }
 
@@ -74,6 +61,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":HceSessionStubFuzzTest",
+    ":NfcControllerCallBackStubFuzzTest",
   ]
 }

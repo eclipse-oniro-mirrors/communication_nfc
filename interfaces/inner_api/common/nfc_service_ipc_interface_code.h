@@ -45,7 +45,9 @@ public:
 #endif
         COMMAND_REG_READER_MODE,
         COMMAND_UNREG_READER_MODE,
-        COMMAND_TAG_FOUND_READER_MODE
+        COMMAND_TAG_FOUND_READER_MODE,
+        // The last code, if you want to add a new code, please add it before this
+        COMMAND_NFC_CONTROLLER_CALLBACK_STUB_BUTT
     };
 
     enum TagSessionCode {
@@ -76,7 +78,9 @@ public:
         COMMAND_ON_CE_APDU_DATA,
         COMMAND_CE_HCE_TRANSMIT,
         COMMAND_CE_HCE_GET_PAYMENT_SERVICES,
-        COMMAND_CE_HCE_IS_DEFAULT_SERVICE
+        COMMAND_CE_HCE_IS_DEFAULT_SERVICE,
+        // The last code, if you want to add a new code, please add it before this
+        COMMAND_CE_HCE_SESSION_BUTT
     };
 }; // NfcServiceIpcInterfaceCode
 } // NFC
