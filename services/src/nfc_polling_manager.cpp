@@ -226,6 +226,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
         readerModeData_->element_ = element;
         readerModeData_->callback_ = callback;
     }
+    nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
     return true;
 }
@@ -238,7 +239,7 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     readerModeData_->techMask_ = 0xFFFF;
     readerModeData_->callerToken_ = 0;
     readerModeData_->callback_ = nullptr;
-
+    nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
     return true;
 }

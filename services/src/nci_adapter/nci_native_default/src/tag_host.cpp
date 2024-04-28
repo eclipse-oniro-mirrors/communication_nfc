@@ -102,15 +102,9 @@ bool TagHost::Disconnect()
     std::lock_guard<std::mutex> lock(mutex_);
     connectedTagDiscId_ = DEFAULT_VALUE;
     connectedTechIndex_ = DEFAULT_VALUE;
-    isTagFieldOn_ = false;
-    bool result = TagNciAdapterRw::GetInstance().Disconnect();
-    {
-        NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
-        fieldCheckWatchDog_.NotifyOne();
-    }
-    StopFieldChecking();
-    DebugLog("TagHost::Disconnect exit, result = %{public}d", result);
-    return result;
+    StopFieldCheckingInner();
+    DebugLog("TagHost::Disconnect exit");
+    return true;
 }
 
 bool TagHost::Reconnect()
@@ -219,8 +213,21 @@ void TagHost::StartFieldOnChecking(uint32_t delayedMs)
 void TagHost::StopFieldChecking()
 {
     DebugLog("TagHost::StopFieldChecking");
+    if (!IsTagFieldOn()) {
+        InfoLog("TagHost::StopFieldChecking, no tag field on");
+        return;
+    }
+    Disconnect();
+}
+
+void TagHost::StopFieldCheckingInner()
+{
+    // shoule add lock mutex where the function is involked
+    DebugLog("TagHost::StopFeildCheckingInner");
+    NFC::SynchronizeGuard guard(fieldCheckWatchDog_);
     isFieldChecking_ = false;
     isSkipNextFieldChecking_ = true;
+    filedCheckWatchDog_.NotifyOne();
 }
 
 void TagHost::SetTimeout(uint32_t timeout, int technology)

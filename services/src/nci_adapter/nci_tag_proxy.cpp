@@ -263,6 +263,16 @@ void NciTagProxy::StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs)
 }
 
 /**
+ * @brief Stop filed on checking for tag if tag is connected.
+ */
+void NciTagProxy::StopFieldChecking()
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->StopFieldChecking();
+    }
+}
+
+/**
  * @brief Config the timeout value to nfc controller when read or write tag.
  * @param tagDiscId The tag discovered id given from nci stack.
  * @param timeout The timeout value to config.

@@ -42,6 +42,7 @@ public:
     bool DetectNdefInfo(uint32_t tagDiscId, std::vector<int> &ndefInfo) override;
     bool IsTagFieldOn(uint32_t tagDiscId) override;
     void StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs) override;
+    void StopFieldChecking() override;
     void SetTimeout(uint32_t tagDiscId, uint32_t timeout, uint32_t technology) override;
     void GetTimeout(uint32_t tagDiscId, uint32_t &timeout, uint32_t technology) override;
     void ResetTimeout(uint32_t tagDiscId) override;
@@ -52,6 +53,7 @@ public:
 
 private:
     static constexpr int ISO_DEP_FRAME_MAX_LEN = 261;
+    uint32_t tagDiscId_;
 };
 }  // namespace NCI
 }  // namespace NFC

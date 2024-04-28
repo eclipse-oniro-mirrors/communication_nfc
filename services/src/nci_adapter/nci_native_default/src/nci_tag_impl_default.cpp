@@ -169,7 +169,16 @@ void NciTagImplDefault::StartFieldOnChecking(uint32_t tagDiscId, uint32_t delaye
 {
     auto tag = TagNativeImpl::GetInstance().GetTag(tagDiscId).lock();
     if (tag) {
+        tagDiscId_ = tagDiscId;
         return tag->StartFieldOnChecking(delayedMs);
+    }
+}
+
+void NciTagImplDefault::StopFieldChecking()
+{
+    auto tag = TagNativeImpl::GetInstance().GetTag(tagDiscId_).lock();
+    if (tag) {
+        return tag->StopFieldChecking();
     }
 }
 
