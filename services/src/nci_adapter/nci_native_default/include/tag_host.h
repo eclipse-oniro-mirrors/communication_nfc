@@ -104,6 +104,7 @@ private:
     void FieldCheckingThread(uint32_t delayedMs);
     void PauseFieldChecking();
     void ResumeFieldChecking();
+    void StopFieldCheckingInner();
     void AddNdefTechToTagInfo(uint32_t tech, uint32_t discId, uint32_t actProto, AppExecFwk::PacMap pacMap);
     uint32_t GetNdefType(uint32_t protocol) const;
     bool IsUltralightC();

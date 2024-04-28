@@ -163,6 +163,11 @@ public:
     virtual void StartFieldOnChecking(uint32_t tagDiscId, uint32_t delayedMs) = 0;
 
     /**
+     * @brief Stop filed on checking for tag if tag is connected.
+     */
+    virtual void StopFieldChecking() = 0;
+
+    /**
      * @brief Config the timeout value to nfc controller when read or write tag.
      * @param tagDiscId The tag discovered id given from nci stack.
      * @param timeout The timeout value to config.
