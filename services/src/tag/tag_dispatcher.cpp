@@ -70,9 +70,6 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
-    if (msg.empty()) {
-        return false;
-    }
     int msgType = NDEF_TYPE_NORMAL;
     std::string ndef = msg;
 #ifdef NDEF_BT_ENABLED
@@ -96,12 +93,16 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
     bool ndefCbRes = false;
-    if (ndefCb_ != nullptr && !ndef.empty()) {
+    if (ndefCb_ != nullptr) {
         ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
     }
     if (ndefCbRes) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
         return true;
+    }
+    if (msg.empty()) {
+        ErrorLog("HandleNdefDispatch, ndef msg is empty");
+        return false;
     }
 #ifdef NDEF_BT_ENABLED
     if (msgType == NDEF_TYPE_BT) {
@@ -162,7 +163,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             break;
         }
         ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
-        if (ndefMessage != nullptr && HandleNdefDispatch(tagDiscId, ndefMsg)) {
+        if (HandleNdefDispatch(tagDiscId, ndefMsg)) {
             break;
         }
         PublishTagNotification(tagDiscId, isIsoDep);
