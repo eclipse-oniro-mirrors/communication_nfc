@@ -16,6 +16,7 @@
 #include "nfa_api.h"
 #include "nfc_config.h"
 #include "nfc_sdk_common.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -26,6 +27,8 @@ namespace NCI {
 constexpr uint32_t ISO_DEP_FRAME_MAX_LEN = 261;
 
 constexpr uint32_t ISO_DEP_MAX_TRANSEIVE_LENGTH = 0xFEFF;
+
+const static uint32_t MAX_NUM_TECH_LIST = 12;
 
 TagNativeImpl& TagNativeImpl::GetInstance()
 {
@@ -101,7 +104,12 @@ bool TagNativeImpl::CanMakeReadOnly(uint32_t ndefType)
 uint16_t TagNativeImpl::GetTechMaskFromTechList(const std::vector<uint32_t> &discTech)
 {
     uint16_t techMask = 0;
-    for (uint16_t i = 0; i < sizeof(discTech); i++) {
+    size_t discTechLen = discTech.size();
+    if (discTechLen > MAX_NUM_TECH_LIST) {
+        ErrorLog("GetTechMaskFromTechList: invalid discTech length");
+        return techMask;
+    }
+    for (uint16_t i = 0; i < discTechLen ; i++) {
         switch (discTech[i]) {
             case static_cast<int32_t>(KITS::TagTechnology::NFC_A_TECH):
                 techMask |= NFA_TECHNOLOGY_MASK_A;
