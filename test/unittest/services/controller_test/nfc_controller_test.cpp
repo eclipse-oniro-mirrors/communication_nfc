@@ -227,6 +227,74 @@ HWTEST_F(NfcControllerTest, NfcControllerImpl001, TestSize.Level1)
     ASSERT_TRUE(impl2->Dump(0, args) == ErrorCode::ERR_NFC_PARAMETERS);
     delete impl2;
 }
+
+/**
+ * @tc.name: OnRemoteDied001
+ * @tc.desc: Test NfcController OnRemoteDied.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, OnRemoteDied001, TestSize.Level1)
+{
+    wptr<IRemoteObject> remoteObject = nullptr;
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.OnRemoteDied(remoteObject);
+}
+
+/**
+ * @tc.name: RegNdefMsgCb001
+ * @tc.desc: Test NfcController RegNdefMsgCb.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, RegNdefMsgCb001, TestSize.Level1)
+{
+    sptr<INdefMsgCallback> callback = nullptr;
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.RegNdefMsgCb(callback);
+    ASSERT_TRUE(errorCode == ERR_NONE);
+}
+
+/**
+ * @tc.name: RegQueryApplicationCb001
+ * @tc.desc: Test NfcController RegQueryApplicationCb.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, RegQueryApplicationCb001, TestSize.Level1)
+{
+    std::string type = "";
+    QueryApplicationByVendor tagCallback = nullptr;
+    QueryHceAppByVendor hceCallback = nullptr;
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.RegQueryApplicationCb(type, tagCallback, hceCallback);
+    ASSERT_TRUE(errorCode == ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: RegCardEmulationNotifyCb001
+ * @tc.desc: Test NfcController RegCardEmulationNotifyCb.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, RegCardEmulationNotifyCb001, TestSize.Level1)
+{
+    OnCardEmulationNotifyCb callback = nullptr;
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.RegCardEmulationNotifyCb(callback);
+    ASSERT_TRUE(errorCode == ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: NotifyEventStatus001
+ * @tc.desc: Test NfcController NotifyEventStatus.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, NotifyEventStatus001, TestSize.Level1)
+{
+    int eventType = 0;
+    int arg1 = 0;
+    std::string arg2 = "";
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.NotifyEventStatus(eventType, arg1, arg2);
+    ASSERT_TRUE(errorCode == ERR_NONE);
+}
 }
 }
 }
