@@ -254,7 +254,11 @@ void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFoun
             layout.payloadLength = 0;
         } else {
             std::string lenString = data.substr(parsedDataIndex * HEX_BYTE_LEN, sizeof(int) * HEX_BYTE_LEN);
-            layout.payloadLength = NfcSdkCommon::StringToInt(lenString, NfcSdkCommon::IsLittleEndian());
+            layout.payloadLength = 0;
+            for (unsigned int i = 0; i < sizeof(int); i++) {
+                layout.payloadLength +=
+                    (NfcSdkCommon::GetByteFromHexStr(lenString, i) << ((sizeof(int) - i - 1) * ONE_BYTE_SHIFT));
+            }
             parsedDataIndex += sizeof(int);
         }
     }

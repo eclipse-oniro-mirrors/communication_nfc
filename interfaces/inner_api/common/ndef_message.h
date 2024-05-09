@@ -89,6 +89,7 @@ public:
     const int MAX_RTD_TYPE_LEN = 2;
     static const long int MAX_PAYLOAD_SIZE = 10 * (1 << 20);  // 10MB
     static const int SHORT_RECORD_SIZE = 256;
+    static const unsigned int ONE_BYTE_SHIFT = 8;
 
     // TNF Type define
     enum EmTnfType {
