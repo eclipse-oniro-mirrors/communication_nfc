@@ -158,6 +158,10 @@ int TagSession::GetTimeout(int tagRfDiscId, int technology, int &timeout)
 
 void TagSession::ResetTimeout(int tagRfDiscId)
 {
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("ResetTimeout, expired");
+        return;
+    }
     nciTagProxy_.lock()->ResetTimeout(tagRfDiscId);
     return;
 }
