@@ -111,7 +111,7 @@ bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::s
 
 bool CeService::InitConfigAidRouting(bool forceUpdate)
 {
-    DebugLog("AddAidRoutingHceAids: start, forceUpdate is %{public}d",forceUpdate);
+    DebugLog("AddAidRoutingHceAids: start, forceUpdate is %{public}d", forceUpdate);
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     std::map<std::string, AidEntry> aidEntries;
     BuildAidEntries(aidEntries);
