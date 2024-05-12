@@ -310,7 +310,7 @@ bool NfcService::DoTurnOn()
     /* Start polling loop */
     nfcPollingManager_->StartPollingLoop(true);
     ceService_->Initialize();
-    ceService_->InitConfigAidRouting();
+    ceService_->InitConfigAidRouting(true);
 
     nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
     nfcRoutingManager_->CommitRouting();
