@@ -162,6 +162,10 @@ void TagSession::ResetTimeout(int tagRfDiscId)
         ErrorLog("ResetTimeout, expired");
         return;
     }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("ResetTimeout, IsNfcEnabled error");
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
     nciTagProxy_.lock()->ResetTimeout(tagRfDiscId);
     return;
 }

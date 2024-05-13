@@ -96,7 +96,7 @@ HWTEST_F(NciCeProxyTest, CommitRouting001, TestSize.Level1)
  */
 HWTEST_F(NciCeProxyTest, SendRawFrame001, TestSize.Level1)
 {
-    std::string hexCmdData = "";
+    std::string hexCmdData = "123456";
     std::shared_ptr<NciCeProxy> nciCeProxy = std::make_shared<NciCeProxy>();
     bool sendRawFrame = nciCeProxy->SendRawFrame(hexCmdData);
     ASSERT_TRUE(sendRawFrame == false);
