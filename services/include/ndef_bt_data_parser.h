@@ -34,6 +34,7 @@ public:
     Bluetooth::BluetoothDeviceClass btClass_ {};
 
     std::string macAddress_ = "";
+    std::string macAddrOrg_ = "";
     std::string vendorSerialNum_ = "";
     std::string vendorPayload_ = "";
 };
@@ -50,7 +51,8 @@ private:
     static std::vector<Bluetooth::UUID> GetUuidFromPayload(const std::string& payload, uint32_t& offset,
                                                            uint32_t type, uint32_t len);
     static std::string GetDataFromPayload(const std::string& payload, uint32_t& offset, uint32_t datalen);
-    static std::string GetBtMacFromPayload(const std::string& payload, uint32_t& offset);
+    static std::string FormatBtMacAddr(const std::string& orgBtMac);
+    static std::string GetOrgBtMacFromPayload(const std::string& payload, uint32_t& offset);
     static bool GetBtDevClass(const std::string& payload, uint32_t& offset,
                               Bluetooth::BluetoothDeviceClass& btClass);
     static std::string RevertUuidStr(const std::string& uuid);
