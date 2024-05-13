@@ -26,6 +26,7 @@ ohos_shared_library("nfc_notification") {
     integer_overflow = true
     cfi_cross_dso = true
     debug = false
+    ubsan = true
   }
   branch_protector_ret = "pac_ret"
 

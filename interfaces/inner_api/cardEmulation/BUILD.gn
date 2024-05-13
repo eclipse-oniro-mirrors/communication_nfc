@@ -39,6 +39,7 @@ ohos_shared_library("nfc_inner_kits_card_emulation") {
     integer_overflow = true
     cfi_cross_dso = true
     debug = false
+    ubsan = true
   }
   branch_protector_ret = "pac_ret"
   sources = [
