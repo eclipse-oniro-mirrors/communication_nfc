@@ -56,6 +56,7 @@ namespace TAG {
 #define SEC_MGR_LE_SC_R_SIZE             16
 #define CLASS_OF_DEVICE_SIZE             3
 #define VENDOR_SERIAL_NUM_SIZE           2
+#define MAC_ADDR_SIZE                    6
 
 #define UUID_SEPARATOR                   "-"
 #define MAC_SEPARATOR                    ":"
@@ -67,24 +68,27 @@ NdefBtDataParser::NdefBtDataParser()
 {
 }
 
-std::string NdefBtDataParser::GetBtMacFromPayload(const std::string& payload, uint32_t& offset)
+std::string NdefBtDataParser::FormatBtMacAddr(const std::string& orgBtMac)
 {
-    uint32_t macLen = 6;
-    if (macLen * HEX_BYTE_LEN > payload.length() - (offset * HEX_BYTE_LEN)) {
+    std::string result = "";
+    for (uint32_t i = MAC_ADDR_SIZE - 1; i > 0; i--) {
+        result += orgBtMac.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
+        result += MAC_SEPARATOR;
+    }
+    result += orgBtMac.substr(0, HEX_BYTE_LEN);
+    return result;
+}
+
+std::string NdefBtDataParser::GetOrgBtMacFromPayload(const std::string& payload, uint32_t& offset)
+{
+    if (MAC_ADDR_SIZE * HEX_BYTE_LEN > payload.length() - (offset * HEX_BYTE_LEN)) {
         ErrorLog("NdefBtDataParser::GetBtMacFromPayload, data error, "
             "payload len %{public}lu offset.%{public}d", payload.length(), offset);
         return "";
     }
-    std::string mac = payload.substr(offset * HEX_BYTE_LEN, macLen * HEX_BYTE_LEN);
-    offset += macLen;
-
-    std::string result = "";
-    for (uint32_t i = macLen - 1; i > 0; i--) {
-        result += mac.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
-        result += MAC_SEPARATOR;
-    }
-    result += mac.substr(0, HEX_BYTE_LEN);
-    return result;
+    std::string mac = payload.substr(offset * HEX_BYTE_LEN, MAC_ADDR_SIZE * HEX_BYTE_LEN);
+    offset += MAC_ADDR_SIZE;
+    return mac;
 }
 
 bool NdefBtDataParser::GetBtDevClass(const std::string& payload, uint32_t& offset,
@@ -201,13 +205,14 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
 
     uint32_t len = 2;
     offset += len;
-    std::string macAddress = GetBtMacFromPayload(payload, offset);
+    std::string macAddress = GetOrgBtMacFromPayload(payload, offset);
     if (macAddress.empty()) {
         ErrorLog("NdefBtDataParser::ParseBtRecord, macAddress error, "
             "payload .len %{public}lu offset.%{public}d", payload.length(), offset);
         return data;
     }
-    data->macAddress_ = macAddress;
+    data->macAddrOrg_ = macAddress;
+    data->macAddress_ = FormatBtMacAddr(macAddress);
     data->isValid_ = true;
 
     while ((offset * HEX_BYTE_LEN) < payload.length()) {
@@ -329,12 +334,13 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBleRecord(const std::string& payl
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                macAddress = GetBtMacFromPayload(payload, offset);
-                if (macAddress.empty()) {
+                std::string mac = GetOrgBtMacFromPayload(payload, offset);
+                if (mac.empty()) {
                     ErrorLog("NdefBtDataParser::ParseBleRecord, macAddress error, "
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
+                macAddress = FormatBtMacAddr(mac);
                 offset++; // advance over random byte
                 data->isValid_ = true;
                 break;
