@@ -67,7 +67,7 @@ public:
     bool SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                           Security::AccessToken::AccessTokenID callerToken);
 
-    bool InitConfigAidRouting();
+    bool InitConfigAidRouting(bool forceUpdate);
     void OnDefaultPaymentServiceChange() override;
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
     void Initialize();

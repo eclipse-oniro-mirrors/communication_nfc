@@ -109,15 +109,15 @@ bool CeService::SendHostApduData(const std::string &hexCmdData, bool raw, std::s
     return hostCardEmulationManager_->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
 }
 
-bool CeService::InitConfigAidRouting()
+bool CeService::InitConfigAidRouting(bool forceUpdate)
 {
-    DebugLog("AddAidRoutingHceAids: start");
+    DebugLog("AddAidRoutingHceAids: start, forceUpdate is %{public}d", forceUpdate);
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
     std::map<std::string, AidEntry> aidEntries;
     BuildAidEntries(aidEntries);
     InfoLog("AddAidRoutingHceAids, aid entries cache size %{public}zu,aid entries newly builded size %{public}zu",
             aidToAidEntry_.size(), aidEntries.size());
-    if (aidEntries == aidToAidEntry_) {
+    if (aidEntries == aidToAidEntry_ && !forceUpdate) {
         InfoLog("aid entries do not change.");
         return false;
     }
@@ -364,8 +364,14 @@ void CeService::ConfigRoutingAndCommit()
         return;
     }
 
-    bool updateAids = InitConfigAidRouting();
+    bool updateAids = false;
     bool updatePaymentType = UpdateDefaultPaymentType();
+    if (updatePaymentType) {
+        updateAids = InitConfigAidRouting(true);
+    } else {
+        updateAids = InitConfigAidRouting(false);
+    }
+
     InfoLog(
         "ConfigRoutingAndCommit: aids updated status %{public}d, default payment type updated status %{public}d.",
         updateAids, updatePaymentType);

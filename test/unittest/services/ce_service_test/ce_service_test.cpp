@@ -115,7 +115,7 @@ HWTEST_F(CeServiceTest, InitConfigAidRouting001, TestSize.Level1)
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    bool ret = ceService->InitConfigAidRouting();
+    bool ret = ceService->InitConfigAidRouting(true);
     ASSERT_TRUE(ret == false);
 }
 
