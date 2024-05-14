@@ -310,6 +310,8 @@ HWTEST_F(HceSessionTest, StopHce002, TestSize.Level1)
 {
     std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
     nfcService->Initialize();
+    std::weak_ptr<NFC::CeService> ceService = nfcService->GetCeService();
+    ceService.lock()->Initialize();
     ElementName element;
     Security::AccessToken::AccessTokenID callerToken = 0;
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
