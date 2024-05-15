@@ -101,7 +101,7 @@ public:
      * @param tagRfDiscId the rf disc id of tag
      * @return the read data
      */
-    virtual std::string NdefRead(int tagRfDiscId) = 0;
+    virtual int NdefRead(int tagRfDiscId, std::string &ndefMessage) = 0;
     /**
      * @brief Writing the data into the host tag.
      * @param tagRfDiscId the rf disc id of tag
@@ -150,7 +150,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    virtual KITS::ErrorCode RegForegroundDispatch(AppExecFwk::ElementName &element,
+    virtual int RegForegroundDispatch(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) = 0;
 
     /**
@@ -159,7 +159,7 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    virtual KITS::ErrorCode UnregForegroundDispatch(AppExecFwk::ElementName &element) = 0;
+    virtual int UnregForegroundDispatch(AppExecFwk::ElementName &element) = 0;
 
     /**
      * @brief register reader mode
@@ -169,7 +169,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    virtual KITS::ErrorCode RegReaderMode(AppExecFwk::ElementName &element,
+    virtual int RegReaderMode(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback) = 0;
 
     /**
@@ -178,7 +178,7 @@ public:
      * @param element the element name of the hap that request to unregister reader mode.
      * @return The status code for unregister operation.
      */
-    virtual KITS::ErrorCode UnregReaderMode(AppExecFwk::ElementName &element) = 0;
+    virtual int UnregReaderMode(AppExecFwk::ElementName &element) = 0;
 private:
 };
 }  // namespace TAG

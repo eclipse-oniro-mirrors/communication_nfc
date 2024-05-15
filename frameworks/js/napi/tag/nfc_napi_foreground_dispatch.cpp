@@ -301,11 +301,11 @@ public:
 sptr<ForegroundListenerEvent> foregroundListenerEvent =
     sptr<ForegroundListenerEvent>(new (std::nothrow) ForegroundListenerEvent());
 
-ErrorCode ForegroundEventRegister::RegisterForegroundEvents(ElementName &element,
+int ForegroundEventRegister::RegisterForegroundEvents(ElementName &element,
     std::vector<uint32_t> &discTech)
 {
     TagForeground tagForeground = TagForeground::GetInstance();
-    ErrorCode ret = tagForeground.RegForeground(element, discTech, foregroundListenerEvent);
+    int ret = tagForeground.RegForeground(element, discTech, foregroundListenerEvent);
     if (ret != KITS::ERR_NONE) {
         DebugLog("ForegroundEventRegister foregroundListenerEvent failed!");
         return ret;
@@ -313,10 +313,10 @@ ErrorCode ForegroundEventRegister::RegisterForegroundEvents(ElementName &element
     return ret;
 }
 
-ErrorCode ForegroundEventRegister::UnregisterForegroundEvents(ElementName &element)
+int ForegroundEventRegister::UnregisterForegroundEvents(ElementName &element)
 {
     TagForeground tagForeground = TagForeground::GetInstance();
-    ErrorCode ret = tagForeground.UnregForeground(element);
+    int ret = tagForeground.UnregForeground(element);
     if (ret != KITS::ERR_NONE) {
         DebugLog("UnregisterForegroundEvents nfcListenerEvent failed!");
         return ret;
@@ -330,13 +330,13 @@ ForegroundEventRegister& ForegroundEventRegister::GetInstance()
     return inst;
 }
 
-ErrorCode ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
+int ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     std::vector<uint32_t> &discTech, napi_value handler)
 {
     InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!isEvtRegistered) {
-        ErrorCode ret = RegisterForegroundEvents(element, discTech);
+        int ret = RegisterForegroundEvents(element, discTech);
         if (ret != ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Register, reg event failed");
             return ret;
@@ -367,11 +367,11 @@ void ForegroundEventRegister::DeleteRegisterObj(const napi_env &env, RegObj &reg
     }
 }
 
-ErrorCode ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
+int ForegroundEventRegister::Unregister(const napi_env &env, ElementName &element, napi_value handler)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!g_foregroundRegInfo.IsEmpty()) {
-        ErrorCode ret = UnregisterForegroundEvents(element);
+        int ret = UnregisterForegroundEvents(element);
         if (ret != ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Unregister, unreg event failed.");
             return ret;
@@ -487,15 +487,15 @@ public:
 sptr<ReaderModeListenerEvt> readerModeListenerEvt =
     sptr<ReaderModeListenerEvt>(new (std::nothrow) ReaderModeListenerEvt());
 
-ErrorCode ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
-                                                  std::vector<uint32_t> &discTech)
+int ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
+                                            std::vector<uint32_t> &discTech)
 {
     if (type.compare(TYPE_READER_MODE) != 0) {
         ErrorLog("RegReaderModeEvt invalid type: %{public}s", type.c_str());
         return KITS::ERR_NFC_PARAMETERS;
     }
     TagForeground tagForeground = TagForeground::GetInstance();
-    ErrorCode ret = tagForeground.RegReaderMode(element, discTech, readerModeListenerEvt);
+    int ret = tagForeground.RegReaderMode(element, discTech, readerModeListenerEvt);
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegReaderModeEvt register failed!");
         return ret;
@@ -503,14 +503,14 @@ ErrorCode ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName
     return ret;
 }
 
-ErrorCode ReaderModeEvtRegister::UnregReaderModeEvt(std::string &type, ElementName &element)
+int ReaderModeEvtRegister::UnregReaderModeEvt(std::string &type, ElementName &element)
 {
     if (type.compare(TYPE_READER_MODE) != 0) {
         ErrorLog("UnregReaderModeEvt invalid type: %{public}s", type.c_str());
         return KITS::ERR_NFC_PARAMETERS;
     }
     TagForeground tagForeground = TagForeground::GetInstance();
-    ErrorCode ret = tagForeground.UnregReaderMode(element);
+    int ret = tagForeground.UnregReaderMode(element);
     if (ret != KITS::ERR_NONE) {
         DebugLog("UnregReaderModeEvt nfcListenerEvent failed!");
         return ret;
@@ -524,13 +524,13 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
     return inst;
 }
 
-ErrorCode ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
-                                          std::vector<uint32_t> &discTech, napi_value handler)
+int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
+                                    std::vector<uint32_t> &discTech, napi_value handler)
 {
     InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
     if (!isReaderModeRegistered) {
-        ErrorCode ret = RegReaderModeEvt(type, element, discTech);
+        int ret = RegReaderModeEvt(type, element, discTech);
         if (ret != KITS::ERR_NONE) {
             ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
             return ret;
@@ -561,15 +561,15 @@ void ReaderModeEvtRegister::DeleteRegisteredObj(const napi_env &env, RegObj &reg
     }
 }
 
-ErrorCode ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, ElementName &element,
-                                            napi_value handler)
+int ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, ElementName &element,
+                                      napi_value handler)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
     if (g_readerModeRegInfo.IsEmpty()) {
         ErrorLog("ReaderModeEvtRegister::Unregister, reader not registered");
         return ERR_TAG_APP_NOT_REGISTERED;
     }
-    ErrorCode ret = UnregReaderModeEvt(type, element);
+    int ret = UnregReaderModeEvt(type, element);
     if (ret != ERR_NONE) {
         ErrorLog("ReaderModeEvtRegister::Unregister, unreg event failed.");
         return ret;

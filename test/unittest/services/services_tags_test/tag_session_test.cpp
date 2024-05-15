@@ -146,7 +146,7 @@ HWTEST_F(TagSessionTest, UnregForegroundDispatch001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
-    KITS::ErrorCode result = tagSession->UnregForegroundDispatch(element);
+    int result = tagSession->UnregForegroundDispatch(element);
     ASSERT_TRUE(result == KITS::ERR_NONE);
 }
 /**
@@ -161,7 +161,7 @@ HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech;
     const sptr<KITS::IForegroundCallback> callback;
-    KITS::ErrorCode result = tagSession->RegForegroundDispatch(element, discTech, callback);
+    int result = tagSession->RegForegroundDispatch(element, discTech, callback);
     ASSERT_TRUE(result != KITS::ERR_NONE);
 }
 /**
@@ -580,7 +580,7 @@ HWTEST_F(TagSessionTest, RegReaderMode001, TestSize.Level1)
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech;
     const sptr<KITS::IReaderModeCallback> callback = nullptr;
-    KITS::ErrorCode errorCode = tagSession->RegReaderMode(element, discTech, callback);
+    int errorCode = tagSession->RegReaderMode(element, discTech, callback);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_TAG_APP_NOT_FOREGROUND);
 }
 
@@ -594,7 +594,7 @@ HWTEST_F(TagSessionTest, UnregReaderMode001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     AppExecFwk::ElementName element;
-    KITS::ErrorCode errorCode = tagSession->UnregReaderMode(element);
+    int errorCode = tagSession->UnregReaderMode(element);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NONE);
 }
 

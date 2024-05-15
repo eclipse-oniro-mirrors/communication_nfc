@@ -31,30 +31,38 @@ using OHOS::AppExecFwk::ElementName;
 int TagSessionProxy::Connect(int tagRfDiscId, int technology)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(static_cast<int32_t>(technology));
     MessageOption option(MessageOption::TF_SYNC);
-    int result;
-    SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT),
-        data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::Connect, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::Reconnect(int tagRfDiscId)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    int result;
-    SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT),
-        data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::Reconnect, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 void TagSessionProxy::Disconnect(int tagRfDiscId)
@@ -72,6 +80,7 @@ void TagSessionProxy::Disconnect(int tagRfDiscId)
 int TagSessionProxy::SetTimeout(int tagRfDiscId, int timeout, int technology)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -79,21 +88,32 @@ int TagSessionProxy::SetTimeout(int tagRfDiscId, int timeout, int technology)
     data.WriteInt32(technology);
     data.WriteInt32(timeout);
     MessageOption option(MessageOption::TF_SYNC);
-    return SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT),
-        data, option);
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::SetTimeout, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::GetTimeout(int tagRfDiscId, int technology, int &timeout)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
-    return SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT),
-        data, option, timeout);
+    int statusCode = SendRequestExpectReplyIntAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT), data, reply, option, timeout);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::GetTimeout, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 void TagSessionProxy::ResetTimeout(int tagRfDiscId)
@@ -111,14 +131,20 @@ void TagSessionProxy::ResetTimeout(int tagRfDiscId)
 int TagSessionProxy::GetMaxTransceiveLength(int technology, int &maxSize)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(technology);
     MessageOption option(MessageOption::TF_SYNC);
-    return SendRequestExpectReplyInt(
+    int statusCode = SendRequestExpectReplyIntAndStatusCode(
         static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH),
-        data, option, maxSize);
+        data, reply, option, maxSize);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::GetMaxTransceiveLength, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
@@ -132,13 +158,12 @@ int TagSessionProxy::SendRawFrame(const int tagRfDiscId, std::string hexCmdData,
     data.WriteInt32(tagRfDiscId);
     data.WriteString(hexCmdData);
     data.WriteBool(raw);
-    int statusCode = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME),
-        data, reply, option);
+    int statusCode = SendRequestExpectReplyStringAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME), data, reply, option, hexRespData);
     if (statusCode == ERR_NONE) {
-        hexRespData = reply.ReadString();
         statusCode = reply.ReadInt32();
-        DebugLog("TagSessionProxy::SendRawFrame, statusCode=0x%{public}X", statusCode);
     }
+    InfoLog("TagSessionProxy::SendRawFrame, statusCode=0x%{public}X", statusCode);
     return statusCode;
 }
 
@@ -190,94 +215,118 @@ bool TagSessionProxy::IsNdef(int tagRfDiscId)
     return result;
 }
 
-std::string TagSessionProxy::NdefRead(int tagRfDiscId)
+int TagSessionProxy::NdefRead(int tagRfDiscId, std::string &ndefMessage)
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return "";
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
-    int res = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ),
-        data, reply, option);
-    if (res != ERR_NONE) {
-        ErrorLog("It is failed To Ndef Read with Res(%{public}d).", res);
-        return std::string();
+    MessageOption option(MessageOption::TF_SYNC);
+    int statusCode = SendRequestExpectReplyStringAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ), data, reply, option, ndefMessage);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
     }
-    return reply.ReadString();
+    InfoLog("TagSessionProxy::NdefRead statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::NdefWrite(int tagRfDiscId, std::string msg)
 {
-    int result = 0;
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteString(msg);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE),
-        data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::NdefWrite statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::NdefMakeReadOnly(int tagRfDiscId)
 {
-    int result = 0;
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY),
-        data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::NdefMakeReadOnly statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::FormatNdef(int tagRfDiscId, const std::string& key)
 {
-    int result = 0;
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
     data.WriteInt32(tagRfDiscId);
     data.WriteString(key);
     MessageOption option(MessageOption::TF_SYNC);
-    SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF),
-        data, option, result);
-    return result;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::FormatNdef statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
 int TagSessionProxy::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return false;
     }
     data.WriteInt32(ndefType);
     MessageOption option(MessageOption::TF_SYNC);
-    int statusCode = SendRequestExpectReplyBool(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY), data, option, canSetReadOnly);
+    int statusCode = SendRequestExpectReplyBoolAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY),
+        data, reply, option, canSetReadOnly);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::CanMakeReadOnly statusCode = %{public}X", statusCode);
     return statusCode;
 }
 
 int TagSessionProxy::IsSupportedApdusExtended(bool &isSupported)
 {
     MessageParcel data;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return KITS::ErrorCode::ERR_TAG_PARAMETERS;
     }
-    return SendRequestExpectReplyBool(
+    MessageOption option(MessageOption::TF_SYNC);
+    int statusCode = SendRequestExpectReplyBoolAndStatusCode(
         static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED),
-        data, option, isSupported);
+        data, reply, option, isSupported);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("TagSessionProxy::IsSupportedApdusExtended statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
-KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSessionProxy::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     MessageParcel data;
@@ -301,17 +350,16 @@ KITS::ErrorCode TagSessionProxy::RegForegroundDispatch(ElementName &element, std
         ErrorLog("RegForegroundDispatch: WriteRemoteObject failed!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int result = KITS::ERR_NFC_PARAMETERS;
-    int res = SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_FOREGROUND),
-        data, option, result);
-    if (res != ERR_NONE) {
-        ErrorLog("RegForegroundDispatch failed, error code is %{public}d", res);
-        return KITS::ERR_NFC_PARAMETERS;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_FOREGROUND), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
     }
-    return static_cast<KITS::ErrorCode>(result);
+    InfoLog("TagSessionProxy::RegForegroundDispatch statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
-KITS::ErrorCode TagSessionProxy::UnregForegroundDispatch(ElementName &element)
+int TagSessionProxy::UnregForegroundDispatch(ElementName &element)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -325,17 +373,16 @@ KITS::ErrorCode TagSessionProxy::UnregForegroundDispatch(ElementName &element)
         return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
-    int result = KITS::ERR_NFC_PARAMETERS;
-    int error = SendRequestExpectReplyInt(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND), data, option, result);
-    if (error != ERR_NONE) {
-        ErrorLog("UnregForegroundDispatch failed, error code is %{public}d", error);
-        return KITS::ERR_NFC_PARAMETERS;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
     }
-    return static_cast<KITS::ErrorCode>(result);
+    InfoLog("TagSessionProxy::UnregForegroundDispatch statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
-KITS::ErrorCode TagSessionProxy::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSessionProxy::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     MessageParcel data;
@@ -359,17 +406,16 @@ KITS::ErrorCode TagSessionProxy::RegReaderMode(ElementName &element, std::vector
         ErrorLog("RegReaderMode: WriteRemoteObject failed!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int result = KITS::ERR_NFC_PARAMETERS;
-    int res = SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_READER_MODE),
-        data, option, result);
-    if (res != ERR_NONE) {
-        ErrorLog("RegReaderMode failed, error code is %{public}d", res);
-        return KITS::ERR_NFC_PARAMETERS;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_REG_READER_MODE), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
     }
-    return static_cast<KITS::ErrorCode>(result);
+    InfoLog("TagSessionProxy::RegReaderMode statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 
-KITS::ErrorCode TagSessionProxy::UnregReaderMode(ElementName &element)
+int TagSessionProxy::UnregReaderMode(ElementName &element)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -383,14 +429,13 @@ KITS::ErrorCode TagSessionProxy::UnregReaderMode(ElementName &element)
         return KITS::ERR_NFC_PARAMETERS;
     }
     data.WriteInt32(0);
-    int result = KITS::ERR_NFC_PARAMETERS;
-    int error = SendRequestExpectReplyInt(
-        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_READER_MODE), data, option, result);
-    if (error != ERR_NONE) {
-        ErrorLog("UnregReaderMode failed, error code is %{public}d", error);
-        return KITS::ERR_NFC_PARAMETERS;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_UNREG_READER_MODE), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
     }
-    return static_cast<KITS::ErrorCode>(result);
+    InfoLog("TagSessionProxy::UnregReaderMode statusCode = %{public}X", statusCode);
+    return statusCode;
 }
 }  // namespace TAG
 }  // namespace NFC

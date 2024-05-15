@@ -254,15 +254,16 @@ int TagSession::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool
  * @param tagRfDiscId the rf disc id of tag
  * @return the read data
  */
-std::string TagSession::NdefRead(int tagRfDiscId)
+int TagSession::NdefRead(int tagRfDiscId, std::string &ndefMessage)
 {
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefRead, IsTagFieldOn error");
-        return "";
+        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
 
-    return nciTagProxy_.lock()->ReadNdef(tagRfDiscId);
+    ndefMessage = nciTagProxy_.lock()->ReadNdef(tagRfDiscId);
+    return NFC::KITS::ErrorCode::ERR_NONE;
 }
 /**
  * @brief Writing the data into the host tag.
@@ -469,14 +470,17 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
     return false;
 }
 
-KITS::ErrorCode TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
+    if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+        return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+    }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegForegroundDispatchInner(element, discTech, callback);
 }
 
-KITS::ErrorCode TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
+int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
     if (IsFgRegistered(element, discTech, callback)) {
@@ -517,13 +521,13 @@ bool TagSession::IsFgRegistered(const ElementName &element, const std::vector<ui
     return false;
 }
 
-KITS::ErrorCode TagSession::UnregForegroundDispatch(ElementName &element)
+int TagSession::UnregForegroundDispatch(ElementName &element)
 {
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return UnregForegroundDispatchInner(element, true);
 }
 
-KITS::ErrorCode TagSession::UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister)
+int TagSession::UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister)
 {
     if (IsFgUnregistered(element, isAppUnregister)) {
         WarnLog("%{public}s already UnregForegroundDispatch", element.GetBundleName().c_str());
@@ -615,7 +619,7 @@ bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnre
     return true;
 }
 
-KITS::ErrorCode TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     if (IsReaderRegistered(element, discTech, callback)) {
@@ -634,7 +638,7 @@ KITS::ErrorCode TagSession::RegReaderModeInner(ElementName &element, std::vector
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
+int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
 {
     if (IsReaderUnregistered(element, isAppUnregister)) {
         WarnLog("%{public}s already UnregReaderMode", element.GetBundleName().c_str());
@@ -652,7 +656,7 @@ KITS::ErrorCode TagSession::UnregReaderModeInner(ElementName &element, bool isAp
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
@@ -662,7 +666,7 @@ KITS::ErrorCode TagSession::RegReaderMode(ElementName &element, std::vector<uint
     return RegReaderModeInner(element, discTech, callback);
 }
 
-KITS::ErrorCode TagSession::UnregReaderMode(ElementName &element)
+int TagSession::UnregReaderMode(ElementName &element)
 {
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return UnregReaderModeInner(element, true);

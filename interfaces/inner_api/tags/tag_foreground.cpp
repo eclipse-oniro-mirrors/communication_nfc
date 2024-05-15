@@ -54,7 +54,7 @@ TagForeground &TagForeground::GetInstance()
     return instance;
 }
 
-ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
+int TagForeground::RegForeground(AppExecFwk::ElementName &element,
     std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback)
 {
     DebugLog("TagForeground::RegForeground");
@@ -72,7 +72,7 @@ ErrorCode TagForeground::RegForeground(AppExecFwk::ElementName &element,
     return tagSession->RegForegroundDispatch(element, discTech, callback);
 }
 
-ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName &element)
+int TagForeground::UnregForeground(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregForeground");
     bool isNfcOpen = false;
@@ -89,9 +89,9 @@ ErrorCode TagForeground::UnregForeground(AppExecFwk::ElementName &element)
     return tagSession->UnregForegroundDispatch(element);
 }
 
-ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
-                                       std::vector<uint32_t> &discTech,
-                                       const sptr<KITS::IReaderModeCallback> &callback)
+int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
+                                 std::vector<uint32_t> &discTech,
+                                 const sptr<KITS::IReaderModeCallback> &callback)
 {
     DebugLog("TagForeground::RegReaderMode");
     bool isNfcOpen = false;
@@ -108,7 +108,7 @@ ErrorCode TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
     return tagSession->RegReaderMode(element, discTech, callback);
 }
 
-ErrorCode TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
+int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregReaderMode");
     bool isNfcOpen = false;

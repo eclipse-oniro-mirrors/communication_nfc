@@ -18,6 +18,49 @@
 
 namespace OHOS {
 namespace NFC {
+int NfcBasicProxy::SendRequestExpectReplyStringAndStatusCode(uint32_t cmd,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option, std::string& result)
+{
+    int ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    if (ret == ERR_NONE) {
+        result = reply.ReadString();
+    }
+    InfoLog("SendRequestExpectReplyStringAndStatusCode, cmd %{public}d, ret %{public}d", cmd, ret);
+    return ret;
+}
+
+int NfcBasicProxy::SendRequestExpectReplyIntAndStatusCode(uint32_t cmd,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option, int& result)
+{
+    int ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    if (ret == ERR_NONE) {
+        result = reply.ReadInt32();
+    }
+    InfoLog("SendRequestExpectReplyIntAndStatusCode, cmd %{public}d, ret %{public}d, result %{public}d",
+        cmd, ret, result);
+    return ret;
+}
+
+int NfcBasicProxy::SendRequestExpectReplyBoolAndStatusCode(uint32_t cmd,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option, bool& result)
+{
+    int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    if (ret == ERR_NONE) {
+        result = reply.ReadBool();
+    }
+    InfoLog("SendRequestExpectReplyBoolAndStatusCode, cmd %{public}d, ret %{public}d, result %{public}d",
+        cmd, ret, result);
+    return ret;
+}
+
+int NfcBasicProxy::SendRequestExpectReplyNoneAndStatusCode(uint32_t cmd,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    int32_t ret = remoteObj_->SendRequest(cmd, data, reply, option);
+    InfoLog("SendRequestExpectReplyNoneAndStatusCode, cmd %{public}d, ret %{public}d", cmd, ret);
+    return ret;
+}
+
 int NfcBasicProxy::SendRequestExpectReplyInt(uint32_t cmd, MessageParcel& data, MessageOption& option, int& result)
 {
     MessageParcel reply;

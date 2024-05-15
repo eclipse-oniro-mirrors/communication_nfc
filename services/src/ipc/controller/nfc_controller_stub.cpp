@@ -82,18 +82,24 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         ErrorLog("HandleTurnOn no permission");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    return TurnOn();
+    int statusCode = TurnOn();
+    reply.WriteInt32(statusCode);
+    return statusCode;
 }
 
 int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         ErrorLog("HandleTurnOff no permission");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    return TurnOff();
+    int statusCode = TurnOff();
+    reply.WriteInt32(statusCode);
+    return statusCode;
 }
 
 int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply)

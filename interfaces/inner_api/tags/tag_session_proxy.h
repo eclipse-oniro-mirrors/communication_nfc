@@ -46,18 +46,18 @@ public:
     std::vector<int> GetTechList(int tagRfDiscId) override;
     bool IsTagFieldOn(int tagRfDiscId) override;
     bool IsNdef(int tagRfDiscId) override;
-    std::string NdefRead(int tagRfDiscId) override;
+    int NdefRead(int tagRfDiscId, std::string &ndefMessage) override;
     int NdefWrite(int tagRfDiscId, std::string msg) override;
     int NdefMakeReadOnly(int tagRfDiscId) override;
     int FormatNdef(int tagRfDiscId, const std::string& key) override;
     int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
     int IsSupportedApdusExtended(bool &isSupported) override;
-    KITS::ErrorCode RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
+    int RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback) override;
-    KITS::ErrorCode UnregForegroundDispatch(ElementName &element) override;
-    KITS::ErrorCode RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
+    int UnregForegroundDispatch(ElementName &element) override;
+    int RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback) override;
-    KITS::ErrorCode UnregReaderMode(ElementName &element) override;
+    int UnregReaderMode(ElementName &element) override;
 };
 }  // namespace TAG
 }  // namespace NFC

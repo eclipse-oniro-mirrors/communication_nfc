@@ -90,6 +90,7 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleConnect, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
@@ -97,20 +98,21 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
     int tech = data.ReadInt32();
     int statusCode = Connect(tagRfDiscId, tech);
     reply.WriteInt32(statusCode);
-    return statusCode;
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleReconnect, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
     int statusCode = Reconnect(tagRfDiscId);
     reply.WriteInt32(statusCode);
-    return statusCode;
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleDisconnect(MessageParcel& data, MessageParcel& reply)
@@ -129,6 +131,7 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleSetTimeout, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
@@ -136,21 +139,24 @@ int TagSessionStub::HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessagePar
     int timeout = data.ReadInt32();
     int statusCode = SetTimeout(tagRfDiscId, timeout, tech);
     reply.WriteInt32(statusCode);
-    return statusCode;
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleGetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
 {
+    int timeout = 0;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleGetTimeout, ERR_NO_PERMISSION");
+        reply.WriteInt32(timeout);
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    int timeout = 0;
     int tagRfDiscId = data.ReadInt32();
     int tech = data.ReadInt32();
     int statusCode = GetTimeout(tagRfDiscId, tech, timeout);
     reply.WriteInt32(timeout);
-    return statusCode;
+    reply.WriteInt32(statusCode);
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleResetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply)
@@ -203,6 +209,7 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleSendRawFrame, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
@@ -214,19 +221,23 @@ int TagSessionStub::HandleSendRawFrame(MessageParcel& data, MessageParcel& reply
     reply.WriteString(hexRespData);
     DebugLog("TagSessionStub::HandleSendRawFrame:statusCode=0x%{public}X", statusCode);
     reply.WriteInt32(statusCode);
-    return statusCode;
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleNdefRead(MessageParcel& data, MessageParcel& reply)
 {
+    std::string readData {};
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefRead, ERR_NO_PERMISSION");
+        reply.WriteString(readData);
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
-    std::string readData = NdefRead(tagRfDiscId);
+    int statusCode = NdefRead(tagRfDiscId, readData);
     reply.WriteString(readData);
+    reply.WriteInt32(statusCode);
     return ERR_NONE;
 }
 
@@ -234,13 +245,14 @@ int TagSessionStub::HandleNdefWrite(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefWrite, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
     int tagRfDiscId = data.ReadInt32();
     std::string msg = data.ReadString();
-    int status = NdefWrite(tagRfDiscId, msg);
-    reply.WriteInt32(status);
+    int statusCode = NdefWrite(tagRfDiscId, msg);
+    reply.WriteInt32(statusCode);
     return ERR_NONE;
 }
 
@@ -248,6 +260,7 @@ int TagSessionStub::HandleNdefMakeReadOnly(MessageParcel& data, MessageParcel& r
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleNdefMakeReadOnly, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
@@ -260,6 +273,7 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleFormatNdef, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
 
@@ -271,40 +285,49 @@ int TagSessionStub::HandleFormatNdef(MessageParcel& data, MessageParcel& reply)
 
 int TagSessionStub::HandleCanMakeReadOnly(MessageParcel& data, MessageParcel& reply)
 {
+    bool canSetReadOnly = false;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleCanMakeReadOnly, ERR_NO_PERMISSION");
+        reply.WriteBool(canSetReadOnly);
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int ndefType = data.ReadInt32();
-    bool canSetReadOnly = false;
     int statusCode = CanMakeReadOnly(ndefType, canSetReadOnly);
     reply.WriteBool(canSetReadOnly);
-    return statusCode;
+    reply.WriteInt32(statusCode);
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleGetMaxTransceiveLength(MessageParcel& data, MessageParcel& reply)
 {
+    int maxSize = 0;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleGetMaxTransceiveLength, ERR_NO_PERMISSION");
+        reply.WriteInt32(maxSize);
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    int maxSize = 0;
     int tech = data.ReadInt32();
     int statusCode = GetMaxTransceiveLength(tech, maxSize);
     reply.WriteInt32(maxSize);
-    return statusCode;
+    reply.WriteInt32(statusCode);
+    return ERR_NONE;
 }
 
 int TagSessionStub::HandleIsSupportedApdusExtended(MessageParcel& data, MessageParcel& reply)
 {
+    bool isSupported = false;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleIsSupportedApdusExtended, ERR_NO_PERMISSION");
+        reply.WriteBool(isSupported);
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    bool isSupported = false;
     int statusCode = IsSupportedApdusExtended(isSupported);
     reply.WriteBool(isSupported);
-    return statusCode;
+    reply.WriteInt32(statusCode);
+    return ERR_NONE;
 }
 
 void TagSessionStub::RemoveForegroundDeathRcpt(const wptr<IRemoteObject> &remote)
@@ -326,9 +349,8 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleRegForegroundDispatch, ERR_NO_PERMISSION");
-        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
-        reply.WriteInt32(ret);
-        return ret;
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {
@@ -337,7 +359,7 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
     }
     std::vector<uint32_t> discTech;
     data.ReadUInt32Vector(&discTech);
-    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    int ret = KITS::ERR_NFC_PARAMETERS;
     do {
         sptr<IRemoteObject> remote = data.ReadRemoteObject();
         if (remote == nullptr) {
@@ -374,9 +396,8 @@ int TagSessionStub::HandleUnregForegroundDispatch(MessageParcel &data, MessagePa
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleUnregForegroundDispatch, ERR_NO_PERMISSION");
-        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
-        reply.WriteInt32(ret);
-        return ret;
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("HandleUnregForegroundDispatch");
     ElementName* element = ElementName::Unmarshalling(data);
@@ -391,7 +412,7 @@ int TagSessionStub::HandleUnregForegroundDispatch(MessageParcel &data, MessagePa
         element = nullptr;
         return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::ErrorCode ret = UnregForegroundDispatch(*(element));
+    int ret = UnregForegroundDispatch(*(element));
     DebugLog("HandleUnregForegroundDispatch end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
 
@@ -420,9 +441,8 @@ int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &repl
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleRegReaderMode, ERR_NO_PERMISSION");
-        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
-        reply.WriteInt32(ret);
-        return ret;
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     ElementName* element = ElementName::Unmarshalling(data);
     if (element == nullptr) {
@@ -431,7 +451,7 @@ int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &repl
     }
     std::vector<uint32_t> discTech;
     data.ReadUInt32Vector(&discTech);
-    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    int ret = KITS::ERR_NFC_PARAMETERS;
     do {
         sptr<IRemoteObject> remote = data.ReadRemoteObject();
         if (remote == nullptr) {
@@ -468,9 +488,8 @@ int TagSessionStub::HandleUnregReaderMode(MessageParcel &data, MessageParcel &re
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("HandleUnregReaderMode, ERR_NO_PERMISSION");
-        int ret = KITS::ErrorCode::ERR_NO_PERMISSION;
-        reply.WriteInt32(ret);
-        return ret;
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     InfoLog("HandleUnregReaderMode");
     ElementName* element = ElementName::Unmarshalling(data);
@@ -485,7 +504,7 @@ int TagSessionStub::HandleUnregReaderMode(MessageParcel &data, MessageParcel &re
         element = nullptr;
         return KITS::ERR_NFC_PARAMETERS;
     }
-    KITS::ErrorCode ret = UnregReaderMode(*(element));
+    int ret = UnregReaderMode(*(element));
     DebugLog("HandleUnregReaderMode end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
 
