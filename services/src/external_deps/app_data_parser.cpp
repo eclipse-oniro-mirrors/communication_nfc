@@ -30,6 +30,15 @@ sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser g_appDataParser;
 /** Tag type of tag app metadata name */
 static const std::string KEY_TAG_TECH = "tag-tech";
+std::mutex bundleMgrMutex_;
+sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new (std::nothrow) BundleMgrDeathRecipient());
+
+BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
+{
+    InfoLog("bundleMgrService dead");
+    std::lock_guard<std::mutex> guard(bundleMgrMutex_);
+    bundleMgrProxy_ = nullptr;
+};
 
 AppDataParser::AppDataParser()
 {
@@ -46,7 +55,7 @@ AppDataParser& AppDataParser::GetInstance()
     return g_appDataParser;
 }
 
-sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
+void AppDataParser::GetBundleMgrProxy()
 {
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -59,7 +68,8 @@ sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
         ErrorLog("GetBundleMgrProxy, remoteObject is null");
         return nullptr;
     }
-    return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    bundleMgrProxy_ = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    bundleMgrProxy_->AsObject()->AddDeathRecipient(bundleMgrDeathRecipient_);
 }
 
 bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -132,7 +142,7 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     std::vector<ExtensionAbilityInfo> &extensionInfos)
 {
     if (bundleMgrProxy_ == nullptr) {
-        bundleMgrProxy_ = GetBundleMgrProxy();
+        GetBundleMgrProxy();
     }
     if (bundleMgrProxy_ == nullptr) {
         ErrorLog("QueryAbilityInfos, bundleMgrProxy_ is nullptr.");
@@ -434,7 +444,7 @@ bool AppDataParser::RemoveOffHostAppInfo(ElementName &element)
 
 void AppDataParser::InitAppList()
 {
-    bundleMgrProxy_ = GetBundleMgrProxy();
+    GetBundleMgrProxy();
     if (!bundleMgrProxy_) {
         ErrorLog("InitAppList, bundleMgrProxy_ is nullptr.");
         return;
@@ -692,7 +702,7 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
     }
 
     if (bundleMgrProxy_ == nullptr) {
-        bundleMgrProxy_ = GetBundleMgrProxy();
+        GetBundleMgrProxy();
     }
     if (bundleMgrProxy_ == nullptr) {
         ErrorLog("bundleMgrProxy_ is nullptr.");
@@ -711,7 +721,7 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
 bool AppDataParser::IsSystemApp(uint32_t uid)
 {
     if (bundleMgrProxy_ == nullptr) {
-        bundleMgrProxy_ = GetBundleMgrProxy();
+        GetBundleMgrProxy();
     }
     if (bundleMgrProxy_ == nullptr) {
         ErrorLog(" bundleMgrProxy_ is nullptr.");
