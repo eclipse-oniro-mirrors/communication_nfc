@@ -57,16 +57,17 @@ AppDataParser& AppDataParser::GetInstance()
 
 void AppDataParser::GetBundleMgrProxy()
 {
+    std::lock_guard<std::mutex> guard(bundleMgrMutex_);
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!systemAbilityManager) {
         ErrorLog("GetBundleMgrProxy, systemAbilityManager is null");
-        return nullptr;
+        return;
     }
     sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (!remoteObject) {
         ErrorLog("GetBundleMgrProxy, remoteObject is null");
-        return nullptr;
+        return;
     }
     bundleMgrProxy_ = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     bundleMgrProxy_->AsObject()->AddDeathRecipient(bundleMgrDeathRecipient_);
