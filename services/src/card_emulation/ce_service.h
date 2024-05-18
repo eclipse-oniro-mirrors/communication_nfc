@@ -97,6 +97,7 @@ private:
     void HandleOtherAidConflicted(const std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool UpdateDefaultPaymentType();
     void UpdateDefaultPaymentElement(const ElementName &element);
+    void NotifyDefaultPaymentType(int paymentType);
 
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;

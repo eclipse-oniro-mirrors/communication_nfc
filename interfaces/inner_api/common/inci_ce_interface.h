@@ -101,6 +101,12 @@ public:
      * @return sim bundle name of the vendor
      */
     virtual std::string GetSimVendorBundleName() = 0;
+
+    /**
+     * @brief Notify Default Payment Type
+     * @param paymentType see enum DefaultPaymentType
+     */
+    virtual void NotifyDefaultPaymentType(int paymentType) = 0;
 };
 } // namespace NCI
 } // namespace NFC

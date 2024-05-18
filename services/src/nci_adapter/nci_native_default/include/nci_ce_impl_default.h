@@ -31,6 +31,7 @@ public:
     bool AddAidRouting(const std::string &aidStr, int route, int aidInfo, int power) override;
     bool ClearAidTable() override;
     std::string GetSimVendorBundleName() override;
+    void NotifyDefaultPaymentType(int paymentType) override;
 };
 }  // namespace NCI
 }  // namespace NFC

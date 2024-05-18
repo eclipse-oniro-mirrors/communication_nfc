@@ -117,6 +117,18 @@ HWTEST_F(NciCeProxyTest, AddAidRouting001, TestSize.Level1)
     bool addAidRouting = nciCeProxy->AddAidRouting(aidStr, route, aidInfo, power);
     ASSERT_TRUE(addAidRouting == false);
 }
+
+/**
+ * @tc.name: NotifyDefaultPaymentType001
+ * @tc.desc: Test NciCeProxyTest NotifyDefaultPaymentType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NciCeProxyTest, NotifyDefaultPaymentType001, TestSize.Level1)
+{
+    std::shared_ptr<NciCeProxy> nciCeProxy = std::make_shared<NciCeProxy>();
+    int paymentType = static_cast<int>(KITS::DefaultPaymentType::TYPE_ESE);
+    nciCeProxy->NotifyDefaultPaymentType(paymentType);
+}
 }
 }
 }

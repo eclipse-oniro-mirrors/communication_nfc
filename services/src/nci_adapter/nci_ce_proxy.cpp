@@ -95,6 +95,13 @@ std::string NciCeProxy::GetSimVendorBundleName()
     }
     return "";
 }
+
+void NciCeProxy::NotifyDefaultPaymentType(int paymentType)
+{
+    if (nciCeInterface_) {
+        nciCeInterface_->NotifyDefaultPaymentType(paymentType);
+    }
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS
