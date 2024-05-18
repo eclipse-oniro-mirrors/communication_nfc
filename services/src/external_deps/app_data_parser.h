@@ -33,7 +33,7 @@ namespace NFC {
 using AppExecFwk::AbilityInfo;
 using AppExecFwk::ExtensionAbilityInfo;
 using OHOS::AppExecFwk::ElementName;
-class BundleMgrDeathRecipient : public IRemoteObject::DeathRecipient{
+class BundleMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote) override;
 };
 class AppDataParser {
