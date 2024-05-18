@@ -33,7 +33,7 @@ static const std::string KEY_TAG_TECH = "tag-tech";
 std::mutex bundleMgrMutex_;
 sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new (std::nothrow) BundleMgrDeathRecipient());
 
-BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
+void BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
 {
     InfoLog("bundleMgrService dead");
     std::lock_guard<std::mutex> guard(bundleMgrMutex_);
