@@ -23,6 +23,10 @@
 
 namespace OHOS {
 namespace NFC {
+class AppMgrDeathRecipient : public IRemoteObject::DeathRecipient {
+    void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote) override;
+};
+
 class AppStateObserver {
 public:
     explicit AppStateObserver(INfcAppStateObserver *nfcAppStateChangeCallback);
@@ -48,8 +52,6 @@ private:
     bool RegisterAppStateChangeCallback(INfcAppStateObserver *nfcAppStateChangeCallback);
 
 private:
-    std::mutex mutex_{};
-    sptr<AppExecFwk::IAppMgr> appMgrProxy_{nullptr};
     sptr<AppStateAwareObserver> appStateAwareObserver_;
 };
 } //namespace NFC

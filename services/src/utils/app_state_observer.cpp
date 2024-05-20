@@ -23,6 +23,17 @@
 
 namespace OHOS {
 namespace NFC {
+std::mutex mutex_ {};
+sptr<AppExecFwk::IAppMgr> appMgrProxy_ {nullptr};
+sptr<AppMgrDeathRecipient> appMgrDeathRecipient_(new (std::nothrow) AppMgrDeathRecipient());
+
+void AppMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
+{
+    ErrorLog("On AppMgr died");
+    std::lock_guard<std::mutex> guard(mutex_);
+    appMgrProxy_ = nullptr;
+};
+
 AppStateObserver::AppStateObserver(INfcAppStateObserver *nfcAppStateChangeCallback)
 {
     SubscribeAppState();
@@ -98,6 +109,7 @@ bool AppStateObserver::Connect()
         ErrorLog("get app mgr proxy failed!");
         return false;
     }
+    appMgrProxy_->AsObject()->AddDeathRecipient(appMgrDeathRecipient_);
     return true;
 }
 
