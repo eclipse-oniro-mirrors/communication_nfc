@@ -33,7 +33,9 @@ namespace NFC {
 using AppExecFwk::AbilityInfo;
 using AppExecFwk::ExtensionAbilityInfo;
 using OHOS::AppExecFwk::ElementName;
-
+class BundleMgrDeathRecipient : public IRemoteObject::DeathRecipient {
+    void OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote) override;
+};
 class AppDataParser {
 public:
     explicit AppDataParser();
@@ -80,7 +82,7 @@ public:
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
 private:
-    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
+    static void GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
     ElementName GetMatchedHceKeyElement(ElementName &element);
     bool IsMatchedByBundleName(ElementName &src, ElementName &target);
