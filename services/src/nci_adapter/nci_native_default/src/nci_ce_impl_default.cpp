@@ -62,6 +62,10 @@ std::string NciCeImplDefault::GetSimVendorBundleName()
     // please change it to the sim bundle name of your vendor
     return "";
 }
+
+void NciCeImplDefault::NotifyDefaultPaymentType(int paymentType)
+{
+}
 } // namespace NCI
 } // namespace NFC
 } // namespace OHOS
