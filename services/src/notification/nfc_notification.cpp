@@ -305,6 +305,23 @@ static void SetActionButton(const std::string& buttonName, Notification::Notific
     request.AddActionButton(actionButtonDeal);
 }
 
+static int64_t GetAutoDeleteTime()
+{
+    auto now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return duration.count() + NTF_AUTO_DELETE_TIME;
+}
+
+static void SetBasicOption(Notification::NotificationRequest &request)
+{
+    request.SetCreatorUid(KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    request.SetCreatorBundleName(KITS::NFC_MANAGER_SYS_ABILITY_NAME);
+    request.SetAutoDeletedTime(GetAutoDeleteTime());
+    request.SetTapDismissed(true);
+    request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
+    request.SetNotificationControlFlags(NFC_NTF_CONTROL_FLAG);
+}
+
 void NfcNotification::GetPixelMap(const std::string &path)
 {
     if (nfcIconPixelMap_ != nullptr) {
@@ -378,14 +395,9 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
     }
 
     Notification::NotificationRequest request;
+    SetBasicOption(request);
     request.SetNotificationId(static_cast<int>(notificationId));
     request.SetContent(content);
-    request.SetCreatorUid(KITS::NFC_MANAGER_SYS_ABILITY_ID);
-    request.SetCreatorBundleName(KITS::NFC_MANAGER_SYS_ABILITY_NAME);
-    request.SetAutoDeletedTime(NTF_AUTO_DELETE_TIME);
-    request.SetTapDismissed(true);
-    request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
-    request.SetNotificationControlFlags(NFC_NTF_CONTROL_FLAG);
 
     GetPixelMap(NFC_ICON_PATH);
     if (nfcIconPixelMap_ != nullptr) {
@@ -397,6 +409,8 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
     if (!buttonName.empty()) {
         SetActionButton(buttonName, request);
     }
+    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    Notification::NotificationHelper::SetNotificationSlotFlagsAsBundle(bundle, NFC_SLOT_CONTROL_FLAG);
     int ret = Notification::NotificationHelper::PublishNotification(request);
     InfoLog("NFC service publish notification result = %{public}d", ret);
 }

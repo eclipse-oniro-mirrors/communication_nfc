@@ -415,6 +415,19 @@ HWTEST_F(ExternalDepsProxyTest, GetHceApps001, TestSize.Level1)
     std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
+
+/**
+ * @tc.name: PublishNtf001
+ * @tc.desc: Test Publish Notification.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ExternalDepsProxyTest, PublishNtf001, TestSize.Level1)
+{
+    std::string cardName = "";
+    int balance = 0;
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(TAG::NFC_TAG_DEFAULT_NOTIFICATION_ID, cardName, balance);
+    ASSERT_TRUE(balance == 0);
+}
 }
 }
 }

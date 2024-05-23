@@ -224,6 +224,11 @@ bool IsodepCardHandler::CheckApduResponse(const std::string &response, uint8_t c
 
 bool IsodepCardHandler::CheckApduResponse(const std::string &response)
 {
+    if (response.length() < APDU_RSP_OK_STR_LEN) {
+        ErrorLog("invalid response length");
+        return false;
+    }
+
     std::string rspStr = response.substr(response.length() - APDU_RSP_OK_STR_LEN, APDU_RSP_OK_STR_LEN);
     if (rspStr == APDU_RSP_OK) {
         return true;
