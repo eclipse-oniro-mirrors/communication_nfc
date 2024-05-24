@@ -112,10 +112,10 @@ HWTEST_F(CeServiceTest, SendHostApduData002, TestSize.Level1)
  */
 HWTEST_F(CeServiceTest, InitConfigAidRouting001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> nfcService = nullptr;
-    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    bool ret = ceService->InitConfigAidRouting(true);
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
+    std::weak_ptr<CeService> ceService = nfcService->GetCeService();
+    bool ret = ceService.lock()->InitConfigAidRouting(true);
     ASSERT_TRUE(ret == false);
 }
 
@@ -165,16 +165,16 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove001, TestSize.Level1)
  */
 HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove002, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> nfcService = nullptr;
-    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
-    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
-    ceService->Initialize();
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
+    std::weak_ptr<CeService> ceService = nfcService->GetCeService();
+    ceService.lock()->Initialize();
     std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
     sptr<KITS::IHceCmdCallback> callback = nullptr;
     std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
-    ceService->OnAppAddOrChangeOrRemove(data);
-    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
+    ceService.lock()->OnAppAddOrChangeOrRemove(data);
+    bool regHceCmdCallback = ceService.lock()->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
 
