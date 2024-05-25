@@ -18,6 +18,7 @@ group("fuzztest") {
   deps = [
     "cardemulation_test/hcesessionstub:hcesessionstub_fuzztest",
     "controller_test/nfccontroller:nfccontroller_fuzztest",
+    "services_test/appdataparser_test/appdataparser:appdataparser_fuzztest",
     "services_test/btconnectionmanager_test/btconnectionmanager:btconnectionmanager_fuzztest",
     "services_test/cardemulation_test/hceservice:hceservice_fuzztest",
     "services_test/controller_test/nfccontrollerstub:nfccontrollerstub_fuzztest",

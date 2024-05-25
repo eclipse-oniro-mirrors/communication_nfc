@@ -295,6 +295,17 @@ HWTEST_F(NfcControllerTest, NotifyEventStatus001, TestSize.Level1)
     ErrorCode errorCode = ctrl.NotifyEventStatus(eventType, arg1, arg2);
     ASSERT_TRUE(errorCode == ERR_NONE);
 }
+
+/**
+ * @tc.name: GetHceServiceIface001
+ * @tc.desc: Test NfcController GetHceServiceIface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.GetHceServiceIface();
+}
 }
 }
 }
