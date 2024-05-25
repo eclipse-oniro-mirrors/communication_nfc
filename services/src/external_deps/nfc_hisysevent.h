@@ -26,6 +26,7 @@ enum MainErrorCode {
     SET_READER_MODE_EVENT = 105,
     OPEN_NFC_EVENT = 106,
     CLOSE_NFC_EVENT = 107,
+    NFC_GENERAL_ERR = 108,
     INIT_SA_FAILED = 201, // error code for init sa failed
     NDEF_TEL_EVENT = 301,
     NDEF_SMS_EVENT = 302,
@@ -40,6 +41,7 @@ enum SubErrorCode {
     DEFAULT_ERR_DEF = 10000,
     NCI_RESP_TIMEOUT = 10001,
     NCI_RESP_ERROR = 10002,
+    PROCESS_ABORT = 10003,
 };
 
 const int DEFAULT_COUNT = 1;

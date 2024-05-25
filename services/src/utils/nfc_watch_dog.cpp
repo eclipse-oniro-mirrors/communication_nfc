@@ -15,6 +15,7 @@
 #include "nfc_watch_dog.h"
 #include <chrono>
 #include "loghelper.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -43,6 +44,18 @@ void NfcWatchDog::MainLoop()
         return;
     }
     InfoLog("Watchdog triggered, aborting.");
+    NfcFailedParams err;
+    if (threadName_.compare("DoTurnOn") == 0) {
+        ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_OPEN_FAILED,
+            SubErrorCode::PROCESS_ABORT);
+    } else if (threadName_.compare("DoTurnOff") == 0) {
+        ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_CLOSE_FAILED,
+            SubErrorCode::PROCESS_ABORT);
+    } else {
+        ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_GENERAL_ERR,
+            SubErrorCode::PROCESS_ABORT);
+    }
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
     nciNfccProxy_.lock()->Abort();
 }
 

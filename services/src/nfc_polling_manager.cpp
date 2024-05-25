@@ -121,7 +121,7 @@ void NfcPollingManager::HandleScreenChanged(int screenState)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     screenState_ = screenState;
-    DebugLog("Screen changed screenState %{public}d", screenState_);
+    InfoLog("Screen changed screenState %{public}d", screenState_);
     nciNfccProxy_.lock()->SetScreenStatus(screenState_);
 }
 

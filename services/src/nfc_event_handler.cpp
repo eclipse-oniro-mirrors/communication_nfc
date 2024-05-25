@@ -88,6 +88,7 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         ErrorLog("action is empty");
         return;
     }
+    InfoLog("OnScreenChanged: action: %{public}s", action.c_str());
     ScreenState screenState = ScreenState::SCREEN_STATE_UNKNOWN;
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON) == 0) {
         screenState = eventHandler_.lock()->IsScreenLocked() ?

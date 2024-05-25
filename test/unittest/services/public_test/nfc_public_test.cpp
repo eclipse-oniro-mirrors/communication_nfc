@@ -377,6 +377,21 @@ HWTEST_F(NfcPublicTest, NfcWatchDog001, TestSize.Level1)
     ASSERT_TRUE(currentTime != 0);
 }
 
+/**
+ * @tc.name: NfcWatchDog002
+ * @tc.desc: Test NfcWatchDog002
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, NfcWatchDog002, TestSize.Level1)
+{
+    NfcTimer::GetInstance()->UnRegister(0);
+    std::shared_ptr<NCI::INciNfccInterface> nciNfccProxy = nullptr;
+    NfcWatchDog nfcWatchDog("DoTurnOn", 90 * 1000, nciNfccProxy);
+    nfcWatchDog.Run();
+    nfcWatchDog.Cancel();
+    uint64_t currentTime = NfcSdkCommon::GetCurrentTime();
+    ASSERT_TRUE(currentTime != 0);
+}
 }
 }
 }
