@@ -26,7 +26,8 @@ const std::string DUMP_END = "\n";
 // NFC_A = 1 ~ NDEF_FORMATABLE = 10
 const int MAX_TECH = 12;
 int g_techTimeout[MAX_TECH] = {0};
-int g_maxTransLength[MAX_TECH] = {0, 253, 253, 65279, 255, 253, 0, 0, 253, 253, 0, 0};
+//The IsoDep frame does not consider extended length frames. Therefore, 261 needs to be changed to 65279 (0xFEFF).
+int g_maxTransLength[MAX_TECH] = {0, 253, 253, 0xFEFF, 255, 253, 0, 0, 253, 253, 0, 0};
 std::shared_ptr<AppStateObserver> g_appStateObserver = nullptr;
 
 TagSession::TagSession(std::shared_ptr<NfcService> service)
