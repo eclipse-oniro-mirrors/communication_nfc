@@ -184,7 +184,7 @@ int TagSessionStub::HandleIsTagFieldOn(MessageParcel& data, MessageParcel& reply
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
     int tagRfDiscId = data.ReadInt32();
-    reply.WriteBool(IsNdef(tagRfDiscId));
+    reply.WriteBool(IsTagFieldOn(tagRfDiscId));
     return ERR_NONE;
 }
 
