@@ -144,8 +144,8 @@ int NfcController::GetNfcState()
         }
         state = nfcControllerService_.lock()->GetState();
     }
+    InfoLog("nfc state: %{public}d.", state);
     if (state == NfcState::STATE_ON) {
-        InfoLog("%{public}s: nfc is On, reInitNfcRemoteSA.", __func__);
         InitNfcRemoteSA();
     }
     return state;

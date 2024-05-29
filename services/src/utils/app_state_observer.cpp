@@ -47,7 +47,6 @@ AppStateObserver::~AppStateObserver()
 
 bool AppStateObserver::SubscribeAppState()
 {
-    InfoLog("SubscribeAppState start");
     std::lock_guard<std::mutex> lock(mutex_);
     if (appStateAwareObserver_) {
         ErrorLog("SubscribeAppState: appStateAwareObserver_ has register");
@@ -63,7 +62,7 @@ bool AppStateObserver::SubscribeAppState()
         appStateAwareObserver_ = nullptr;
         return false;
     }
-    InfoLog("SubscribeAppState end");
+    DebugLog("SubscribeAppState success");
     return true;
 }
 

@@ -157,11 +157,11 @@ void CeService::HandleAppStateChanged(const std::string &bundleName, const std::
     }
 
     if (bundleName != foregroundElement_.GetBundleName()) {
-        InfoLog("OnForegroundApplicationChanged not equal to the foreground element, no need to handle.");
+        DebugLog("OnForegroundApplicationChanged not equal to the foreground element, no need to handle.");
         return;
     }
     if (abilityState == static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND)) {
-        InfoLog("OnForegroundApplicationChanged foreground state, no need to handle.");
+        DebugLog("OnForegroundApplicationChanged foreground state, no need to handle.");
         return;
     }
 
