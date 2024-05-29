@@ -78,7 +78,7 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
     }
     rows->Close();
     value = atoi(valueStr.c_str());
-    InfoLog("%{public}s: success, value = %{public}d.", __func__, value);
+    DebugLog("GetValue success, value = %{public}d.", value);
     return KITS::ERR_NONE;
 }
 

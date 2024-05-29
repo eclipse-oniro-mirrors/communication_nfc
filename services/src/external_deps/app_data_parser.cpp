@@ -171,12 +171,12 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
 {
     if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0 &&
         action != KITS::ACTION_OFF_HOST_APDU_SERVICE) {
-        ErrorLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
+        DebugLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
         return false;
     }
     std::string bundleName = element.GetBundleName();
     if (!VerifyHapPermission(bundleName, action)) {
-        ErrorLog("Hap have no permission for action = %{public}s", action.c_str());
+        DebugLog("Hap have no permission for action = %{public}s", action.c_str());
         return false;
     }
 
