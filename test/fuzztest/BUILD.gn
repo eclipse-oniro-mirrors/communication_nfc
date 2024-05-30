@@ -26,6 +26,7 @@ group("fuzztest") {
     "services_test/hcecmdcallback_test/hcecmdcallbackstub:hcecmdcallbackstub_fuzztest",
     "services_test/hostcardemulationmanager_test/hostcardemulationmanager:hostcardemulationmanager_fuzztest",
     "services_test/nci_adapter_test/ncitagproxy:ncitagproxy_fuzztest",
+    "services_test/ndefhardataparser_test/ndefhardataparser:ndefhardataparser_fuzztest",
     "services_test/ndefmsgcallback_test/ndefmsgcallbackstub:ndefmsgcallbackstub_fuzztest",
     "services_test/nfcpollingmanager_test/nfcpollingmanager:nfcpollingmanager_fuzztest",
     "services_test/settingdatashareimpl_test/settingdatashareimpl:settingdatashareimpl_fuzztest",

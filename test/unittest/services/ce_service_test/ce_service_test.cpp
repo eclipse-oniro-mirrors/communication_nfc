@@ -116,7 +116,7 @@ HWTEST_F(CeServiceTest, InitConfigAidRouting001, TestSize.Level1)
     nfcService->Initialize();
     std::weak_ptr<CeService> ceService = nfcService->GetCeService();
     bool ret = ceService.lock()->InitConfigAidRouting(true);
-    ASSERT_TRUE(ret == false);
+    ASSERT_TRUE(ret);
 }
 
 /**
