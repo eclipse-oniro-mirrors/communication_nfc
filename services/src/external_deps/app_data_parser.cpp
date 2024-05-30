@@ -157,11 +157,12 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     }
 
     bool withDefault = false;
+    bool findDefaultApp = false;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
     if (!bundleMgrProxy_->ImplicitQueryInfos(want, abilityInfoFlag, USER_ID, withDefault,
-        abilityInfos, extensionInfos)) {
+        abilityInfos, extensionInfos, findDefaultApp)) {
         WarnLog("QueryAbilityInfos, query none for action %{public}s", action.c_str());
         return;
     }
