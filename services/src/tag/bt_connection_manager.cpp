@@ -26,7 +26,7 @@ namespace OHOS {
 namespace NFC {
 namespace TAG {
 const uint64_t BT_ENABLE_TIMEOUT = 3000; // ms
-const uint64_t BT_PAIR_TIMEOUT = 3000; // ms
+const uint64_t BT_PAIR_TIMEOUT = 10000; // ms
 const uint64_t BT_CONNECT_TIMEOUT = 3000; // ms
 const uint8_t PROFILE_MAX_SIZE = 21;
 
@@ -243,7 +243,7 @@ bool BtConnectionManager::HandleEnableBt()
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("HandleEnableBt");
-    if (!Bluetooth::BluetoothHost::GetDefaultHost().EnableBle()) { // EnableBt() is desperate
+    if (Bluetooth::BluetoothHost::GetDefaultHost().EnableBle() != Bluetooth::RET_NO_ERROR) { // EnableBt() is desperate
         ErrorLog("HandleEnableBt: failed");
         return false;
     }
@@ -684,7 +684,7 @@ void BtConnectionManager::NextActionDisconnect()
 
 void BtConnectionManager::NextAction()
 {
-    InfoLog("NextActionConnect: state: %{public}d", g_state);
+    InfoLog("NextAction: state: %{public}d action: %{public}d", g_state, g_action);
     switch (g_action) {
         case ACTION_INIT:
             NextActionInit();
@@ -741,6 +741,7 @@ void BtConnectionManager::OnBtEnabled()
     DebugLog("OnBtEnabled");
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT);
     if (g_state == STATE_WAITING_FOR_BT_ENABLE) {
+        g_state = STATE_INIT;
         NextAction();
     }
 }
@@ -748,7 +749,8 @@ void BtConnectionManager::OnBtEnabled()
 void BtConnectionManager::BtStateObserver::OnStateChanged(const int transport, const int status)
 {
     InfoLog("OnStateChanged transport: %{public}d, status: %{public}d", transport, status);
-    if (status == static_cast<int>(Bluetooth::STATE_TURN_ON)) {
+    if (transport == static_cast<int>(Bluetooth::BTTransport::ADAPTER_BREDR) &&
+        status == static_cast<int>(Bluetooth::STATE_TURN_ON)) {
         BtConnectionManager::GetInstance().OnBtEnabled();
     }
 }
