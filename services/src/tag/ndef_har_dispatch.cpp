@@ -79,8 +79,9 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionInfos;
+    bool findDefaultApp = false;
     if (!GetBundleMgrProxy()->ImplicitQueryInfos(
-        want, abilityInfoFlag, USER_ID, withDefault, abilityInfos, extensionInfos)) {
+        want, abilityInfoFlag, USER_ID, withDefault, abilityInfos, extensionInfos, findDefaultApp)) {
         ErrorLog("NdefHarDispatch::DispatchMimeType ImplicitQueryInfos false");
         return false;
     }
