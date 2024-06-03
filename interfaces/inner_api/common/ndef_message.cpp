@@ -430,6 +430,9 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         ParseRecordLayoutHead(layout, NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++));
         isMessageEnd = layout.me;
 
+        if ((data.size() / HEX_BYTE_LEN - parsedDataIndex) < MIN_RECORD_LEN || !isMessageEnd) {
+            return std::vector<std::shared_ptr<NdefRecord>>();
+        }
         if (IsInvalidRecordLayoutHead(layout, isChunkFound, recordList.size(), isMbMeIgnored)) {
             return recordList;
         }
