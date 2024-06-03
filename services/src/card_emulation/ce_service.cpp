@@ -559,6 +559,7 @@ void CeService::Initialize()
                                                                             appStatus);
 
     defaultPaymentType_ = GetDefaultPaymentType();
+    NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
     DebugLog("CeService Initialize end");
 }
 void CeService::Deinitialize()
