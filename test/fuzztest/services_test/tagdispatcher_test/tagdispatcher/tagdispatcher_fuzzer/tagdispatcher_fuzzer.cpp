@@ -49,7 +49,23 @@ namespace OHOS {
         ConvertToUint32s(data, timeOutArray, 1);
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
-        tagDispatcher->HandleTagFound(timeOutArray[0]);
+        tagDispatcher->HandleTagLost(timeOutArray[0]);
+    }
+
+    void FuzzHandleTagDebounce(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+        tagDispatcher->HandleTagDebounce();
+    }
+
+    void FuzzOnNotificationButtonClicked(const uint8_t* data, size_t size)
+    {
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+        tagDispatcher->OnNotificationButtonClicked(timeOutArray[0]);
     }
 }
 
@@ -63,6 +79,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     OHOS::FuzzHandleTagFound(data, size);
     OHOS::FuzzHandleTagLost(data, size);
+    OHOS::FuzzHandleTagDebounce(data, size);
+    OHOS::FuzzOnNotificationButtonClicked(data, size);
 
     return 0;
 }
