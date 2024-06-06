@@ -821,7 +821,11 @@ bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
             BuildErrorMessage(BUSI_ERR_PERM, funcName, TAG_PERM_DESC, "", "")));
         return false;
-    } else if (statusCode >= ErrorCode::ERR_TAG_BASE && statusCode < ErrorCode::ERR_CE_BASE) {
+    } else if (statusCode == ERR_TAG_STATE_IO_FAILED) {
+        napi_throw(env, GenerateBusinessError(env, ERR_TAG_STATE_IO_FAILED,
+            BuildErrorMessage(BUSI_ERR_IO_OPERATION_INVALID, funcName, "", "", "")));
+        return false;
+    } else if (statusCode >= ErrorCode::ERR_TAG_PARAMETERS && statusCode < ErrorCode::ERR_CE_BASE) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return false;

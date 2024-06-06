@@ -25,7 +25,14 @@ class NfcBasicProxy {
 public:
     explicit NfcBasicProxy(const OHOS::sptr<OHOS::IRemoteObject>& obj) : remoteObj_(obj) {}
     virtual ~NfcBasicProxy() {}
-
+    int SendRequestExpectReplyStringAndStatusCode(uint32_t cmd,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option, std::string& result);
+    int SendRequestExpectReplyIntAndStatusCode(uint32_t cmd,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option, int& result);
+    int SendRequestExpectReplyBoolAndStatusCode(uint32_t cmd,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option, bool& result);
+    int SendRequestExpectReplyNoneAndStatusCode(uint32_t cmd,
+        MessageParcel& data, MessageParcel& reply, MessageOption& option);
     int SendRequestExpectReplyInt(uint32_t cmd, OHOS::MessageParcel& data, OHOS::MessageOption& option,
         int& result);
     int SendRequestExpectReplyBool(uint32_t cmd, OHOS::MessageParcel& data, OHOS::MessageOption& option,

@@ -135,9 +135,10 @@ public:
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
-     * @return the read data
+     * @param ndefMessage the read data
+     * @return the read Result
      */
-    std::string NdefRead(int tagRfDiscId) override;
+    int NdefRead(int tagRfDiscId, std::string &ndefMessage) override;
     /**
      * @brief Writing the data into the host tag.
      * @param tagRfDiscId the rf disc id of tag
@@ -171,7 +172,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    KITS::ErrorCode RegForegroundDispatch(ElementName &element,
+    int RegForegroundDispatch(ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) override;
 
     /**
@@ -180,7 +181,7 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    KITS::ErrorCode UnregForegroundDispatch(ElementName &element) override;
+    int UnregForegroundDispatch(ElementName &element) override;
 
     /**
      * @brief register reader mode
@@ -190,7 +191,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    KITS::ErrorCode RegReaderMode(ElementName &element,
+    int RegReaderMode(ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback) override;
 
     /**
@@ -199,7 +200,7 @@ public:
      * @param element the element name of the hap that request to unregister reader mode
      * @return The status code for unregister operation.
      */
-    KITS::ErrorCode UnregReaderMode(ElementName &element) override;
+    int UnregReaderMode(ElementName &element) override;
 
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
 
@@ -233,15 +234,15 @@ private:
     bool IsFgRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback);
     bool IsFgUnregistered(const ElementName &element, bool isAppUnregister);
-    KITS::ErrorCode RegForegroundDispatchInner(ElementName &element,
+    int RegForegroundDispatchInner(ElementName &element,
         const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
-    KITS::ErrorCode UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
+    int UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
     bool IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback);
     bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
-    KITS::ErrorCode RegReaderModeInner(ElementName &element,
+    int RegReaderModeInner(ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
-    KITS::ErrorCode UnregReaderModeInner(ElementName &element, bool isAppUnregister);
+    int UnregReaderModeInner(ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
     std::weak_ptr<NFC::NfcService> nfcService_ {};

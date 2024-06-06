@@ -38,7 +38,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    ErrorCode RegForeground(AppExecFwk::ElementName &element,
+    int RegForeground(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
 
     /**
@@ -46,7 +46,7 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    ErrorCode UnregForeground(AppExecFwk::ElementName &element);
+    int UnregForeground(AppExecFwk::ElementName &element);
 
     /**
      * @Description Registers the callback for tag reader mode.
@@ -55,7 +55,7 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    ErrorCode RegReaderMode(AppExecFwk::ElementName &element,
+    int RegReaderMode(AppExecFwk::ElementName &element,
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
 
     /**
@@ -63,7 +63,7 @@ public:
      * @param element the element name of the hap that request to unregister reader mode.
      * @return The status code for unregister operation.
      */
-    ErrorCode UnregReaderMode(AppExecFwk::ElementName &element);
+    int UnregReaderMode(AppExecFwk::ElementName &element);
 
 protected:
     OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();

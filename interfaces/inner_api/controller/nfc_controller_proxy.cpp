@@ -37,25 +37,37 @@ NfcControllerProxy ::~NfcControllerProxy() {}
 int NfcControllerProxy::TurnOn()
 {
     MessageParcel data;
-    MessageOption option;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON),
-        data, option);
+    MessageOption option;
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_ON), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("NfcControllerProxy::TurnOn statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 int NfcControllerProxy::TurnOff()
 {
     MessageParcel data;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_NFC_PARAMETERS;
     }
     MessageOption option;
-    return SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF),
-        data, option);
+    int statusCode = SendRequestExpectReplyNoneAndStatusCode(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF), data, reply, option);
+    if (statusCode == ERR_NONE) {
+        statusCode = reply.ReadInt32();
+    }
+    InfoLog("NfcControllerProxy::TurnOff statusCode = 0x%{public}X", statusCode);
+    return statusCode;
 }
 
 int NfcControllerProxy::GetState()

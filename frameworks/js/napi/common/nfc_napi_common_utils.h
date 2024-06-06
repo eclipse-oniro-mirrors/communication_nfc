@@ -36,6 +36,7 @@ const static int BUSI_ERR_TAG_STATE_INVALID = 3100201; // nfc tag state invalid.
 const static int BUSI_ERR_ELEMENT_STATE_INVALID = 3100202; // The element state is invalid.
 const static int BUSI_ERR_REGISTER_STATE_INVALID = 3100203; // The off() can be called only when the on()
                                                             // has been called.
+const static int BUSI_ERR_IO_OPERATION_INVALID = 3100204; // Tag I/O operation failed.
 const static uint32_t MAX_NUM_TECH_LIST = 12;
 
 const static int BUSI_ERR_HCE_STATE_INVALID = 3100301; // nfc hce state invalid.
