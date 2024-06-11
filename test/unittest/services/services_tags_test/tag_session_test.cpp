@@ -230,7 +230,8 @@ HWTEST_F(TagSessionTest, NdefRead001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
-    std::string ndefRead = tagSession->NdefRead(tagRfDiscId);
+    std::string ndefRead {};
+    tagSession->NdefRead(tagRfDiscId, ndefRead);
     ASSERT_TRUE(ndefRead == "");
 }
 /**
