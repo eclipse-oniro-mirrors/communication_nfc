@@ -456,6 +456,7 @@ void AppDataParser::InitAppList()
     InitAppListByAction(KITS::ACTION_OFF_HOST_APDU_SERVICE);
     InfoLog("InitAppList, tag size %{public}zu, hce size %{public}zu, off host app  %{public}zu",
             g_tagAppAndTechMap.size(), g_hceAppAndAidMap.size(), g_offHostAppAndAidMap.size());
+    appListInit_ = true;
 }
 
 std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int> discTechList)
@@ -663,7 +664,7 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
-    if (bundleMgrProxy_ == nullptr) {
+    if (!appListInit_) {
         InfoLog("bundleMgr is null, try to init again.");
         InitAppList();
     }
