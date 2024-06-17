@@ -189,14 +189,16 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
         if (bundleName.empty() || bundleName.compare(abilityInfo.bundleName) != 0) {
             continue;
         }
+        ElementName hapElement(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
+                abilityInfo.moduleName);
         if (action.compare(KITS::ACTION_TAG_FOUND) == 0) {
-            UpdateTagAppList(abilityInfo, element);
+            UpdateTagAppList(abilityInfo, hapElement);
         }
         if (action.compare(KITS::ACTION_HOST_APDU_SERVICE) == 0) {
-            UpdateHceAppList(abilityInfo, element);
+            UpdateHceAppList(abilityInfo, hapElement);
         }
         if (action.compare(KITS::ACTION_OFF_HOST_APDU_SERVICE) == 0) {
-            UpdateOffHostAppList(abilityInfo, element);
+            UpdateOffHostAppList(abilityInfo, hapElement);
         }
     }
     return true;
