@@ -77,7 +77,7 @@ public:
 
 private:
     bool IsNfcTaskReady(std::future<int>& future) const;
-    void ExecuteTask(KITS::NfcTask param);
+    int ExecuteTask(KITS::NfcTask param);
     void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
     void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);

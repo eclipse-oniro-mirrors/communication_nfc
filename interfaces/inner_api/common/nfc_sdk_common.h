@@ -36,6 +36,7 @@ enum ErrorCode : const int {
     ERR_NFC_BASE = 3100100,
     ERR_NFC_PARAMETERS,
     ERR_NFC_STATE_UNBIND,
+    ERR_NFC_STATE_INVALID,
 
     // error for tag I/O operations
     ERR_TAG_BASE = 3100200,

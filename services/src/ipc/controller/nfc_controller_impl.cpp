@@ -45,8 +45,7 @@ int NfcControllerImpl::TurnOn()
     if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
-    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
-    return KITS::ERR_NONE;
+    return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
 }
 
 int NfcControllerImpl::TurnOff()
@@ -54,8 +53,7 @@ int NfcControllerImpl::TurnOff()
     if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
-    nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
-    return KITS::ERR_NONE;
+    return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
 }
 
 int NfcControllerImpl::IsNfcOpen(bool &isOpen)
