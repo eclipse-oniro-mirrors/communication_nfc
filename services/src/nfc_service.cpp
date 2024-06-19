@@ -212,31 +212,32 @@ bool NfcService::IsNfcTaskReady(std::future<int>& future) const
     return true;
 }
 
-void NfcService::ExecuteTask(KITS::NfcTask param)
+int NfcService::ExecuteTask(KITS::NfcTask param)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
         WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
-        return;
+        return ERR_NONE;
     }
 
     // Check the current state
     if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
         WarnLog("NFC Turn On, already On");
         ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
-        return;
+        return ERR_NONE;
     }
     if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
         WarnLog("NFC Turn Off, already Off");
         ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
-        return;
+        UnloadNfcSa();
+        return ERR_NONE;
     }
 
     std::promise<int> promise;
     if (rootTask_) {
         if (!IsNfcTaskReady(future_)) {
             WarnLog("ExecuteTask, IsNfcTaskReady is false.");
-            return;
+            return KITS:ERR_NFC_STATE_INVALID;
         }
         if (task_ && task_->joinable()) {
             task_->join();
@@ -246,6 +247,7 @@ void NfcService::ExecuteTask(KITS::NfcTask param)
     } else {
         rootTask_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
     }
+    return ERR_NONE;
 }
 
 void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
