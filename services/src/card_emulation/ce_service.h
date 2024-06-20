@@ -84,6 +84,8 @@ public:
     void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
                                int abilityState) override;
 
+    void HandleDataShareReady();
+
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();
@@ -98,9 +100,11 @@ private:
     bool UpdateDefaultPaymentType();
     void UpdateDefaultPaymentElement(const ElementName &element);
     void NotifyDefaultPaymentType(int paymentType);
+    bool InitDefaultPaymentApp();
 
     uint64_t lastFieldOnTime_ = 0;
     uint64_t lastFieldOffTime_ = 0;
+    bool initDefaultPaymentAppDone_ = false;
 
     std::weak_ptr<NfcService> nfcService_{};
 
@@ -109,7 +113,7 @@ private:
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager_{};
     ElementName defaultPaymentElement_;
     bool defaultPaymentBundleInstalled_ {};
-    KITS::DefaultPaymentType defaultPaymentType_;
+    KITS::DefaultPaymentType defaultPaymentType_ = KITS::DefaultPaymentType::TYPE_EMPTY;
     sptr<DefaultPaymentServiceChangeCallback> dataRdbObserver_;
 
     ElementName foregroundElement_ {};

@@ -33,6 +33,8 @@
 
 namespace OHOS {
 namespace NFC {
+const std::string EVENT_DATA_SHARE_READY = "usual.event.DATA_SHARE_READY";
+
 class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
@@ -183,6 +185,43 @@ void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::Comm
     }
 }
 
+class NfcEventHandler::DataShareChangedReceiver : public EventFwk::CommonEventSubscriber {
+public:
+    explicit DataShareChangedReceiver(std::weak_ptr<NfcService> nfcService,
+        const EventFwk::CommonEventSubscribeInfo& subscribeInfo);
+    ~DataShareChangedReceiver()
+    {
+    }
+    void OnReceiveEvent(const EventFwk::CommonEventData& data) override;
+
+private:
+    std::weak_ptr<NfcService> nfcService_ {};
+    std::weak_ptr<AppExecFwk::EventHandler> eventHandler_ {};
+};
+
+NfcEventHandler::DataShareChangedReceiver::DataShareChangedReceiver(std::weak_ptr<NfcService> nfcService,
+    const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
+    : EventFwk::CommonEventSubscriber(subscribeInfo),
+    nfcService_(nfcService),
+    eventHandler_(nfcService.lock()->eventHandler_)
+{
+}
+
+void NfcEventHandler::DataShareChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
+{
+    DebugLog("NfcEventHandler::DataShareChangedReceiver");
+    std::string action = data.GetWant().GetAction();
+    if (action.empty()) {
+        ErrorLog("action is empty");
+        return;
+    }
+    InfoLog("DataShareChangedReceiver: action = %{public}s", action.c_str());
+    if (action.compare(EVENT_DATA_SHARE_READY) == 0) {
+        eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_DATA_SHARE_READY),
+                                        static_cast<int64_t>(0));
+    }
+}
+
 NfcEventHandler::NfcEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner,
                                  std::weak_ptr<NfcService> service)
     : EventHandler(runner), nfcService_(service)
@@ -194,6 +233,7 @@ NfcEventHandler::~NfcEventHandler()
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(screenSubscriber_);
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(pkgSubscriber_);
     EventFwk::CommonEventManager::UnSubscribeCommonEvent(shutdownSubscriber_);
+    EventFwk::CommonEventManager::UnSubscribeCommonEvent(dataShareSubscriber_);
 }
 
 void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
@@ -210,6 +250,7 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
     SubscribeScreenChangedEvent();
     SubscribePackageChangedEvent();
     SubscribeShutdownEvent();
+    SubscribeDataShareChangedEvent();
 }
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
@@ -261,6 +302,22 @@ void NfcEventHandler::SubscribeShutdownEvent()
 
     if (!EventFwk::CommonEventManager::SubscribeCommonEvent(shutdownSubscriber_)) {
         ErrorLog("Subscribe shutdown event fail");
+    }
+}
+
+void NfcEventHandler::SubscribeDataShareChangedEvent()
+{
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EVENT_DATA_SHARE_READY);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    dataShareSubscriber_ = std::make_shared<DataShareChangedReceiver>(nfcService_, subscribeInfo);
+    if (dataShareSubscriber_ == nullptr) {
+        ErrorLog("dataShareSubscriber_ failed");
+        return;
+    }
+
+    if (!EventFwk::CommonEventManager::SubscribeCommonEvent(dataShareSubscriber_)) {
+        ErrorLog("Subscribe dataShareSubscriber_ fail");
     }
 }
 
@@ -325,6 +382,10 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         }
         case NfcCommonEvent::MSG_SHUTDOWN: {
             nfcService_.lock()->HandleShutdown();
+            break;
+        }
+        case NfcCommonEvent::MSG_DATA_SHARE_READY: {
+            ceService_.lock()->HandleDataShareReady();
             break;
         }
 #ifdef VENDOR_APPLICATIONS_ENABLED

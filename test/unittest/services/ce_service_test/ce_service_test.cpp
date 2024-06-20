@@ -658,6 +658,20 @@ HWTEST_F(CeServiceTest, GetDefaultPaymentType001, TestSize.Level1)
     KITS::DefaultPaymentType res = ceService->GetDefaultPaymentType();
     ASSERT_TRUE(res == KITS::DefaultPaymentType::TYPE_EMPTY);
 }
+
+/**
+ * @tc.name: HandleDataShareReady001
+ * @tc.desc: Test CeServiceTest HandleDataShareReady.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleDataShareReady001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ASSERT_TRUE(ceService != nullptr);
+    ceService->HandleDataShareReady();
+}
 }
 }
 }

@@ -31,6 +31,7 @@ static AppDataParser g_appDataParser;
 /** Tag type of tag app metadata name */
 static const std::string KEY_TAG_TECH = "tag-tech";
 std::mutex bundleMgrMutex_;
+std::mutex g_appListInitMutex = {};
 sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new (std::nothrow) BundleMgrDeathRecipient());
 
 void BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
@@ -448,17 +449,24 @@ bool AppDataParser::RemoveOffHostAppInfo(ElementName &element)
 
 void AppDataParser::InitAppList()
 {
+    std::lock_guard<std::mutex> lock(g_appListInitMutex);
+    if (appListInitDone_) {
+        WarnLog("InitAppList: already done");
+        return;
+    }
     GetBundleMgrProxy();
     if (!bundleMgrProxy_) {
         ErrorLog("InitAppList, bundleMgrProxy_ is nullptr.");
+        appListInitDone_ = false;
         return;
     }
+    InfoLog("InitAppListByAction start");
     InitAppListByAction(KITS::ACTION_TAG_FOUND);
     InitAppListByAction(KITS::ACTION_HOST_APDU_SERVICE);
     InitAppListByAction(KITS::ACTION_OFF_HOST_APDU_SERVICE);
     InfoLog("InitAppList, tag size %{public}zu, hce size %{public}zu, off host app  %{public}zu",
             g_tagAppAndTechMap.size(), g_hceAppAndAidMap.size(), g_offHostAppAndAidMap.size());
-    appListInit_ = true;
+    appListInitDone_ = true;
 }
 
 std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int> discTechList)
@@ -620,6 +628,9 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
 bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
 {
     if (bundleMgrProxy_ == nullptr) {
+        GetBundleMgrProxy();
+    }
+    if (bundleMgrProxy_ == nullptr) {
         ErrorLog("bundleMgrProxy_ is nullptr!");
         return false;
     }
@@ -666,7 +677,7 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
-    if (!appListInit_) {
+    if (!appListInitDone_) {
         InfoLog("bundleMgr is null, try to init again.");
         InitAppList();
     }

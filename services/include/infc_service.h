@@ -64,6 +64,10 @@ enum class NfcCommonEvent {
 
     // device shutdown
     MSG_SHUTDOWN,
+
+    // datashare ready
+    MSG_DATA_SHARE_READY,
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
     // vendor event
     MSG_VENDOR_EVENT,
