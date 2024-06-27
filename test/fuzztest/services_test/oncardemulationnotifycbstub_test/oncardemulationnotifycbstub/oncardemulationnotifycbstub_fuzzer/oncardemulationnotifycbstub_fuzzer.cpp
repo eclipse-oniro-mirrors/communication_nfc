@@ -28,7 +28,7 @@ namespace OHOS {
     using namespace OHOS::NFC;
     using namespace OHOS::NFC::KITS;
 
-    constexpr uint32_t MESSAGE_SIZE = NfcServiceIpcInterfaceCode::COMMAND_NFC_CONTROLLER_CALLBACK_STUB_BUTT;
+    constexpr uint32_t MESSAGE_SIZE = NfcServiceIpcInterfaceCode::COMMAND_NFC_CONTROLLER_CALLBACK_STUB_BOTTOM;
     constexpr const auto FUZZER_THRESHOLD = 6;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
@@ -60,7 +60,7 @@ namespace OHOS {
         return addr;
     }
 
-    bool DoSomethingInterestingWithMyAPI(const uint8_t* data, size_t size)
+    bool DoOnCardEmulationNotifyCbStubFuzzTest(const uint8_t* data, size_t size)
     {
         uint32_t code = (GetU32Data(data) % MESSAGE_SIZE);
         auto addr = BuildAddressString(data);
@@ -94,7 +94,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::NFC::NfcAccessTokenMock::SetNativeTokenInfo();
-    OHOS::DoSomethingInterestingWithMyAPI(data, size);
+    OHOS::DoOnCardEmulationNotifyCbStubFuzzTest(data, size);
     OHOS::FuzzRegisterCallback(data, size);
     return 0;
 }
