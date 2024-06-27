@@ -348,10 +348,11 @@ ohos_unittest("nci_adapter_test") {
   ]
 
   deps = unit_test_deps
-  deps += [
-    "$NFC_DIR/services/src/nci_adapter/nci_native_default:nci_native_default",
-  ]
-
+  if (!nfc_use_vendor_nci_native) {
+    deps += [
+      "$NFC_DIR/services/src/nci_adapter/nci_native_default:nci_native_default",
+    ]
+  }
   external_deps = unit_test_external_deps
 
   part_name = "nfc"
