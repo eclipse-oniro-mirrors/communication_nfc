@@ -35,6 +35,7 @@ public:
     ~TagSessionProxy() override {}
 
     int Connect(int tagRfDiscId, int technology) override;
+    int IsConnected(int tagRfDiscId, bool &isConnected) override;
     int Reconnect(int tagRfDiscId) override;
     void Disconnect(int tagRfDiscId) override;
     int GetMaxTransceiveLength(int technology, int &maxSize) override;

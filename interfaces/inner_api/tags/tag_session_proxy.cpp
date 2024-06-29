@@ -47,6 +47,20 @@ int TagSessionProxy::Connect(int tagRfDiscId, int technology)
     return statusCode;
 }
 
+int TagSessionProxy::IsConnected(int tagRfDiscId, bool &isConnected)
+{
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        return KITS::ErrorCode::ERR_TAG_PARAMETERS;
+    }
+    data.WriteInt32(tagRfDiscId);
+    MessageOption option(MessageOption::TF_SYNC);
+    int statusCode = SendRequestExpectReplyBool(
+        static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_CONNECTED), data, option, isConnected);
+    InfoLog("TagSessionProxy::Connect, statusCode = 0x%{public}X", statusCode);
+    return statusCode;
+}
+
 int TagSessionProxy::Reconnect(int tagRfDiscId)
 {
     MessageParcel data;
