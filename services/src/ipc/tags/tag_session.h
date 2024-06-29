@@ -79,6 +79,13 @@ public:
      */
     int Connect(int tagRfDiscId, int technology) override;
     /**
+    * @brief To get connection status of tag.
+    * @param tagRfDiscId the rf disc id of tag
+    * @param isConnected the connection status of tag
+    * @return the result to get connection status of the tag
+    */
+    int IsConnected(int tagRfDiscId, bool &isConnected) override;
+    /**
      * @brief To reconnect the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      * @return the result to reconnect the tag

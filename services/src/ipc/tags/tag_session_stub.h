@@ -39,6 +39,7 @@ public:
 
 private:
     int HandleConnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
+    int HandleIsConnected(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleReconnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleDisconnect(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
     int HandleSetTimeout(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);

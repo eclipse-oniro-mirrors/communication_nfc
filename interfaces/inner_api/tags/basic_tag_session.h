@@ -27,7 +27,7 @@ public:
     virtual ~BasicTagSession() {}
 
     int Connect();
-    bool IsConnected() const;
+    bool IsConnected();
     int Close();
     int SetTimeout(int timeout);
     int GetTimeout(int &timeout);

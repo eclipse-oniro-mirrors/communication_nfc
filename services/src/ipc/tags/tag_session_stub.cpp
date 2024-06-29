@@ -41,6 +41,8 @@ int TagSessionStub::OnRemoteRequest(uint32_t code,         /* [in] */
     switch (code) {
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CONNECT):
             return HandleConnect(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_CONNECTED):
+            return HandleIsConnected(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_RECONNECT):
             return HandleReconnect(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT):
@@ -99,6 +101,20 @@ int TagSessionStub::HandleConnect(MessageParcel& data, MessageParcel& reply)
     int statusCode = Connect(tagRfDiscId, tech);
     reply.WriteInt32(statusCode);
     return ERR_NONE;
+}
+
+int TagSessionStub::HandleIsConnected(MessageParcel& data, MessageParcel& reply)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("HandleConnect, ERR_NO_PERMISSION");
+        reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    bool isConnected = false;
+    int tagRfDiscId = data.ReadInt32();
+    int statusCode = IsConnected(tagRfDiscId, isConnected);
+    reply.WriteBool(isConnected);
+    return statusCode;
 }
 
 int TagSessionStub::HandleReconnect(MessageParcel& data, MessageParcel& reply)

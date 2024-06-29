@@ -37,6 +37,13 @@ public:
      */
     virtual int Connect(int tagRfDiscId, int technology) = 0;
     /**
+     * @brief To get connection status of tag.
+     * @param tagRfDiscId the rf disc id of tag
+     * @param isConnected the connection status of tag
+     * @return the status code for function calling
+     */
+    virtual int IsConnected(int tagRfDiscId, bool &isConnected) = 0;
+    /**
      * @brief To reconnect the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      * @return the result to reconnect the tag
