@@ -57,7 +57,7 @@ int TagSessionProxy::IsConnected(int tagRfDiscId, bool &isConnected)
     MessageOption option(MessageOption::TF_SYNC);
     int statusCode = SendRequestExpectReplyBool(
         static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_IS_CONNECTED), data, option, isConnected);
-    InfoLog("TagSessionProxy::Connect, statusCode = 0x%{public}X", statusCode);
+    InfoLog("TagSessionProxy::IsConnected, statusCode = 0x%{public}X", statusCode);
     return statusCode;
 }
 
