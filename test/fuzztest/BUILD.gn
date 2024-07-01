@@ -32,6 +32,7 @@ group("fuzztest") {
     "services_test/ndefhardataparser_test/ndefhardataparser:ndefhardataparser_fuzztest",
     "services_test/ndefmsgcallback_test/ndefmsgcallbackstub:ndefmsgcallbackstub_fuzztest",
     "services_test/ndefwifidataparser_test/ndefwifidataparser:ndefwifidataparser_fuzztest",
+    "services_test/nfcdatashareimpl_test/nfcdatashareimpl:nfcdatashareimpl_fuzztest",
     "services_test/nfcpollingmanager_test/nfcpollingmanager:nfcpollingmanager_fuzztest",
     "services_test/oncardemulationnotifycbstub_test/oncardemulationnotifycbstub:oncardemulationnotifycbstub_fuzztest",
     "services_test/settingdatashareimpl_test/settingdatashareimpl:settingdatashareimpl_fuzztest",
