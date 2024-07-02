@@ -43,7 +43,7 @@ bool OnCardEmulationNotifyCbProxy::OnCardEmulationNotify(uint32_t eventType, std
             NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY, error);
         return false;
     }
-    return true;
+    return reply.ReadBool();
 }
 }  // namespace NFC
 }  // namespace OHOS

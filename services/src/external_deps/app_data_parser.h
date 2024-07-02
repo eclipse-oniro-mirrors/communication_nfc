@@ -102,6 +102,7 @@ private:
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &paymentAbilityInfos);
+    bool IsHceAppFromVendor(const ElementName &elementName);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 #endif
