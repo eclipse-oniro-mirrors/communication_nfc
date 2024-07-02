@@ -370,6 +370,22 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest019, TestSize.Level1)
         COMMAND_UNREG_FOREGROUND), data, reply, option);
     ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
 }
+/**
+ * @tc.name: OnRemoteRequest020
+ * @tc.desc: Test TagSessionStub OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionStubTest, OnRemoteRequest020, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
+        COMMAND_IS_CONNECTED), data, reply, option);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+}
 }
 }
 }

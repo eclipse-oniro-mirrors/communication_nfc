@@ -22,7 +22,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 BasicTagSession::BasicTagSession(std::weak_ptr<TagInfo> tagInfo, KITS::TagTechnology technology)
-    : tagInfo_(tagInfo), tagTechnology_(technology), isConnected_(false)
+    : tagInfo_(tagInfo), tagTechnology_(technology)
 {
 }
 
@@ -53,22 +53,25 @@ int BasicTagSession::Connect()
     int tagRfDiscId = GetTagRfDiscId();
     int ret = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
     if (ret == ErrorCode::ERR_NONE) {
-        isConnected_ = true;
         SetConnectedTagTech(tagTechnology_);
     }
     return ret;
 }
 
-bool BasicTagSession::IsConnected() const
+bool BasicTagSession::IsConnected()
 {
-    if (!isConnected_) {
+    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr) {
+        ErrorLog("IsConnected, ERR_TAG_STATE_UNBIND");
         return false;
     }
-    KITS::TagTechnology connectedTagTech = GetConnectedTagTech();
-    if ((connectedTagTech != tagTechnology_) || (connectedTagTech == KITS::TagTechnology::NFC_INVALID_TECH)) {
-        return false;
+    int tagRfDiscId = GetTagRfDiscId();
+    bool isConnected = false;
+    int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
+    if (ret == ErrorCode::ERR_NONE) {
+        return isConnected;
     }
-    return true;
+    return false;
 }
 
 int BasicTagSession::Close()
@@ -80,12 +83,10 @@ int BasicTagSession::Close()
     }
 
     // do reconnect to reset the tag's state.
-    isConnected_ = false;
     tagInfo_.lock()->SetConnectedTagTech(KITS::TagTechnology::NFC_INVALID_TECH);
 
     int statusCode = tagSession->Reconnect(GetTagRfDiscId());
     if (statusCode == ErrorCode::ERR_NONE) {
-        isConnected_ = true;
         SetConnectedTagTech(tagTechnology_);
     }
     return statusCode;

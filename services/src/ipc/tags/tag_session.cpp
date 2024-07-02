@@ -75,6 +75,27 @@ int TagSession::Connect(int tagRfDiscId, int technology)
         return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
     }
 }
+
+/**
+ * @brief To get connection status of tag.
+ * @param tagRfDiscId the rf disc id of tag
+ * @param isConnected the connection status of tag
+ * @return the result to get connection status of the tag
+ */
+int TagSession::IsConnected(int tagRfDiscId, bool &isConnected)
+{
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("Connect, expired");
+        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("Connect, IsNfcEnabled error");
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
+    isConnected = nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
+    return NFC::KITS::ErrorCode::ERR_NONE;
+}
+
 /**
  * @brief To reconnect the tagRfDiscId.
  * @param tagRfDiscId the rf disc id of tag
