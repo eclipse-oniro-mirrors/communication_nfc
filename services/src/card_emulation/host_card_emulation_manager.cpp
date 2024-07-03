@@ -73,7 +73,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if (notifyApduDataCallback && notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_APDU_DATA, dataStr)) {
-        DebugLog("onHostCardEmulationDataNfcA: data to vendor");
+        InfoLog("onHostCardEmulationDataNfcA: data to vendor");
         return;
     }
 #endif
