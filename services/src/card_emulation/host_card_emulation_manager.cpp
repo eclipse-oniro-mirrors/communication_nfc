@@ -72,14 +72,14 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     // send data to vendor
     sptr<IOnCardEmulationNotifyCb> notifyApduDataCallback =
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
-    if (notifyApduDataCallback != nullptr) {
-        notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_APDU_DATA, dataStr);
+    if (notifyApduDataCallback && notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_APDU_DATA, dataStr)) {
+        InfoLog("onHostCardEmulationDataNfcA: data to vendor");
+        return;
     }
 #endif
 
     std::string aid = ParseSelectAid(data);
-    InfoLog("selectAid = %{public}s", aid.c_str());
-    InfoLog("onHostCardEmulationDataNfcA: state %{public}d", hceState_);
+    InfoLog("onHostCardEmulationDataNfcA: selectAid = %{public}s, state %{public}d", aid.c_str(), hceState_);
     ElementName aidElement;
     if (ceService_.expired()) {
         ErrorLog("ce service expired.");

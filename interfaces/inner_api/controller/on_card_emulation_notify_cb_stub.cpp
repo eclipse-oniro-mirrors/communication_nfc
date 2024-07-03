@@ -36,8 +36,7 @@ bool OnCardEmulationNotifyCbStub::OnCardEmulationNotify(uint32_t eventType, std:
 {
     if (callback_) {
         InfoLog("OnCardEmulationNotify:call callback_");
-        callback_(eventType, apduData);
-        return true;
+        return callback_(eventType, apduData);
     }
     return false;
 }
@@ -96,7 +95,8 @@ int OnCardEmulationNotifyCbStub::RemoteCardEmulationNotify(MessageParcel &data, 
     std::unique_lock<std::shared_mutex> guard(mutex_);
     uint32_t eventType = data.ReadInt32();
     std::string apduData = data.ReadString();
-    OnCardEmulationNotify(eventType, apduData);
+    bool ret = OnCardEmulationNotify(eventType, apduData);
+    reply.WriteBool(ret);
     return KITS::ERR_NONE;
 }
 }  // namespace NFC

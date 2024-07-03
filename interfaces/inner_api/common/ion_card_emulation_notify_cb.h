@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace NFC {
-using OnCardEmulationNotifyCb = void (*)(uint32_t, std::string);
+using OnCardEmulationNotifyCb = bool (*)(uint32_t, std::string);
 class IOnCardEmulationNotifyCb : public IRemoteBroker {
 public:
     virtual bool OnCardEmulationNotify(uint32_t eventType, std::string apduData) = 0;

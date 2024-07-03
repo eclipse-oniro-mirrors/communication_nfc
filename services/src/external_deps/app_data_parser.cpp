@@ -624,6 +624,19 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
         }
     }
 }
+
+bool AppDataParser::IsHceAppFromVendor(const ElementName &elementName)
+{
+    std::vector<HceAppAidInfo> hceApps;
+    GetHceAppsFromVendor(hceApps);
+    for (auto &app : hceApps) {
+        if (app.element.GetBundleName() == elementName.GetBundleName() &&
+            app.element.GetAbilityName() == elementName.GetAbilityName()) {
+            return true;
+        }
+    }
+    return false;
+}
 #endif
 bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
 {
@@ -672,7 +685,11 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
             return true;
         }
     }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    return IsHceAppFromVendor(elementName);
+#else
     return false;
+#endif
 }
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
