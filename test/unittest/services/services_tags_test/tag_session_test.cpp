@@ -613,6 +613,33 @@ HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
     int abilityState = 0;
     tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
 }
+
+/**
+ * @tc.name: ResetTimeout001
+ * @tc.desc: Test TagSession ResetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, ResetTimeout001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = nullptr;
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    int tagRfDiscId = 0;
+    tagSession->ResetTimeout(tagRfDiscId);
+}
+
+/**
+ * @tc.name: ResetTimeout002
+ * @tc.desc: Test TagSession ResetTimeout.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, ResetTimeout002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    int tagRfDiscId = 0;
+    tagSession->ResetTimeout(tagRfDiscId);
+}
 }
 }
 }

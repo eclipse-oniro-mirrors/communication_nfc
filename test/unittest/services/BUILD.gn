@@ -300,6 +300,7 @@ ohos_unittest("services_test") {
     "services_test/app_data_parser_test.cpp",
     "services_test/ndef_bt_data_parser_test.cpp",
     "services_test/ndef_wifi_data_parser_test.cpp",
+    "services_test/nfc_event_handler_test.cpp",
     "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
   ]
