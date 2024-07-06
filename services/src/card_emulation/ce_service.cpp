@@ -124,6 +124,10 @@ bool CeService::InitConfigAidRouting(bool forceUpdate)
         return false;
     }
 
+    if (nciCeProxy_.expired()) {
+        ErrorLog("InitConfigAidRouting: nciCeProxy_ is nullptr.");
+        return false;
+    }
     nciCeProxy_.lock()->ClearAidTable();
     aidToAidEntry_.clear();
     bool addAllResult = true;

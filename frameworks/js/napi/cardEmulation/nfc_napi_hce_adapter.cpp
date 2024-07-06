@@ -305,10 +305,10 @@ static void after_work_cb(uv_work_t* work, int status)
 {
     AsyncEventData* asyncData = static_cast<AsyncEventData*>(work->data);
     InfoLog("Napi event uv_queue_work, env: %{private}p, status: %{public}d", asyncData->env, status);
-    napi_value handler = nullptr;
     napi_handle_scope scope = nullptr;
     uint32_t refCount = INVALID_REF_COUNT;
     napi_open_handle_scope(asyncData->env, &scope);
+    napi_value handler = nullptr;
     if (scope == nullptr) {
         ErrorLog("after_work_cb: scope is nullptr");
         goto EXIT;

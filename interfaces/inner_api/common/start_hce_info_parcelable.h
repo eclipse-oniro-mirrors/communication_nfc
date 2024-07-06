@@ -36,7 +36,7 @@ public:
 
 private:
     std::vector<std::string> aids_;
-    uint32_t aidsCount_;
+    uint32_t aidsCount_ = 0;
     ElementName element_;
 };
 } // namespace KITS

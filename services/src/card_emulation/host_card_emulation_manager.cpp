@@ -151,6 +151,10 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 #endif
 
     queueHceData_.clear();
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("OnCardEmulationDeactivated abilityConnection_ nullptr.");
+        return;
+    }
     ErrCode releaseCallRet = AAFwk::AbilityManagerClient::GetInstance()->ReleaseCall(
         abilityConnection_, abilityConnection_->GetConnectedElement());
     InfoLog("Release call end. ret = %{public}d", releaseCallRet);
@@ -219,7 +223,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
 }
 bool HostCardEmulationManager::ExistService(ElementName& aidElement)
 {
-    if (!abilityConnection_->ServiceConnected()) {
+    if (abilityConnection_ == nullptr || (!abilityConnection_->ServiceConnected())) {
         InfoLog("no service connected.");
         return false;
     }
@@ -265,7 +269,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
             return "";
         }
 
-        int aidLength = data[INDEX_AID_LEN];
+        uint8_t aidLength = data[INDEX_AID_LEN];
         if (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) {
             InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
@@ -347,6 +351,10 @@ bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::Acc
         return true;
     }
 #endif
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("IsCorrespondentService abilityConnection_ is null");
+        return false;
+    }
     if (!hapTokenInfo.bundleName.empty() &&
         hapTokenInfo.bundleName == abilityConnection_->GetConnectedElement().GetBundleName()) {
         return true;
@@ -361,6 +369,10 @@ void HostCardEmulationManager::HandleQueueData()
     bool shouldSendQueueData = hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
 
     std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("HandleQueueData abilityConnection_ is null");
+        return;
+    }
     InfoLog("RegHceCmdCallback queue data %{public}s, hceState= %{public}d, "
             "service connected= %{public}d",
             queueData.c_str(), hceState_, abilityConnection_->ServiceConnected());
@@ -377,6 +389,10 @@ void HostCardEmulationManager::HandleQueueData()
 
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("SendDataToService abilityConnection_ is null");
+        return;
+    }
     std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
     InfoLog("SendDataToService register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     std::lock_guard<std::mutex> lock(regInfoMutex_);
@@ -394,6 +410,10 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
 
 bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
 {
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("DispatchAbilitySingleApp abilityConnection_ is null");
+        return false;
+    }
     abilityConnection_->SetHceManager(shared_from_this());
     if (element.GetBundleName().empty()) {
         ErrorLog("DispatchAbilitySingleApp element empty");

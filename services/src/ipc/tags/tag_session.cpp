@@ -173,7 +173,7 @@ int TagSession::GetTimeout(int tagRfDiscId, int technology, int &timeout)
 
     uint32_t timeoutTemp = 0;
     nciTagProxy_.lock()->GetTimeout(tagRfDiscId, timeoutTemp, technology);
-    timeout = timeoutTemp;
+    timeout = static_cast<int>(timeoutTemp);
     return NFC::KITS::ErrorCode::ERR_NONE;
 }
 

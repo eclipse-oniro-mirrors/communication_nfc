@@ -336,12 +336,12 @@ void WifiConnectionManager::WifiCommonEventReceiver::OnReceiveEvent(const EventF
     }
     InfoLog("OnReceiveEvent: action: %{public}s, code: %{public}d", action.c_str(), data.GetCode());
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_POWER_STATE) == 0) {
-        if (data.GetCode() != static_cast<uint32_t>(Wifi::WifiState::ENABLED)) {
+        if (data.GetCode() != static_cast<int32_t>(Wifi::WifiState::ENABLED)) {
             return;
         }
         nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLED, 0);
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_CONN_STATE) == 0) {
-        if (data.GetCode() != static_cast<uint32_t>(Wifi::ConnState::CONNECTED)) {
+        if (data.GetCode() != static_cast<int32_t>(Wifi::ConnState::CONNECTED)) {
             return;
         }
         nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECTED, 0);
