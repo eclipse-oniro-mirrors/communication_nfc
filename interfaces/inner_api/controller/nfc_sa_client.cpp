@@ -34,7 +34,7 @@ NfcSaClient &NfcSaClient::GetInstance()
 
 sptr<IRemoteObject> NfcSaClient::LoadNfcSa(int32_t systemAbilityId)
 {
-    DebugLog("NfcSaClient::%{public}s enter, systemAbilityId [%{public}d] loading", __func__, systemAbilityId);
+    InfoLog("NfcSaClient::%{public}s enter, systemAbilityId [%{public}d] loading", __func__, systemAbilityId);
     InitLoadState();
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -104,13 +104,13 @@ void NfcSaClient::LoadSystemAbilityFail()
 void NfcSaLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
-    DebugLog("NfcSaClient Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
+    InfoLog("NfcSaClient Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
     NfcSaClient::GetInstance().LoadSystemAbilitySuccess(remoteObject);
 }
 
 void NfcSaLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    DebugLog("NfcSaClient Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
+    InfoLog("NfcSaClient Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
     NfcSaClient::GetInstance().LoadSystemAbilityFail();
 }
 }  // namespace NFC

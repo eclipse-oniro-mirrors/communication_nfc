@@ -123,7 +123,7 @@ bool NfcService::Initialize()
 
 void NfcService::UnloadNfcSa()
 {
-    DebugLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    InfoLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
@@ -497,14 +497,14 @@ int NfcService::GetNciVersion()
 bool NfcService::IsNfcEnabled()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    DebugLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
+    InfoLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
 }
 
 void NfcService::HandleShutdown()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    DebugLog("device is shutting down");
+    InfoLog("device is shutting down");
     nciNfccProxy_->Shutdown();
 }
 
