@@ -62,7 +62,13 @@ static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCard
         return false;
     }
     for (int i = 0; i < checkApduArraySize; ++i) {
-        cardInfoList[index].checkApdus.push_back(cJSON_GetArrayItem(checkApdus, i)->valuestring);
+        cJSON *value = cJSON_GetArrayItem(checkApdus, i);
+        if (value == nullptr || !cJSON_IsString(value)) {
+            ErrorLog("json param not string");
+            cJSON_Delete(json);
+            return false;
+        }
+        cardInfoList[index].checkApdus.push_back(value->valuestring);
     }
     return true;
 }
@@ -80,13 +86,20 @@ static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCa
             return false;
         }
         for (int i = 0; i < balanceApduArraySize; ++i) {
-            cardInfoList[index].balanceApdus.push_back(cJSON_GetArrayItem(balanceApdus, i)->valuestring);
+            cJSON *value = cJSON_GetArrayItem(balanceApdus, i);
+            if (value == nullptr || !cJSON_IsString(value)) {
+                ErrorLog("json param not string");
+                cJSON_Delete(json);
+                return false;
+            }
+            cardInfoList[index].balanceApdus.push_back(value->valuestring);
         }
     }
     return true;
 }
 
-static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo, TransportCardInfo *cardInfoList)
+static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo,
+                                    TransportCardInfo *cardInfoList, size_t cardInfoListLen)
 {
     cJSON *cardInfoEach = nullptr;
     int index = 0;
@@ -152,7 +165,7 @@ bool IsodepCardHandler::DoJsonRead()
         return false;
     }
 
-    if (!GetEachCardInfoFromJson(json, cardInfo, cardInfoList)) {
+    if (!GetEachCardInfoFromJson(json, cardInfo, cardInfoList, sizeof(cardInfoList) / sizeof(cardInfoList[0]))) {
         ErrorLog("fail to get each cardinfo from json");
         cJSON_Delete(json);
         return false;
