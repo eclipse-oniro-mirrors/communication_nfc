@@ -39,7 +39,7 @@ private:
     // there is only single tag application matched to be dispatched.
     const static int TAG_APP_MATCHED_SIZE_SINGLE = 1;
 
-    const static int DEFAULT_MOTOR_VIBRATOR_ONCE = 500; // ms
+    const static int DEFAULT_MOTOR_VIBRATOR_ONCE = 200; // ms
 };
 }  // namespace TAG
 }  // namespace NFC
