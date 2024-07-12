@@ -172,6 +172,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
         foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
         foregroundData_->element_ = element;
         foregroundData_->callback_ = callback;
+        nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, element.GetBundleName());
     }
     return true;
 }
@@ -184,6 +185,7 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
     foregroundData_->techMask_ = 0xFFFF;
     foregroundData_->callerToken_ = 0;
     foregroundData_->callback_ = nullptr;
+    nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, "");
     return true;
 }
 
@@ -230,6 +232,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
         readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
         readerModeData_->element_ = element;
         readerModeData_->callback_ = callback;
+        nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::READERMODE_APP_KEY, element.GetBundleName());
     }
     nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
@@ -246,6 +249,7 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     readerModeData_->callback_ = nullptr;
     nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
+    nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::READERMODE_APP_KEY, "");
     return true;
 }
 

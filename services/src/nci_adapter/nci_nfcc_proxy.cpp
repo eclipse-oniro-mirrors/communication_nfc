@@ -125,6 +125,16 @@ void NciNfccProxy::Shutdown()
         return nfccInterface_->Shutdown();
     }
 }
+
+/**
+ * @brief Send a custom message to vendor
+*/
+void NciNfccProxy::NotifyMessageToVendor(const std::string& key, const std::string& value)
+{
+    if (nfccInterface_) {
+        return nfccInterface_->NotifyMessageToVendor(key, value);
+    }
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

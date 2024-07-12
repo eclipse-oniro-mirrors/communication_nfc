@@ -33,6 +33,7 @@ public:
     void Abort() override;
     void FactoryReset() override;
     void Shutdown() override;
+    void NotifyMessageToVendor(const std::string& key, const std::string& value) override;
 };
 }  // namespace NCI
 }  // namespace NFC
