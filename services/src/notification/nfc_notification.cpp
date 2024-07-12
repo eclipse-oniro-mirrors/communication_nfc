@@ -185,9 +185,10 @@ static bool SetTitleAndTextForOtherNotificationId(int notificationId,
             }
             break;
         case NFC_BROWSER_NOTIFICATION_ID:
-            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end()) {
+            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(NFC_OPEN_LINK_TEXT_HEAD) != g_resourceMap.end()) {
                 nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
-                nfcContent->SetText(NFC_OPEN_LINK_TEXT_HEAD + name);
+                nfcContent->SetText(g_resourceMap[NFC_OPEN_LINK_TEXT_HEAD] + name);
             }
             break;
         case NFC_HCE_AID_CONFLICTED_ID:
@@ -273,7 +274,10 @@ static std::string GetButtonName(int notificationId)
             }
             return "";
         case NFC_BROWSER_NOTIFICATION_ID:
-            return NFC_OPEN_LINK_BUTTON_NAME;
+            if (g_resourceMap.find(NFC_OPEN_LINK_BUTTON_NAME) != g_resourceMap.end()) {
+                return g_resourceMap[NFC_OPEN_LINK_BUTTON_NAME];
+            }
+            return "";
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             return "";
         default:

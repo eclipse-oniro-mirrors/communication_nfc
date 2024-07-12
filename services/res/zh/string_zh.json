@@ -59,6 +59,12 @@
 		},{
 			"name": "NoHapSupportedNtfText",
 			"value": "当前无支持应用，请前往应用市场下载"
+		},{
+			"name": "NfcOpenLinkButtonName",
+			"value": "打开链接"
+		},{
+			"name": "NfcOpenLinkTextHead",
+			"value": "打开链接："
 		}
 	]
 }

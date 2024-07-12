@@ -59,6 +59,12 @@
 		},{
 			"name": "NoHapSupportedNtfText",
 			"value": "No supported applications available"
+		},{
+			"name": "NfcOpenLinkButtonName",
+			"value": "Open Link"
+		},{
+			"name": "NfcOpenLinkTextHead",
+			"value": "Open Link: "
 		}
 	]
 }
