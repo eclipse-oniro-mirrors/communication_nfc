@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 #include <thread>
 
+#include "nfc_controller .h"
 #include "nfc_controller_impl.h"
 #include "nfc_controller_stub.h"
 #include "nfc_sdk_common.h"
@@ -639,6 +640,40 @@ HWTEST_F(TagSessionTest, ResetTimeout002, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = 0;
     tagSession->ResetTimeout(tagRfDiscId);
+}
+
+/**
+ * @tc.name: IsConnected001
+ * @tc.desc: Test TagSession IsConnected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsConnected001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = nullptr;
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    int tagRfDiscId = 0;
+    bool isConnected = false;
+    int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+}
+
+/**
+ * @tc.name: IsConnected002
+ * @tc.desc: Test TagSession IsConnected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsConnected002, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    int tagRfDiscId = 0;
+    bool isConnected = false;
+    int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 }
 }

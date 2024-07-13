@@ -61,6 +61,27 @@ void TagForegroundTest::TearDown()
  */
 HWTEST_F(TagForegroundTest, RegForeground001, TestSize.Level1)
 {
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOn();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech = {1, 2, 3, 4, 5};
+    const sptr<KITS::IForegroundCallback> callback = nullptr;
+    TagForeground instance = TagForeground::GetInstance();
+    int result = instance.RegForeground(element, discTech, callback);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: RegForeground002
+ * @tc.desc: Test TagForeground RegForeground.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, RegForeground002, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech = {1, 2, 3, 4, 5};
     const sptr<KITS::IForegroundCallback> callback = nullptr;
@@ -68,6 +89,7 @@ HWTEST_F(TagForegroundTest, RegForeground001, TestSize.Level1)
     int result = instance.RegForeground(element, discTech, callback);
     ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
+
 /**
  * @tc.name: UnregForeground001
  * @tc.desc: Test TagForeground UnregForeground.
@@ -75,6 +97,25 @@ HWTEST_F(TagForegroundTest, RegForeground001, TestSize.Level1)
  */
 HWTEST_F(TagForegroundTest, UnregForeground001, TestSize.Level1)
 {
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOn();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    AppExecFwk::ElementName element;
+    TagForeground instance = TagForeground::GetInstance();
+    int result = instance.UnregForeground(element);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: UnregForeground002
+ * @tc.desc: Test TagForeground UnregForeground.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, UnregForeground002, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregForeground(element);
@@ -88,6 +129,9 @@ HWTEST_F(TagForegroundTest, UnregForeground001, TestSize.Level1)
  */
 HWTEST_F(TagForegroundTest, RegReaderMode001, TestSize.Level1)
 {
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOn();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech;
     sptr<KITS::IReaderModeCallback> callback = nullptr;
@@ -97,16 +141,53 @@ HWTEST_F(TagForegroundTest, RegReaderMode001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: RegReaderMode002
+ * @tc.desc: Test TagForeground RegReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, RegReaderMode002, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech;
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    TagForeground instance = TagForeground::GetInstance();
+    int result = instance.RegReaderMode(element, discTech, callback);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+}
+
+/**
  * @tc.name: UnregReaderMode001
  * @tc.desc: Test TagForeground UnregReaderMode.
  * @tc.type: FUNC
  */
 HWTEST_F(TagForegroundTest, UnregReaderMode001, TestSize.Level1)
 {
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOn();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregReaderMode(element);
     ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+}
+
+/**
+ * @tc.name: UnregReaderMode002
+ * @tc.desc: Test TagForeground UnregReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, UnregReaderMode002, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    AppExecFwk::ElementName element;
+    TagForeground instance = TagForeground::GetInstance();
+    int result = instance.UnregReaderMode(element);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
 }
 }
 }

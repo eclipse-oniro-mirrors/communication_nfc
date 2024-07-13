@@ -26,6 +26,7 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
+    constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
 class IForegroundCallbackImpl : public IForegroundCallback {
 public:
@@ -138,6 +139,35 @@ public:
         sptr<IReaderModeCallback> callback = nullptr;
         tagSession->RegReaderMode(element, discTech, callback);
     }
+
+    void FuzzIsConnected(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int tagRfDiscId = static_cast<int>(data[0]);
+        bool isConnected = data[0] % INT_TO_BOOL_DIVISOR;
+        tagSession->IsConnected(tagRfDiscId, isConnected);
+    }
+
+    void FuzzSetTimeout(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int tagRfDiscId = 0;
+        int timeout = 0;
+        int technology = 0;
+        tagSession->SetTimeout(tagRfDiscId, timeout, technology);
+    }
+
+    void FuzzGetTimeout(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int tagRfDiscId = 0;
+        int technology = 0;
+        int timeout = 0;
+        tagSession->GetTimeout(tagRfDiscId, technology, timeout);
+    }
 }
 
 /* Fuzzer entry point */
@@ -156,6 +186,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegForegroundDispatch(data, size);
     OHOS::FuzzUnregForegroundDispatch(data, size);
     OHOS::FuzzRegReaderMode(data, size);
+    OHOS::FuzzIsConnected(data, size);
+    OHOS::FuzzSetTimeout(data, size);
+    OHOS::FuzzGetTimeout(data, size);
     return 0;
 }
 

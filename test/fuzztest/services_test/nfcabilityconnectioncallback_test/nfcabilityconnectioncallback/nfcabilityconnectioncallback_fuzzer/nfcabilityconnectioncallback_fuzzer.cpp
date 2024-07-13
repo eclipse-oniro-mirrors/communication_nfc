@@ -12,18 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "isodepcardhandler_fuzzer.h"
+#include "nfcabilityconnectioncallback_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "isodep_card_handler.h"
+#include "nfc_ability_connection_callback.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
-    using namespace OHOS::NFC::NCI;
-    using namespace OHOS::NFC::TAG;
     using namespace OHOS::NFC;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
@@ -36,20 +34,14 @@ namespace OHOS {
         }
     }
 
-    void FuzzInitTransportCardInfo(const uint8_t* data, size_t size)
+    void FuzzOnAbilityConnectDone(const uint8_t* data, size_t size)
     {
-        std::weak_ptr<INciTagInterface> nciTagProxy;
-        std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-        isodepCardHandler->InitTransportCardInfo();
-    }
-
-    void FuzzGetCardName(const uint8_t* data, size_t size)
-    {
-        uint8_t cardIndex = static_cast<uint8_t>(data[0]);
-        std::string cardName = std::string(reinterpret_cast<const char*>(data), size);
-        std::weak_ptr<INciTagInterface> nciTagProxy;
-        std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-        isodepCardHandler->GetCardName(cardIndex, cardName);
+        AppExecFwk::ElementName element;
+        sptr<IRemoteObject> remoteObject = nullptr;
+        int resultCode = static_cast<int>(data[0]);
+        std::shared_ptr<NfcAbilityConnectionCallback> nfcAbilityConnectionCallback =
+            std::make_shared<NfcAbilityConnectionCallback>();
+        nfcAbilityConnectionCallback->OnAbilityConnectDone(element, remoteObject, resultCode);
     }
 }
 
@@ -61,8 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzInitTransportCardInfo(data, size);
-    OHOS::FuzzGetCardName(data, size);
+    OHOS::FuzzOnAbilityConnectDone(data, size);
     return 0;
 }
 
