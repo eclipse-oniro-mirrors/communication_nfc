@@ -62,6 +62,9 @@ void MifareClassicTag::SetSizeBySak(int sak)
         case SAK18:
             size_ = MC_SIZE_4K;
             break;
+        case SAK19:
+            size_ = MC_SIZE_2K;
+            break;
         case SAK28:
             size_ = MC_SIZE_1K;
             isEmulated_ = true;

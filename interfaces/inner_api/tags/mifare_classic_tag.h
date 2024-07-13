@@ -30,6 +30,7 @@ public:
     static const int SAK10 = 0x10;
     static const int SAK11 = 0x11;
     static const int SAK18 = 0x18;
+    static const int SAK19 = 0x19;
     static const int SAK28 = 0x28;
     static const int SAK38 = 0x38;
     static const int SAK88 = 0x88;
