@@ -66,6 +66,32 @@ HWTEST_F(QueryAppInfoCallbackStubTest, OnRemoteRequest001, TestSize.Level1)
     int onRemoteRequest = queryAppInfoCallbackStub->OnRemoteRequest(code, data, reply, option);
     ASSERT_TRUE(onRemoteRequest == KITS::ERR_NFC_PARAMETERS);
 }
+
+/**
+ * @tc.name: RegisterQueryTagAppCallback001
+ * @tc.desc: Test QueryAppInfoCallbackStubTest RegisterQueryTagAppCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryAppInfoCallbackStubTest, RegisterQueryTagAppCallback001, TestSize.Level1)
+{
+    QueryApplicationByVendor tagCallback = nullptr;
+    std::shared_ptr<QueryAppInfoCallbackStub> queryAppInfoCallbackStub = std::make_shared<QueryAppInfoCallbackStub>();
+    KITS::ErrorCode ret = queryAppInfoCallbackStub->RegisterQueryTagAppCallback(tagCallback);
+    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: RegisterQueryHceAppCallback001
+ * @tc.desc: Test QueryAppInfoCallbackStubTest RegisterQueryHceAppCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QueryAppInfoCallbackStubTest, RegisterQueryHceAppCallback001, TestSize.Level1)
+{
+    QueryHceAppByVendor hceCallback = nullptr;
+    std::shared_ptr<QueryAppInfoCallbackStub> queryAppInfoCallbackStub = std::make_shared<QueryAppInfoCallbackStub>();
+    KITS::ErrorCode ret = queryAppInfoCallbackStub->RegisterQueryHceAppCallback(hceCallback);
+    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+}
 #endif
 }
 }
