@@ -188,7 +188,7 @@ uint64_t NfcSdkCommon::GetCurrentTime()
     constexpr int timeRate = 1000;
     struct timeval time = {0};
     gettimeofday(&time, nullptr);
-    return static_cast<uint64_t>(time.tv_sec * timeRate + static_cast<uint64_t>(time.tv_usec / timeRate));
+    return static_cast<uint64_t>(time.tv_sec * timeRate + time.tv_usec / timeRate);
 }
 
 uint64_t NfcSdkCommon::GetRelativeTime()

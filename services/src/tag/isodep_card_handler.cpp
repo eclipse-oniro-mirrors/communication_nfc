@@ -52,20 +52,17 @@ static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCard
     cJSON *checkApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_CHECK_APDUS.c_str());
     if (checkApdus == nullptr || !cJSON_IsArray(checkApdus)) {
         ErrorLog("json param not array, or has no field \"checkApdus\", index = %{public}d", index);
-        cJSON_Delete(json);
         return false;
     }
     int checkApduArraySize = cJSON_GetArraySize(checkApdus);
     if (checkApduArraySize == 0 || checkApduArraySize > MAX_APDU_ARRAY_SIZE) {
         ErrorLog("illegal array size [%{public}d]", checkApduArraySize);
-        cJSON_Delete(json);
         return false;
     }
     for (int i = 0; i < checkApduArraySize; ++i) {
         cJSON *value = cJSON_GetArrayItem(checkApdus, i);
         if (value == nullptr || !cJSON_IsString(value)) {
             ErrorLog("json param not string");
-            cJSON_Delete(json);
             return false;
         }
         cardInfoList[index].checkApdus.push_back(value->valuestring);
@@ -82,14 +79,12 @@ static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCa
         int balanceApduArraySize = cJSON_GetArraySize(balanceApdus);
         if (balanceApduArraySize == 0 || balanceApduArraySize > MAX_APDU_ARRAY_SIZE) {
             ErrorLog("illegal array size [%{public}d]", balanceApduArraySize);
-            cJSON_Delete(json);
             return false;
         }
         for (int i = 0; i < balanceApduArraySize; ++i) {
             cJSON *value = cJSON_GetArrayItem(balanceApdus, i);
             if (value == nullptr || !cJSON_IsString(value)) {
                 ErrorLog("json param not string");
-                cJSON_Delete(json);
                 return false;
             }
             cardInfoList[index].balanceApdus.push_back(value->valuestring);
@@ -106,13 +101,11 @@ static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo,
     cJSON_ArrayForEach(cardInfoEach, cardInfo) {
         if (index >= MAX_CARD_INFO_VEC_LEN) {
             ErrorLog("index exceeds");
-            cJSON_Delete(json);
             return false;
         }
         cJSON *name = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_NAME.c_str());
         if (name == nullptr || !cJSON_IsString(name)) {
             ErrorLog("json param not string, or has no field \"name\", index = %{public}d", index);
-            cJSON_Delete(json);
             return false;
         }
         cardInfoList[index].name = name->valuestring;

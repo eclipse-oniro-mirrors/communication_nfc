@@ -143,7 +143,8 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 
     bool isIsoDep = false;
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
-    if (nciTagProxy_.lock()->GetConnectedTech(tagDiscId) == static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+    if (static_cast<int>(nciTagProxy_.lock()->GetConnectedTech(tagDiscId)) ==
+        static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
         isIsoDep = true;
     }
@@ -241,10 +242,13 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
 {
     InfoLog("notificationId[%{public}d]", notificationId);
     switch (notificationId) {
-        case NFC_TRANSPORT_CARD_NOTIFICATION_ID:
+        case NFC_TRANSPORT_CARD_NOTIFICATION_ID: {
             // start application ability for tag found.
-            ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            if (nfcService_) {
+                ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            }
             break;
+        }
         case NFC_WIFI_NOTIFICATION_ID: {
 #ifdef NDEF_WIFI_ENABLED
             if (nfcService_ && nfcService_->eventHandler_) {

@@ -384,12 +384,11 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
     std::lock_guard<std::mutex> lock(mutex_);
     bool isExist = false;
     NfcStateRegistryRecord record;
-    InfoLog("RecordsSize=%{public}zu,isExist=%{public}d,type=%{public}s,callerToken=%{public}d",
-        stateRecords_.size(), isExist, type.c_str(), callerToken);
+    InfoLog("RecordsSize=%{public}zu,isExist=%{public}d,type=%{public}s",
+        stateRecords_.size(), isExist, type.c_str());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         record = stateRecords_[i];
-        InfoLog("record.type_=%{public}s,record.callerToken=%{public}d",
-            record.type_.c_str(), record.callerToken_);
+        InfoLog("record.type_=%{public}s", record.type_.c_str());
         if (record.type_.compare(type) == 0 && record.callerToken_ == callerToken) {
             isExist = true;
             break;
