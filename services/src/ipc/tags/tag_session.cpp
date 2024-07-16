@@ -494,9 +494,11 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
 int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
+#ifndef VENDOR_APPLICATIONS_ENABLED
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
     }
+#endif
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegForegroundDispatchInner(element, discTech, callback);
 }
