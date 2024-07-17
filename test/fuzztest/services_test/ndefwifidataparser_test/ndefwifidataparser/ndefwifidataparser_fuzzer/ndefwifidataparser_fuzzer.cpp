@@ -38,19 +38,31 @@ namespace OHOS {
     void FuzzCheckWifiRecord(const uint8_t* data, size_t size)
     {
         std::string msg = std::string(reinterpret_cast<const char*>(data), size);
-        std::shared_ptr<WifiData> wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
+        std::shared_ptr<NdefWifiDataParser> ndefWifiDataParser = std::make_shared<NdefWifiDataParser>();
+        if (ndefWifiDataParser == nullptr) {
+            return;
+        }
+        ndefWifiDataParser->CheckWifiRecord(msg);
     }
 
     void FuzzCheckWifiRecord1(const uint8_t* data, size_t size)
     {
         std::string msg = "";
-        std::shared_ptr<WifiData> wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
+        std::shared_ptr<NdefWifiDataParser> ndefWifiDataParser = std::make_shared<NdefWifiDataParser>();
+        if (ndefWifiDataParser == nullptr) {
+            return;
+        }
+        ndefWifiDataParser->CheckWifiRecord(msg);
     }
 
     void FuzzCheckWifiRecord2(const uint8_t* data, size_t size)
     {
         std::string msg = "CheckWifiRecord";
-        std::shared_ptr<WifiData> wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
+        std::shared_ptr<NdefWifiDataParser> ndefWifiDataParser = std::make_shared<NdefWifiDataParser>();
+        if (ndefWifiDataParser == nullptr) {
+            return;
+        }
+        ndefWifiDataParser->CheckWifiRecord(msg);
     }
 
     void FuzzCheckWifiRecord3(const uint8_t* data, size_t size)
@@ -58,7 +70,11 @@ namespace OHOS {
         std::string msg = "DA1736016170706C69636174696F6E2F766E642E7766612E77736331100E0032"
                           "10260001011045000741646143393239100300020020100F0002000110270008"
                           "383838383838383810200006FFFFFFFFFFFF";
-        std::shared_ptr<WifiData> wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
+        std::shared_ptr<NdefWifiDataParser> ndefWifiDataParser = std::make_shared<NdefWifiDataParser>();
+        if (ndefWifiDataParser == nullptr) {
+            return;
+        }
+        ndefWifiDataParser->CheckWifiRecord(msg);
     }
 }
 

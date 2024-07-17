@@ -38,19 +38,31 @@ namespace OHOS {
     void FuzzCheckBtRecord(const uint8_t* data, size_t size)
     {
         std::string msg = std::string(reinterpret_cast<const char*>(data), size);
-        std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->CheckBtRecord(msg);
     }
 
     void FuzzCheckBtRecord1(const uint8_t* data, size_t size)
     {
         std::string msg = "";
-        std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->CheckBtRecord(msg);
     }
 
     void FuzzCheckBtRecord2(const uint8_t* data, size_t size)
     {
         std::string msg = "CheckbtRecord";
-        std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->CheckBtRecord(msg);
     }
 
     void FuzzCheckBtRecord3(const uint8_t* data, size_t size)
@@ -59,7 +71,11 @@ namespace OHOS {
                           "702E6F6F625600BE17010E7F04050949435341040D14042C0B030B110C11"
                           "0E111E11001236FF027D0320010240005A45303031810800113000190103"
                           "021901010101020306047F0E0117BE020E52726364687A5238363739393532";
-        std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->CheckBtRecord(msg);
     }
 }
 
