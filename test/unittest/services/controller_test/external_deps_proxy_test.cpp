@@ -428,6 +428,20 @@ HWTEST_F(ExternalDepsProxyTest, PublishNtf001, TestSize.Level1)
     ExternalDepsProxy::GetInstance().PublishNfcNotification(TAG::NFC_TAG_DEFAULT_NOTIFICATION_ID, cardName, balance);
     ASSERT_TRUE(balance == 0);
 }
+
+/**
+ * @tc.name: PublishNtf002
+ * @tc.desc: Test Publish Notification.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ExternalDepsProxyTest, PublishNtf002, TestSize.Level1)
+{
+    std::string cardName = "";
+    int balance = 0;
+    int invalidNotificationId = 0;
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(invalidNotificationId, cardName, balance);
+    ASSERT_TRUE(balance == 0);
+}
 }
 }
 }

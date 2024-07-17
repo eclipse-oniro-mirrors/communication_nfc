@@ -42,13 +42,16 @@ namespace OHOS {
 namespace NFC {
 namespace TAG {
 enum NfcNotificationId : int {
-    NFC_TAG_DEFAULT_NOTIFICATION_ID = 114000,
+    NFC_TAG_DEFAULT_NTF_ID = 114000,
     NFC_BT_NOTIFICATION_ID = 114001,
     NFC_WIFI_NOTIFICATION_ID = 114002,
     NFC_TRANSPORT_CARD_NOTIFICATION_ID = 114003,
     NFC_BROWSER_NOTIFICATION_ID = 114004,
     NFC_HCE_AID_CONFLICTED_ID = 114005,
     NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID = 114006,
+
+    // add NTF ID type before NFC_NTF_END
+    NFC_NTF_END,
 };
 
 const int MAX_BUFF_LEN = 100;
@@ -57,6 +60,8 @@ const int NTF_AUTO_DELETE_TIME = 10000;
 const int MAX_RES_VEC_LEN = 100;
 const int NFC_NTF_CONTROL_FLAG = 0;
 const int NFC_SLOT_CONTROL_FLAG = 0b101111; // no vibration
+const int NTF_COUNT_CONSTANT = 1000000; // final notification id = 1000000 * count + NfcNotificationId
+const int NFC_MAX_NTF_COUNT = 100;
 
 constexpr const char* NFC_ICON_PATH = "system/etc/nfc/nfc_icon.png";
 constexpr const char* NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
@@ -101,6 +106,7 @@ private:
 
     std::mutex mutex_ {};
     std::shared_ptr<Media::PixelMap> nfcIconPixelMap_ {};
+    std::vector<int> tagNtfCountVec_ {};
 };
 }  // namespace TAG
 }  // namespace NFC
