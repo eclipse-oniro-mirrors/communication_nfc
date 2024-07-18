@@ -662,6 +662,8 @@ int BuildOutputErrorCode(int errCode)
         return BUSI_ERR_PERM;
     } else if (errCode == BUSI_ERR_PARAM) {
         return BUSI_ERR_PARAM;
+    } else if (errCode == ERR_TAG_STATE_IO_FAILED) {
+        return BUSI_ERR_IO_OPERATION_INVALID;
     } else if (errCode >= ERR_TAG_BASE && errCode < ERR_CE_BASE) {
         return BUSI_ERR_TAG_STATE_INVALID;
     }
