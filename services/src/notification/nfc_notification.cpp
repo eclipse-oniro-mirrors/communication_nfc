@@ -56,9 +56,9 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
         InfoLog("Oncanceled, creatorUid = %{public}d, notificationId = %{public}d, deleteReason = %{public}d",
             creatorUid, notificationId, deleteReason);
 
-        if (deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE) {
-            std::lock_guard<std::mutex> lock(g_callbackMutex);
-            g_ntfCallback(notificationId);
+        std::lock_guard<std::mutex> lock(g_callbackMutex);
+        if (deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE && g_ntfCallback) {
+            g_ntfCallback(notificationId % OHOS::NFC::TAG::NTF_COUNT_CONSTANT);
         }
     }
     void OnConsumed(const std::shared_ptr<OHOS::Notification::Notification> &notification,
@@ -177,7 +177,7 @@ static bool SetTitleAndTextForOtherNotificationId(int notificationId,
     std::shared_ptr<Notification::NotificationNormalContent> nfcContent, const std::string &name, int balance)
 {
     switch (notificationId) {
-        case NFC_TAG_DEFAULT_NOTIFICATION_ID:
+        case NFC_TAG_DEFAULT_NTF_ID:
             if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
                 g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TEXT) != g_resourceMap.end()) {
                 nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
@@ -368,6 +368,8 @@ NfcNotification::NfcNotification()
         ErrorLog("fail to subscribe notification");
     }
     UpdateResourceMapByLanguage();
+    // initialize the vector with the length of (NFC_NTF_END - NFC_TAG_DEFAULT_NTF_ID)
+    tagNtfCountVec_.resize(NFC_NTF_END - NFC_TAG_DEFAULT_NTF_ID);
 }
 
 NfcNotification::~NfcNotification()
@@ -378,7 +380,10 @@ NfcNotification::~NfcNotification()
 
 void NfcNotification::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
-    InfoLog("Publishing nfc tag notification, id [%{public}d]", notificationId);
+    if (notificationId >= NFC_NTF_END || notificationId < NFC_TAG_DEFAULT_NTF_ID) {
+        ErrorLog("invalid notification id.");
+        return;
+    }
     std::shared_ptr<Notification::NotificationNormalContent> nfcContent =
         std::make_shared<Notification::NotificationNormalContent>();
     if (nfcContent == nullptr) {
@@ -386,6 +391,16 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
+    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    int lastNtfId = (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID]++) * NTF_COUNT_CONSTANT + notificationId;
+    if (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] >= NFC_MAX_NTF_COUNT) {
+        tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] = 0;
+    }
+    int currentNtfId = (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID]) * NTF_COUNT_CONSTANT + notificationId;
+    int ret = Notification::NotificationHelper::CancelAsBundle(bundle, lastNtfId);
+    // ret value 67108880 represents the notification does not exist
+    InfoLog("Cancel ntf result[%{public}d], last id[%{public}d], current id[%{public}d]", ret, lastNtfId, currentNtfId);
+
     if (!SetTitleAndText(notificationId, nfcContent, name, balance)) {
         ErrorLog("error setting title and text");
         return;
@@ -400,7 +415,7 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
 
     Notification::NotificationRequest request;
     SetBasicOption(request);
-    request.SetNotificationId(static_cast<int>(notificationId));
+    request.SetNotificationId(currentNtfId);
     request.SetContent(content);
 
     GetPixelMap(NFC_ICON_PATH);
@@ -413,9 +428,9 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
     if (!buttonName.empty()) {
         SetActionButton(buttonName, request);
     }
-    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+
     Notification::NotificationHelper::SetNotificationSlotFlagsAsBundle(bundle, NFC_SLOT_CONTROL_FLAG);
-    int ret = Notification::NotificationHelper::PublishNotification(request);
+    ret = Notification::NotificationHelper::PublishNotification(request);
     InfoLog("NFC service publish notification result = %{public}d", ret);
 }
 
@@ -435,5 +450,6 @@ void RegNotificationCallback(NfcNtfCallback callback)
 
 void PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
+    InfoLog("Publishing nfc tag notification, id [%{public}d]", notificationId);
     OHOS::NFC::TAG::NfcNotification::GetInstance().PublishNfcNotification(notificationId, name, balance);
 }
