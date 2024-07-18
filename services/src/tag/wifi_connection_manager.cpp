@@ -47,6 +47,7 @@ WifiConnectionManager& WifiConnectionManager::GetInstance()
 
 void WifiConnectionManager::Initialize(std::weak_ptr<NfcService> nfcService)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("Init: isInitialized = %{public}d", isInitialized_);
     if (isInitialized_) {
         return;
@@ -169,7 +170,6 @@ void WifiConnectionManager::HandleWifiConnectFailed()
 
 __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::IsWifiEnabled()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
         return false;
@@ -186,7 +186,6 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::IsWifiEnabled()
 
 __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleEnableWifi()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
         return false;
@@ -203,7 +202,6 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleEnableWifi
 
 __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::IsSameSsid()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
         return false;
@@ -251,16 +249,15 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
         return true;
     }
 
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     InfoLog("HandleConnectWifi");
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
-        HandleWifiConnectFailed();
+        OnFinish();
         return false;
     }
     if (config_ == nullptr) {
         ErrorLog("config_ is null");
-        HandleWifiConnectFailed();
+        OnFinish();
         return false;
     }
     int result;
@@ -268,14 +265,14 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
     InfoLog("AddDeviceConfig result: %{public}d, err: %{public}d", result, err);
     if (err != Wifi::WIFI_OPT_SUCCESS || result < 0) {
         ErrorLog("AddDeviceConfig failed result: %{public}d, err: %{public}d", result, err);
-        HandleWifiConnectFailed();
+        OnFinish();
         return false;
     }
     err = wifiDevPtr_->ConnectToDevice(*(config_));
     InfoLog("ConnectToDevice err: %{public}d", err);
     if (err != Wifi::WIFI_OPT_SUCCESS) {
         ErrorLog("ConnectToDevice failed err: %{public}d", err);
-        HandleWifiConnectFailed();
+        OnFinish();
         return false;
     }
     SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT, CONNECT_WIFI_TIMEOUT);
@@ -286,41 +283,38 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
 void WifiConnectionManager::OnWifiNtfClicked()
 {
     InfoLog("OnWifiNtfClicked");
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     SubscribeWifiCommonEvents();
     if (IsWifiEnabled()) {
         HandleConnectWifi();
     } else if (!HandleEnableWifi()) {
-        HandleWifiEnableFailed();
+        OnFinish();
     }
 }
 
 void WifiConnectionManager::OnWifiEnabled()
 {
     DebugLog("OnWifiEnabled");
-    {
-        std::unique_lock<std::shared_mutex> guard(mutex_);
-        if (!g_isWaitingForWifiEnable) {
-            ErrorLog("not waiting for wifi enable, exit");
-            return;
-        }
-        RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
-        g_isWaitingForWifiEnable = false;
+    std::unique_lock<std::shared_mutex> guard(mutex_);
+    if (!g_isWaitingForWifiEnable) {
+        ErrorLog("not waiting for wifi enable, exit");
+        return;
     }
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
+    g_isWaitingForWifiEnable = false;
     HandleConnectWifi();
 }
 
 void WifiConnectionManager::OnWifiConnected()
 {
     DebugLog("OnWifiConnected");
-    {
-        std::unique_lock<std::shared_mutex> guard(mutex_);
-        if (!g_isWaitingForWifiConnect) {
-            ErrorLog("not waiting for wifi connect, exit");
-            return;
-        }
+    std::unique_lock<std::shared_mutex> guard(mutex_);
+    if (!g_isWaitingForWifiConnect) {
+        ErrorLog("not waiting for wifi connect, exit");
+        return;
     }
     if (!IsSameSsid()) {
-        HandleWifiConnectFailed();
+        OnFinish();
     } else {
         InfoLog("connected to target config");
         OnFinish();
@@ -339,11 +333,13 @@ void WifiConnectionManager::WifiCommonEventReceiver::OnReceiveEvent(const EventF
         if (data.GetCode() != static_cast<int32_t>(Wifi::WifiState::ENABLED)) {
             return;
         }
+        std::unique_lock<std::shared_mutex> guard(nfcWifiConnMgr_.mutex_);
         nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLED, 0);
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_CONN_STATE) == 0) {
         if (data.GetCode() != static_cast<int32_t>(Wifi::ConnState::CONNECTED)) {
             return;
         }
+        std::unique_lock<std::shared_mutex> guard(nfcWifiConnMgr_.mutex_);
         nfcWifiConnMgr_.SendMsgToEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECTED, 0);
     }
 }
