@@ -444,15 +444,21 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
     napi_set_named_property(env, result, "tnf", tnf);
 
     napi_value rtdType;
-    napi_create_string_utf8(env, ndefRecord->tagRtdType_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
+    std::vector<unsigned char> rtdTypeBytes;
+    NfcSdkCommon::HexStringToBytes(ndefRecord->tagRtdType_, rtdTypeBytes);
+    BytesVectorToJS(env, rtdType, rtdTypeBytes);
     napi_set_named_property(env, result, "rtdType", rtdType);
 
     napi_value id;
-    napi_create_string_utf8(env, ndefRecord->id_.c_str(), NAPI_AUTO_LENGTH, &id);
+    std::vector<unsigned char> idBytes;
+    NfcSdkCommon::HexStringToBytes(ndefRecord->id_, idBytes);
+    BytesVectorToJS(env, id, idBytes);
     napi_set_named_property(env, result, "id", id);
 
     napi_value payload;
-    napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &payload);
+    std::vector<unsigned char> payloadBytes;
+    NfcSdkCommon::HexStringToBytes(ndefRecord->payload_, payloadBytes);
+    BytesVectorToJS(env, payload, payloadBytes);
     napi_set_named_property(env, result, "payload", payload);
 }
 
