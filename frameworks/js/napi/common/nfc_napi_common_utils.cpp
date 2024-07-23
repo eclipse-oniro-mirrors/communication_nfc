@@ -452,7 +452,9 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
     napi_set_named_property(env, result, "id", id);
 
     napi_value payload;
-    napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &payload);
+    std::vector<unsigned char> payloadBytes;
+    NfcSdkCommon::HexStringToBytes(ndefRecord->payload_, payloadBytes);
+    BytesVectorToJS(env, payload, payloadBytes);
     napi_set_named_property(env, result, "payload", payload);
 }
 
