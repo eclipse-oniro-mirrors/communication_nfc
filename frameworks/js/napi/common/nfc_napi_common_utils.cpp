@@ -445,7 +445,7 @@ void ConvertNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<Nde
 
     napi_value rtdType;
     std::vector<unsigned char> rtdTypeBytes;
-    NfcSdkCommon::HexStringToBytes(ndefRecord->rtdType_, rtdTypeBytes);
+    NfcSdkCommon::HexStringToBytes(ndefRecord->tagRtdType_, rtdTypeBytes);
     BytesVectorToJS(env, rtdType, rtdTypeBytes);
     napi_set_named_property(env, result, "rtdType", rtdType);
 
