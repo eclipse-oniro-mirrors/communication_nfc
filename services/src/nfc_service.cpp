@@ -458,8 +458,8 @@ void NfcService::UpdateNfcState(int newState)
     DebugLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         NfcStateRegistryRecord record = stateRecords_[i];
-        DebugLog("stateRecords_[%{public}d]:type_=%{public}s,callerToken=%{public}d",
-            (int)i, record.type_.c_str(), record.callerToken_);
+        DebugLog("stateRecords_[%{public}d]:type_=%{public}s ",
+            (int)i, record.type_.c_str());
         if (record.nfcStateChangeCallback_ != nullptr) {
             InfoLog("UpdateNfcState, OnNfcStateChanged = %{public}d", newState);
             record.nfcStateChangeCallback_->OnNfcStateChanged(newState);

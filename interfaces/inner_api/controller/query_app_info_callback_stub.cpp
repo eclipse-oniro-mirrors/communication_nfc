@@ -133,7 +133,7 @@ int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessagePar
         }
     } else if (type.compare(KEY_HCE_APP) == 0) {
         OnQueryAppInfo(type, techList, hceAppList, elementNameList);
-        int appLen = hceAppList.size();
+        int appLen = static_cast<int>(hceAppList.size());
         reply.WriteInt32(appLen);
         for (int i = 0; i < appLen; i++) {
             hceAppList[i].Marshalling(reply);

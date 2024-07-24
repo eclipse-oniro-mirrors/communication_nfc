@@ -32,7 +32,8 @@ NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTec
         sak_ = tag.lock()->GetIntExtrasData(mifareExtra, TagInfo::SAK);
         InfoLog("NfcATag::NfcATag mifare tech found, sak_ (0x%{public}x)", sak_);
     }
-    sak_ = static_cast<uint32_t>(sak_) | tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK);
+    sak_ = static_cast<uint32_t>(sak_) |
+           static_cast<uint32_t>(tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK));
     atqa_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
     InfoLog("NfcATag::NfcATag sak_ (0x%{public}x), atqa_(%{public}s)", sak_, atqa_.c_str());
 }
