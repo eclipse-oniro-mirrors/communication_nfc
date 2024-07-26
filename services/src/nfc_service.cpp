@@ -273,8 +273,14 @@ void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
 bool NfcService::DoTurnOn()
 {
     InfoLog("Nfc do turn on: current state %{public}d", nfcState_);
-    UpdateNfcState(KITS::STATE_TURNING_ON);
+    bool isTimerNeed = false;
+    if (unloadStaSaTimerId != 0) {
+        isTimerNeed = true;
+        NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
+        unloadStaSaTimerId = 0;
+    }
 
+    UpdateNfcState(KITS::STATE_TURNING_ON);
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nciNfccProxy_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
@@ -291,6 +297,15 @@ bool NfcService::DoTurnOn()
         ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
             MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
         ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+        if (isTimerNeed) {
+            TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+            if (unloadStaSaTimerId != 0) {
+                NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
+                unloadStaSaTimerId = 0;
+            }
+            NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId,
+                TIMEOUT_UNLOAD_NFC_SA_AFTER_GET_STATE);
+        }
         return false;
     }
     // Routing Wake Lock release
@@ -300,11 +315,6 @@ bool NfcService::DoTurnOn()
     InfoLog("Get nci version: ver %{public}d", nciVersion_);
 
     UpdateNfcState(KITS::STATE_ON);
-
-    if (unloadStaSaTimerId != 0) {
-        NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
-        unloadStaSaTimerId = 0;
-    }
 
     screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
