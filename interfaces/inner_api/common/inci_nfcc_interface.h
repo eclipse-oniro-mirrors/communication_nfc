@@ -82,7 +82,7 @@ public:
     /**
      * @brief Send a custom message to vendor
     */
-   virtual void NotifyMessageToVendor(const std::string& key, const std::string& value) = 0;
+    virtual void NotifyMessageToVendor(const std::string& key, const std::string& value) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC
