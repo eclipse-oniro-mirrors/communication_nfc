@@ -19,6 +19,8 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
+const std::string FOREGROUND_APP_KEY = "foreground";
+const std::string READERMODE_APP_KEY = "readermode";
 class INciNfccInterface {
 public:
     virtual ~INciNfccInterface() = default;
@@ -76,6 +78,11 @@ public:
      * @brief Shutdown the device. Enable the nfc functionality if support power off case.
      */
     virtual void Shutdown() = 0;
+
+    /**
+     * @brief Send a custom message to vendor
+    */
+    virtual void NotifyMessageToVendor(const std::string& key, const std::string& value) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

@@ -77,6 +77,10 @@ public:
      */
     void Shutdown() override;
 
+    /**
+     * @brief Send a custom message to vendor
+    */
+    void NotifyMessageToVendor(const std::string& key, const std::string& value) override;
 private:
     std::shared_ptr<INciNfccInterface> nfccInterface_;
 };

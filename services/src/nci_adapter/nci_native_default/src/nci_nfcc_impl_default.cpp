@@ -64,6 +64,10 @@ void NciNfccImplDefault::Shutdown()
 {
     NfccNciAdapter::GetInstance().Shutdown();
 }
+
+void NciNfccImplDefault::NotifyMessageToVendor(const std::string& key, const std::string& value)
+{
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS
