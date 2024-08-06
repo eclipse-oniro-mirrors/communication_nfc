@@ -29,6 +29,10 @@ SettingDataShareImpl::~SettingDataShareImpl()
 KITS::ErrorCode SettingDataShareImpl::RegisterDataObserver(const Uri& uri,
                                                            const sptr<AAFwk::IDataAbilityObserver>& dataObserver)
 {
+    if (dataObserver == nullptr) {
+        ErrorLog("%{public}s: dataObserver is nullptr.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
+    }
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr.", __func__);
         Initialize();
