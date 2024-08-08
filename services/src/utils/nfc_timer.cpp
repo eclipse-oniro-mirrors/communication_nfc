@@ -50,12 +50,12 @@ void NfcTimer::Register(const TimerCallback &callback, uint32_t &outTimerId, uin
     }
 
     outTimerId = ret;
-    InfoLog("outTimerId is %{public}d, interval is %{public}d", outTimerId, interval);
+    InfoLog("outTimerId is %{public}u, interval is %{public}u", outTimerId, interval);
 }
 
 void NfcTimer::UnRegister(uint32_t timerId)
 {
-    InfoLog("timer shutting down");
+    InfoLog("timer shutting down, timerId = %{public}u", timerId);
     if (timerId == 0) {
         ErrorLog("timerId is 0, no register timer");
         return;

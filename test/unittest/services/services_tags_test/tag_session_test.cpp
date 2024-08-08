@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "nfc_controller .h"
+#include "nfc_controller.h"
 #include "nfc_controller_impl.h"
 #include "nfc_controller_stub.h"
 #include "nfc_sdk_common.h"
@@ -32,6 +32,7 @@ namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
+using namespace OHOS::NFC::KITS;
 class TagSessionTest : public testing::Test {
 public:
     static void SetUpTestCase();

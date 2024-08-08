@@ -94,6 +94,8 @@ private:
     bool RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
     // shutdown event
     void HandleShutdown();
+    void SetupUnloadNfcSaTimer(bool shouldRestartTimer);
+    void CancelUnloadNfcSaTimer();
 
 private:
     // ms wait for initialization, included firmware download.
