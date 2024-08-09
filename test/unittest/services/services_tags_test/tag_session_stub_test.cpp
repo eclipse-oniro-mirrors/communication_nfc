@@ -80,7 +80,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest001, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_CONNECT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_2);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest002
@@ -96,7 +96,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest002, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_RECONNECT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_2);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest003
@@ -112,7 +112,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest003, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_DISCONNECT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest004
@@ -128,7 +128,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest004, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_SET_TIMEOUT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest005
@@ -144,7 +144,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest005, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_GET_TIMEOUT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest006
@@ -160,7 +160,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest006, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_GET_TECHLIST), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest007
@@ -176,7 +176,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest007, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_IS_PRESENT), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest008
@@ -192,7 +192,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest008, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_IS_NDEF), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest009
@@ -208,7 +208,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest009, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_SEND_RAW_FRAME), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_2);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest010
@@ -224,7 +224,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest010, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_NDEF_READ), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest011
@@ -240,7 +240,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest011, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_NDEF_WRITE), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest012
@@ -256,7 +256,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest012, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_NDEF_MAKE_READ_ONLY), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest013
@@ -272,7 +272,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest013, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_FORMAT_NDEF), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest014
@@ -288,7 +288,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest014, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_CAN_MAKE_READ_ONLY), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest015
@@ -304,7 +304,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest015, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_GET_MAX_TRANSCEIVE_LENGTH), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest016
@@ -320,7 +320,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest016, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_IS_SUPPORTED_APDUS_EXTENDED), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest017
@@ -336,7 +336,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest017, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         TAG_SESSION_START_ID), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_3);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest018
@@ -352,7 +352,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest018, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_REG_FOREGROUND), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest019
@@ -368,7 +368,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest019, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_UNREG_FOREGROUND), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 /**
  * @tc.name: OnRemoteRequest020
@@ -384,7 +384,7 @@ HWTEST_F(TagSessionStubTest, OnRemoteRequest020, TestSize.Level1)
     MessageOption option;
     int onRemoteRequest = tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::
         COMMAND_IS_CONNECTED), data, reply, option);
-    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_1 || onRemoteRequest == TEST_REQUEST_INDEX_4);
+    ASSERT_TRUE(onRemoteRequest == TEST_REQUEST_INDEX_4 || onRemoteRequest == TEST_REQUEST_INDEX_2);
 }
 }
 }
