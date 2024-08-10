@@ -72,7 +72,7 @@ void NfcController::InitNfcRemoteSA()
             WarnLog("deathRecipient_ is nullptr!");
         }
         remote_->AddDeathRecipient(deathRecipient_);
-        InfoLog("%{public}s:add remote death lister", __func__);
+        InfoLog("%{public}s:add remote death listener", __func__);
         nfcControllerProxy_ = std::make_shared<NfcControllerProxy>(remote_);
         nfcControllerService_ = nfcControllerProxy_;
 
@@ -145,9 +145,6 @@ int NfcController::GetNfcState()
         state = nfcControllerService_.lock()->GetState();
     }
     InfoLog("nfc state: %{public}d.", state);
-    if (state == NfcState::STATE_ON) {
-        InitNfcRemoteSA();
-    }
     return state;
 }
 
@@ -168,24 +165,33 @@ int NfcController::IsNfcOpen(bool &isOpen)
 ErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callback,
     const std::string& type)
 {
-    DebugLog("NfcController::RegListener");
-    Uri nfcEnableUri(NFC_DATA_URI);
-    if (dataRdbObserver_ == nullptr) {
-        dataRdbObserver_ = sptr<NfcStateChangeCallback>(new (std::nothrow) NfcStateChangeCallback(callback));
+    InfoLog("NfcController::RegListener");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("nfc SA not started yet.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return DelayedSingleton<NfcDataShareImpl>::GetInstance()->RegisterDataObserver(nfcEnableUri, dataRdbObserver_);
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("nfcControllerService_ expired.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return nfcControllerService_.lock()->RegisterCallBack(callback, type);
 }
 
 // unregister NFC state change
 ErrorCode NfcController::UnregListener(const std::string& type)
 {
-    DebugLog("NfcController::UnregListener");
-    if (dataRdbObserver_ == nullptr) {
-        ErrorLog("NfcController::UnregListener dataRdbObserver_ is nullptr.");
+    InfoLog("NfcController::UnregListener");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("nfc SA not started yet.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    Uri nfcEnableUri(NFC_DATA_URI);
-    return DelayedSingleton<NfcDataShareImpl>::GetInstance()->UnregisterDataObserver(nfcEnableUri, dataRdbObserver_);
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("nfcControllerService_ expired.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return nfcControllerService_.lock()->UnRegisterCallBack(type);
 }
 
 OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()

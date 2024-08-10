@@ -32,6 +32,18 @@ NfcSaClient &NfcSaClient::GetInstance()
     return nfcSaClient;
 }
 
+bool NfcSaClient::CheckNfcSystemAbility()
+{
+    sptr<ISystemAbilityManager> samgr =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgr == nullptr) {
+        ErrorLog("Get system ability manager failed!");
+        return false;
+    }
+    auto object = samgr->CheckSystemAbility(KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    return (object != nullptr);
+}
+
 sptr<IRemoteObject> NfcSaClient::LoadNfcSa(int32_t systemAbilityId)
 {
     InfoLog("NfcSaClient::%{public}s enter, systemAbilityId [%{public}d] loading", __func__, systemAbilityId);
