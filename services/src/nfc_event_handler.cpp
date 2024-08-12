@@ -216,7 +216,7 @@ void NfcEventHandler::DataShareChangedReceiver::OnReceiveEvent(const EventFwk::C
         return;
     }
     InfoLog("DataShareChangedReceiver: action = %{public}s", action.c_str());
-    if (action.compare(EVENT_DATA_SHARE_READY) == 0) {
+    if (action.compare(EVENT_DATA_SHARE_READY) == 0 && !eventHandler_.expired()) {
         eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_DATA_SHARE_READY),
                                         static_cast<int64_t>(0));
     }
