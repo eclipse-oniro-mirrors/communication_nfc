@@ -291,8 +291,12 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                 break;
             }
             default: {
-                offset += (tvLen - 1);
                 ErrorLog("NdefBtDataParser::ParseBtRecord, unknown type = %{public}d", type);
+                if (tvLen < 1) {
+                    ErrorLog("NdefBtDataParser::ParseBtRecord, invalid  local name len. ");
+                    return data;
+                }
+                offset += (tvLen - 1);
                 isValid = true;
                 break;
             }
