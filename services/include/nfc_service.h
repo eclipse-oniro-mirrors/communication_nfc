@@ -100,6 +100,9 @@ private:
 private:
     // ms wait for initialization, included firmware download.
     static constexpr const int WAIT_MS_INIT = 90 * 1000;
+    static constexpr const int TASK_THREAD_WAIT_MS = 50;
+    static constexpr const int TASK_THREAD_WAIT_US = 50 * 1000;
+    static constexpr const int MAX_RETRY_TIME = 10;
     int nciVersion_ = 0;
 
     // service
