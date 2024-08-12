@@ -204,12 +204,22 @@ void NfcService::OnCardEmulationDeactivated()
 
 bool NfcService::IsNfcTaskReady(std::future<int>& future) const
 {
-    if (future.valid()) {
-        if (std::future_status::ready != future.wait_for(std::chrono::seconds(1))) {
-            return false;
+    for (uint8_t count = 0; count < MAX_RETRY_TIME; count++) {
+        if (future.valid()) {
+            std::future_status result = future.wait_for(std::chrono::milliseconds(TASK_THREAD_WAIT_MS));
+            if (result != std::future_status::ready) {
+                InfoLog("result = %{public}d, not ready", result);
+                usleep(TASK_THREAD_WAIT_US);
+                continue;
+            } else {
+                InfoLog("result = %{public}d, ready", result);
+                return true;
+            }
+        } else {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 int NfcService::ExecuteTask(KITS::NfcTask param)
@@ -332,9 +342,9 @@ bool NfcService::DoTurnOff()
     nfcWatchDog.Cancel();
 
     nfcPollingManager_->ResetCurrPollingParams();
-
-    UpdateNfcState(KITS::STATE_OFF);
     ceService_->Deinitialize();
+    UpdateNfcState(KITS::STATE_OFF);
+
     // Do turn off success, closeRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
     return result;
