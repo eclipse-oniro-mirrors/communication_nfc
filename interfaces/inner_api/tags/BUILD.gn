@@ -81,7 +81,6 @@ ohos_shared_library("nfc_inner_kits_tags") {
     "samgr:samgr_proxy",
   ]
 
-  innerapi_tags = [ "platformsdk" ]
   part_name = "nfc"
   subsystem_name = "communication"
 }
