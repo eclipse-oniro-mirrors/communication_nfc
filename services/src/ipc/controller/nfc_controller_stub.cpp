@@ -112,7 +112,6 @@ int NfcControllerStub::HandleIsNfcOpen(MessageParcel& data, MessageParcel& reply
 
 int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel &reply)
 {
-    InfoLog("datasize %{public}zu", data.GetRawDataSize());
     std::string type = data.ReadString();
     int exception = data.ReadInt32();
     if (exception) {

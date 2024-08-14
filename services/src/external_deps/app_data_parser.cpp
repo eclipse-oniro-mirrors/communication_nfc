@@ -611,7 +611,7 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
             break;
         }
         bundleMgrProxy->GetBundleInfoV9(
-            ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
+            ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::START_USERID);
         DebugLog("The bundlename : %{public}s,the labelId : %{public}d,the iconId : %{public}d",
             appAidInfo.element.GetBundleName().c_str(),
             bundleInfo.applicationInfo.labelId,
