@@ -26,19 +26,15 @@
 namespace OHOS {
 namespace NFC {
 const int USER_ID = 100;
-sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_;
 static AppDataParser g_appDataParser;
 /** Tag type of tag app metadata name */
 static const std::string KEY_TAG_TECH = "tag-tech";
-std::mutex bundleMgrMutex_;
 std::mutex g_appListInitMutex = {};
 sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new (std::nothrow) BundleMgrDeathRecipient());
 
 void BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
 {
     InfoLog("bundleMgrService dead");
-    std::lock_guard<std::mutex> guard(bundleMgrMutex_);
-    bundleMgrProxy_ = nullptr;
 };
 
 AppDataParser::AppDataParser()
@@ -56,22 +52,22 @@ AppDataParser& AppDataParser::GetInstance()
     return g_appDataParser;
 }
 
-void AppDataParser::GetBundleMgrProxy()
+sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
 {
-    std::lock_guard<std::mutex> guard(bundleMgrMutex_);
     sptr<ISystemAbilityManager> systemAbilityManager =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!systemAbilityManager) {
         ErrorLog("GetBundleMgrProxy, systemAbilityManager is null");
-        return;
+        return nullptr;
     }
     sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (!remoteObject) {
         ErrorLog("GetBundleMgrProxy, remoteObject is null");
-        return;
+        return nullptr;
     }
-    bundleMgrProxy_ = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    bundleMgrProxy_->AsObject()->AddDeathRecipient(bundleMgrDeathRecipient_);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    bundleMgrProxy->AsObject()->AddDeathRecipient(bundleMgrDeathRecipient_);
+    return bundleMgrProxy;
 }
 
 bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -143,11 +139,9 @@ bool AppDataParser::VerifyHapPermission(const std::string bundleName, const std:
 void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<AbilityInfo> &abilityInfos,
     std::vector<ExtensionAbilityInfo> &extensionInfos)
 {
-    if (bundleMgrProxy_ == nullptr) {
-        GetBundleMgrProxy();
-    }
-    if (bundleMgrProxy_ == nullptr) {
-        ErrorLog("QueryAbilityInfos, bundleMgrProxy_ is nullptr.");
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("QueryAbilityInfos, bundleMgrProxy is nullptr.");
         return;
     }
     AAFwk::Want want;
@@ -162,7 +156,7 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
-    if (!bundleMgrProxy_->ImplicitQueryInfos(want, abilityInfoFlag, USER_ID, withDefault,
+    if (!bundleMgrProxy->ImplicitQueryInfos(want, abilityInfoFlag, USER_ID, withDefault,
         abilityInfos, extensionInfos, findDefaultApp)) {
         WarnLog("QueryAbilityInfos, query none for action %{public}s", action.c_str());
         return;
@@ -454,9 +448,9 @@ void AppDataParser::InitAppList()
         WarnLog("InitAppList: already done");
         return;
     }
-    GetBundleMgrProxy();
-    if (!bundleMgrProxy_) {
-        ErrorLog("InitAppList, bundleMgrProxy_ is nullptr.");
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (!bundleMgrProxy) {
+        ErrorLog("InitAppList, bundleMgrProxy is nullptr.");
         appListInitDone_ = false;
         return;
     }
@@ -590,6 +584,11 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
     std::set<std::string> bundleNames;
     GetHceAppsFromVendor(hceApps);
     DebugLog("The hceApps len %{public}lu", hceApps.size());
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("bundleMgrProxy is nullptr!");
+        return;
+    }
     for (auto& appAidInfo : hceApps) {
         DebugLog("The bundlename : %{public}s", appAidInfo.element.GetBundleName().c_str());
         if (appAidInfo.element.GetBundleName().empty() || !IsPaymentApp(appAidInfo)) {
@@ -607,11 +606,11 @@ void AppDataParser::GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &p
         int32_t bundleInfoFlag = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) |
                                  static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) |
                                  static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
-        if (bundleMgrProxy_ == nullptr) {
-            ErrorLog("bundleMgrProxy_ is nullptr!");
+        if (bundleMgrProxy == nullptr) {
+            ErrorLog("bundleMgrProxy is nullptr!");
             break;
         }
-        bundleMgrProxy_->GetBundleInfoV9(
+        bundleMgrProxy->GetBundleInfoV9(
             ability.bundleName, bundleInfoFlag, bundleInfo, AppExecFwk::Constants::UNSPECIFIED_USERID);
         DebugLog("The bundlename : %{public}s,the labelId : %{public}d,the iconId : %{public}d",
             appAidInfo.element.GetBundleName().c_str(),
@@ -640,11 +639,9 @@ bool AppDataParser::IsHceAppFromVendor(const ElementName &elementName)
 #endif
 bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
 {
-    if (bundleMgrProxy_ == nullptr) {
-        GetBundleMgrProxy();
-    }
-    if (bundleMgrProxy_ == nullptr) {
-        ErrorLog("bundleMgrProxy_ is nullptr!");
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("bundleMgrProxy is nullptr!");
         return false;
     }
     if (bundleName.empty()) {
@@ -652,7 +649,7 @@ bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
         return false;
     }
     AppExecFwk::BundleInfo bundleInfo;
-    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+    bool result = bundleMgrProxy->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
                                                  bundleInfo, USER_ID);
     ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
     return result;
@@ -733,15 +730,12 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
         InfoLog("sim bundle name is empty.");
         return false;
     }
-
-    if (bundleMgrProxy_ == nullptr) {
-        GetBundleMgrProxy();
-    }
-    if (bundleMgrProxy_ == nullptr) {
-        ErrorLog("bundleMgrProxy_ is nullptr.");
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("bundleMgrProxy is nullptr.");
         return false;
     }
-    bool result = bundleMgrProxy_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+    bool result = bundleMgrProxy->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
                                                  bundleInfo, USER_ID);
     InfoLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
     if (!result) {
@@ -753,14 +747,12 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
 
 bool AppDataParser::IsSystemApp(uint32_t uid)
 {
-    if (bundleMgrProxy_ == nullptr) {
-        GetBundleMgrProxy();
-    }
-    if (bundleMgrProxy_ == nullptr) {
-        ErrorLog(" bundleMgrProxy_ is nullptr.");
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog(" bundleMgrProxy is nullptr.");
         return false;
     }
-    return bundleMgrProxy_->CheckIsSystemAppByUid(uid);
+    return bundleMgrProxy->CheckIsSystemAppByUid(uid);
 }
 } // namespace NFC
 } // namespace OHOS
