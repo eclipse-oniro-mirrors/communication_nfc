@@ -650,7 +650,7 @@ bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
     }
     AppExecFwk::BundleInfo bundleInfo;
     bool result = bundleMgrProxy->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-                                                 bundleInfo, USER_ID);
+                                                bundleInfo, USER_ID);
     ErrorLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
     return result;
 }
@@ -736,7 +736,7 @@ bool AppDataParser::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std:
         return false;
     }
     bool result = bundleMgrProxy->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-                                                 bundleInfo, USER_ID);
+                                                bundleInfo, USER_ID);
     InfoLog("get bundle %{public}s result %{public}d ", bundleName.c_str(), result);
     if (!result) {
         ErrorLog("get bundle %{public}s failed ", bundleName.c_str());
