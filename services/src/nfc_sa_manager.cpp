@@ -77,7 +77,20 @@ void NfcSaManager::OnAddSystemAbility(int32_t systemAbilityId, const std::string
     InfoLog("OnAddSystemAbility systemAbilityId:%{public}d added!", systemAbilityId);
     if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
         InfoLog("OnAddSystemAbility systemAbilityId is not COMMON_EVENT_SERVICE_ID");
+        return;
     }
+    InfoLog("Start to resubscribe common event.");
+    if (nfcService_ == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return;
+    }
+    if (nfcService_->eventHandler_ == nullptr) {
+        ErrorLog("eventHandler_ is nullptr");
+        return;
+    }
+    nfcService_->eventHandler_->SubscribePackageChangedEvent();
+    nfcService_->eventHandler_->SubscribeScreenChangedEvent();
+    nfcService_->eventHandler_->SubscribeShutdownEvent();
 }
 
 void NfcSaManager::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
