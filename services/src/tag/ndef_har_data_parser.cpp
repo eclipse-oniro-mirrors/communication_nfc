@@ -338,7 +338,7 @@ std::string NdefHarDataParser::CheckForHar(std::shared_ptr<NdefRecord> record)
     /* app type judgment */
     if (record->tnf_ == NdefMessage::TNF_EXTERNAL_TYPE &&
         (IsOtherPlatformAppType(record->tagRtdType_) || record->tagRtdType_.compare(
-            NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_OHOS_APP))))) {
+            NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_OHOS_APP))) == 0)) {
         return record->payload_;
     }
     return bundle;
