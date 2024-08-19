@@ -498,7 +498,7 @@ bool TagSession::IsVendorProcess()
     if (tag) {
         return tag->IsVendorProcess();
     }
-    ErrorLog（“IsVendorProcess: tag proxy null”）;
+    ErrorLog("IsVendorProcess: tag proxy null");
     return false;
 }
 #endif
