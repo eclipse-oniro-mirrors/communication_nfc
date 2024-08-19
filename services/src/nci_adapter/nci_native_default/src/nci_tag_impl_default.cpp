@@ -227,6 +227,13 @@ std::string NciTagImplDefault::GetVendorBrowserBundleName()
 {
     return "";
 }
+
+#ifdef VENDOR_APPLICATIONS_ENABLED
+bool IsVendorProcess() override
+{
+    return false;
+}
+#endif
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

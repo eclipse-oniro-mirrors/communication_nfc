@@ -357,6 +357,20 @@ std::string NciTagProxy::GetVendorBrowserBundleName()
     }
     return "";
 }
+
+#ifdef VENDOR_APPLICATIONS_ENABLED
+/**
+ * @brief Check current ipc thread come from vendor process or not.
+ * @return Is Vendor Process.
+ */
+bool NciTagProxy::IsVendorProcess()
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->IsVendorProcess();
+    }
+    return false;
+}
+#endif
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS
