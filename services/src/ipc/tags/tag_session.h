@@ -252,7 +252,7 @@ private:
     int UnregReaderModeInner(ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
-#ifdef VENDOR_APPLICATION_ENABLED
+#ifdef VENDOR_APPLICATIONS_ENABLED
     bool IsVendorProcess();
 #endif
     std::weak_ptr<NFC::NfcService> nfcService_ {};
