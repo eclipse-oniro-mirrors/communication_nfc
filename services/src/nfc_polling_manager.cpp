@@ -185,6 +185,10 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
     foregroundData_->techMask_ = 0xFFFF;
     foregroundData_->callerToken_ = 0;
     foregroundData_->callback_ = nullptr;
+    if (nciNfccProxy_.expired()) {
+        ErrorLog("DisableForegroundDispatch: nciNfccProxy_ is nullptr.");
+        return false;
+    }
     nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, "");
     return true;
 }
