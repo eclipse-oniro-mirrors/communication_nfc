@@ -253,9 +253,13 @@ int NfcService::ExecuteTask(KITS::NfcTask param)
             task_->join();
         }
         future_ = promise.get_future();
-        task_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        task_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     } else {
-        rootTask_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        rootTask_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     }
     return ERR_NONE;
 }
@@ -523,7 +527,7 @@ bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 void NfcService::SetupUnloadNfcSaTimer(bool shouldRestartTimer)
 {
-    TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+    TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
     if (unloadStaSaTimerId != 0) {
         if (!shouldRestartTimer) {
             InfoLog("timer already started.");
