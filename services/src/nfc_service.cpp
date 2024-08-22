@@ -375,6 +375,9 @@ void NfcService::DoInitialize()
     if (prefKeyNfcState == KITS::STATE_ON) {
         InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
+    } else {
+        // 5min later unload nfc_service, if nfc state is off
+        SetupUnloadNfcSaTimer(true);
     }
 }
 
