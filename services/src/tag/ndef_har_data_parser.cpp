@@ -30,6 +30,8 @@ const std::string SMS_PREFIX = "sms";
 const std::string MAIL_PREFIX = "mailto";
 const std::string TEXT_PLAIN = "text/plain";
 const std::string TEXT_VCARD = "text/vcard";
+const int MIME_MAX_LENGTH = 128;
+const int URI_MAX_LENGTH = 2048;
 
 using namespace OHOS::NFC::KITS;
 
@@ -57,7 +59,15 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
     std::vector<std::string> harPackages = ExtractHarPackages(records);
     if (harPackages.size() > 0) {
         std::string mimeType = ToMimeType(records[0]);
+        if (mimeType.size() > MIME_MAX_LENGTH) {
+            ErrorLog("NdefHarDataParser::TryNdef mimeType too long");
+            mimeType = "";
+        }
         std::string uri = GetUriPayload(records[0]);
+        if (uri.size() > URI_MAX_LENGTH) {
+            ErrorLog("NdefHarDataParser::TryNdef uri too long");
+            uri = "";
+        } 
         if (ParseHarPackage(harPackages, tagInfo, mimeType, uri)) {
             InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
             return true;
