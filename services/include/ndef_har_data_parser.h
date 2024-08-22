@@ -38,7 +38,8 @@ private:
     std::string GetUriPayload(std::shared_ptr<NdefRecord> record, bool isSmartPoster);
     bool ParseWebLink(std::vector<std::shared_ptr<NdefRecord>> records);
     bool ParseHarPackage(
-        std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType);
+        std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType,
+        const std::string &uri);
     bool ParseUriLink(std::vector<std::shared_ptr<NdefRecord>> records);
     bool ParseOtherType(std::vector<std::shared_ptr<NdefRecord>> records, std::shared_ptr<KITS::TagInfo> tagInfo);
     std::string ToMimeType(std::shared_ptr<NdefRecord> record);
