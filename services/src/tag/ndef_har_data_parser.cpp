@@ -67,7 +67,7 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
         if (uri.size() > URI_MAX_LENGTH) {
             ErrorLog("NdefHarDataParser::TryNdef uri too long");
             uri = "";
-        } 
+        }
         if (ParseHarPackage(harPackages, tagInfo, mimeType, uri)) {
             InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
             return true;
