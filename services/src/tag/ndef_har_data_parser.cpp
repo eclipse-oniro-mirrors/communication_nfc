@@ -57,7 +57,8 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
     std::vector<std::string> harPackages = ExtractHarPackages(records);
     if (harPackages.size() > 0) {
         std::string mimeType = ToMimeType(records[0]);
-        if (ParseHarPackage(harPackages, tagInfo, mimeType)) {
+        std::string uri = GetUriPayload(records[0]);
+        if (ParseHarPackage(harPackages, tagInfo, mimeType, uri)) {
             InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
             return true;
         }
@@ -85,8 +86,8 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackage(
-    std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType)
+bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo,
+                                        const std::string &mimeType, const std::string &uri)
 {
     InfoLog("NdefHarDataParser::ParseHarPackage enter");
     if (harPackages.size() <= 0) {
@@ -94,7 +95,7 @@ bool NdefHarDataParser::ParseHarPackage(
         return false;
     }
     for (std::string harPackage : harPackages) {
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType)) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri)) {
             return true;
         }
     }
