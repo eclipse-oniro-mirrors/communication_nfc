@@ -70,7 +70,8 @@ HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
     std::string mimeType = "";
     std::string harPackage = "";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType);
+    std::string uri = "";
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri);
 
     std::vector<int> tagTechList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     std::vector<AppExecFwk::PacMap> tagTechExtras;
@@ -83,9 +84,9 @@ HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
     tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDisId, nullptr);
     harPackage = "ABC";
     mimeType = "A/B";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType);
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri);
 
-    std::string uri = "";
+    uri = "";
     ndefHarDispatchTest->DispatchUriToBundleAbility(uri);
     uri = "ABC";
     ndefHarDispatchTest->DispatchUriToBundleAbility(uri);
