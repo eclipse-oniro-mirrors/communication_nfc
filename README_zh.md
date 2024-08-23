@@ -51,15 +51,15 @@ NFC服务提供NFC开关控制、NFC标签发现和分发、NFC标签读写、NF
 
 -  NFC开关
 
-参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-nfcController.md。
+参考开发指南: docs/zh-cn/application-dev/reference/apis-connectivity-kit/js-apis-nfcController.md。
 
 -  NFC标签读写
 
-参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-nfcTag.md。
+参考开发指南: docs/zh-cn/application-dev/reference/apis-connectivity-kit/js-apis-nfcTag.md。
 
 -  NFC卡模拟
 
-参考开发指南: docs/zh-cn/application-dev/reference/apis/js-apis-cardEmulation.md。
+参考开发指南: docs/zh-cn/application-dev/reference/apis-connectivity-kit/js-apis-cardEmulation.md。
 
 ## 相关仓<a name="section1371113476307"></a>
 
