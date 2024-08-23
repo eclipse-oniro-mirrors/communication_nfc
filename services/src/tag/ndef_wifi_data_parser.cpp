@@ -111,11 +111,16 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     DebugLog("ParseWiFiPayload");
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     uint32_t offset = 0;
-    uint16_t fieldId = GetTypeFromPayload(payload, offset);
-    if (fieldId != CREDENTIAL_FIELD_TYPE) {
-        return data;
+    uint16_t type = GetTypeFromPayload(payload, offset);
+    uint16_t len = GetTypeFromPayload(payload, offset);
+    InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
+    for (int i = 0; i < MAX_PARSE_TIMES && len > 0 && (offset * HEX_BYTE_LEN) < payload.length()
+        && type != CREDENTIAL_FIELD_TYPE; i++) {
+        offset += fieldLen;
+        type = GetTypeFromPayload(payload, offset);
+        len = GetTypeFromPayload(payload, offset);
+        InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     }
-    uint32_t fieldLen = GetTypeFromPayload(payload, offset);
     if (fieldLen == 0) {
         return data;
     }
@@ -124,8 +129,8 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
         data->config_ = new Wifi::WifiDeviceConfig();
     }
     while ((offset * HEX_BYTE_LEN) < payload.length()) {
-        uint16_t type = GetTypeFromPayload(payload, offset);
-        uint16_t len = GetTypeFromPayload(payload, offset);
+        type = GetTypeFromPayload(payload, offset);
+        len = GetTypeFromPayload(payload, offset);
         InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
         switch (type) {
             case WIFI_SSID_TYPE: {
