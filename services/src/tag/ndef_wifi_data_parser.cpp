@@ -112,9 +112,6 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     uint32_t offset = 0;
     uint16_t fieldId = GetTypeFromPayload(payload, offset);
-    if (fieldId != CREDENTIAL_FIELD_TYPE) {
-        return data;
-    }
     while ((offset * HEX_BYTE_LEN) < payload.length() && fieldId != CREDENTIAL_FIELD_TYPE) {
         uint16_t fieldLen = GetTypeFromPayload(payload, offset);
         offset += fieldLen;
