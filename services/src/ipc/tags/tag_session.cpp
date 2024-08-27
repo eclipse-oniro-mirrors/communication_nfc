@@ -15,6 +15,7 @@
 #include "tag_session.h"
 #include "loghelper.h"
 #include "app_state_observer.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -517,6 +518,11 @@ int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vect
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
+        NfcFailedParams nfcFailedParams;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
+            MainErrorCode::APP_BEHAVIOR, SubErrorCode::REG_FOREGROUND_DISPATCH);
+        nfcFailedParams.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -656,6 +662,11 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
+        NfcFailedParams nfcFailedParams;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
+            MainErrorCode::APP_BEHAVIOR, SubErrorCode::REG_READERMODE);
+        nfcFailedParams.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
