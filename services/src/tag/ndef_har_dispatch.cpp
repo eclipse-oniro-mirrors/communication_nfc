@@ -94,8 +94,8 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<
 }
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
-bool NdefHarDispatch::DispatchBundleAbility(
-    const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType)
+bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo,
+                                            const std::string &mimeType, const std::string &uri)
 {
     if (harPackage.empty()) {
         ErrorLog("NdefHarDispatch::DispatchBundleAbility harPackage is empty");
@@ -115,6 +115,9 @@ bool NdefHarDispatch::DispatchBundleAbility(
     if (!mimeType.empty() && tagInfo != nullptr) {
         want.SetType(mimeType);
         ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
+    }
+    if (uri.size() > 0) {
+        want.SetUri(uri);
     }
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {

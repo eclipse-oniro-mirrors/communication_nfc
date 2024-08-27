@@ -30,6 +30,8 @@ const std::string SMS_PREFIX = "sms";
 const std::string MAIL_PREFIX = "mailto";
 const std::string TEXT_PLAIN = "text/plain";
 const std::string TEXT_VCARD = "text/vcard";
+const int MIME_MAX_LENGTH = 128;
+const int URI_MAX_LENGTH = 2048;
 
 using namespace OHOS::NFC::KITS;
 
@@ -57,7 +59,16 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
     std::vector<std::string> harPackages = ExtractHarPackages(records);
     if (harPackages.size() > 0) {
         std::string mimeType = ToMimeType(records[0]);
-        if (ParseHarPackage(harPackages, tagInfo, mimeType)) {
+        if (mimeType.size() > MIME_MAX_LENGTH) {
+            ErrorLog("NdefHarDataParser::TryNdef mimeType too long");
+            mimeType = "";
+        }
+        std::string uri = GetUriPayload(records[0]);
+        if (uri.size() > URI_MAX_LENGTH) {
+            ErrorLog("NdefHarDataParser::TryNdef uri too long");
+            uri = "";
+        }
+        if (ParseHarPackage(harPackages, tagInfo, mimeType, uri)) {
             InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
             return true;
         }
@@ -85,8 +96,8 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackage(
-    std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType)
+bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo,
+                                        const std::string &mimeType, const std::string &uri)
 {
     InfoLog("NdefHarDataParser::ParseHarPackage enter");
     if (harPackages.size() <= 0) {
@@ -94,7 +105,8 @@ bool NdefHarDataParser::ParseHarPackage(
         return false;
     }
     for (std::string harPackage : harPackages) {
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType)) {
+        if (ndefHarDispatch_ != nullptr
+            && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri)) {
             return true;
         }
     }
@@ -338,7 +350,7 @@ std::string NdefHarDataParser::CheckForHar(std::shared_ptr<NdefRecord> record)
     /* app type judgment */
     if (record->tnf_ == NdefMessage::TNF_EXTERNAL_TYPE &&
         (IsOtherPlatformAppType(record->tagRtdType_) || record->tagRtdType_.compare(
-            NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_OHOS_APP))))) {
+            NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_OHOS_APP))) == 0)) {
         return record->payload_;
     }
     return bundle;
