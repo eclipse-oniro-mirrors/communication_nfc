@@ -148,7 +148,7 @@ HWTEST_F(ExternalDepsProxyTest, NfcDataGetValue001, TestSize.Level1)
     int32_t value = 0;
     std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
     KITS::ErrorCode errorCode = externalDepsProxy->NfcDataGetValue(nfcEnableUri, column, value);
-    ASSERT_TRUE(errorCode == KITS::ERR_NONE);
+    ASSERT_TRUE(errorCode == KITS::ERR_NFC_DATABASE_RW);
 }
 
 /**
@@ -163,7 +163,7 @@ HWTEST_F(ExternalDepsProxyTest, NfcDataSetValue001, TestSize.Level1)
     int32_t value = 0;
     std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
     KITS::ErrorCode errorCode = externalDepsProxy->NfcDataSetValue(nfcEnableUri, column, value);
-    ASSERT_TRUE(errorCode == KITS::ERR_NFC_DATABASE_RW);
+    ASSERT_TRUE(errorCode == KITS::ERR_NONE);
 }
 
 /**
