@@ -126,7 +126,8 @@ void NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(const std::string &ol
 
 void NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName)
 {
-    WriteEvent("HCE_FOREGROUND_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "NEW_APP_PACKAGE_NAME",
+    InfoLog("WriteForegroundAppChangeHiSysEvent, appPackageName[%{public}s]", appPackageName.c_str());
+    WriteEvent("HCE_FORGROUND_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "NEW_APP_PACKAGE_NAME",
                appPackageName);
 }
 }  // namespace NFC

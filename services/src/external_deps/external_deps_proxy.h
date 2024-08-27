@@ -67,6 +67,7 @@ public:
     void PublishNfcStateChanged(int newState);
     void PublishNfcFieldStateChanged(bool isFieldOn);
 
+    void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
     void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
     void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                      int closeRequestCnt, int closeFailCnt);

@@ -113,6 +113,13 @@ void ExternalDepsProxy::PublishNfcFieldStateChanged(bool isFieldOn)
     NfcEventPublisher::PublishNfcFieldStateChanged(isFieldOn);
 }
 
+void ExternalDepsProxy::WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+{
+    NfcFailedParams nfcFailedParams;
+    ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams, mainErrorCode, subErrorCode);
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+}
+
 void ExternalDepsProxy::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
 {
     NfcHisysEvent::WriteNfcFailedHiSysEvent(failedParams);
