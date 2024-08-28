@@ -229,7 +229,7 @@ std::string NciTagImplDefault::GetVendorBrowserBundleName()
 }
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-bool IsVendorProcess() override
+bool NciTagImplDefault::IsVendorProcess()
 {
     return false;
 }
