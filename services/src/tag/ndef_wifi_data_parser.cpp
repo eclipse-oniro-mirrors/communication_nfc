@@ -40,6 +40,7 @@ namespace TAG {
 #define AUTH_TYPE_WPA2_EAP          0x0010
 #define AUTH_TYPE_WPA2_PSK          0x0020
 #define AUTH_TYPE_WPA_AND_WPA2_PSK  0x0022
+#define ENCRYPTION_TYPE_OPEN        0x0001
 
 #define RECORDS_MAX_SIZE            2000
 #define NETWORK_KEY_MAX_SIZE        64
@@ -199,7 +200,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                     return data;
                 }
                 uint16_t encryptionType = GetTypeFromPayload(payload, offset);
-                if (encryptionType == 0x00) {
+                if (encryptionType == ENCRYPTION_TYPE_OPEN) {
                     InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = false, encryptionType: 0x%{public}X", encryptionType);
                     data->config_->hiddenSSID = false;
                 } else {
