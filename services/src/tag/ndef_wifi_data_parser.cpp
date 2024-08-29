@@ -201,10 +201,12 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                 }
                 uint16_t encryptionType = GetTypeFromPayload(payload, offset);
                 if (encryptionType == ENCRYPTION_TYPE_OPEN) {
-                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = false, encryptionType: 0x%{public}X", encryptionType);
+                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = false, encryptionType: 0x%{public}X",
+                        encryptionType);
                     data->config_->hiddenSSID = false;
                 } else {
-                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = true, encryptionType: 0x%{public}X", encryptionType);
+                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = true, encryptionType: 0x%{public}X",
+                        encryptionType);
                     data->config_->hiddenSSID = true;
                 }
                 break;
