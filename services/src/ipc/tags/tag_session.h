@@ -252,6 +252,9 @@ private:
     int UnregReaderModeInner(ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    bool IsVendorProcess();
+#endif
     std::weak_ptr<NFC::NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     // polling manager
