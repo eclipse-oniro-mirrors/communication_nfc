@@ -117,12 +117,12 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     for (int i = 0; i < MAX_PARSE_TIMES && len > 0 && (offset * HEX_BYTE_LEN) < payload.length()
         && type != CREDENTIAL_FIELD_TYPE; i++) {
-        offset += fieldLen;
+        offset += len;
         type = GetTypeFromPayload(payload, offset);
         len = GetTypeFromPayload(payload, offset);
         InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     }
-    if (fieldLen == 0) {
+    if (len == 0) {
         return data;
     }
     data->isValid_ = true;
