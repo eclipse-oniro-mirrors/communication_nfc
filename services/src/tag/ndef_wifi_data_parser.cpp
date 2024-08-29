@@ -44,6 +44,7 @@ namespace TAG {
 #define NETWORK_KEY_MAX_SIZE        64
 #define AUTH_TYPE_SIZE              2
 #define MAX_VALUE_LENGTH            2000
+#define MAX_PARSE_TIMES             16
 
 using namespace OHOS::NFC::KITS;
 
