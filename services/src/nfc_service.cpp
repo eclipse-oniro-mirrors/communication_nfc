@@ -512,7 +512,6 @@ int NfcService::GetNciVersion()
 
 bool NfcService::IsNfcEnabled()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
     InfoLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
 }
