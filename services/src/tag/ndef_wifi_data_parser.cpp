@@ -33,7 +33,6 @@ namespace TAG {
 #define WIFI_AUTH_TYPE_TYPE         0x1003
 #define WIFI_VENDOR_EXT_TYPE        0x1049
 
-#define AUTH_TYPE_OPEN              0x0001
 #define AUTH_TYPE_WPA_PSK           0x0002
 #define AUTH_TYPE_WPA_EAP           0x0008
 #define AUTH_TYPE_WPA2_EAP          0x0010
