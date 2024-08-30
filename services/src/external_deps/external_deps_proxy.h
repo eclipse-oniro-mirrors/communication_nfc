@@ -79,6 +79,7 @@ public:
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+    void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
 
     bool IsGranted(std::string permission);
 

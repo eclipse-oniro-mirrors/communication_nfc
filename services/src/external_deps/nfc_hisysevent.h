@@ -76,6 +76,7 @@ public:
     static void BuildFailedParams(NfcFailedParams &nfcFailedParams,
                                   MainErrorCode mainErrorCode,
                                   SubErrorCode subErrorCode);
+    static void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
 };
 }  // namespace NFC
 }  // namespace OHOS
