@@ -32,7 +32,6 @@ namespace TAG {
 #define WIFI_NETWORK_KEY_TYPE       0x1027
 #define WIFI_AUTH_TYPE_TYPE         0x1003
 #define WIFI_VENDOR_EXT_TYPE        0x1049
-#define WIFI_ENCRYPTION_TYPE        0x100F
 
 #define AUTH_TYPE_OPEN              0x0001
 #define AUTH_TYPE_WPA_PSK           0x0002
@@ -45,7 +44,6 @@ namespace TAG {
 #define RECORDS_MAX_SIZE            2000
 #define NETWORK_KEY_MAX_SIZE        64
 #define AUTH_TYPE_SIZE              2
-#define ENCRYPTION_TYPE_SIZE        2
 #define MAX_VALUE_LENGTH            2000
 #define MAX_PARSE_TIMES             16
 
@@ -191,22 +189,6 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                     return data;
                 }
                 data->vendorPayload_ = vendorPayload;
-                break;
-            }
-            case WIFI_ENCRYPTION_TYPE: {
-                if (len != ENCRYPTION_TYPE_SIZE) {
-                    ErrorLog("NdefWifiDataParser::ParseWiFiPayload, invalid encryption type len");
-                    data->isValid_ = false;
-                    return data;
-                }
-                uint16_t encryptionType = GetTypeFromPayload(payload, offset);
-                if (encryptionType == ENCRYPTION_TYPE_OPEN) {
-                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = false, encryptionType: 0x%{public}X", encryptionType);
-                    data->config_->hiddenSSID = false;
-                } else {
-                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, hiddenSSID = true, encryptionType: 0x%{public}X", encryptionType);
-                    data->config_->hiddenSSID = true;
-                }
                 break;
             }
             default: {

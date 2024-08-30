@@ -260,6 +260,8 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
         OnFinish();
         return false;
     }
+    // NDEF msg does not include hiddenSSID info, set true to connect all type WiFi.
+    config_->hiddenSSID = true;
     ErrCode err = wifiDevPtr_->ConnectToDevice(*(config_));
     InfoLog("ConnectToDevice err: %{public}d", err);
     if (err != Wifi::WIFI_OPT_SUCCESS) {
