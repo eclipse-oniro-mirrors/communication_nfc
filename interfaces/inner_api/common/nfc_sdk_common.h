@@ -177,6 +177,7 @@ public:
     static void StringToAsciiBytes(const std::string &src, std::vector<unsigned char> &bytes);
     static std::string StringToHexString(const std::string &src);
     static std::string HexStringToAsciiString(const std::string &src);
+    static std::string HexArrayToStringWithoutChecking(const std::string &src);
     static uint64_t GetCurrentTime();
     static uint64_t GetRelativeTime();
     static std::string CodeMiddlePart(const std::string &src);
