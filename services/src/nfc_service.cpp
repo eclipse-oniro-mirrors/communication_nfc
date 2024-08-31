@@ -314,6 +314,8 @@ bool NfcService::DoTurnOn()
 
     UpdateNfcState(KITS::STATE_ON);
 
+    NfcWatchDog nfcRoutingManagerDog("RoutingManager", WAIT_ROUTING_INIT, nciNfccProxy_);
+    nfcRoutingManagerDog.Run();
     screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
 
@@ -324,6 +326,7 @@ bool NfcService::DoTurnOn()
 
     nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
     nfcRoutingManager_->CommitRouting();
+    nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
     // Record success event
