@@ -130,5 +130,13 @@ void NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(const std::string &appPac
     WriteEvent("HCE_FORGROUND_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "NEW_APP_PACKAGE_NAME",
                appPackageName);
 }
+
+static void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
+{
+    InfoLog("WriteDefaultRouteChangeHiSysEvent, oldRoute[%{public}d], newRoute[%{public}d]", oldRoute, newRoute);
+    WriteEvent("HCE_DEFAULT_ROUTE_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+               "OLD_DEFAULT_ROUTE", oldRoute,
+               "NEW_DEFAULT_ROUTE", newRoute);
+}
 }  // namespace NFC
 }  // namespace OHOS

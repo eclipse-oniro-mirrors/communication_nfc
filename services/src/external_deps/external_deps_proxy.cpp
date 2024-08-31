@@ -170,6 +170,11 @@ void ExternalDepsProxy::BuildFailedParams(NfcFailedParams &nfcFailedParams,
     NfcHisysEvent::BuildFailedParams(nfcFailedParams, mainErrorCode, subErrorCode);
 }
 
+void ExternalDepsProxy::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
+{
+    NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(oldRoute, newRoute);
+}
+
 bool ExternalDepsProxy::IsGranted(std::string permission)
 {
     return NfcPermissionChecker::IsGranted(permission);

@@ -328,7 +328,7 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     NfcCommonEvent eventId = static_cast<NfcCommonEvent>(event->GetInnerEventId());
-    DebugLog("NFC common event handler receive a message of %{public}d", eventId);
+    InfoLog("NFC common event handler receive a message of %{public}d", eventId);
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
             tagDispatcher_.lock()->HandleTagFound(event->GetParam());
