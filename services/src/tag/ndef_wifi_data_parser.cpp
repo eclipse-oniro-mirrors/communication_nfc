@@ -136,7 +136,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                     data->isValid_ = false;
                     return data;
                 }
-                data->config_->ssid = KITS::NfcSdkCommon::HexStringToAsciiString(ssid);
+                data->config_->ssid = KITS::NfcSdkCommon::HexArrayToStringWithoutChecking(ssid);
                 InfoLog("NdefWifiDataParser::ParseWiFiPayload, SSID: %{private}s", data->config_->ssid.c_str());
                 break;
             }
