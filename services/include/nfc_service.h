@@ -98,6 +98,7 @@ private:
 private:
     // ms wait for initialization, included firmware download.
     static constexpr const int WAIT_MS_INIT = 90 * 1000;
+    static constexpr const int WAIT_ROUTING_INIT = 10 * 1000;
     int nciVersion_ = 0;
 
     // service
