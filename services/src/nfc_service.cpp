@@ -107,7 +107,8 @@ bool NfcService::Initialize()
     ceService_ = std::make_shared<CeService>(shared_from_this(), nciCeProxy_);
 
     nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
-    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciCeProxy_, shared_from_this());
+    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciNfccProxy_,
+    nciCeProxy_, shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
     hceSessionIface_ = new HCE::HceSession(shared_from_this());
 
@@ -316,6 +317,8 @@ bool NfcService::DoTurnOn()
 
     UpdateNfcState(KITS::STATE_ON);
 
+    NfcWatchDog nfcRoutingManagerDog("RoutingManager", WAIT_ROUTING_INIT, nciNfccProxy_);
+    nfcRoutingManagerDog.Run();
     screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
 
@@ -326,6 +329,7 @@ bool NfcService::DoTurnOn()
 
     nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
     nfcRoutingManager_->CommitRouting();
+    nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
     return true;

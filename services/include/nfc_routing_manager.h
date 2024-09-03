@@ -24,6 +24,7 @@ class NfcService;
 class NfcRoutingManager {
 public:
     NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
+                      std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy,
                       std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                       std::weak_ptr<NfcService> nfcService);
     ~NfcRoutingManager();
@@ -36,11 +37,13 @@ public:
 
 private:
     std::shared_ptr<NfcEventHandler> eventHandler_ {};
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {},
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_ {};
     std::weak_ptr<NfcService> nfcService_ {};
 
     // lock
     std::mutex mutex_ {};
+    static constexpr const int WAIT_ROUTING_INIT = 10 * 1000;
 };
 } // namespace NFC
 } // namespace OHOS
