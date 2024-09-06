@@ -203,6 +203,8 @@ private:
     static const uint32_t ATQA_MIFARE_DESFIRE_0 = 0x44;
     static const uint32_t ATQA_MIFARE_DESFIRE_1 = 0x03;
 
+    static const uint32_t MAX_NUM_TECHNOLOGY = 12;
+
     // tag technology data for tag host and nfcservice.
     std::vector<int> tagTechList_ {};
     std::vector<uint32_t> tagRfDiscIdList_ {};          // disc id
