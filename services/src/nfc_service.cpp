@@ -238,15 +238,19 @@ int NfcService::ExecuteTask(KITS::NfcTask param)
     if (rootTask_) {
         if (!IsNfcTaskReady(future_)) {
             WarnLog("ExecuteTask, IsNfcTaskReady is false.");
-            return KITS:ERR_NFC_STATE_INVALID;
+            return KITS::ERR_NFC_STATE_INVALID;
         }
         if (task_ && task_->joinable()) {
             task_->join();
         }
         future_ = promise.get_future();
-        task_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        task_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     } else {
-        rootTask_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        rootTask_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     }
     return ERR_NONE;
 }
@@ -299,7 +303,7 @@ bool NfcService::DoTurnOn()
             MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
         ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         if (isTimerNeed) {
-            TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+            TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
             if (unloadStaSaTimerId != 0) {
                 NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
                 unloadStaSaTimerId = 0;
@@ -352,7 +356,7 @@ bool NfcService::DoTurnOff()
     nfcPollingManager_->ResetCurrPollingParams();
 
     UpdateNfcState(KITS::STATE_OFF);
-    TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+    TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
     if (unloadStaSaTimerId != 0) {
         NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
         unloadStaSaTimerId = 0;
@@ -486,7 +490,7 @@ int NfcService::GetNfcState()
     std::lock_guard<std::mutex> lock(mutex_);
     // 5min later unload nfc_service, if nfc state is off
     if (nfcState_ == KITS::STATE_OFF) {
-        TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+        TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
         if (unloadStaSaTimerId != 0) {
             NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
             unloadStaSaTimerId = 0;
@@ -517,7 +521,8 @@ bool NfcService::IsNfcEnabled()
 void NfcService::HandleShutdown()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    InfoLog("device is shutting down");
+    ExternalDepsProxy::GetInstance().UpdateNfcState(nfcState_);
+    InfoLog("device is shutting down, nfcState_ = %{public}d", nfcState_);
     nciNfccProxy_->Shutdown();
 }
 

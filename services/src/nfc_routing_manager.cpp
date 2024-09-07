@@ -23,8 +23,8 @@ namespace NFC {
 // ms wait for setting the routing table.
 const int ROUTING_DELAY_TIME = 0; // ms
 NfcRoutingManager::NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
-                                     std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                                      std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy,
+                                     std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                                      std::weak_ptr<NfcService> nfcService)
     : eventHandler_(eventHandler), nciNfccProxy_(nciNfccProxy), nciCeProxy_(nciCeProxy), nfcService_(nfcService)
 {}
@@ -77,7 +77,7 @@ void NfcRoutingManager::HandleComputeRoutingParams(int defaultPaymentType)
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    NfcWatchDog ComputeRoutingParamDog("CommitRouting", WAIT_ROUTING_INIT, nciNfccProxy_);
+    NfcWatchDog ComputeRoutingParamDog("ComputeRoutingParam", WAIT_ROUTING_INIT, nciNfccProxy_);
     ComputeRoutingParamDog.Run();
     bool result = nciCeProxy_.lock()->ComputeRoutingParams(defaultPaymentType);
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);

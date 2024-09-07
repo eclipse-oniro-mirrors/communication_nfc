@@ -66,7 +66,6 @@ ohos_shared_library("nfc_inner_kits_common") {
     "ipc:ipc_core",
   ]
 
-  innerapi_tags = [ "platformsdk" ]
   part_name = "nfc"
   subsystem_name = "communication"
 }

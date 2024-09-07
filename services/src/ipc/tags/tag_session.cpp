@@ -491,14 +491,30 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
     return false;
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
+bool TagSession::IsVendorProcess()
+{
+    auto tag = nciTagProxy_.lock();
+    if (tag) {
+        return tag->IsVendorProcess();
+    }
+    ErrorLog("IsVendorProcess: tag proxy null");
+    return false;
+}
+#endif
+
 int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
-#ifndef VENDOR_APPLICATIONS_ENABLED
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        }
+#else
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
-    }
 #endif
+    }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegForegroundDispatchInner(element, discTech, callback);
 }
@@ -683,7 +699,13 @@ int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discT
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        }
+#else
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+#endif
     }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegReaderModeInner(element, discTech, callback);

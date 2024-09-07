@@ -25,6 +25,7 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     static constexpr const auto DESCRIPTOR = u"ohos.nfc.kits.INdefMsgCallback";
+    constexpr const auto FUZZER_THRESHOLD = 4;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -61,4 +62,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzOnRemoteRequest(data, size);
     return 0;
 }
-
