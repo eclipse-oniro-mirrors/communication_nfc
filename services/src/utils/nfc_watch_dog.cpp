@@ -61,7 +61,7 @@ void NfcWatchDog::MainLoop()
 
 void NfcWatchDog::Run()
 {
-    thread_ = std::make_unique<std::thread>(&NfcWatchDog::MainLoop, this);
+    thread_ = std::make_unique<std::thread>([this]() { this->MainLoop(); });
 }
 
 void NfcWatchDog::Cancel()

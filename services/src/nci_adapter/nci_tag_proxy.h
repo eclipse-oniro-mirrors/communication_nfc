@@ -205,6 +205,14 @@ public:
      * @return Browser bundle name of the vendor.
      */
     std::string GetVendorBrowserBundleName() override;
+
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    /**
+     * @brief Check current ipc thread come from vendor process or not.
+     * @return Is Vendor Process.
+     */
+    bool IsVendorProcess() override;
+#endif
 private:
     std::shared_ptr<INciTagInterface> nciTagInterface_;
 };

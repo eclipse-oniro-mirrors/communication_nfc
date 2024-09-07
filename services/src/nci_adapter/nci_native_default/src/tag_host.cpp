@@ -207,7 +207,7 @@ void TagHost::StartFieldOnChecking(uint32_t delayedMs)
     if (delayedMs <= 0) {
         delayedMs = DEFAULT_PRESENCE_CHECK_WATCH_DOG_TIMEOUT;
     }
-    std::thread(&TagHost::FieldCheckingThread, this, delayedMs).detach();
+    std::thread([this, delayedMs]() { this->FieldCheckingThread(delayedMs); }).detach();
 }
 
 void TagHost::StopFieldChecking()

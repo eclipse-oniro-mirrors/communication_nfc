@@ -37,7 +37,7 @@ public:
 
 private:
     std::shared_ptr<NfcEventHandler> eventHandler_ {};
-    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {},
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_ {};
     std::weak_ptr<NfcService> nfcService_ {};
 
