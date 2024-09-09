@@ -38,6 +38,7 @@ public:
     sptr<IRemoteObject> LoadNfcSa(int32_t systemAbilityId);
     void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void LoadSystemAbilityFail();
+    bool CheckNfcSystemAbility();
 
 private:
     void InitLoadState();
