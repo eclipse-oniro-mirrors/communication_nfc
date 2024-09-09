@@ -66,10 +66,10 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
         std::vector<unsigned char> dataVec;
         ParseBytesVector(env, dataVec, elementValue);
         std::string idStr = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
-                                                                   dataVec.size());
+                                                              dataVec.size());
         ndefRecord->id_ = idStr;
     }
-    napi_get_named_property(env, args, "rtdType", &elementValue);
+    napi_get_named_property(env, args, "payload", &elementValue);
     if (!IsNumberArray(env, elementValue)) {
         ErrorLog("Wrong payload argument type. Number Array expected.");
         ndefRecord->payload_ = "";
