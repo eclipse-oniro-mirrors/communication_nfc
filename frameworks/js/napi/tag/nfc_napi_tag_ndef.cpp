@@ -35,6 +35,24 @@ static bool CheckTagSessionAndThrow(const napi_env &env, const NdefTag *tagSessi
     return true;
 }
 
+std::string ParseNdefParamInner(const napi_env &env, napi_value &elementValue)
+{
+    std::string param = "";
+    if (!IsNumberArray(env, elementValue)) {
+        ErrorLog("Wrong argument type. Number Array expected.");
+        if (IsString(env, elementValue)) {
+            // to compatible with airtouch
+            ErrorLog("Argument type is String");
+            ParseString(env, param, elementValue);
+        }
+    } else {
+        std::vector<unsigned char> dataVec;
+        ParseBytesVector(env, dataVec, elementValue);
+        param = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()), dataVec.size());
+    }
+    return param;
+}
+
 std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
 {
     std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
@@ -48,39 +66,25 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     napi_get_value_uint32(env, elementValue, reinterpret_cast<uint32_t *>(&ndefRecord->tnf_));
 
     napi_get_named_property(env, args, "rtdType", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong rtdType argument type. Number Array expected.");
-        ndefRecord->tagRtdType_ = "";
-    } else {
-        std::vector<unsigned char> dataVec;
-        ParseBytesVector(env, dataVec, elementValue);
-        std::string rtdTypeStr = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
-                                                                   dataVec.size());
-        ndefRecord->tagRtdType_ = rtdTypeStr;
-    }
+    std::string rtdType = ParseNdefParamInner(env, elementValue);
+    ndefRecord->tagRtdType_ = rtdTypeStr;
     napi_get_named_property(env, args, "id", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong id argument type. Number Array expected.");
-        ndefRecord->id_ = "";
-    } else {
-        std::vector<unsigned char> dataVec;
-        ParseBytesVector(env, dataVec, elementValue);
-        std::string idStr = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
-                                                              dataVec.size());
+    std::string idStr = ParseNdefParamInner(env, elementValue);
+    ndefRecord->id_ = idStr;
+    napi_get_named_property(env, args, "payload", &elementValue);
+    std::string payloadStr = ParseNdefParamInner(env, elementValue);
+    ndefRecord->id_ = payloadStr;
+    return ndefRecord;
+}
+
+std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
+{
+    
+    if (IsString(env, elementValue)) {
+        std::string idStr;
+        ParseString(env, idStr, elementValue);
         ndefRecord->id_ = idStr;
     }
-    napi_get_named_property(env, args, "payload", &elementValue);
-    if (!IsNumberArray(env, elementValue)) {
-        ErrorLog("Wrong payload argument type. Number Array expected.");
-        ndefRecord->payload_ = "";
-    } else {
-        std::vector<unsigned char> dataVec;
-        ParseBytesVector(env, dataVec, elementValue);
-        std::string payloadStr = NfcSdkCommon::BytesVecToHexString(static_cast<unsigned char *>(dataVec.data()),
-                                                                   dataVec.size());
-        ndefRecord->payload_ = payloadStr;
-    }
-    return ndefRecord;
 }
 
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
