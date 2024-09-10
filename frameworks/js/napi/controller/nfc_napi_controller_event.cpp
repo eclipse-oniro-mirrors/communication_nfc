@@ -242,7 +242,7 @@ ErrorCode EventRegister::RegisterNfcStateChangedEvents(const std::string& type)
     NfcController nfcCtrl = NfcController::GetInstance();
     ErrorCode ret = nfcCtrl.RegListener(nfcStateListenerEvent, type);
     if (ret != KITS::ERR_NONE) {
-        DebugLog("RegisterNfcStateChangedEvents nfcListenerEvent failed!");
+        ErrorLog("RegisterNfcStateChangedEvents nfcListenerEvent failed!");
         return ret;
     }
     return ret;
@@ -253,7 +253,7 @@ ErrorCode EventRegister::UnRegisterNfcEvents(const std::string& type)
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     ErrorCode ret = nfcCtrl.UnregListener(type);
     if (ret != KITS::ERR_NONE) {
-        DebugLog("UnRegisterNfcEvents nfcListenerEvent failed!");
+        ErrorLog("UnRegisterNfcEvents nfcListenerEvent failed!");
         return ret;
     }
     return ret;
@@ -274,15 +274,14 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
 {
     InfoLog("Register event: %{public}s", type.c_str());
     if (!IsEventSupport(type)) {
-        DebugLog("Register type error or not support!");
+        ErrorLog("Register type error or not support!");
         return;
     }
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
-    if (!isEventRegistered) {
-        if (RegisterNfcStateChangedEvents(type) != KITS::ERR_NONE) {
-            return;
-        }
-        isEventRegistered = true;
+    RegisterNfcStateChangedEvents(type);
+    if (isEventRegistered) {
+        InfoLog("event %{public}s already registered.", type.c_str());
+        return;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
@@ -290,7 +289,8 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
         g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
-        DebugLog("Register, add new type.");
+        isEventRegistered = true;
+        InfoLog("Register, add new type.");
         return;
     }
     auto miter = iter->second.begin();
@@ -301,7 +301,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
             bool isEqual = false;
             napi_strict_equals(miter->m_regEnv, handlerTemp, handler, &isEqual);
             if (isEqual) {
-                DebugLog("handler function is same");
+                WarnLog("handler function is same");
                 ++miter;
             } else {
                 iter->second.emplace_back(regObj);
@@ -374,13 +374,13 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
 {
     InfoLog("Unregister event: %{public}s", type.c_str());
     if (!IsEventSupport(type)) {
-        DebugLog("Unregister type error or not support!");
+        ErrorLog("Unregister type error or not support!");
         return;
     }
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
-        DebugLog("Unregister type not registered!");
+        WarnLog("Unregister type not registered!");
         if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {
             ErrorLog("UnRegisterNfcEvents failed.");
         }
@@ -414,14 +414,14 @@ void NfcNapiAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, con
 
 void NfcNapiAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    DebugLog("%{public}s, systemAbilityId = %{public}d", __func__, systemAbilityId);
+    InfoLog("%{public}s, systemAbilityId = %{public}d", __func__, systemAbilityId);
 }
 
 void NfcNapiAbilityStatusChange::Init(int32_t systemAbilityId)
 {
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
-    InfoLog("%{public}s, systemAbilityId = %{public}d, ret = %{public}d", __func__, systemAbilityId, ret);
+    InfoLog("SubscribeSystemAbility, systemAbilityId = %{public}d, ret = %{public}d", systemAbilityId, ret);
 }
 }  // namespace KITS
 }  // namespace NFC
