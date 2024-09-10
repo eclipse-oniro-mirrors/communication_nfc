@@ -51,6 +51,11 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     if (!IsNumberArray(env, elementValue)) {
         ErrorLog("Wrong rtdType argument type. Number Array expected.");
         ndefRecord->tagRtdType_ = "";
+        if (IsString(env, elementValue)) {
+            std::string rtdTypeStr;
+            ParseString(env, rtdTypeStr, elementValue);
+            ndefRecord->tagRtdType_ = rtdTypeStr;
+        }
     } else {
         std::vector<unsigned char> dataVec;
         ParseBytesVector(env, dataVec, elementValue);
@@ -62,6 +67,11 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     if (!IsNumberArray(env, elementValue)) {
         ErrorLog("Wrong id argument type. Number Array expected.");
         ndefRecord->id_ = "";
+        if (IsString(env, elementValue)) {
+            std::string idStr;
+            ParseString(env, idStr, elementValue);
+            ndefRecord->id_ = idStr;
+        }
     } else {
         std::vector<unsigned char> dataVec;
         ParseBytesVector(env, dataVec, elementValue);
@@ -73,6 +83,11 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     if (!IsNumberArray(env, elementValue)) {
         ErrorLog("Wrong payload argument type. Number Array expected.");
         ndefRecord->payload_ = "";
+        if (IsString(env, elementValue)) {
+            std::string payloadStr;
+            ParseString(env, payloadStr, elementValue);
+            ndefRecord->id_ = payloadStr;
+        }
     } else {
         std::vector<unsigned char> dataVec;
         ParseBytesVector(env, dataVec, elementValue);
