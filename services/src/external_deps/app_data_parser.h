@@ -82,7 +82,7 @@ public:
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
 private:
-    static void GetBundleMgrProxy();
+    static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
     ElementName GetMatchedHceKeyElement(ElementName &element);
     bool IsMatchedByBundleName(ElementName &src, ElementName &target);

@@ -229,8 +229,9 @@ public:
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
         std::shared_ptr<NfcEventHandler> eventHandler = std::make_shared<NfcEventHandler>(runner, nfcService);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
         std::shared_ptr<NfcRoutingManager> manager =
-            std::make_shared<NfcRoutingManager>(eventHandler, nciCeProxy, nfcService);
+            std::make_shared<NfcRoutingManager>(eventHandler, nciNfccProxy, nciCeProxy, nfcService);
         manager->CommitRouting();
     }
 
@@ -238,10 +239,11 @@ public:
     {
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
         std::shared_ptr<NfcEventHandler> eventHandler = std::make_shared<NfcEventHandler>(runner, nfcService);
         std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NciNativeSelector::GetInstance().GetNciCeInterface();
         std::shared_ptr<NfcRoutingManager> manager =
-            std::make_shared<NfcRoutingManager>(eventHandler, nciCeProxy, nfcService);
+            std::make_shared<NfcRoutingManager>(eventHandler, nciNfccProxy, nciCeProxy, nfcService);
         manager->HandleCommitRouting();
     }
 
@@ -250,10 +252,11 @@ public:
         KITS::DefaultPaymentType defaultPaymentType = DefaultPaymentType::TYPE_HCE;
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
         std::shared_ptr<NfcEventHandler> eventHandler = std::make_shared<NfcEventHandler>(runner, nfcService);
         std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NciNativeSelector::GetInstance().GetNciCeInterface();
         std::shared_ptr<NfcRoutingManager> manager =
-            std::make_shared<NfcRoutingManager>(eventHandler, nciCeProxy, nfcService);
+            std::make_shared<NfcRoutingManager>(eventHandler, nciNfccProxy, nciCeProxy, nfcService);
         manager->ComputeRoutingParams(defaultPaymentType);
     }
 
@@ -262,10 +265,11 @@ public:
         int defaultPaymentType = static_cast<int>(data[0]);
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
         std::shared_ptr<NfcEventHandler> eventHandler = std::make_shared<NfcEventHandler>(runner, nfcService);
         std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NciNativeSelector::GetInstance().GetNciCeInterface();
         std::shared_ptr<NfcRoutingManager> manager =
-            std::make_shared<NfcRoutingManager>(eventHandler, nciCeProxy, nfcService);
+            std::make_shared<NfcRoutingManager>(eventHandler, nciNfccProxy, nciCeProxy, nfcService);
         manager->HandleComputeRoutingParams(defaultPaymentType);
     }
 
