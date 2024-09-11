@@ -510,10 +510,12 @@ int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
         if (!IsVendorProcess()) {
-            return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+            ErrorLog("not foreground app.");
+            return KITS::ERR_NONE;
         }
 #else
-        return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        ErrorLog("not foreground app.");
+        return KITS::ERR_NONE;
 #endif
     }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
