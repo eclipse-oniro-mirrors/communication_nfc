@@ -69,8 +69,6 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int sc
     if (readerModeData_->isEnabled_) {
         params->SetTechMask(readerModeData_->techMask_);
         params->SetEnableReaderMode(true);
-    } else if (foregroundData_->isEnabled_) {
-        params->SetTechMask(foregroundData_->techMask_);
     } else {
         params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
         params->SetEnableReaderMode(false);
