@@ -73,18 +73,8 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     ndefRecord->id_ = idStr;
     napi_get_named_property(env, args, "payload", &elementValue);
     std::string payloadStr = ParseNdefParamInner(env, elementValue);
-    ndefRecord->id_ = payloadStr;
+    ndefRecord->payload_ = payloadStr;
     return ndefRecord;
-}
-
-std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
-{
-    
-    if (IsString(env, elementValue)) {
-        std::string idStr;
-        ParseString(env, idStr, elementValue);
-        ndefRecord->id_ = idStr;
-    }
 }
 
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
