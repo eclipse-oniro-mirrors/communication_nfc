@@ -66,25 +66,15 @@ std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args
     napi_get_value_uint32(env, elementValue, reinterpret_cast<uint32_t *>(&ndefRecord->tnf_));
 
     napi_get_named_property(env, args, "rtdType", &elementValue);
-    std::string rtdType = ParseNdefParamInner(env, elementValue);
+    std::string rtdTypeStr = ParseNdefParamInner(env, elementValue);
     ndefRecord->tagRtdType_ = rtdTypeStr;
     napi_get_named_property(env, args, "id", &elementValue);
     std::string idStr = ParseNdefParamInner(env, elementValue);
     ndefRecord->id_ = idStr;
     napi_get_named_property(env, args, "payload", &elementValue);
     std::string payloadStr = ParseNdefParamInner(env, elementValue);
-    ndefRecord->id_ = payloadStr;
+    ndefRecord->payload_ = payloadStr;
     return ndefRecord;
-}
-
-std::shared_ptr<NdefRecord> ParseNdefParam(const napi_env &env, napi_value &args)
-{
-    
-    if (IsString(env, elementValue)) {
-        std::string idStr;
-        ParseString(env, idStr, elementValue);
-        ndefRecord->id_ = idStr;
-    }
 }
 
 std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, napi_value &args)
