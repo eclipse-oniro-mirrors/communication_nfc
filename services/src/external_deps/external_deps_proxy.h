@@ -67,6 +67,7 @@ public:
     void PublishNfcStateChanged(int newState);
     void PublishNfcFieldStateChanged(bool isFieldOn);
 
+    void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
     void WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams);
     void WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFailCnt,
                                      int closeRequestCnt, int closeFailCnt);
@@ -78,6 +79,7 @@ public:
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
+    void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
 
     bool IsGranted(std::string permission);
 
