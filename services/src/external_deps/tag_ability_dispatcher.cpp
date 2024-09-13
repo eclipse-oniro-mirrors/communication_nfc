@@ -167,6 +167,16 @@ void TagAbilityDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo
     InfoLog("DispatchAbilityMultiApp call StartAbility end.");
 }
 
+void TagAbilityDispatcher::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface)
+{
+    AAFwk::Want want;
+    const std::string ABILITY_NAME = "MainAbility";
+    const std::string BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
+    want.SetParam("remoteTagService", tagServiceIface);
+    want.SetElementName(BUNDLE_NAME, ABILITY_NAME);
+    DispatchAbilitySingleApp(want);
+}
+
 void TagAbilityDispatcher::DispatchAbilitySingleApp(AAFwk::Want& want)
 {
     if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {

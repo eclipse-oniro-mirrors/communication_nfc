@@ -174,6 +174,12 @@ void ExternalDepsProxy::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInf
     TAG::TagAbilityDispatcher::DispatchTagAbility(tagInfo, tagServiceIface);
 }
 
+void ExternalDepsProxy::DispatchAppGallery(std::shared_ptr<KITS::TagInfo> tagInfo,
+                                           OHOS::sptr<IRemoteObject> tagServiceIface)
+{
+    TAG::TagAbilityDispatcher::DispatchAppGallery(tagServiceIface);
+}
+
 void ExternalDepsProxy::StartVibratorOnce()
 {
     TAG::TagAbilityDispatcher::StartVibratorOnce();
