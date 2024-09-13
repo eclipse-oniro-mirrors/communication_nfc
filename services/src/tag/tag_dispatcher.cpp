@@ -272,6 +272,10 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
         case NFC_BROWSER_NOTIFICATION_ID:
             NdefHarDispatch::GetInstance().OnBrowserOpenLink();
             break;
+        case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            // start AppGallery
+            ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface());
+            break;
         default:
             WarnLog("unknown notification Id");
             break;
