@@ -48,18 +48,16 @@
 #endif
 #define LOG_TAG "Nfc_Core"
 
-#define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
-
 #define FatalLog(fmt, ...) HILOG_FATAL( \
-    LOG_CORE, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define ErrorLog(fmt, ...) HILOG_ERROR( \
-    LOG_CORE, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define WarnLog(fmt, ...) HILOG_WARN(  \
-    LOG_CORE, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define InfoLog(fmt, ...) HILOG_INFO(  \
-    LOG_CORE, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define DebugLog(fmt, ...) HILOG_DEBUG( \
-    LOG_CORE, "[%{public}s(%{public}s:%{public}d)]" fmt, FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 
 #define FatalLog(...)

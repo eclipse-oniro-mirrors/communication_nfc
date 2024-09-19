@@ -260,15 +260,9 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
         OnFinish();
         return false;
     }
-    int result;
-    ErrCode err = wifiDevPtr_->AddDeviceConfig(*(config_), result, false);
-    InfoLog("AddDeviceConfig result: %{public}d, err: %{public}d", result, err);
-    if (err != Wifi::WIFI_OPT_SUCCESS || result < 0) {
-        ErrorLog("AddDeviceConfig failed result: %{public}d, err: %{public}d", result, err);
-        OnFinish();
-        return false;
-    }
-    err = wifiDevPtr_->ConnectToDevice(*(config_));
+    // NDEF msg does not include hiddenSSID info, set true to connect all type WiFi.
+    config_->hiddenSSID = true;
+    ErrCode err = wifiDevPtr_->ConnectToDevice(*(config_));
     InfoLog("ConnectToDevice err: %{public}d", err);
     if (err != Wifi::WIFI_OPT_SUCCESS) {
         ErrorLog("ConnectToDevice failed err: %{public}d", err);

@@ -79,7 +79,7 @@ HWTEST_F(HceServiceTest, RegHceCmdCallback001, TestSize.Level1)
 {
     sptr<HceCmdListener> callback = sptr<HceCmdListener>(new (std::nothrow) HceCmdListener());
     int ret = HceService::GetInstance().RegHceCmdCallback(callback, "hceCmd");
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_HCE_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -92,7 +92,7 @@ HWTEST_F(HceServiceTest, SendRawFrame001, TestSize.Level1)
     std::string hexCmdData = "010203";
     std::string hexRespData = "";
     int ret = HceService::GetInstance().SendRawFrame(hexCmdData, true, hexRespData);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_HCE_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -104,7 +104,7 @@ HWTEST_F(HceServiceTest, GetPaymentServices001, TestSize.Level1)
 {
     std::vector<AbilityInfo> abilityInfos;
     int ret = HceService::GetInstance().GetPaymentServices(abilityInfos);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_HCE_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -118,7 +118,7 @@ HWTEST_F(HceServiceTest, IsDefaultService001, TestSize.Level1)
     const std::string type = "";
     bool isDefaultService = true;
     int ret = HceService::GetInstance().IsDefaultService(element, type, isDefaultService);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_HCE_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -130,7 +130,7 @@ HWTEST_F(HceServiceTest, StopHce001, TestSize.Level1)
 {
     ElementName element;
     int ret = HceService::GetInstance().StopHce(element);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_HCE_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 }
 }

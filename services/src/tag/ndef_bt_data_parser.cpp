@@ -81,6 +81,10 @@ std::string NdefBtDataParser::FormatBtMacAddr(const std::string& orgBtMac)
 
 std::string NdefBtDataParser::GetOrgBtMacFromPayload(const std::string& payload, uint32_t& offset)
 {
+    if (payload.length() < (offset * HEX_BYTE_LEN)) {
+        ErrorLog("NdefBtDataParser::GetBtMacFromPayload, payload.length error");
+        return "";
+    }
     if (MAC_ADDR_SIZE * HEX_BYTE_LEN > payload.length() - (offset * HEX_BYTE_LEN)) {
         ErrorLog("NdefBtDataParser::GetBtMacFromPayload, data error, "
             "payload len %{public}lu offset.%{public}d", payload.length(), offset);
@@ -432,6 +436,11 @@ std::shared_ptr<BtData> NdefBtDataParser::CheckBtRecord(const std::string& msg)
     std::shared_ptr<NdefRecord> record = ndef->GetNdefRecords()[0];
     if (record == nullptr) {
         ErrorLog("NdefBtDataParser::CheckBtRecord: record is null");
+        return std::make_shared<BtData>();
+    }
+
+    if (record->payload_.length() == 0) {
+        ErrorLog("NdefBtDataParser::CheckBtRecord: payload.length is 0");
         return std::make_shared<BtData>();
     }
 

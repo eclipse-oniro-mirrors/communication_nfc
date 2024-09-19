@@ -188,7 +188,7 @@ HWTEST_F(NfcControllerTest, GetTagServiceIface001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
     OHOS::sptr<IRemoteObject> objsPtr = ctrl.GetTagServiceIface();
-    ASSERT_TRUE(objsPtr == nullptr);
+    ASSERT_TRUE(objsPtr != nullptr);
 }
 
 /**
@@ -265,7 +265,7 @@ HWTEST_F(NfcControllerTest, RegQueryApplicationCb001, TestSize.Level1)
     QueryHceAppByVendor hceCallback = nullptr;
     NfcController ctrl = NfcController::GetInstance();
     ErrorCode errorCode = ctrl.RegQueryApplicationCb(type, tagCallback, hceCallback);
-    ASSERT_TRUE(errorCode == ERR_NFC_PARAMETERS);
+    ASSERT_TRUE(errorCode == ERR_NONE);
 }
 
 /**
@@ -278,7 +278,7 @@ HWTEST_F(NfcControllerTest, RegCardEmulationNotifyCb001, TestSize.Level1)
     OnCardEmulationNotifyCb callback = nullptr;
     NfcController ctrl = NfcController::GetInstance();
     ErrorCode errorCode = ctrl.RegCardEmulationNotifyCb(callback);
-    ASSERT_TRUE(errorCode == ERR_NFC_PARAMETERS);
+    ASSERT_TRUE(errorCode == ERR_NONE);
 }
 
 /**

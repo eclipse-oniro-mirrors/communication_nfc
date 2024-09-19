@@ -55,7 +55,7 @@ private:
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 
     // tag field on checking
-    const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
+    const static int DEFAULT_FIELD_ON_CHECK_DURATION = 150; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
 
     // ndef message

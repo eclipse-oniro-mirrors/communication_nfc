@@ -220,6 +220,14 @@ public:
      * @return appGallery bundle name of the vendor.
      */
     virtual std::string GetVendorAppGalleryBundleName() = 0;
+
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    /**
+     * @brief Check current ipc thread come from vendor process or not.
+     * @return Is Vendor Process.
+     */
+    virtual bool IsVendorProcess() = 0;
+#endif
 };
 }  // namespace NCI
 }  // namespace NFC

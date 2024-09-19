@@ -65,6 +65,41 @@ namespace OHOS {
         Security::AccessToken::AccessTokenID callerToken = 0;
         hceSession->StopHce(element, callerToken);
     }
+
+    void FuzzRegHceCmdCallbackByToken(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = nullptr;
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        Security::AccessToken::AccessTokenID callerToken = 0;
+        hceSession->RegHceCmdCallbackByToken(callback, type, callerToken);
+    }
+
+    void FuzzUnRegHceCmdCallback(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        Security::AccessToken::AccessTokenID callerToken = 0;
+        hceSession->UnRegHceCmdCallback(type, callerToken);
+    }
+
+    void FuzzUnRegAllCallback(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        Security::AccessToken::AccessTokenID callerToken = 0;
+        hceSession->UnRegAllCallback(callerToken);
+    }
+
+    void FuzzHandleWhenRemoteDie(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        Security::AccessToken::AccessTokenID callerToken = 0;
+        hceSession->HandleWhenRemoteDie(callerToken);
+    }
 }
 
 /* Fuzzer entry point */
@@ -78,6 +113,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzIsDefaultService(data, size);
     OHOS::FuzzStartHce(data, size);
     OHOS::FuzzStopHce(data, size);
+    OHOS::FuzzRegHceCmdCallbackByToken(data, size);
+    OHOS::FuzzUnRegHceCmdCallback(data, size);
+    OHOS::FuzzUnRegAllCallback(data, size);
+    OHOS::FuzzHandleWhenRemoteDie(data, size);
     return 0;
 }
 

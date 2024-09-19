@@ -107,7 +107,8 @@ bool NfcService::Initialize()
     ceService_ = std::make_shared<CeService>(shared_from_this(), nciCeProxy_);
 
     nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
-    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciCeProxy_, shared_from_this());
+    nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciNfccProxy_,
+    nciCeProxy_, shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
     hceSessionIface_ = new HCE::HceSession(shared_from_this());
 
@@ -253,9 +254,13 @@ int NfcService::ExecuteTask(KITS::NfcTask param)
             task_->join();
         }
         future_ = promise.get_future();
-        task_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        task_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     } else {
-        rootTask_ = std::make_unique<std::thread>(&NfcService::NfcTaskThread, this, param, std::move(promise));
+        rootTask_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
+            this->NfcTaskThread(param, std::move(promise));
+        });
     }
     return ERR_NONE;
 }
@@ -298,10 +303,8 @@ bool NfcService::DoTurnOn()
         ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
             NOT_COUNT, NOT_COUNT);
         // Record failed event
-        NfcFailedParams nfcFailedParams;
-        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
-            MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(MainErrorCode::NFC_OPEN_FAILED,
+            SubErrorCode::NCI_RESP_ERROR);
         return false;
     }
     // Routing Wake Lock release
@@ -312,6 +315,8 @@ bool NfcService::DoTurnOn()
 
     UpdateNfcState(KITS::STATE_ON);
 
+    NfcWatchDog nfcRoutingManagerDog("RoutingManager", WAIT_ROUTING_INIT, nciNfccProxy_);
+    nfcRoutingManagerDog.Run();
     screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
 
@@ -322,8 +327,12 @@ bool NfcService::DoTurnOn()
 
     nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
     nfcRoutingManager_->CommitRouting();
+    nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
+    // Record success event
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
+        MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     return true;
 }
 
@@ -347,6 +356,9 @@ bool NfcService::DoTurnOff()
 
     // Do turn off success, closeRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
+    // Record success event
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
+        MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     return result;
 }
 
@@ -375,6 +387,9 @@ void NfcService::DoInitialize()
     if (prefKeyNfcState == KITS::STATE_ON) {
         InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
+    } else {
+        // 5min later unload nfc_service, if nfc state is off
+        SetupUnloadNfcSaTimer(true);
     }
 }
 
@@ -501,7 +516,6 @@ int NfcService::GetNciVersion()
 
 bool NfcService::IsNfcEnabled()
 {
-    std::lock_guard<std::mutex> lock(mutex_);
     InfoLog("IsNfcEnabled, nfcState_=%{public}d", nfcState_);
     return (nfcState_ == KITS::STATE_ON);
 }
@@ -523,7 +537,7 @@ bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 void NfcService::SetupUnloadNfcSaTimer(bool shouldRestartTimer)
 {
-    TimeOutCallback timeoutCallback = std::bind(NfcService::UnloadNfcSa);
+    TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
     if (unloadStaSaTimerId != 0) {
         if (!shouldRestartTimer) {
             InfoLog("timer already started.");

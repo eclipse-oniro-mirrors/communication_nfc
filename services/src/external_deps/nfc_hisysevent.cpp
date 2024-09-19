@@ -53,7 +53,7 @@ void NfcHisysEvent::WriteOpenAndCloseHiSysEvent(int openRequestCnt, int openFail
 
 void NfcHisysEvent::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
-    int tagFoundCnt = 0;
+    int tagFoundCnt = 1;
     int typeACnt = 0;
     int typeBCnt = 0;
     int typeFCnt = 0;
@@ -61,19 +61,13 @@ void NfcHisysEvent::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
     for (size_t i = 0; i < techList.size(); i++) {
         std::string discStrTech = KITS::TagInfo::GetStringTech(techList[i]);
         if (discStrTech.compare("NfcA") == 0) {
-            tagFoundCnt++;
             typeACnt++;
         } else if (discStrTech.compare("NfcB") == 0) {
-            tagFoundCnt++;
             typeBCnt++;
         } else if (discStrTech.compare("NfcF") == 0) {
-            tagFoundCnt++;
             typeFCnt++;
         } else if (discStrTech.compare("NfcV") == 0) {
-            tagFoundCnt++;
             typeVCnt++;
-        } else {
-            tagFoundCnt++;
         }
     }
     WriteEvent("TAG_FOUND", HiviewDFX::HiSysEvent::EventType::STATISTIC,
@@ -126,8 +120,17 @@ void NfcHisysEvent::WriteDefaultPaymentAppChangeHiSysEvent(const std::string &ol
 
 void NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName)
 {
-    WriteEvent("HCE_FOREGROUND_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "NEW_APP_PACKAGE_NAME",
+    InfoLog("WriteForegroundAppChangeHiSysEvent, appPackageName[%{public}s]", appPackageName.c_str());
+    WriteEvent("HCE_FORGROUND_APP_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR, "NEW_APP_PACKAGE_NAME",
                appPackageName);
+}
+
+void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
+{
+    InfoLog("WriteDefaultRouteChangeHiSysEvent, oldRoute[%{public}d], newRoute[%{public}d]", oldRoute, newRoute);
+    WriteEvent("HCE_DEFAULT_ROUTE_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+               "OLD_DEFAULT_ROUTE", oldRoute,
+               "NEW_DEFAULT_ROUTE", newRoute);
 }
 }  // namespace NFC
 }  // namespace OHOS

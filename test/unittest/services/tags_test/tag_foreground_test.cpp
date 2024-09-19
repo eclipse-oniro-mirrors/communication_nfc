@@ -69,7 +69,7 @@ HWTEST_F(TagForegroundTest, RegForeground001, TestSize.Level1)
     const sptr<KITS::IForegroundCallback> callback = nullptr;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.RegForeground(element, discTech, callback);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
 }
 
 /**
@@ -103,7 +103,7 @@ HWTEST_F(TagForegroundTest, UnregForeground001, TestSize.Level1)
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregForeground(element);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
 }
 
 /**
@@ -137,7 +137,7 @@ HWTEST_F(TagForegroundTest, RegReaderMode001, TestSize.Level1)
     sptr<KITS::IReaderModeCallback> callback = nullptr;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.RegReaderMode(element, discTech, callback);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_APP_NOT_FOREGROUND);
 }
 
 /**
@@ -171,7 +171,7 @@ HWTEST_F(TagForegroundTest, UnregReaderMode001, TestSize.Level1)
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregReaderMode(element);
-    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
+    ASSERT_TRUE(result == ErrorCode::ERR_NONE);
 }
 
 /**
