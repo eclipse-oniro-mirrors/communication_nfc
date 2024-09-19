@@ -60,7 +60,7 @@
 			"name": "NoHapSupportedNtfText",
 			"value": "No supported applications available"
 		},{
-			"name": "NoHapSupportedButtonName",
+			"name": "NoHapSupportedNtfButtonName",
 			"value": "Go to AppGallery"
 		},{
 			"name": "NfcOpenLinkButtonName",

@@ -88,7 +88,7 @@ constexpr const char* KEY_HCE_AID_CONFLICTED_TITLE  = "NfcHceAidConflictedTitle"
 constexpr const char* KEY_HCE_AID_CONFLICTED_TEXT   = "NfcHceAidConflictedText";
 constexpr const char* KEY_NO_HAP_TITLE              = "NoHapSupportedNtfTitle";
 constexpr const char* KEY_NO_HAP_TEXT               = "NoHapSupportedNtfText";
-constexpr const char* KEY_NO_HAP_BUTTON_NAME        = "NoHapSupportedButtonName";
+constexpr const char* KEY_NO_HAP_BUTTON_NAME        = "NoHapSupportedNtfButtonName";
 
 class NfcNotification {
 public:

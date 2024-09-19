@@ -173,8 +173,8 @@ void TagAbilityDispatcher::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServi
     InfoLog("DispatchAppGallery appGalleryBundleName = %{public}s", appGalleryBundleName.c_str());
     AAFwk::Want want;
     const std::string ABILITY_NAME = "MainAbility";
-    want.SetParam("remoteTagService", appGalleryBundleName);
-    want.SetElementName(BUNDLE_NAME, ABILITY_NAME);
+    want.SetParam("remoteTagService", tagServiceIface);
+    want.SetElementName(appGalleryBundleName, ABILITY_NAME);
     DispatchAbilitySingleApp(want);
 }
 
