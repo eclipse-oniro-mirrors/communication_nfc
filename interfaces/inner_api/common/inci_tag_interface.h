@@ -214,6 +214,12 @@ public:
      * @return Browser bundle name of the vendor.
      */
     virtual std::string GetVendorBrowserBundleName() = 0;
+    
+    /**
+     * @brief Get appGallery bundle name of the vendor.
+     * @return appGallery bundle name of the vendor.
+     */
+    virtual std::string GetVendorAppGalleryBundleName() = 0;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     /**
