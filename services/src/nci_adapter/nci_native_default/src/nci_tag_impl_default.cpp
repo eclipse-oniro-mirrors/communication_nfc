@@ -227,6 +227,11 @@ std::string NciTagImplDefault::GetVendorBrowserBundleName()
 {
     return "";
 }
+
+std::string NciTagImplDefault::GetVendorAppGalleryBundleName()
+{
+    return "";
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

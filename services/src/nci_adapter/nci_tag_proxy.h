@@ -205,6 +205,12 @@ public:
      * @return Browser bundle name of the vendor.
      */
     std::string GetVendorBrowserBundleName() override;
+
+    /**
+     * @brief Get AppGallery bundle name of the vendor.
+     * @return AppGallery bundle name of the vendor.
+     */
+    std::string GetVendorAppGalleryBundleName() override;
 private:
     std::shared_ptr<INciTagInterface> nciTagInterface_;
 };

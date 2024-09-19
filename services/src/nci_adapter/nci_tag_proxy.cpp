@@ -357,6 +357,18 @@ std::string NciTagProxy::GetVendorBrowserBundleName()
     }
     return "";
 }
+
+/**
+ * @brief Get appGallery bundle name of the vendor.
+ * @return appGallery bundle name of the vendor.
+ */
+std::string NciTagProxy::GetVendorAppGalleryBundleName()
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->GetVendorAppGalleryBundleName();
+    }
+    return "";
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS
