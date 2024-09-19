@@ -52,6 +52,9 @@ public:
     std::string GetVendorBrowserBundleName() override;
     std::string GetVendorAppGalleryBundleName() override;
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    bool IsVendorProcess() override;
+#endif
 private:
     static constexpr int ISO_DEP_FRAME_MAX_LEN = 261;
     uint32_t tagDiscId_;

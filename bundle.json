@@ -82,7 +82,6 @@
             ],
             "third_party": [
                 "cJSON",
-                "libnfc-nci",
                 "zlib"
             ]
         },

@@ -134,6 +134,7 @@ enum class DefaultPaymentType {
     TYPE_ESE = 2,
     TYPE_EMPTY = 3,
     TYPE_UNINSTALLED = 4,
+    TYPE_UNKNOWN = 0xFF,
 };
 
 enum class TagTechnology {

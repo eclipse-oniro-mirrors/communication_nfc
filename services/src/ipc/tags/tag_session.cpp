@@ -15,6 +15,7 @@
 #include "tag_session.h"
 #include "loghelper.h"
 #include "app_state_observer.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -491,14 +492,32 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
     return false;
 }
 
+#ifdef VENDOR_APPLICATIONS_ENABLED
+bool TagSession::IsVendorProcess()
+{
+    auto tag = nciTagProxy_.lock();
+    if (tag) {
+        return tag->IsVendorProcess();
+    }
+    ErrorLog("IsVendorProcess: tag proxy null");
+    return false;
+}
+#endif
+
 int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
-#ifndef VENDOR_APPLICATIONS_ENABLED
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
-        return KITS::ERR_TAG_APP_NOT_FOREGROUND;
-    }
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            ErrorLog("not foreground app.");
+            return KITS::ERR_NONE;
+        }
+#else
+        ErrorLog("not foreground app.");
+        return KITS::ERR_NONE;
 #endif
+    }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegForegroundDispatchInner(element, discTech, callback);
 }
@@ -517,6 +536,11 @@ int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vect
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
+        NfcFailedParams nfcFailedParams;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
+            MainErrorCode::APP_BEHAVIOR, SubErrorCode::REG_FOREGROUND_DISPATCH);
+        nfcFailedParams.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -656,6 +680,11 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
         return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
+        NfcFailedParams nfcFailedParams;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
+            MainErrorCode::APP_BEHAVIOR, SubErrorCode::REG_READERMODE);
+        nfcFailedParams.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -683,7 +712,13 @@ int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discT
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        }
+#else
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+#endif
     }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
     return RegReaderModeInner(element, discTech, callback);

@@ -16,15 +16,17 @@
 
 #include "loghelper.h"
 #include "nfc_service.h"
+#include "nfc_watch_dog.h"
 
 namespace OHOS {
 namespace NFC {
 // ms wait for setting the routing table.
 const int ROUTING_DELAY_TIME = 0; // ms
 NfcRoutingManager::NfcRoutingManager(std::shared_ptr<NfcEventHandler> eventHandler,
+                                     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy,
                                      std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
                                      std::weak_ptr<NfcService> nfcService)
-    : eventHandler_(eventHandler), nciCeProxy_(nciCeProxy), nfcService_(nfcService)
+    : eventHandler_(eventHandler), nciNfccProxy_(nciNfccProxy), nciCeProxy_(nciCeProxy), nfcService_(nfcService)
 {}
 
 NfcRoutingManager::~NfcRoutingManager()
@@ -51,12 +53,15 @@ void NfcRoutingManager::HandleCommitRouting()
         ErrorLog("HandleCommitRouting: currPollingParams is nullptr.");
         return;
     }
+    NfcWatchDog CommitRoutingDog("CommitRouting", WAIT_ROUTING_INIT, nciNfccProxy_);
+    CommitRoutingDog.Run();
     if (currPollingParams->ShouldEnablePolling()) {
         bool result = nciCeProxy_.lock()->CommitRouting();
         DebugLog("HandleCommitRouting: result = %{public}d", result);
     } else {
         ErrorLog("HandleCommitRouting: NOT Handle CommitRouting when polling not enabled.");
     }
+    CommitRoutingDog.Cancel();
 }
 
 void NfcRoutingManager::ComputeRoutingParams(KITS::DefaultPaymentType defaultPaymentType)
@@ -72,8 +77,11 @@ void NfcRoutingManager::HandleComputeRoutingParams(int defaultPaymentType)
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
+    NfcWatchDog ComputeRoutingParamDog("ComputeRoutingParam", WAIT_ROUTING_INIT, nciNfccProxy_);
+    ComputeRoutingParamDog.Run();
     bool result = nciCeProxy_.lock()->ComputeRoutingParams(defaultPaymentType);
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
+    ComputeRoutingParamDog.Cancel();
 }
 } // namespace NFC
 } // namespace OHOS
