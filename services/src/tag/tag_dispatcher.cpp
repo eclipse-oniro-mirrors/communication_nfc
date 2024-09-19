@@ -276,8 +276,10 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             break;
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             // start AppGallery
-            if (nfcService_) {
-                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface());
+            if (!nciTagProxy_.expired() && nfcService_) {
+                std::string appGalleryBundleName = nciTagProxy_.lock()->GetVendorAppGalleryBundleName();
+                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
+                                                                    appGalleryBundleName);
             }
             break;
         default:
