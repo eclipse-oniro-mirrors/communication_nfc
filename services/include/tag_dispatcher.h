@@ -49,6 +49,7 @@ private:
     void DispatchTag(uint32_t rfDiscId);
     bool HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
     void PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
+    void StartVibratorOnce();
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
@@ -66,6 +67,7 @@ private:
     std::shared_ptr<NdefHarDataParser> ndefHarDataParser_ {nullptr};
 
     std::shared_ptr<KITS::TagInfo> tagInfo_ {};
+    bool ndefCbRes_ = false;
 };
 }  // namespace TAG
 }  // namespace NFC
