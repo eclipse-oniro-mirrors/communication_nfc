@@ -107,6 +107,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, std::
         ErrorLog("NdefHarDispatch::GetBundleMgrProxy is nullptr");
         return false;
     }
+    InfoLog("NdefHarDispatch::GetLaunchWantForBundle harPackageString = %{public}s", harPackageString.c_str());
     int32_t errCode = GetBundleMgrProxy()->GetLaunchWantForBundle(harPackageString, want, USER_ID);
     if (errCode) {
         ErrorLog("NdefHarDispatch::GetLaunchWantForBundle fail. ret = %{public}d", errCode);
