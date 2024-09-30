@@ -23,6 +23,7 @@
 #include "want.h"
 #include "screenlock_manager.h"
 #include "power_mgr_client.h"
+#include "nfc_watch_dog.h"
 
 #ifdef NDEF_WIFI_ENABLED
 #include "wifi_connection_manager.h"
@@ -239,13 +240,15 @@ NfcEventHandler::~NfcEventHandler()
 void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
                                 std::weak_ptr<CeService> ceService,
                                 std::weak_ptr<NfcPollingManager> nfcPollingManager,
-                                std::weak_ptr<NfcRoutingManager> nfcRoutingManager)
+                                std::weak_ptr<NfcRoutingManager> nfcRoutingManager,
+                                std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
 {
     DebugLog("NfcEventHandler::Intialize");
     tagDispatcher_ = tagDispatcher;
     ceService_ = ceService;
     nfcPollingManager_ = nfcPollingManager;
     nfcRoutingManager_ = nfcRoutingManager;
+    nciNfccProxy_ = nciNfccProxy;
 
     SubscribeScreenChangedEvent();
     SubscribePackageChangedEvent();
@@ -328,7 +331,12 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         return;
     }
     NfcCommonEvent eventId = static_cast<NfcCommonEvent>(event->GetInnerEventId());
-    DebugLog("NFC common event handler receive a message of %{public}d", eventId);
+    if (eventId != NfcCommonEvent::MSG_NOTIFY_FIELD_OFF &&
+        eventId != NfcCommonEvent::MSG_NOTIFY_FIELD_ON) {
+        InfoLog("NFC common event handler receive a message of %{public}d", eventId);
+    }
+    NfcWatchDog nfcProcessEventDog("nfcProcessEvent", WAIT_PROCESS_EVENT_TIMES, nciNfccProxy_);
+    nfcProcessEventDog.Run();
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
             tagDispatcher_.lock()->HandleTagFound(event->GetParam());
@@ -455,6 +463,7 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             ErrorLog("Unknown message received: id %{public}d", eventId);
             break;
     }
+    nfcProcessEventDog.Cancel();
 }
 }  // namespace NFC
 }  // namespace OHOS

@@ -152,6 +152,7 @@ void NfcService::OnTagDiscovered(uint32_t tagDiscId)
 {
     InfoLog("NfcService::OnTagDiscovered tagDiscId %{public}d", tagDiscId);
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagDiscId, 0);
+    InfoLog("NfcService::OnTagDiscovered end");
 }
 
 void NfcService::OnTagLost(uint32_t tagDiscId)
@@ -364,7 +365,7 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
-    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_);
+    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
     // if the nfc status in the xml file is different from that in the datashare file,
