@@ -21,7 +21,7 @@ namespace OHOS {
 namespace NFC {
 NfcDataShareImpl::NfcDataShareImpl()
 {
-    Initialize();
+    CreateDataShareHelper();
 }
 
 NfcDataShareImpl::~NfcDataShareImpl()
@@ -29,22 +29,17 @@ NfcDataShareImpl::~NfcDataShareImpl()
     remoteObj_ = nullptr;
 }
 
-void NfcDataShareImpl::Initialize()
-{
-    auto remote = sptr<INfcState>(new (std::nothrow) IRemoteStub<INfcState>());
-    if (remote == nullptr) {
-        ErrorLog("%{public}s: remoteObject is nullptr.", __func__);
-        return;
-    }
-    remoteObj_ = remote->AsObject();
-    dataShareHelper_ = CreateDataShareHelper();
-}
-
 std::shared_ptr<DataShare::DataShareHelper> NfcDataShareImpl::CreateDataShareHelper()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (remoteObj_ == nullptr) {
-        ErrorLog("%{public}s: remoteObject is nullptr, reInitialize.", __func__);
-        Initialize();
+        WarnLog("%{public}s: remoteObject is nullptr, reInitialize.", __func__);
+        auto remote = sptr<INfcState>(new (std::nothrow) IRemoteStub<INfcState>());
+        if (remote == nullptr) {
+            ErrorLog("%{public}s: get remoteObject fail.", __func__);
+            return nullptr;
+        }
+        remoteObj_ = remote->AsObject();
     }
     return DataShare::DataShareHelper::Creator(remoteObj_, KITS::NFC_DATA_URI);
 }
@@ -53,7 +48,7 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init.", __func__);
-        Initialize();
+        dataShareHelper_ = CreateDataShareHelper();
         if (dataShareHelper_ == nullptr) {
             ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
             return KITS::ERR_NFC_DATABASE_RW;
@@ -86,7 +81,7 @@ KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, 
 {
     if (dataShareHelper_ == nullptr) {
         ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init.", __func__);
-        Initialize();
+        dataShareHelper_ = CreateDataShareHelper();
         if (dataShareHelper_ == nullptr) {
             ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
             return KITS::ERR_NFC_DATABASE_RW;
