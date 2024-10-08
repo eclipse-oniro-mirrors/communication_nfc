@@ -35,8 +35,7 @@ public:
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
 
 private:
-    void Initialize();
-
+    std::mutex mutex_ {};
     sptr<IRemoteObject> remoteObj_;
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_;
 };
