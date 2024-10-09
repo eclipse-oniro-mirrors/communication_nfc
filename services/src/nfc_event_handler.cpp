@@ -241,7 +241,7 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
                                 std::weak_ptr<CeService> ceService,
                                 std::weak_ptr<NfcPollingManager> nfcPollingManager,
                                 std::weak_ptr<NfcRoutingManager> nfcRoutingManager,
-                                std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
+                                std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
 {
     DebugLog("NfcEventHandler::Intialize");
     tagDispatcher_ = tagDispatcher;
