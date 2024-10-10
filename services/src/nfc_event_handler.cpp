@@ -255,11 +255,17 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (screenSubscriber_ != nullptr) {
+        InfoLog("Screen changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    std::lock_guard<std::mutex> guard(mutex_);
     screenSubscriber_ = std::make_shared<ScreenChangedReceiver>(nfcService_, subscribeInfo);
     if (screenSubscriber_ == nullptr) {
         ErrorLog("Create screen changed subscriber failed");
