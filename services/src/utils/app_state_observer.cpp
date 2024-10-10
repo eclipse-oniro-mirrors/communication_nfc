@@ -158,6 +158,7 @@ void AppStateObserver::AppStateAwareObserver::OnProcessDied(const AppExecFwk::Pr
 
 bool AppStateObserver::IsForegroundApp(const std::string &bundleName)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!Connect()) {
         ErrorLog("IsForegroundApp connect failed");
         return false;
