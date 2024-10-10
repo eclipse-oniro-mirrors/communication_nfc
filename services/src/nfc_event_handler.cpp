@@ -283,7 +283,7 @@ void NfcEventHandler::SubscribePackageChangedEvent()
 {
     std::lock_guard<std::mutex> guard(pkgSubscriberMutex_);
     if (pkgSubscriber_ != nullptr) {
-        InfoLog("Screen changed event is subscribed, skip");
+        InfoLog("Package changed subscriber is subscribed, skip");
         return;
     }
     EventFwk::MatchingSkills matchingSkills;
@@ -306,7 +306,7 @@ void NfcEventHandler::SubscribeShutdownEvent()
 {
     std::lock_guard<std::mutex> guard(shutdownSubscriberMutex_);
     if (shutdownSubscriber_ != nullptr) {
-        InfoLog("Screen changed event is subscribed, skip");
+        InfoLog("Shutdown event is subscribed, skip");
         return;
     }
     EventFwk::MatchingSkills matchingSkills;
@@ -327,7 +327,7 @@ void NfcEventHandler::SubscribeDataShareChangedEvent()
 {
     std::lock_guard<std::mutex> guard(dataShareSubscriberMutex_);
     if (dataShareSubscriber_ != nullptr) {
-        InfoLog("Screen changed event is subscribed, skip");
+        InfoLog("DataShare changed event is subscribed, skip");
         return;
     }
     EventFwk::MatchingSkills matchingSkills;
