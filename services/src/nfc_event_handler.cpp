@@ -258,7 +258,7 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
 {
-    std::lock_guard<std::mutex> guard(mutex_);
+    std::lock_guard<std::mutex> guard(screenSubscriberMutex_);
     if (screenSubscriber_ != nullptr) {
         InfoLog("Screen changed event is subscribed, skip");
         return;
@@ -282,6 +282,11 @@ void NfcEventHandler::SubscribeScreenChangedEvent()
 
 void NfcEventHandler::SubscribePackageChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(pkgSubscriberMutex_);
+    if (pkgSubscriber_ != nullptr) {
+        InfoLog("Screen changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
@@ -300,6 +305,11 @@ void NfcEventHandler::SubscribePackageChangedEvent()
 
 void NfcEventHandler::SubscribeShutdownEvent()
 {
+    std::lock_guard<std::mutex> guard(shutdownSubscriberMutex_);
+    if (shutdownSubscriber_ != nullptr) {
+        InfoLog("Screen changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
@@ -316,6 +326,11 @@ void NfcEventHandler::SubscribeShutdownEvent()
 
 void NfcEventHandler::SubscribeDataShareChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(dataShareSubscriberMutex_);
+    if (dataShareSubscriber_ != nullptr) {
+        InfoLog("Screen changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EVENT_DATA_SHARE_READY);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
