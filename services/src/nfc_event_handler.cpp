@@ -255,6 +255,11 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
+    if (screenSubscriber_ != nullptr) {
+        InfoLog("Screen changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF);
@@ -273,6 +278,11 @@ void NfcEventHandler::SubscribeScreenChangedEvent()
 
 void NfcEventHandler::SubscribePackageChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
+    if (pkgSubscriber_ != nullptr) {
+        InfoLog("Package changed subscriber is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
@@ -291,6 +301,11 @@ void NfcEventHandler::SubscribePackageChangedEvent()
 
 void NfcEventHandler::SubscribeShutdownEvent()
 {
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
+    if (shutdownSubscriber_ != nullptr) {
+        InfoLog("Shutdown event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
@@ -307,6 +322,11 @@ void NfcEventHandler::SubscribeShutdownEvent()
 
 void NfcEventHandler::SubscribeDataShareChangedEvent()
 {
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
+    if (dataShareSubscriber_ != nullptr) {
+        InfoLog("DataShare changed event is subscribed, skip");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EVENT_DATA_SHARE_READY);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
