@@ -258,7 +258,7 @@ void NfcEventHandler::Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
 
 void NfcEventHandler::SubscribeScreenChangedEvent()
 {
-    std::lock_guard<std::mutex> guard(screenSubscriberMutex_);
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
     if (screenSubscriber_ != nullptr) {
         InfoLog("Screen changed event is subscribed, skip");
         return;
@@ -281,7 +281,7 @@ void NfcEventHandler::SubscribeScreenChangedEvent()
 
 void NfcEventHandler::SubscribePackageChangedEvent()
 {
-    std::lock_guard<std::mutex> guard(pkgSubscriberMutex_);
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
     if (pkgSubscriber_ != nullptr) {
         InfoLog("Package changed subscriber is subscribed, skip");
         return;
@@ -304,7 +304,7 @@ void NfcEventHandler::SubscribePackageChangedEvent()
 
 void NfcEventHandler::SubscribeShutdownEvent()
 {
-    std::lock_guard<std::mutex> guard(shutdownSubscriberMutex_);
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
     if (shutdownSubscriber_ != nullptr) {
         InfoLog("Shutdown event is subscribed, skip");
         return;
@@ -325,7 +325,7 @@ void NfcEventHandler::SubscribeShutdownEvent()
 
 void NfcEventHandler::SubscribeDataShareChangedEvent()
 {
-    std::lock_guard<std::mutex> guard(dataShareSubscriberMutex_);
+    std::lock_guard<std::mutex> guard(commonEventMutex_);
     if (dataShareSubscriber_ != nullptr) {
         InfoLog("DataShare changed event is subscribed, skip");
         return;

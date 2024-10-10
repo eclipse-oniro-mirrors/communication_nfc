@@ -71,11 +71,8 @@ private:
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 
-    std::mutex screenSubscriberMutex_ {};
-    std::mutex pkgSubscriberMutex_ {};
-    std::mutex shutdownSubscriberMutex_ {};
-    std::mutex dataShareSubscriberMutex_ {};
-    
+    std::mutex commonEventMutex_ {};
+
     static constexpr const int WAIT_PROCESS_EVENT_TIMES = 60 * 1000;
 };
 }  // namespace NFC
