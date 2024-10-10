@@ -68,6 +68,8 @@ private:
     std::weak_ptr<CeService> ceService_ {};
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager_ {};
+
+    std::mutex mutex_ {};
 };
 }  // namespace NFC
 }  // namespace OHOS
