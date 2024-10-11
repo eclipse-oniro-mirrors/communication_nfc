@@ -464,19 +464,17 @@ int NfcService::RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID c
 void NfcService::UpdateNfcState(int newState)
 {
     InfoLog("Update nfc state: oldState %{public}d, newState %{public}d", nfcState_, newState);
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (newState == nfcState_) {
-            return;
-        }
-        nfcState_ = newState;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (newState == nfcState_) {
+        return;
     }
+    nfcState_ = newState;
+
     ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
     ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
     InfoLog("Update nfc state: nfcState_ %{public}d, newState %{public}d succ", nfcState_, newState);
 
     // notify the nfc state changed by callback to JS APP
-    std::lock_guard<std::mutex> lock(mutex_);
     InfoLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         NfcStateRegistryRecord record = stateRecords_[i];
