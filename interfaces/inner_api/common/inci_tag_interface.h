@@ -215,6 +215,12 @@ public:
      */
     virtual std::string GetVendorBrowserBundleName() = 0;
 
+    /**
+     * @brief Get appGallery bundle name of the vendor.
+     * @return appGallery bundle name of the vendor.
+     */
+    virtual std::string GetVendorAppGalleryBundleName() = 0;
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
     /**
      * @brief Check current ipc thread come from vendor process or not.

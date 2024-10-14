@@ -32,6 +32,7 @@ public:
     static void SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want &want);
     static void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     static void DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo, AAFwk::Want& want);
+    static void DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName);
     static void DispatchAbilitySingleApp(AAFwk::Want& want);
     static void StartVibratorOnce();
 

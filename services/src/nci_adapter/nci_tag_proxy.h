@@ -206,6 +206,11 @@ public:
      */
     std::string GetVendorBrowserBundleName() override;
 
+    /**
+     * @brief Get AppGallery bundle name of the vendor.
+     * @return AppGallery bundle name of the vendor.
+     */
+    std::string GetVendorAppGalleryBundleName() override;
 #ifdef VENDOR_APPLICATIONS_ENABLED
     /**
      * @brief Check current ipc thread come from vendor process or not.

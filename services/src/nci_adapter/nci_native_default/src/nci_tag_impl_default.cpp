@@ -228,6 +228,11 @@ std::string NciTagImplDefault::GetVendorBrowserBundleName()
     return "";
 }
 
+std::string NciTagImplDefault::GetVendorAppGalleryBundleName()
+{
+    return "";
+}
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
 bool NciTagImplDefault::IsVendorProcess()
 {

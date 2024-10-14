@@ -113,6 +113,13 @@ void ExternalDepsProxy::PublishNfcFieldStateChanged(bool isFieldOn)
     NfcEventPublisher::PublishNfcFieldStateChanged(isFieldOn);
 }
 
+void ExternalDepsProxy::WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode, SubErrorCode subErrorCode)
+{
+    NfcFailedParams nfcFailedParams;
+    ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams, mainErrorCode, subErrorCode);
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+}
+
 void ExternalDepsProxy::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
 {
     NfcHisysEvent::WriteNfcFailedHiSysEvent(failedParams);
@@ -163,6 +170,11 @@ void ExternalDepsProxy::BuildFailedParams(NfcFailedParams &nfcFailedParams,
     NfcHisysEvent::BuildFailedParams(nfcFailedParams, mainErrorCode, subErrorCode);
 }
 
+void ExternalDepsProxy::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
+{
+    NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(oldRoute, newRoute);
+}
+
 bool ExternalDepsProxy::IsGranted(std::string permission)
 {
     return NfcPermissionChecker::IsGranted(permission);
@@ -172,6 +184,11 @@ void ExternalDepsProxy::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInf
                                            OHOS::sptr<IRemoteObject> tagServiceIface)
 {
     TAG::TagAbilityDispatcher::DispatchTagAbility(tagInfo, tagServiceIface);
+}
+
+void ExternalDepsProxy::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName)
+{
+    TAG::TagAbilityDispatcher::DispatchAppGallery(tagServiceIface, appGalleryBundleName);
 }
 
 void ExternalDepsProxy::StartVibratorOnce()

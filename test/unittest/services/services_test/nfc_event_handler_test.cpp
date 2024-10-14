@@ -65,10 +65,11 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent001, TestSize.Level1)
     std::weak_ptr<CeService> ceService;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -85,10 +86,11 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent002, TestSize.Level1)
     std::weak_ptr<CeService> ceService;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_DEBOUNCE), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -105,10 +107,11 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent003, TestSize.Level1)
     std::weak_ptr<CeService> ceService;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_LOST), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -131,7 +134,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent004, TestSize.Level1)
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -147,13 +150,14 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent006, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<CeService> ceService;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_COMMIT_ROUTING), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
     std::shared_ptr<NfcRoutingManager> nfcRoutingManager =
-        std::make_shared<NfcRoutingManager>(nfcEventHandler, nciCeProxy, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+        std::make_shared<NfcRoutingManager>(nfcEventHandler, nciNfccProxy, nciCeProxy, service);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -168,14 +172,15 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent007, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<CeService> ceService;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<NfcRoutingManager> nfcRoutingManager =
-        std::make_shared<NfcRoutingManager>(nfcEventHandler, nciCeProxy, service);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+        std::make_shared<NfcRoutingManager>(nfcEventHandler, nciNfccProxy, nciCeProxy, service);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -191,12 +196,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent008, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_ACTIVATED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -212,12 +218,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent009, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_FIELD_DEACTIVATED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -233,12 +240,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent010, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -254,12 +262,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent011, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -275,12 +284,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent012, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -297,12 +307,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent013, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_SHUTDOWN), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -318,12 +329,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent014, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_DATA_SHARE_READY), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -339,13 +351,14 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent015, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT),
         static_cast<int64_t>(KITS::VENDOR_APP_INIT_DONE));
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -361,13 +374,14 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent016, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT),
         static_cast<int64_t>(KITS::VENDOR_APP_CHANGE));
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
@@ -383,12 +397,13 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent017, TestSize.Level1)
     std::weak_ptr<TAG::TagDispatcher> tagDispatcher;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NCI::NciNativeSelector::GetInstance().GetNciCeInterface();
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager);
+    nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
 }
 
