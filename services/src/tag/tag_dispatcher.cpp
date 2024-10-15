@@ -273,10 +273,20 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
         }
         case NFC_TAG_DEFAULT_NOTIFICATION_ID:
             // start application ability for tag found.
-            ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            if (nfcService_) {
+                ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            }
             break;
         case NFC_BROWSER_NOTIFICATION_ID:
             NdefHarDispatch::GetInstance().OnBrowserOpenLink();
+            break;
+        case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            // start AppGallery
+            if (!nciTagProxy_.expired() && nfcService_) {
+                std::string appGalleryBundleName = nciTagProxy_.lock()->GetVendorAppGalleryBundleName();
+                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
+                                                                    appGalleryBundleName);
+            }
             break;
         default:
             WarnLog("unknown notification Id");

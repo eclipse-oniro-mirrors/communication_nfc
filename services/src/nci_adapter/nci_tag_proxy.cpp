@@ -358,6 +358,17 @@ std::string NciTagProxy::GetVendorBrowserBundleName()
     return "";
 }
 
+/**
+ * @brief Get appGallery bundle name of the vendor.
+ * @return appGallery bundle name of the vendor.
+ */
+std::string NciTagProxy::GetVendorAppGalleryBundleName()
+{
+    if (nciTagInterface_) {
+        return nciTagInterface_->GetVendorAppGalleryBundleName();
+    }
+    return "";
+}
 #ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @brief Check current ipc thread come from vendor process or not.

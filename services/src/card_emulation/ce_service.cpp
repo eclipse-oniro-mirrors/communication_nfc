@@ -457,6 +457,8 @@ bool CeService::UpdateDefaultPaymentType()
         return false;
     }
     std::lock_guard<std::mutex> lock(configRoutingMutex_);
+    ExternalDepsProxy::GetInstance().WriteDefaultRouteChangeHiSysEvent(
+        static_cast<int>(defaultPaymentType_), static_cast<int>(defaultPaymentType));
     defaultPaymentType_ = defaultPaymentType;
     NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
     return true;
@@ -551,6 +553,8 @@ void CeService::Initialize()
         new (std::nothrow) DefaultPaymentServiceChangeCallback(shared_from_this()));
     InitDefaultPaymentApp();
     defaultPaymentType_ = GetDefaultPaymentType();
+    ExternalDepsProxy::GetInstance().WriteDefaultRouteChangeHiSysEvent(
+        static_cast<int>(KITS::DefaultPaymentType::TYPE_UNKNOWN), static_cast<int>(defaultPaymentType_));
     NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
     hostCardEmulationManager_ =
         std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
