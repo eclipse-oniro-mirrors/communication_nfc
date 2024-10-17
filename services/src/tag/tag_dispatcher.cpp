@@ -75,16 +75,16 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 #ifdef NDEF_BT_ENABLED
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
-        msgType = NDEF_TYPE_BT;
         if (!btData->vendorPayload_.empty()) {
+            msgType = NDEF_TYPE_BT;
             // Bt msg for NdefMsg Callback: bt payload len | bt payload | mac addr | dev name
             ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length());
             ndef.append(btData->vendorPayload_);
             ndef.append(btData->macAddrOrg_);
             ndef.append(NfcSdkCommon::StringToHexString(btData->name_));
         } else {
-            InfoLog("BT vendor payload is empty");
-            ndef = "";
+            InfoLog("BT vendor payload is empty, try normal vendor dispatch with whole ndefmsg");
+            ndef = msg;
         }
     }
 #endif
@@ -93,8 +93,13 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     if (msgType == NDEF_TYPE_NORMAL) {
         wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
         if (wifiData && wifiData->isValid_) {
-            msgType = NDEF_TYPE_WIFI;
-            ndef = wifiData->vendorPayload_;
+            if (!wifiData->vendorPayload_.empty()){
+                msgType = NDEF_TYPE_WIFI;
+                ndef = wifiData->vendorPayload_;
+            } else {
+                InfoLog("WiFi vendor payload is empty, try normal vendor dispatch with whole ndefmsg");
+                ndef = msg;
+            }
         }
     }
 #endif
