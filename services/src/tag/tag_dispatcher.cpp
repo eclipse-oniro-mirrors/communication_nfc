@@ -70,21 +70,37 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
+    if (msg.empty()) {
+        ErrorLog("HandleNdefDispatch, ndef msg is empty");
+        return false;
+    }
+    if (nciTagProxy_.expired()) {
+        ErrorLog("HandleNdefDispatch, nciTagProxy_ expired");
+        return false;
+    }
+    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     int msgType = NDEF_TYPE_NORMAL;
     std::string ndef = msg;
+    if (ndefCb_ != nullptr) {
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
+    }
+    if (ndefCbRes_) {
+        InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
+        return true;
+    }
 #ifdef NDEF_BT_ENABLED
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
+        msgType = NDEF_TYPE_BT;
         if (!btData->vendorPayload_.empty()) {
-            msgType = NDEF_TYPE_BT;
             // Bt msg for NdefMsg Callback: bt payload len | bt payload | mac addr | dev name
             ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length());
             ndef.append(btData->vendorPayload_);
             ndef.append(btData->macAddrOrg_);
             ndef.append(NfcSdkCommon::StringToHexString(btData->name_));
         } else {
-            InfoLog("BT vendor payload is empty, try normal vendor dispatch with whole ndefmsg");
-            ndef = msg;
+            InfoLog("BT vendor payload is empty");
+            ndef = "";
         }
     }
 #endif
@@ -93,17 +109,11 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     if (msgType == NDEF_TYPE_NORMAL) {
         wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
         if (wifiData && wifiData->isValid_) {
-            if (!wifiData->vendorPayload_.empty()){
-                msgType = NDEF_TYPE_WIFI;
-                ndef = wifiData->vendorPayload_;
-            } else {
-                InfoLog("WiFi vendor payload is empty, try normal vendor dispatch with whole ndefmsg");
-                ndef = msg;
-            }
+            msgType = NDEF_TYPE_WIFI;
+            ndef = wifiData->vendorPayload_;
         }
     }
 #endif
-    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
     if (ndefCb_ != nullptr) {
