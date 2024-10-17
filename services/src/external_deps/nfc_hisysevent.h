@@ -45,6 +45,8 @@ enum SubErrorCode {
     PROCESS_ABORT = 10003,
     REG_FOREGROUND_DISPATCH = 40101,
     REG_READERMODE = 40102,
+    TURN_ON_NFC = 40103,
+    TURN_OFF_NFC = 40104,
 };
 
 const int DEFAULT_COUNT = 1;
@@ -77,6 +79,7 @@ public:
                                   MainErrorCode mainErrorCode,
                                   SubErrorCode subErrorCode);
     static void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
+    static void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
 };
 }  // namespace NFC
 }  // namespace OHOS

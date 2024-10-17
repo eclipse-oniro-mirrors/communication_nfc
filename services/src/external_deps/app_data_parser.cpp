@@ -754,5 +754,22 @@ bool AppDataParser::IsSystemApp(uint32_t uid)
     }
     return bundleMgrProxy->CheckIsSystemAppByUid(uid);
 }
+
+std::string AppDataParser::GetBundleNameByUid(uint32_t uid)
+{
+    auto bundleMgr = GetBundleMgrProxy();
+    if (bundleMgr == nullptr) {
+        ErrorLog("bundleMgr is nullptr.");
+        return std::string();
+    }
+    std::string bundleName;
+    int ret = bundleMgr->GetNameForUid(uid, bundleName);
+    if (ret == ERR_OK) {
+        return bundleName;
+    } else {
+        ErrorLog("GetNameForUid failed, ret = %{public}d.", ret);
+        return std::string();
+    }
+}
 } // namespace NFC
 } // namespace OHOS

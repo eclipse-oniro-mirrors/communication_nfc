@@ -175,6 +175,11 @@ void ExternalDepsProxy::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newR
     NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(oldRoute, newRoute);
 }
 
+void ExternalDepsProxy::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
+{
+    NfcHisysEvent::WriteAppBehaviorHiSysEvent(behaviorCode, appName);
+}
+
 bool ExternalDepsProxy::IsGranted(std::string permission)
 {
     return NfcPermissionChecker::IsGranted(permission);
@@ -233,6 +238,16 @@ bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const 
 void ExternalDepsProxy::SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want)
 {
     TAG::TagAbilityDispatcher::SetWantExtraParam(tagInfo, want);
+}
+
+std::string ExternalDepsProxy::GetBundleNameByUid(uint32_t uid)
+{
+    std::string bundleName = AppDataParser::GetInstance().GetBundleNameByUid(uid);
+    if (bundleName == "") {
+        // system abilities have no bundle name, should return UID.
+        bundleName = std::to_string(uid);
+    }
+    return bundleName;
 }
 
 void ExternalDepsProxy::PublishNfcNotification(int notificationId, const std::string &name, int balance)

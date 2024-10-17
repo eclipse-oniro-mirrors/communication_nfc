@@ -80,6 +80,7 @@ public:
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
     void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
+    void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
 
     bool IsGranted(std::string permission);
 
@@ -94,6 +95,7 @@ public:
     bool IsBundleInstalled(const std::string &bundleName);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     void SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want);
+    std::string GetBundleNameByUid(uint32_t uid);
 
     void PublishNfcNotification(int notificationId, const std::string &name, int balance);
     void RegNotificationCallback(std::weak_ptr<NfcService> nfcService);
