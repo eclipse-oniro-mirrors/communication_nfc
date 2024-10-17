@@ -132,5 +132,14 @@ void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute
                "OLD_DEFAULT_ROUTE", oldRoute,
                "NEW_DEFAULT_ROUTE", newRoute);
 }
+
+void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
+{
+    NfcFailedParams failedParams;
+    failedParams.mainErrorCode = APP_BEHAVIOR;
+    failedParams.subErrorCode = behaviorCode;
+    failedParams.appPackageName = appName;
+    WriteNfcFailedHiSysEvent(&failedParams);
+}
 }  // namespace NFC
 }  // namespace OHOS
