@@ -92,6 +92,7 @@ nfc_service_source = [
   "src/external_deps/nfc_event_publisher.cpp",
   "src/external_deps/nfc_hisysevent.cpp",
   "src/external_deps/nfc_notification_publisher.cpp",
+  "src/external_deps/nfc_param_util.cpp",
   "src/external_deps/nfc_permission_checker.cpp",
   "src/external_deps/nfc_preferences.cpp",
   "src/external_deps/tag_ability_dispatcher.cpp",

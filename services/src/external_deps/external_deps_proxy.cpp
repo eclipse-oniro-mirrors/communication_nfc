@@ -100,7 +100,12 @@ void ExternalDepsProxy::NfcDataDelete(const std::string& key)
 
 void ExternalDepsProxy::UpdateNfcState(int newState)
 {
-    NfcPreferences::GetInstance().UpdateNfcState(newState);
+    NfcParamUtil::UpdateNfcStateToParam(newState);
+}
+
+int ExternalDepsProxy::GetNfcStateFromParam()
+{
+    return NfcParamUtil::GetNfcStateFromParam();
 }
 
 void ExternalDepsProxy::PublishNfcStateChanged(int newState)
