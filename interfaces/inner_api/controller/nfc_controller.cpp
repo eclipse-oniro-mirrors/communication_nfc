@@ -134,20 +134,17 @@ int NfcController::TurnOff()
 int NfcController::GetNfcState()
 {
     int state = NfcState::STATE_OFF;
-    Uri nfcEnableUri(NFC_DATA_URI);
-    if (DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-        GetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, state) != KITS::ERR_NONE) {
-        WarnLog("fail to get nfc state from data share, should get state through nfc SA");
-        InitNfcRemoteSA();
-        if (nfcControllerService_.expired()) {
-            return state;
-        }
-        state = nfcControllerService_.lock()->GetState();
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
+        return state;
     }
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("Nfc controller service expired.");
+        return state;
+    }
+    state = nfcControllerService_.lock()->GetState();
     InfoLog("nfc state: %{public}d.", state);
-    if (state == NfcState::STATE_ON) {
-        InitNfcRemoteSA();
-    }
     return state;
 }
 

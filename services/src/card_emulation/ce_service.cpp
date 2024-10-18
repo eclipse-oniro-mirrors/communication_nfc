@@ -700,13 +700,6 @@ void CeService::HandleDataShareReady()
     if (InitDefaultPaymentApp()) {
         ConfigRoutingAndCommit();
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfc service nullptr");
-        return;
-    }
-    int nfcState = nfcService_.lock()->GetNfcState();
-    ExternalDepsProxy::GetInstance().UpdateNfcState(nfcState);
-    InfoLog("Update nfc state [%{public}d]", nfcState);
 }
 } // namespace NFC
 } // namespace OHOS

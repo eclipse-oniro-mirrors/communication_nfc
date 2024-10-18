@@ -23,6 +23,7 @@
 #include "nfc_preferences.h"
 #include "nfc_event_publisher.h"
 #include "nfc_hisysevent.h"
+#include "nfc_param_util.h"
 #include "nfc_permission_checker.h"
 #include "nfc_notification_publisher.h"
 #include "tag_ability_dispatcher.h"
@@ -63,6 +64,7 @@ public:
     void NfcDataClear();
     void NfcDataDelete(const std::string& key);
     void UpdateNfcState(int newState);
+    int GetNfcStateFromParam();
 
     void PublishNfcStateChanged(int newState);
     void PublishNfcFieldStateChanged(bool isFieldOn);

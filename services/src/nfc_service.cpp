@@ -368,24 +368,7 @@ void NfcService::DoInitialize()
     eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
-    // if the nfc status in the xml file is different from that in the datashare file,
-    // use the nfc status in xml file.
-    int prefKeyNfcState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
-    int dataShareNfcState = KITS::STATE_OFF;
-    Uri nfcEnableUri(KITS::NFC_DATA_URI);
-    DelayedSingleton<NfcDataShareImpl>::GetInstance()->GetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE,
-        dataShareNfcState);
-    InfoLog("NfcService DoInitialize: prefKeyNfcState = %{public}d, dataShareNfcState = %{public}d",
-        prefKeyNfcState, dataShareNfcState);
-    if (dataShareNfcState != prefKeyNfcState) {
-        ErrorLog("NfcService DoInitialize: Nfc state is inconsistent, update dataShareNfcState");
-        KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-            SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, prefKeyNfcState);
-        if (err != ERR_NONE) {
-            ErrorLog("NfcService DoInitialize: update dataShareNfcState failed, errCode = %{public}d", err);
-        }
-    }
-    if (prefKeyNfcState == KITS::STATE_ON) {
+    if (ExternalDepsProxy::GetInstance().GetNfcStateFromParam() == KITS::STATE_ON) {
         InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
     } else {
@@ -494,11 +477,13 @@ void NfcService::UpdateNfcState(int newState)
 
 int NfcService::GetNfcState()
 {
+    InfoLog("start to get nfc state.");
     std::lock_guard<std::mutex> lock(mutex_);
     // 5min later unload nfc_service, if nfc state is off
     if (nfcState_ == KITS::STATE_OFF) {
         SetupUnloadNfcSaTimer(false);
     }
+    InfoLog("get nfc state[%{public}d]", nfcState_);
     return nfcState_;
 }
 
