@@ -70,8 +70,24 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
+    if (msg.empty()) {
+        ErrorLog("HandleNdefDispatch, ndef msg is empty");
+        return false;
+    }
+    if (nciTagProxy_.expired()) {
+        ErrorLog("HandleNdefDispatch, nciTagProxy_ expired");
+        return false;
+    }
+    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     int msgType = NDEF_TYPE_NORMAL;
     std::string ndef = msg;
+    if (ndefCb_ != nullptr) {
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
+    }
+    if (ndefCbRes_) {
+        InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
+        return true;
+    }
 #ifdef NDEF_BT_ENABLED
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
@@ -98,7 +114,6 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         }
     }
 #endif
-    std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
     if (ndefCb_ != nullptr) {
