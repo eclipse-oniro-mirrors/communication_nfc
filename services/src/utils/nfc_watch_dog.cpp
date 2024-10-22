@@ -35,6 +35,7 @@ NfcWatchDog::~NfcWatchDog()
 void NfcWatchDog::MainLoop()
 {
     std::unique_lock<std::mutex> lock(mutex_);
+    InfoLog("Watchdog [%{public}s] starts to run.", threadName_.c_str());
     conditionVariable_.wait_for(lock, std::chrono::milliseconds(timeout_), [this] { return canceled_; });
     if (canceled_) {
         return;

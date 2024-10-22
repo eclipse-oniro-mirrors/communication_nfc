@@ -152,6 +152,7 @@ void NfcService::OnTagDiscovered(uint32_t tagDiscId)
 {
     InfoLog("NfcService::OnTagDiscovered tagDiscId %{public}d", tagDiscId);
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), tagDiscId, 0);
+    InfoLog("NfcService::OnTagDiscovered end");
 }
 
 void NfcService::OnTagLost(uint32_t tagDiscId)
@@ -303,10 +304,8 @@ bool NfcService::DoTurnOn()
         ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, DEFAULT_COUNT,
             NOT_COUNT, NOT_COUNT);
         // Record failed event
-        NfcFailedParams nfcFailedParams;
-        ExternalDepsProxy::GetInstance().BuildFailedParams(nfcFailedParams,
-            MainErrorCode::NFC_OPEN_FAILED, SubErrorCode::NCI_RESP_ERROR);
-        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&nfcFailedParams);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(MainErrorCode::NFC_OPEN_FAILED,
+            SubErrorCode::NCI_RESP_ERROR);
         return false;
     }
     // Routing Wake Lock release
@@ -332,6 +331,9 @@ bool NfcService::DoTurnOn()
     nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
+    // Record success event
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
+        MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     return true;
 }
 
@@ -355,12 +357,15 @@ bool NfcService::DoTurnOff()
 
     // Do turn off success, closeRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(NOT_COUNT, NOT_COUNT, DEFAULT_COUNT, NOT_COUNT);
+    // Record success event
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
+        MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     return result;
 }
 
 void NfcService::DoInitialize()
 {
-    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_);
+    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
     // if the nfc status in the xml file is different from that in the datashare file,

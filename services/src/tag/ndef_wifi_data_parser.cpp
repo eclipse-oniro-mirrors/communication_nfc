@@ -44,6 +44,7 @@ namespace TAG {
 #define NETWORK_KEY_MAX_SIZE        64
 #define AUTH_TYPE_SIZE              2
 #define MAX_VALUE_LENGTH            2000
+#define MAX_PARSE_TIMES             16
 
 using namespace OHOS::NFC::KITS;
 
@@ -111,12 +112,17 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     DebugLog("ParseWiFiPayload");
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     uint32_t offset = 0;
-    uint16_t fieldId = GetTypeFromPayload(payload, offset);
-    if (fieldId != CREDENTIAL_FIELD_TYPE) {
-        return data;
+    uint16_t type = GetTypeFromPayload(payload, offset);
+    uint16_t len = GetTypeFromPayload(payload, offset);
+    InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
+    for (int i = 0; i < MAX_PARSE_TIMES && len > 0 && (offset * HEX_BYTE_LEN) < payload.length()
+        && type != CREDENTIAL_FIELD_TYPE; i++) {
+        offset += len;
+        type = GetTypeFromPayload(payload, offset);
+        len = GetTypeFromPayload(payload, offset);
+        InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     }
-    uint32_t fieldLen = GetTypeFromPayload(payload, offset);
-    if (fieldLen == 0) {
+    if (len == 0) {
         return data;
     }
     data->isValid_ = true;
@@ -124,8 +130,8 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
         data->config_ = new Wifi::WifiDeviceConfig();
     }
     while ((offset * HEX_BYTE_LEN) < payload.length()) {
-        uint16_t type = GetTypeFromPayload(payload, offset);
-        uint16_t len = GetTypeFromPayload(payload, offset);
+        type = GetTypeFromPayload(payload, offset);
+        len = GetTypeFromPayload(payload, offset);
         InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
         switch (type) {
             case WIFI_SSID_TYPE: {
@@ -136,7 +142,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                     data->isValid_ = false;
                     return data;
                 }
-                data->config_->ssid = KITS::NfcSdkCommon::HexStringToAsciiString(ssid);
+                data->config_->ssid = KITS::NfcSdkCommon::HexArrayToStringWithoutChecking(ssid);
                 InfoLog("NdefWifiDataParser::ParseWiFiPayload, SSID: %{private}s", data->config_->ssid.c_str());
                 break;
             }

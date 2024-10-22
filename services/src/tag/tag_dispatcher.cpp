@@ -101,11 +101,10 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
-    bool ndefCbRes = false;
     if (ndefCb_ != nullptr) {
-        ndefCbRes = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
     }
-    if (ndefCbRes) {
+    if (ndefCbRes_) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
         return true;
     }
@@ -150,6 +149,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     }
     DebugLog("HandleTagFound fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
 
+    ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
@@ -184,9 +184,15 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         delete tagInfo;
         tagInfo = nullptr;
     }
-    ExternalDepsProxy::GetInstance().StartVibratorOnce();
+    StartVibratorOnce();
 }
 
+void TagDispatcher::StartVibratorOnce()
+{
+    if (!ndefCbRes_) {
+        ExternalDepsProxy::GetInstance().StartVibratorOnce();
+    }
+}
 void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
 {
     InfoLog("HandleTagLost, tagDiscId: %{public}d", tagDiscId);
@@ -267,10 +273,20 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
         }
         case NFC_TAG_DEFAULT_NOTIFICATION_ID:
             // start application ability for tag found.
-            ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            if (nfcService_) {
+                ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+            }
             break;
         case NFC_BROWSER_NOTIFICATION_ID:
             NdefHarDispatch::GetInstance().OnBrowserOpenLink();
+            break;
+        case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            // start AppGallery
+            if (!nciTagProxy_.expired() && nfcService_) {
+                std::string appGalleryBundleName = nciTagProxy_.lock()->GetVendorAppGalleryBundleName();
+                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
+                                                                    appGalleryBundleName);
+            }
             break;
         default:
             WarnLog("unknown notification Id");

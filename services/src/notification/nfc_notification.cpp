@@ -279,6 +279,9 @@ static std::string GetButtonName(int notificationId)
             }
             return "";
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_NO_HAP_BUTTON_NAME) != g_resourceMap.end()) {
+                return g_resourceMap[KEY_NO_HAP_BUTTON_NAME];
+            }
             return "";
         default:
             if (g_resourceMap.find(KEY_ACTION_BUTTON_NAME) != g_resourceMap.end()) {

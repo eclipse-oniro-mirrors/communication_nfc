@@ -145,9 +145,6 @@ int NfcController::GetNfcState()
         state = nfcControllerService_.lock()->GetState();
     }
     InfoLog("nfc state: %{public}d.", state);
-    if (state == NfcState::STATE_ON) {
-        InitNfcRemoteSA();
-    }
     return state;
 }
 
@@ -200,6 +197,10 @@ ErrorCode NfcController::UnregListener(const std::string& type)
 OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 {
     InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::GetTagServiceIface nfcControllerService_ expired");
+        return nullptr;
+    }
     return nfcControllerService_.lock()->GetTagServiceIface();
 }
 
@@ -258,6 +259,10 @@ ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string 
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface()
 {
     InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("NfcController::GetHceServiceIface nfcControllerService_ expired");
+        return nullptr;
+    }
     return nfcControllerService_.lock()->GetHceServiceIface();
 }
 }  // namespace KITS

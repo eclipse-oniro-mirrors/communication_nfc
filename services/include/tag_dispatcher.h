@@ -49,13 +49,14 @@ private:
     void DispatchTag(uint32_t rfDiscId);
     bool HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
     void PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
+    void StartVibratorOnce();
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
 
     // tag field on checking
-    const static int DEFAULT_FIELD_ON_CHECK_DURATION = 125; // ms
+    const static int DEFAULT_FIELD_ON_CHECK_DURATION = 150; // ms
     const static int DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION = 500; // ms
 
     // ndef message
@@ -66,6 +67,7 @@ private:
     std::shared_ptr<NdefHarDataParser> ndefHarDataParser_ {nullptr};
 
     std::shared_ptr<KITS::TagInfo> tagInfo_ {};
+    bool ndefCbRes_ = false;
 };
 }  // namespace TAG
 }  // namespace NFC

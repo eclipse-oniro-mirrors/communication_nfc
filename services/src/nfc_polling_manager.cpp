@@ -69,9 +69,6 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int sc
     if (readerModeData_->isEnabled_) {
         params->SetTechMask(readerModeData_->techMask_);
         params->SetEnableReaderMode(true);
-    } else if (foregroundData_->isEnabled_) {
-        params->SetTechMask(foregroundData_->techMask_);
-        params->SetEnableReaderMode(true);
     } else {
         params->SetTechMask(NfcPollingParams::NFC_POLL_DEFAULT);
         params->SetEnableReaderMode(false);
@@ -185,6 +182,10 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
     foregroundData_->techMask_ = 0xFFFF;
     foregroundData_->callerToken_ = 0;
     foregroundData_->callback_ = nullptr;
+    if (nciNfccProxy_.expired()) {
+        ErrorLog("DisableForegroundDispatch: nciNfccProxy_ is nullptr.");
+        return false;
+    }
     nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, "");
     return true;
 }

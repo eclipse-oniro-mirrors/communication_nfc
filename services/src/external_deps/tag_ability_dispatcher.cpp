@@ -167,6 +167,17 @@ void TagAbilityDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo
     InfoLog("DispatchAbilityMultiApp call StartAbility end.");
 }
 
+void TagAbilityDispatcher::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface,
+                                              std::string appGalleryBundleName)
+{
+    InfoLog("DispatchAppGallery appGalleryBundleName = %{public}s", appGalleryBundleName.c_str());
+    AAFwk::Want want;
+    const std::string ABILITY_NAME = "MainAbility";
+    want.SetParam("remoteTagService", tagServiceIface);
+    want.SetElementName(appGalleryBundleName, ABILITY_NAME);
+    DispatchAbilitySingleApp(want);
+}
+
 void TagAbilityDispatcher::DispatchAbilitySingleApp(AAFwk::Want& want)
 {
     if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {

@@ -36,7 +36,8 @@ public:
     void Intialize(std::weak_ptr<TAG::TagDispatcher> tagDispatcher,
                    std::weak_ptr<CeService> ceService,
                    std::weak_ptr<NfcPollingManager> nfcPollingManager,
-                   std::weak_ptr<NfcRoutingManager> nfcRoutingManager);
+                   std::weak_ptr<NfcRoutingManager> nfcRoutingManager,
+                   std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 
     void SubscribeScreenChangedEvent();
@@ -68,8 +69,10 @@ private:
     std::weak_ptr<CeService> ceService_ {};
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager_ {};
-    
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
+
     std::mutex commonEventMutex_ {};
+    static constexpr const int WAIT_PROCESS_EVENT_TIMES = 60 * 1000;
 };
 }  // namespace NFC
 }  // namespace OHOS

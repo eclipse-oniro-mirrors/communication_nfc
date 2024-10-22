@@ -182,6 +182,23 @@ std::string NfcSdkCommon::HexStringToAsciiString(const std::string &src)
     return result;
 }
 
+/*
+ * transfer Hex array to String without checking Ascii validation, compatible with Chinese characters
+ */
+std::string NfcSdkCommon::HexArrayToStringWithoutChecking(const std::string &src)
+{
+    if (src.size() % HEX_BYTE_LEN != 0 || src.empty()) {  // 2 is Even number judgement
+        ErrorLog("HexStringToAsciiString length error");
+        return "";
+    }
+    std::string result = "";
+    for (size_t i = 0; i < src.size() / HEX_BYTE_LEN; i++) {
+        unsigned char byteVal = GetByteFromHexStr(src, i);
+        result.push_back(static_cast<char>(byteVal));
+    }
+    return result;
+}
+
 uint64_t NfcSdkCommon::GetCurrentTime()
 {
     // get the time since 1970/1/1

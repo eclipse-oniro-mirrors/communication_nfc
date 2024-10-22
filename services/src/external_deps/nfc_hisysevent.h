@@ -24,8 +24,8 @@ enum MainErrorCode {
     FIRMWARE_UPDATE_FAILED = 103,
     PASSIVE_LISTEN_FAILED = 104,
     SET_READER_MODE_EVENT = 105,
-    OPEN_NFC_EVENT = 106,
-    CLOSE_NFC_EVENT = 107,
+    NFC_OPEN_SUCCEED = 106,
+    NFC_CLOSE_SUCCEED = 107,
     NFC_GENERAL_ERR = 108,
     INIT_SA_FAILED = 201, // error code for init sa failed
     NDEF_TEL_EVENT = 301,
@@ -35,6 +35,7 @@ enum MainErrorCode {
     NDEF_VCARD_EVENT = 305,
     NDEF_APP_NOT_INSTALL = 306,
     HCE_SWIPE_CARD = 307,
+    APP_BEHAVIOR = 401,
 };
 
 enum SubErrorCode {
@@ -42,6 +43,8 @@ enum SubErrorCode {
     NCI_RESP_TIMEOUT = 10001,
     NCI_RESP_ERROR = 10002,
     PROCESS_ABORT = 10003,
+    REG_FOREGROUND_DISPATCH = 40101,
+    REG_READERMODE = 40102,
 };
 
 const int DEFAULT_COUNT = 1;
@@ -73,6 +76,7 @@ public:
     static void BuildFailedParams(NfcFailedParams &nfcFailedParams,
                                   MainErrorCode mainErrorCode,
                                   SubErrorCode subErrorCode);
+    static void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
 };
 }  // namespace NFC
 }  // namespace OHOS
