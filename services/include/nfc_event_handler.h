@@ -68,11 +68,8 @@ private:
     std::weak_ptr<CeService> ceService_ {};
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager_ {};
-    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
-
+    
     std::mutex commonEventMutex_ {};
-
-    static constexpr const int WAIT_PROCESS_EVENT_TIMES = 60 * 1000;
 };
 }  // namespace NFC
 }  // namespace OHOS
