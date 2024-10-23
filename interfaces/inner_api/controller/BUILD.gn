@@ -50,7 +50,6 @@ ohos_shared_library("nfc_inner_kits_controller") {
     "nfc_controller.cpp",
     "nfc_controller_callback_stub.cpp",
     "nfc_controller_proxy.cpp",
-    "nfc_data_share_impl.cpp",
     "nfc_sa_client.cpp",
   ]
   if (nfc_service_feature_vendor_applications_enabled) {

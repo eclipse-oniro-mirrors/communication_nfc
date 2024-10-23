@@ -21,7 +21,6 @@
 #include "basic_tag_session.h"
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
-#include "nfc_data_share_impl.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -62,7 +61,6 @@ namespace OHOS {
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
         basicTagSession.SetTimeout(timeOutArray[0]);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzSendCommand(const uint8_t* data, size_t size)
@@ -78,7 +76,6 @@ namespace OHOS {
         // 2 is the subscript. Convert this parameter to string type
         std::string hexRespData = NfcSdkCommon::UnsignedCharToHexString(data[2]);
         basicTagSession.SendCommand(hexCmdData, raw, hexRespData);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzConnect(const uint8_t* data, size_t size)
@@ -87,7 +84,6 @@ namespace OHOS {
         TagTechnology tagTechnology = static_cast<TagTechnology>(size % TAG_TECHNOLOGY_MAX_LEN);
         BasicTagSession basicTagSession{tagInfo, tagTechnology};
         basicTagSession.Connect();
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzIsConnected(const uint8_t* data, size_t size)
@@ -96,7 +92,6 @@ namespace OHOS {
         TagTechnology tagTechnology = static_cast<TagTechnology>(size % TAG_TECHNOLOGY_MAX_LEN);
         BasicTagSession basicTagSession{tagInfo, tagTechnology};
         basicTagSession.IsConnected();
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzClose(const uint8_t* data, size_t size)
@@ -105,7 +100,6 @@ namespace OHOS {
         TagTechnology tagTechnology = static_cast<TagTechnology>(size % TAG_TECHNOLOGY_MAX_LEN);
         BasicTagSession basicTagSession{tagInfo, tagTechnology};
         basicTagSession.Close();
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzGetTimeout(const uint8_t* data, size_t size)
@@ -117,7 +111,6 @@ namespace OHOS {
         ConvertToUint32s(data, timeOutArray, 1);
         int timeout = timeOutArray[0];
         basicTagSession.GetTimeout(timeout);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzResetTimeout(const uint8_t* data, size_t size)
@@ -126,7 +119,6 @@ namespace OHOS {
         TagTechnology tagTechnology = static_cast<TagTechnology>(size % TAG_TECHNOLOGY_MAX_LEN);
         BasicTagSession basicTagSession{tagInfo, tagTechnology};
         basicTagSession.ResetTimeout();
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzGetTagUid(const uint8_t* data, size_t size)
@@ -135,7 +127,6 @@ namespace OHOS {
         TagTechnology tagTechnology = static_cast<TagTechnology>(size % TAG_TECHNOLOGY_MAX_LEN);
         BasicTagSession basicTagSession{tagInfo, tagTechnology};
         basicTagSession.GetTagUid();
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzGetMaxSendCommandLength(const uint8_t* data, size_t size)
@@ -147,7 +138,6 @@ namespace OHOS {
         ConvertToUint32s(data, timeOutArray, 1);
         int maxSize = timeOutArray[0];
         basicTagSession.GetMaxSendCommandLength(maxSize);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 }
 
