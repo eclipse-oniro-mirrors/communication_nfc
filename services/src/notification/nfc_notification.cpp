@@ -69,7 +69,8 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
         const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap, int32_t deleteReason) {}
 };
 
-static const auto NOTIFICATION_SUBSCRIBER = NfcNotificationSubscriber();
+static std::shared_ptr<NfcNotificationSubscriber> g_notificationSubscriber
+    = std::make_shared<NfcNotificationSubscriber>();
 
 static void UpdateResourceMap(const std::string &resourcePath)
 {
@@ -366,7 +367,7 @@ NfcNotification::NfcNotification()
     InfoLog("NfcNotification constructor enter.");
     std::lock_guard<std::mutex> lock(mutex_);
     // only need to subscribe notification once
-    int result = Notification::NotificationHelper::SubscribeNotification(NOTIFICATION_SUBSCRIBER);
+    int result = Notification::NotificationHelper::SubscribeNotification(*g_notificationSubscriber);
     if (result != ERR_OK) {
         ErrorLog("fail to subscribe notification");
     }
