@@ -23,7 +23,6 @@
 #include "nfcb_tag.h"
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
-#include "nfc_data_share_impl.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -82,7 +81,6 @@ namespace OHOS {
         std::shared_ptr<IsoDepTag> isoDepTag = IsoDepTag::GetTag(tagInfo);
         bool isSupported = (static_cast<int>(data[0]) % 2) == 1;
         isoDepTag->IsExtendedApduSupported(isSupported);
-        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 }
 
