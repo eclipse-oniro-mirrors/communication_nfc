@@ -11,14 +11,7 @@
             "start-on-demand":{
                 "commonevent":[
                     {
-                        "name":"usual.event.USER_UNLOCKED",
-                        "conditions":[
-                            {
-                                "eventId":"param",
-                                "name":"persist.nfc.switch.state",
-                                "value":"3"
-                            }
-                        ]
+                        "name":"usual.event.USER_UNLOCKED"
                     }
                 ]
             }
