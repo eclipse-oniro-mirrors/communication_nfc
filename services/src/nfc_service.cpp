@@ -368,13 +368,16 @@ void NfcService::DoInitialize()
     eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
-    if (ExternalDepsProxy::GetInstance().GetNfcStateFromParam() == KITS::STATE_ON) {
+    int nfcStateFromPref = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
+    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
+    if (nfcStateFromPref == KITS::STATE_ON || nfcStateFromParam == KITS::STATE_ON) {
         InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
         SetupUnloadNfcSaTimer(true);
     }
+    ExternalDepsProxy::GetInstance().NfcDataClear(); // delete nfc state xml
 }
 
 int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
