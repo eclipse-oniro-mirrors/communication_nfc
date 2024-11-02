@@ -78,6 +78,10 @@ WifiConnectionManager::WifiCommonEventReceiver::WifiCommonEventReceiver(WifiConn
 
 void WifiConnectionManager::SubscribeWifiCommonEvents()
 {
+	if (wifiSubscriber_ != nullptr) {
+        InfoLog("already subscribed");
+        return;
+    }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_POWER_STATE);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_CONN_STATE);

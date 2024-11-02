@@ -52,6 +52,9 @@ void NfcWatchDog::MainLoop()
     } else if (threadName_.compare("DoTurnOff") == 0) {
         ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_CLOSE_FAILED,
             SubErrorCode::PROCESS_ABORT);
+	} else if (threadName_.compare("nfcProcessEvent") == 0) {
+        ExternalDepsProxy::GetInstance().BuildFailedParams(
+			err, MainErrorCode::NFC_EVENTHANDLER_TIMEOUT, SubErrorCode::PROCESS_ABORT);
     } else {
         ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_GENERAL_ERR,
             SubErrorCode::PROCESS_ABORT);
