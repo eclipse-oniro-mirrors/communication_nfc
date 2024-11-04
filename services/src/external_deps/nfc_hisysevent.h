@@ -27,6 +27,7 @@ enum MainErrorCode {
     NFC_OPEN_SUCCEED = 106,
     NFC_CLOSE_SUCCEED = 107,
     NFC_GENERAL_ERR = 108,
+    NFC_EVENTHANDLER_TIMEOUT = 109,
     INIT_SA_FAILED = 201, // error code for init sa failed
     NDEF_TEL_EVENT = 301,
     NDEF_SMS_EVENT = 302,
