@@ -70,10 +70,6 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
-    if (msg.empty()) {
-        ErrorLog("HandleNdefDispatch, ndef msg is empty");
-        return false;
-    }
     if (nciTagProxy_.expired()) {
         ErrorLog("HandleNdefDispatch, nciTagProxy_ expired");
         return false;
