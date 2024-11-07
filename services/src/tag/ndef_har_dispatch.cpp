@@ -107,10 +107,10 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, std::
         ErrorLog("NdefHarDispatch::GetBundleMgrProxy is nullptr");
         return false;
     }
-    InfoLog("NdefHarDispatch::GetLaunchWantForBundle harPackageString = %{public}s", harPackageString.c_str());
     int32_t errCode = GetBundleMgrProxy()->GetLaunchWantForBundle(harPackageString, want, USER_ID);
     if (errCode) {
-        ErrorLog("NdefHarDispatch::GetLaunchWantForBundle fail. ret = %{public}d", errCode);
+        ErrorLog("NdefHarDispatch::GetLaunchWantForBundle fail. ret = %{public}d, harPackage = %{public}s",
+            errCode, harPackageString.c_str());
         return false;
     }
     if (!mimeType.empty() && tagInfo != nullptr) {
@@ -122,7 +122,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, std::
     }
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
-        ErrorLog("NdefHarDispatch::DispatchBundleAbility call StartAbility fail. ret = %{public}d", errCode);
+        ErrorLog("NdefHarDispatch::StartAbility fail. ret = %{public}d, harPackage = %{public}s",
+            errCode, harPackageString.c_str());
         return false;
     }
     return true;
