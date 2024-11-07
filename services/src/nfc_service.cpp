@@ -292,6 +292,7 @@ bool NfcService::DoTurnOn()
 
     CancelUnloadNfcSaTimer();
     UpdateNfcState(KITS::STATE_TURNING_ON);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_TURNING_ON));
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nciNfccProxy_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
@@ -306,6 +307,7 @@ bool NfcService::DoTurnOn()
         // Record failed event
         ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(MainErrorCode::NFC_OPEN_FAILED,
             SubErrorCode::NCI_RESP_ERROR);
+        NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
         return false;
     }
     // Routing Wake Lock release
@@ -334,6 +336,7 @@ bool NfcService::DoTurnOn()
     // Record success event
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
     return true;
 }
 
@@ -341,6 +344,7 @@ bool NfcService::DoTurnOff()
 {
     InfoLog("Nfc do turn off: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_OFF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_TURNING_OFF));
 
     /* WatchDog to monitor for Deinitialize failed */
     NfcWatchDog nfcWatchDog("DoTurnOff", WAIT_MS_SET_ROUTE, nciNfccProxy_);
@@ -360,6 +364,7 @@ bool NfcService::DoTurnOff()
     // Record success event
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
     return result;
 }
 
@@ -544,5 +549,13 @@ void NfcService::CancelUnloadNfcSaTimer()
     }
 }
 
+void NfcService::NotifyMessageToVendor(int key, const std::string &value)
+{
+    if (nciNfccProxy_ == nullptr) {
+        ErrorLog("nciNfccProxy_ nullptr.");
+        return;
+    }
+    nciNfccProxy_->NotifyMessageToVendor(key, value);
+}
 }  // namespace NFC
 }  // namespace OHOS

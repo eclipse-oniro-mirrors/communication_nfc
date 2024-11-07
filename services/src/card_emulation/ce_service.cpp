@@ -246,6 +246,7 @@ void CeService::OnDefaultPaymentServiceChange()
         ErrorLog("NFC not enabled, should not happen.The default payment app is be set when nfc is enabled.");
         return;
     }
+    nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_CHANGE_KEY, newElement.GetBundleName());
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             newElement.GetBundleName());
     UpdateDefaultPaymentElement(newElement);
@@ -269,11 +270,16 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
             bundleName.c_str(), defaultPaymentElement_.GetBundleName().c_str(),
             defaultPaymentBundleInstalled_);
 
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ is nullptr.");
+        return;
+    }
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         UpdateDefaultPaymentBundleInstalledStatus(false);
         ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
             defaultPaymentElement_.GetBundleName(), APP_REMOVED);
+        nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_REMOVED_KEY, bundleName);
     }
 
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
@@ -281,12 +287,9 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
         UpdateDefaultPaymentBundleInstalledStatus(true);
         ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
             defaultPaymentElement_.GetBundleName(), APP_ADDED);
+        nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_ADDED_KEY, bundleName);
     }
 
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ is nullptr.");
-        return;
-    }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog(" NFC not enabled, not need to update routing entry ");
         return;

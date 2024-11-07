@@ -41,7 +41,7 @@ int NfcParamUtil::GetNfcStateFromParam()
         ErrorLog("failed to get nfc switch state, errCode[%{public}d]", errCode);
         return 0; // return invalid nfc state
     }
-    InfoLog("GetNfcStateFromParam, nfc state[%{publib}d]", nfcState);
+    InfoLog("GetNfcStateFromParam, nfc state[%{public}s]", nfcState);
     errno = 0;
     char *endptr = nullptr;
     long int num = std::strtol(nfcState, &endptr, DECIMAL_NOTATION);

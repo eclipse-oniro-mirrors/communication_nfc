@@ -74,6 +74,7 @@ public:
     std::string GetSimVendorBundleName() override;
 
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
+    void NotifyMessageToVendor(int key, const std::string &value);
 
 private:
     bool IsNfcTaskReady(std::future<int>& future) const;

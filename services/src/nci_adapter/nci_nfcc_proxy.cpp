@@ -129,7 +129,7 @@ void NciNfccProxy::Shutdown()
 /**
  * @brief Send a custom message to vendor
 */
-void NciNfccProxy::NotifyMessageToVendor(const std::string& key, const std::string& value)
+void NciNfccProxy::NotifyMessageToVendor(int key, const std::string& value)
 {
     if (nfccInterface_) {
         return nfccInterface_->NotifyMessageToVendor(key, value);
