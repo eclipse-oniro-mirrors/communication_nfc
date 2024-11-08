@@ -420,6 +420,11 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
             }
         },
         nullptr, nullptr);
+    if (status != napi_ok && nfcTag != nullptr) {
+        ErrorLog("tag Constructor napi_wrap failed");
+        delete nfcTag;
+        nfcTag = nullptr;
+    }
     if (!CheckUnwrapStatusAndThrow(env, status, BUSI_ERR_TAG_STATE_INVALID)) {
         return CreateUndefined(env);
     }
