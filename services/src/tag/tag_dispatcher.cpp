@@ -263,6 +263,7 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             // start application ability for tag found.
             if (nfcService_) {
                 ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+                nfcService_->NotifyMessageToVendor(KITS::TAG_DISPATCH_KEY, "");
             }
             break;
         }
@@ -286,6 +287,7 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             // start application ability for tag found.
             if (nfcService_) {
                 ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+                nfcService_->NotifyMessageToVendor(KITS::TAG_DISPATCH_KEY, "");
             }
             break;
         case NFC_BROWSER_NOTIFICATION_ID:

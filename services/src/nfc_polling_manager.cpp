@@ -169,7 +169,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
         foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
         foregroundData_->element_ = element;
         foregroundData_->callback_ = callback;
-        nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, element.GetBundleName());
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, element.GetBundleName());
     }
     return true;
 }
@@ -186,7 +186,7 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
         ErrorLog("DisableForegroundDispatch: nciNfccProxy_ is nullptr.");
         return false;
     }
-    nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::FOREGROUND_APP_KEY, "");
+    nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
     return true;
 }
 
@@ -233,7 +233,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
         readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
         readerModeData_->element_ = element;
         readerModeData_->callback_ = callback;
-        nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::READERMODE_APP_KEY, element.GetBundleName());
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
     }
     nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
@@ -250,7 +250,7 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     readerModeData_->callback_ = nullptr;
     nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
-    nciNfccProxy_.lock()->NotifyMessageToVendor(NCI::READERMODE_APP_KEY, "");
+    nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
     return true;
 }
 

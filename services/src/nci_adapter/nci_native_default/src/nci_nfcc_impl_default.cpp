@@ -65,7 +65,7 @@ void NciNfccImplDefault::Shutdown()
     NfccNciAdapter::GetInstance().Shutdown();
 }
 
-void NciNfccImplDefault::NotifyMessageToVendor(const std::string& key, const std::string& value)
+void NciNfccImplDefault::NotifyMessageToVendor(int key, const std::string& value)
 {
 }
 }  // namespace NCI
