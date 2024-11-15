@@ -94,7 +94,8 @@
                     "//foundation/communication/nfc/interfaces/inner_api/tags:nfc_inner_kits_tags",
                     "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
                     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardemulation",
-                    "//foundation/communication/nfc/frameworks/js/napi/tag:tag"
+                    "//foundation/communication/nfc/frameworks/js/napi/tag:tag",
+                    "//foundation/communication/nfc/frameworks/cj/cardEmulation:cj_nfc_cardemulation_ffi"
                 ],
                 "service_group": [
                     "//foundation/communication/nfc/sa_profile:nfc_profile",
