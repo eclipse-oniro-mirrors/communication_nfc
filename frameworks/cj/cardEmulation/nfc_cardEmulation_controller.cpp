@@ -17,12 +17,12 @@
 #include "nfc_cardEmulation_ffi.h"
 #include "cj_lambda.h"
 
-namespace OHOS{
-namespace NFC{
-namespace KITS{
+namespace OHOS {
+namespace NFC {
+namespace KITS {
 std::mutex CjNfcCardEmulationController::controllerMutex_;
-std::shared_ptr<CjNfcCardEmulationController> CjNfcCardEmulationController::controller_{ nullptr };
-const int8_t HCE_CMD = 0; // defined by cangjie enum NfcEventType
+std::shared_ptr<CjNfcCardEmulationController> CjNfcCardEmulationController::controller_{nullptr};
+const int8_t HCE_CMD = 0;  // defined by cangjie enum NfcEventType
 
 std::shared_ptr<CjNfcCardEmulationController> CjNfcCardEmulationController::GetInstance()
 {
@@ -74,13 +74,11 @@ void CjNfcCardEmulationController::UnRegisterListener(int8_t type)
 
 void CjNfcCardEmulationController::InitHceCmd(int64_t id)
 {
-    auto callback = reinterpret_cast<void(*)(const uint8_t*, int64_t)>(id);
-    hceCmd_ = [lambda = CJLambda::Create(callback)](const uint8_t* head, int64_t size) -> void {
-        lambda(head, size);
-    };
+    auto callback = reinterpret_cast<void (*)(const uint8_t *, int64_t)>(id);
+    hceCmd_ = [lambda = CJLambda::Create(callback)](const uint8_t *head, int64_t size) -> void { lambda(head, size); };
 }
 
-void CjNfcCardEmulationController::HceCmd(const std::vector<uint8_t>& data)
+void CjNfcCardEmulationController::HceCmd(const std::vector<uint8_t> &data)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (hceCmd_ == nullptr) {
@@ -90,6 +88,6 @@ void CjNfcCardEmulationController::HceCmd(const std::vector<uint8_t>& data)
     return;
 }
 
-}
-}
-}
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS

@@ -22,30 +22,36 @@
 #include "nfc_cardEmulation_controller.h"
 #include "nfc_cardEmulation_ffi.h"
 
-namespace OHOS{
-namespace NFC{
-namespace KITS{
-const int8_t HCECMD = 0;
+namespace OHOS {
+namespace NFC {
+namespace KITS {
+const int8_t HCE_CMD = 0;
 
 class CjHceCmdListenerEvent : public IHceCmdCallback {
 public:
-    CjHceCmdListenerEvent() {}
+    CjHceCmdListenerEvent()
+    {}
 
-    virtual ~CjHceCmdListenerEvent() {}
+    virtual ~CjHceCmdListenerEvent()
+    {}
+
 public:
-    void OnCeApduData(const std::vector<uint8_t>& data) override
+    void OnCeApduData(const std::vector<uint8_t> &data) override
     {
         CjNfcCardEmulationController::GetInstance()->HceCmd(data);
     }
 
-    OHOS::sptr<OHOS::IRemoteObject> AsObject() override { return nullptr; }
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
 };
 
 sptr<CjHceCmdListenerEvent> cjHceCmdListenerEvent =
     sptr<CjHceCmdListenerEvent>(new (std::nothrow) CjHceCmdListenerEvent());
 static bool isEventRegistered = false;
 
-std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
+std::vector<std::string> CharPtrToVector(char **charPtr, int32_t size)
 {
     std::vector<std::string> result;
     for (int32_t i = 0; i < size; i++) {
@@ -57,7 +63,8 @@ std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
 }
 
 extern "C" {
-int32_t FfiNfcCardEmulationisDefaultService(char *cBundleName, char *cAbilityName, char *cModuleName, char *cardTypeName, bool *ret)
+int32_t FfiNfcCardEmulationisDefaultService(
+    char *cBundleName, char *cAbilityName, char *cModuleName, char *cardTypeName, bool *ret)
 {
     bool isDefaultService = false;
     std::string type(cardTypeName);
@@ -100,7 +107,7 @@ int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id)
         }
         isEventRegistered = true;
     }
-    auto controller = CjNfcCardEmulationController::GetInstance()
+    auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
         return ERR_NO_MEMORY;
     }
@@ -122,7 +129,7 @@ int32_t FfiNfcCardEmulationstop(char *cBundleName, char *cAbilityName, char *cMo
         return ret;
     }
     isEventRegistered = false;
-    auto controller = CjNfcCardEmulationController::GetInstance()
+    auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
         return ERR_NO_MEMORY;
     }
@@ -139,6 +146,6 @@ int32_t FfiNfcCardEmulationTransmit(CArrUI8 cResponseApdu)
 }
 }
 
-}
-}
-}
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS

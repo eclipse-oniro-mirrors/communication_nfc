@@ -15,15 +15,15 @@
 #ifndef NFC_CARDEMULATION_CONTROLLER_H
 #define NFC_CARDEMULATION_CONTROLLER_H
 
-#include<cstdint>
-#include<vector>
-#include<memory>
-#include<mutex>
-#include<functional>
+#include <cstdint>
+#include <vector>
+#include <memory>
+#include <mutex>
+#include <functional>
 
-namespace OHOS{
-namespace NFC{
-namespace KITS{
+namespace OHOS {
+namespace NFC {
+namespace KITS {
 
 class CjNfcCardEmulationController {
 public:
@@ -32,20 +32,20 @@ public:
     static std::shared_ptr<CjNfcCardEmulationController> GetInstance();
     int32_t Subscribe(int8_t type, int64_t id);
     int32_t UnSubscribe(int8_t type);
-    void HceCmd(const std::vector<uint8_t>& data);
+    void HceCmd(const std::vector<uint8_t> &data);
 
 private:
     void RegisterListener(int8_t type, int64_t id);
     void UnRegisterListener(int8_t type);
     void InitHceCmd(int64_t id);
     std::recursive_mutex mutex_;
-    std::function<void(const uint8_t* head, int64_t size)> hceCmd_;
+    std::function<void(const uint8_t *head, int64_t size)> hceCmd_;
     static std::mutex controllerMutex_;
     static std::shared_ptr<CjNfcCardEmulationController> controller_;
 };
 
-}
-}
-}
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS
 
 #endif
