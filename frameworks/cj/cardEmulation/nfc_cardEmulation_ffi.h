@@ -24,26 +24,27 @@ namespace NFC {
 namespace KITS {
 const int32_t ERR_NO_MEMORY = -2;
 
-struct CArrUI8
-{
-    uint8_t* head;
+struct CArrUI8 {
+    uint8_t *head;
     int64_t size;
 };
 
 extern "C" {
-    FFI_EXPORT int32_t FfiNfcCardEmulationisDefaultService(char *cBundleName, char *cAbilityName, char *cModuleName, char *cardTypeName, bool *ret);
+FFI_EXPORT int32_t FfiNfcCardEmulationisDefaultService(
+    char *cBundleName, char *cAbilityName, char *cModuleName, char *cardTypeName, bool *ret);
 
-    FFI_EXPORT int32_t FfiNfcCardEmulationstart(char *cBundleName, char *cAbilityName, char *cModuleName, CArrString cAidList);
+FFI_EXPORT int32_t FfiNfcCardEmulationstart(
+    char *cBundleName, char *cAbilityName, char *cModuleName, CArrString cAidList);
 
-    FFI_EXPORT int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id);
+FFI_EXPORT int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id);
 
-    FFI_EXPORT int32_t FfiNfcCardEmulationstop(char *cBundleName, char *cAbilityName, char *cModuleName);
+FFI_EXPORT int32_t FfiNfcCardEmulationstop(char *cBundleName, char *cAbilityName, char *cModuleName);
 
-    FFI_EXPORT int32_t FfiNfcCardEmulationTransmit(CArrUI8 cResponseApdu);
+FFI_EXPORT int32_t FfiNfcCardEmulationTransmit(CArrUI8 cResponseApdu);
 }
 
-}
-}
-}
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS
 
 #endif
