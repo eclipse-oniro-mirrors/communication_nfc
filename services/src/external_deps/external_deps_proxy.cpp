@@ -153,6 +153,11 @@ void ExternalDepsProxy::WriteForegroundAppChangeHiSysEvent(const std::string &ap
     NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(appPackageName);
 }
 
+void ExternalDepsProxy::WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode)
+{
+    NfcHisysEvent::WriteDispatchToAppHiSysEvent(appPackageName, subErrorCode);
+}
+
 void ExternalDepsProxy::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
     NfcHisysEvent::WriteTagFoundHiSysEvent(techList);

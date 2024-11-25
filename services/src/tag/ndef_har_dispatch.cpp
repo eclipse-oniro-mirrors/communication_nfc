@@ -90,6 +90,8 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
         return false;
     }
+    ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
+        SubErrorCode::NDEF_HAR_DISPATCH);
     return true;
 }
 
@@ -126,6 +128,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, std::
             errCode, harPackageString.c_str());
         return false;
     }
+    ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
+        SubErrorCode::NDEF_HAR_DISPATCH);
     return true;
 }
 
@@ -179,7 +183,10 @@ void NdefHarDispatch::OnBrowserOpenLink()
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchWebLink call StartAbility fail. ret = %{public}d", errCode);
+        return;
     }
+    ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
+        SubErrorCode::NDEF_URI_BROWSER_DISPATCH);
 }
 } // namespace TAG
 } // namespace NFC
