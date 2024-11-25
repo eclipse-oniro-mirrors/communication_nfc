@@ -125,6 +125,10 @@ bool NfcService::Initialize()
 void NfcService::UnloadNfcSa()
 {
     InfoLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    if (nfcState_ != KITS::STATE_OFF) {
+        InfoLog("%{public}s nfc state = [%{public}d] skip unload", __func__, nfcState_);
+        return;
+    }
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
@@ -529,7 +533,7 @@ bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 void NfcService::SetupUnloadNfcSaTimer(bool shouldRestartTimer)
 {
-    TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
+    TimeOutCallback timeoutCallback = [this]() { UnloadNfcSa(); };
     if (unloadStaSaTimerId != 0) {
         if (!shouldRestartTimer) {
             InfoLog("timer already started.");

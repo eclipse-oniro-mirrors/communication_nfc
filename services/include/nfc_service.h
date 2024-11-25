@@ -85,7 +85,7 @@ private:
     bool DoTurnOn();
     bool DoTurnOff();
     void DoInitialize();
-    static void UnloadNfcSa();
+    void UnloadNfcSa();
 
     // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
