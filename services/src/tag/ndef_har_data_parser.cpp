@@ -112,6 +112,7 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, st
     if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
         return true;
     }
+    return false;
 }
 
 bool NdefHarDataParser::ParseHarPackageInner(std::vector<std::string> harPackages,

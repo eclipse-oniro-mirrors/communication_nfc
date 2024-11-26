@@ -81,7 +81,7 @@ private:
     static const int TWO_BYTES_SHIFT = 16;
     static const int ONE_BYTES_SHIFT = 8;
 
-    const std::string NFC_CARD_APDU_JSON_FILEPATH = "system/etc/nfc/nfc_card_apdu.json";
+    const std::string NFC_CARD_APDU_JSON_FILEPATH = "system/etc/nfc/resources/base/profile/nfc_card_apdu.json";
     const std::string APDU_RSP_OK = "9000";
     const std::string APDU_RSP_PREFIX = "9F0C";
 };
