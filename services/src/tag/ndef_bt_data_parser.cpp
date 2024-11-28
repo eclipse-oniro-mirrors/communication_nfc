@@ -469,6 +469,21 @@ std::shared_ptr<BtData> NdefBtDataParser::CheckBtRecord(const std::string& msg)
     }
     return std::make_shared<BtData>();
 }
+
+bool NdefBtDataParser::IsVendorPayloadValid(const std::string& payload)
+{
+    int len = payload.length();
+    if (len % HEX_BYTE_LEN != 0) {
+        ErrorLog("BT vendor payload len invalid");
+        return false;
+    }
+    int bytesLen = len / HEX_BYTE_LEN;
+    if (bytesLen > VENDOR_PAYLOAD_MAX_LEN) {
+        ErrorLog("BT vendor payload len exceeds, bytesLen = %{public}d", bytesLen);
+        return false;
+    }
+    return true;
+}
 } // namespace TAG
 } // namespace NFC
 } // namespace OHOS
