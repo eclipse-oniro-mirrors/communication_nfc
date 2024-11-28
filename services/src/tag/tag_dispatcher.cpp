@@ -88,14 +88,14 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
         msgType = NDEF_TYPE_BT;
-        if (!btData->vendorPayload_.empty()) {
+        if (!btData->vendorPayload_.empty() && NdefBtDataParser::IsVendorPayloadValid(btData->vendorPayload_)) {
             // Bt msg for NdefMsg Callback: bt payload len | bt payload | mac addr | dev name
-            ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length());
+            ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length() / HEX_BYTE_LEN);
             ndef.append(btData->vendorPayload_);
             ndef.append(btData->macAddrOrg_);
             ndef.append(NfcSdkCommon::StringToHexString(btData->name_));
         } else {
-            InfoLog("BT vendor payload is empty");
+            InfoLog("BT vendor payload invalid");
             ndef = "";
         }
     }
