@@ -230,23 +230,25 @@ bool NfcService::IsNfcTaskReady(std::future<int>& future) const
 
 int NfcService::ExecuteTask(KITS::NfcTask param)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
-        WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
-        return ERR_NONE;
-    }
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
+            WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
+            return KITS::ERR_NFC_STATE_INVALID;
+        }
 
-    // Check the current state
-    if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
-        WarnLog("NFC Turn On, already On");
-        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
-        return ERR_NONE;
-    }
-    if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
-        WarnLog("NFC Turn Off, already Off");
-        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
-        UnloadNfcSa();
-        return ERR_NONE;
+        // Check the current state
+        if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
+            WarnLog("NFC Turn On, already On");
+            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
+            return ERR_NONE;
+        }
+        if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
+            WarnLog("NFC Turn Off, already Off");
+            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
+            UnloadNfcSa();
+            return ERR_NONE;
+        }
     }
 
     std::promise<int> promise;
