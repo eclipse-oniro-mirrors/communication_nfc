@@ -418,7 +418,6 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
         record.callerToken_ = callerToken;
         record.nfcStateChangeCallback_ = callback;
         stateRecords_.push_back(record);
-        callback->OnNfcStateChanged(nfcState_);
     }
     return KITS::ERR_NONE;
 }
