@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_polling_params.h"
+#include "loghelper.h"
 #include <string>
 
 namespace OHOS {
@@ -28,6 +29,10 @@ NfcPollingParams::NfcPollingParams() : techMask_(0),
 
 bool NfcPollingParams::operator==(const std::shared_ptr<NfcPollingParams> params) const
 {
+    if (params == nullptr) {
+        ErrorLog("NfcPollingParams: params is nullptr.");
+        return false;
+    }
     return techMask_ == params->techMask_ &&
         (enableLowPowerPolling_ == params->enableLowPowerPolling_) &&
         (enableReaderMode_ == params->enableReaderMode_) &&

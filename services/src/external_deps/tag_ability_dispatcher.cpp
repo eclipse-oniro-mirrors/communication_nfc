@@ -39,6 +39,10 @@ TagAbilityDispatcher::~TagAbilityDispatcher()
 void TagAbilityDispatcher::SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want &want)
 {
     // put extra data for all included technology, extra data used by 3rd party applications.
+    if (tagInfo == nullptr) {
+        ErrorLog("TagAbilityDispatcher::SetWantExtraParam tagInfo is null");
+        return;
+    }
     want.SetParam("uid", tagInfo->GetTagUid());
     want.SetParam("technology", tagInfo->GetTagTechList());
     want.SetParam("tagRfDiscId", tagInfo->GetTagRfDiscId());
