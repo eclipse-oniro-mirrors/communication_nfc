@@ -24,16 +24,25 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-const std::string HTTP_PREFIX = "http";
-const std::string TEL_PREFIX = "tel";
-const std::string SMS_PREFIX = "sms";
-const std::string MAIL_PREFIX = "mailto";
-const std::string TEXT_PLAIN = "text/plain";
-const std::string TEXT_VCARD = "text/vcard";
-const int MIME_MAX_LENGTH = 128;
-const int URI_MAX_LENGTH = 2048;
 
 using namespace OHOS::NFC::KITS;
+
+std::map<RecordsType, MainErrorCode> g_unsupportTypeAndSysEvent = {
+    {TYPE_RTP_SCHEME_TEL, MainErrorCode::NDEF_TEL_EVENT},
+    {TYPE_RTP_SCHEME_SMS, MainErrorCode::NDEF_SMS_EVENT},
+    {TYPE_RTP_SCHEME_MAIL, MainErrorCode::NDEF_MAIL_EVENT},
+    {TYPE_RTP_MIME_TEXT_PLAIN, MainErrorCode::NDEF_TEXT_EVENT},
+    {TYPE_RTP_MIME_TEXT_VCARD, MainErrorCode::NDEF_VCARD_EVENT},
+};
+
+static void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode)
+{
+    ErrorLog("mainErrorCode %{public}d", static_cast<short>(mainErrorCode));
+    NfcFailedParams err;
+    ExternalDepsProxy::GetInstance().BuildFailedParams(
+        err, mainErrorCode, SubErrorCode::DEFAULT_ERR_DEF);
+    ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
+}
 
 NdefHarDataParser::NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTagProxy)
     : nciTagProxy_(nciTagProxy)
@@ -42,69 +51,77 @@ NdefHarDataParser::NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTag
 }
 
 /* Ndef process function provided to HandleNdefDispatch */
-bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::TagInfo> tagInfo)
+bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
-    InfoLog("NdefHarDataParser::TryNdef enter");
     if (msg.empty()) {
-        ErrorLog("NdefHarDataParser::TryNdef msg is empty");
+        ErrorLog("msg is empty");
         return false;
     }
     std::shared_ptr<NdefMessage> ndef = NdefMessage::GetNdefMessage(msg);
     if (ndef == nullptr) {
-        ErrorLog("NdefHarDataParser::TryNdef ndef is nullptr");
+        ErrorLog("ndef is nullptr");
         return false;
     }
     std::vector<std::shared_ptr<NdefRecord>> records = ndef->GetNdefRecords();
-    /* pull up app */
-    std::vector<std::string> harPackages = ExtractHarPackages(records);
-    if (harPackages.size() > 0) {
-        std::string mimeType = ToMimeType(records[0]);
-        if (mimeType.size() > MIME_MAX_LENGTH) {
-            ErrorLog("NdefHarDataParser::TryNdef mimeType too long");
-            mimeType = "";
-        }
-        std::string uri = GetUriPayload(records[0]);
-        if (uri.size() > URI_MAX_LENGTH) {
-            ErrorLog("NdefHarDataParser::TryNdef uri too long");
-            uri = "";
-        }
-        if (ParseHarPackage(harPackages, tagInfo, mimeType, uri)) {
-            InfoLog("NdefHarDataParser::TryNdef matched HAR to NDEF");
-            return true;
-        }
-        /* Handle uninstalled applications */
-        NfcFailedParams err;
-        ExternalDepsProxy::GetInstance().BuildFailedParams(
-            err, MainErrorCode::NDEF_APP_NOT_INSTALL, SubErrorCode::DEFAULT_ERR_DEF);
-        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-        harPackages.clear();
-    }
-    /* Pull up browser */
-    if (ParseWebLink(records)) {
-        InfoLog("NdefHarDataParser::matched web link");
+    ParseMimeTypeAndStr(records);
+    if (DispatchByHarBundleName(records, tagInfo)) {
+        InfoLog("DispatchByHarBundleName succ");
         return true;
     }
-    /* URI parsing of phone, SMS, email, pull URI type app */
-    if (ParseUriLink(records)) {
+
+    ParseRecordsProperty(records);
+    // handle uri start with HTTP
+    if (DispatchByHttpWebLink()) {
+        InfoLog("DispatchByHttpWebLink succ");
         return true;
     }
-    /* Handle notepads, contacts, and mimetype app */
-    if (ParseOtherType(records, tagInfo)) {
+    // handle uri not start with HTTP
+    if (DispatchUriToBundleAbility(records)) {
+        InfoLog("DispatchUriToBundleAbility succ");
         return true;
     }
-    InfoLog("NdefHarDataParser::TryNdef exit");
+    // dispatch Mime type
+    if (DispatchMimeToBundleAbility(tagInfo)) {
+        InfoLog("DispatchMimeToBundleAbility succ");
+        return true;
+    }
+    WarnLog("TryNdef no handle");
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo,
-                                        const std::string &mimeType, const std::string &uri)
+bool NdefHarDataParser::DispatchByHarBundleName(
+    const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo)
+{
+    InfoLog("enter");
+    std::vector<std::string> harPackages = ExtractHarPackages(records);
+    if (harPackages.size() > 0) {
+        InfoLog("mimeTypeStr_:%{public}s", mimeTypeStr_.c_str());
+        std::string mimeTypeStr = (mimeTypeStr_.size() > MIME_MAX_LENGTH) ? "" : mimeTypeStr_;
+        std::string uri = GetUriPayload(records[0]);
+        if (uri.size() > URI_MAX_LENGTH) {
+            ErrorLog("uri too long");
+            uri = "";
+        }
+        if (ParseHarPackage(harPackages, tagInfo, mimeTypeStr, uri)) {
+            InfoLog("matched HAR to NDEF");
+            return true;
+        }
+        /* Handle uninstalled applications */
+        WriteNfcFailedHiSysEvent(MainErrorCode::NDEF_APP_NOT_INSTALL);
+        harPackages.clear();
+    }
+    return false;
+}
+
+bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
+    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
     if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
         return true;
     }
     /* Try vendor parse harPackage */
     if (nciTagProxy_.expired()) {
-        ErrorLog("NdefHarDataParser::TryNdef nciTagProxy_ is nullptr");
+        ErrorLog("nciTagProxy_ is nullptr");
     } else if (!nciTagProxy_.lock()->VendorParseHarPackage(harPackages)) {
         return false;
     }
@@ -115,12 +132,12 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, st
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackageInner(std::vector<std::string> harPackages,
-    std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType, const std::string &uri)
+bool NdefHarDataParser::ParseHarPackageInner(const std::vector<std::string> &harPackages,
+    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
-    InfoLog("NdefHarDataParser::ParseHarPackage enter");
-    if (harPackages.size() <= 0) {
-        ErrorLog("NdefHarDataParser::ParseHarPackage harPackages is empty");
+    InfoLog("enter");
+    if (harPackages.size() == 0) {
+        ErrorLog("harPackages is empty");
         return false;
     }
     for (std::string harPackage : harPackages) {
@@ -129,188 +146,166 @@ bool NdefHarDataParser::ParseHarPackageInner(std::vector<std::string> harPackage
             return true;
         }
     }
-    ErrorLog("NdefHarDataParser::ParseHarPackage package not exist");
+    ErrorLog("package not exist");
     return false;
 }
 
-/* Handle notepads, contacts, and mimetype app */
-bool NdefHarDataParser::ParseOtherType(
-    std::vector<std::shared_ptr<NdefRecord>> records, std::shared_ptr<KITS::TagInfo> tagInfo)
+bool NdefHarDataParser::StartsWith(const std::string &str, const std::string &prefix)
 {
-    InfoLog("NdefHarDataParser::ParseOtherType enter");
-    if (records.size() <= 0 || records[0] == nullptr) {
-        ErrorLog("NdefHarDataParser::ParseOtherType records is empty");
-        return false;
-    }
-    NfcFailedParams err;
-    std::string type = ToMimeType(records[0]);
-    if (!type.empty()) {
-        if (type == TEXT_PLAIN) {
-            ErrorLog("NdefHarDataParser::ParseOtherType -> TEXT");
-            ExternalDepsProxy::GetInstance().BuildFailedParams(
-                err, MainErrorCode::NDEF_TEXT_EVENT, SubErrorCode::DEFAULT_ERR_DEF);
-            ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-            return true;
-        } else if (type == TEXT_VCARD) {
-            ErrorLog("NdefHarDataParser::ParseOtherType -> VCARD");
-            ExternalDepsProxy::GetInstance().BuildFailedParams(
-                err, MainErrorCode::NDEF_VCARD_EVENT, SubErrorCode::DEFAULT_ERR_DEF);
-            ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-            return true;
-        } else {
-            if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(type, tagInfo)) {
-                return true;
-            }
-        }
-    }
-    InfoLog("NdefHarDataParser::ParseOtherType exit");
-    return false;
+    return str.compare(0, prefix.size(), prefix) == 0;
 }
 
-/* URI parsing of phone, SMS, email, pull URI type app */
-bool NdefHarDataParser::ParseUriLink(std::vector<std::shared_ptr<NdefRecord>> records)
+void NdefHarDataParser::ParseRecordsProperty(const std::vector<std::shared_ptr<NdefRecord>> &records)
 {
-    InfoLog("NdefHarDataParser::ParseUriLink enter");
-    if (records.size() <= 0 || records[0] == nullptr) {
-        ErrorLog("NdefHarDataParser::ParseUriLink records is empty");
-        return false;
+    if (records.size() == 0 || records[0] == nullptr) {
+        ErrorLog("records is empty");
+        schemeType_ = TYPE_RTP_UNKNOWN;
+        return;
     }
-    if (records[0]->tnf_ == static_cast<short>(NdefMessage::TNF_WELL_KNOWN)) {
-        std::string uri = GetUriPayload(records[0]);
-        InfoLog("NdefHarDataParser::ParseUriLink uri: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
-        Uri ndefUri(uri);
-        std::string scheme = ndefUri.GetScheme();
-        if (!scheme.empty()) {
-            NfcFailedParams err;
-            if ((scheme.size() >= 3) && (scheme.substr(0, 3) == TEL_PREFIX)) {  // 3 is tel length
-                ErrorLog("NdefHarDataParser::ParseUriLink -> TEL");
-                ExternalDepsProxy::GetInstance().BuildFailedParams(
-                    err, MainErrorCode::NDEF_TEL_EVENT, SubErrorCode::DEFAULT_ERR_DEF);
-                ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-                return true;
-            } else if ((scheme.size() >= 3) && (scheme.substr(0, 3) == SMS_PREFIX)) {   // 3 is sms length
-                ErrorLog("NdefHarDataParser::ParseUriLink -> SMS");
-                ExternalDepsProxy::GetInstance().BuildFailedParams(
-                    err, MainErrorCode::NDEF_SMS_EVENT, SubErrorCode::DEFAULT_ERR_DEF);
-                ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-                return true;
-            } else if ((scheme.size() >= 6) && (scheme.substr(0, 6) == MAIL_PREFIX)) {  // 6 is mailto length
-                ErrorLog("NdefHarDataParser::ParseUriLink -> MAIL");
-                ExternalDepsProxy::GetInstance().BuildFailedParams(
-                    err, MainErrorCode::NDEF_MAIL_EVENT, SubErrorCode::DEFAULT_ERR_DEF);
-                ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-                return true;
-            }
-        }
-        /* uri to package */
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchUriToBundleAbility(uri)) {
-            return true;
-        }
-    }
-    InfoLog("NdefHarDataParser::ParseUriLink exit");
-    return false;
-}
-
-/* handle uri types */
-bool NdefHarDataParser::ParseWebLink(std::vector<std::shared_ptr<NdefRecord>> records)
-{
-    InfoLog("NdefHarDataParser::ParseWebLink enter");
-    if (records.size() <= 0) {
-        ErrorLog("NdefHarDataParser::ParseWebLink records is empty");
-        return false;
-    }
-    std::string uri = IsWebUri(records[0]);
-    if (!uri.empty()) {
-        if (nciTagProxy_.expired()) {
-            ErrorLog("NdefHarDataParser::ParseWebLink nciTagProxy_ is nullptr");
-            return false;
-        }
-        std::string browserBundleName = nciTagProxy_.lock()->GetVendorBrowserBundleName();
-        if (ndefHarDispatch_ == nullptr) {
-            ErrorLog("NdefHarDataParser::ParseWebLink ndefHarDispatch_ is nullptr");
-            return false;
-        }
-        if (ndefHarDispatch_->DispatchWebLink(uri, browserBundleName)) {
-            return true;
-        }
-    }
-    ErrorLog("NdefHarDataParser::ParseWebLink fail");
-    return false;
-}
-
-/* Is it HTTP */
-std::string NdefHarDataParser::IsWebUri(std::shared_ptr<NdefRecord> record)
-{
-    InfoLog("NdefHarDataParser::IsWebUri enter");
-    if (record == nullptr) {
-        ErrorLog("NdefHarDataParser::IsWebUri record is nullptr");
-        return "";
-    }
-    std::string uri = GetUriPayload(record);
-    InfoLog("NdefHarDataParser::IsWebUri is uri size: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
-    Uri ndefUri(uri);
+    uriAddress_ = GetUriPayload(records[0]);
+    InfoLog("uri %{public}s", NfcSdkCommon::CodeMiddlePart(uriAddress_).c_str());
+    Uri ndefUri(uriAddress_);
     std::string scheme = ndefUri.GetScheme();
-    if (!scheme.empty()) {
-        if ((scheme.size() >= 4) && (scheme.substr(0, 4) == HTTP_PREFIX)) { // 4 is http length
-            return uri;
-        }
+    if (scheme.empty()) {
+        schemeType_ = TYPE_RTP_UNKNOWN;
+    } else if (scheme == TEL_PREFIX) {
+        schemeType_ = TYPE_RTP_SCHEME_TEL;
+    } else if (scheme == SMS_PREFIX || scheme == SMSTO_PREFIX) {
+        schemeType_ = TYPE_RTP_SCHEME_SMS;
+    } else if (StartsWith(scheme, HTTP_PREFIX)) {
+        schemeType_ = TYPE_RTP_SCHEME_HTTP_WEB_URL;
+        webLink_ = uriAddress_;
+    } else if (StartsWith(scheme, MAIL_PREFIX)) {
+        schemeType_ = TYPE_RTP_SCHEME_MAIL;
+    } else {
+        schemeType_ = TYPE_RTP_SCHEME_OTHER;
     }
-    ErrorLog("NdefHarDataParser::IsWebUri exit");
-    return "";
+    InfoLog("schemeType_[%{public}d] scheme[%{public}s]", static_cast<short>(schemeType_), scheme.c_str());
 }
 
-/* get mimetype data */
-std::string NdefHarDataParser::ToMimeType(std::shared_ptr<NdefRecord> record)
+bool NdefHarDataParser::DispatchByHttpWebLink()
 {
-    InfoLog("NdefHarDataParser::ToMimeType enter");
-    if (record == nullptr) {
-        ErrorLog("NdefHarDataParser::ToMimeType record is nullptr");
-        return "";
+    InfoLog("enter");
+    if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL) {
+        if (nciTagProxy_.expired()) {
+            ErrorLog("nciTagProxy_ is nullptr");
+            return false;
+        }
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchHttpWebLink(webLink_)) {
+            return true;
+        }
     }
-    std::string type = "";
-    InfoLog("NdefHarDataParser::ToMimeType record.tnf_: %{public}d", record->tnf_);
-    switch (record->tnf_) {
+    return false;
+}
+
+bool NdefHarDataParser::DispatchUriToBundleAbility(const std::vector<std::shared_ptr<NdefRecord>> &records)
+{
+    InfoLog("enter");
+    if (records.size() == 0 || records[0] == nullptr) {
+        ErrorLog("records is empty");
+        return false;
+    }
+    if (records[0]->tnf_ != static_cast<short>(NdefMessage::TNF_WELL_KNOWN)) {
+        ErrorLog("tnf_ %{public}d", records[0]->tnf_);
+        return false;
+    }
+    if (schemeType_ == TYPE_RTP_SCHEME_OTHER) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchUriToBundleAbility(uriAddress_)) {
+            return true;
+        }
+    } else {
+        if (schemeType_ != TYPE_RTP_UNKNOWN) {
+            if (g_unsupportTypeAndSysEvent.find(schemeType_) != g_unsupportTypeAndSysEvent.end()) {
+                WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[schemeType_]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool NdefHarDataParser::DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo)
+{
+    InfoLog("enter");
+    if (mimeType_ == TYPE_RTP_MIME_OTHER) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(mimeTypeStr_, tagInfo)) {
+            return true;
+        }
+    } else {
+        if (mimeType_ != TYPE_RTP_UNKNOWN) {
+            if (g_unsupportTypeAndSysEvent.find(mimeType_) != g_unsupportTypeAndSysEvent.end()) {
+                WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[mimeType_]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/* get mimetype and mime string */
+void NdefHarDataParser::ParseMimeTypeAndStr(const std::vector<std::shared_ptr<NdefRecord>> &records)
+{
+    InfoLog("enter");
+    if (records.size() == 0 || records[0] == nullptr) {
+        ErrorLog("records is empty");
+        mimeType_ = TYPE_RTP_UNKNOWN;
+        return;
+    }
+    InfoLog("record.tnf_: %{public}d", records[0]->tnf_);
+    switch (records[0]->tnf_) {
         case NdefMessage::TNF_WELL_KNOWN:
-            if (record->tagRtdType_.compare(
+            if (records[0]->tagRtdType_.compare(
                 NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_TEXT))) == 0) {
-                return TEXT_PLAIN;
+                mimeTypeStr_ = TEXT_PLAIN;
             }
             break;
         case NdefMessage::TNF_MIME_MEDIA:
-            type = NfcSdkCommon::HexStringToAsciiString(record->tagRtdType_);
-            return type;
+            mimeTypeStr_ = NfcSdkCommon::HexStringToAsciiString(records[0]->tagRtdType_);
+            break;
+        default:
+            mimeTypeStr_ = "";
+            break;
     }
-    return type;
+    if (mimeTypeStr_ == TEXT_PLAIN) {
+        mimeType_ = TYPE_RTP_MIME_TEXT_PLAIN;
+    } else if (mimeTypeStr_ == TEXT_VCARD) {
+        mimeType_ = TYPE_RTP_MIME_TEXT_VCARD;
+    } else if (!mimeTypeStr_.empty()) {
+        mimeType_ = TYPE_RTP_MIME_OTHER;
+    } else {
+        mimeType_ = TYPE_RTP_UNKNOWN;
+    }
+    InfoLog("mimeType_[%{public}d] mimeTypeStr_[%{public}s]", static_cast<short>(mimeType_), mimeTypeStr_.c_str());
 }
 
-std::string NdefHarDataParser::GetUriPayload(std::shared_ptr<NdefRecord> record)
+std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &record)
 {
     if (record == nullptr) {
-        ErrorLog("NdefHarDataParser::GetUriPayload record is nullptr");
+        ErrorLog("record is nullptr");
         return "";
     }
     return GetUriPayload(record, false);
 }
 
 /* get uri data */
-std::string NdefHarDataParser::GetUriPayload(std::shared_ptr<NdefRecord> record, bool isSmartPoster)
+std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster)
 {
-    InfoLog("NdefHarDataParser::GetUriPayload enter");
+    InfoLog("enter");
     if (record == nullptr) {
-        ErrorLog("NdefHarDataParser::GetUriPayload record is nullptr");
+        ErrorLog("record is nullptr");
         return "";
     }
     std::string uri = "";
-    InfoLog("NdefHarDataParser::GetUriPayload record.tnf_: %{public}d", record->tnf_);
+    InfoLog("record.tnf_: %{public}d", record->tnf_);
     switch (record->tnf_) {
         case NdefMessage::TNF_WELL_KNOWN:
-            InfoLog("GetUriPayload tagRtdType: %{public}s", NfcSdkCommon::CodeMiddlePart(record->tagRtdType_).c_str());
+            InfoLog("tagRtdType: %{public}s", NfcSdkCommon::CodeMiddlePart(record->tagRtdType_).c_str());
             if ((record->tagRtdType_.compare(NfcSdkCommon::StringToHexString(
                 NdefMessage::GetTagRtdType(NdefMessage::RTD_SMART_POSTER))) == 0) && !isSmartPoster) {
                 std::shared_ptr<NdefMessage> nestMessage = NdefMessage::GetNdefMessage(record->payload_);
-                InfoLog("GetUriPayload payload: %{public}s", NfcSdkCommon::CodeMiddlePart(record->payload_).c_str());
+                InfoLog("payload: %{public}s", NfcSdkCommon::CodeMiddlePart(record->payload_).c_str());
                 if (nestMessage == nullptr) {
-                    ErrorLog("NdefHarDataParser::GetUriPayload nestMessage is nullptr");
+                    ErrorLog("nestMessage is nullptr");
                     return "";
                 }
                 std::vector<std::shared_ptr<NdefRecord>> nestRecords = nestMessage->GetNdefRecords();
@@ -321,7 +316,7 @@ std::string NdefHarDataParser::GetUriPayload(std::shared_ptr<NdefRecord> record,
             } else if ((record->tagRtdType_.compare(NfcSdkCommon::StringToHexString(
                 NdefMessage::GetTagRtdType(NdefMessage::RTD_URI))) == 0)) {
                 uri = record->payload_;
-                InfoLog("NdefHarDataParser::GetUriPayload uri: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
+                InfoLog("uri: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
                 if (uri.size() <= 2) {  // 2 is uri identifier length
                     return NfcSdkCommon::HexStringToAsciiString(uri);
                 }
@@ -330,7 +325,7 @@ std::string NdefHarDataParser::GetUriPayload(std::shared_ptr<NdefRecord> record,
                     return "";
                 }
                 std::string uriPrefix = g_uriPrefix[std::stoi(uri.substr(0, 2))];   // 2 is uri identifier length
-                InfoLog("NdefHarDataParser::GetUriPayload uriPrefix = %{public}s", uriPrefix.c_str());
+                InfoLog("uriPrefix = %{public}s", uriPrefix.c_str());
                 return uriPrefix + NfcSdkCommon::HexStringToAsciiString(uri.substr(2));  // 2 is uri identifier length
             }
             break;
@@ -341,12 +336,12 @@ std::string NdefHarDataParser::GetUriPayload(std::shared_ptr<NdefRecord> record,
 }
 
 /* Package name resolution */
-std::vector<std::string> NdefHarDataParser::ExtractHarPackages(std::vector<std::shared_ptr<NdefRecord>> records)
+std::vector<std::string> NdefHarDataParser::ExtractHarPackages(const std::vector<std::shared_ptr<NdefRecord>> &records)
 {
-    InfoLog("NdefHarDataParser::ExtractHarPackages enter");
+    InfoLog("enter");
     std::vector<std::string> harPackages;
     if (records.size() <= 0) {
-        ErrorLog("NdefHarDataParser::ExtractHarPackages records is empty");
+        ErrorLog("records is empty");
         return harPackages;
     }
     for (std::shared_ptr<NdefRecord> record : records) {
@@ -358,11 +353,11 @@ std::vector<std::string> NdefHarDataParser::ExtractHarPackages(std::vector<std::
     return harPackages;
 }
 
-std::string NdefHarDataParser::CheckForHar(std::shared_ptr<NdefRecord> record)
+std::string NdefHarDataParser::CheckForHar(const std::shared_ptr<NdefRecord> &record)
 {
-    InfoLog("NdefHarDataParser:: CheckForHar enter");
+    InfoLog("enter");
     if (record == nullptr) {
-        ErrorLog("NdefHarDataParser::CheckForHar record is nullptr");
+        ErrorLog("record is nullptr");
         return "";
     }
     std::string bundle = "";
@@ -382,7 +377,7 @@ bool NdefHarDataParser::IsOtherPlatformAppType(const std::string &appType)
     if (appType.compare(NfcSdkCommon::StringToHexString(OTHER_PLATFORM_APP_RECORD_TYPE)) == 0) {
         return true;
     }
-    InfoLog("NdefHarDataParser::IsOtherPlatformAppType exit");
+    InfoLog("exit");
     return false;
 }
 } // namespace TAG

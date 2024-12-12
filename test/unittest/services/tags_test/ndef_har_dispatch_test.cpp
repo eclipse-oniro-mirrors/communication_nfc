@@ -97,8 +97,7 @@ HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
     ndefHarDispatchTest->DispatchMimeType(type, tagInfo);
 
     std::string webAddress = "";
-    std::string browserBundleName = "";
-    ndefHarDispatchTest->DispatchWebLink(webAddress, browserBundleName);
+    ndefHarDispatchTest->DispatchHttpWebLink(webAddress);
     ASSERT_TRUE(ndefHarDispatchTest != nullptr);
 }
 }

@@ -152,41 +152,29 @@ bool NdefHarDispatch::DispatchUriToBundleAbility(const std::string &uri)
     return false;
 }
 
-/* Pulling web page links through browser */
-bool NdefHarDispatch::DispatchWebLink(const std::string &webAddress, const std::string &browserBundleName)
+/* If the corresponding app has been installed, the system jumps to the corresponding app and starts it.
+ * If the corresponding app is not installed, the default browser is used to open the corresponding page.
+ */
+bool NdefHarDispatch::DispatchHttpWebLink(const std::string &webLink)
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
-    InfoLog("NdefHarDispatch::DispatchWebLink enter");
-    if (webAddress.empty() || browserBundleName.empty()) {
-        ErrorLog("NdefHarDispatch::DispatchWebLink is empty");
+    InfoLog("enter");
+    if (webLink.empty()) {
+        ErrorLog("webLink is empty");
         return false;
     }
-    uri_ = webAddress;
-    browserBundleName_ = browserBundleName;
-    ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_BROWSER_NOTIFICATION_ID, uri_, 0);
-    return true;
-}
-
-void NdefHarDispatch::OnBrowserOpenLink()
-{
-    std::unique_lock<std::shared_mutex> guard(mutex_);
-    InfoLog("NdefHarDispatch::OnBrowserOpenLink, %{public}s, %{public}s",
-        NfcSdkCommon::CodeMiddlePart(browserBundleName_).c_str(), NfcSdkCommon::CodeMiddlePart(uri_).c_str());
     AAFwk::Want want;
-    const std::string ABILITY_NAME = "MainAbility";
-    const std::string ACTION_NAME = "ohos.want.action.viewData";
-    const std::string ENTITY_NAME = "entity.system.browsable";
-    want.SetElementName(browserBundleName_, ABILITY_NAME);
-    want.SetAction(ACTION_NAME);
-    want.SetUri(uri_);
-    want.AddEntity(ENTITY_NAME);
+    const std::string PARAM_KEY = "appLinkingOnly"; // Use App Linking Mode
+    want.SetUri(webLink);
+    want.SetParam(PARAM_KEY, false);
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
-        ErrorLog("NdefHarDispatch::DispatchWebLink call StartAbility fail. ret = %{public}d", errCode);
-        return;
+        ErrorLog("call StartAbility fail. ret = %{public}d", errCode);
+        return false;
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::NDEF_URI_BROWSER_DISPATCH);
+    return true;
 }
 } // namespace TAG
 } // namespace NFC
