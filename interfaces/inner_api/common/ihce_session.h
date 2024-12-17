@@ -41,6 +41,14 @@ public:
     virtual KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback,
                                               const std::string &type) = 0;
     /**
+     * @brief  unregister off hce cmd
+     * @param  callback: callback
+     * @param  type: unregister type hcecmd
+     * @return result
+     */
+    virtual KITS::ErrorCode UnregHceCmdCallback(
+        const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) = 0;
+    /**
      * @brief  js service send raw data
      * @param  hexCmdData: raw data from js service
      * @param  raw: raw if true

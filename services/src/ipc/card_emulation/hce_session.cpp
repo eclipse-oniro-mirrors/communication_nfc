@@ -51,8 +51,8 @@ KITS::ErrorCode HceSession::RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCal
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode HceSession::UnRegHceCmdCallback(const std::string &type,
-                                                Security::AccessToken::AccessTokenID callerToken)
+KITS::ErrorCode HceSession::UnRegHceCmdCallbackByToken(
+    const std::string &type, Security::AccessToken::AccessTokenID callerToken)
 {
     if (ceService_.expired()) {
         ErrorLog("UnRegHceCmdCallback ceService_ is nullptr");

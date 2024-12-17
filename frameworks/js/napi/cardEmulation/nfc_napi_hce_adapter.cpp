@@ -23,6 +23,7 @@ namespace NFC {
 namespace KITS {
 static const uint16_t DEFAULT_REF_COUNT = 1;
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
+constexpr uint32_t TYPE_MAX_LEN = 64;
 static std::set<std::string> g_supportEventList = {
     KITS::EVENT_HCE_CMD,
 };
@@ -85,6 +86,7 @@ napi_value NfcNapiHceAdapter::Init(napi_env env, napi_value exports)
     napi_status status;
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("on", NfcNapiHceAdapter::OnHceCmd),
+        DECLARE_NAPI_FUNCTION("off", NfcNapiHceAdapter::OffHceCmd),
         DECLARE_NAPI_FUNCTION("transmit", NfcNapiHceAdapter::Transmit),
         DECLARE_NAPI_FUNCTION("stop", NfcNapiHceAdapter::StopHce),
         DECLARE_NAPI_FUNCTION("stopHCE", NfcNapiHceAdapter::StopHCEDeprecated),
@@ -120,6 +122,7 @@ napi_value NfcNapiHceAdapter::Constructor(napi_env env, napi_callback_info info)
         ErrorLog("hce Constructor napi_wrap failed");
         delete hceService;
         hceService = nullptr;
+        return CreateUndefined(env);
     }
     NAPI_ASSERT(env, status == napi_ok, "NfcNapiHceAdapter Constructor wrap failed");
     return jsHceService;
@@ -137,27 +140,57 @@ napi_value NfcNapiHceAdapter::OnHceCmd(napi_env env, napi_callback_info info)
     // js method on("hce",callback)
     size_t requireArgc = ARGV_NUM_2;
     size_t argc = ARGV_NUM_2;
-    napi_value argv[2] = {0};
+    napi_value argv[ARGV_NUM_2] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     NAPI_ASSERT(env, argc == requireArgc, "requires 2 parameter");
 
     napi_valuetype eventName = napi_undefined;
-    napi_typeof(env, argv[0], &eventName);
+    napi_typeof(env, argv[ARGV_NUM_0], &eventName);
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
 
     napi_valuetype handler = napi_undefined;
-    napi_typeof(env, argv[1], &handler);
+    napi_typeof(env, argv[ARGV_NUM_1], &handler);
     NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
 
-    char type[64] = {0};
+    char type[TYPE_MAX_LEN] = {0};
     size_t typeLen = 0;
-    napi_get_value_string_utf8(env, argv[0], type, sizeof(type), &typeLen);
-    EventRegister::GetInstance().Register(env, type, argv[1]);
+    napi_get_value_string_utf8(env, argv[ARGV_NUM_0], type, sizeof(type), &typeLen);
+    EventRegister::GetInstance().Register(env, type, argv[ARGV_NUM_1]);
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     return result;
 }
+
+napi_value NfcNapiHceAdapter::OffHceCmd(napi_env env, napi_callback_info info)
+{
+    // js method off("hce",callback)
+    size_t requireArgc = ARGV_NUM_2;
+    size_t argc = ARGV_NUM_2;
+    napi_value argv[ARGV_NUM_2] = {0};
+    napi_value thisVar = 0;
+    napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
+    NAPI_ASSERT(env, argc == requireArgc, "requires 2 parameter");
+
+    napi_valuetype eventName = napi_undefined;
+    napi_typeof(env, argv[ARGV_NUM_0], &eventName);
+    NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
+
+    if (argc == ARGV_NUM_2) {
+        napi_valuetype handler = napi_undefined;
+        napi_typeof(env, argv[ARGV_NUM_1], &handler);
+        NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
+    }
+
+    char type[TYPE_MAX_LEN] = {0};
+    size_t typeLen = 0;
+    napi_get_value_string_utf8(env, argv[ARGV_NUM_0], type, sizeof(type), &typeLen);
+    EventRegister::GetInstance().UnregisterForOffIntf(env, type);
+    napi_value result = nullptr;
+    napi_get_undefined(env, &result);
+    return result;
+}
+
 static bool CheckTransmitParametersAndThrow(napi_env env, const napi_value parameters[],
                                             size_t parameterCount)
 {
@@ -233,6 +266,37 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
 }
 
+void EventRegister::UnregisterForOffIntf(const napi_env& env, const std::string& type)
+{
+    InfoLog("UnregisterForOffIntf eventType: %{public}s", type.c_str());
+    if (!IsEventSupport(type)) {
+        DebugLog("UnregisterForOffIntf eventType error or not support!");
+        return;
+    }
+    std::lock_guard<std::mutex> guard(g_regInfoMutex);
+    if (!isEventRegistered) {
+        DebugLog("The eventType has not been registered!");
+        return;
+    }
+    auto iter = g_eventRegisterInfo.find(type);
+    if (iter == g_eventRegisterInfo.end()) {
+        ErrorLog("eventType not registered!");
+        return;
+    }
+    if (UnRegHceCmdCallbackEvents(env, type) != KITS::ERR_NONE) {
+        ErrorLog("UnRegHceCmdCallbackEvents failed!");
+        return;
+    }
+    DeleteHceCmdRegisterObj(env);
+    isEventRegistered = false;
+    g_eventRegisterInfo.erase(type);
+    iter = g_eventRegisterInfo.find(type);
+    if (iter == g_eventRegisterInfo.end()) {
+        InfoLog("eventType %{public}s, removed", type.c_str());
+    }
+    return;
+}
+
 ErrorCode EventRegister::RegHceCmdCallbackEvents(const napi_env& env, const std::string& type)
 {
     HceService hceService = HceService::GetInstance();
@@ -242,6 +306,20 @@ ErrorCode EventRegister::RegHceCmdCallbackEvents(const napi_env& env, const std:
     }
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegHceCmdCallbackEvents failed!");
+        return ret;
+    }
+    return ret;
+}
+
+ErrorCode EventRegister::UnRegHceCmdCallbackEvents(const napi_env& env, const std::string& type)
+{
+    HceService hceService = HceService::GetInstance();
+    ErrorCode ret = hceService.UnRegHceCmdCallback(hceCmdListenerEvent, type);
+    if (!CheckHceStatusCodeAndThrow(env, ret, "off")) {
+        ErrorLog("UnRegHceCmdCallback, statusCode = %{public}d", ret);
+    }
+    if (ret != KITS::ERR_NONE) {
+        DebugLog("UnRegHceCmdCallbackEvents failed!");
         return ret;
     }
     return ret;

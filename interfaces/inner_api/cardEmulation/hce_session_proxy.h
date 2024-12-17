@@ -37,6 +37,7 @@ public:
     ~HceSessionProxy() override {}
 
     KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
+    KITS::ErrorCode UnregHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type) override;
 
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData) override;
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
