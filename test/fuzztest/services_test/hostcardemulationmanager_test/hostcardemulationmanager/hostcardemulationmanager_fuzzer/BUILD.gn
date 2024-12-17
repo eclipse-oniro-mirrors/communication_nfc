@@ -65,6 +65,7 @@ ohos_fuzztest("HostCardEmulationManagerFuzzTest") {
     "samgr:samgr_proxy",
     "screenlock_mgr:screenlock_client",
   ]
+  defines = [ "DTFUZZ_TEST" ]
 }
 
 group("fuzztest") {
