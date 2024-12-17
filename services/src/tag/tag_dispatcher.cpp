@@ -290,9 +290,6 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
                 nfcService_->NotifyMessageToVendor(KITS::TAG_DISPATCH_KEY, "");
             }
             break;
-        case NFC_BROWSER_NOTIFICATION_ID:
-            NdefHarDispatch::GetInstance().OnBrowserOpenLink();
-            break;
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             // start AppGallery
             if (!nciTagProxy_.expired() && nfcService_) {
