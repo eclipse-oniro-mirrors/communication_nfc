@@ -29,9 +29,10 @@ public:
     NdefHarDispatch();
     ~NdefHarDispatch() {}
     static NdefHarDispatch& GetInstance();
-    bool DispatchBundleAbility(
-        const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType,
-        const std::string &uri);
+    bool DispatchBundleAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
+        const std::string &mimeType, const std::string &uri);
+    bool DispatchBundleExtensionAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
+        const std::string &mimeType, const std::string &uri);
     bool DispatchUriToBundleAbility(const std::string &uri);
     bool DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo);
     bool DispatchHttpWebLink(const std::string &webLink);

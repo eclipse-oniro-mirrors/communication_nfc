@@ -36,7 +36,7 @@ TagAbilityDispatcher::~TagAbilityDispatcher()
 {
 }
 
-void TagAbilityDispatcher::SetWantExtraParam(std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want &want)
+void TagAbilityDispatcher::SetWantExtraParam(const std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want& want)
 {
     // put extra data for all included technology, extra data used by 3rd party applications.
     if (tagInfo == nullptr) {
@@ -84,7 +84,7 @@ void TagAbilityDispatcher::StartVibratorOnce()
     OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
 }
 
-void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo,
+void TagAbilityDispatcher::DispatchTagAbility(const std::shared_ptr<KITS::TagInfo>& tagInfo,
                                               OHOS::sptr<IRemoteObject> tagServiceIface)
 {
     if (tagInfo == nullptr) {
@@ -140,7 +140,7 @@ void TagAbilityDispatcher::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tag
 #endif
 }
 
-void TagAbilityDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo> tagInfo, AAFwk::Want& want)
+void TagAbilityDispatcher::DispatchAbilityMultiApp(const std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want& want)
 {
     InfoLog("DispatchAbilityMultiApp for app");
     if (tagInfo == nullptr) {
