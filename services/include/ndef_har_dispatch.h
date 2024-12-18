@@ -35,7 +35,7 @@ public:
         const std::string &mimeType, const std::string &uri);
     bool DispatchUriToBundleAbility(const std::string &uri);
     bool DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo);
-    bool DispatchHttpWebLink(const std::string &webLink);
+    bool DispatchByAppLinkMode(const std::string &uriSchemeValue);
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();

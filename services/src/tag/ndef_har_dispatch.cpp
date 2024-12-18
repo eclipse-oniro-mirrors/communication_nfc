@@ -189,21 +189,22 @@ bool NdefHarDispatch::DispatchUriToBundleAbility(const std::string &uri)
 /* If the corresponding app has been installed, the system jumps to the corresponding app and starts it.
  * If the corresponding app is not installed, the default browser is used to open the corresponding page.
  */
-bool NdefHarDispatch::DispatchHttpWebLink(const std::string &webLink)
+bool NdefHarDispatch::DispatchByAppLinkMode(const std::string &uriSchemeValue)
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     InfoLog("enter");
-    if (webLink.empty()) {
-        ErrorLog("webLink is empty");
+    if (uriSchemeValue.empty()) {
+        ErrorLog("uriSchemeValue is empty");
         return false;
     }
     AAFwk::Want want;
     const std::string PARAM_KEY = "appLinkingOnly"; // Use App Linking Mode
-    want.SetUri(webLink);
+    want.SetUri(uriSchemeValue);
     want.SetParam(PARAM_KEY, false);
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
-        ErrorLog("call StartAbility fail. ret = %{public}d", errCode);
+        ErrorLog(
+            "call StartAbility fail. uriSchemeValue = [%{public}s] ret = %{public}d", uriSchemeValue.c_str(), errCode);
         return false;
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),

@@ -71,14 +71,14 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KI
     }
 
     ParseRecordsProperty(records);
-    // handle uri start with HTTP
-    if (DispatchByHttpWebLink()) {
-        InfoLog("DispatchByHttpWebLink succ");
+    // handle uri start with HTTP or other type
+    if (DispatchByAppLinkMode()) {
+        InfoLog("DispatchByAppLinkMode succ");
         return true;
     }
-    // handle uri not start with HTTP
-    if (DispatchUriToBundleAbility(records)) {
-        InfoLog("DispatchUriToBundleAbility succ");
+    // handle uri for TYPE_RTP_SCHEME_TEL/TYPE_RTP_SCHEME_SMS/TYPE_RTP_SCHEME_MAIL
+    if (HandleUnsupportSchemeType(records)) {
+        InfoLog("HandleUnsupportSchemeType succ");
         return true;
     }
     // dispatch Mime type
@@ -175,31 +175,32 @@ void NdefHarDataParser::ParseRecordsProperty(const std::vector<std::shared_ptr<N
         schemeType_ = TYPE_RTP_SCHEME_SMS;
     } else if (StartsWith(scheme, HTTP_PREFIX)) {
         schemeType_ = TYPE_RTP_SCHEME_HTTP_WEB_URL;
-        webLink_ = uriAddress_;
+        uriSchemeValue_ = uriAddress_;
     } else if (StartsWith(scheme, MAIL_PREFIX)) {
         schemeType_ = TYPE_RTP_SCHEME_MAIL;
     } else {
         schemeType_ = TYPE_RTP_SCHEME_OTHER;
+        uriSchemeValue_ = uriAddress_;
     }
     InfoLog("schemeType_[%{public}d] scheme[%{public}s]", static_cast<short>(schemeType_), scheme.c_str());
 }
 
-bool NdefHarDataParser::DispatchByHttpWebLink()
+bool NdefHarDataParser::DispatchByAppLinkMode()
 {
     InfoLog("enter");
-    if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL) {
+    if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL || schemeType_ == TYPE_RTP_SCHEME_OTHER) {
         if (nciTagProxy_.expired()) {
             ErrorLog("nciTagProxy_ is nullptr");
             return false;
         }
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchHttpWebLink(webLink_)) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchByAppLinkMode(uriSchemeValue_)) {
             return true;
         }
     }
     return false;
 }
 
-bool NdefHarDataParser::DispatchUriToBundleAbility(const std::vector<std::shared_ptr<NdefRecord>> &records)
+bool NdefHarDataParser::HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records)
 {
     InfoLog("enter");
     if (records.size() == 0 || records[0] == nullptr) {
@@ -210,16 +211,11 @@ bool NdefHarDataParser::DispatchUriToBundleAbility(const std::vector<std::shared
         ErrorLog("tnf_ %{public}d", records[0]->tnf_);
         return false;
     }
-    if (schemeType_ == TYPE_RTP_SCHEME_OTHER) {
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchUriToBundleAbility(uriAddress_)) {
+    if (schemeType_ == TYPE_RTP_SCHEME_TEL || schemeType_ == TYPE_RTP_SCHEME_SMS ||
+        schemeType_ == TYPE_RTP_SCHEME_MAIL) {
+        if (g_unsupportTypeAndSysEvent.find(schemeType_) != g_unsupportTypeAndSysEvent.end()) {
+            WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[schemeType_]);
             return true;
-        }
-    } else {
-        if (schemeType_ != TYPE_RTP_UNKNOWN) {
-            if (g_unsupportTypeAndSysEvent.find(schemeType_) != g_unsupportTypeAndSysEvent.end()) {
-                WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[schemeType_]);
-                return true;
-            }
         }
     }
     return false;
