@@ -124,6 +124,7 @@ bool NfcService::Initialize()
 
 void NfcService::UnloadNfcSa()
 {
+#ifndef DTFUZZ_TEST // not for fuzz
     InfoLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
     if (nfcState_ != KITS::STATE_OFF) {
         InfoLog("%{public}s nfc state = [%{public}d] skip unload", __func__, nfcState_);
@@ -140,6 +141,7 @@ void NfcService::UnloadNfcSa()
         ErrorLog("%{public}s: Failed to unload system ability, SA Id = [%{public}d], ret = [%{public}d].",
             __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID, ret);
     }
+#endif
 }
 
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
