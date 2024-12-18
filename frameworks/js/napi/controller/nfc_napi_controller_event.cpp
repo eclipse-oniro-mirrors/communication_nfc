@@ -15,6 +15,7 @@
 
 #include "nfc_napi_controller_event.h"
 #include <uv.h>
+#include <thread>
 #include "iservice_registry.h"
 #include "loghelper.h"
 #include "nfc_controller.h"
@@ -32,6 +33,7 @@ static std::set<std::string> g_supportEventList = {
 bool EventRegister::isEventRegistered = false;
 
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
+constexpr uint32_t WAIT_ON_REMOTE_DIED_MS = 20;
 
 static std::shared_mutex g_regInfoMutex;
 static std::map<std::string, std::vector<RegObj>> g_eventRegisterInfo;
@@ -406,6 +408,8 @@ void NfcNapiAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, con
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     if (g_eventRegisterInfo.find(EVENT_NFC_STATE_CHANGE) != g_eventRegisterInfo.end()) {
         InfoLog("%{public}s g_eventRegisterInfo is not null, systemAbilityId = %{public}d", __func__, systemAbilityId);
+        // sleep 20ms for waitting recv OnRemoteDied msg, to reset nfc proxy.
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_ON_REMOTE_DIED_MS));
         EventRegister::GetInstance().RegisterNfcStateChangedEvents(EVENT_NFC_STATE_CHANGE);
     } else {
         WarnLog("%{public}s g_eventRegisterInfo is null", __func__);
