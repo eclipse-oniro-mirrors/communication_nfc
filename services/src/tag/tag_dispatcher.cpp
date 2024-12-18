@@ -52,10 +52,17 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
 {
     if (nfcService_) {
         nciTagProxy_ = nfcService_->GetNciTagProxy();
-        if (!nciTagProxy_.expired()) {
-            isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
-            ndefHarDataParser_ = std::make_shared<NdefHarDataParser>(nciTagProxy_);
+        nciNfccProxy_ = nfcService_->GetNciNfccProxy();
+        if (nciTagProxy_.expired()) {
+            ErrorLog("TagDispatcher, nciTagProxy_ expired");
+            return;
         }
+        isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
+        if (nciNfccProxy_.expired()) {
+            ErrorLog("TagDispatcher, nciNfccProxy_ expired");
+            return;
+        }
+        ndefHarDataParser_ = std::make_shared<NdefHarDataParser>(nciTagProxy_, nciNfccProxy_);
     }
 }
 

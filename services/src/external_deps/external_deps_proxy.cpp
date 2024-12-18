@@ -245,7 +245,7 @@ bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const 
     return AppDataParser::GetInstance().GetBundleInfo(bundleInfo, bundleName);
 }
 
-void ExternalDepsProxy::SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want)
+void ExternalDepsProxy::SetWantExtraParam(const std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want)
 {
     TAG::TagAbilityDispatcher::SetWantExtraParam(tagInfo, want);
 }

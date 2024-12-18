@@ -168,6 +168,7 @@ enum NotifyVendorEvent : int {
     NFC_SWITCH_KEY = 1122,
     DEF_PAYMENT_APP_REMOVED_KEY = 1124,
     DEF_PAYMENT_APP_ADDED_KEY = 1125,
+    TAG_DISPATCH_HAR_PACKAGE = 1126,
 };
 
 class NfcSdkCommon final {

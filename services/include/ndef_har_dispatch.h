@@ -20,18 +20,20 @@
 #include "app_data_parser.h"
 #include "if_system_ability_manager.h"
 #include "taginfo.h"
+#include "inci_nfcc_interface.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 class NdefHarDispatch {
 public:
-    NdefHarDispatch();
+    NdefHarDispatch(std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
     ~NdefHarDispatch() {}
     static NdefHarDispatch& GetInstance();
-    bool DispatchBundleAbility(
-        const std::string &harPackage, std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType,
-        const std::string &uri);
+    bool DispatchBundleAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
+        const std::string &mimeType, const std::string &uri);
+    bool DispatchBundleExtensionAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
+        const std::string &mimeType, const std::string &uri);
     bool DispatchUriToBundleAbility(const std::string &uri);
     bool DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo);
     bool DispatchHttpWebLink(const std::string &webLink);
@@ -39,6 +41,7 @@ public:
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     std::shared_mutex mutex_ {};
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 };
 } // namespace TAG
 } // namespace NFC

@@ -97,7 +97,7 @@ public:
     bool IsHceApp(const ElementName &elementName);
     bool IsBundleInstalled(const std::string &bundleName);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
-    void SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want);
+    void SetWantExtraParam(const std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want);
     std::string GetBundleNameByUid(uint32_t uid);
 
     void PublishNfcNotification(int notificationId, const std::string &name, int balance);
