@@ -22,7 +22,6 @@
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#include "nfc_state_change_callback.h"
 #ifdef VENDOR_APPLICATIONS_ENABLED
 #include "on_card_emulation_notify_cb_stub.h"
 #include "query_app_info_callback_stub.h"
@@ -38,7 +37,6 @@ sptr<IRemoteObject> NfcController::remote_;
 bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
-static sptr<NfcStateChangeCallback> dataRdbObserver_;
 #ifdef VENDOR_APPLICATIONS_ENABLED
 static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
     sptr<QueryAppInfoCallbackStub>(new (std::nothrow) QueryAppInfoCallbackStub());
@@ -134,16 +132,16 @@ int NfcController::TurnOff()
 int NfcController::GetNfcState()
 {
     int state = NfcState::STATE_OFF;
-    Uri nfcEnableUri(NFC_DATA_URI);
-    if (DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-        GetValue(nfcEnableUri, DATA_SHARE_KEY_STATE, state) != KITS::ERR_NONE) {
-        WarnLog("fail to get nfc state from data share, should get state through nfc SA");
-        InitNfcRemoteSA();
-        if (nfcControllerService_.expired()) {
-            return state;
-        }
-        state = nfcControllerService_.lock()->GetState();
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
+        return state;
     }
+    InitNfcRemoteSA();
+    if (nfcControllerService_.expired()) {
+        ErrorLog("Nfc controller service expired.");
+        return state;
+    }
+    state = nfcControllerService_.lock()->GetState();
     InfoLog("nfc state: %{public}d.", state);
     return state;
 }

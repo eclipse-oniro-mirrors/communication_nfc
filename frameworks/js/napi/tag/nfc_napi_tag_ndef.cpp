@@ -167,15 +167,17 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
     napi_value constructor = nullptr;
     napi_get_reference_value(env, ndefMessageRef_, &constructor);
     napi_new_instance(env, constructor, 0, nullptr, &ndefMessage);
-    napi_status status = napi_wrap(
-        env, ndefMessage, napiNdefMessage,
+    napi_status status = napi_wrap(env, ndefMessage, napiNdefMessage,
         [](napi_env env, void *data, void *hint) {
             if (data) {
                 NapiNdefMessage *message = static_cast<NapiNdefMessage *>(data);
                 delete message;
             }
-        },
-        nullptr, nullptr);
+        }, nullptr, nullptr);
+    if (status != napi_ok && napiNdefMessage != nullptr) {
+        delete napiNdefMessage;
+        napiNdefMessage = nullptr;
+    }
     NAPI_ASSERT(env, status == napi_ok, "CreateNdefMessage, failed to wrap ndefMessage");
     return ndefMessage;
 }
@@ -253,6 +255,11 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
         nullptr, nullptr);
     if (status2 != napi_ok) {
         ErrorLog("GetNdefMessage, napi_wrap failed, object is null.");
+        if (napiNdefMessage != nullptr) {
+            ErrorLog("CreateNdefMessage napi_wrap failed");
+            delete napiNdefMessage;
+            napiNdefMessage = nullptr;
+        }
         return CreateUndefined(env);
     }
     return ndefMessage;
@@ -342,6 +349,11 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
             DoAsyncCallbackOrPromise(env, context, callbackValue);
         } else {
             ErrorLog("ReadNdefCallback, napi_wrap failed!");
+            if (napiNdefMessage != nullptr) {
+                ErrorLog("CreateNdefMessage napi_wrap failed");
+                delete napiNdefMessage;
+                napiNdefMessage = nullptr;
+            }
             if (!CheckTagSessionAndThrow(env, nullptr)) {
                 return;
             }

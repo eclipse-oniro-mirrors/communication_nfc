@@ -20,6 +20,8 @@
 
 namespace OHOS {
 namespace NFC {
+static const int MAX_HAP_LIST_LEN = 1000;
+
 QueryAppInfoCallbackProxy::QueryAppInfoCallbackProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<IQueryAppInfoCallback>(remote)
 {}
@@ -36,34 +38,38 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
     }
     data.WriteInt32(0);
     data.WriteString(type);
+    DebugLog("query %{pubic}s app.", type.c_str());
     if (type.compare(KEY_TAG_APP) == 0) {
-        DebugLog("query tag app.");
         data.WriteInt32Vector(techList);
         int error = Remote()->SendRequest(
             static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
             data, reply, option);
         if (error != ERR_NONE) {
-            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr %{public}d error: %{public}d",
-                NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);
+            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr error: %{public}d", error);
             return false;
         }
         int elementNameListLen = reply.ReadInt32();
+        InfoLog("QueryAppInfoCallbackProxy::OnQueryAppInfo recv %{public}d app need to add", elementNameListLen);
+        if (elementNameListLen > MAX_HAP_LIST_LEN) {
+            return false;
+        }
         for (int i = 0; i < elementNameListLen; i++) {
             elementNameList.push_back(*AppExecFwk::ElementName::Unmarshalling(reply));
         }
         return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
-        DebugLog("query hce app.");
         int error = Remote()->SendRequest(
             static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
             data, reply, option);
         if (error != ERR_NONE) {
-            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr %{public}d error: %{public}d",
-                NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK, error);
+            ErrorLog("QueryAppInfoCallbackProxy::OnQueryAppInfo, Set Attr error: %{public}d", error);
             return false;
         }
         int appLen = reply.ReadInt32();
         InfoLog("QueryAppInfoCallbackProxy::OnQueryAppInfo recv %{public}d app need to add", appLen);
+        if (appLen > MAX_HAP_LIST_LEN) {
+            return false;
+        }
         for (int i = 0; i < appLen; i++) {
             hceAppList.push_back(*(AAFwk::Want::Unmarshalling(reply)));
         }

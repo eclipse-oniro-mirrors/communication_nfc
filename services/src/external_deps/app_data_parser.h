@@ -81,6 +81,7 @@ public:
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
+    std::string GetBundleNameByUid(uint32_t uid);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);

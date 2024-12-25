@@ -201,6 +201,12 @@ public:
     uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) override;
 
     /**
+     * @brief Try parse harPackage in vendor.
+     * @return True if vendor parsed harPackage, otherwise false.
+     */
+    bool VendorParseHarPackage(std::vector<std::string> &harPackages) override;
+
+    /**
      * @brief Get browser bundle name of the vendor.
      * @return Browser bundle name of the vendor.
      */

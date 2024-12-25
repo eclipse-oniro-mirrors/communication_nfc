@@ -74,6 +74,7 @@ public:
     std::string GetSimVendorBundleName() override;
 
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
+    void NotifyMessageToVendor(int key, const std::string &value);
 
 private:
     bool IsNfcTaskReady(std::future<int>& future) const;
@@ -84,7 +85,7 @@ private:
     bool DoTurnOn();
     bool DoTurnOff();
     void DoInitialize();
-    static void UnloadNfcSa();
+    void UnloadNfcSa();
 
     // register callback based on different access token ID.
     int SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,

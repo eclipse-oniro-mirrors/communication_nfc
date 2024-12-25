@@ -19,8 +19,6 @@
 namespace OHOS {
 namespace NFC {
 namespace NCI {
-const std::string FOREGROUND_APP_KEY = "foreground";
-const std::string READERMODE_APP_KEY = "readermode";
 class INciNfccInterface {
 public:
     virtual ~INciNfccInterface() = default;
@@ -82,7 +80,7 @@ public:
     /**
      * @brief Send a custom message to vendor
     */
-    virtual void NotifyMessageToVendor(const std::string& key, const std::string& value) = 0;
+    virtual void NotifyMessageToVendor(int key, const std::string& value) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

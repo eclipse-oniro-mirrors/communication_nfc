@@ -85,6 +85,8 @@ int NfcControllerStub::HandleTurnOn(MessageParcel& data, MessageParcel& reply)
         reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+    std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_ON_NFC, appPackageName);
     int statusCode = TurnOn();
     reply.WriteInt32(statusCode);
     return statusCode;
@@ -97,6 +99,8 @@ int NfcControllerStub::HandleTurnOff(MessageParcel& data, MessageParcel& reply)
         reply.WriteInt32(KITS::ErrorCode::ERR_NO_PERMISSION);
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
+    std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_OFF_NFC, appPackageName);
     int statusCode = TurnOff();
     reply.WriteInt32(statusCode);
     return statusCode;
