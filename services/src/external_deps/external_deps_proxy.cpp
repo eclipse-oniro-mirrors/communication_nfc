@@ -100,7 +100,12 @@ void ExternalDepsProxy::NfcDataDelete(const std::string& key)
 
 void ExternalDepsProxy::UpdateNfcState(int newState)
 {
-    NfcPreferences::GetInstance().UpdateNfcState(newState);
+    NfcParamUtil::UpdateNfcStateToParam(newState);
+}
+
+int ExternalDepsProxy::GetNfcStateFromParam()
+{
+    return NfcParamUtil::GetNfcStateFromParam();
 }
 
 void ExternalDepsProxy::PublishNfcStateChanged(int newState)
@@ -148,6 +153,11 @@ void ExternalDepsProxy::WriteForegroundAppChangeHiSysEvent(const std::string &ap
     NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(appPackageName);
 }
 
+void ExternalDepsProxy::WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode)
+{
+    NfcHisysEvent::WriteDispatchToAppHiSysEvent(appPackageName, subErrorCode);
+}
+
 void ExternalDepsProxy::WriteTagFoundHiSysEvent(const std::vector<int>& techList)
 {
     NfcHisysEvent::WriteTagFoundHiSysEvent(techList);
@@ -173,6 +183,11 @@ void ExternalDepsProxy::BuildFailedParams(NfcFailedParams &nfcFailedParams,
 void ExternalDepsProxy::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
 {
     NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(oldRoute, newRoute);
+}
+
+void ExternalDepsProxy::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
+{
+    NfcHisysEvent::WriteAppBehaviorHiSysEvent(behaviorCode, appName);
 }
 
 bool ExternalDepsProxy::IsGranted(std::string permission)
@@ -233,6 +248,16 @@ bool ExternalDepsProxy::GetBundleInfo(AppExecFwk::BundleInfo& bundleInfo, const 
 void ExternalDepsProxy::SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want)
 {
     TAG::TagAbilityDispatcher::SetWantExtraParam(tagInfo, want);
+}
+
+std::string ExternalDepsProxy::GetBundleNameByUid(uint32_t uid)
+{
+    std::string bundleName = AppDataParser::GetInstance().GetBundleNameByUid(uid);
+    if (bundleName == "") {
+        // system abilities have no bundle name, should return UID.
+        bundleName = std::to_string(uid);
+    }
+    return bundleName;
 }
 
 void ExternalDepsProxy::PublishNfcNotification(int notificationId, const std::string &name, int balance)

@@ -163,8 +163,10 @@ HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
     AppExecFwk::ElementName element;
     std::vector<uint32_t> discTech;
     const sptr<KITS::IForegroundCallback> callback;
-    int result = tagSession->RegForegroundDispatch(element, discTech, callback);
-    ASSERT_TRUE(result != KITS::ERR_NONE);
+    int tagRfDiscId = TEST_DISC_ID;
+    int result = tagSession->NdefMakeReadOnly(tagRfDiscId);
+    tagSession->RegForegroundDispatch(element, discTech, callback);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefMakeReadOnly001

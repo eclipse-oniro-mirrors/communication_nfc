@@ -23,6 +23,7 @@
 #include "nfc_preferences.h"
 #include "nfc_event_publisher.h"
 #include "nfc_hisysevent.h"
+#include "nfc_param_util.h"
 #include "nfc_permission_checker.h"
 #include "nfc_notification_publisher.h"
 #include "tag_ability_dispatcher.h"
@@ -63,6 +64,7 @@ public:
     void NfcDataClear();
     void NfcDataDelete(const std::string& key);
     void UpdateNfcState(int newState);
+    int GetNfcStateFromParam();
 
     void PublishNfcStateChanged(int newState);
     void PublishNfcFieldStateChanged(bool isFieldOn);
@@ -75,11 +77,13 @@ public:
     void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
                                                 const std::string &newAppPackageName);
     void WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName);
+    void WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode);
     void WriteTagFoundHiSysEvent(const std::vector<int> &techList);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
     void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
+    void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
 
     bool IsGranted(std::string permission);
 
@@ -94,6 +98,7 @@ public:
     bool IsBundleInstalled(const std::string &bundleName);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     void SetWantExtraParam(std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want);
+    std::string GetBundleNameByUid(uint32_t uid);
 
     void PublishNfcNotification(int notificationId, const std::string &name, int balance);
     void RegNotificationCallback(std::weak_ptr<NfcService> nfcService);

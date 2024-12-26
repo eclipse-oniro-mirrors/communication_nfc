@@ -125,6 +125,10 @@ bool NfcService::Initialize()
 void NfcService::UnloadNfcSa()
 {
     InfoLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    if (nfcState_ != KITS::STATE_OFF) {
+        InfoLog("%{public}s nfc state = [%{public}d] skip unload", __func__, nfcState_);
+        return;
+    }
     sptr<ISystemAbilityManager> samgr =
         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
@@ -226,23 +230,25 @@ bool NfcService::IsNfcTaskReady(std::future<int>& future) const
 
 int NfcService::ExecuteTask(KITS::NfcTask param)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
-        WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
-        return ERR_NONE;
-    }
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
+            WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
+            return KITS::ERR_NFC_STATE_INVALID;
+        }
 
-    // Check the current state
-    if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
-        WarnLog("NFC Turn On, already On");
-        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
-        return ERR_NONE;
-    }
-    if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
-        WarnLog("NFC Turn Off, already Off");
-        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
-        UnloadNfcSa();
-        return ERR_NONE;
+        // Check the current state
+        if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
+            WarnLog("NFC Turn On, already On");
+            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
+            return ERR_NONE;
+        }
+        if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
+            WarnLog("NFC Turn Off, already Off");
+            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
+            UnloadNfcSa();
+            return ERR_NONE;
+        }
     }
 
     std::promise<int> promise;
@@ -292,6 +298,7 @@ bool NfcService::DoTurnOn()
 
     CancelUnloadNfcSaTimer();
     UpdateNfcState(KITS::STATE_TURNING_ON);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_TURNING_ON));
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nciNfccProxy_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
@@ -306,6 +313,7 @@ bool NfcService::DoTurnOn()
         // Record failed event
         ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(MainErrorCode::NFC_OPEN_FAILED,
             SubErrorCode::NCI_RESP_ERROR);
+        NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
         return false;
     }
     // Routing Wake Lock release
@@ -334,6 +342,7 @@ bool NfcService::DoTurnOn()
     // Record success event
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
     return true;
 }
 
@@ -341,6 +350,7 @@ bool NfcService::DoTurnOff()
 {
     InfoLog("Nfc do turn off: current state %{public}d", nfcState_);
     UpdateNfcState(KITS::STATE_TURNING_OFF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_TURNING_OFF));
 
     /* WatchDog to monitor for Deinitialize failed */
     NfcWatchDog nfcWatchDog("DoTurnOff", WAIT_MS_SET_ROUTE, nciNfccProxy_);
@@ -360,6 +370,7 @@ bool NfcService::DoTurnOff()
     // Record success event
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
+    NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
     return result;
 }
 
@@ -368,30 +379,16 @@ void NfcService::DoInitialize()
     eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
     ExternalDepsProxy::GetInstance().InitAppList();
 
-    // if the nfc status in the xml file is different from that in the datashare file,
-    // use the nfc status in xml file.
-    int prefKeyNfcState = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
-    int dataShareNfcState = KITS::STATE_OFF;
-    Uri nfcEnableUri(KITS::NFC_DATA_URI);
-    DelayedSingleton<NfcDataShareImpl>::GetInstance()->GetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE,
-        dataShareNfcState);
-    InfoLog("NfcService DoInitialize: prefKeyNfcState = %{public}d, dataShareNfcState = %{public}d",
-        prefKeyNfcState, dataShareNfcState);
-    if (dataShareNfcState != prefKeyNfcState) {
-        ErrorLog("NfcService DoInitialize: Nfc state is inconsistent, update dataShareNfcState");
-        KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-            SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, prefKeyNfcState);
-        if (err != ERR_NONE) {
-            ErrorLog("NfcService DoInitialize: update dataShareNfcState failed, errCode = %{public}d", err);
-        }
-    }
-    if (prefKeyNfcState == KITS::STATE_ON) {
+    int nfcStateFromPref = ExternalDepsProxy::GetInstance().NfcDataGetInt(PREF_KEY_STATE);
+    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
+    if (nfcStateFromPref == KITS::STATE_ON || nfcStateFromParam == KITS::STATE_ON) {
         InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
         SetupUnloadNfcSaTimer(true);
     }
+    ExternalDepsProxy::GetInstance().NfcDataClear(); // delete nfc state xml
 }
 
 int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback,
@@ -421,7 +418,6 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
         record.callerToken_ = callerToken;
         record.nfcStateChangeCallback_ = callback;
         stateRecords_.push_back(record);
-        callback->OnNfcStateChanged(nfcState_);
     }
     return KITS::ERR_NONE;
 }
@@ -464,19 +460,17 @@ int NfcService::RemoveAllRegisterCallBack(Security::AccessToken::AccessTokenID c
 void NfcService::UpdateNfcState(int newState)
 {
     InfoLog("Update nfc state: oldState %{public}d, newState %{public}d", nfcState_, newState);
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (newState == nfcState_) {
-            return;
-        }
-        nfcState_ = newState;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (newState == nfcState_) {
+        return;
     }
+    nfcState_ = newState;
+
     ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
     ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
     InfoLog("Update nfc state: nfcState_ %{public}d, newState %{public}d succ", nfcState_, newState);
 
     // notify the nfc state changed by callback to JS APP
-    std::lock_guard<std::mutex> lock(mutex_);
     InfoLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         NfcStateRegistryRecord record = stateRecords_[i];
@@ -496,11 +490,13 @@ void NfcService::UpdateNfcState(int newState)
 
 int NfcService::GetNfcState()
 {
+    InfoLog("start to get nfc state.");
     std::lock_guard<std::mutex> lock(mutex_);
     // 5min later unload nfc_service, if nfc state is off
     if (nfcState_ == KITS::STATE_OFF) {
         SetupUnloadNfcSaTimer(false);
     }
+    InfoLog("get nfc state[%{public}d]", nfcState_);
     return nfcState_;
 }
 
@@ -538,7 +534,7 @@ bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 void NfcService::SetupUnloadNfcSaTimer(bool shouldRestartTimer)
 {
-    TimeOutCallback timeoutCallback = []() { NfcService::UnloadNfcSa(); };
+    TimeOutCallback timeoutCallback = [this]() { UnloadNfcSa(); };
     if (unloadStaSaTimerId != 0) {
         if (!shouldRestartTimer) {
             InfoLog("timer already started.");
@@ -558,5 +554,13 @@ void NfcService::CancelUnloadNfcSaTimer()
     }
 }
 
+void NfcService::NotifyMessageToVendor(int key, const std::string &value)
+{
+    if (nciNfccProxy_ == nullptr) {
+        ErrorLog("nciNfccProxy_ nullptr.");
+        return;
+    }
+    nciNfccProxy_->NotifyMessageToVendor(key, value);
+}
 }  // namespace NFC
 }  // namespace OHOS

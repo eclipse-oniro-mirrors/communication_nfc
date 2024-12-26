@@ -70,10 +70,6 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 
 bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
-    if (msg.empty()) {
-        ErrorLog("HandleNdefDispatch, ndef msg is empty");
-        return false;
-    }
     if (nciTagProxy_.expired()) {
         ErrorLog("HandleNdefDispatch, nciTagProxy_ expired");
         return false;
@@ -92,14 +88,14 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
         msgType = NDEF_TYPE_BT;
-        if (!btData->vendorPayload_.empty()) {
+        if (!btData->vendorPayload_.empty() && NdefBtDataParser::IsVendorPayloadValid(btData->vendorPayload_)) {
             // Bt msg for NdefMsg Callback: bt payload len | bt payload | mac addr | dev name
-            ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length());
+            ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length() / HEX_BYTE_LEN);
             ndef.append(btData->vendorPayload_);
             ndef.append(btData->macAddrOrg_);
             ndef.append(NfcSdkCommon::StringToHexString(btData->name_));
         } else {
-            InfoLog("BT vendor payload is empty");
+            InfoLog("BT vendor payload invalid");
             ndef = "";
         }
     }
@@ -267,6 +263,7 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             // start application ability for tag found.
             if (nfcService_) {
                 ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+                nfcService_->NotifyMessageToVendor(KITS::TAG_DISPATCH_KEY, "");
             }
             break;
         }
@@ -290,6 +287,7 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             // start application ability for tag found.
             if (nfcService_) {
                 ExternalDepsProxy::GetInstance().DispatchTagAbility(tagInfo_, nfcService_->GetTagServiceIface());
+                nfcService_->NotifyMessageToVendor(KITS::TAG_DISPATCH_KEY, "");
             }
             break;
         case NFC_BROWSER_NOTIFICATION_ID:

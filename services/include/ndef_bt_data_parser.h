@@ -44,6 +44,7 @@ public:
     NdefBtDataParser();
     ~NdefBtDataParser() {}
     static std::shared_ptr<BtData> CheckBtRecord(const std::string& msg);
+    static bool IsVendorPayloadValid(const std::string& payload);
 
 private:
     static std::shared_ptr<BtData> ParseBtRecord(const std::string& payload);
@@ -57,6 +58,8 @@ private:
                               Bluetooth::BluetoothDeviceClass& btClass);
     static std::string RevertUuidStr(const std::string& uuid);
     static Bluetooth::UUID FormatUuidTo128Bit(const std::string& uuid);
+
+    const static int VENDOR_PAYLOAD_MAX_LEN = 0xFF; // vendor payload length is 1 byte
 };
 } // namespace TAG
 } // namespace NFC

@@ -125,12 +125,30 @@ void NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(const std::string &appPac
                appPackageName);
 }
 
+void NfcHisysEvent::WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode)
+{
+    InfoLog("WriteDispatchToAppHiSysEvent, appPackageName[%{public}s]", appPackageName.c_str());
+    NfcFailedParams params;
+    BuildFailedParams(params, MainErrorCode::NDEF_DISPATCH_TO_APP, subErrorCode);
+    params.appPackageName = appPackageName;
+    WriteNfcFailedHiSysEvent(&params);
+}
+
 void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
 {
     InfoLog("WriteDefaultRouteChangeHiSysEvent, oldRoute[%{public}d], newRoute[%{public}d]", oldRoute, newRoute);
     WriteEvent("HCE_DEFAULT_ROUTE_CHANGE", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                "OLD_DEFAULT_ROUTE", oldRoute,
                "NEW_DEFAULT_ROUTE", newRoute);
+}
+
+void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
+{
+    NfcFailedParams failedParams;
+    failedParams.mainErrorCode = APP_BEHAVIOR;
+    failedParams.subErrorCode = behaviorCode;
+    failedParams.appPackageName = appName;
+    WriteNfcFailedHiSysEvent(&failedParams);
 }
 }  // namespace NFC
 }  // namespace OHOS

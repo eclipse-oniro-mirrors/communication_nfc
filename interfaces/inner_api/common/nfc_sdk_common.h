@@ -160,6 +160,16 @@ enum EmNfcForumType {
     ICODE_SLI = 102
 };
 
+enum NotifyVendorEvent : int {
+    DEF_PAYMENT_APP_CHANGE_KEY = 1114,
+    TAG_DISPATCH_KEY = 1115,
+    READERMODE_APP_KEY = 1120,
+    FOREGROUND_APP_KEY = 1121,
+    NFC_SWITCH_KEY = 1122,
+    DEF_PAYMENT_APP_REMOVED_KEY = 1124,
+    DEF_PAYMENT_APP_ADDED_KEY = 1125,
+};
+
 class NfcSdkCommon final {
 public:
     static const int SHIFT_SIZE = 8;

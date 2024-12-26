@@ -116,6 +116,12 @@ napi_value NfcNapiHceAdapter::Constructor(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, status == napi_ok, "NfcNapiHceAdapter Constructor get_cb_info failed");
     NfcNapiHceAdapter* hceService = new NfcNapiHceAdapter();
     status = napi_wrap(env, jsHceService, hceService, NfcNapiHceAdapter::Destructor, nullptr, nullptr);
+    if (status != napi_ok && hceService != nullptr) {
+        ErrorLog("hce Constructor napi_wrap failed");
+        delete hceService;
+        hceService = nullptr;
+        return CreateUndefined(env);
+    }
     NAPI_ASSERT(env, status == napi_ok, "NfcNapiHceAdapter Constructor wrap failed");
     return jsHceService;
 }

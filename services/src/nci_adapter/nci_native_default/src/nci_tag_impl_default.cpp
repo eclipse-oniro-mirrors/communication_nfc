@@ -223,6 +223,11 @@ uint16_t NciTagImplDefault::GetTechMaskFromTechList(const std::vector<uint32_t> 
     return TagNativeImpl::GetInstance().GetTechMaskFromTechList(discTech);
 }
 
+bool NciTagImplDefault::VendorParseHarPackage(std::vector<std::string> &harPackages)
+{
+    return false;
+}
+
 std::string NciTagImplDefault::GetVendorBrowserBundleName()
 {
     return "";
@@ -232,7 +237,6 @@ std::string NciTagImplDefault::GetVendorAppGalleryBundleName()
 {
     return "";
 }
-
 #ifdef VENDOR_APPLICATIONS_ENABLED
 bool NciTagImplDefault::IsVendorProcess()
 {

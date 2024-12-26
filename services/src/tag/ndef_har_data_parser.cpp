@@ -99,6 +99,25 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, std::shared_ptr<KITS::Ta
 bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages, std::shared_ptr<KITS::TagInfo> tagInfo,
                                         const std::string &mimeType, const std::string &uri)
 {
+    if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
+        return true;
+    }
+    /* Try vendor parse harPackage */
+    if (nciTagProxy_.expired()) {
+        ErrorLog("NdefHarDataParser::TryNdef nciTagProxy_ is nullptr");
+    } else if (!nciTagProxy_.lock()->VendorParseHarPackage(harPackages)) {
+        return false;
+    }
+    /* Pull up vendor parsed harPackage */
+    if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
+        return true;
+    }
+    return false;
+}
+
+bool NdefHarDataParser::ParseHarPackageInner(std::vector<std::string> harPackages,
+    std::shared_ptr<KITS::TagInfo> tagInfo, const std::string &mimeType, const std::string &uri)
+{
     InfoLog("NdefHarDataParser::ParseHarPackage enter");
     if (harPackages.size() <= 0) {
         ErrorLog("NdefHarDataParser::ParseHarPackage harPackages is empty");

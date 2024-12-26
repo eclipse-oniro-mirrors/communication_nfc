@@ -72,6 +72,7 @@ private:
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 
     std::mutex commonEventMutex_ {};
+
     static constexpr const int WAIT_PROCESS_EVENT_TIMES = 60 * 1000;
 };
 }  // namespace NFC

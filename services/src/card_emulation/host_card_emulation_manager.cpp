@@ -187,6 +187,10 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
     } else {
         InfoLog("no aid got");
         std::string unknowError = "6F00";
+        if (nciCeProxy_.expired()) {
+            ErrorLog("HandleDataOnW4Select: nciCeProxy_ is nullptr.");
+            return;
+        }
         nciCeProxy_.lock()->SendRawFrame(unknowError);
     }
 }
