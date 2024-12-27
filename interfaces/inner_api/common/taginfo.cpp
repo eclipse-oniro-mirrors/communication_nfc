@@ -78,6 +78,8 @@ std::string TagInfo::GetStringTech(int tech)
             return "Ndef";
         case static_cast<int>(TagTechnology::NFC_NDEF_FORMATABLE_TECH):
             return "NdefFormatable";
+        case static_cast<int>(TagTechnology::NFC_BARCODE):
+            return "BarcodeTag";
         default:
             break;
     }
