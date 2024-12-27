@@ -36,7 +36,6 @@ enum MainErrorCode {
     NDEF_VCARD_EVENT = 305,
     NDEF_APP_NOT_INSTALL = 306,
     HCE_SWIPE_CARD = 307,
-    NDEF_DISPATCH_TO_APP = 308,
     APP_BEHAVIOR = 401,
 };
 
@@ -45,9 +44,6 @@ enum SubErrorCode {
     NCI_RESP_TIMEOUT = 10001,
     NCI_RESP_ERROR = 10002,
     PROCESS_ABORT = 10003,
-    NDEF_HAR_DISPATCH = 30800,
-    NDEF_URI_BROWSER_DISPATCH = 30801,
-    UNKNOWN_TAG_DISPATCH = 30802,
     REG_FOREGROUND_DISPATCH = 40101,
     REG_READERMODE = 40102,
     TURN_ON_NFC = 40103,
@@ -77,7 +73,6 @@ public:
     static void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
                                                        const std::string &newAppPackageName);
     static void WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName);
-    static void WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode);
     static void WriteTagFoundHiSysEvent(const std::vector<int> &techList);
     static void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     static void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);

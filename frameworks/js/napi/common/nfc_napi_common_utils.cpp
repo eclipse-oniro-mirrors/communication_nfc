@@ -414,45 +414,6 @@ void ConvertStringToNumberArray(napi_env env, napi_value &result, std::string sr
     }
 }
 
-bool IsAirTouch(std::vector<std::shared_ptr<NdefRecord>> &ndefRecords)
-{
-    std::string airTouchFlag = "616972746F756368"; // "airtouch"
-    std::string::size_type idx;
-    for (auto& ndefRecord : ndefRecords) {
-        idx = ndefRecord->payload_.find(airTouchFlag);
-        if (idx != std::string::npos) {
-            WarnLog("IsAirTouch is airtouch.");
-            return true;
-        }
-    }
-    return false;
-}
-
-void ConvertAirTouchNdefRecordToJS(napi_env env, napi_value &result, std::shared_ptr<NdefRecord> &ndefRecord)
-{
-    napi_create_object(env, &result);
-    if (ndefRecord == nullptr) {
-        WarnLog("ConvertNdefRecordToJS ndefRecord is null.");
-        return;
-    }
-
-    napi_value tnf;
-    napi_create_int32(env, ndefRecord->tnf_, &tnf);
-    napi_set_named_property(env, result, "tnf", tnf);
-
-    napi_value rtdType;
-    napi_create_string_utf8(env, ndefRecord->tagRtdType_.c_str(), NAPI_AUTO_LENGTH, &rtdType);
-    napi_set_named_property(env, result, "rtdType", rtdType);
-
-    napi_value id;
-    napi_create_string_utf8(env, ndefRecord->id_.c_str(), NAPI_AUTO_LENGTH, &id);
-    napi_set_named_property(env, result, "id", id);
-
-    napi_value payload;
-    napi_create_string_utf8(env, ndefRecord->payload_.c_str(), NAPI_AUTO_LENGTH, &payload);
-    napi_set_named_property(env, result, "payload", payload);
-}
-
 void ConvertNdefRecordVectorToJS(napi_env env, napi_value &result,
                                  std::vector<std::shared_ptr<NdefRecord>> &ndefRecords)
 {
@@ -461,15 +422,10 @@ void ConvertNdefRecordVectorToJS(napi_env env, napi_value &result,
         WarnLog("ConvertNdefRecordVectorToJS ndefRecords is empty.");
         return;
     }
-    bool isAirtouchFlag = IsAirTouch(ndefRecords);
     size_t idx = 0;
     for (auto& ndefRecord : ndefRecords) {
         napi_value obj = nullptr;
-        if (isAirtouchFlag) {
-            ConvertAirTouchNdefRecordToJS(env, obj, ndefRecord);
-        } else {
-            ConvertNdefRecordToJS(env, obj, ndefRecord);
-        }
+        ConvertNdefRecordToJS(env, obj, ndefRecord);
         napi_set_element(env, result, idx, obj);
         idx++;
     }

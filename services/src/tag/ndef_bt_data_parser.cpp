@@ -130,11 +130,8 @@ Bluetooth::UUID  NdefBtDataParser::FormatUuidTo128Bit(const std::string& uuid)
     const uint32_t separatorPoz2 = 12;
     const uint32_t separatorPoz3 = 16;
     const uint32_t separatorPoz4 = 20;
-    std::string baseUuid = std::string(Bluetooth::BLUETOOTH_UUID_BASE_UUID);
-    std::string uuidSubfix = "";
-    if (baseUuid.length() > uuidPrefixLen) {
-        uuidSubfix = baseUuid.substr(uuidPrefixLen, baseUuid.length() - uuidPrefixLen);
-    }
+    std::string uuidSubfix = Bluetooth::BLUETOOTH_UUID_BASE_UUID.substr(uuidPrefixLen,
+        Bluetooth::BLUETOOTH_UUID_BASE_UUID.length() - uuidPrefixLen);
     std::string prefix16Bit = "0000";
     std::string res = "";
 

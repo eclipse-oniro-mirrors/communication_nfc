@@ -187,9 +187,8 @@ HWTEST_F(NfcControllerTest, UnregListener001, TestSize.Level1)
 HWTEST_F(NfcControllerTest, GetTagServiceIface001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
-    ctrl.GetTagServiceIface();
-    ErrorCode errorCode = ctrl.UnregListener(TEST_NFC_STATE_CHANGE);
-    ASSERT_TRUE(errorCode == ErrorCode::ERR_NONE);
+    OHOS::sptr<IRemoteObject> objsPtr = ctrl.GetTagServiceIface();
+    ASSERT_TRUE(objsPtr != nullptr);
 }
 
 /**

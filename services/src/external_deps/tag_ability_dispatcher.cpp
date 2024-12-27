@@ -165,8 +165,6 @@ void TagAbilityDispatcher::DispatchAbilityMultiApp(std::shared_ptr<KITS::TagInfo
 
     AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     InfoLog("DispatchAbilityMultiApp call StartAbility end.");
-    ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
-        SubErrorCode::UNKNOWN_TAG_DISPATCH);
 }
 
 void TagAbilityDispatcher::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface,
@@ -188,8 +186,6 @@ void TagAbilityDispatcher::DispatchAbilitySingleApp(AAFwk::Want& want)
     }
     AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     InfoLog("DispatchAbilitySingleApp call StartAbility end.");
-    ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
-        SubErrorCode::UNKNOWN_TAG_DISPATCH);
 }
 }  // namespace TAG
 }  // namespace NFC
