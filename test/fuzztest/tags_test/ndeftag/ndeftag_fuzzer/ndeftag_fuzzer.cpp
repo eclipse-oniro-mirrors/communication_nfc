@@ -24,6 +24,7 @@
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
 #include "tag_session_proxy.h"
+#include "nfc_data_share_impl.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -138,6 +139,7 @@ namespace OHOS {
         std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
         bool canSetReadOnly = (static_cast<int>(data[0]) % 2) == 1;
         ndefTag->IsEnableReadOnly(canSetReadOnly);
+        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
     
     void FuzzGetNdefTagTypeString(const uint8_t* data, size_t size)
@@ -174,6 +176,7 @@ namespace OHOS {
         ndefRecords.push_back(ndefRecord);
         std::shared_ptr<NdefMessage> ndefMessage = NdefMessage::GetNdefMessage(ndefRecords);
         ndefTag->ReadNdef(ndefMessage);
+        DelayedSingleton<NFC::NfcDataShareImpl>::DestroyInstance();
     }
 
     void FuzzWriteNdef(const uint8_t* data, size_t size)
@@ -216,3 +219,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzWriteNdef(data, size);
     return 0;
 }
+

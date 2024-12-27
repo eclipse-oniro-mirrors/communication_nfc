@@ -237,54 +237,6 @@ namespace NFC {
         std::string permission = NfcSdkCommon::BytesVecToHexString(data, size);
         ExternalDepsProxy::GetInstance().IsGranted(permission);
     }
-
-    void FuzzInitAppList(const uint8_t* data, size_t size)
-    {
-        ExternalDepsProxy::GetInstance().InitAppList();
-    }
-
-    void FuzzNfcDataClear(const uint8_t* data, size_t size)
-    {
-        ExternalDepsProxy::GetInstance().NfcDataClear();
-    }
-
-    void FuzzWriteForegroundAppChangeHiSysEvent(const uint8_t* data, size_t size)
-    {
-        std::string appPackageName = NfcSdkCommon::BytesVecToHexString(data, size);
-        ExternalDepsProxy::GetInstance().WriteForegroundAppChangeHiSysEvent(appPackageName);
-    }
-
-    void FuzzStartVibratorOnce(const uint8_t* data, size_t size)
-    {
-        ExternalDepsProxy::GetInstance().StartVibratorOnce();
-    }
-
-    void FuzzIsHceApp(const uint8_t* data, size_t size)
-    {
-        ElementName elementName;
-        elementName.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
-        elementName.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
-        ExternalDepsProxy::GetInstance().IsHceApp(elementName);
-    }
-
-    void FuzzIsBundleInstalled(const uint8_t* data, size_t size)
-    {
-        std::string bundleName = NfcSdkCommon::BytesVecToHexString(data, size);
-        ExternalDepsProxy::GetInstance().IsBundleInstalled(bundleName);
-    }
-
-    void FuzzGetBundleInfo(const uint8_t* data, size_t size)
-    {
-        AppExecFwk::BundleInfo bundleInfo;
-        std::string bundleName = NfcSdkCommon::BytesVecToHexString(data, size);
-        ExternalDepsProxy::GetInstance().GetBundleInfo(bundleInfo, bundleName);
-    }
-
-    void FuzzRegNotificationCallback(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NfcService> nfcService;
-        ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService);
-    }
 } // namespace NFC
 } // namespace OHOS
 
@@ -313,17 +265,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::NFC::FuzzWritePassiveListenHiSysEvent(data, size);
     OHOS::NFC::FuzzWriteFirmwareUpdateHiSysEvent(data, size);
     OHOS::NFC::FuzzIsGranted(data, size);
-    OHOS::NFC::FuzzInitAppList(data, size);
-    OHOS::NFC::FuzzNfcDataGetValue(data, size);
-    OHOS::NFC::FuzzNfcDataSetValue(data, size);
-    OHOS::NFC::FuzzNfcDataSetString(data, size);
-    OHOS::NFC::FuzzNfcDataClear(data, size);
-    OHOS::NFC::FuzzWriteForegroundAppChangeHiSysEvent(data, size);
-    OHOS::NFC::FuzzStartVibratorOnce(data, size);
-    OHOS::NFC::FuzzIsHceApp(data, size);
-    OHOS::NFC::FuzzIsBundleInstalled(data, size);
-    OHOS::NFC::FuzzGetBundleInfo(data, size);
-    OHOS::NFC::FuzzRegNotificationCallback(data, size);
     return 0;
 }
 

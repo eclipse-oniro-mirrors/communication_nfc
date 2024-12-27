@@ -77,7 +77,6 @@ public:
     void WriteDefaultPaymentAppChangeHiSysEvent(const std::string &oldAppPackageName,
                                                 const std::string &newAppPackageName);
     void WriteForegroundAppChangeHiSysEvent(const std::string &appPackageName);
-    void WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode);
     void WriteTagFoundHiSysEvent(const std::vector<int> &techList);
     void WritePassiveListenHiSysEvent(int requestCnt, int failCnt);
     void WriteFirmwareUpdateHiSysEvent(int requestCnt, int failCnt);

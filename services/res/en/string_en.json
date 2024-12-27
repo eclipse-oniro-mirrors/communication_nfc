@@ -1,13 +1,13 @@
 {
 	"string":	[{
 			"name":	"ShenZhenTong",
-			"value":	"Shenzhen Transportation Card"
+			"value":	"Shenzhen Transport Card"
 		}, {
 			"name":	"LingNanTong",
 			"value":	"Lingnan Pass"
 		}, {
 			"name":	"BeiJingYiKaTong",
-			"value":	"Beijing Transportation Card"
+			"value":	"Beijing Transport Card"
 		}, {
 			"name":	"ShangHaiJiaoTongKa",
 			"value":	"Shanghai Transport Card"

@@ -22,6 +22,7 @@
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "nfc_state_change_callback.h"
 #ifdef VENDOR_APPLICATIONS_ENABLED
 #include "on_card_emulation_notify_cb_stub.h"
 #include "query_app_info_callback_stub.h"
@@ -37,6 +38,7 @@ sptr<IRemoteObject> NfcController::remote_;
 bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
+static sptr<NfcStateChangeCallback> dataRdbObserver_;
 #ifdef VENDOR_APPLICATIONS_ENABLED
 static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
     sptr<QueryAppInfoCallbackStub>(new (std::nothrow) QueryAppInfoCallbackStub());

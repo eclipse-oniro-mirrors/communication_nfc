@@ -63,15 +63,9 @@ const int NFC_SLOT_CONTROL_FLAG = 0b101111; // no vibration
 const int NTF_COUNT_CONSTANT = 1000000; // final notification id = 1000000 * count + NfcNotificationId
 const int NFC_MAX_NTF_COUNT = 100;
 
-constexpr const char* NFC_ICON_PATH = "system/etc/nfc/resources/base/media/nfc_icon.png";
-constexpr const char* NFC_LANGUAGE_MAP_PATH = "system/etc/nfc/resources/base/profile/nfc_language_map.json";
-constexpr const char* NFC_DEFAULT_LANGUAGE_FILE_PATH = "zh_CN";
-constexpr const char* NFC_LANGUAGE_FILEPATH_PREFIX = "system/etc/nfc/resources/";
-constexpr const char* NFC_LANGUAGE_FILEPATH_SUFFIX = "/element/string.json";
-
-constexpr const char* KEY_LANGUAGE_MAP = "nfc_language_map";
-constexpr const char* KEY_SYSTEM_LANGUAGE = "system_language";
-constexpr const char* KEY_FILE_PATH = "file_path";
+constexpr const char* NFC_ICON_PATH = "system/etc/nfc/nfc_icon.png";
+constexpr const char* NFC_RES_DEFAULT_JSON_FILEPATH = "system/etc/nfc/string_zh.json";
+constexpr const char* NFC_RES_EN_JSON_FILEPATH = "system/etc/nfc/string_en.json";
 
 constexpr const char* KEY_STRING = "string";
 constexpr const char* KEY_NAME = "name";

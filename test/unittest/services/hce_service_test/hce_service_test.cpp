@@ -18,14 +18,12 @@
 
 #include "hce_service.h"
 #include "nfc_controller.h"
-#include "hce_cmd_callback_stub.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC::KITS;
-using namespace OHOS::NFC::HCE;
 class HceServiceTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -80,13 +78,8 @@ public:
 HWTEST_F(HceServiceTest, RegHceCmdCallback001, TestSize.Level1)
 {
     sptr<HceCmdListener> callback = sptr<HceCmdListener>(new (std::nothrow) HceCmdListener());
-    HceService::GetInstance().RegHceCmdCallback(callback, "hceCmd");
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+    int ret = HceService::GetInstance().RegHceCmdCallback(callback, "hceCmd");
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -98,13 +91,8 @@ HWTEST_F(HceServiceTest, SendRawFrame001, TestSize.Level1)
 {
     std::string hexCmdData = "010203";
     std::string hexRespData = "";
-    HceService::GetInstance().SendRawFrame(hexCmdData, true, hexRespData);
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+    int ret = HceService::GetInstance().SendRawFrame(hexCmdData, true, hexRespData);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -115,13 +103,8 @@ HWTEST_F(HceServiceTest, SendRawFrame001, TestSize.Level1)
 HWTEST_F(HceServiceTest, GetPaymentServices001, TestSize.Level1)
 {
     std::vector<AbilityInfo> abilityInfos;
-    HceService::GetInstance().GetPaymentServices(abilityInfos);
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+    int ret = HceService::GetInstance().GetPaymentServices(abilityInfos);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -134,13 +117,8 @@ HWTEST_F(HceServiceTest, IsDefaultService001, TestSize.Level1)
     ElementName element;
     const std::string type = "";
     bool isDefaultService = true;
-    HceService::GetInstance().IsDefaultService(element, type, isDefaultService);
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+    int ret = HceService::GetInstance().IsDefaultService(element, type, isDefaultService);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
 /**
@@ -151,107 +129,8 @@ HWTEST_F(HceServiceTest, IsDefaultService001, TestSize.Level1)
 HWTEST_F(HceServiceTest, StopHce001, TestSize.Level1)
 {
     ElementName element;
-    HceService::GetInstance().StopHce(element);
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
-}
-
-/**
- * @tc.name: RegHceCmdCallback0001
- * @tc.desc: Test HceServiceTest RegHceCmdCallback.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, RegHceCmdCallback0001, TestSize.Level1)
-{
-    sptr<HceCmdListener> callback = nullptr;
-    std::string type = "";
-    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback, type);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NFC_PARAMETERS);
-}
-
-/**
- * @tc.name: RegHceCmdCallback0002
- * @tc.desc: Test HceServiceTest RegHceCmdCallback.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, RegHceCmdCallback0002, TestSize.Level1)
-{
-    sptr<HceCmdListener> callback = sptr<HceCmdListener>(new (std::nothrow) HceCmdListener());
-    std::string type = "";
-    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback, type);
+    int ret = HceService::GetInstance().StopHce(element);
     ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
-}
-
-/**
- * @tc.name: OnRemoteRequest0001
- * @tc.desc: Test HceServiceTest OnRemoteRequest.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, OnRemoteRequest0001, TestSize.Level1)
-{
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
-}
-
-/**
- * @tc.name: OnRemoteRequest0002
- * @tc.desc: Test HceServiceTest OnRemoteRequest.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, OnRemoteRequest0002, TestSize.Level1)
-{
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    std::u16string descriptor = u"ohos.nfc.kits.IHceCmdCallback";
-    data.WriteInterfaceToken(descriptor);
-    data.WriteInt32(1);
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == 1);
-}
-
-/**
- * @tc.name: OnRemoteRequest0003
- * @tc.desc: Test HceServiceTest OnRemoteRequest.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, OnRemoteRequest0003, TestSize.Level1)
-{
-    uint32_t code = 0;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    std::u16string descriptor = u"ohos.nfc.kits.IHceCmdCallback";
-    data.WriteInterfaceToken(descriptor);
-    data.WriteInt32(0);
-    HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-}
-
-/**
- * @tc.name: OnRemoteRequest0004
- * @tc.desc: Test HceServiceTest OnRemoteRequest.
- * @tc.type: FUNC
- */
-HWTEST_F(HceServiceTest, OnRemoteRequest0004, TestSize.Level1)
-{
-    uint32_t code = 304;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    std::u16string descriptor = u"ohos.nfc.kits.IHceCmdCallback";
-    data.WriteInterfaceToken(descriptor);
-    data.WriteInt32(0);
-    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
-    ASSERT_TRUE(ret == KITS::ERR_NONE);
 }
 }
 }

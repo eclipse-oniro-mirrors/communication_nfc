@@ -125,15 +125,6 @@ void NfcHisysEvent::WriteForegroundAppChangeHiSysEvent(const std::string &appPac
                appPackageName);
 }
 
-void NfcHisysEvent::WriteDispatchToAppHiSysEvent(const std::string &appPackageName, SubErrorCode subErrorCode)
-{
-    InfoLog("WriteDispatchToAppHiSysEvent, appPackageName[%{public}s]", appPackageName.c_str());
-    NfcFailedParams params;
-    BuildFailedParams(params, MainErrorCode::NDEF_DISPATCH_TO_APP, subErrorCode);
-    params.appPackageName = appPackageName;
-    WriteNfcFailedHiSysEvent(&params);
-}
-
 void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute)
 {
     InfoLog("WriteDefaultRouteChangeHiSysEvent, oldRoute[%{public}d], newRoute[%{public}d]", oldRoute, newRoute);

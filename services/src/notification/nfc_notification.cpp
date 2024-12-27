@@ -69,8 +69,7 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
         const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap, int32_t deleteReason) {}
 };
 
-static std::shared_ptr<NfcNotificationSubscriber> g_notificationSubscriber
-    = std::make_shared<NfcNotificationSubscriber>();
+static const auto NOTIFICATION_SUBSCRIBER = NfcNotificationSubscriber();
 
 static void UpdateResourceMap(const std::string &resourcePath)
 {
@@ -113,65 +112,24 @@ static void UpdateResourceMap(const std::string &resourcePath)
     cJSON_Delete(json);
 }
 
-static std::string GetLanguageFilePath(const std::string &sysLanguage)
-{
-    InfoLog("Reading language file path from json config.");
-    std::string content;
-    std::string filePath = NFC_DEFAULT_LANGUAGE_FILE_PATH;
-    LoadStringFromFile(NFC_LANGUAGE_MAP_PATH, content);
-    cJSON *json = cJSON_Parse(content.c_str());
-    if (json == nullptr) {
-        ErrorLog("json nullptr.");
-        return filePath;
-    }
-
-    cJSON *resJson = cJSON_GetObjectItemCaseSensitive(json, KEY_LANGUAGE_MAP);
-    if (resJson == nullptr || !cJSON_IsArray(resJson)) {
-        ErrorLog("fail to parse KEY_LANGUAGE_MAP");
-        cJSON_Delete(json);
-        return filePath;
-    }
-
-    cJSON *resJsonEach = nullptr;
-    cJSON_ArrayForEach(resJsonEach, resJson) {
-        cJSON *key = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_SYSTEM_LANGUAGE);
-        if (key == nullptr || !cJSON_IsString(key)) {
-            ErrorLog("json param KEY_SYSTEM_LANGUAGE not string");
-            continue;
-        }
-        if (key->valuestring != sysLanguage) {
-            continue;
-        }
-        cJSON *value = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_FILE_PATH);
-        if (value == nullptr || !cJSON_IsString(value)) {
-            ErrorLog("json param KEY_FILE_PATH not string");
-            cJSON_Delete(json);
-            return filePath;
-        }
-
-        filePath = value->valuestring;
-        break;
-    }
-    cJSON_Delete(json);
-    InfoLog("file path %{public}s", filePath.c_str());
-    return filePath;
-}
-
 static void UpdateResourceMapByLanguage()
 {
-    std::string curSysLanguage = Global::I18n::LocaleConfig::GetSystemLanguage();
+    std::string curSysLanguage = "zh";
+    OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetSystemLocale());
+    curSysLanguage = locale.GetLanguage();
     if (g_sysLanguage == curSysLanguage) {
-        DebugLog("same language environment[%{public}s], no need to update resource map.", curSysLanguage.c_str());
+        DebugLog("same language environment, no need to update resource map.");
         return;
     }
 
     InfoLog("current system language[%{public}s] changes, should update resource map", curSysLanguage.c_str());
     g_sysLanguage = curSysLanguage;
 
-    std::string filePath = NFC_LANGUAGE_FILEPATH_PREFIX +
-                        GetLanguageFilePath(g_sysLanguage) +
-                        NFC_LANGUAGE_FILEPATH_SUFFIX;
-    UpdateResourceMap(filePath);
+    if (g_sysLanguage == "en") {
+        UpdateResourceMap(NFC_RES_EN_JSON_FILEPATH);
+    } else {
+        UpdateResourceMap(NFC_RES_DEFAULT_JSON_FILEPATH);
+    }
 }
 
 static std::string GetTrafficCardNotificationText(const std::string &cardName, int balance)
@@ -408,7 +366,7 @@ NfcNotification::NfcNotification()
     InfoLog("NfcNotification constructor enter.");
     std::lock_guard<std::mutex> lock(mutex_);
     // only need to subscribe notification once
-    int result = Notification::NotificationHelper::SubscribeNotification(*g_notificationSubscriber);
+    int result = Notification::NotificationHelper::SubscribeNotification(NOTIFICATION_SUBSCRIBER);
     if (result != ERR_OK) {
         ErrorLog("fail to subscribe notification");
     }
