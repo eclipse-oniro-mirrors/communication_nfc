@@ -104,7 +104,6 @@ void TagAbilityDispatcher::DispatchTagAbility(const std::shared_ptr<KITS::TagInf
         return;
     }
 
-    bool isFromVendor = (vendorElements.size() != 0) ? true : false;
     AAFwk::Want want;
     std::vector<std::string> vendorElementNameList;
     for (auto vendorElement : vendorElements) {
@@ -114,16 +113,8 @@ void TagAbilityDispatcher::DispatchTagAbility(const std::shared_ptr<KITS::TagInf
 
     want.SetParam("remoteTagService", tagServiceIface);
     SetWantExtraParam(tagInfo, want);
-    if ((vendorElementNameList.size() + elements.size()) > TAG_APP_MATCHED_SIZE_SINGLE) {
-        want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
-        DispatchAbilityMultiApp(tagInfo, want);
-    } else if (elements.size() == TAG_APP_MATCHED_SIZE_SINGLE) {
-        want.SetElement(elements[0]);
-        DispatchAbilitySingleApp(want);
-    } else if ((vendorElementNameList.size() == TAG_APP_MATCHED_SIZE_SINGLE) && isFromVendor) {
-        want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
-        DispatchAbilitySingleApp(want);
-    }
+    want.SetParam(PARAM_ABILITY_APPINFOS, vendorElementNameList);
+    DispatchAbilityMultiApp(tagInfo, want);
 #else
     if (elements.size() == 0) {
         return;
