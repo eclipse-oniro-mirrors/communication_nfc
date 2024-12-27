@@ -18,7 +18,7 @@
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "nfc_napi_tag_sesstion.h"
+#include "nfc_napi_tag_session.h"
 #include "nfc_napi_taga.h"
 #include "nfc_napi_tagb.h"
 #include "nfc_napi_tagf.h"
@@ -28,6 +28,7 @@
 #include "nfc_napi_tag_mifare_ul.h"
 #include "nfc_napi_tag_ndef.h"
 #include "nfc_napi_tag_ndef_formatable.h"
+#include "nfc_napi_tag_barcode.h"
 #include "nfc_napi_common_utils.h"
 #include "taginfo.h"
 
@@ -53,6 +54,7 @@ napi_value GetNdefTag(napi_env env, napi_callback_info info);
 napi_value GetMifareClassicTag(napi_env env, napi_callback_info info);
 napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info);
 napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info);
+napi_value GetBarcodeTag(napi_env env, napi_callback_info info);
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
 
 const std::string VAR_UID = "uid";

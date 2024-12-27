@@ -43,6 +43,7 @@ ohos_shared_library("nfc_inner_kits_tags") {
   }
   branch_protector_ret = "pac_ret"
   sources = [
+    "barcode_tag.cpp",
     "basic_tag_session.cpp",
     "foreground_callback_stub.cpp",
     "iso15693_tag.cpp",

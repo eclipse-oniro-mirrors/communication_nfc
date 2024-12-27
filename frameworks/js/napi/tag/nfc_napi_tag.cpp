@@ -21,6 +21,7 @@
 #include "nfc_sdk_common.h"
 #include "mifare_classic_tag.h"
 #include "mifare_ultralight_tag.h"
+#include "barcode_tag.h"
 
 namespace OHOS {
 namespace NFC {
@@ -34,6 +35,7 @@ thread_local napi_ref ndefConsRef_;
 thread_local napi_ref mifareClassicConsRef_;
 thread_local napi_ref mifareUltralightConsRef_;
 thread_local napi_ref ndefFormatableConsRef_;
+thread_local napi_ref barcodeTagConsRef_;
 const int INIT_REF = 1;
 
 static napi_value EnumConstructor(napi_env env, napi_callback_info info)
@@ -672,6 +674,24 @@ napi_value RegisterNdefFormatableJSClass(napi_env env, napi_value exports)
     return exports;
 }
 
+napi_value RegisterBarcodeTagJSClass(napi_env env, napi_value exports)
+{
+    napi_property_descriptor barcodeTagDesc[] = {
+        DECLARE_NAPI_FUNCTION("getBarcode", NapiTagBarcode::GetBarcode),
+    };
+    size_t allDescSize = (sizeof(barcodeTagDesc) / sizeof(barcodeTagDesc[0]))
+        + (sizeof(g_baseClassDesc) / sizeof(g_baseClassDesc[0]));
+    napi_property_descriptor allFuncDesc[allDescSize];
+    MergeAllDesc(barcodeTagDesc, (sizeof(barcodeTagDesc) / sizeof(barcodeTagDesc[0])), allFuncDesc, allDescSize);
+
+    // define JS class BarcodeTag , JS_Constructor is the callback function
+    napi_value constructor = nullptr;
+    napi_define_class(env, "BarcodeTag ", NAPI_AUTO_LENGTH,
+        JS_Constructor<NapiTagBarcode, BarcodeTag>, nullptr, allDescSize, allFuncDesc, &constructor);
+    napi_create_reference(env, constructor, INIT_REF, &barcodeTagConsRef_);
+    return exports;
+}
+
 napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref)
 {
     if (ref == nullptr) {
@@ -733,6 +753,11 @@ napi_value GetMifareUltralightTag(napi_env env, napi_callback_info info)
 napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info)
 {
     return GetSpecificTagObj(env, info, ndefFormatableConsRef_);
+}
+
+napi_value GetBarcodeTag(napi_env env, napi_callback_info info)
+{
+    return GetSpecificTagObj(env, info, barcodeTagConsRef_);
 }
 
 void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &tagInfoObj)
@@ -923,6 +948,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
     RegisterMifareClassicJSClass(env, exports);
     RegisterMifareUltralightJSClass(env, exports);
     RegisterNdefFormatableJSClass(env, exports);
+    RegisterBarcodeTagJSClass(env, exports);
 
     // register namespace 'ndef' functions
     RegisterNdefStaticFunctions(env, exports);
@@ -941,6 +967,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getMifareClassic", GetMifareClassicTag),
         DECLARE_NAPI_FUNCTION("getMifareUltralight", GetMifareUltralightTag),
         DECLARE_NAPI_FUNCTION("getNdefFormatable", GetNdefFormatableTag),
+        DECLARE_NAPI_FUNCTION("getBarcode", GetBarcodeTag),
         DECLARE_NAPI_FUNCTION("getTagInfo", GetTagInfo),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_A", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_A_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_B", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_B_TECH))),

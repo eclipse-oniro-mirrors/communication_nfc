@@ -20,7 +20,7 @@
 #include "mifare_classic_tag.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "nfc_napi_tag_sesstion.h"
+#include "nfc_napi_tag_session.h"
 #include "nfc_napi_common_utils.h"
 
 namespace OHOS {

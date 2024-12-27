@@ -22,7 +22,7 @@
 #include "ndef_formatable_tag.h"
 #include "ndef_message.h"
 #include "nfc_napi_ndef_message.h"
-#include "nfc_napi_tag_sesstion.h"
+#include "nfc_napi_tag_session.h"
 #include "nfc_napi_common_utils.h"
 
 namespace OHOS {
