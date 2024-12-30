@@ -90,6 +90,23 @@ HWTEST_F(HceServiceTest, RegHceCmdCallback001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UnRegHceCmdCallback001
+ * @tc.desc: Test HceServiceTest UnRegHceCmdCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceServiceTest, UnRegHceCmdCallback001, TestSize.Level1)
+{
+    sptr<HceCmdListener> callback = sptr<HceCmdListener>(new (std::nothrow) HceCmdListener());
+    HceService::GetInstance().UnRegHceCmdCallback(callback, "hceCmd");
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(ret == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
  * @tc.name: SendRawFrame001
  * @tc.desc: Test HceServiceTest SendRawFrame001.
  * @tc.type: FUNC

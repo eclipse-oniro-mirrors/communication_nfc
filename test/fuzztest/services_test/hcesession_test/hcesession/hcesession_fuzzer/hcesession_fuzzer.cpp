@@ -82,7 +82,7 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         Security::AccessToken::AccessTokenID callerToken = 0;
-        hceSession->UnRegHceCmdCallback(type, callerToken);
+        hceSession->UnRegHceCmdCallbackByToken(type, callerToken);
     }
 
     void FuzzUnRegAllCallback(const uint8_t* data, size_t size)

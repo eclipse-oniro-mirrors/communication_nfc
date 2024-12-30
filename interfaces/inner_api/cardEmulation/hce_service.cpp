@@ -53,6 +53,18 @@ ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, c
     }
     return hceSession->RegHceCmdCallback(callback, type);
 }
+
+ErrorCode HceService::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
+{
+    DebugLog("HceService::UnRegHceCmdCallback");
+    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy();
+    if (hceSession == nullptr) {
+        ErrorLog("HceService::UnRegHceCmdCallback, ERR_HCE_STATE_UNBIND");
+        return ErrorCode::ERR_HCE_STATE_UNBIND;
+    }
+    return hceSession->UnregHceCmdCallback(callback, type);
+}
+
 ErrorCode HceService::StopHce(ElementName &element)
 {
     DebugLog("HceService::StopHce");

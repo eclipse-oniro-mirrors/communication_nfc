@@ -32,6 +32,7 @@ public:
     virtual ~HceCmdCallbackStub();
     static HceCmdCallbackStub &GetInstance();
     KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
+    KITS::ErrorCode UnRegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
                                 MessageOption &option) override;
 
