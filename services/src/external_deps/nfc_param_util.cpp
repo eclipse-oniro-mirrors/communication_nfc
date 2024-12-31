@@ -42,11 +42,9 @@ int NfcParamUtil::GetNfcStateFromParam()
         return 0; // return invalid nfc state
     }
     InfoLog("GetNfcStateFromParam, nfc state[%{public}s]", nfcState);
-    errno = 0;
-    char *endptr = nullptr;
-    long int num = std::strtol(nfcState, &endptr, DECIMAL_NOTATION);
-    if (errno == ERANGE) {
-        ErrorLog("strtol errno = ERANGE");
+    int32_t num = 0;
+    if (!KITS::NfcSdkCommon::SecureStringToInt(nfcState, num, KITS::DECIMAL_NOTATION)) {
+        ErrorLog("SecureStringToInt error");
         return 0; // return invalid nfc state
     }
     return static_cast<int>(num);

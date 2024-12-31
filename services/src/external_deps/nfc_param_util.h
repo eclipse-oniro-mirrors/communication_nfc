@@ -20,7 +20,6 @@
 constexpr const char* NFC_SWITCH_STATE_PARAM_NAME = "persist.nfc.switch.state";
 const int PROPERTY_VALUE_MAX = 16;
 const int NFC_SWITCH_PARAM_LEN = 1;
-const uint32_t DECIMAL_NOTATION = 10;
 
 namespace OHOS {
 namespace NFC {
