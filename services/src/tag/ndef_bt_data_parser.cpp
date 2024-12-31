@@ -472,12 +472,12 @@ std::shared_ptr<BtData> NdefBtDataParser::CheckBtRecord(const std::string& msg)
 
 bool NdefBtDataParser::IsVendorPayloadValid(const std::string& payload)
 {
-    int len = payload.length();
+    size_t len = payload.length();
     if (len % HEX_BYTE_LEN != 0) {
         ErrorLog("BT vendor payload len invalid");
         return false;
     }
-    int bytesLen = len / HEX_BYTE_LEN;
+    int bytesLen = static_cast<int>(len / HEX_BYTE_LEN);
     if (bytesLen > VENDOR_PAYLOAD_MAX_LEN) {
         ErrorLog("BT vendor payload len exceeds, bytesLen = %{public}d", bytesLen);
         return false;
