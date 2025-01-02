@@ -1,0 +1,96 @@
+{
+    "string":[
+        {
+            "name":"DefaultTitle",
+            "value":"[TS_1000960]_NFC tag discovered. Touch to view."
+        },
+        {
+            "name":"DefaultText",
+            "value":"[TS_1000962]_Some apps may have their own NFC controls that need to be enabled manually."
+        },
+        {
+            "name":"LingNanTong",
+            "value":"[TS_1000961]_Lingnan Pass"
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"[TS_1000963]_Connect to network"
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"[TS_1000959]_Shenzhen Transportation Card"
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"[TS_1000976]_Connect"
+        },
+        {
+            "name":"TransportCardText",
+            "value":"[TS_1000975]_%s discovered. Balance: %.2f RMB"
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"[TS_1000958]_Pair with \"%s\"?"
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"[TS_1000969]_Shanghai Transport Card"
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"[TS_1000956]_Transportation card found"
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"[TS_1000970]_Connect to network \"%s\"?"
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"[TS_1000964]_GX T-Union Card"
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"[TS_1000977]_Tap for details"
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"[TS_1000957]_NFC pairing request"
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"[TS_1000971]_Beijing Transportation Card"
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"[TS_1000978]_Open link"
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"[TS_1000973]_Pair"
+        },
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"[TS_1000965]_Open link: %s"
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"[TS_1000966]_Select app to use card"
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"[TS_1000968]_Go to AppGallery"
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"[TS_1000974]_NFC notification"
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"[TS_1000967]_No supported apps available. Get apps from AppGallery."
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"[TS_1000972]_Multiple apps available. Open the one you want to use."
+        }
+    ]
+}

@@ -1,7 +1,165 @@
 {
-	"string":	[{
-			"name":	"NfcBtButtonName",
-			"value":	"Pair"
-		}
-	]
+    "string":[
+        {
+            "name":"NfcBtButtonName",
+            "value":"جۈپلەش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"چېكىپ ئەپنى ئېچىڭ، NFC بەلگىسى بايقالدى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"بەزى ئەپلەرنىڭ ئۆزىدە NFC تىزگىنى بولۇشى مۇمكىن.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"لىڭنەنتۇڭ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"تورغا ئۇلاندى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"بۇ تورغا ئۇلامسىز: %s؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"شېنجېنتۇڭ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"ئۇلاش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"\u200f%s بايقالدى، قالدۇق: %.2f يۈەن",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"گۇيمىن تور كارتىسى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"چېكىپ كارتا مەلۇماتىنى بىر تەرەپ قىلىڭ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"NFC جۈپلەش تەلىپى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"بېيجىڭ ھەممىباب كارتىسى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"ئۇلانمىنى ئېچىش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"ئۇلانما: %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"\u200fNFC كارتا سۈرۈش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"ئەپ بازىرى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"\u200fNFC ئۇقتۇرۇشى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"قوللايدىغان ئەپ يوق، ئەپ بازىرىدىن چۈشۈرۈڭ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"\u200f%s بىلەن جۈپلەمسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"شاڭخەي قاتناش كارتىسى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"قاتناش كارتىسى بايقالدى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"كۆپ ئەپ توقۇنۇشىدۇ، كارتا سۈرىدىغان ئەپنى ئۆزىڭىز ئېچىڭ.",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
 }

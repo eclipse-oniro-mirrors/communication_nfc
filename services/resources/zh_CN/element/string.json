@@ -1,73 +1,165 @@
 {
-	"string":	[{
-			"name":	"ShenZhenTong",
-			"value":	"深圳通"
-		}, {
-			"name":	"LingNanTong",
-			"value":	"岭南通"
-		}, {
-			"name":	"BeiJingYiKaTong",
-			"value":	"北京一卡通"
-		}, {
-			"name":	"ShangHaiJiaoTongKa",
-			"value":	"上海交通卡"
-		}, {
-			"name":	"GuiMinHuLianHuTongKa",
-			"value":	"桂民互联互通卡"
-		}, {
-			"name":	"DefaultTitle",
-			"value":	"发现 NFC 标签"
-		}, {
-			"name":	"DefaultText",
-			"value":	"部分应用需开启内部 NFC 开关"
-		}, {
-			"name":	"TransportCardTitle",
-			"value":	"发现公交卡"
-		}, {
-			"name":	"TransportCardText",
-			"value":	"发现%s，余额：%.2f元"
-		}, {
-			"name":	"NfcWifiNtfTitle",
-			"value":	"连接到网络"
-		}, {
-			"name":	"NfcWifiNtfText",
-			"value":	"连接到网络：%s？"
-		}, {
-			"name":	"ActionButtonName",
-			"value":	"点击处理卡片数据"
-		}, {
-			"name":	"NfcWifiButtonName",
-			"value":	"连接"
-		}, {
-			"name":	"NfcBtNtfTitle",
-			"value":	"NFC 蓝牙配对请求"
-		}, {
-			"name":	"NfcBtNtfText",
-			"value":	"与蓝牙设备: %s 配对？"
-		}, {
-			"name":	"NfcBtButtonName",
-			"value":	"配对"
-		},{
-			"name": "NfcHceAidConflictedTitle",
-			"value": "NFC刷卡"
-		},{
-			"name": "NfcHceAidConflictedText",
-			"value": "多个应用冲突，需要打开特定的应用刷卡"
-		},{
-			"name": "NoHapSupportedNtfTitle",
-			"value": "NFC 通知"
-		},{
-			"name": "NoHapSupportedNtfText",
-			"value": "当前无支持应用，请前往应用市场下载"
-		},{
-			"name": "NoHapSupportedNtfButtonName",
-			"value": "前往应用市场"
-		},{
-			"name": "NfcOpenLinkButtonName",
-			"value": "打开链接"
-		},{
-			"name": "NfcOpenLinkTextHead",
-			"value": "打开链接："
-		}
-	]
+    "string":[
+        {
+            "name":"ShenZhenTong",
+            "value":"深圳通",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"岭南通",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"北京一卡通",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"上海交通卡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"桂民互联互通卡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"发现 NFC 标签，点击启动应用",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"部分应用需开启内部 NFC 开关",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"发现公交卡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"发现%s，余额：%.2f元",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"连接到网络",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"点击处理卡片数据",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"连接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"NFC 配对请求",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"与蓝牙设备“%s”配对？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"配对",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"NFC 刷卡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"打开链接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"打开链接：%s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"连接到网络：%s？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"多个应用冲突，需要打开特定的应用刷卡",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"NFC 通知",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"当前无支持应用，请前往应用市场下载",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"前往应用市场",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
 }
