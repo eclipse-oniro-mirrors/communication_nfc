@@ -363,8 +363,7 @@ static int64_t GetAutoDeleteTime()
 
 static void SetBasicOption(Notification::NotificationRequest &request)
 {
-    request.SetCreatorUid(KITS::NFC_MANAGER_SYS_ABILITY_ID);
-    request.SetCreatorBundleName(KITS::NFC_MANAGER_SYS_ABILITY_NAME);
+    request.SetCreatorUid(NFC_SERVICE_UID);
     request.SetAutoDeletedTime(GetAutoDeleteTime());
     request.SetTapDismissed(true);
     request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
@@ -436,7 +435,7 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, KITS::NFC_MANAGER_SYS_ABILITY_ID);
+    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, NFC_SERVICE_UID);
     int lastNtfId = (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID]++) * NTF_COUNT_CONSTANT + notificationId;
     if (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] >= NFC_MAX_NTF_COUNT) {
         tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] = 0;
@@ -474,7 +473,6 @@ void NfcNotification::PublishNfcNotification(int notificationId, const std::stri
         SetActionButton(buttonName, request);
     }
 
-    Notification::NotificationHelper::SetNotificationSlotFlagsAsBundle(bundle, NFC_SLOT_CONTROL_FLAG);
     ret = Notification::NotificationHelper::PublishNotification(request);
     InfoLog("NFC service publish notification result = %{public}d", ret);
 }

@@ -65,6 +65,40 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallb
     return KITS::ERR_NONE;
 }
 
+KITS::ErrorCode HceSessionProxy::UnregHceCmdCallback(
+    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (g_hceCmdCallbackStub == nullptr) {
+        ErrorLog("%{public}s:g_hceCmdCallbackStub is nullptr", __func__);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    g_hceCmdCallbackStub->UnRegHceCmdCallback(callback, type);
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        ErrorLog("Write interface token error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (!data.WriteString(type)) {
+        ErrorLog("Write type error");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    data.WriteInt32(0);
+    if (!data.WriteRemoteObject(g_hceCmdCallbackStub->AsObject())) {
+        ErrorLog("UnregHceCmdCallback WriteRemoteObject failed!");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    int error =
+        SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_OFF), data, option);
+    if (error != ERR_NONE) {
+        ErrorLog("UnregHceCmdCallback failed, error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    return KITS::ERR_NONE;
+}
+
 int HceSessionProxy::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     MessageParcel data;

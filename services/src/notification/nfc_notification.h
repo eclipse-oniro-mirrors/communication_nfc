@@ -58,10 +58,14 @@ const int MAX_BUFF_LEN = 100;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
 const int NTF_AUTO_DELETE_TIME = 10000;
 const int MAX_RES_VEC_LEN = 100;
-const int NFC_NTF_CONTROL_FLAG = 0;
-const int NFC_SLOT_CONTROL_FLAG = 0b101111; // no vibration
 const int NTF_COUNT_CONSTANT = 1000000; // final notification id = 1000000 * count + NfcNotificationId
 const int NFC_MAX_NTF_COUNT = 100;
+const int NFC_SERVICE_UID = 1027;
+
+// use this flag to control notification banners
+// 1 << 9 represents turning on the banner switch for System Ability.
+// 0b010000 represents no vibration
+const int NFC_NTF_CONTROL_FLAG = 1 << 9 | 0b010000; // no vibration
 
 constexpr const char* NFC_ICON_PATH = "system/etc/nfc/resources/base/media/nfc_icon.png";
 constexpr const char* NFC_LANGUAGE_MAP_PATH = "system/etc/nfc/resources/base/profile/nfc_language_map.json";

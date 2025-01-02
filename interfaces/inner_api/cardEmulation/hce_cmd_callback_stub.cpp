@@ -53,6 +53,18 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
     return KITS::ERR_NONE;
 }
 
+KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
+{
+    DebugLog("HceCmdCallbackStub UnRegisterCallBack");
+    if (callback_ == nullptr) {
+        InfoLog("HceCmdCallbackStub:Callback_ has unregistered!");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
+    callback_ = nullptr;
+    return KITS::ERR_NONE;
+}
+
 int HceCmdCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     DebugLog("HceCmdCallbackStub::OnRemoteRequest,code = %{public}d", code);

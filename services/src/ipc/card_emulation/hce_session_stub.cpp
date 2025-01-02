@@ -54,6 +54,8 @@ int HceSessionStub::OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OH
             return HandleIsDefaultService(data, reply);
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_START):
             return HandleStartHce(data, reply);
+        case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_OFF):
+            return HandleUnRegHceCmdCallback(data, reply);
         default: return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
@@ -97,6 +99,38 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &
     reply.WriteInt32(ret);
     return ERR_NONE;
 }
+
+int HceSessionStub::HandleUnRegHceCmdCallback(MessageParcel &data, MessageParcel &reply)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("HandleUnRegHceCmdCallback, ERR_NO_PERMISSION");
+        return KITS::ErrorCode::ERR_NO_PERMISSION;
+    }
+    std::string type = data.ReadString();
+    int exception = data.ReadInt32();
+    if (exception) {
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    KITS::ErrorCode ret = KITS::ERR_NFC_PARAMETERS;
+    do {
+        sptr<IRemoteObject> remote = data.ReadRemoteObject();
+        if (remote == nullptr) {
+            DebugLog("Failed to readRemoteObject!");
+            break;
+        }
+        std::lock_guard<std::mutex> guard(mutex_);
+        if ((remote->IsProxyObject()) && (!remote->RemoveDeathRecipient(deathRecipient_))) {
+            ErrorLog("Failed to remove death recipient");
+            return ERR_NONE;
+        }
+        {
+            ret = UnregHceCmdCallback(nullptr, type);
+        }
+    } while (0);
+    reply.WriteInt32(ret);
+    return ERR_NONE;
+}
+
 int HceSessionStub::HandleSendRawFrame(OHOS::MessageParcel &data, OHOS::MessageParcel &reply)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
@@ -252,6 +286,12 @@ KITS::ErrorCode HceSessionStub::RegHceCmdCallback(const sptr<KITS::IHceCmdCallba
                                                   const std::string &type)
 {
     return RegHceCmdCallbackByToken(callback, type, IPCSkeleton::GetCallingTokenID());
+}
+
+KITS::ErrorCode HceSessionStub::UnregHceCmdCallback(
+    const sptr<KITS::IHceCmdCallback> &callback, const std::string &type)
+{
+    return UnRegHceCmdCallbackByToken(type, IPCSkeleton::GetCallingTokenID());
 }
 
 int HceSessionStub::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)

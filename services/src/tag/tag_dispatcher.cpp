@@ -52,12 +52,12 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
 {
     if (nfcService_) {
         nciTagProxy_ = nfcService_->GetNciTagProxy();
-        nciNfccProxy_ = nfcService_->GetNciNfccProxy();
         if (nciTagProxy_.expired()) {
             ErrorLog("TagDispatcher, nciTagProxy_ expired");
             return;
         }
         isodepCardHandler_ = std::make_shared<IsodepCardHandler>(nciTagProxy_);
+        nciNfccProxy_ = nfcService_->GetNciNfccProxy();
         if (nciNfccProxy_.expired()) {
             ErrorLog("TagDispatcher, nciNfccProxy_ expired");
             return;

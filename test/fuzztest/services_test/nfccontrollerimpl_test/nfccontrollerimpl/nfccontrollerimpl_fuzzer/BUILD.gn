@@ -31,6 +31,8 @@ ohos_fuzztest("NfcControllerImplFuzzTest") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
 
+  defines += [ "DTFUZZ_TEST" ]
+
   cflags = [
     "-g",
     "-O0",

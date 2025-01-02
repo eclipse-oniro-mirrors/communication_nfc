@@ -44,7 +44,7 @@ void NfcWatchDog::MainLoop()
     if (nciNfccProxy_.expired()) {
         return;
     }
-    InfoLog("Watchdog triggered, aborting.");
+    InfoLog("Watchdog [%{public}s] triggered, aborting.", threadName_.c_str());
     NfcFailedParams err;
     if (threadName_.compare("DoTurnOn") == 0) {
         ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::NFC_OPEN_FAILED,

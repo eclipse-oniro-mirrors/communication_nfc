@@ -38,9 +38,8 @@ public:
 
     KITS::ErrorCode RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
                                       Security::AccessToken::AccessTokenID callerToken) override;
-
-    KITS::ErrorCode UnRegHceCmdCallback(const std::string &type,
-                                        Security::AccessToken::AccessTokenID callerToken) override;
+    KITS::ErrorCode UnRegHceCmdCallbackByToken(const std::string &type,
+                                                Security::AccessToken::AccessTokenID callerToken) override;
     KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) override;
     KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken) override;
 

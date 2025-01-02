@@ -65,7 +65,9 @@ void NdefHarDataParserTest::TearDown()
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest001, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(
+        testPtr, testNfccInterface);
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 
     std::string ndefMessage = "";
@@ -111,7 +113,9 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest001, TestSize.Level1)
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest002, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(
+        testPtr, testNfccInterface);
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 
     // Alipay
@@ -127,7 +131,9 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest002, TestSize.Level1)
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest003, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(
+        testPtr, testNfccInterface);
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 
     // China Merchants Bank's Palm Life
@@ -142,7 +148,9 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest003, TestSize.Level1)
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest004, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(
+        testPtr, testNfccInterface);
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 
     // scheme is wallet
@@ -156,7 +164,9 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest004, TestSize.Level1)
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest005, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
-    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(testPtr);
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDataParser> ndefHarDataParserTest = std::make_shared<TAG::NdefHarDataParser>(
+        testPtr, testNfccInterface);
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
 
     // mime type

@@ -91,7 +91,7 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<
 }
 
 /* Verify harPackageString as BundleName/ServiceName and call StartExtensionAbility to pull up app */
-bool NdefHarDispatch::DispatchBundleExtensionAbility(const std::string &harPackageString, 
+bool NdefHarDispatch::DispatchBundleExtensionAbility(const std::string &harPackageString,
     const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
     std::istringstream iss(harPackageString);
@@ -122,7 +122,7 @@ bool NdefHarDispatch::DispatchBundleExtensionAbility(const std::string &harPacka
 }
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
-bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage, 
+bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
     if (harPackage.empty()) {
@@ -132,13 +132,16 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     std::string harPackageString = NfcSdkCommon::HexStringToAsciiString(harPackage);
     AAFwk::Want want;
     if (GetBundleMgrProxy() == nullptr) {
-        ErrorLog("NdefHarDispatch::GetBundleMgrProxy is nullptr");
+        ErrorLog("GetBundleMgrProxy is nullptr");
         return false;
     }
     int32_t errCode = GetBundleMgrProxy()->GetLaunchWantForBundle(harPackageString, want, USER_ID);
     if (errCode) {
-        ErrorLog("NdefHarDispatch::GetLaunchWantForBundle fail. ret = %{public}d, harPackage = %{public}s",
+        InfoLog("GetLaunchWantForBundle fail. ret = %{public}d, harPackage = %{public}s, try ExtensionAbility instead",
             errCode, harPackageString.c_str());
+        if (DispatchBundleExtensionAbility(harPackageString, tagInfo, mimeType, uri)) {
+            return true;
+        }
         return false;
     }
     if (!mimeType.empty()) {
@@ -152,11 +155,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     }
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
-        ErrorLog("NdefHarDispatch::StartAbility fail. ret = %{public}d, harPackage = %{public}s",
+        ErrorLog("StartAbility fail. ret = %{public}d, harPackage = %{public}s",
             errCode, harPackageString.c_str());
-        if (DispatchBundleExtensionAbility(harPackageString, tagInfo, mimeType, uri)) {
-            return true;
-        }
         return false;
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),

@@ -52,12 +52,6 @@ NfcService::~NfcService()
     nfcControllerImpl_ = nullptr;
     nfcPollingManager_ = nullptr;
     nfcRoutingManager_ = nullptr;
-    if (task_ && task_->joinable()) {
-        task_->join();
-    }
-    if (rootTask_ && rootTask_->joinable()) {
-        rootTask_->join();
-    }
 }
 
 std::weak_ptr<NfcService> NfcService::GetInstance() const
@@ -108,6 +102,8 @@ bool NfcService::Initialize()
     // inner message handler, used by other modules as initialization parameters
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create("nfcservice::EventRunner");
     eventHandler_ = std::make_shared<NfcEventHandler>(runner, shared_from_this());
+    nfcSwitchHandler_ = std::make_shared<NfcSwitchEventHandler>(
+        AppExecFwk::EventRunner::Create("NfcSwitchHandler", AppExecFwk::ThreadMode::FFRT), shared_from_this());
     tagDispatcher_ = std::make_shared<TAG::TagDispatcher>(shared_from_this());
     ceService_ = std::make_shared<CeService>(shared_from_this(), nciCeProxy_);
 
@@ -129,6 +125,7 @@ bool NfcService::Initialize()
 
 void NfcService::UnloadNfcSa()
 {
+#ifndef DTFUZZ_TEST // not for fuzz
     InfoLog("%{public}s enter, systemAbilityId = [%{public}d] unloading", __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID);
     if (nfcState_ != KITS::STATE_OFF) {
         InfoLog("%{public}s nfc state = [%{public}d] skip unload", __func__, nfcState_);
@@ -145,6 +142,7 @@ void NfcService::UnloadNfcSa()
         ErrorLog("%{public}s: Failed to unload system ability, SA Id = [%{public}d], ret = [%{public}d].",
             __func__, KITS::NFC_MANAGER_SYS_ABILITY_ID, ret);
     }
+#endif
 }
 
 std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
@@ -213,88 +211,78 @@ void NfcService::OnCardEmulationDeactivated()
     ceService_->OnCardEmulationDeactivated();
 }
 
-bool NfcService::IsNfcTaskReady(std::future<int>& future) const
-{
-    for (uint8_t count = 0; count < MAX_RETRY_TIME; count++) {
-        if (future.valid()) {
-            std::future_status result = future.wait_for(std::chrono::milliseconds(TASK_THREAD_WAIT_MS));
-            if (result != std::future_status::ready) {
-                InfoLog("result = %{public}d, not ready", result);
-                usleep(TASK_THREAD_WAIT_US);
-                continue;
-            } else {
-                InfoLog("result = %{public}d, ready", result);
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-    return false;
-}
-
 int NfcService::ExecuteTask(KITS::NfcTask param)
 {
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (nfcState_ == KITS::STATE_TURNING_OFF || nfcState_ == KITS::STATE_TURNING_ON) {
-            WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState_);
-            return KITS::ERR_NFC_STATE_INVALID;
-        }
-
-        // Check the current state
-        if (param == KITS::TASK_TURN_ON && nfcState_ == KITS::STATE_ON) {
-            WarnLog("NFC Turn On, already On");
-            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
-            return ERR_NONE;
-        }
-        if (param == KITS::TASK_TURN_OFF && nfcState_ == KITS::STATE_OFF) {
-            WarnLog("NFC Turn Off, already Off");
-            ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
-            UnloadNfcSa();
-            return ERR_NONE;
-        }
+    if (nfcSwitchHandler_ == nullptr) {
+        ErrorLog("eventhandler nullptr.");
+        return KITS::ERR_NFC_STATE_INVALID;
     }
-
-    std::promise<int> promise;
-    if (rootTask_) {
-        if (!IsNfcTaskReady(future_)) {
-            WarnLog("ExecuteTask, IsNfcTaskReady is false.");
-            return KITS::ERR_NFC_STATE_INVALID;
-        }
-        if (task_ && task_->joinable()) {
-            task_->join();
-        }
-        future_ = promise.get_future();
-        task_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
-            this->NfcTaskThread(param, std::move(promise));
-        });
-    } else {
-        rootTask_ = std::make_unique<std::thread>([this, param, promise = std::move(promise)]() mutable {
-            this->NfcTaskThread(param, std::move(promise));
-        });
-    }
+    InfoLog("executing task [%{public}d]", param);
+    nfcSwitchHandler_->RemoveAllEvents();
+    nfcSwitchHandler_->SendEvent(param);
     return ERR_NONE;
 }
 
-void NfcService::NfcTaskThread(KITS::NfcTask params, std::promise<int> promise)
+NfcService::NfcSwitchEventHandler::NfcSwitchEventHandler(
+    const std::shared_ptr<AppExecFwk::EventRunner>& runner, std::weak_ptr<NfcService> service)
+    : EventHandler(runner), nfcService_(service)
 {
-    InfoLog("Nfc task thread params %{public}d", params);
-    switch (params) {
+}
+
+NfcService::NfcSwitchEventHandler::~NfcSwitchEventHandler()
+{
+}
+
+bool NfcService::NfcSwitchEventHandler::CheckNfcState(int param)
+{
+    int nfcState = nfcService_.lock()->GetNfcState();
+    if (nfcState == KITS::STATE_TURNING_OFF || nfcState == KITS::STATE_TURNING_ON) {
+        WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState);
+        return false;
+    }
+    if (param == KITS::TASK_TURN_ON && nfcState == KITS::STATE_ON) {
+        WarnLog("NFC Turn On, already On");
+        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
+        return false;
+    }
+    if (param == KITS::TASK_TURN_OFF && nfcState == KITS::STATE_OFF) {
+        WarnLog("NFC Turn Off, already Off");
+        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_OFF);
+        return false;
+    }
+    return true;
+}
+
+void NfcService::NfcSwitchEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    if (event == nullptr) {
+        ErrorLog("event nullptr.");
+        return;
+    }
+    if (nfcService_.expired()) {
+        ErrorLog("nfc service expired.");
+        return;
+    }
+    int eventId = static_cast<int>(event->GetInnerEventId());
+    InfoLog("process eventid = [%{public}d]", eventId);
+    if (!CheckNfcState(eventId)) {
+        return;
+    }
+    switch (eventId) {
+        case KITS::TASK_INITIALIZE:
+            nfcService_.lock()->DoInitialize();
+            break;
         case KITS::TASK_TURN_ON:
-            DoTurnOn();
+            nfcService_.lock()->DoTurnOn();
             break;
         case KITS::TASK_TURN_OFF:
-            DoTurnOff();
-            break;
-        case KITS::TASK_INITIALIZE:
-            DoInitialize();
+            nfcService_.lock()->DoTurnOff();
             break;
         default:
+            WarnLog("ProcessEvent, unknown eventId %{public}d", eventId);
             break;
     }
-    promise.set_value_at_thread_exit(0);
-    return;
+    InfoLog("process eventid finished.");
 }
 
 bool NfcService::DoTurnOn()

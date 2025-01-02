@@ -80,6 +80,7 @@ public:
         COMMAND_CE_HCE_TRANSMIT,
         COMMAND_CE_HCE_GET_PAYMENT_SERVICES,
         COMMAND_CE_HCE_IS_DEFAULT_SERVICE,
+        COMMAND_CE_HCE_OFF,
         // The last code, if you want to add a new code, please add it before this
         COMMAND_CE_HCE_SESSION_BOTTOM
     };

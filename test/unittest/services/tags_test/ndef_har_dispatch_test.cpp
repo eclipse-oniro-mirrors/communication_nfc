@@ -65,7 +65,9 @@ void NdefHarDispatchTest::TearDown()
  */
 HWTEST_F(NdefHarDispatchTest, GetNdefNdefHarDispatch001, TestSize.Level1)
 {
-    std::shared_ptr<TAG::NdefHarDispatch> ndefHarDispatchTest = std::make_shared<TAG::NdefHarDispatch>();
+std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::shared_ptr<TAG::NdefHarDispatch> ndefHarDispatchTest = std::make_shared<TAG::NdefHarDispatch>(
+        testNfccInterface);
 
     std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
     std::string mimeType = "";

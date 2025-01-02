@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ public:
     ~TagAbilityDispatcher();
 
     static void SetWantExtraParam(const std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want& want);
-    static void DispatchTagAbility(const std::shared_ptr<KITS::TagInfo>& tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
+    static void DispatchTagAbility(
+        const std::shared_ptr<KITS::TagInfo>& tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     static void DispatchAbilityMultiApp(const std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want& want);
     static void DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName);
     static void DispatchAbilitySingleApp(AAFwk::Want& want);

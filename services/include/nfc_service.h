@@ -28,6 +28,7 @@
 #include "inci_nfcc_interface.h"
 #include "inci_tag_interface.h"
 #include "host_card_emulation_manager.h"
+#include "event_handler.h"
 
 namespace OHOS {
 namespace NFC {
@@ -78,11 +79,9 @@ public:
     void NotifyMessageToVendor(int key, const std::string &value);
 
 private:
-    bool IsNfcTaskReady(std::future<int>& future) const;
     int ExecuteTask(KITS::NfcTask param);
     void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
-    void NfcTaskThread(KITS::NfcTask params, std::promise<int> promise);
     bool DoTurnOn();
     bool DoTurnOff();
     void DoInitialize();
@@ -98,6 +97,23 @@ private:
     void HandleShutdown();
     void SetupUnloadNfcSaTimer(bool shouldRestartTimer);
     void CancelUnloadNfcSaTimer();
+
+    class NfcSwitchEventHandler final : public AppExecFwk::EventHandler {
+    public:
+        explicit NfcSwitchEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
+                                        std::weak_ptr<NfcService> service);
+        ~NfcSwitchEventHandler();
+        NfcSwitchEventHandler& operator=(const NfcSwitchEventHandler&) = delete;
+        NfcSwitchEventHandler(const NfcSwitchEventHandler&) = delete;
+
+        void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
+
+    private:
+        bool CheckNfcState(int param);
+
+    private:
+        std::weak_ptr<NfcService> nfcService_;
+    };
 
 private:
     // ms wait for initialization, included firmware download.
@@ -131,11 +147,10 @@ private:
     std::shared_ptr<NfcPollingParams> currPollingParams_ {};
 
     std::vector<NfcStateRegistryRecord> stateRecords_;
+    std::shared_ptr<NfcSwitchEventHandler> nfcSwitchHandler_ = nullptr;
+
     // lock
     std::mutex mutex_ {};
-    std::future<int> future_ {};
-    std::unique_ptr<std::thread> task_ {};
-    std::unique_ptr<std::thread> rootTask_ {};
 
     // unload sa timer id
     static uint32_t unloadStaSaTimerId;

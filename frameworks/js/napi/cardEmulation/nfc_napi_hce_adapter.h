@@ -40,6 +40,7 @@ public:
     static napi_value Constructor(napi_env env, napi_callback_info info);
     static void Destructor(napi_env env, void* nativeObject, void* /*finalize_hint*/);
     static napi_value OnHceCmd(napi_env env, napi_callback_info info);
+    static napi_value OffHceCmd(napi_env env, napi_callback_info info);
     static napi_value Transmit(napi_env env, napi_callback_info info);
     static napi_value StopHce(napi_env env, napi_callback_info cbinfo);
     static napi_value StartHCEDeprecated(napi_env env, napi_callback_info cbinfo);
@@ -90,8 +91,10 @@ public:
 
     void Register(const napi_env& env, const std::string& type, napi_value handler);
     void Unregister(const napi_env& env, ElementName& element);
+    void UnregisterForOffIntf(const napi_env& env, const std::string& type);
 private:
     ErrorCode RegHceCmdCallbackEvents(const napi_env& env, const std::string& type);
+    ErrorCode UnRegHceCmdCallbackEvents(const napi_env& env, const std::string& type);
     ErrorCode UnregisterHceEvents(const napi_env& env, ElementName &element);
     bool IsEventSupport(const std::string& type);
     void DeleteHceCmdRegisterObj(const napi_env& env);

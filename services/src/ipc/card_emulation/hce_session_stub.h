@@ -37,9 +37,8 @@ public:
     virtual KITS::ErrorCode RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback>& callback,
                                                      const std::string& type,
                                                      Security::AccessToken::AccessTokenID callerToken) = 0;
-
-    virtual KITS::ErrorCode UnRegHceCmdCallback(const std::string& type,
-                                                Security::AccessToken::AccessTokenID callerToken) = 0;
+    virtual KITS::ErrorCode UnRegHceCmdCallbackByToken(const std::string& type,
+                                                        Security::AccessToken::AccessTokenID callerToken) = 0;
     virtual KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) = 0;
     virtual KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken) = 0;
 
@@ -54,6 +53,8 @@ public:
 private:
     int HandleRegHceCmdCallback(MessageParcel& data, MessageParcel& reply);
 
+    int HandleUnRegHceCmdCallback(MessageParcel& data, MessageParcel& reply);
+
     int HandleSendRawFrame(OHOS::MessageParcel& data, OHOS::MessageParcel& reply);
 
     int HandleGetPaymentServices(MessageParcel& data, MessageParcel& reply);
@@ -66,9 +67,8 @@ private:
 
     int HandleIsDefaultService(MessageParcel& data, MessageParcel& reply);
 
-    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback,
-                                      const std::string& type) override;
-
+    KITS::ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback, const std::string& type) override;
+    KITS::ErrorCode UnregHceCmdCallback(const sptr<KITS::IHceCmdCallback>& callback, const std::string& type) override;
     int SendRawFrame(std::string hexCmdData, bool raw, std::string& hexRespData) override;
     KITS::ErrorCode StopHce(ElementName &element) override;
 

@@ -39,6 +39,10 @@ config("nfc_config") {
     defines += [ "NDEF_BT_ENABLED" ]
   }
 
+  if (is_asan || use_clang_coverage) {
+    defines += [ "DTFUZZ_TEST" ]
+  }
+
   include_dirs = [
     "include",
     "src/ipc/controller",

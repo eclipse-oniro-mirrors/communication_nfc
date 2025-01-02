@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NFC_NAPI_TAG_SESSTION_H_
-#define NFC_NAPI_TAG_SESSTION_H_
+#ifndef NFC_NAPI_TAG_SESSION_H_
+#define NFC_NAPI_TAG_SESSION_H_
 
 #include <memory>
 #include "basic_tag_session.h"

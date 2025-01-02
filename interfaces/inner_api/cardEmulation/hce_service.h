@@ -34,6 +34,7 @@ public:
     static HceService &GetInstance();
 
     ErrorCode RegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
+    ErrorCode UnRegHceCmdCallback(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type);
     ErrorCode StopHce(ElementName &element);
     ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService);
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData);
