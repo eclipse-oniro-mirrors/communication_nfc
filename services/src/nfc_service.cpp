@@ -411,6 +411,10 @@ int NfcService::SetRegisterCallBack(const sptr<INfcControllerCallback> &callback
         record.callerToken_ = callerToken;
         record.nfcStateChangeCallback_ = callback;
         stateRecords_.push_back(record);
+        // if callback non-STATE_ON when register, the nfc icon of sceneboard will blink
+        if (nfcState_ == KITS::STATE_ON) {
+            callback->OnNfcStateChanged(nfcState_);
+        }
     }
     return KITS::ERR_NONE;
 }
