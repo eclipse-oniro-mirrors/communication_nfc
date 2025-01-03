@@ -44,10 +44,11 @@ static void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode)
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
 }
 
-NdefHarDataParser::NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTagProxy)
-    : nciTagProxy_(nciTagProxy)
+NdefHarDataParser::NdefHarDataParser(
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy, std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
+    : nciTagProxy_(nciTagProxy), nciNfccProxy_(nciNfccProxy)
 {
-    ndefHarDispatch_ = std::make_shared<NdefHarDispatch>();
+    ndefHarDispatch_ = std::make_shared<NdefHarDispatch>(nciNfccProxy_);
 }
 
 /* Ndef process function provided to HandleNdefDispatch */

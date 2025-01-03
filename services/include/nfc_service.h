@@ -67,6 +67,7 @@ public:
     int GetNfcState() override;
     int GetScreenState() override;
     int GetNciVersion() override;
+    std::weak_ptr<NCI::INciNfccInterface> GetNciNfccProxy(void);
     std::weak_ptr<NCI::INciTagInterface> GetNciTagProxy(void);
     std::weak_ptr<NfcPollingManager> GetNfcPollingManager() override;
     std::weak_ptr<NfcRoutingManager> GetNfcRoutingManager() override;

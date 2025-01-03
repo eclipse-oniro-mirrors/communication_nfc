@@ -59,6 +59,11 @@ std::weak_ptr<NfcService> NfcService::GetInstance() const
     return nfcService_;
 }
 
+std::weak_ptr<NCI::INciNfccInterface> NfcService::GetNciNfccProxy(void)
+{
+    return nciNfccProxy_;
+}
+
 std::weak_ptr<NCI::INciTagInterface> NfcService::GetNciTagProxy(void)
 {
     return nciTagProxy_;

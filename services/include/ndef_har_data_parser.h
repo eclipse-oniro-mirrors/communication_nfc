@@ -50,7 +50,8 @@ const int URI_MAX_LENGTH = 2048;
 
 class NdefHarDataParser {
 public:
-    NdefHarDataParser(std::weak_ptr<NCI::INciTagInterface> nciTagProxy);
+    NdefHarDataParser(
+        std::weak_ptr<NCI::INciTagInterface> nciTagProxy, std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
     ~NdefHarDataParser() {}
     bool TryNdef(const std::string& msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
 
@@ -75,6 +76,7 @@ private:
 
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
     RecordsType schemeType_;
     RecordsType mimeType_;
     std::string mimeTypeStr_ {};

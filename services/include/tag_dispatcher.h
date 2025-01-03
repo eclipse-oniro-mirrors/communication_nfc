@@ -54,6 +54,7 @@ private:
 private:
     std::shared_ptr<NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 
     // tag field on checking
     const static int DEFAULT_FIELD_ON_CHECK_DURATION = 150; // ms

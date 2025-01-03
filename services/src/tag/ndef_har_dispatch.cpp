@@ -33,14 +33,9 @@ using namespace OHOS::NFC::KITS;
 std::string uri_ {};
 std::string browserBundleName_ {};
 
-NdefHarDispatch::NdefHarDispatch()
+NdefHarDispatch::NdefHarDispatch(std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
+    : nciNfccProxy_(nciNfccProxy)
 {
-}
-
-NdefHarDispatch& NdefHarDispatch::GetInstance()
-{
-    static NdefHarDispatch instance;
-    return instance;
 }
 
 sptr<AppExecFwk::IBundleMgr> NdefHarDispatch::GetBundleMgrProxy()
@@ -166,6 +161,9 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::NDEF_HAR_DISPATCH);
+    if (!nciNfccProxy_.expired()) {
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::TAG_DISPATCH_HAR_PACKAGE, harPackageString);
+    }
     return true;
 }
 
