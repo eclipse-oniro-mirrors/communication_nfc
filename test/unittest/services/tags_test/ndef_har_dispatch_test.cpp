@@ -98,8 +98,8 @@ std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
     type = "ABC";
     ndefHarDispatchTest->DispatchMimeType(type, tagInfo);
 
-    std::string webAddress = "";
-    ndefHarDispatchTest->DispatchHttpWebLink(webAddress);
+    std::string uriSchemeValue = "";
+    ndefHarDispatchTest->DispatchByAppLinkMode(uriSchemeValue);
     ASSERT_TRUE(ndefHarDispatchTest != nullptr);
 }
 }

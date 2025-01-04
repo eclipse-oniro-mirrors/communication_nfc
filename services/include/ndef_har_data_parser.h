@@ -70,8 +70,8 @@ private:
     bool IsOtherPlatformAppType(const std::string &appType);
     bool StartsWith(const std::string &str, const std::string &prefix);
     void ParseRecordsProperty(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    bool DispatchByHttpWebLink();
-    bool DispatchUriToBundleAbility(const std::vector<std::shared_ptr<NdefRecord>> &records);
+    bool DispatchByAppLinkMode();
+    bool HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
     bool DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
 
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
@@ -81,7 +81,7 @@ private:
     RecordsType mimeType_;
     std::string mimeTypeStr_ {};
     std::string uriAddress_ {};
-    std::string webLink_ {};
+    std::string uriSchemeValue_ {};
 };
 } // namespace TAG
 } // namespace NFC
