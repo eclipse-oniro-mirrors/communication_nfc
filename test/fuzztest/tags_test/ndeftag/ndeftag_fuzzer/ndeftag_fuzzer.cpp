@@ -120,7 +120,12 @@ namespace OHOS {
 
     void FuzzGetTag(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
+        std::vector<int> tagTechList;
+        std::vector<AppExecFwk::PacMap> tagTechExtras;
+        std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
+        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<TagInfo> tagInfo =
+            std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         if (tagInfo == nullptr) {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;

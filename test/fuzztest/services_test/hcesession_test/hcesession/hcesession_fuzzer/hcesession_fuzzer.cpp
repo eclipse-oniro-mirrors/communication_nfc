@@ -62,7 +62,7 @@ namespace OHOS {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         ElementName element;
-        Security::AccessToken::AccessTokenID callerToken = 0;
+        Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->StopHce(element, callerToken);
     }
 
@@ -89,7 +89,7 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        Security::AccessToken::AccessTokenID callerToken = 0;
+        Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->UnRegAllCallback(callerToken);
     }
 
@@ -97,7 +97,7 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        Security::AccessToken::AccessTokenID callerToken = 0;
+        Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->HandleWhenRemoteDie(callerToken);
     }
 }

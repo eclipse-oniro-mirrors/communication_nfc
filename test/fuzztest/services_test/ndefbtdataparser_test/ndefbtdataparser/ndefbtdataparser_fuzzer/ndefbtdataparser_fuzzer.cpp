@@ -43,39 +43,12 @@ namespace OHOS {
             return;
         }
         ndefBtDataParser->CheckBtRecord(msg);
-    }
-
-    void FuzzCheckBtRecord1(const uint8_t* data, size_t size)
-    {
-        std::string msg = "";
-        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-        if (ndefBtDataParser == nullptr) {
-            return;
-        }
-        ndefBtDataParser->CheckBtRecord(msg);
-    }
-
-    void FuzzCheckBtRecord2(const uint8_t* data, size_t size)
-    {
-        std::string msg = "CheckbtRecord";
-        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-        if (ndefBtDataParser == nullptr) {
-            return;
-        }
-        ndefBtDataParser->CheckBtRecord(msg);
-    }
-
-    void FuzzCheckBtRecord3(const uint8_t* data, size_t size)
-    {
-        std::string msg = "D220566170706C69636174696F6E2F766E642E626C7565746F6F74682E65"
-                          "702E6F6F625600BE17010E7F04050949435341040D14042C0B030B110C11"
-                          "0E111E11001236FF027D0320010240005A45303031810800113000190103"
-                          "021901010101020306047F0E0117BE020E52726364687A5238363739393532";
-        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-        if (ndefBtDataParser == nullptr) {
-            return;
-        }
-        ndefBtDataParser->CheckBtRecord(msg);
+        ndefBtDataParser->CheckBtRecord("");
+        ndefBtDataParser->CheckBtRecord("CheckbtRecord");
+        ndefBtDataParser->CheckBtRecord("D220566170706C69636174696F6E2F766E642E626C7565746F6F74682E65"
+                                        "702E6F6F625600BE17010E7F04050949435341040D14042C0B030B110C11"
+                                        "0E111E11001236FF027D0320010240005A45303031810800113000190103"
+                                        "021901010101020306047F0E0117BE020E52726364687A5238363739393532");
     }
 }
 
@@ -88,9 +61,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::FuzzCheckBtRecord(data, size);
-    OHOS::FuzzCheckBtRecord1(data, size);
-    OHOS::FuzzCheckBtRecord2(data, size);
-    OHOS::FuzzCheckBtRecord3(data, size);
     return 0;
 }
 

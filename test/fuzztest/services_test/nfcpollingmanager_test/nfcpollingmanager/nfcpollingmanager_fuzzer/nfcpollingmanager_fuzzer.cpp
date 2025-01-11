@@ -54,8 +54,13 @@ namespace OHOS {
         std::weak_ptr<NCI::INciTagInterface> nciTagProxy;
         std::shared_ptr<NfcPollingManager> nfcPollingManager =
             std::make_shared<NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
-        AppExecFwk::ElementName element;
+        std::string deviceId = std::string(reinterpret_cast<const char*>(data), size);
+        std::string bundleName = std::string(reinterpret_cast<const char*>(data), size);
+        std::string abilityName = std::string(reinterpret_cast<const char*>(data), size);
+        std::string moduleName = std::string(reinterpret_cast<const char*>(data), size);
+        AppExecFwk::ElementName element(deviceId, bundleName, abilityName, moduleName);
         std::vector<uint32_t> discTech;
+        discTech.push_back(static_cast<uint32_t>(data[0]));
         sptr<KITS::IForegroundCallback> callback = nullptr;
         nfcPollingManager->EnableForegroundDispatch(element, discTech, callback);
     }
@@ -67,7 +72,11 @@ namespace OHOS {
         std::weak_ptr<NCI::INciTagInterface> nciTagProxy;
         std::shared_ptr<NfcPollingManager> nfcPollingManager =
             std::make_shared<NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
-        AppExecFwk::ElementName element;
+        std::string deviceId = std::string(reinterpret_cast<const char*>(data), size);
+        std::string bundleName = std::string(reinterpret_cast<const char*>(data), size);
+        std::string abilityName = std::string(reinterpret_cast<const char*>(data), size);
+        std::string moduleName = std::string(reinterpret_cast<const char*>(data), size);
+        AppExecFwk::ElementName element(deviceId, bundleName, abilityName, moduleName);
         nfcPollingManager->DisableForegroundDispatch(element);
     }
 

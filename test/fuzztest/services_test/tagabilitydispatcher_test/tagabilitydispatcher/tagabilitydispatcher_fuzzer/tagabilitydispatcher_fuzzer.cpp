@@ -172,7 +172,12 @@ namespace NFC {
 
     void FuzzDispatchTagAbility1(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+        std::vector<int> tagTechList;
+        std::vector<AppExecFwk::PacMap> tagTechExtras;
+        std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
+        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<KITS::TagInfo> tagInfo =
+            std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         OHOS::sptr<IRemoteObject> tagServiceIface = nullptr;
         std::shared_ptr<TagAbilityDispatcher> tagAbilityDispatcher = std::make_shared<TagAbilityDispatcher>();
         tagAbilityDispatcher->DispatchTagAbility(tagInfo, tagServiceIface);
@@ -180,7 +185,12 @@ namespace NFC {
 
     void FuzzDispatchAbilityMultiApp(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+        std::vector<int> tagTechList;
+        std::vector<AppExecFwk::PacMap> tagTechExtras;
+        std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
+        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<KITS::TagInfo> tagInfo =
+            std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         AAFwk::Want want;
         std::shared_ptr<TagAbilityDispatcher> tagAbilityDispatcher = std::make_shared<TagAbilityDispatcher>();
         tagAbilityDispatcher->DispatchAbilityMultiApp(tagInfo, want);

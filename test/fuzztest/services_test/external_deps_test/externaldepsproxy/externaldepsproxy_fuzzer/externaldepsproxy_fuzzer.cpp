@@ -158,10 +158,9 @@ namespace NFC {
 
     void FuzzWriteNfcFailedHiSysEvent(const uint8_t* data, size_t size)
     {
-        NfcFailedParams err;
-        ExternalDepsProxy::GetInstance().BuildFailedParams(err, MainErrorCode::INIT_SA_FAILED,
-            SubErrorCode::DEFAULT_ERR_DEF);
-        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
+        MainErrorCode mainErrorCode = static_cast<MainErrorCode>(data[0]);
+        SubErrorCode subErrorCode = static_cast<SubErrorCode>(data[1]);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(mainErrorCode, subErrorCode);
     }
 
     void FuzzWriteOpenAndCloseHiSysEvent(const uint8_t* data, size_t size)

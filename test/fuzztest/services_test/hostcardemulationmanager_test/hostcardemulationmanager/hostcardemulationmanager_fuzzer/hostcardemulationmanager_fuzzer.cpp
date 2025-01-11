@@ -166,7 +166,7 @@ public:
         std::weak_ptr<CeService> ceService;
         std::shared_ptr<HostCardEmulationManager> manager =
             std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
-        AccessTokenID callerToken = 0;
+        AccessTokenID callerToken = static_cast<uint64_t>(data[0]);
         manager->UnRegAllCallback(callerToken);
     }
 
@@ -249,7 +249,7 @@ public:
 
     void FuzzComputeRoutingParams(const uint8_t* data, size_t size)
     {
-        KITS::DefaultPaymentType defaultPaymentType = DefaultPaymentType::TYPE_HCE;
+        KITS::DefaultPaymentType defaultPaymentType = static_cast<KITS::DefaultPaymentType>(data[0]);
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
         std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
