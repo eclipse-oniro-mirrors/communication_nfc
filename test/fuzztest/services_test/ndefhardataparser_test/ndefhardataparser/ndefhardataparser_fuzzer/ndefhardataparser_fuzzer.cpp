@@ -42,163 +42,24 @@ namespace OHOS {
         std::weak_ptr<NFC::NCI::INciNfccInterface> testNfccInterface;
         std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
             testPtr, testNfccInterface);
-        std::string msg = "";
+        std::string msg = NfcSdkCommon::BytesVecToHexString(data, size);
         std::shared_ptr<TagInfo> tagInfo = nullptr;
         ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef2(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "DA060F01";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef3(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D40F00616E64726F69642E636F6D3A706B67";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef4(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D100023132";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef5(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D1010055";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef6(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D1010A550262616964752E636F6D";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef7(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D10216537091010A550162616964752E636F6D51010451027A6861";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef8(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D101015520";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef9(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D10102550068";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef10(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D101065500736D733A31";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef11(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D101095506314071712E636F6D";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef12(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D101045402656E31";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef13(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D20A02746578742F76636172642021";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef14(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D20301612F6231";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-    }
-
-    void FuzzTryNdef15(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<INciTagInterface> testPtr;
-        std::shared_ptr<NFC::NCI::INciNfccInterface> testNfccInterface = nullptr;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
-        std::string msg = "D2000131";
-        std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
+        ndefHarDataParser->TryNdef("", tagInfo);
+        ndefHarDataParser->TryNdef("DA060F01", tagInfo);
+        ndefHarDataParser->TryNdef("D40F00616E64726F69642E636F6D3A706B67", tagInfo);
+        ndefHarDataParser->TryNdef("D100023132", tagInfo);
+        ndefHarDataParser->TryNdef("D1010055", tagInfo);
+        ndefHarDataParser->TryNdef("D1010A550262616964752E636F6D", tagInfo);
+        ndefHarDataParser->TryNdef("D10216537091010A550162616964752E636F6D51010451027A6861", tagInfo);
+        ndefHarDataParser->TryNdef("D101015520", tagInfo);
+        ndefHarDataParser->TryNdef("D10102550068", tagInfo);
+        ndefHarDataParser->TryNdef("D101065500736D733A31", tagInfo);
+        ndefHarDataParser->TryNdef("D101095506314071712E636F6D", tagInfo);
+        ndefHarDataParser->TryNdef("D101045402656E31", tagInfo);
+        ndefHarDataParser->TryNdef("D20A02746578742F76636172642021", tagInfo);
+        ndefHarDataParser->TryNdef("D20301612F6231", tagInfo);
+        ndefHarDataParser->TryNdef("D2000131", tagInfo);
     }
 }
 
@@ -211,20 +72,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::FuzzTryNdef1(data, size);
-    OHOS::FuzzTryNdef2(data, size);
-    OHOS::FuzzTryNdef3(data, size);
-    OHOS::FuzzTryNdef4(data, size);
-    OHOS::FuzzTryNdef5(data, size);
-    OHOS::FuzzTryNdef6(data, size);
-    OHOS::FuzzTryNdef7(data, size);
-    OHOS::FuzzTryNdef8(data, size);
-    OHOS::FuzzTryNdef9(data, size);
-    OHOS::FuzzTryNdef10(data, size);
-    OHOS::FuzzTryNdef11(data, size);
-    OHOS::FuzzTryNdef12(data, size);
-    OHOS::FuzzTryNdef13(data, size);
-    OHOS::FuzzTryNdef14(data, size);
-    OHOS::FuzzTryNdef15(data, size);
     return 0;
 }
 

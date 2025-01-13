@@ -153,9 +153,9 @@ public:
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-        int tagRfDiscId = 0;
-        int timeout = 0;
-        int technology = 0;
+        int tagRfDiscId = static_cast<int>(data[0]);
+        int timeout = static_cast<int>(data[1]);
+        int technology = static_cast<int>(data[2]);
         tagSession->SetTimeout(tagRfDiscId, timeout, technology);
     }
 
@@ -163,9 +163,9 @@ public:
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-        int tagRfDiscId = 0;
-        int technology = 0;
-        int timeout = 0;
+        int tagRfDiscId = static_cast<int>(data[0]);
+        int technology = static_cast<int>(data[1]);
+        int timeout = static_cast<int>(data[2]);
         tagSession->GetTimeout(tagRfDiscId, technology, timeout);
     }
 }
