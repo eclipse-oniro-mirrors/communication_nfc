@@ -329,7 +329,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
-            DebugLog("UpdateHceAppList from metadata, push aid %{public}s", data.value.c_str());
+            InfoLog("UpdateHceAppList from metadata, push aid %{public}s", data.value.c_str());
         }
     }
     for (auto& data : abilityInfo.metaData.customizeData) {
@@ -337,11 +337,11 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
-            DebugLog("UpdateHceAppList from customizeData, push aid %{public}s", data.value.c_str());
+            InfoLog("UpdateHceAppList from customizeData, push aid %{public}s", data.value.c_str());
         }
     }
     if (customDataAidList.empty()) {
-        DebugLog("UpdateHceAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
+        WarnLog("UpdateHceAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
             element.GetAbilityName().c_str());
         return;
     }
