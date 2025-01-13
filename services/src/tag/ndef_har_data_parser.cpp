@@ -317,11 +317,15 @@ std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &
                 if (uri.size() <= 2) {  // 2 is uri identifier length
                     return NfcSdkCommon::HexStringToAsciiString(uri);
                 }
-                if (std::stoi(uri.substr(0, 2)) < 0 ||  // 2 is uri identifier length
-                    std::stoi(uri.substr(0, 2)) >= static_cast<int>(g_uriPrefix.size())) {
+                int32_t num = 0;
+                if (!KITS::NfcSdkCommon::SecureStringToInt(uri.substr(0, 2), num, KITS::DECIMAL_NOTATION)) { // 2 is uri identifier length
+                    ErrorLog("SecureStringToInt error");
+                    return 0; // return invalid nfc state
+                }
+                if (num < 0 || num >= static_cast<int>(g_uriPrefix.size())) {
                     return "";
                 }
-                std::string uriPrefix = g_uriPrefix[std::stoi(uri.substr(0, 2))];   // 2 is uri identifier length
+                std::string uriPrefix = g_uriPrefix[num];
                 InfoLog("uriPrefix = %{public}s", uriPrefix.c_str());
                 return uriPrefix + NfcSdkCommon::HexStringToAsciiString(uri.substr(2));  // 2 is uri identifier length
             }

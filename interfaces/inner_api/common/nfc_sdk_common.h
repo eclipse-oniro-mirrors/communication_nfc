@@ -20,6 +20,8 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+const static int DECIMAL_NOTATION = 10;
+const static int HEX_DECIMAL = 16;
 const static uint32_t HEX_BYTE_LEN = 2;
 const static uint32_t HEX_VALUE = 16;
 const static uint32_t HALF_BYTE_BITS = 4;
@@ -193,6 +195,7 @@ public:
     static uint64_t GetCurrentTime();
     static uint64_t GetRelativeTime();
     static std::string CodeMiddlePart(const std::string &src);
+    static bool SecureStringToInt(const std::string &str, int32_t &value, int base);
 };
 }  // namespace KITS
 }  // namespace NFC

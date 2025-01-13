@@ -247,6 +247,19 @@ std::string NfcSdkCommon::CodeMiddlePart(const std::string &src)
     }
     return res;
 }
+
+bool NfcSdkCommon::SecureStringToInt(const std::string &str, int32_t &value, int base)
+{
+    errno = 0;
+    char *endptr = nullptr;
+    const char *ptr = str.c_str();
+    value = std::strtol(str.c_str(), &endptr, base);
+    if (errno == ERANGE || endptr == ptr || *endptr != '\0') { // ERANGE: integer overflow
+        ErrorLog("SecureStringToInt errno str = %{public}s", str.c_str());
+        return false;
+    }
+    return true;
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
