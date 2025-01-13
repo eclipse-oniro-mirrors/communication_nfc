@@ -25,6 +25,8 @@
 #include "inci_ce_interface.h"
 #include "nfc_ability_connection_callback.h"
 #include "ce_service.h"
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -65,15 +67,28 @@ public:
                           Security::AccessToken::AccessTokenID callerToken);
 
     void HandleQueueData();
+    bool IsFaModeApplication(ElementName& elementName);
+    void HandleQueueDataForFa(const std::string &bundleName);
+    sptr<AppExecFwk::IBundleMgr> NfcGetBundleMgrProxy();
+    void HandleDataForStageApplication(const std::string& aid, ElementName& aidElement,
+        const std::vector<uint8_t>& data);
+    void HandleDataForFaApplication(const std::string& aid, ElementName& aidElement, const std::vector<uint8_t>& data);
+    bool IsFaServiceConnected(ElementName& aidElement);
 
 private:
     void HandleDataOnW4Select(const std::string& aid, ElementName& aidElement, const std::vector<uint8_t>& data);
     void HandleDataOnDataTransfer(const std::string& aid, ElementName& aidElement,
                                   const std::vector<uint8_t>& data);
+    void HandleDataOnW4SelectForFa(const std::string& aid, ElementName& aidElement, const std::vector<uint8_t>& data);
+    void HandleDataOnDataTransferForFa(const std::string& aid, ElementName& aidElement,
+        const std::vector<uint8_t>& data);
+    void SendDataToFaService(const std::vector<uint8_t>& data, const std::string &bundleName);
+
     bool ExistService(ElementName& aidElement);
     std::string ParseSelectAid(const std::vector<uint8_t>& data);
     void SendDataToService(const std::vector<uint8_t>& data);
     bool DispatchAbilitySingleApp(ElementName& element);
+    bool DispatchAbilitySingleAppForFaModel(ElementName& element);
     bool EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken);
     bool IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken);
 
@@ -86,6 +101,7 @@ private:
 
     std::map<std::string, HostCardEmulationManager::HceCmdRegistryData> bundleNameToHceCmdRegData_{};
     HceState hceState_;
+    AppExecFwk::ElementName aidElement_;
     std::vector<uint8_t> queueHceData_{};
 
     sptr<NfcAbilityConnectionCallback> abilityConnection_{};

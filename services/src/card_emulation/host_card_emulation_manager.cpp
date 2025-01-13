@@ -21,6 +21,11 @@
 #include "nfc_sdk_common.h"
 #include "accesstoken_kit.h"
 #include "hap_token_info.h"
+#include "ability_manager_service.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
+#include "nfc_ability_connection_callback.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace NFC {
@@ -39,6 +44,7 @@ const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
 const uint32_t INDEX_P1 = 2;
 const uint32_t INDEX_3 = 3;
 const uint32_t INDEX_AID_LEN = 4;
+const int32_t USERID = 100;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
@@ -51,10 +57,115 @@ HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfc
 }
 HostCardEmulationManager::~HostCardEmulationManager()
 {
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     abilityConnection_ = nullptr;
     bundleNameToHceCmdRegData_.clear();
+}
+
+sptr<AppExecFwk::IBundleMgr> HostCardEmulationManager::NfcGetBundleMgrProxy()
+{
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        ErrorLog("NfcGetBundleMgrProxy, systemAbilityManager is null");
+        return nullptr;
+    }
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        ErrorLog("NfcGetBundleMgrProxy, remoteObject is null");
+        return nullptr;
+    }
+    return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+}
+
+bool HostCardEmulationManager::IsFaModeApplication(ElementName& elementName)
+{
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = NfcGetBundleMgrProxy();
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("IsFaModeApplication, bundleMgrProxy is nullptr.");
+        return false;
+    }
+
+    constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT;
+    AppExecFwk::AbilityInfo hceAbilityInfo;
+    AAFwk::Want want;
+    want.SetElement(elementName);
+
+    if (!bundleMgrProxy->QueryAbilityInfo(want, flag, USERID, hceAbilityInfo)) {
+        ErrorLog("IsFaModeApplication QueryAbilityInfo fail!");
+        return false;
+    }
+    InfoLog("IsFaModeApplication QueryAbilityInfo bundleName=[%{public}s], isStageBasedModel=[%{public}d]",
+        hceAbilityInfo.bundleName.c_str(), hceAbilityInfo.isStageBasedModel);
+    if (hceAbilityInfo.isStageBasedModel) {
+        return false;
+    }
+    return true;
+}
+
+/* Handle received APDU data for FA Model Application */
+void HostCardEmulationManager::HandleDataForFaApplication(const std::string& aid,
+    ElementName& aidElement, const std::vector<uint8_t>& data)
+{
+    InfoLog("HandleDataForFaApplication hce state is %{public}d.", hceState_);
+    switch (hceState_) {
+        case HostCardEmulationManager::INITIAL_STATE: {
+            InfoLog("got data on state fa INITIAL_STATE");
+            return;
+        }
+        case HostCardEmulationManager::WAIT_FOR_SELECT: {
+            InfoLog("got data on state fa WAIT_FOR_SELECT");
+            HandleDataOnW4SelectForFa(aid, aidElement, data);
+            break;
+        }
+        case HostCardEmulationManager::WAIT_FOR_SERVICE: {
+            InfoLog("got data on state fa w4 service");
+            return;
+        }
+        case HostCardEmulationManager::DATA_TRANSFER: {
+            InfoLog("got data on state fa DATA_TRANSFER");
+            HandleDataOnDataTransferForFa(aid, aidElement, data);
+            break;
+        }
+        case HostCardEmulationManager::WAIT_FOR_DEACTIVATE: {
+            InfoLog("got data on state fa w4 deactivate");
+            return;
+        }
+        default: break;
+    }
+}
+/* Handle received APDU data for Stage Model Application */
+void HostCardEmulationManager::HandleDataForStageApplication(const std::string& aid,
+    ElementName& aidElement, const std::vector<uint8_t>& data)
+{
+    InfoLog("HandleDataForStageApplication hce state is %{public}d.", hceState_);
+    switch (hceState_) {
+        case HostCardEmulationManager::INITIAL_STATE: {
+            InfoLog("got data on state stage INITIAL_STATE");
+            return;
+        }
+        case HostCardEmulationManager::WAIT_FOR_SELECT: {
+            InfoLog("got data on state stage WAIT_FOR_SELECT");
+            HandleDataOnW4Select(aid, aidElement, data);
+            break;
+        }
+        case HostCardEmulationManager::WAIT_FOR_SERVICE: {
+            InfoLog("got data on state stage w4 service");
+            return;
+        }
+        case HostCardEmulationManager::DATA_TRANSFER: {
+            InfoLog("got data on state stage DATA_TRANSFER");
+            HandleDataOnDataTransfer(aid, aidElement, data);
+            break;
+        }
+        case HostCardEmulationManager::WAIT_FOR_DEACTIVATE: {
+            InfoLog("got data on state stage w4 deactivate");
+            return;
+        }
+        default: break;
+    }
 }
 
 void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uint8_t>& data)
@@ -86,30 +197,16 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
         return;
     }
     ceService_.lock()->SearchElementByAid(aid, aidElement);
-
+    /* check aid */
+    if (!aid.empty() && !aidElement.GetBundleName().empty()) {
+        aidElement_ = aidElement;
+    }
     std::lock_guard<std::mutex> lock(hceStateMutex_);
-    switch (hceState_) {
-        case HostCardEmulationManager::INITIAL_STATE: {
-            InfoLog("got data on state INITIAL_STATE");
-            return;
-        }
-        case HostCardEmulationManager::WAIT_FOR_SELECT: {
-            HandleDataOnW4Select(aid, aidElement, data);
-            break;
-        }
-        case HostCardEmulationManager::WAIT_FOR_SERVICE: {
-            InfoLog("got data on state w4 service");
-            return;
-        }
-        case HostCardEmulationManager::DATA_TRANSFER: {
-            HandleDataOnDataTransfer(aid, aidElement, data);
-            break;
-        }
-        case HostCardEmulationManager::WAIT_FOR_DEACTIVATE: {
-            InfoLog("got data on state w4 deactivate");
-            return;
-        }
-        default: break;
+
+    if (IsFaModeApplication(aidElement_)) {
+        HandleDataForFaApplication(aid, aidElement_, data);
+    } else {
+        HandleDataForStageApplication(aid, aidElement_, data);
     }
 }
 
@@ -151,6 +248,8 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 #endif
 
     queueHceData_.clear();
+    /* clear aidElement_ status */
+    aidElement_.SetBundleName("");
     if (abilityConnection_ == nullptr) {
         ErrorLog("OnCardEmulationDeactivated abilityConnection_ nullptr.");
         return;
@@ -163,9 +262,9 @@ void HostCardEmulationManager::OnCardEmulationDeactivated()
 void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, ElementName& aidElement,
                                                     const std::vector<uint8_t>& data)
 {
-    bool exitService = ExistService(aidElement);
+    bool existService = ExistService(aidElement);
     if (!aid.empty()) {
-        if (exitService) {
+        if (existService) {
             InfoLog("HandleDataOnW4Select: existing service, try to send data "
                     "directly.");
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
@@ -178,7 +277,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
             DispatchAbilitySingleApp(aidElement);
             return;
         }
-    } else if (exitService) {
+    } else if (existService) {
         InfoLog("HandleDataOnW4Select: existing service, try to send data "
                 "directly.");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
@@ -195,12 +294,48 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
     }
 }
 
+void HostCardEmulationManager::HandleDataOnW4SelectForFa(const std::string& aid, ElementName& aidElement,
+    const std::vector<uint8_t>& data)
+{
+    /* check aidElement.BundleName */
+    bool existService = IsFaServiceConnected(aidElement);
+    if (!aid.empty()) {
+        if (existService) {
+            InfoLog("HandleDataOnW4SelectForFa: existing service, try to send data "
+                    "directly.");
+            hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+            InfoLog("hce state is %{public}d.", hceState_);
+            SendDataToFaService(data, aidElement.GetBundleName());
+            return;
+        } else {
+            InfoLog("HandleDataOnW4SelectForFa: try to connect service.");
+            queueHceData_ = std::move(data);
+            DispatchAbilitySingleAppForFaModel(aidElement);
+            return;
+        }
+    } else if (existService) {
+        InfoLog("HandleDataOnW4SelectForFa: existing service, try to send data "
+                "directly.");
+        hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        SendDataToFaService(data, aidElement.GetBundleName());
+        return;
+    } else {
+        InfoLog("no aid got");
+        std::string unknowError = "6F00";
+        if (nciCeProxy_.expired()) {
+            ErrorLog("HandleDataOnW4SelectForFa: nciCeProxy_ is nullptr.");
+            return;
+        }
+        nciCeProxy_.lock()->SendRawFrame(unknowError);
+    }
+}
+
 void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, ElementName& aidElement,
                                                         const std::vector<uint8_t>& data)
 {
-    bool exitService = ExistService(aidElement);
+    bool existService = ExistService(aidElement);
     if (!aid.empty()) {
-        if (exitService) {
+        if (existService) {
             InfoLog("HandleDataOnDataTransfer: existing service, try to send "
                     "data directly.");
             hceState_ = HostCardEmulationManager::DATA_TRANSFER;
@@ -214,7 +349,7 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
             DispatchAbilitySingleApp(aidElement);
             return;
         }
-    } else if (exitService) {
+    } else if (existService) {
         InfoLog("HandleDataOnDataTransfer: existing service, try to send data "
                 "directly.");
         hceState_ = HostCardEmulationManager::DATA_TRANSFER;
@@ -225,6 +360,52 @@ void HostCardEmulationManager::HandleDataOnDataTransfer(const std::string& aid, 
         InfoLog("no service, drop apdu data.");
     }
 }
+
+void HostCardEmulationManager::HandleDataOnDataTransferForFa(const std::string& aid, ElementName& aidElement,
+    const std::vector<uint8_t>& data)
+{
+    /* check aidElement.BundleName */
+    bool existService = IsFaServiceConnected(aidElement);
+    if (!aid.empty()) {
+        if (existService) {
+            InfoLog("HandleDataOnDataTransferforFa: existing service, try to send "
+                    "data directly.");
+            hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+            InfoLog("hce state is %{public}d.", hceState_);
+            SendDataToFaService(data, aidElement.GetBundleName());
+            return;
+        } else {
+            InfoLog("HandleDataOnDataTransferforFa: existing service, try to "
+                    "connect service.");
+            queueHceData_ = std::move(data);
+            DispatchAbilitySingleAppForFaModel(aidElement);
+            return;
+        }
+    } else if (existService) {
+        InfoLog("HandleDataOnDataTransferforFa: existing service, try to send data "
+                "directly.");
+        hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        InfoLog("hce state is %{public}d.", hceState_);
+        SendDataToFaService(data, aidElement.GetBundleName());
+        return;
+    } else {
+        InfoLog("no service, drop apdu data.");
+    }
+}
+
+bool HostCardEmulationManager::IsFaServiceConnected(ElementName& aidElement)
+{
+    std::string bundleName = aidElement.GetBundleName();
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
+    auto it = bundleNameToHceCmdRegData_.find(bundleName);
+    if (it == bundleNameToHceCmdRegData_.end()) {
+        InfoLog("IsFaServiceConnected not register data for %{public}s", bundleName.c_str());
+        return false;
+    }
+    InfoLog("IsFaServiceConnected is Connected:%{public}s", bundleName.c_str());
+    return true;
+}
+
 bool HostCardEmulationManager::ExistService(ElementName& aidElement)
 {
     if (abilityConnection_ == nullptr || (!abilityConnection_->ServiceConnected())) {
@@ -315,13 +496,36 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
 
     regData.callback_ = callback;
     regData.callerToken_ = callerToken;
-    std::lock_guard<std::mutex> lock(regInfoMutex_);
-    if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
-        InfoLog("override the register data for  %{public}s", hapTokenInfo.bundleName.c_str());
+    {
+        std::lock_guard<std::mutex> lock(regInfoMutex_);
+        if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
+            InfoLog("override the register data for %{public}s", hapTokenInfo.bundleName.c_str());
+        }
+        bundleNameToHceCmdRegData_[hapTokenInfo.bundleName] = regData;
+        InfoLog("RegHceCmdCallback end, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     }
-    bundleNameToHceCmdRegData_[hapTokenInfo.bundleName] = regData;
+    /* If there is APDU data and the application is the fa model, the data will be sent to the application */
+    ElementName aidElement;
+    std::string abilityName = "";
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
+    ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
+        if (appAidInfo.element.GetBundleName() == hapTokenInfo.bundleName) {
+            abilityName = appAidInfo.element.GetAbilityName();
+            InfoLog("RegHceCmdCallback: abilityName = [%{public}s]", abilityName.c_str());
+            break;
+        }
+    }
 
-    InfoLog("RegHceCmdCallback end, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+    if (abilityName.empty()) {
+        ErrorLog("RegHceCmdCallback: abilityName is not find");
+        return false;
+    }
+    aidElement.SetBundleName(hapTokenInfo.bundleName);
+    aidElement.SetAbilityName(abilityName);
+    if (IsFaModeApplication(aidElement)) {
+        HandleQueueDataForFa(aidElement.GetBundleName());
+    }
     return true;
 }
 
@@ -336,9 +540,16 @@ bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw
         ErrorLog("SendHostApduData: NFC not enabled, do not send.");
         return false;
     }
-    if (!IsCorrespondentService(callerToken)) {
-        ErrorLog("SendHostApduData: not the connected app, do not send.");
-        return false;
+    if (IsFaModeApplication(aidElement_)) {
+        if (!IsFaServiceConnected(aidElement_)) {
+            ErrorLog("SendHostApduData fa: not the connected app, do not send.");
+            return false;
+        }
+    } else {
+        if (!IsCorrespondentService(callerToken)) {
+            ErrorLog("SendHostApduData stage: not the connected app, do not send.");
+            return false;
+        }
     }
 
     return nciCeProxy_.lock()->SendRawFrame(hexCmdData);
@@ -370,6 +581,7 @@ bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::Acc
 
 void HostCardEmulationManager::HandleQueueData()
 {
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
     bool shouldSendQueueData = hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
 
     std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
@@ -391,6 +603,30 @@ void HostCardEmulationManager::HandleQueueData()
     WarnLog("HandleQueueData can not send the data.");
 }
 
+void HostCardEmulationManager::HandleQueueDataForFa(const std::string &bundleName)
+{
+    std::lock_guard<std::mutex> lock(hceStateMutex_);
+    if (queueHceData_.size() == 0) {
+        WarnLog("HandleQueueDataForFa queueHceData is null");
+        return;
+    }
+    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
+    InfoLog("RegHceCmdCallback queue data for fa %{public}s, hceState= %{public}d, "
+            "service connected= %{public}d",
+            queueData.c_str(), hceState_, abilityConnection_->ServiceConnected());
+    hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+    bool shouldSendQueueData = hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
+    if (shouldSendQueueData) {
+        InfoLog("RegHceCmdCallback should send queue data");
+        hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+        InfoLog("hce state is %{public}d.", hceState_);
+        SendDataToFaService(queueHceData_, bundleName);
+        queueHceData_.clear();
+        return;
+    }
+    WarnLog("HandleQueueDataForFa can not send the data.");
+}
+
 void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& data)
 {
     if (abilityConnection_ == nullptr) {
@@ -398,8 +634,25 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
         return;
     }
     std::string bundleName = abilityConnection_->GetConnectedElement().GetBundleName();
-    InfoLog("SendDataToService register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
+
     std::lock_guard<std::mutex> lock(regInfoMutex_);
+    InfoLog("SendDataToService register size = %{public}zu.", bundleNameToHceCmdRegData_.size());
+    auto it = bundleNameToHceCmdRegData_.find(bundleName);
+    if (it == bundleNameToHceCmdRegData_.end()) {
+        ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
+        return;
+    }
+    if (it->second.callback_ == nullptr) {
+        ErrorLog("callback is null");
+        return;
+    }
+    it->second.callback_->OnCeApduData(data);
+}
+
+void HostCardEmulationManager::SendDataToFaService(const std::vector<uint8_t>& data, const std::string &bundleName)
+{
+    std::lock_guard<std::mutex> lock(regInfoMutex_);
+    InfoLog("SendDataToFaService register size = %{public}zu.", bundleNameToHceCmdRegData_.size());
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
         ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
@@ -426,7 +679,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
         return false;
     }
 
-    InfoLog("DispatchAbilitySingleApp for element  %{public}s", element.GetURI().c_str());
+    InfoLog("DispatchAbilitySingleApp for element %{public}s", element.GetURI().c_str());
     AAFwk::Want want;
     want.SetElement(element);
 
@@ -450,6 +703,41 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
     }
     return false;
 }
+
+bool HostCardEmulationManager::DispatchAbilitySingleAppForFaModel(ElementName& element)
+{
+    if (element.GetBundleName().empty()) {
+        ErrorLog("DispatchAbilitySingleAppForFaModel element empty");
+        std::string aidNotFound = "6A82";
+        nciCeProxy_.lock()->SendRawFrame(aidNotFound);
+        return false;
+    }
+
+    InfoLog("DispatchAbilitySingleAppForFaModel for element %{public}s", element.GetURI().c_str());
+    AAFwk::Want want;
+    want.SetElement(element);
+
+    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+        ErrorLog("DispatchAbilitySingleAppForFaModel AbilityManagerClient is null");
+        return false;
+    }
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    InfoLog("DispatchAbilitySingleAppForFaModel call StartAbility end. ret = %{public}d", err);
+    if (err == ERR_NONE) {
+        hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+        InfoLog("hce state is %{public}d.", hceState_);
+        ExternalDepsProxy::GetInstance().WriteHceSwipeResultHiSysEvent(element.GetBundleName(), DEFAULT_COUNT);
+
+        NfcFailedParams params;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(params, MainErrorCode::HCE_SWIPE_CARD,
+                                                           SubErrorCode::DEFAULT_ERR_DEF);
+        params.appPackageName = element.GetBundleName();
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&params);
+        return true;
+    }
+    return false;
+}
+
 bool HostCardEmulationManager::UnRegHceCmdCallback(const std::string& type,
                                                    Security::AccessToken::AccessTokenID callerToken)
 {

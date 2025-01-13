@@ -205,6 +205,148 @@ HWTEST_F(HostCardEmulationManagerTest, UnRegHceCmdCallback001, TestSize.Level1)
     bool res = hostCardEmulationManager->UnRegHceCmdCallback(type, callerToken);
     ASSERT_TRUE(!res);
 }
+
+/**
+ * @tc.name: NfcGetBundleMgrProxy001
+ * @tc.desc: Test HostCardEmulationManagerTest NfcGetBundleMgrProxy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, NfcGetBundleMgrProxy001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->NfcGetBundleMgrProxy();
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
+ * @tc.name: IsFaModeApplication001
+ * @tc.desc: Test HostCardEmulationManagerTest IsFaModeApplication.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, IsFaModeApplication001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::string bundleName = "";
+    std::string abilityName = "";
+    ElementName aidElement;
+    aidElement.SetBundleName(bundleName);
+    aidElement.SetAbilityName(abilityName);
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    bool isFaModeApplication = hostCardEmulationManager->IsFaModeApplication(aidElement);
+    ASSERT_TRUE(isFaModeApplication == false);
+}
+
+/**
+ * @tc.name: HandleDataForFaApplication001
+ * @tc.desc: Test HostCardEmulationManagerTest HandleDataForFaApplication.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, HandleDataForFaApplication001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6};
+    const std::string aid = "";
+    std::string bundleName = "";
+    std::string abilityName = "";
+    ElementName aidElement;
+    aidElement.SetBundleName(bundleName);
+    aidElement.SetAbilityName(abilityName);
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->HandleDataForFaApplication(aid, aidElement, data);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
+ * @tc.name: HandleDataForStageApplication001
+ * @tc.desc: Test HostCardEmulationManagerTest HandleDataForStageApplication.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, HandleDataForStageApplication001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::vector<uint8_t> data = {1, 2, 3, 4, 5, 6};
+    const std::string aid = "";
+    std::string bundleName = "";
+    std::string abilityName = "";
+    ElementName aidElement;
+    aidElement.SetBundleName(bundleName);
+    aidElement.SetAbilityName(abilityName);
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->HandleDataForStageApplication(aid, aidElement, data);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
+ * @tc.name: IsFaServiceConnected001
+ * @tc.desc: Test HostCardEmulationManagerTest IsFaServiceConnected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, IsFaServiceConnected001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::string bundleName = "";
+    std::string abilityName = "";
+    ElementName aidElement;
+    aidElement.SetBundleName(bundleName);
+    aidElement.SetAbilityName(abilityName);
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->IsFaServiceConnected(aidElement);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
+ * @tc.name: HandleQueueDataForFa001
+ * @tc.desc: Test HostCardEmulationManagerTest HandleQueueDataForFa.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, HandleQueueDataForFa001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::string bundleName = "";
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->HandleQueueDataForFa(bundleName);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
 } // namespace TEST
 } // namespace NFC
 } // namespace OHOS
