@@ -57,6 +57,8 @@ public:
     bool TryNdef(const std::string &msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
 
 private:
+    NdefHarDataParser();
+    ~NdefHarDataParser() {}
     std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record);
     std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster);
     bool DispatchByHarBundleName(
