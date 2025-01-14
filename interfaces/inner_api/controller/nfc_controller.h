@@ -130,6 +130,8 @@ private:
     static bool remoteDied_;
     static sptr<IRemoteObject> remote_;
     static sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+
+    static const uint8_t MAX_RETRY_TIMES = 3;
 };
 } // namespace KITS
 } // namespace NFC

@@ -61,7 +61,15 @@ void NfcController::InitNfcRemoteSA()
         __func__, initialized_, nfcControllerService_.expired());
     std::lock_guard<std::mutex> guard(mutex_);
     if (!initialized_ || nfcControllerService_.expired() || remoteDied_) {
-        remote_ = NfcSaClient::GetInstance().LoadNfcSa(NFC_MANAGER_SYS_ABILITY_ID);
+        for (uint8_t i = 0; i < MAX_RETRY_TIMES; ++i) {
+            remote_ = NfcSaClient::GetInstance().LoadNfcSa(NFC_MANAGER_SYS_ABILITY_ID);
+            if (remote_ == nullptr) {
+                ErrorLog("Nfc Controller Is Unexist...retrying...");
+                sleep(1);
+                continue;
+            }
+            break;
+        }
         if (remote_ == nullptr) {
             ErrorLog("Nfc Controller Is Unexist.");
             return;
