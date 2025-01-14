@@ -72,6 +72,9 @@ constexpr const char* NFC_LANGUAGE_MAP_PATH = "system/etc/nfc/resources/base/pro
 constexpr const char* NFC_DEFAULT_LANGUAGE_FILE_PATH = "zh_CN";
 constexpr const char* NFC_LANGUAGE_FILEPATH_PREFIX = "system/etc/nfc/resources/";
 constexpr const char* NFC_LANGUAGE_FILEPATH_SUFFIX = "/element/string.json";
+constexpr const char* NFC_ZHTW_LANGUAGE_FILE_PATH = "zh_TW";
+constexpr const char* NFC_ZHHANT_LANGUAGE_FILE_PATH = "zh-Hant";  // The language type is Traditional Chinese
+constexpr const char* NFC_ZHTW_REGION = "TW";
 
 constexpr const char* KEY_LANGUAGE_MAP = "nfc_language_map";
 constexpr const char* KEY_SYSTEM_LANGUAGE = "system_language";
