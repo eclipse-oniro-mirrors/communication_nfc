@@ -40,26 +40,27 @@ namespace OHOS {
     {
         std::weak_ptr<INciTagInterface> testPtr;
         std::weak_ptr<NFC::NCI::INciNfccInterface> testNfccInterface;
-        std::shared_ptr<NdefHarDataParser> ndefHarDataParser = std::make_shared<NdefHarDataParser>(
-            testPtr, testNfccInterface);
+        std::weak_ptr<NFC::NfcService> nfcService;
+        NdefHarDataParser::GetInstance().Initialize(nfcService, testPtr, testNfccInterface);
         std::string msg = NfcSdkCommon::BytesVecToHexString(data, size);
         std::shared_ptr<TagInfo> tagInfo = nullptr;
-        ndefHarDataParser->TryNdef(msg, tagInfo);
-        ndefHarDataParser->TryNdef("", tagInfo);
-        ndefHarDataParser->TryNdef("DA060F01", tagInfo);
-        ndefHarDataParser->TryNdef("D40F00616E64726F69642E636F6D3A706B67", tagInfo);
-        ndefHarDataParser->TryNdef("D100023132", tagInfo);
-        ndefHarDataParser->TryNdef("D1010055", tagInfo);
-        ndefHarDataParser->TryNdef("D1010A550262616964752E636F6D", tagInfo);
-        ndefHarDataParser->TryNdef("D10216537091010A550162616964752E636F6D51010451027A6861", tagInfo);
-        ndefHarDataParser->TryNdef("D101015520", tagInfo);
-        ndefHarDataParser->TryNdef("D10102550068", tagInfo);
-        ndefHarDataParser->TryNdef("D101065500736D733A31", tagInfo);
-        ndefHarDataParser->TryNdef("D101095506314071712E636F6D", tagInfo);
-        ndefHarDataParser->TryNdef("D101045402656E31", tagInfo);
-        ndefHarDataParser->TryNdef("D20A02746578742F76636172642021", tagInfo);
-        ndefHarDataParser->TryNdef("D20301612F6231", tagInfo);
-        ndefHarDataParser->TryNdef("D2000131", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef(msg, tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("DA060F01", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D40F00616E64726F69642E636F6D3A706B67", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D100023132", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D1010055", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D1010A550262616964752E636F6D", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef(
+            "D10216537091010A550162616964752E636F6D51010451027A6861", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D101015520", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D10102550068", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D101065500736D733A31", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D101095506314071712E636F6D", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D101045402656E31", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D20A02746578742F76636172642021", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D20301612F6231", tagInfo);
+        NdefHarDataParser::GetInstance().TryNdef("D2000131", tagInfo);
     }
 }
 

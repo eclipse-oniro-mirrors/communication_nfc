@@ -21,7 +21,6 @@
 #include "indef_msg_callback.h"
 #include "inci_tag_interface.h"
 #include "isodep_card_handler.h"
-#include "ndef_har_data_parser.h"
 #include "nfc_service.h"
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
@@ -65,7 +64,6 @@ private:
     sptr<INdefMsgCallback> ndefCb_;
 
     std::shared_ptr<IsodepCardHandler> isodepCardHandler_ {};
-    std::shared_ptr<NdefHarDataParser> ndefHarDataParser_ {nullptr};
 
     std::shared_ptr<KITS::TagInfo> tagInfo_ {};
     bool ndefCbRes_ = false;

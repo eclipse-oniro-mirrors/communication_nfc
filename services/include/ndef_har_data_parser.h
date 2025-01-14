@@ -20,6 +20,7 @@
 #include "ndef_har_dispatch.h"
 #include "inci_tag_interface.h"
 #include "taginfo.h"
+#include "nfc_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -50,10 +51,10 @@ const int URI_MAX_LENGTH = 2048;
 
 class NdefHarDataParser {
 public:
-    NdefHarDataParser(
-        std::weak_ptr<NCI::INciTagInterface> nciTagProxy, std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
-    ~NdefHarDataParser() {}
-    bool TryNdef(const std::string& msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    static NdefHarDataParser &GetInstance();
+    void Initialize(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciTagInterface> nciTagProxy,
+        std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
+    bool TryNdef(const std::string &msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
 
 private:
     std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record);
@@ -70,7 +71,7 @@ private:
     bool IsOtherPlatformAppType(const std::string &appType);
     bool StartsWith(const std::string &str, const std::string &prefix);
     void ParseRecordsProperty(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    bool DispatchByAppLinkMode();
+    bool DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
     bool DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
 
@@ -82,6 +83,10 @@ private:
     std::string mimeTypeStr_ {};
     std::string uriAddress_ {};
     std::string uriSchemeValue_ {};
+
+    std::weak_ptr<NfcService> nfcService_ {};
+    std::mutex mutex_ {};
+    bool isInitialized_ = false;
 };
 } // namespace TAG
 } // namespace NFC

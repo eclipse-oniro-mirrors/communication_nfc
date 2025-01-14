@@ -62,7 +62,7 @@ TagDispatcher::TagDispatcher(std::shared_ptr<NFC::NfcService> nfcService)
             ErrorLog("TagDispatcher, nciNfccProxy_ expired");
             return;
         }
-        ndefHarDataParser_ = std::make_shared<NdefHarDataParser>(nciTagProxy_, nciNfccProxy_);
+        NdefHarDataParser::GetInstance().Initialize(nfcService_, nciTagProxy_, nciNfccProxy_);
     }
 }
 
@@ -145,7 +145,7 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     }
 #endif
     std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tagDiscId);
-    if (ndefHarDataParser_ != nullptr && ndefHarDataParser_->TryNdef(msg, tagInfo)) {
+    if (NdefHarDataParser::GetInstance().TryNdef(msg, tagInfo)) {
         return true;
     }
     return false;

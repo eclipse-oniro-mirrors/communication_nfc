@@ -21,6 +21,7 @@
 #include "if_system_ability_manager.h"
 #include "taginfo.h"
 #include "inci_nfcc_interface.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,12 +31,13 @@ public:
     NdefHarDispatch(std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
     ~NdefHarDispatch() {}
     bool DispatchBundleAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
-        const std::string &mimeType, const std::string &uri);
+        const std::string &mimeType, const std::string &uri, OHOS::sptr<IRemoteObject> tagServiceIface);
     bool DispatchBundleExtensionAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         const std::string &mimeType, const std::string &uri);
     bool DispatchUriToBundleAbility(const std::string &uri);
-    bool DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo);
-    bool DispatchByAppLinkMode(const std::string &uriSchemeValue);
+    bool DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    bool DispatchByAppLinkMode(const std::string &uriSchemeValue, const std::shared_ptr<KITS::TagInfo> &tagInfo,
+        OHOS::sptr<IRemoteObject> tagServiceIface);
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
