@@ -44,6 +44,10 @@ static void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode)
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
 }
 
+NdefHarDataParser::NdefHarDataParser()
+{
+}
+
 NdefHarDataParser& NdefHarDataParser::GetInstance()
 {
     static NdefHarDataParser instance;
