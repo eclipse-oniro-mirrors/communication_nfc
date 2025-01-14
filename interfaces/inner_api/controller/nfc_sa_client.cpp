@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace NFC {
-static constexpr int32_t NFC_LOADSA_TIMEOUT_MS = 1000; // ms
+static constexpr int32_t NFC_LOADSA_TIMEOUT_MS = 4500; // SA manage max load time
 
 NfcSaClient &NfcSaClient::GetInstance()
 {
