@@ -73,7 +73,10 @@ std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
     std::string mimeType = "";
     std::string harPackage = "";
     std::string uri = "";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri);
+    std::string uriSchemeValue = "";
+    OHOS::sptr<IRemoteObject> tagServiceIface;
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri, tagServiceIface);
+    ndefHarDispatchTest->DispatchByAppLinkMode(uriSchemeValue, tagInfo, tagServiceIface);
 
     std::vector<int> tagTechList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     std::vector<AppExecFwk::PacMap> tagTechExtras;
@@ -86,7 +89,7 @@ std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
     tagInfo = std::make_shared<KITS::TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDisId, nullptr);
     harPackage = "ABC";
     mimeType = "A/B";
-    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri);
+    ndefHarDispatchTest->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri, tagServiceIface);
 
     uri = "";
     ndefHarDispatchTest->DispatchUriToBundleAbility(uri);
@@ -98,8 +101,10 @@ std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
     type = "ABC";
     ndefHarDispatchTest->DispatchMimeType(type, tagInfo);
 
-    std::string uriSchemeValue = "";
-    ndefHarDispatchTest->DispatchByAppLinkMode(uriSchemeValue);
+    uriSchemeValue = "https://open.cmbchina.com/dispatch/"
+                     "go?url=web&version=v2&next=https%3A%2F%2Fpiao.o2o.cmbchina.com%2Fcmblife_fanpiao%2FstoreDetail%"
+                     "3FstrNo%3D051203673000025&deeplinkId=20241011";
+    ndefHarDispatchTest->DispatchByAppLinkMode(uriSchemeValue, tagInfo, tagServiceIface);
     ASSERT_TRUE(ndefHarDispatchTest != nullptr);
 }
 }

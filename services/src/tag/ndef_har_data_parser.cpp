@@ -44,11 +44,24 @@ static void WriteNfcFailedHiSysEvent(MainErrorCode mainErrorCode)
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
 }
 
-NdefHarDataParser::NdefHarDataParser(
-    std::weak_ptr<NCI::INciTagInterface> nciTagProxy, std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
-    : nciTagProxy_(nciTagProxy), nciNfccProxy_(nciNfccProxy)
+NdefHarDataParser& NdefHarDataParser::GetInstance()
 {
-    ndefHarDispatch_ = std::make_shared<NdefHarDispatch>(nciNfccProxy_);
+    static NdefHarDataParser instance;
+    return instance;
+}
+
+void NdefHarDataParser::Initialize(std::weak_ptr<NfcService> nfcService,
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy, std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    DebugLog("Init: isInitialized = %{public}d", isInitialized_);
+    if (isInitialized_) {
+        return;
+    }
+    nfcService_ = nfcService;
+    nciTagProxy_ = nciTagProxy;
+    ndefHarDispatch_ = std::make_shared<NdefHarDispatch>(nciNfccProxy);
+    isInitialized_ = true;
 }
 
 /* Ndef process function provided to HandleNdefDispatch */
@@ -72,7 +85,7 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KI
 
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
-    if (DispatchByAppLinkMode()) {
+    if (DispatchByAppLinkMode(tagInfo)) {
         InfoLog("DispatchByAppLinkMode succ");
         return true;
     }
@@ -142,8 +155,9 @@ bool NdefHarDataParser::ParseHarPackageInner(const std::vector<std::string> &har
         return false;
     }
     for (std::string harPackage : harPackages) {
-        if (ndefHarDispatch_ != nullptr
-            && ndefHarDispatch_->DispatchBundleAbility(harPackage, tagInfo, mimeType, uri)) {
+        if (ndefHarDispatch_ != nullptr && !nfcService_.expired() &&
+            ndefHarDispatch_->DispatchBundleAbility(
+                harPackage, tagInfo, mimeType, uri, nfcService_.lock()->GetTagServiceIface())) {
             return true;
         }
     }
@@ -185,15 +199,16 @@ void NdefHarDataParser::ParseRecordsProperty(const std::vector<std::shared_ptr<N
     InfoLog("schemeType_[%{public}d] scheme[%{public}s]", static_cast<short>(schemeType_), scheme.c_str());
 }
 
-bool NdefHarDataParser::DispatchByAppLinkMode()
+bool NdefHarDataParser::DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     InfoLog("enter");
     if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL || schemeType_ == TYPE_RTP_SCHEME_OTHER) {
-        if (nciTagProxy_.expired()) {
-            ErrorLog("nciTagProxy_ is nullptr");
+        if (nfcService_.expired()) {
+            ErrorLog("nfcService_ is nullptr");
             return false;
         }
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchByAppLinkMode(uriSchemeValue_)) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchByAppLinkMode(uriSchemeValue_,
+            tagInfo, nfcService_.lock()->GetTagServiceIface())) {
             return true;
         }
     }

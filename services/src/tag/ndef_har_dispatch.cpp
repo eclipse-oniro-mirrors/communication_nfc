@@ -55,7 +55,7 @@ sptr<AppExecFwk::IBundleMgr> NdefHarDispatch::GetBundleMgrProxy()
 }
 
 /* Implicit matching, using mimetype to pull up app */
-bool NdefHarDispatch::DispatchMimeType(const std::string &type, std::shared_ptr<KITS::TagInfo> tagInfo)
+bool NdefHarDispatch::DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     if (type.empty() || tagInfo == nullptr) {
         ErrorLog("NdefHarDispatch::DispatchMimeType type is empty");
@@ -123,7 +123,8 @@ bool NdefHarDispatch::DispatchBundleExtensionAbility(const std::string &harPacka
 
 /* Call GetLaunchWantForBundle through bundlename to obtain the want and pull up the app */
 bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
-    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
+    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri,
+    OHOS::sptr<IRemoteObject> tagServiceIface)
 {
     if (harPackage.empty()) {
         ErrorLog("NdefHarDispatch::DispatchBundleAbility harPackage is empty");
@@ -147,7 +148,11 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     if (!mimeType.empty()) {
         want.SetType(mimeType);
     }
+    if (tagServiceIface == nullptr) {
+        WarnLog("tagServiceIface is null");
+    }
     if (tagInfo != nullptr) {
+        want.SetParam("remoteTagService", tagServiceIface);
         ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
     }
     if (uri.size() > 0) {
@@ -189,7 +194,8 @@ bool NdefHarDispatch::DispatchUriToBundleAbility(const std::string &uri)
 /* If the corresponding app has been installed, the system jumps to the corresponding app and starts it.
  * If the corresponding app is not installed, the default browser is used to open the corresponding page.
  */
-bool NdefHarDispatch::DispatchByAppLinkMode(const std::string &uriSchemeValue)
+bool NdefHarDispatch::DispatchByAppLinkMode(const std::string &uriSchemeValue,
+    const std::shared_ptr<KITS::TagInfo> &tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface)
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     InfoLog("enter");
@@ -197,10 +203,19 @@ bool NdefHarDispatch::DispatchByAppLinkMode(const std::string &uriSchemeValue)
         ErrorLog("uriSchemeValue is empty");
         return false;
     }
+    if (tagInfo == nullptr) {
+        ErrorLog("tagInfo is null");
+        return false;
+    }
+    if (tagServiceIface == nullptr) {
+        WarnLog("tagServiceIface is null");
+    }
     AAFwk::Want want;
     const std::string PARAM_KEY = "appLinkingOnly"; // Use App Linking Mode
     want.SetUri(uriSchemeValue);
     want.SetParam(PARAM_KEY, false);
+    want.SetParam("remoteTagService", tagServiceIface);
+    ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog(
