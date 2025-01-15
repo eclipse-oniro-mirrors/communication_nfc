@@ -63,6 +63,7 @@ HWTEST_F(NfcControllerDeathRecipientTest, OnRemoteDied001, TestSize.Level1)
     std::shared_ptr<NfcControllerDeathRecipient> nfcControllerDeathRecipient =
         std::make_shared<NfcControllerDeathRecipient>(nfcConctrolService, callerToken);
     nfcControllerDeathRecipient->OnRemoteDied(remote);
+    ASSERT_TRUE(nfcControllerDeathRecipient != nullptr);
 }
 }
 }

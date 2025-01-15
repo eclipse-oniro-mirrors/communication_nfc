@@ -106,7 +106,8 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest001, TestSize.Level1)
     ndefMessage = "D20301612F6231";
     TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
     ndefMessage = "D2000131";
-    TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
 }
 
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest002, TestSize.Level1)
@@ -123,7 +124,8 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest002, TestSize.Level1)
         "2533412532462532466E666325324661707025334669642533443230303032313533253236742533446E61303061723278366A3039140F"
         "1B616E64726F69642E636F6D3A706B67636F6D2E65672E616E64726F69642E416C697061794770686F6E65540C186F686F732E636F6D3A"
         "706B67636F6D2E616C697061792E6D6F62696C652E636C69656E74";
-    TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
 }
 
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest003, TestSize.Level1)
@@ -139,7 +141,8 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest003, TestSize.Level1)
                               "657273696F6E3D7632266E6578743D68747470732533412532462532467069616F2E6F326F2E636D62636869"
                               "6E612E636F6D253246636D626C6966655F66616E7069616F25324673746F726544657461696C253346737472"
                               "4E6F25334430353132303336373330303030323526646565706C696E6B49643D3230323431303131";
-    TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
 }
 
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest004, TestSize.Level1)
@@ -154,7 +157,8 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest004, TestSize.Level1)
     std::string ndefMessage =
         "D10157550077616C6C65743A2F2F636F6D2E6875617765692E77616C6C65742F6F70656E77616C6C65743F616374696F6E3D636F6D2E68"
         "75617765692E7061792E696E74656E742E616374696F6E2E4D41494E4143544956495459";
-    TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
 }
 
 HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest005, TestSize.Level1)
@@ -169,7 +173,8 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest005, TestSize.Level1)
     std::string ndefMessage =
         "D20F576170702F68772E66776C2E696E666F56323A533D4857384B5F5445535447325F35473B503D687561776569323031323B483D3137"
         "322E31362E33322E32323B493D343B43543D31303B49414F3D5555AAAA124C060001E0000000000000000000000000000000";
-    TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
 }
 }
 }

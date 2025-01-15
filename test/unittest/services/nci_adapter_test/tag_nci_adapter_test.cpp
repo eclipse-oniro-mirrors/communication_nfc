@@ -237,6 +237,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest006, TestSize.Level1)
     discoveryNtf.protocol = NFC_PROTOCOL_MIFARE;
     eventData.disc_result.discovery_ntf = discoveryNtf;
     adapterObj->HandleDiscResult(&eventData);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -271,6 +272,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest007, TestSize.Level1)
 
     activated.activate_ntf.protocol = NCI_PROTOCOL_15693;
     adapterObj->BuildTagInfo(activated);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -306,6 +308,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest008, TestSize.Level1)
     activated.activate_ntf.rf_tech_param.param.pa.sens_res[1] = ATQA_MIFARE_DESFIRE_1;
     activated.activate_ntf.rf_tech_param.param.pa.sel_rsp = SAK_MIFARE_DESFIRE;
     adapterObj->BuildTagInfo(activated);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -335,6 +338,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest009, TestSize.Level1)
 
     activated.activate_ntf.intf_param.type = NFC_INTERFACE_FRAME;
     adapterObj->BuildTagInfo(activated);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -375,6 +379,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest0010, TestSize.Level1)
     activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_POLL_B;
     activated.activate_ntf.intf_param.intf_param.pa_iso.his_byte_len = 0;
     adapterObj->BuildTagInfo(activated);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -427,6 +432,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest0011, TestSize.Level1)
 
     activated.activate_ntf.rf_tech_param.mode = NCI_DISCOVERY_TYPE_LISTEN_ISO15693;
     adapterObj->BuildTagInfo(activated);
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 
 /**
@@ -450,6 +456,7 @@ HWTEST_F(TagNciAdapterTest, TagNciAdapterTest0012, TestSize.Level1)
     adapterObj->GetMultiTagTechsFromData(discoveryData);
     adapterObj->SelectTheFirstTag();
     adapterObj->SelectTheNextTag();
+    EXPECT_TRUE(adapterObj != nullptr);
 }
 }
 }

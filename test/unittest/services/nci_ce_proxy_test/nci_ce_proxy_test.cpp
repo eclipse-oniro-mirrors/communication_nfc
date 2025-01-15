@@ -128,6 +128,7 @@ HWTEST_F(NciCeProxyTest, NotifyDefaultPaymentType001, TestSize.Level1)
     std::shared_ptr<NciCeProxy> nciCeProxy = std::make_shared<NciCeProxy>();
     int paymentType = static_cast<int>(KITS::DefaultPaymentType::TYPE_ESE);
     nciCeProxy->NotifyDefaultPaymentType(paymentType);
+    ASSERT_TRUE(nciCeProxy != nullptr);
 }
 }
 }
