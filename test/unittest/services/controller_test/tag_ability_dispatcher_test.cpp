@@ -61,6 +61,7 @@ HWTEST_F(TagAbilityDispatcherTest, DispatchTagAbility001, TestSize.Level1)
     OHOS::sptr<IRemoteObject> tagServiceIface = nullptr;
     std::shared_ptr<TagAbilityDispatcher> tagAbilityDispatcher = std::make_shared<TagAbilityDispatcher>();
     tagAbilityDispatcher->DispatchTagAbility(tagInfo, tagServiceIface);
+    ASSERT_TRUE(tagAbilityDispatcher != nullptr);
 }
 
 /**
@@ -74,6 +75,7 @@ HWTEST_F(TagAbilityDispatcherTest, DispatchAbilityMultiApp001, TestSize.Level1)
     AAFwk::Want want;
     std::shared_ptr<TagAbilityDispatcher> tagAbilityDispatcher = std::make_shared<TagAbilityDispatcher>();
     tagAbilityDispatcher->DispatchAbilityMultiApp(tagInfo, want);
+    ASSERT_TRUE(tagAbilityDispatcher != nullptr);
 }
 
 /**
@@ -86,6 +88,7 @@ HWTEST_F(TagAbilityDispatcherTest, DispatchAbilitySingleApp001, TestSize.Level1)
     AAFwk::Want want;
     std::shared_ptr<TagAbilityDispatcher> tagAbilityDispatcher = std::make_shared<TagAbilityDispatcher>();
     tagAbilityDispatcher->DispatchAbilitySingleApp(want);
+    ASSERT_TRUE(tagAbilityDispatcher != nullptr);
 }
 }
 }

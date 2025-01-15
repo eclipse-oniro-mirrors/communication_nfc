@@ -239,6 +239,8 @@ HWTEST_F(NfcControllerTest, OnRemoteDied001, TestSize.Level1)
     wptr<IRemoteObject> remoteObject = nullptr;
     NfcController ctrl = NfcController::GetInstance();
     ctrl.OnRemoteDied(remoteObject);
+    ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
+    ASSERT_TRUE(errorCode == ERR_NONE);
 }
 
 /**
@@ -306,6 +308,8 @@ HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
     ctrl.GetHceServiceIface();
+    ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
+    ASSERT_TRUE(errorCode == ERR_NONE);
 }
 }
 }

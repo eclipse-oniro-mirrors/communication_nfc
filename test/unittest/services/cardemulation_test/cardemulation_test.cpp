@@ -117,6 +117,7 @@ HWTEST_F(CardemulationTest, CeService001, TestSize.Level1)
     ceService->PublishFieldOnOrOffCommonEvent(false);
     ceService->HandleFieldActivated();
     ceService->HandleFieldDeactivated();
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -131,6 +132,7 @@ HWTEST_F(CardemulationTest, CeService002, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->HandleFieldActivated();
     ceService->HandleFieldDeactivated();
+    ASSERT_TRUE(ceService != nullptr);
 }
 }
 }

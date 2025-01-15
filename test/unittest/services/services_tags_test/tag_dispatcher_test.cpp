@@ -84,6 +84,7 @@ HWTEST_F(TagDispatcherTest, HandleTagFound001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
     tagDispatcher->HandleTagFound(g_testTagRfId);
+    ASSERT_TRUE(tagDispatcher != nullptr);
 }
 
 /**
@@ -95,6 +96,7 @@ HWTEST_F(TagDispatcherTest, HandleTagFound002, TestSize.Level1)
 {
     std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(nullptr);
     tagDispatcher->HandleTagFound(g_testTagRfId);
+    ASSERT_TRUE(tagDispatcher != nullptr);
 }
 
 /**

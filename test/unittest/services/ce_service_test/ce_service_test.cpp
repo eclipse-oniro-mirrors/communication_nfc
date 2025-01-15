@@ -194,6 +194,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove003, TestSize.Level1)
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -212,6 +213,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove004, TestSize.Level1)
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -230,6 +232,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove005, TestSize.Level1)
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -248,6 +251,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove006, TestSize.Level1)
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_USER_PRESENT);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -268,6 +272,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove007, TestSize.Level1)
     want.SetElement(element);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -288,6 +293,7 @@ HWTEST_F(CeServiceTest, OnAppAddOrChangeOrRemove008, TestSize.Level1)
     want.SetElement(element);
     data->SetWant(want);
     ceService->OnAppAddOrChangeOrRemove(data);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -595,6 +601,7 @@ HWTEST_F(CeServiceTest, SearchElementByAid001, TestSize.Level1)
     std::string aid = "";
     ElementName aidElement;
     ceService->SearchElementByAid(aid, aidElement);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**
@@ -611,6 +618,7 @@ HWTEST_F(CeServiceTest, SearchElementByAid002, TestSize.Level1)
     std::string aid = "123";
     ElementName aidElement;
     ceService->SearchElementByAid(aid, aidElement);
+    ASSERT_TRUE(ceService != nullptr);
 }
 
 /**

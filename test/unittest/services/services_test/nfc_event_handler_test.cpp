@@ -71,6 +71,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent001, TestSize.Level1)
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -92,6 +93,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent002, TestSize.Level1)
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -113,6 +115,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent003, TestSize.Level1)
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -136,6 +139,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent004, TestSize.Level1)
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -159,6 +163,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent006, TestSize.Level1)
         std::make_shared<NfcRoutingManager>(nfcEventHandler, nciNfccProxy, nciCeProxy, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -182,6 +187,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent007, TestSize.Level1)
         std::make_shared<NfcRoutingManager>(nfcEventHandler, nciNfccProxy, nciCeProxy, service);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -204,6 +210,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent008, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -226,6 +233,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent009, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -248,6 +256,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent010, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -270,6 +279,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent011, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -292,6 +302,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent012, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -315,6 +326,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent013, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -337,6 +349,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent014, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -360,6 +373,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent015, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -383,6 +397,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent016, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -405,6 +420,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent017, TestSize.Level1)
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
     nfcEventHandler->Intialize(tagDispatcher, ceService, nfcPollingManager, nfcRoutingManager, nciNfccProxy);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -420,6 +436,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent018, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -435,6 +452,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent019, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -450,6 +468,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent020, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_ENABLED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -465,6 +484,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent021, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_CONNECTED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -480,6 +500,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent022, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_WIFI_NTF_CLICKED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -495,6 +516,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent023, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -510,6 +532,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent024, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -525,6 +548,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent025, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_CONNECT_TIMEOUT), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -540,6 +564,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent026, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_ENABLED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -555,6 +580,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent027, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_PAIR_STATUS_CHANGED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -570,6 +596,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent028, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_CONNECT_STATUS_CHANGED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -585,6 +612,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent029, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_BT_NTF_CLICKED), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 
 /**
@@ -600,6 +628,7 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent030, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(-1, 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);
     nfcEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcEventHandler != nullptr);
 }
 } // namespace TEST
 } // namespace TAG

@@ -250,7 +250,8 @@ HWTEST_F(HceServiceTest, OnRemoteRequest0003, TestSize.Level1)
     std::u16string descriptor = u"ohos.nfc.kits.IHceCmdCallback";
     data.WriteInterfaceToken(descriptor);
     data.WriteInt32(0);
-    HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
+    int ret = HceCmdCallbackStub::GetInstance().OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(ret);
 }
 
 /**

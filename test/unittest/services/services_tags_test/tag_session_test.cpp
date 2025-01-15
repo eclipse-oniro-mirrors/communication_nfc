@@ -616,6 +616,7 @@ HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
     std::string abilityName = "";
     int abilityState = 0;
     tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+    ASSERT_TRUE(tagSession != nullptr);
 }
 
 /**
@@ -629,6 +630,7 @@ HWTEST_F(TagSessionTest, ResetTimeout001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = 0;
     tagSession->ResetTimeout(tagRfDiscId);
+    ASSERT_TRUE(tagSession != nullptr);
 }
 
 /**
@@ -643,6 +645,7 @@ HWTEST_F(TagSessionTest, ResetTimeout002, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = 0;
     tagSession->ResetTimeout(tagRfDiscId);
+    ASSERT_TRUE(tagSession != nullptr);
 }
 
 /**

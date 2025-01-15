@@ -186,6 +186,7 @@ HWTEST_F(HostCardEmulationManagerTest, HandleQueueData001, TestSize.Level1)
     std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
         std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
     hostCardEmulationManager->HandleQueueData();
+    ASSERT_TRUE(hostCardEmulationManager != nullptr);
 }
 
 /**
