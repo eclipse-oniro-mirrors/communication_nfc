@@ -36,6 +36,7 @@ namespace OHOS {
 namespace NFC {
 namespace TAG {
 static std::string g_sysLanguage = "";
+static std::string g_sysRegion = "";
 static std::map<std::string, std::string> g_resourceMap;
 static std::mutex g_callbackMutex {};
 static NfcNtfCallback g_ntfCallback = nullptr;
@@ -113,7 +114,7 @@ static void UpdateResourceMap(const std::string &resourcePath)
     cJSON_Delete(json);
 }
 
-static std::string GetLanguageFilePath(const std::string &sysLanguage)
+static std::string GetLanguageFilePath(const std::string &sysLanguage, const std::string &sysRegion)
 {
     InfoLog("Reading language file path from json config.");
     std::string content;
@@ -132,6 +133,12 @@ static std::string GetLanguageFilePath(const std::string &sysLanguage)
         return filePath;
     }
 
+    if (sysLanguage == NFC_ZHHANT_LANGUAGE_FILE_PATH && sysRegion == NFC_ZHTW_REGION) {
+        cJSON_Delete(json);
+        InfoLog("file path is zh-TW");
+        return NFC_ZHTW_LANGUAGE_FILE_PATH;
+    }
+
     cJSON *resJsonEach = nullptr;
     cJSON_ArrayForEach(resJsonEach, resJson) {
         cJSON *key = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_SYSTEM_LANGUAGE);
@@ -142,6 +149,7 @@ static std::string GetLanguageFilePath(const std::string &sysLanguage)
         if (key->valuestring != sysLanguage) {
             continue;
         }
+
         cJSON *value = cJSON_GetObjectItemCaseSensitive(resJsonEach, KEY_FILE_PATH);
         if (value == nullptr || !cJSON_IsString(value)) {
             ErrorLog("json param KEY_FILE_PATH not string");
@@ -160,16 +168,20 @@ static std::string GetLanguageFilePath(const std::string &sysLanguage)
 static void UpdateResourceMapByLanguage()
 {
     std::string curSysLanguage = Global::I18n::LocaleConfig::GetSystemLanguage();
-    if (g_sysLanguage == curSysLanguage) {
-        DebugLog("same language environment[%{public}s], no need to update resource map.", curSysLanguage.c_str());
+    std::string curSysRegion = Global::I18n::LocaleConfig::GetSystemRegion();
+    if (g_sysLanguage == curSysLanguage && curSysRegion == g_sysRegion) {
+        DebugLog("same language environment[%{public}s], region[%{public}s] ,no need to update resource map.",
+                 curSysLanguage.c_str(), curSysRegion.c_str());
         return;
     }
 
-    InfoLog("current system language[%{public}s] changes, should update resource map", curSysLanguage.c_str());
+    InfoLog("current system language[%{public}s], region[%{public}s] changes, should update resource map",
+            curSysLanguage.c_str(), curSysRegion.c_str());
     g_sysLanguage = curSysLanguage;
+    g_sysRegion = curSysRegion;
 
     std::string filePath = NFC_LANGUAGE_FILEPATH_PREFIX +
-                        GetLanguageFilePath(g_sysLanguage) +
+                        GetLanguageFilePath(g_sysLanguage, g_sysRegion) +
                         NFC_LANGUAGE_FILEPATH_SUFFIX;
     UpdateResourceMap(filePath);
 }
