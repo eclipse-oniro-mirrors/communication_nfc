@@ -80,8 +80,8 @@ private:
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
-    RecordsType schemeType_;
-    RecordsType mimeType_;
+    RecordsType schemeType_ {RecordsType::TYPE_RTP_UNKNOWN};
+    RecordsType mimeType_ {RecordsType::TYPE_RTP_UNKNOWN};
     std::string mimeTypeStr_ {};
     std::string uriAddress_ {};
     std::string uriSchemeValue_ {};
