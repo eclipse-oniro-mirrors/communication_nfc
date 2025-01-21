@@ -54,7 +54,7 @@ enum NfcNotificationId : int {
     NFC_NTF_END,
 };
 
-const int MAX_BUFF_LEN = 100;
+const int MAX_BUFF_LEN = 500;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
 const int NTF_AUTO_DELETE_TIME = 10000;
 const int MAX_RES_VEC_LEN = 100;
