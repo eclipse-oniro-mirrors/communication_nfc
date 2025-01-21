@@ -33,6 +33,7 @@ struct NapiNdefMessage {
     static napi_value MakeTextRecord(napi_env env, napi_callback_info info);
     static napi_value MakeMimeRecord(napi_env env, napi_callback_info info);
     static napi_value MakeExternalRecord(napi_env env, napi_callback_info info);
+    static napi_value MakeApplicationRecord(napi_env env, napi_callback_info info);
     static napi_value MessageToBytes(napi_env env, napi_callback_info info);
     std::shared_ptr<NdefMessage> ndefMessage = nullptr;
 };

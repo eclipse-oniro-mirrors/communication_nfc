@@ -58,7 +58,7 @@ int TagSession::Connect(int tagRfDiscId, int technology)
     }
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("Connect, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Connect, IsNfcEnabled error");
@@ -87,7 +87,7 @@ int TagSession::IsConnected(int tagRfDiscId, bool &isConnected)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("Connect, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Connect, IsNfcEnabled error");
@@ -107,7 +107,7 @@ int TagSession::Reconnect(int tagRfDiscId)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("Reconnect, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Reconnect, IsNfcEnabled error");
@@ -145,7 +145,7 @@ int TagSession::SetTimeout(int tagRfDiscId, int timeout, int technology)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("SetTimeout, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SetTimeout, IsNfcEnabled error");
@@ -165,7 +165,7 @@ int TagSession::GetTimeout(int tagRfDiscId, int technology, int &timeout)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("GetTimeout, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("GetTimeout, IsNfcEnabled error");
@@ -246,7 +246,7 @@ int TagSession::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("SendRawFrame, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SendRawFrame, IsNfcEnabled error");
@@ -281,7 +281,7 @@ int TagSession::NdefRead(int tagRfDiscId, std::string &ndefMessage)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefRead, IsTagFieldOn error");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     ndefMessage = nciTagProxy_.lock()->ReadNdef(tagRfDiscId);
@@ -298,7 +298,7 @@ int TagSession::NdefWrite(int tagRfDiscId, std::string msg)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("NdefWrite, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefWrite, IsNfcEnabled error");
@@ -325,7 +325,7 @@ int TagSession::NdefMakeReadOnly(int tagRfDiscId)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("NdefMakeReadOnly, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefMakeReadOnly, IsNfcEnabled error");
@@ -348,7 +348,7 @@ int TagSession::FormatNdef(int tagRfDiscId, const std::string& key)
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("FormatNdef, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("FormatNdef, IsNfcEnabled error");
@@ -365,7 +365,7 @@ int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("CanMakeReadOnly, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     canSetReadOnly = nciTagProxy_.lock()->CanMakeReadOnly(ndefType);
     return NFC::KITS::ErrorCode::ERR_NONE;
@@ -389,7 +389,7 @@ int TagSession::IsSupportedApdusExtended(bool &isSupported)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("IsSupportedApdusExtended, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     isSupported = nciTagProxy_.lock()->IsExtendedLengthApduSupported();
     return NFC::KITS::ErrorCode::ERR_NONE;
@@ -533,7 +533,7 @@ int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vect
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("RegForegroundDispatch, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
@@ -581,7 +581,7 @@ int TagSession::UnregForegroundDispatchInner(const ElementName &element, bool is
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregForegroundDispatch, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->DisableForegroundDispatch(element)) {
         return KITS::ERR_NONE;
@@ -674,7 +674,7 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("RegReaderModeInner, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
@@ -694,7 +694,7 @@ int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregReaderMode, expired");
-        return NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND;
+        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->DisableReaderMode(element)) {
         return KITS::ERR_NONE;

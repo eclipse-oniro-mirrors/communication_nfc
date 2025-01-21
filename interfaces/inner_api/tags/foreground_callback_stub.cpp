@@ -60,7 +60,7 @@ int ForegroundCallbackStub::OnRemoteRequest(
 {
     DebugLog("ForegroundCallbackStub::OnRemoteRequest,code = %{public}d", code);
     if (mRemoteDied) {
-        return KITS::ERR_NFC_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         ErrorLog("nfc callback stub token verification error");
@@ -71,7 +71,7 @@ int ForegroundCallbackStub::OnRemoteRequest(
         ErrorLog("ForegroundCallbackStub::OnRemoteRequest, got exception: (%{public}d))", exception);
         return exception;
     }
-    int ret = KITS::ERR_NFC_STATE_UNBIND;
+    int ret = KITS::ERR_TAG_STATE_UNBIND;
     switch (code) {
         case static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TAG_FOUND_FOREGROUND): {
             ret = RemoteTagDiscovered(data, reply);

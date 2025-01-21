@@ -179,6 +179,14 @@ public:
     static std::shared_ptr<NdefRecord> MakeExternalRecord(const std::string& domainName,
                                                           const std::string& serviceName,
                                                           const std::string& externalData);
+
+    /**
+     * @Description Create a ndef record with package name.
+     * @param packageName package Name of the application
+     * @return std::shared_ptr<NdefRecord>
+     */
+    std::shared_ptr<NdefRecord> NdefMessage::MakeApplicationRecord(const std::string& packageName);
+
     /**
      * @Description parse a ndef message into raw bytes.
      * @param ndefMessage a ndef message to parse

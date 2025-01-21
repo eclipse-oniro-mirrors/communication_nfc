@@ -594,6 +594,7 @@ napi_value RegisterNdefStaticFunctions(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("makeTextRecord", NapiNdefMessage::MakeTextRecord),
         DECLARE_NAPI_FUNCTION("makeMimeRecord", NapiNdefMessage::MakeMimeRecord),
         DECLARE_NAPI_FUNCTION("makeExternalRecord", NapiNdefMessage::MakeExternalRecord),
+        DECLARE_NAPI_FUNCTION("makeApplicationRecord", NapiNdefMessage::MakeApplicationRecord),
         DECLARE_NAPI_FUNCTION("messageToBytes", NapiNdefMessage::MessageToBytes),
     };
 

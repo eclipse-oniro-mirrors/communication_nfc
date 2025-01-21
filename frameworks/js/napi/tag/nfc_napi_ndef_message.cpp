@@ -156,6 +156,27 @@ napi_value NapiNdefMessage::MakeExternalRecord(napi_env env, napi_callback_info 
     return result;
 }
 
+napi_value NapiNdefMessage::MakeApplicationRecord(napi_env env, napi_callback_info info)
+{
+    std::size_t argc = ARGV_NUM_1;
+    napi_value argv[ARGV_NUM_1] = {0};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+
+    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) ||
+        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "packageName", "string")) {
+        return CreateUndefined(env);
+    }
+
+    std::string packageName = GetStringFromValue(env, argv[ARGV_INDEX_0]);
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeApplicationRecord(packageName);
+    if (!CheckNdefRecordAndThrow(env, ndefRecord)) {
+        return CreateUndefined(env);
+    }
+    napi_value result = nullptr;
+    ConvertNdefRecordToJS(env, result, ndefRecord);
+    return result;
+}
+
 napi_value NapiNdefMessage::MessageToBytes(napi_env env, napi_callback_info info)
 {
     std::size_t argc = ARGV_NUM_1;
