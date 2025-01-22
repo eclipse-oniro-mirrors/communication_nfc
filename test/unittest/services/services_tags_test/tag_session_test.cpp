@@ -166,7 +166,7 @@ HWTEST_F(TagSessionTest, RegForegroundDispatch001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     int result = tagSession->NdefMakeReadOnly(tagRfDiscId);
     tagSession->RegForegroundDispatch(element, discTech, callback);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefMakeReadOnly001
@@ -179,7 +179,7 @@ HWTEST_F(TagSessionTest, NdefMakeReadOnly001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     int result = tagSession->NdefMakeReadOnly(tagRfDiscId);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefMakeReadOnly002
@@ -207,7 +207,7 @@ HWTEST_F(TagSessionTest, NdefWrite001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     std::string msg = "";
     int result = tagSession->NdefWrite(tagRfDiscId, msg);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: NdefWrite002
@@ -307,7 +307,7 @@ HWTEST_F(TagSessionTest, GetTimeout003, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     int timeout = 0;
     int result = tagSession->GetTimeout(tagRfDiscId, technology, timeout);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: GetTimeout004
@@ -381,7 +381,7 @@ HWTEST_F(TagSessionTest, Reconnect001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
     int result = tagSession->Reconnect(tagRfDiscId);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: Reconnect002
@@ -423,7 +423,7 @@ HWTEST_F(TagSessionTest, Connect002, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     int technology = 1;
     int result = tagSession->Connect(tagRfDiscId, technology);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: Connect003
@@ -467,7 +467,7 @@ HWTEST_F(TagSessionTest, SendRawFrame001, TestSize.Level1)
     bool raw = true;
     std::string hexRespData = "";
     int result = tagSession->SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: SendRawFrame002
@@ -498,7 +498,7 @@ HWTEST_F(TagSessionTest, FormatNdef001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     const std::string key = "";
     int result = tagSession->FormatNdef(tagRfDiscId, key);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: FormatNdef002
@@ -528,7 +528,7 @@ HWTEST_F(TagSessionTest, CanMakeReadOnly001, TestSize.Level1)
     int ndefType = NDEF_TYPE1_TAG;
     bool canSetReadOnly = true;
     int result = tagSession->CanMakeReadOnly(ndefType, canSetReadOnly);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: CanMakeReadOnly002
@@ -557,7 +557,7 @@ HWTEST_F(TagSessionTest, IsSupportedApdusExtended001, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     bool isSupported = true;
     int result = tagSession->IsSupportedApdusExtended(isSupported);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 /**
  * @tc.name: IsSupportedApdusExtended002
@@ -660,7 +660,7 @@ HWTEST_F(TagSessionTest, IsConnected001, TestSize.Level1)
     int tagRfDiscId = 0;
     bool isConnected = false;
     int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
-    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NFC_STATE_UNBIND);
+    ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND);
 }
 
 /**

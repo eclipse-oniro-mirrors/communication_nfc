@@ -163,6 +163,18 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeExternalRecord(const std::string& d
     return CreateNdefRecord(TNF_EXTERNAL_TYPE, id, externalData, tagRtdType);
 }
 
+std::shared_ptr<NdefRecord> NdefMessage::MakeApplicationRecord(const std::string& packageName)
+{
+    if (packageName.empty()) {
+        ErrorLog("MakeApplicationRecord, packageName is null.");
+        return std::shared_ptr<NdefRecord>();
+    }
+
+    std::string id = "";
+    std::string tagRtdType = NfcSdkCommon::StringToHexString(GetTagRtdType(EmRtdType::RTD_OHOS_APP));
+    return CreateNdefRecord(TNF_EXTERNAL_TYPE, id, packageName, tagRtdType);
+}
+
 std::string NdefMessage::MessageToString(std::weak_ptr<NdefMessage> ndefMessage)
 {
     std::string buffer;

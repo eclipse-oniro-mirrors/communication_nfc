@@ -18,6 +18,8 @@
 #include <sstream>
 #include <securec.h>
 #include <sys/time.h>
+#include "bundle_mgr_proxy.h"
+#include "iservice_registry.h"
 
 #include "loghelper.h"
 
@@ -259,6 +261,37 @@ bool NfcSdkCommon::SecureStringToInt(const std::string &str, int32_t &value, int
         return false;
     }
     return true;
+}
+
+int NfcSdkCommon::GetSdkVersion(void)
+{
+    int version = SDK_VERSION_UNKNOWN;
+
+    auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        ErrorLog("fail to get system ability mgr.");
+        return version;
+    }
+    auto remoteObject = systemAbilityManager->systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        ErrorLog("fail to get bundle manager proxy.");
+        return version;
+    }
+    sptr<AppExecFwk::BundleMgrProxy> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("failed to get bundle manager proxy.");
+        return version;
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    auto flags = AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION;
+    auto ret = bundleMgrProxy->GetBunInfoForSelt(static_cast<int32_t>(flags), bundleInfo);
+    if (ret != ERR_OK) {
+        ErrorLog("GetBunInfoForSelt: get fail.");
+        return version;
+    }
+
+    version = bundleInfo.targetversion % 100; // %100 to get the real version
+    return version;
 }
 }  // namespace KITS
 }  // namespace NFC
