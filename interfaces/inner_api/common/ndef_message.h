@@ -185,7 +185,7 @@ public:
      * @param packageName package Name of the application
      * @return std::shared_ptr<NdefRecord>
      */
-    std::shared_ptr<NdefRecord> NdefMessage::MakeApplicationRecord(const std::string& packageName);
+    static std::shared_ptr<NdefRecord> MakeApplicationRecord(const std::string& packageName);
 
     /**
      * @Description parse a ndef message into raw bytes.

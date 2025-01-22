@@ -272,25 +272,25 @@ int NfcSdkCommon::GetSdkVersion(void)
         ErrorLog("fail to get system ability mgr.");
         return version;
     }
-    auto remoteObject = systemAbilityManager->systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (!remoteObject) {
         ErrorLog("fail to get bundle manager proxy.");
         return version;
     }
-    sptr<AppExecFwk::BundleMgrProxy> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    sptr<AppExecFwk::BundleMgrProxy> bundleMgrProxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
     if (bundleMgrProxy == nullptr) {
         ErrorLog("failed to get bundle manager proxy.");
         return version;
     }
     AppExecFwk::BundleInfo bundleInfo;
     auto flags = AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION;
-    auto ret = bundleMgrProxy->GetBunInfoForSelt(static_cast<int32_t>(flags), bundleInfo);
+    auto ret = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(flags), bundleInfo);
     if (ret != ERR_OK) {
-        ErrorLog("GetBunInfoForSelt: get fail.");
+        ErrorLog("GetBundleInfoForSelf: get fail.");
         return version;
     }
 
-    version = bundleInfo.targetversion % 100; // %100 to get the real version
+    version = bundleInfo.targetVersion % 100; // %100 to get the real version
     return version;
 }
 }  // namespace KITS
