@@ -290,7 +290,7 @@ int NfcSdkCommon::GetSdkVersion(void)
         return version;
     }
 
-    version = bundleInfo.targetVersion % 100; // %100 to get the real version
+    version = static_cast<int>(bundleInfo.targetVersion % 100); // %100 to get the real version
     return version;
 }
 }  // namespace KITS
