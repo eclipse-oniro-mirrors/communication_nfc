@@ -968,7 +968,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getMifareClassic", GetMifareClassicTag),
         DECLARE_NAPI_FUNCTION("getMifareUltralight", GetMifareUltralightTag),
         DECLARE_NAPI_FUNCTION("getNdefFormatable", GetNdefFormatableTag),
-        DECLARE_NAPI_FUNCTION("getBarcode", GetBarcodeTag),
+        DECLARE_NAPI_FUNCTION("getBarcodeTag", GetBarcodeTag),
         DECLARE_NAPI_FUNCTION("getTagInfo", GetTagInfo),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_A", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_A_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NFC_B", GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_B_TECH))),
