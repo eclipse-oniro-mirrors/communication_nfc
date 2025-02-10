@@ -714,13 +714,13 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
             return "Parameter error. The parameter number is invalid.";
         }
     } else if (errCode == BUSI_ERR_TAG_STATE_INVALID) {
-        return "Tag running state is abnormal in service.";
+        return "The tag running state is abnormal in the service.";
     } else if (errCode == BUSI_ERR_ELEMENT_STATE_INVALID) {
         return "The element state is invalid.";
     } else if (errCode == BUSI_ERR_REGISTER_STATE_INVALID) {
-        return "The off() can be called only when the on() has been called.";
+        return "The off() API can be called only when the on() has been called.";
     } else if (errCode == BUSI_ERR_HCE_STATE_INVALID) {
-        return "HCE running state is abnormal in service.";
+        return "Card emulation running state is abnormal in service.";
     } else if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
         return "Not system application.";
     }

@@ -51,7 +51,7 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
             return "Parameter error. The parameter number is invalid.";
         }
     } else if (errCode == BUSI_ERR_NFC_STATE_INVALID) {
-        return "NFC state is abnormal in service.";
+        return "The NFC state is abnormal in the service.";
     }
     return "Unknown error message";
 }
