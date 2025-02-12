@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "nfc_controller_death_recipient.h"
+#include "nfc_controller_impl.h"
 
 namespace OHOS {
 namespace NFC {
@@ -58,6 +59,24 @@ void NfcControllerDeathRecipientTest::TearDown()
 HWTEST_F(NfcControllerDeathRecipientTest, OnRemoteDied001, TestSize.Level1)
 {
     sptr<NfcControllerStub> nfcConctrolService = nullptr;
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    wptr<IRemoteObject> remote = nullptr;
+    std::shared_ptr<NfcControllerDeathRecipient> nfcControllerDeathRecipient =
+        std::make_shared<NfcControllerDeathRecipient>(nfcConctrolService, callerToken);
+    nfcControllerDeathRecipient->OnRemoteDied(remote);
+    ASSERT_TRUE(nfcControllerDeathRecipient != nullptr);
+}
+
+/**
+ * @tc.name: OnRemoteDied002
+ * @tc.desc: Test NfcControllerDeathRecipientTest OnRemoteDied.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerDeathRecipientTest, OnRemoteDied002, TestSize.Level1)
+{
+    std::weak_ptr<NfcService> nfcService;
+    sptr<NfcControllerImpl> nfcConctrolService =
+        sptr<NfcControllerImpl>(new (std::nothrow) NfcControllerImpl(nfcService));
     Security::AccessToken::AccessTokenID callerToken = 0;
     wptr<IRemoteObject> remote = nullptr;
     std::shared_ptr<NfcControllerDeathRecipient> nfcControllerDeathRecipient =

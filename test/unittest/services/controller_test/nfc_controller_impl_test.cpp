@@ -31,6 +31,23 @@ public:
     void TearDown();
 };
 
+class INfcControllerCallbackImpl : public INfcControllerCallback {
+public:
+    INfcControllerCallbackImpl() {}
+
+    virtual ~INfcControllerCallbackImpl() {}
+
+public:
+    void OnNfcStateChanged(int nfcState) override
+    {
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
 void NfcControllerImplTest::SetUpTestCase()
 {
     std::cout << " SetUpTestCase NfcControllerImplTest." << std::endl;
@@ -118,6 +135,38 @@ HWTEST_F(NfcControllerImplTest, RegisterCallBack001, TestSize.Level1)
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
     KITS::ErrorCode error = nfcControllerImpl->RegisterCallBack(callback, type, callerToken);
     ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: RegisterCallBack002
+ * @tc.desc: Test NfcControllerImplTest RegisterCallBack.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, RegisterCallBack002, TestSize.Level1)
+{
+    sptr<INfcControllerCallback> callback = nullptr;
+    std::string type = "";
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    KITS::ErrorCode error = nfcControllerImpl->RegisterCallBack(callback, type, callerToken);
+    ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: RegisterCallBack003
+ * @tc.desc: Test NfcControllerImplTest RegisterCallBack.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, RegisterCallBack003, TestSize.Level1)
+{
+    sptr<INfcControllerCallbackImpl> callback = new INfcControllerCallbackImpl();
+    std::string type = "";
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    KITS::ErrorCode error = nfcControllerImpl->RegisterCallBack(callback, type, callerToken);
+    ASSERT_TRUE(error == KITS::ERR_NONE);
 }
 
 /**
@@ -245,6 +294,20 @@ HWTEST_F(NfcControllerImplTest, RegCardEmulationNotifyCb001, TestSize.Level1)
     KITS::ErrorCode error = nfcControllerImpl->RegCardEmulationNotifyCb(callback);
     ASSERT_TRUE(error == KITS::ERR_NONE);
 }
+
+/**
+ * @tc.name: NotifyEventStatus001
+ * @tc.desc: Test NfcControllerImplTest NotifyEventStatus.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, NotifyEventStatus001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    KITS::ErrorCode error = nfcControllerImpl->NotifyEventStatus(0, 0, "");
+    ASSERT_TRUE(error == KITS::ERR_NFC_PARAMETERS);
+}
+
 #endif
 /**
  * @tc.name: GetHceServiceIface001

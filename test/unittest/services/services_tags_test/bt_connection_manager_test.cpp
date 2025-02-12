@@ -261,6 +261,29 @@ HWTEST_F(BtConnectionManagerTest, OnPairStatusChanged003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OnPairStatusChanged004
+ * @tc.desc: Test BtConnectionManagerTest OnPairStatusChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnPairStatusChanged004, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "11:22:33:44:55:66";
+    info->state_ = Bluetooth::PAIR_PAIRED;
+    BtConnectionManager::GetInstance().OnPairStatusChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
  * @tc.name: OnConnectionStateChanged001
  * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
  * @tc.type: FUNC
@@ -327,6 +350,174 @@ HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged003, TestSize.Level1)
     info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::HFP_AG);
     BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
     ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnConnectionStateChanged004
+ * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged004, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "11:22:33:44:55:66";
+    info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED);
+    info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::HFP_AG);
+    BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnConnectionStateChanged005
+ * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged005, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "AA:BB:CC:DD:EE:FF";
+    info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED);
+    info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::A2DP_SRC);
+    BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnConnectionStateChanged006
+ * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged006, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "AA:BB:CC:DD:EE:FF";
+    info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED);
+    info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::HID_HOST);
+    BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnConnectionStateChanged007
+ * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged007, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "AA:BB:CC:DD:EE:FF";
+    info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED);
+    info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::A2DP_SRC);
+    BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnConnectionStateChanged008
+ * @tc.desc: Test BtConnectionManagerTest OnConnectionStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged008, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = true;
+    data->name_ = "NFC";
+    data->transport_ = Bluetooth::GATT_TRANSPORT_TYPE_AUTO;
+    data->macAddress_ = "AA:BB:CC:DD:EE:FF";
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    std::shared_ptr<BtConnectionInfo> info = std::make_shared<BtConnectionInfo>();
+    info->macAddr_ = "AA:BB:CC:DD:EE:FF";
+    info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED);
+    info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::HID_HOST);
+    BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: OnStateChanged001
+ * @tc.desc: Test BtConnectionManagerTest OnStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnStateChanged001, TestSize.Level1)
+{
+    auto instance = BtConnectionManager::BtStateObserver::GetInstance();
+    instance->OnStateChanged(0, 1);
+    ASSERT_TRUE(instance != nullptr);
+}
+
+/**
+ * @tc.name: OnStateChanged002
+ * @tc.desc: Test BtConnectionManagerTest OnStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnStateChanged002, TestSize.Level1)
+{
+    auto instance = BtConnectionManager::BtStateObserver::GetInstance();
+    instance->OnStateChanged(0, 0);
+    ASSERT_TRUE(instance != nullptr);
+}
+
+/**
+ * @tc.name: OnStateChanged003
+ * @tc.desc: Test BtConnectionManagerTest OnStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnStateChanged003, TestSize.Level1)
+{
+    auto instance = BtConnectionManager::BtStateObserver::GetInstance();
+    instance->OnStateChanged(1, 1);
+    ASSERT_TRUE(instance != nullptr);
+}
+
+/**
+ * @tc.name: OnStateChanged004
+ * @tc.desc: Test BtConnectionManagerTest OnStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, OnStateChanged004, TestSize.Level1)
+{
+    auto instance = BtConnectionManager::BtStateObserver::GetInstance();
+    instance->OnStateChanged(1, 0);
+    ASSERT_TRUE(instance != nullptr);
 }
 } // namespace TEST
 } // namespace TAG

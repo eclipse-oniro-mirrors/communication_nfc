@@ -100,6 +100,112 @@ HWTEST_F(TagDispatcherTest, HandleTagFound002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleTagFound003
+ * @tc.desc: Test TagSession HandleTagFound.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, HandleTagFound003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->HandleTagFound(g_testTagRfId);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked001
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service;
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114003);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked002
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114003);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked003
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service;
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114000);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked004
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked004, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114000);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked005
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked005, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service;
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114006);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked006
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked006, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114006);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: OnNotificationButtonClicked007
+ * @tc.desc: Test TagSession OnNotificationButtonClicked.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, OnNotificationButtonClicked007, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    tagDispatcher->OnNotificationButtonClicked(114006);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
  * @tc.name: DispatchAbilitySingleApp001
  * @tc.desc: Test TagSession DispatchAbilitySingleApp.
  * @tc.type: FUNC
