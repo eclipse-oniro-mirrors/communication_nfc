@@ -67,6 +67,65 @@ HWTEST_F(ReaderModeCallbackStubTest, OnRemoteRequest001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OnRemoteRequest002
+ * @tc.desc: Test ReaderModeCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ReaderModeCallbackStubTest, OnRemoteRequest002, TestSize.Level1)
+{
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.IReaderModeCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<ReaderModeCallbackStub> readerModeCallbackStub = std::make_shared<ReaderModeCallbackStub>();
+    int onRemoteRequest = readerModeCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(onRemoteRequest);
+}
+
+/**
+ * @tc.name: OnRemoteRequest003
+ * @tc.desc: Test ReaderModeCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ReaderModeCallbackStubTest, OnRemoteRequest003, TestSize.Level1)
+{
+    uint32_t code = 120;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.IReaderModeCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<ReaderModeCallbackStub> readerModeCallbackStub = std::make_shared<ReaderModeCallbackStub>();
+    int onRemoteRequest = readerModeCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(!onRemoteRequest);
+}
+
+/**
+ * @tc.name: OnRemoteRequest004
+ * @tc.desc: Test ReaderModeCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ReaderModeCallbackStubTest, OnRemoteRequest004, TestSize.Level1)
+{
+    uint32_t code = 120;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.IReaderModeCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<ReaderModeCallbackStub> readerModeCallbackStub = std::make_shared<ReaderModeCallbackStub>();
+    sptr<KITS::IReaderModeCallback> callback = new TAG::ReaderModeCallbackStub();
+    readerModeCallbackStub->RegReaderMode(callback);
+    int onRemoteRequest = readerModeCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(!onRemoteRequest);
+}
+
+/**
  * @tc.name: RegReaderMode001
  * @tc.desc: Test ReaderModeCallbackStubTest RegReaderMode.
  * @tc.type: FUNC

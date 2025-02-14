@@ -16,12 +16,14 @@
 #include <thread>
 
 #include "isodep_card_handler.h"
+#include "nci_native_selector.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC::TAG;
+using namespace OHOS::NFC::NCI;
 class IsodepCardHandlerTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -71,6 +73,21 @@ HWTEST_F(IsodepCardHandlerTest, InitTransportCardInfo001, TestSize.Level1)
 HWTEST_F(IsodepCardHandlerTest, IsSupportedTransportCard001, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
+    uint32_t rfDiscId = 0;
+    uint8_t cardIndex = 0;
+    std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+    bool res = isodepCardHandler->IsSupportedTransportCard(rfDiscId, cardIndex);
+    ASSERT_TRUE(!res);
+}
+
+/**
+ * @tc.name: IsSupportedTransportCard002
+ * @tc.desc: Test IsodepCardHandlerTest IsSupportedTransportCard.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsodepCardHandlerTest, IsSupportedTransportCard002, TestSize.Level1)
+{
+    std::shared_ptr<NCI::INciTagInterface> nciTagProxy = NciNativeSelector::GetInstance().GetNciTagInterface();
     uint32_t rfDiscId = 0;
     uint8_t cardIndex = 0;
     std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);

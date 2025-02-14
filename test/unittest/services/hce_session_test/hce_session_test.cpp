@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "hce_session.h"
+#include "hce_session_stub.h"
 
 namespace OHOS {
 namespace NFC {
@@ -48,6 +49,18 @@ void HceSessionTest::SetUp()
 void HceSessionTest::TearDown()
 {
     std::cout << " TearDown HceSessionTest." << std::endl;
+}
+
+/**
+ * @tc.name: HceSession001
+ * @tc.desc: Test HceSessionTest HceSession.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, HceSession001, TestSize.Level1)
+{
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = nullptr;
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    ASSERT_TRUE(hceSession != nullptr);
 }
 
 /**
@@ -317,6 +330,44 @@ HWTEST_F(HceSessionTest, StopHce002, TestSize.Level1)
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
     KITS::ErrorCode errorCode = hceSession->StopHce(element, callerToken);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
+}
+
+/**
+ * @tc.name: OnRemoteRequest001
+ * @tc.desc: Test HceSessionTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, OnRemoteRequest001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.cardemulation.IHceSession";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(1);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    int errorCode = hceSession->OnRemoteRequest(308, data, reply, option);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: OnRemoteRequest002
+ * @tc.desc: Test HceSessionTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, OnRemoteRequest002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.cardemulation.IHceSession";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    int errorCode = hceSession->OnRemoteRequest(308, data, reply, option);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NONE);
 }
 }
 }

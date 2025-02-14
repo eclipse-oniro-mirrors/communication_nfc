@@ -16,12 +16,15 @@
 #include <thread>
 #include "app_data_parser.h"
 #include "nfc_sdk_common.h"
+#include "nfc_notification_publisher.h"
+#include "nfc_param_util.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
+using namespace OHOS::NFC::TAG;
 class AppDataParserTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -103,6 +106,150 @@ HWTEST_F(AppDataParserTest, GetTechMask002, TestSize.Level1)
     discTechList.push_back(static_cast<int>(KITS::TagTechnology::NFC_A_TECH));
     discTechList.push_back(static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
     ASSERT_TRUE(parser.GetDispatchTagAppsByTech(discTechList).size() >= 0);
+}
+/**
+ * @tc.name: IsBundleInstalled001
+ * @tc.desc: Test AppDataParser IsBundleInstalled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, IsBundleInstalled001, TestSize.Level1)
+{
+    std::string bundleName = "test";
+    AppDataParser parser = AppDataParser::GetInstance();
+    bool ret = parser.IsBundleInstalled(bundleName);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: GetBundleInfo001
+ * @tc.desc: Test AppDataParser GetBundleInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, GetBundleInfo001, TestSize.Level1)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    std::string bundleName = "";
+    AppDataParser parser = AppDataParser::GetInstance();
+    bool ret = parser.GetBundleInfo(bundleInfo, bundleName);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: GetBundleInfo002
+ * @tc.desc: Test AppDataParser GetBundleInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, GetBundleInfo002, TestSize.Level1)
+{
+    AppExecFwk::BundleInfo bundleInfo;
+    std::string bundleName = "test";
+    AppDataParser parser = AppDataParser::GetInstance();
+    bool ret = parser.GetBundleInfo(bundleInfo, bundleName);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: IsHceApp001
+ * @tc.desc: Test AppDataParser IsHceApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, IsHceApp001, TestSize.Level1)
+{
+    ElementName elementName;
+    AppDataParser parser = AppDataParser::GetInstance();
+    bool ret = parser.IsHceApp(elementName);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: GetBundleNameByUid001
+ * @tc.desc: Test AppDataParser GetBundleNameByUid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, GetBundleNameByUid001, TestSize.Level1)
+{
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: RegNotificationCallback001
+ * @tc.desc: Test AppDataParser RegNotificationCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, RegNotificationCallback001, TestSize.Level1)
+{
+    std::weak_ptr<NfcService> service;
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: RegNotificationCallback002
+ * @tc.desc: Test AppDataParser RegNotificationCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, RegNotificationCallback002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: RegNotificationCallback003
+ * @tc.desc: Test AppDataParser RegNotificationCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, RegNotificationCallback003, TestSize.Level1)
+{
+    std::weak_ptr<NfcService> service;
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: RegNotificationCallback004
+ * @tc.desc: Test AppDataParser RegNotificationCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, RegNotificationCallback004, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    NfcNotificationPublisher::GetInstance().RegNotificationCallback(service);
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: UpdateNfcStateToParam001
+ * @tc.desc: Test AppDataParser UpdateNfcStateToParam.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, UpdateNfcStateToParam001, TestSize.Level1)
+{
+    int newState = 0;
+    std::shared_ptr<NfcParamUtil> nfcParamUtil = std::make_shared<NfcParamUtil>();
+    nfcParamUtil->UpdateNfcStateToParam(newState);
+    uint32_t uid = 0;
+    AppDataParser parser = AppDataParser::GetInstance();
+    std::string ret = parser.GetBundleNameByUid(uid);
+    ASSERT_TRUE(ret == "");
 }
 }
 }

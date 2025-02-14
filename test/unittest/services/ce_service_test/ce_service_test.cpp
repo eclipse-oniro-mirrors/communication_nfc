@@ -120,6 +120,35 @@ HWTEST_F(CeServiceTest, InitConfigAidRouting001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: InitConfigAidRouting002
+ * @tc.desc: Test CeServiceTest InitConfigAidRouting.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, InitConfigAidRouting002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    bool ret = ceService->InitConfigAidRouting(true);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: InitConfigAidRouting003
+ * @tc.desc: Test CeServiceTest InitConfigAidRouting.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, InitConfigAidRouting003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    nfcService->Initialize();
+    bool ret = ceService->InitConfigAidRouting(true);
+    ASSERT_TRUE(!ret);
+}
+
+/**
  * @tc.name: OnDefaultPaymentServiceChange001
  * @tc.desc: Test CeServiceTest OnDefaultPaymentServiceChange.
  * @tc.type: FUNC
@@ -354,6 +383,26 @@ HWTEST_F(CeServiceTest, HandleFieldDeactivated001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleFieldDeactivated002
+ * @tc.desc: Test CeServiceTest HandleFieldDeactivated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleFieldDeactivated002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->HandleFieldDeactivated();
+    bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
  * @tc.name: OnCardEmulationData001
  * @tc.desc: Test CeServiceTest OnCardEmulationData.
  * @tc.type: FUNC
@@ -562,6 +611,24 @@ HWTEST_F(CeServiceTest, UnRegAllCallback002, TestSize.Level1)
 HWTEST_F(CeServiceTest, HandleFieldActivated001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Initialize();
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    ceService->HandleFieldActivated();
+    bool unRegAllCallback = ceService->UnRegAllCallback(callerToken);
+    ASSERT_TRUE(unRegAllCallback == false);
+}
+
+/**
+ * @tc.name: HandleFieldActivated002
+ * @tc.desc: Test CeServiceTest HandleFieldActivated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleFieldActivated002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ceService->Initialize();

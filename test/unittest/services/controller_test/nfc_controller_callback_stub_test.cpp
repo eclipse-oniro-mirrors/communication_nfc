@@ -108,6 +108,85 @@ HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest001, TestSize.Level1)
     int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
     ASSERT_TRUE(onRemoteRequest == KITS::ERR_NFC_PARAMETERS);
 }
+
+/**
+ * @tc.name: OnRemoteRequest002
+ * @tc.desc: Test NfcControllerCallBackStub OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest002, TestSize.Level1)
+{
+    uint32_t code = static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NOTIFY);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INfcControllerCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(1);
+    NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
+    int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(onRemoteRequest == 1);
+}
+
+/**
+ * @tc.name: OnRemoteRequest003
+ * @tc.desc: Test NfcControllerCallBackStub OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest003, TestSize.Level1)
+{
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INfcControllerCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
+    int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(onRemoteRequest);
+}
+
+/**
+ * @tc.name: OnRemoteRequest004
+ * @tc.desc: Test NfcControllerCallBackStub OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest004, TestSize.Level1)
+{
+    uint32_t code = 104;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INfcControllerCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
+    int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(!onRemoteRequest);
+}
+
+/**
+ * @tc.name: OnRemoteRequest005
+ * @tc.desc: Test NfcControllerCallBackStub OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerCallBackStubTest, OnRemoteRequest005, TestSize.Level1)
+{
+    uint32_t code = 104;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INfcControllerCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    NfcControllerCallBackStub& ctrl = NfcControllerCallBackStub::GetInstance();
+    const sptr<NfcControllerCallBackStub> g_nfcControllerCallbackStub =
+        sptr<NfcControllerCallBackStub>(new (std::nothrow) NfcControllerCallBackStub());
+    ctrl.RegisterCallBack(g_nfcControllerCallbackStub);
+    int onRemoteRequest = ctrl.OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(!onRemoteRequest);
+}
 }
 }
 }

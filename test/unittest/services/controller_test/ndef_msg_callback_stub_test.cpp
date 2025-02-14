@@ -30,6 +30,24 @@ public:
     void TearDown();
 };
 
+class INdefMsgCallbackImpl : public INdefMsgCallback {
+public:
+    INdefMsgCallbackImpl() {}
+
+    virtual ~INdefMsgCallbackImpl() {}
+
+public:
+    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType) override
+    {
+        return false;
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
 void NdefMsgCallbackStubTest::SetUpTestCase()
 {
     std::cout << " SetUpTestCase NdefMsgCallbackStubTest." << std::endl;
@@ -64,6 +82,63 @@ HWTEST_F(NdefMsgCallbackStubTest, OnRemoteRequest001, TestSize.Level1)
     std::shared_ptr<NdefMsgCallbackStub> ndefMsgCallbackStub = std::make_shared<NdefMsgCallbackStub>();
     int onRemoteRequest = ndefMsgCallbackStub->OnRemoteRequest(code, data, reply, option);
     ASSERT_TRUE(onRemoteRequest == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: OnRemoteRequest002
+ * @tc.desc: Test NdefMsgCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMsgCallbackStubTest, OnRemoteRequest002, TestSize.Level1)
+{
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INdefMsgCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(1);
+    std::shared_ptr<NdefMsgCallbackStub> ndefMsgCallbackStub = std::make_shared<NdefMsgCallbackStub>();
+    int onRemoteRequest = ndefMsgCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(onRemoteRequest == 1);
+}
+
+/**
+ * @tc.name: OnRemoteRequest003
+ * @tc.desc: Test NdefMsgCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMsgCallbackStubTest, OnRemoteRequest003, TestSize.Level1)
+{
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INdefMsgCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<NdefMsgCallbackStub> ndefMsgCallbackStub = std::make_shared<NdefMsgCallbackStub>();
+    int onRemoteRequest = ndefMsgCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(onRemoteRequest);
+}
+
+/**
+ * @tc.name: OnRemoteRequest004
+ * @tc.desc: Test NdefMsgCallbackStubTest OnRemoteRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefMsgCallbackStubTest, OnRemoteRequest004, TestSize.Level1)
+{
+    uint32_t code = 113;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string descriptor = u"ohos.nfc.kits.INdefMsgCallback";
+    data.WriteInterfaceToken(descriptor);
+    data.WriteInt32(0);
+    std::shared_ptr<NdefMsgCallbackStub> ndefMsgCallbackStub = std::make_shared<NdefMsgCallbackStub>();
+    int onRemoteRequest = ndefMsgCallbackStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_TRUE(!onRemoteRequest);
 }
 
 /**
