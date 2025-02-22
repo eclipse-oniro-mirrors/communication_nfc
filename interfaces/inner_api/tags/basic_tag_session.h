@@ -47,6 +47,7 @@ private:
     std::weak_ptr<TagInfo> tagInfo_;
     OHOS::sptr<TAG::ITagSession> tagSessionProxy_;
     KITS::TagTechnology tagTechnology_;
+    bool isConnected_;
 };
 }  // namespace KITS
 }  // namespace NFC
