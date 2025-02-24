@@ -22,7 +22,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 BasicTagSession::BasicTagSession(std::weak_ptr<TagInfo> tagInfo, KITS::TagTechnology technology)
-    : tagInfo_(tagInfo), tagTechnology_(technology)
+    : tagInfo_(tagInfo), tagTechnology_(technology), isConnected_(false)
 {
 }
 
@@ -54,28 +54,28 @@ int BasicTagSession::Connect()
     int ret = tagSession->Connect(tagRfDiscId, static_cast<int>(tagTechnology_));
     if (ret == ErrorCode::ERR_NONE) {
         SetConnectedTagTech(tagTechnology_);
+        isConnected_ = true;
     }
     return ret;
 }
 
 bool BasicTagSession::IsConnected()
 {
+    if (!isConnected_) {
+        return false;
+    }
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("IsConnected, ERR_TAG_STATE_UNBIND");
         return false;
     }
-    int tagRfDiscId = GetTagRfDiscId();
-    bool isConnected = false;
-    int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
-    if (ret == ErrorCode::ERR_NONE) {
-        return isConnected;
-    }
-    return false;
+    isConnected_ = tagSession->IsTagFieldOn(GetTagRfDiscId());
+    return isConnected_;
 }
 
 int BasicTagSession::Close()
 {
+    isConnected_ = false;
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr) {
         ErrorLog("Close, ERR_TAG_STATE_UNBIND");
