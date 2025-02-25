@@ -19,6 +19,7 @@
 #include "bluetooth_def.h"
 #include "bluetooth_device_class.h"
 #include "uuid.h"
+#include "ndef_message.h"
 
 namespace OHOS {
 namespace NFC {
@@ -58,6 +59,7 @@ private:
                               Bluetooth::BluetoothDeviceClass& btClass);
     static std::string RevertUuidStr(const std::string& uuid);
     static Bluetooth::UUID FormatUuidTo128Bit(const std::string& uuid);
+    static std::shared_ptr<BtData> ParseBtHandoverSelect(std::shared_ptr<KITS::NdefMessage> &ndef);
     
     const static int VENDOR_PAYLOAD_MAX_LEN = 0xFF; // vendor payload length is 1 byte
 };

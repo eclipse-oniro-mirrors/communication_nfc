@@ -16,7 +16,6 @@
 
 #include <string>
 #include "loghelper.h"
-#include "ndef_message.h"
 #include "nfc_sdk_common.h"
 
 namespace OHOS {
@@ -461,12 +460,44 @@ std::shared_ptr<BtData> NdefBtDataParser::CheckBtRecord(const std::string& msg)
         return std::make_shared<BtData>();
     }
 
+    std::string rtdHexStr =
+        NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_HANDOVER_SELECT));
     // Check Handover Select, followed by a BT record
     if (record->tnf_ == NdefMessage::TNF_WELL_KNOWN &&
-        (record->tagRtdType_.compare(NdefMessage::GetTagRtdType(NdefMessage::RTD_HANDOVER_SELECT)) == 0)) {
-        InfoLog("NdefBtDataParser::CheckBtRecord: is handover select, currently not supported");
+        (record->tagRtdType_.compare(rtdHexStr) == 0)) {
+        InfoLog("NdefBtDataParser::CheckBtRecord: is handover select");
+        return parseBtHandoverSelect(ndef);
+    }
+    InfoLog("NdefBtDataParser::CheckBtRecord : is not bt");
+    return std::make_shared<BtData>();
+}
+
+std::shared_ptr<BtData> NdefBtDataParser::ParseBtHandoverSelect(std::shared_ptr<KITS::NdefMessage> &ndef)
+{
+    if (ndef == nullptr || (ndef->GetNdefRecords().size() == 0)) {
+        ErrorLog("NdefBtDataParser::ParseBtHandoverSelect: ndef is null");
         return std::make_shared<BtData>();
     }
+    std::vector<std::shared_ptr<NdefRecord>> records = ndef->GetNdefRecords();
+
+    for (size_t i = 0; i < records.size(); i++) {
+        std::shared_ptr<NdefRecord> record = records[i];
+
+        // Check BT
+        if (record->tnf_ == NdefMessage::TNF_MIME_MEDIA &&
+            (record->tagRtdType_.compare(NfcSdkCommon::StringToHexString(RTD_TYPE_BT)) == 0)) {
+            InfoLog("NdefBtDataParser::ParseBtHandoverSelect record[%{public}zu]: is bt", i);
+            return ParseBtRecord(record->payload_);
+        }
+
+        // Check BLE
+        if (record->tnf_ == NdefMessage::TNF_MIME_MEDIA &&
+            (record->tagRtdType_.compare(NfcSdkCommon::StringToHexString(RTD_TYPE_BLE)) == 0)) {
+            InfoLog("NdefBtDataParser::ParseBtHandoverSelect record[%{public}zu]: is ble, currently not supported", i);
+            return std::make_shared<BtData>();
+        }
+    }
+    InfoLog("NdefBtDataParser::ParseBtHandoverSelect : is not bt");
     return std::make_shared<BtData>();
 }
 
