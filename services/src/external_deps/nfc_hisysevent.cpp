@@ -150,5 +150,14 @@ void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const 
     failedParams.appPackageName = appName;
     WriteNfcFailedHiSysEvent(&failedParams);
 }
+
+void NfcHisysEvent::WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode)
+{
+    NfcFailedParams failedParams;
+    failedParams.mainErrorCode = HCE_CMD_CB;
+    failedParams.subErrorCode = subErrorCode;
+    failedParams.appPackageName = appName;
+    WriteNfcFailedHiSysEvent(&failedParams);
+}
 }  // namespace NFC
 }  // namespace OHOS

@@ -190,6 +190,11 @@ void ExternalDepsProxy::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, co
     NfcHisysEvent::WriteAppBehaviorHiSysEvent(behaviorCode, appName);
 }
 
+void ExternalDepsProxy::WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode)
+{
+    NfcHisysEvent::WriteNfcHceCmdCbHiSysEvent(appName, subErrorCode);
+}
+
 bool ExternalDepsProxy::IsGranted(std::string permission)
 {
     return NfcPermissionChecker::IsGranted(permission);

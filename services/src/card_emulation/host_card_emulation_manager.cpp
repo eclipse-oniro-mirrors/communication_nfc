@@ -640,13 +640,16 @@ void HostCardEmulationManager::SendDataToService(const std::vector<uint8_t>& dat
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
         ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());
+        ExternalDepsProxy::GetInstance().WriteNfcHceCmdCbHiSysEvent(bundleName, SubErrorCode::HCE_CMD_CB_NOT_EXIST);
         return;
     }
     if (it->second.callback_ == nullptr) {
         ErrorLog("callback is null");
+        ExternalDepsProxy::GetInstance().WriteNfcHceCmdCbHiSysEvent(bundleName, SubErrorCode::HCE_CMD_CB_NULL);
         return;
     }
     it->second.callback_->OnCeApduData(data);
+    ExternalDepsProxy::GetInstance().WriteNfcHceCmdCbHiSysEvent(bundleName, SubErrorCode::HCE_CMD_CB_EXIST);
 }
 
 void HostCardEmulationManager::SendDataToFaService(const std::vector<uint8_t>& data, const std::string &bundleName)
