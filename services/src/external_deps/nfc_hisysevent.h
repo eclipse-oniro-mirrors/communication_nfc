@@ -38,6 +38,7 @@ enum MainErrorCode {
     HCE_SWIPE_CARD = 307,
     NDEF_DISPATCH_TO_APP = 308,
     APP_BEHAVIOR = 401,
+    HCE_CMD_CB = 402,
 };
 
 enum SubErrorCode {
@@ -52,6 +53,9 @@ enum SubErrorCode {
     REG_READERMODE = 40102,
     TURN_ON_NFC = 40103,
     TURN_OFF_NFC = 40104,
+    HCE_CMD_CB_EXIST = 40200,
+    HCE_CMD_CB_NOT_EXIST = 40201,
+    HCE_CMD_CB_NULL = 40202,
 };
 
 const int DEFAULT_COUNT = 1;
@@ -86,6 +90,7 @@ public:
                                   SubErrorCode subErrorCode);
     static void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
     static void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
+    static void WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode);
 };
 }  // namespace NFC
 }  // namespace OHOS

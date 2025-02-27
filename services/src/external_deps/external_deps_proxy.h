@@ -84,6 +84,7 @@ public:
     void BuildFailedParams(NfcFailedParams &nfcFailedParams, MainErrorCode mainErrorCode, SubErrorCode subErrorCode);
     void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
     void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
+    void WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode);
 
     bool IsGranted(std::string permission);
 
