@@ -60,6 +60,10 @@ CePaymentServicesParcelable *CePaymentServicesParcelable::Unmarshalling(Parcel &
         delete ability;
     }
     CePaymentServicesParcelable *paymentService = new (std::nothrow) CePaymentServicesParcelable();
+    if (paymentService == nullptr) {
+        ErrorLog("Unmarshalling paymentService failed");
+        return nullptr;
+    }
     paymentService->paymentAbilityInfos = std::move(abilityInfos);
     return paymentService;
 }
