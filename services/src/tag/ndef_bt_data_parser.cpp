@@ -466,7 +466,7 @@ std::shared_ptr<BtData> NdefBtDataParser::CheckBtRecord(const std::string& msg)
     if (record->tnf_ == NdefMessage::TNF_WELL_KNOWN &&
         (record->tagRtdType_.compare(rtdHexStr) == 0)) {
         InfoLog("NdefBtDataParser::CheckBtRecord: is handover select");
-        return parseBtHandoverSelect(ndef);
+        return ParseBtHandoverSelect(ndef);
     }
     InfoLog("NdefBtDataParser::CheckBtRecord : is not bt");
     return std::make_shared<BtData>();
