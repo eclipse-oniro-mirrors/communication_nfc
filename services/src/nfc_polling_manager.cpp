@@ -130,6 +130,10 @@ void NfcPollingManager::HandleScreenChanged(int screenState)
 bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    if (data == nullptr) {
+        ErrorLog("data is null");
+        return false;
+    }
     std::string action = data->GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");
