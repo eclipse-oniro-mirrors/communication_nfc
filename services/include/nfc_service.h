@@ -39,7 +39,7 @@ public:
     sptr<INfcControllerCallback> nfcStateChangeCallback_ = nullptr;
 };
 
-class NfcService final : public NCI::INciTagInterface::ITagListener,
+class NfcService : public NCI::INciTagInterface::ITagListener,
     public NCI::INciCeInterface::ICeHostListener,
     public INfcService,
     public std::enable_shared_from_this<NfcService> {
