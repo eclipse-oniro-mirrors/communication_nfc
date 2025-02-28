@@ -27,6 +27,7 @@ config("nfc_service_unit_test_config") {
     "$NFC_DIR/services/src",
     "$NFC_DIR/services/src/external_deps",
     "$NFC_DIR/services/src/tag",
+    "$NFC_DIR/test/unittest/mock",
   ]
 
   defines = []
@@ -366,7 +367,10 @@ ohos_unittest("service_ipc_test") {
   configs = [ ":nfc_service_unit_test_config" ]
   cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
 
-  sources = [ "ipc_test/tag_session_test.cpp" ]
+  sources = [
+    "$NFC_DIR/test/unittest/mock/nfc_service_mock.cpp",
+    "ipc_test/tag_session_test.cpp",
+  ]
 
   deps = unit_test_deps
 
