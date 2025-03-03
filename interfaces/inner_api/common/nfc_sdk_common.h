@@ -125,7 +125,7 @@ const uint32_t MAX_APDU_DATA_BYTE = 1024;
 const uint32_t MAX_APDU_DATA_HEX_STR = MAX_APDU_DATA_BYTE * 2;
 const uint32_t MAX_AID_LIST_NUM_PER_APP = 100;
 
-const int SDK_VERSION_16 = 16;
+const int SDK_VERSION_18 = 18;
 const int SDK_VERSION_UNKNOWN = 0;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 
