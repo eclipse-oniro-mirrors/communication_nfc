@@ -327,8 +327,8 @@ bool NfcService::DoTurnOn()
     ceService_->Initialize();
     ceService_->InitConfigAidRouting(true);
 
-    nfcRoutingManager_->ComputeRoutingParams(ceService_->GetDefaultPaymentType());
-    nfcRoutingManager_->CommitRouting();
+    nfcRoutingManager_->HandleComputeRoutingParams(static_cast<int>(ceService_->GetDefaultPaymentType()));
+    nfcRoutingManager_->HandleCommitRouting();
     nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
@@ -336,6 +336,7 @@ bool NfcService::DoTurnOn()
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
+    InfoLog("Nfc do turn on successfully.");
     return true;
 }
 
@@ -364,6 +365,7 @@ bool NfcService::DoTurnOff()
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
+    InfoLog("Nfc do turn off successfully.");
     return result;
 }
 
