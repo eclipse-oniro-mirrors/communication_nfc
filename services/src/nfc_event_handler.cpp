@@ -355,7 +355,8 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         eventId != NfcCommonEvent::MSG_NOTIFY_FIELD_ON) {
         InfoLog("NFC common event handler receive a message of %{public}d", eventId);
     }
-    NfcWatchDog nfcProcessEventDog("nfcProcessEvent", WAIT_PROCESS_EVENT_TIMES, nciNfccProxy_);
+    NfcWatchDog nfcProcessEventDog(
+        "ProcessEvent_" + std::to_string(static_cast<int>(eventId)), WAIT_PROCESS_EVENT_TIMES, nciNfccProxy_);
     nfcProcessEventDog.Run();
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:

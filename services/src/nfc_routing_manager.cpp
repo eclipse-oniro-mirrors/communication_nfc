@@ -44,7 +44,7 @@ void NfcRoutingManager::HandleCommitRouting()
     std::lock_guard<std::mutex> lock(mutex_);
     int nfcState = nfcService_.lock()->GetNfcState();
     if (nfcState == KITS::STATE_OFF || nfcState == KITS::STATE_TURNING_OFF) {
-        DebugLog("HandleCommitRouting: NOT Handle CommitRouting in state off or turning off.");
+        WarnLog("HandleCommitRouting: NOT Handle CommitRouting in state off or turning off.");
         return;
     }
     std::shared_ptr<NfcPollingParams> currPollingParams =
