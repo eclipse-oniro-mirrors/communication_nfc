@@ -19,11 +19,8 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string PREF_KEY_STATE = "pref_key_nfc_state";
 class NfcPreferences {
 public:
-    NfcPreferences();
-    ~NfcPreferences();
     static NfcPreferences& GetInstance();
 
     void SetString(const std::string& key, const std::string& value);
@@ -33,10 +30,10 @@ public:
     void Clear();
     void Delete(const std::string& key);
 
-    void UpdateNfcState(int newState);
-    int GetNfcState();
-
 private:
+    NfcPreferences();
+    ~NfcPreferences();
+
     std::shared_ptr<NativePreferences::Preferences> GetPreference(const std::string& fileName);
     int errCode_;
     std::string fileName_;
