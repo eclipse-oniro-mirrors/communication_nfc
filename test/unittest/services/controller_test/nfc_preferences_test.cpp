@@ -58,36 +58,9 @@ void NfcPreferencesTest::TearDown()
 HWTEST_F(NfcPreferencesTest, SetInt001, TestSize.Level1)
 {
     std::string key = "123";
-    int value = 456;
-    std::shared_ptr<NfcPreferences> nfcPreferences = std::make_shared<NfcPreferences>();
-    nfcPreferences->SetInt(key, value);
-    ASSERT_TRUE(nfcPreferences != nullptr);
-}
-
-/**
- * @tc.name: UpdateNfcState001
- * @tc.desc: Test NfcPreferencesTest UpdateNfcState.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcPreferencesTest, UpdateNfcState001, TestSize.Level1)
-{
-    int newState = 1;
-    std::shared_ptr<NfcPreferences> nfcPreferences = std::make_shared<NfcPreferences>();
-    nfcPreferences->UpdateNfcState(newState);
-    int getNfcState = nfcPreferences->GetNfcState();
-    ASSERT_TRUE(getNfcState != 0);
-}
-
-/**
- * @tc.name: GetNfcState001
- * @tc.desc: Test NfcPreferencesTest GetNfcState.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcPreferencesTest, GetNfcState001, TestSize.Level1)
-{
-    std::shared_ptr<NfcPreferences> nfcPreferences = std::make_shared<NfcPreferences>();
-    int getNfcState = nfcPreferences->GetNfcState();
-    ASSERT_TRUE(getNfcState != 0);
+    NfcPreferences::GetInstance().SetInt(key, 456);
+    int value = NfcPreferences::GetInstance().GetInt(key);
+    ASSERT_TRUE(value == 456);
 }
 }
 }

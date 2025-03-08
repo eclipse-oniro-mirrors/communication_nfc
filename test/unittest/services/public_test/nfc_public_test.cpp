@@ -335,18 +335,16 @@ HWTEST_F(NfcPublicTest, CodeMiddlePart003, TestSize.Level1)
  */
 HWTEST_F(NfcPublicTest, NfcPrefImpl001, TestSize.Level1)
 {
-    OHOS::NFC::NfcPreferences *impl = new OHOS::NFC::NfcPreferences();
-    impl->SetString("test_key", "test_value");
-    std::string value = impl->GetString("test_key");
+    NfcPreferences::GetInstance().SetString("test_key", "test_value");
+    std::string value = NfcPreferences::GetInstance().GetString("test_key");
     ASSERT_TRUE(value == "test_value");
 
-    impl->Delete("test_key");
-    value = impl->GetString("test_key");
+    NfcPreferences::GetInstance().Delete("test_key");
+    value = NfcPreferences::GetInstance().GetString("test_key");
     ASSERT_TRUE(value == "");
 
-    impl->Clear();
-    value = impl->GetString("test_key");
-    delete impl;
+    NfcPreferences::GetInstance().Clear();
+    value = NfcPreferences::GetInstance().GetString("test_key");
     ASSERT_TRUE(value == "");
 }
 

@@ -30,8 +30,8 @@ NfcPreferences::~NfcPreferences()
 
 NfcPreferences& NfcPreferences::GetInstance()
 {
-    static NfcPreferences sNfcPrefImpl;
-    return sNfcPrefImpl;
+    static NfcPreferences nfcPrefImpl;
+    return nfcPrefImpl;
 }
 
 std::shared_ptr<NativePreferences::Preferences> NfcPreferences::GetPreference(const std::string& fileName)
@@ -108,23 +108,6 @@ void NfcPreferences::Delete(const std::string& key)
     DebugLog("NfcPreferences: Delete preference with key %{public}s", key.c_str());
     pref->Delete(key);
     pref->FlushSync();
-}
-
-void NfcPreferences::UpdateNfcState(int newState)
-{
-    SetInt(PREF_KEY_STATE, newState);
-
-    Uri nfcEnableUri(KITS::NFC_DATA_URI);
-    KITS::ErrorCode err = DelayedSingleton<NfcDataShareImpl>::GetInstance()->
-        SetValue(nfcEnableUri, KITS::DATA_SHARE_KEY_STATE, newState);
-    if (err != ERR_NONE) {
-        ErrorLog("NfcPreferences: UpdateNfcState set datashare fail, newState = %{public}d", newState);
-    }
-}
-
-int NfcPreferences::GetNfcState()
-{
-    return GetInt(PREF_KEY_STATE);
 }
 } // NFC
 } // OHOS
