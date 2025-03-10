@@ -243,11 +243,11 @@ bool BtConnectionManager::HandleEnableBt()
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("HandleEnableBt");
-    if (Bluetooth::BluetoothHost::GetDefaultHost().EnableBle() != Bluetooth::RET_NO_ERROR) { // EnableBt() is desperate
+    SendMsgToEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT, BT_ENABLE_TIMEOUT);
+    if (Bluetooth::BluetoothHost::GetDefaultHost().EnableBle() != Bluetooth::RET_NO_ERROR) { // EnableBt() is deprecated
         ErrorLog("HandleEnableBt: failed");
         return false;
     }
-    SendMsgToEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT, BT_ENABLE_TIMEOUT);
     return true;
 }
 
