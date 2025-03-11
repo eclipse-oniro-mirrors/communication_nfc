@@ -75,7 +75,7 @@ KITS::ErrorCode HceSessionProxy::UnregHceCmdCallback(
         ErrorLog("%{public}s:g_hceCmdCallbackStub is nullptr", __func__);
         return KITS::ERR_HCE_PARAMETERS;
     }
-    g_hceCmdCallbackStub->UnRegHceCmdCallback(callback, type);
+    g_hceCmdCallbackStub->UnRegHceCmdCallback();
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_HCE_PARAMETERS;
@@ -155,6 +155,11 @@ KITS::ErrorCode HceSessionProxy::StopHce(ElementName &element)
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
+    if (g_hceCmdCallbackStub == nullptr) {
+        ErrorLog("%{public}s:g_hceCmdCallbackStub is nullptr", __func__);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    g_hceCmdCallbackStub->UnRegHceCmdCallback();
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         ErrorLog("Write interface token error");
         return KITS::ERR_HCE_PARAMETERS;

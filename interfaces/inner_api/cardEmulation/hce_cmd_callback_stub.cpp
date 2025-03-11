@@ -53,7 +53,7 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback()
 {
     DebugLog("HceCmdCallbackStub UnRegisterCallBack");
     if (callback_ == nullptr) {
