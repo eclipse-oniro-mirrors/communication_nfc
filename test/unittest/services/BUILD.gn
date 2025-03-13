@@ -68,7 +68,7 @@ unit_test_external_deps = [
 ]
 
 ohos_unittest("controller_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [
     "controller_test/app_data_parser_test.cpp",
@@ -97,7 +97,7 @@ ohos_unittest("controller_test") {
 }
 
 ohos_unittest("cardemulation_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "cardemulation_test/cardemulation_test.cpp" ]
 
@@ -112,7 +112,7 @@ ohos_unittest("cardemulation_test") {
 }
 
 ohos_unittest("ce_service_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "ce_service_test/ce_service_test.cpp" ]
 
@@ -127,7 +127,7 @@ ohos_unittest("ce_service_test") {
 }
 
 ohos_unittest("hce_cmd_callback_stub_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "hce_cmd_callback_stub_test/hce_cmd_callback_stub_test.cpp" ]
 
@@ -142,7 +142,7 @@ ohos_unittest("hce_cmd_callback_stub_test") {
 }
 
 ohos_unittest("hce_service_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "hce_service_test/hce_service_test.cpp" ]
 
@@ -157,7 +157,7 @@ ohos_unittest("hce_service_test") {
 }
 
 ohos_unittest("hce_session_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "hce_session_test/hce_session_test.cpp" ]
 
@@ -172,7 +172,7 @@ ohos_unittest("hce_session_test") {
 }
 
 ohos_unittest("host_card_emulation_manager_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [
     "host_card_emulation_manager_test/host_card_emulation_manager_test.cpp",
@@ -189,7 +189,7 @@ ohos_unittest("host_card_emulation_manager_test") {
 }
 
 ohos_unittest("isodep_card_handler_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "isodep_card_handler_test/isodep_card_handler_test.cpp" ]
 
@@ -204,7 +204,7 @@ ohos_unittest("isodep_card_handler_test") {
 }
 
 ohos_unittest("nci_ce_proxy_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "nci_ce_proxy_test/nci_ce_proxy_test.cpp" ]
 
@@ -219,7 +219,7 @@ ohos_unittest("nci_ce_proxy_test") {
 }
 
 ohos_unittest("nci_nfcc_proxy_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "nci_nfcc_proxy_test/nci_nfcc_proxy_test.cpp" ]
 
@@ -234,7 +234,7 @@ ohos_unittest("nci_nfcc_proxy_test") {
 }
 
 ohos_unittest("nci_tag_proxy_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "nci_tag_proxy_test/nci_tag_proxy_test.cpp" ]
 
@@ -249,7 +249,7 @@ ohos_unittest("nci_tag_proxy_test") {
 }
 
 ohos_unittest("tags_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [
     "tags_test/foreground_callback_stub_test.cpp",
@@ -281,7 +281,7 @@ ohos_unittest("tags_test") {
 }
 
 ohos_unittest("public_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [ "public_test/nfc_public_test.cpp" ]
 
@@ -296,7 +296,7 @@ ohos_unittest("public_test") {
 }
 
 ohos_unittest("services_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [
     "services_test/app_data_parser_test.cpp",
@@ -318,7 +318,7 @@ ohos_unittest("services_test") {
 }
 
 ohos_unittest("services_tags_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
 
   sources = [
     "services_tags_test/bt_connection_manager_test.cpp",
@@ -340,7 +340,7 @@ ohos_unittest("services_tags_test") {
 }
 
 ohos_unittest("nci_adapter_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
   configs = [ ":nfc_service_unit_test_config" ]
   cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
 
@@ -363,7 +363,7 @@ ohos_unittest("nci_adapter_test") {
 }
 
 ohos_unittest("service_ipc_test") {
-  module_out_path = "nfc/services"
+  module_out_path = unit_module_out_path
   configs = [ ":nfc_service_unit_test_config" ]
   cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
 
