@@ -339,7 +339,7 @@ std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &
                 int32_t num = 0;
                 if (!KITS::NfcSdkCommon::SecureStringToInt(uri.substr(0, 2), num, KITS::DECIMAL_NOTATION)) { // 2 is uri identifier length
                     ErrorLog("SecureStringToInt error");
-                    return 0; // return invalid nfc state
+                    return "";
                 }
                 if (num < 0 || num >= static_cast<int>(g_uriPrefix.size())) {
                     return "";
