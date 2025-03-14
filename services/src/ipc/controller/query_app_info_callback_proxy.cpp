@@ -54,7 +54,14 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
             return false;
         }
         for (int i = 0; i < elementNameListLen; i++) {
-            elementNameList.push_back(*AppExecFwk::ElementName::Unmarshalling(reply));
+            AppExecFwk::ElementName *elementName = AppExecFwk::ElementName::Unmarshalling(reply);
+            if (elementName == nullptr) {
+                ErrorLog("elementName nullptr");
+                return false;
+            }
+            elementNameList.push_back(*elementName);
+            delete elementName;
+            elementName = nullptr;
         }
         return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
@@ -71,7 +78,14 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
             return false;
         }
         for (int i = 0; i < appLen; i++) {
-            hceAppList.push_back(*(AAFwk::Want::Unmarshalling(reply)));
+            AAFwk::Want *want = AAFwk::Want::Unmarshalling(reply);
+            if (want == nullptr) {
+                ErrorLog("want nullptr");
+                return false;
+            }
+            hceAppList.push_back(*want);
+            delete want;
+            want = nullptr;
         }
         return true;
     }
