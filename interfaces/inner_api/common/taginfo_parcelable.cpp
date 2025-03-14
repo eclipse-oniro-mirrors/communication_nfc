@@ -70,7 +70,13 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
     std::vector<AppExecFwk::PacMap> tagTechExtrasData;
     for (int i = 0; i < extraLen; i++) {
         AppExecFwk::PacMap* pacMap = AppExecFwk::PacMap::Unmarshalling(parcel);
+        if (pacMap == nullptr) {
+            ErrorLog("fail to unmarshall pacMap");
+            return nullptr;
+        }
         tagTechExtrasData.push_back(*(pacMap));
+        delete pacMap;
+        pacMap = nullptr;
     }
     std::string tagUid;
     parcel.ReadString(tagUid);
