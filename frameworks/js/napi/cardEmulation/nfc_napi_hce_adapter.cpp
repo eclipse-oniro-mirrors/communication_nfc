@@ -596,10 +596,10 @@ napi_value NfcNapiHceAdapter::SendResponse(napi_env env, napi_callback_info cbin
 
 void NfcNapiHceAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
+    // sleep 3s to wait Nfc turn on
+    sleep(3);
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
     for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
-        // sleep 3s to wait Nfc turn on
-        sleep(3);
         ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
         InfoLog("OnAddSystemAbility: RegHceCmdCallback, statusCode = %{public}d", ret);
     }
