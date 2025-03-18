@@ -56,10 +56,15 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallb
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    int error = SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON),
-                                           data, option);
+    int errCode = ERR_NONE;
+    int error = SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_ON),
+                                          data, option, errCode);
     if (error != ERR_NONE) {
-        ErrorLog("RegHceCmdCallback failed, error code is %{public}d", error);
+        ErrorLog("RegHceCmdCallback send request failed, ipc error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (errCode != ERR_NONE) {
+        ErrorLog("RegHceCmdCallback failed, errCode is %{public}d", errCode);
         return KITS::ERR_HCE_PARAMETERS;
     }
     return KITS::ERR_NONE;
@@ -90,10 +95,16 @@ KITS::ErrorCode HceSessionProxy::UnregHceCmdCallback(
         return KITS::ERR_HCE_PARAMETERS;
     }
 
+    int errCode = ERR_NONE;
     int error =
-        SendRequestExpectReplyNone(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_OFF), data, option);
+        SendRequestExpectReplyInt(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_OFF), data, option,
+                                  errCode);
     if (error != ERR_NONE) {
-        ErrorLog("UnregHceCmdCallback failed, error code is %{public}d", error);
+        ErrorLog("UnregHceCmdCallback send request failed, ipc error code is %{public}d", error);
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (errCode != ERR_NONE) {
+        ErrorLog("UnregHceCmdCallback failed, errCode is %{public}d", errCode);
         return KITS::ERR_HCE_PARAMETERS;
     }
     return KITS::ERR_NONE;
