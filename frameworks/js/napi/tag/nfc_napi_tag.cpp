@@ -981,6 +981,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_CLASSIC_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("MIFARE_ULTRALIGHT",
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("NFC_BARCODE",
+            GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_BARCODE))),
         DECLARE_NAPI_STATIC_PROPERTY("NDEF_FORMATABLE",
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
         DECLARE_NAPI_FUNCTION("registerForegroundDispatch", RegisterForegroundDispatch),
