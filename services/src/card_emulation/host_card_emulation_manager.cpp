@@ -57,7 +57,10 @@ HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfc
 }
 HostCardEmulationManager::~HostCardEmulationManager()
 {
+    WarnLog("~HostCardEmulationManager");
+    // both hceState_ and bundleNameToHceCmdRegData_ must be protected in destructing
     std::lock_guard<std::mutex> lock(hceStateMutex_);
+    std::lock_guard<std::mutex> lockRegInfo(regInfoMutex_);
     hceState_ = HostCardEmulationManager::INITIAL_STATE;
     queueHceData_.clear();
     abilityConnection_ = nullptr;
@@ -477,10 +480,9 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
         return false;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("RegHceCmdCallback: NFC not enabled, do not set ");
+        ErrorLog("RegHceCmdCallback: NFC not enabled, do not set");
         return false;
     }
-    InfoLog("RegHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     Security::AccessToken::HapTokenInfo hapTokenInfo;
     int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
 
@@ -498,6 +500,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
     regData.callerToken_ = callerToken;
     {
         std::lock_guard<std::mutex> lock(regInfoMutex_);
+        InfoLog("RegHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
         if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
             InfoLog("override the register data for %{public}s", hapTokenInfo.bundleName.c_str());
         }
@@ -748,7 +751,6 @@ bool HostCardEmulationManager::UnRegHceCmdCallback(const std::string& type,
 }
 bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken)
 {
-    InfoLog("EraseHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     Security::AccessToken::HapTokenInfo hapTokenInfo;
     int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
 
@@ -761,7 +763,7 @@ bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::Access
         return false;
     }
     std::lock_guard<std::mutex> lock(regInfoMutex_);
-
+    InfoLog("EraseHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("unregister data for  %{public}s", hapTokenInfo.bundleName.c_str());
     }
