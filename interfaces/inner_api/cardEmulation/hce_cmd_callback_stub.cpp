@@ -39,10 +39,6 @@ HceCmdCallbackStub &HceCmdCallbackStub::GetInstance()
 KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback)
 {
     DebugLog("HceCmdCallbackStub RegisterCallBack");
-    if (callback_ != nullptr) {
-        ErrorLog("HceCmdCallbackStub:Callback_ has registered!");
-        return KITS::ERR_NFC_PARAMETERS;
-    }
     std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("HceCmdCallbackStub:callBack is nullptr!");

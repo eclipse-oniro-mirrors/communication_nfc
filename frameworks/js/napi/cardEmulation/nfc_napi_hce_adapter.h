@@ -29,6 +29,7 @@
 #include "nfc_napi_common_utils.h"
 #include "nfc_sdk_common.h"
 #include "element_name.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace NFC {
@@ -84,8 +85,15 @@ public:
 };
 class EventRegister {
 public:
-    EventRegister() {}
-    ~EventRegister() {}
+    EventRegister()
+    {
+        saStatusListener_ = std::make_shared<NfcNapiHceAbilityStatusChange>();
+        saStatusListener_->Init(NFC_MANAGER_SYS_ABILITY_ID);
+    }
+    ~EventRegister()
+    {
+        saStatusListener_ = nullptr;
+    }
 
     static EventRegister& GetInstance();
 
@@ -101,6 +109,14 @@ private:
 
     static bool isEventRegistered;
 };
+class NfcNapiHceAbilityStatusChange : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void Init(int32_t systemAbilityId);
+    std::shared_ptr<NfcNapiHceAbilityStatusChange> saStatusListener_;
+};
+
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

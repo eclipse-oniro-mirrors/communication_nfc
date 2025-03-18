@@ -17,6 +17,7 @@
 #include "loghelper.h"
 #include "hce_service.h"
 #include <uv.h>
+#include "iservice_registry.h"
 
 namespace OHOS {
 namespace NFC {
@@ -591,6 +592,30 @@ napi_value NfcNapiHceAdapter::StopHCEDeprecated(napi_env env, napi_callback_info
 napi_value NfcNapiHceAdapter::SendResponse(napi_env env, napi_callback_info cbinfo)
 {
     return CreateUndefined(env);
+}
+
+void NfcNapiHceAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    // sleep 3s to wait Nfc turn on
+    sleep(3);
+    std::lock_guard<std::mutex> guard(g_regInfoMutex);
+    for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
+        ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
+        InfoLog("OnAddSystemAbility: RegHceCmdCallback, statusCode = %{public}d", ret);
+    }
+}
+
+void NfcNapiHceAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    InfoLog("%{public}s, systemAbilityId = %{public}d, ClearHceSessionProxy", __func__, systemAbilityId);
+    HceService::GetInstance().ClearHceSessionProxy();
+}
+
+void NfcNapiHceAbilityStatusChange::Init(int32_t systemAbilityId)
+{
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
+    InfoLog("SubscribeSystemAbility, systemAbilityId = %{public}d, ret = %{public}d", systemAbilityId, ret);
 }
 } // namespace KITS
 } // namespace NFC
