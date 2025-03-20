@@ -140,6 +140,7 @@ nfc_service_external_deps = [
   "eventhandler:libeventhandler",
   "hilog:libhilog",
   "hisysevent:libhisysevent",
+  "init:libbegetutil",
   "ipc:ipc_core",
   "miscdevice:vibrator_interface_native",
   "power_manager:powermgr_client",
