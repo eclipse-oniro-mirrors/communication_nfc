@@ -22,7 +22,6 @@
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#include "parameter.h"
 #ifdef VENDOR_APPLICATIONS_ENABLED
 #include "on_card_emulation_notify_cb_stub.h"
 #include "query_app_info_callback_stub.h"
@@ -117,32 +116,9 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
     remote_ = nullptr;
 }
 
-inline bool IsNfcEdmDisallowed()
-{
-    const char* nfcEdmKey = "persist.edm.nfc_disable";
-    const uint32_t paramTrueLen = 4; // "true" 4 bytes
-    const uint32_t paramFalseLen = 5; // "false" 5 bytes
-    char result[paramFalseLen + 1] = {0};
-    // Returns the number of bytes of the system parameter if the operation is successful.
-    int len = GetParameter(nfcEdmKey, "false", result, paramFalseLen + 1);
-    if (len != paramFalseLen && len != paramTrueLen) {
-        ErrorLog("GetParameter edm len is invalid.");
-        return false;
-    }
-    if (strncmp(result, "true", paramTrueLen) == 0) {
-        WarnLog("nfc is prohibited by EDM. You won't be able to turn on nfc!");
-        return true;
-    }
-    return false;
-}
-
 // Open NFC
 int NfcController::TurnOn()
 {
-    if (IsNfcEdmDisallowed()) {
-        ErrorLog("nfc edm disallowed");
-        return ERR_NFC_EDM_DISALLOWED;
-    }
     InitNfcRemoteSA();
     if (nfcControllerService_.expired()) {
         return ErrorCode::ERR_NFC_STATE_UNBIND;

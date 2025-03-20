@@ -17,6 +17,7 @@
 #include "nfc_service.h"
 #include "loghelper.h"
 #include "external_deps_proxy.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace NFC {
@@ -40,8 +41,31 @@ int NfcControllerImpl::GetState()
     return nfcService_.lock()->GetNfcState();
 }
 
+inline bool IsNfcEdmDisallowed()
+{
+    const char* nfcEdmKey = "persist.edm.nfc_disable";
+    const uint32_t paramTrueLen = 4; // "true" 4 bytes
+    const uint32_t paramFalseLen = 5; // "false" 5 bytes
+    char result[paramFalseLen + 1] = {0};
+    // Returns the number of bytes of the system parameter if the operation is successful.
+    int len = GetParameter(nfcEdmKey, "false", result, paramFalseLen + 1);
+    if (len != paramFalseLen && len != paramTrueLen) {
+        ErrorLog("GetParameter edm len is invalid.");
+        return false;
+    }
+    if (strncmp(result, "true", paramTrueLen) == 0) {
+        WarnLog("nfc is prohibited by EDM. You won't be able to turn on nfc!");
+        return true;
+    }
+    return false;
+}
+
 int NfcControllerImpl::TurnOn()
 {
+    if (IsNfcEdmDisallowed()) {
+        ErrorLog("nfc edm disallowed");
+        return KITS::ERR_NFC_EDM_DISALLOWED;
+    }
     if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
