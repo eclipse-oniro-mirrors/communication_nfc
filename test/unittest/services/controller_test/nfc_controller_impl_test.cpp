@@ -318,7 +318,8 @@ HWTEST_F(NfcControllerImplTest, GetHceServiceIface001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
-    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetHceServiceIface();
+    int32_t res = 0;
+    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetHceServiceIface(res);
     ASSERT_TRUE(iRemoteObject == nullptr);
 }
 
@@ -331,7 +332,8 @@ HWTEST_F(NfcControllerImplTest, GetHceServiceIface002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
-    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetHceServiceIface();
+    int32_t res = 0;
+    sptr<IRemoteObject> iRemoteObject = nfcControllerImpl->GetHceServiceIface(res);
     ASSERT_TRUE(iRemoteObject == nullptr);
 }
 

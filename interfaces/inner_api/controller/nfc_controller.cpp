@@ -262,14 +262,14 @@ ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string 
 }
 #endif
 
-OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface()
+OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
 {
     InitNfcRemoteSA();
     if (nfcControllerService_.expired()) {
         ErrorLog("NfcController::GetHceServiceIface nfcControllerService_ expired");
         return nullptr;
     }
-    return nfcControllerService_.lock()->GetHceServiceIface();
+    return nfcControllerService_.lock()->GetHceServiceIface(res);
 }
 }  // namespace KITS
 }  // namespace NFC

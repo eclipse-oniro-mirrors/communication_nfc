@@ -297,7 +297,7 @@ KITS::ErrorCode NfcControllerProxy::NotifyEventStatus(int eventType, int arg1, s
 }
 #endif
 
-OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()
+OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface(int32_t &res)
 {
     DebugLog("GetHceServiceIface start!");
     MessageParcel reply;
@@ -307,7 +307,7 @@ OHOS::sptr<IRemoteObject> NfcControllerProxy::GetHceServiceIface()
         ErrorLog("GetHceServiceIface, Write interface token error");
         return nullptr;
     }
-    int32_t res = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE),
+    res = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE),
         data, reply, option);
     if (res != ERR_NONE) {
         ErrorLog("GetHceServiceIface SendRequest err %{public}d", res);

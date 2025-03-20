@@ -167,7 +167,7 @@ KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, st
 }
 #endif
 
-OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface()
+OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface(int32_t &res)
 {
     if (nfcService_.lock() == nullptr) {
         return nullptr;

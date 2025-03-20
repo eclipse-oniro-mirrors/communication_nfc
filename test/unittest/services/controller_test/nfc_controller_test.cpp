@@ -307,7 +307,8 @@ HWTEST_F(NfcControllerTest, NotifyEventStatus001, TestSize.Level1)
 HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
-    ctrl.GetHceServiceIface();
+    int32_t res = 0;
+    ctrl.GetHceServiceIface(res);
     ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
     ASSERT_TRUE(errorCode == ERR_NONE);
 }

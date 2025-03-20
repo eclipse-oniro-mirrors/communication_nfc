@@ -219,7 +219,8 @@ int NfcControllerStub::HandleGetNfcHceInterface(MessageParcel& data, MessageParc
         ErrorLog("HandleGetNfcHceInterface no permission");
         return KITS::ErrorCode::ERR_NO_PERMISSION;
     }
-    OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface();
+    int32_t res = ERR_NONE;
+    OHOS::sptr<IRemoteObject> remoteOjbect = GetHceServiceIface(res);
     if (remoteOjbect == nullptr) {
         ErrorLog("HandleGetNfcHceInterface remoteOjbect null!");
         return KITS::ERR_NFC_PARAMETERS;

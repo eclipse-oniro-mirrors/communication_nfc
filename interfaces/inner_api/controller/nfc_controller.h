@@ -92,7 +92,7 @@ public:
      */
     OHOS::sptr<IRemoteObject> GetTagServiceIface();
 
-    OHOS::sptr<IRemoteObject> GetHceServiceIface();
+    OHOS::sptr<IRemoteObject> GetHceServiceIface(int32_t &res);
 
     void OnRemoteDied(const wptr<IRemoteObject> &remoteObject);
 

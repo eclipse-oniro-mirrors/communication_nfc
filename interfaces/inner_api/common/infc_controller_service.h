@@ -58,7 +58,7 @@ public:
         const std::string& type) = 0;
     virtual KITS::ErrorCode UnRegisterCallBack(const std::string& type) = 0;
     virtual OHOS::sptr<IRemoteObject> GetTagServiceIface() = 0;
-    virtual OHOS::sptr<IRemoteObject> GetHceServiceIface() = 0;
+    virtual OHOS::sptr<IRemoteObject> GetHceServiceIface(int32_t &res) = 0;
     virtual KITS::ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback) = 0;
 #ifdef VENDOR_APPLICATIONS_ENABLED
     virtual KITS::ErrorCode RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback) = 0;
