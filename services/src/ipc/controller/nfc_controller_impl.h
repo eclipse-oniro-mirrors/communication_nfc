@@ -36,7 +36,7 @@ public:
         Security::AccessToken::AccessTokenID callerToken) override;
     KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
     OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
-    OHOS::sptr<IRemoteObject> GetHceServiceIface() override;
+    OHOS::sptr<IRemoteObject> GetHceServiceIface(int32_t &res) override;
     KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) override;
 #ifdef VENDOR_APPLICATIONS_ENABLED
     KITS::ErrorCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback) override;

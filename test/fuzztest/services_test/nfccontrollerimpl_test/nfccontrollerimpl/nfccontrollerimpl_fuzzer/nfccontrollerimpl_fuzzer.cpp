@@ -86,7 +86,8 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        nfcControllerImpl->GetHceServiceIface();
+        int32_t res = NFC::KITS::ErrorCode::ERR_NONE;
+        nfcControllerImpl->GetHceServiceIface(res);
     }
 
     void FuzzDump(const uint8_t* data, size_t size)

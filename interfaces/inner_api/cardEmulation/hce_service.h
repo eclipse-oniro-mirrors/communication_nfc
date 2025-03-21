@@ -43,7 +43,7 @@ public:
     void ClearHceSessionProxy();
 
 protected:
-    OHOS::sptr<HCE::IHceSession> GetHceSessionProxy();
+    OHOS::sptr<HCE::IHceSession> GetHceSessionProxy(int32_t &res);
 
 private:
     OHOS::sptr<HCE::IHceSession> hceSessionProxy_;
