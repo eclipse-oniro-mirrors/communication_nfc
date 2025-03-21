@@ -18,6 +18,7 @@
 #include "hce_service.h"
 #include <uv.h>
 #include "iservice_registry.h"
+#include <thread>
 
 namespace OHOS {
 namespace NFC {
@@ -597,7 +598,7 @@ napi_value NfcNapiHceAdapter::SendResponse(napi_env env, napi_callback_info cbin
 void NfcNapiHceAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     // sleep 3s to wait Nfc turn on
-    sleep(3);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
     for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
         ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
@@ -614,6 +615,10 @@ void NfcNapiHceAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityI
 void NfcNapiHceAbilityStatusChange::Init(int32_t systemAbilityId)
 {
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!samgrProxy) {
+        ErrorLog("samgrProxy is nullptr");
+        return;
+    }
     int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
     InfoLog("SubscribeSystemAbility, systemAbilityId = %{public}d, ret = %{public}d", systemAbilityId, ret);
 }

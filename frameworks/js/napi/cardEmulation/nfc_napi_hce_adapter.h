@@ -83,6 +83,12 @@ public:
     napi_env m_regEnv;
     napi_ref m_regHanderRef;
 };
+class NfcNapiHceAbilityStatusChange : public SystemAbilityStatusChangeStub {
+public:
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    void Init(int32_t systemAbilityId);
+};
 class EventRegister {
 public:
     EventRegister()
@@ -108,15 +114,8 @@ private:
     void DeleteHceCmdRegisterObj(const napi_env& env);
 
     static bool isEventRegistered;
-};
-class NfcNapiHceAbilityStatusChange : public SystemAbilityStatusChangeStub {
-public:
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    void Init(int32_t systemAbilityId);
     std::shared_ptr<NfcNapiHceAbilityStatusChange> saStatusListener_;
 };
-
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

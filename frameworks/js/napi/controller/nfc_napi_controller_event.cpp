@@ -424,6 +424,10 @@ void NfcNapiAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, 
 void NfcNapiAbilityStatusChange::Init(int32_t systemAbilityId)
 {
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!samgrProxy) {
+        ErrorLog("samgrProxy is nullptr");
+        return;
+    }
     int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
     InfoLog("SubscribeSystemAbility, systemAbilityId = %{public}d, ret = %{public}d", systemAbilityId, ret);
 }
