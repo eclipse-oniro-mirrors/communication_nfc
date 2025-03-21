@@ -60,9 +60,8 @@ void HceCmdCallbackStubTest::TearDown()
 HWTEST_F(HceCmdCallbackStubTest, RegHceCmdCallback001, TestSize.Level1)
 {
     const sptr<IHceCmdCallback> callback = nullptr;
-    std::string type = "";
     HCE::HceCmdCallbackStub& hceCmdCallbackStub = HCE::HceCmdCallbackStub::GetInstance();
-    KITS::ErrorCode regHceCmdCallback = hceCmdCallbackStub.RegHceCmdCallback(callback, type);
+    KITS::ErrorCode regHceCmdCallback = hceCmdCallbackStub.RegHceCmdCallback(callback);
     ASSERT_TRUE(regHceCmdCallback == KITS::ERR_NFC_PARAMETERS);
 }
 
@@ -74,9 +73,8 @@ HWTEST_F(HceCmdCallbackStubTest, RegHceCmdCallback001, TestSize.Level1)
 HWTEST_F(HceCmdCallbackStubTest, UnRegHceCmdCallback001, TestSize.Level1)
 {
     const sptr<IHceCmdCallback> callback = nullptr;
-    std::string type = "";
     HCE::HceCmdCallbackStub& hceCmdCallbackStub = HCE::HceCmdCallbackStub::GetInstance();
-    KITS::ErrorCode regHceCmdCallback = hceCmdCallbackStub.UnRegHceCmdCallback(callback, type);
+    KITS::ErrorCode regHceCmdCallback = hceCmdCallbackStub.UnRegHceCmdCallback(callback);
     ASSERT_TRUE(regHceCmdCallback == KITS::ERR_NFC_PARAMETERS);
 }
 

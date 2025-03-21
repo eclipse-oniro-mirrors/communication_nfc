@@ -185,8 +185,7 @@ HWTEST_F(HceServiceTest, StopHce001, TestSize.Level1)
 HWTEST_F(HceServiceTest, RegHceCmdCallback0001, TestSize.Level1)
 {
     sptr<HceCmdListener> callback = nullptr;
-    std::string type = "";
-    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback, type);
+    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback);
     ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NFC_PARAMETERS);
 }
 
@@ -198,8 +197,7 @@ HWTEST_F(HceServiceTest, RegHceCmdCallback0001, TestSize.Level1)
 HWTEST_F(HceServiceTest, RegHceCmdCallback0002, TestSize.Level1)
 {
     sptr<HceCmdListener> callback = sptr<HceCmdListener>(new (std::nothrow) HceCmdListener());
-    std::string type = "";
-    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback, type);
+    KITS::ErrorCode ret = HceCmdCallbackStub::GetInstance().RegHceCmdCallback(callback);
     ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_NONE);
 }
 
