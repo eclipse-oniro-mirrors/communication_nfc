@@ -253,8 +253,8 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     readerModeData_->callerToken_ = 0;
     readerModeData_->callback_ = nullptr;
     nciTagProxy_.lock()->StopFieldChecking();
-    StartPollingLoop(true);
     nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+    StartPollingLoop(true);
     return true;
 }
 
