@@ -482,6 +482,10 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtHandoverSelect(std::shared_ptr<
 
     for (size_t i = 0; i < records.size(); i++) {
         std::shared_ptr<NdefRecord> record = records[i];
+        if (record == nullptr) {
+            ErrorLog("NdefBtDataParser::ParseBtHandoverSelect: record is null");
+            continue;
+        }
 
         // Check BT
         if (record->tnf_ == NdefMessage::TNF_MIME_MEDIA &&
