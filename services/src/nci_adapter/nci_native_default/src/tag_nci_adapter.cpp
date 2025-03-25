@@ -1010,6 +1010,10 @@ bool TagNciAdapter::WriteNdef(std::string& ndefMessage)
     uint32_t curDataSize = 0;
     NFC::SynchronizeGuard guard(writeNdefEvent_);
     uint32_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(ndefMessage);
+    if (length > KITS::MAX_NDEFMSG_LEN) {
+        ErrorLog("WriteNdef, ndefMessage length invalid, length = %{public}u", length);
+        return false;
+    }
     uint8_t data[length];
     for (uint32_t i = 0; i < length; i++) {
         data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(ndefMessage, i);
