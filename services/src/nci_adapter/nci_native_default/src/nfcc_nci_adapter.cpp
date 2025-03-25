@@ -39,6 +39,7 @@ const unsigned int FLAG_MULTI_TAG_ISO_DEP = 0x01;
 const unsigned int FLAG_MULTI_TAG_MIFARE = 0x02;
 // wait nci event 2000 ms
 const unsigned int NCI_EVT_WAIT_TIMEOUT = 2000;
+const uint16_t RAWDATA_MAX_LEN = 1000;
 
 NfccNciAdapter::NfccNciAdapter() = default;
 NfccNciAdapter::~NfccNciAdapter() = default;
@@ -828,8 +829,12 @@ void NfccNciAdapter::DisableDiscovery()
 bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
     uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(rawData);
+    if (length > RAWDATA_MAX_LEN) {
+        ErrorLog("NfccNciAdapter::SendRawFrame rawdatalen invalid. length = %{public}d", length);
+        return false;
+    }
     uint8_t data[length];
-    for (uint32_t i = 0; i < length; i++) {
+    for (uint16_t i = 0; i < length; i++) {
         data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(rawData, i);
     }
     tNFA_STATUS status = NFA_SendRawFrame(data, length, 0);
