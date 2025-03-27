@@ -42,6 +42,10 @@ void NfcRoutingManager::CommitRouting()
 void NfcRoutingManager::HandleCommitRouting()
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    if (nfcService_.expired() || nciCeProxy_.expired()) {
+        ErrorLog("HandleCommitRouting nfcService_ or nciCeProxy_ is nullptr.");
+        return;
+    }
     int nfcState = nfcService_.lock()->GetNfcState();
     if (nfcState == KITS::STATE_OFF || nfcState == KITS::STATE_TURNING_OFF) {
         WarnLog("HandleCommitRouting: NOT Handle CommitRouting in state off or turning off.");
@@ -72,6 +76,10 @@ void NfcRoutingManager::ComputeRoutingParams(KITS::DefaultPaymentType defaultPay
 
 void NfcRoutingManager::HandleComputeRoutingParams(int defaultPaymentType)
 {
+    if (nfcService_.expired() || nciCeProxy_.expired()) {
+        ErrorLog("HandleComputeRoutingParams nfcService_ or nciCeProxy_ is nullptr.");
+        return;
+    }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("HandleComputeRoutingParams: NFC not enabled, do not Compute Routing Params");
         return;

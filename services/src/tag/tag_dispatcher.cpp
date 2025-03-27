@@ -220,6 +220,10 @@ void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
 
 std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDiscId)
 {
+    if (nciTagProxy_.expired()) {
+        ErrorLog("nciTagProxy_ nullptr");
+        return nullptr;
+    }
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
@@ -232,6 +236,10 @@ std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDisc
 
 KITS::TagInfoParcelable* TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagDiscId)
 {
+    if (nciTagProxy_.expired()) {
+        ErrorLog("nciTagProxy_ nullptr");
+        return nullptr;
+    }
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     std::vector<AppExecFwk::PacMap> tagTechExtras = nciTagProxy_.lock()->GetTechExtrasData(tagDiscId);
