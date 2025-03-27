@@ -4,112 +4,112 @@
             "name":"NfcBtButtonName",
             "value":"ཆ་སྡེབ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultTitle",
             "value":"NFC རྟགས་བྱང་རྙེད། རྡེབ་ནས་ཉེར་སྤྱོད་འགོ་སློང་བ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
-            "value":"ཉེར་སྤྱོད་ཁག་ཅིག་ལ་ནང་ཁུལ་གྱི་ NFC བསད་སྤར་ཁ་ཕྱེ་དགོས།",
+            "value":"ཉེར་སྤྱོད་ཁག་ཅིག་ལ་ནང་ཁུལ་གྱི་ NFC བསད་སྤར་ཁ་འབྱེད་དགོས།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
-            "value":"ལིང་ནན་ཀུན་འཕྲོད།",
+            "value":"ལིང་ནན་ཐུང་",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
-            "value":"དྲ་བར་མཐུད།",
+            "value":"དྲ་རྒྱར་སྦྲེལ་མཐུད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
-            "value":"དྲ་སྦྲེལ་བ། : %s ལ་སྦྲེལ་གྱི་ཡིན་ནམ།",
+            "value":"དྲ་སྦྲེལ། : %s ལ་སྦྲེལ་གྱི་ཡིན་ནམ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
-            "value":"ཧྲེན་ཀྲེན་ཀུན་འཕྲོད།",
+            "value":"ཧྲེན་ཀྲེན་ཐུང་",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
-            "value":"མཐུད།",
+            "value":"སྦྲེལ་མཐུད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%sགསར་དུ་རྙེད་བྱུང་། ལྷག་དངུལ་སྒོར་%.2fའདུག",
+            "value":"༼%s༽གསར་དུ་རྙེད། དངུལ་ལྷག་སྒོར་ %.2f འདུག",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"ཧྲང་ཧའེ་འགྲིམ་འགྲུལ་བྱང་བུ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"འགྲིམ་འགྲུལ་བྱང་བུ་རྙེད་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
-            "value":"ཀུའེ་ཁུལ་གྱི་མཉམ་འབྲེལ་མཉམ་མཐུད་བྱང་བུ།",
+            "value":"ཀུའེ་མིན་མཉམ་འབྲེལ་མཉམ་མཐུད་བྱང་བུ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
-            "value":"གནོན་ཏེ་བྱང་བུའི་གཞི་གྲངས་ཐག་གཅོད་བྱེད།",
+            "value":"བརྡབས་ཏེ་བྱང་བུའི་གཞི་གྲངས་ཐག་གཅོད་བྱེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"NFC ཡི་ཆ་སྒྲིག་རེ་ཞུ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"སོ་སྔོན་སྒྲིག་ཆས་༼%s༽དང་ཆ་སྒྲིག་གམ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
-            "value":"པེ་ཅིན་གྱི་ཀུན་འཕྲོད་བྱང་བུ།",
+            "value":"པེ་ཅིན་ཀུན་འཕྲོད་བྱང་བུ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -130,35 +130,35 @@
             "name":"NfcHceAidConflictedTitle",
             "value":"NFC བྱང་བུ་རྡར་བ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"ཉེར་སྤྱོད་ཁྲོམ་རར་སྐྱོད་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"NFC བརྡ་ཐོ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"མིག་སྔར་རྒྱབ་སྐྱོར་བྱ་ཡུལ་གྱི་ཉེར་སྤྱོད་མེད། ཉེར་སྤྱོད་ཁྲོམ་རར་བསྐྱོད་ནས་ཕབ་ལེན་གནང་རོགས།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"ཉེར་སྤྱོད་མང་པོ་གདོང་གཏུག་བརྒྱབ། ཆེད་བཙུགས་ཉེར་སྤྱོད་ཁ་ཕྱེ་ནས་བྱང་བུ་རྡར་རོགས།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

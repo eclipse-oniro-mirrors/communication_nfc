@@ -1,0 +1,74 @@
+{
+    "string":[
+        {
+            "name":"DefaultTitle",
+            "value":"تم اكتشاف علامة NFC. انقر للعرض.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"تحتاج بعض التطبيقات التي تحتوي على خيارات تحكم بميزة NFC خاصة بها إلى تشغيلها يدويًا.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"بطاقة مواصلات Lingnan Tong",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"بطاقة مواصلات شنجن",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"تم اكتشاف %s. الرصيد الحالي: %.2f¥.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"بطاقة GX T-Union",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"طلب اقتران NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"بطاقة مواصلات بكين",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"فتح الرابط",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"اقتران",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
