@@ -86,6 +86,29 @@ int NfcPreferences::GetInt(const std::string& key)
     return pref->GetInt(key, 0);
 }
 
+void NfcPreferences::SetBool(const std::string& key, const bool value)
+{
+    std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
+    if (!pref) {
+        ErrorLog("NfcPreferences: Preference get null");
+        return;
+    }
+    DebugLog("Set preference with key %{public}s, value %{public}d", key.c_str(), value);
+    pref->PutBool(key, value);
+    pref->Flush();
+}
+
+bool NfcPreferences::GetBool(const std::string& key)
+{
+    std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);
+    if (!pref) {
+        ErrorLog("NfcPreferences: Preference get null");
+        return 0;
+    }
+    DebugLog("Get preference with key %{public}s", key.c_str());
+    return pref->GetBool(key, false);
+}
+
 void NfcPreferences::Clear()
 {
     std::shared_ptr<NativePreferences::Preferences> pref = GetPreference(fileName_);

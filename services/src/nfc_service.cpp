@@ -109,7 +109,7 @@ bool NfcService::Initialize()
 
     nfcPollingManager_ = std::make_shared<NfcPollingManager>(shared_from_this(), nciNfccProxy_, nciTagProxy_);
     nfcRoutingManager_ = std::make_shared<NfcRoutingManager>(eventHandler_, nciNfccProxy_,
-    nciCeProxy_, shared_from_this());
+        nciCeProxy_, shared_from_this());
     tagSessionIface_ = new TAG::TagSession(shared_from_this());
     hceSessionIface_ = new HCE::HceSession(shared_from_this());
 
@@ -467,21 +467,26 @@ void NfcService::UpdateNfcState(int newState)
     }
     nfcState_ = newState;
 
-    ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
-    ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
-    InfoLog("Update nfc state: nfcState_ %{public}d, newState %{public}d succ", nfcState_, newState);
+    bool shouldBlockNfcStateChange = ExternalDepsProxy::GetInstance().NfcDataGetBool("vendor_block_nfc_state_change");
+    InfoLog("Update nfc state: shouldBlockNfcStateChange = %{public}d", shouldBlockNfcStateChange);
+    if (!shouldBlockNfcStateChange) {
+        ExternalDepsProxy::GetInstance().UpdateNfcState(newState);
+        ExternalDepsProxy::GetInstance().PublishNfcStateChanged(newState);
+        InfoLog("Update nfc state: nfcState_ %{public}d, newState %{public}d succ", nfcState_, newState);
 
-    // notify the nfc state changed by callback to JS APP
-    InfoLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
-    for (size_t i = 0; i < stateRecords_.size(); i++) {
-        NfcStateRegistryRecord record = stateRecords_[i];
-        DebugLog("stateRecords_[%{public}d]:type_=%{public}s ",
-            (int)i, record.type_.c_str());
-        if (record.nfcStateChangeCallback_ != nullptr) {
-            record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
+        // notify the nfc state changed by callback to JS APP
+        InfoLog("stateRecords_.size[%{public}zu]", stateRecords_.size());
+        for (size_t i = 0; i < stateRecords_.size(); i++) {
+            NfcStateRegistryRecord record = stateRecords_[i];
+            if (record.nfcStateChangeCallback_ != nullptr) {
+                record.nfcStateChangeCallback_->OnNfcStateChanged(newState);
+            }
         }
+    } else {
+        InfoLog("Update nfc state: do not notify.");
     }
-    if (nfcState_ == KITS::STATE_OFF) {
+
+    if (nfcState_ == KITS::STATE_OFF && !shouldBlockNfcStateChange) {
         // 5min later unload nfc_service, if nfc state is off
         SetupUnloadNfcSaTimer(true);
     } else {

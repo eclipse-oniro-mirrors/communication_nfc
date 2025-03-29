@@ -61,6 +61,8 @@ public:
     std::string NfcDataGetString(const std::string& key);
     void NfcDataSetInt(const std::string& key, const int value);
     int NfcDataGetInt(const std::string& key);
+    void NfcDataSetBool(const std::string& key, const bool value);
+    bool NfcDataGetBool(const std::string& key);
     void NfcDataClear();
     void NfcDataDelete(const std::string& key);
     void UpdateNfcState(int newState);

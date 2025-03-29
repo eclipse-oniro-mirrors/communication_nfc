@@ -88,6 +88,16 @@ int ExternalDepsProxy::NfcDataGetInt(const std::string& key)
     return NfcPreferences::GetInstance().GetInt(key);
 }
 
+void ExternalDepsProxy::NfcDataSetBool(const std::string& key, const bool value)
+{
+    NfcPreferences::GetInstance().SetBool(key, value);
+}
+
+bool ExternalDepsProxy::NfcDataGetBool(const std::string& key)
+{
+    return NfcPreferences::GetInstance().GetBool(key);
+}
+
 void ExternalDepsProxy::NfcDataClear()
 {
     NfcPreferences::GetInstance().Clear();
