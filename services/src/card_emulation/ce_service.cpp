@@ -559,8 +559,11 @@ void CeService::Initialize()
     ExternalDepsProxy::GetInstance().WriteDefaultRouteChangeHiSysEvent(
         static_cast<int>(KITS::DefaultPaymentType::TYPE_UNKNOWN), static_cast<int>(defaultPaymentType_));
     NotifyDefaultPaymentType(static_cast<int>(defaultPaymentType_));
-    hostCardEmulationManager_ =
-        std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
+    if (hostCardEmulationManager_ == nullptr) {
+        InfoLog("CeService Initialize make_shared hostCardEmulationManager_");
+        hostCardEmulationManager_ =
+            std::make_shared<HostCardEmulationManager>(nfcService_, nciCeProxy_, shared_from_this());
+    }
     DebugLog("CeService Initialize end");
 }
 

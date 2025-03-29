@@ -64,8 +64,8 @@ HWTEST_F(NfcEventHandlerTest, ProcessEvent001, TestSize.Level1)
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher = std::make_shared<TAG::TagDispatcher>(service);
     std::weak_ptr<CeService> ceService;
     std::weak_ptr<NfcPollingManager> nfcPollingManager;
-    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     std::weak_ptr<NfcRoutingManager> nfcRoutingManager;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), 0);
     std::shared_ptr<NfcEventHandler> nfcEventHandler = std::make_shared<NfcEventHandler>(runner, service);

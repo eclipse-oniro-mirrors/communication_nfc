@@ -202,7 +202,9 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         delete tagInfo;
         tagInfo = nullptr;
     }
+#ifndef NFC_VIBRATOR_DISABLED
     StartVibratorOnce();
+#endif
 }
 
 void TagDispatcher::StartVibratorOnce()
