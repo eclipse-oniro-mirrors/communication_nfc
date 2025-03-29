@@ -38,4 +38,8 @@ declare_args() {
   if (defined(global_parts_info.communication_bluetooth)) {
     nfc_service_feature_ndef_bt_enabled = true
   }
+  nfc_vibrator_disabled = false
+  if (defined(global_parts_info.nfc_vibrator_disabled)) {
+    nfc_vibrator_disabled = true
+  }
 }

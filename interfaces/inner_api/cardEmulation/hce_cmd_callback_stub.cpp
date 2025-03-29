@@ -36,7 +36,7 @@ HceCmdCallbackStub &HceCmdCallbackStub::GetInstance()
     return hceCmdCallbackStub;
 }
 
-KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback)
 {
     DebugLog("HceCmdCallbackStub RegisterCallBack");
     if (callback_ != nullptr) {
@@ -53,7 +53,7 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
+KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback)
 {
     DebugLog("HceCmdCallbackStub UnRegisterCallBack");
     if (callback_ == nullptr) {
