@@ -92,6 +92,10 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         return;
     }
     InfoLog("OnScreenChanged: action: %{public}s", action.c_str());
+    if (eventHandler_.expired()) {
+        ErrorLog("eventHandler_ is null.");
+        return;
+    }
     ScreenState screenState = ScreenState::SCREEN_STATE_UNKNOWN;
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON) == 0) {
         screenState = eventHandler_.lock()->IsScreenLocked() ?
@@ -104,6 +108,10 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
     } else {
         ErrorLog("Screen changed receiver event:unknown");
+        return;
+    }
+    if (eventHandler_.expired()) {
+        ErrorLog("eventHandler_ is null.");
         return;
     }
     eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED),
@@ -138,6 +146,10 @@ void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::Com
     std::string action = data.GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");
+        return;
+    }
+    if (eventHandler_.expired()) {
+        ErrorLog("eventHandler_ is null.");
         return;
     }
     const std::shared_ptr<EventFwk::CommonEventData> mdata =
@@ -178,6 +190,10 @@ void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::Comm
     std::string action = data.GetWant().GetAction();
     if (action.empty()) {
         ErrorLog("action is empty");
+        return;
+    }
+    if (eventHandler_.expired()) {
+        ErrorLog("eventHandler_ is null.");
         return;
     }
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN) == 0) {
@@ -360,19 +376,30 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     nfcProcessEventDog.Run();
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
-            tagDispatcher_.lock()->HandleTagFound(event->GetParam());
+            if (!tagDispatcher_.expired()) {
+                tagDispatcher_.lock()->HandleTagFound(event->GetParam());
+            }
             break;
         case NfcCommonEvent::MSG_TAG_DEBOUNCE:
-            tagDispatcher_.lock()->HandleTagDebounce();
+            if (!tagDispatcher_.expired()) {
+                tagDispatcher_.lock()->HandleTagDebounce();
+            }
             break;
         case NfcCommonEvent::MSG_TAG_LOST:
-            tagDispatcher_.lock()->HandleTagLost(event->GetParam());
+            if (!tagDispatcher_.expired()) {
+                tagDispatcher_.lock()->HandleTagLost(event->GetParam());
+            }
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
-            nfcPollingManager_.lock()->HandleScreenChanged(event->GetParam());
+            if (!nfcPollingManager_.expired()) {
+                nfcPollingManager_.lock()->HandleScreenChanged(event->GetParam());
+            }
             break;
         }
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
+            if (nfcPollingManager_.expired()) {
+                break;
+            }
             bool updated = nfcPollingManager_.lock()->HandlePackageUpdated(
                 event->GetSharedObject<EventFwk::CommonEventData>());
             if (updated) {
@@ -381,46 +408,65 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             break;
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {
-            nfcRoutingManager_.lock()->HandleCommitRouting();
+            if (!nfcRoutingManager_.expired()) {
+                nfcRoutingManager_.lock()->HandleCommitRouting();
+            }
             break;
         }
         case NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS: {
             int defaultPaymentType = event->GetParam();
-            nfcRoutingManager_.lock()->HandleComputeRoutingParams(defaultPaymentType);
+            if (!nfcRoutingManager_.expired()) {
+                nfcRoutingManager_.lock()->HandleComputeRoutingParams(defaultPaymentType);
+            }
             break;
         }
         case NfcCommonEvent::MSG_FIELD_ACTIVATED: {
-            ceService_.lock()->HandleFieldActivated();
+            if (!ceService_.expired()) {
+                ceService_.lock()->HandleFieldActivated();
+            }
             break;
         }
         case NfcCommonEvent::MSG_FIELD_DEACTIVATED: {
-            ceService_.lock()->HandleFieldDeactivated();
+            if (!ceService_.expired()) {
+                ceService_.lock()->HandleFieldDeactivated();
+            }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_ON: {
-            ceService_.lock()->PublishFieldOnOrOffCommonEvent(true);
+            if (!ceService_.expired()) {
+                ceService_.lock()->PublishFieldOnOrOffCommonEvent(true);
+            }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF: {
-            ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            if (!ceService_.expired()) {
+                ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT: {
-            ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            if (!ceService_.expired()) {
+                ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            }
             break;
         }
         case NfcCommonEvent::MSG_SHUTDOWN: {
-            nfcService_.lock()->HandleShutdown();
+            if (!nfcService_.expired()) {
+                nfcService_.lock()->HandleShutdown();
+            }
             break;
         }
         case NfcCommonEvent::MSG_DATA_SHARE_READY: {
-            ceService_.lock()->HandleDataShareReady();
+            if (!ceService_.expired()) {
+                ceService_.lock()->HandleDataShareReady();
+            }
             break;
         }
 #ifdef VENDOR_APPLICATIONS_ENABLED
         case NfcCommonEvent::MSG_VENDOR_EVENT: {
             int eventType = event->GetParam();
-            if (eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE) {
+            if ((eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE)
+                && !ceService_.expired()) {
                 ceService_.lock()->ConfigRoutingAndCommit();
             }
             break;

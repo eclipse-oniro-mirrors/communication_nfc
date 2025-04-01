@@ -1,0 +1,74 @@
+{
+    "string":[
+        {
+            "name":"DefaultTitle",
+            "value":"Определен тег NFC. Нажмите, чтобы посмотреть.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"У некоторых приложений есть собственные элементы управления NFC, которые необходимо включить вручную.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Lingnan Pass",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"Shenzhen Transportation Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"Найдено %s. Баланс: %.2f ¥",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"GX T-Union Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Запрос на сопряжение по NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"Beijing Transportation Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Открыть ссылку",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Сопряжение",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

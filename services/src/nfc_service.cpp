@@ -235,6 +235,10 @@ NfcService::NfcSwitchEventHandler::~NfcSwitchEventHandler()
 
 bool NfcService::NfcSwitchEventHandler::CheckNfcState(int param)
 {
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ is nullptr.");
+        return false;
+    }
     int nfcState = nfcService_.lock()->GetNfcState();
     if (nfcState == KITS::STATE_TURNING_OFF || nfcState == KITS::STATE_TURNING_ON) {
         WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState);

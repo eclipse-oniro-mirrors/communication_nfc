@@ -39,6 +39,7 @@ const unsigned int FLAG_MULTI_TAG_ISO_DEP = 0x01;
 const unsigned int FLAG_MULTI_TAG_MIFARE = 0x02;
 // wait nci event 2000 ms
 const unsigned int NCI_EVT_WAIT_TIMEOUT = 2000;
+const uint16_t RAWDATA_MAX_LEN = 1000;
 
 NfccNciAdapter::NfccNciAdapter() = default;
 NfccNciAdapter::~NfccNciAdapter() = default;
@@ -522,7 +523,7 @@ void NfccNciAdapter::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
     lastRfFieldTime = 0;
     isRfFieldOn_ = false;
     if (cardEmulationListener_.expired()) {
-        DebugLog("DoNfaDmRfFieldEvt: cardEmulationListener_ is null");
+        ErrorLog("DoNfaDmRfFieldEvt: cardEmulationListener_ is null");
         return;
     }
     if (eventData->rf_field.status == NFA_STATUS_OK) {
@@ -828,8 +829,12 @@ void NfccNciAdapter::DisableDiscovery()
 bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
     uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(rawData);
+    if (length > RAWDATA_MAX_LEN) {
+        ErrorLog("NfccNciAdapter::SendRawFrame rawdatalen invalid. length = %{public}d", length);
+        return false;
+    }
     uint8_t data[length];
-    for (uint32_t i = 0; i < length; i++) {
+    for (uint16_t i = 0; i < length; i++) {
         data[i] = KITS::NfcSdkCommon::GetByteFromHexStr(rawData, i);
     }
     tNFA_STATUS status = NFA_SendRawFrame(data, length, 0);
@@ -1045,17 +1050,29 @@ bool NfccNciAdapter::ComputeRoutingParams(int defaultPaymentType)
 void NfccNciAdapter::OnCardEmulationData(const std::vector<uint8_t> &data)
 {
     DebugLog("NfccNciAdapter::OnCardEmulationData");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationData(data);
 }
 
 void NfccNciAdapter::OnCardEmulationActivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationActivated");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationActivated();
 }
 void  NfccNciAdapter::OnCardEmulationDeactivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationDeactivated");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationDeactivated();
 }
 }  // namespace NCI

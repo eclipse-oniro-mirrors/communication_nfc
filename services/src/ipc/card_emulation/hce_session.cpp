@@ -176,6 +176,10 @@ int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 #ifdef NFC_SIM_FEATURE
 void HceSession::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ nullptr");
+        return;
+    }
     std::string simBundleName = nfcService_.lock()->GetSimVendorBundleName();
     AppExecFwk::BundleInfo bundleInfo;
     bool result = ExternalDepsProxy::GetInstance().GetBundleInfo(bundleInfo, simBundleName);

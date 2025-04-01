@@ -158,7 +158,7 @@ KITS::ErrorCode NfcControllerImpl::RegCardEmulationNotifyCb(const sptr<IOnCardEm
 }
 KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, std::string arg2)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return KITS::ERR_NFC_PARAMETERS;
     }
 
@@ -169,7 +169,7 @@ KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, st
 
 OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface(int32_t &res)
 {
-    if (nfcService_.lock() == nullptr) {
+    if (nfcService_.expired()) {
         return nullptr;
     }
     return nfcService_.lock()->GetHceServiceIface();

@@ -28,6 +28,10 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("MifareUltralightTag, not support NfcA.");
         return;
     }
+    if (tag.expired()) {
+        ErrorLog("tag is null.");
+        return;
+    }
     if (tag.lock()->GetTagUid().empty()) {
         ErrorLog("MifareUltralightTag, tag uid is empty.");
         return;

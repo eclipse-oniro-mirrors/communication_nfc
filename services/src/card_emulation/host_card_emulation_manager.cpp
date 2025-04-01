@@ -678,7 +678,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
         return false;
     }
     abilityConnection_->SetHceManager(shared_from_this());
-    if (element.GetBundleName().empty()) {
+    if (element.GetBundleName().empty() && !nciCeProxy_.expired()) {
         ErrorLog("DispatchAbilitySingleApp element empty");
         std::string aidNotFound = "6A82";
         nciCeProxy_.lock()->SendRawFrame(aidNotFound);
@@ -712,7 +712,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
 
 bool HostCardEmulationManager::DispatchAbilitySingleAppForFaModel(ElementName& element)
 {
-    if (element.GetBundleName().empty()) {
+    if (element.GetBundleName().empty() && !nciCeProxy_.expired()) {
         ErrorLog("DispatchAbilitySingleAppForFaModel element empty");
         std::string aidNotFound = "6A82";
         nciCeProxy_.lock()->SendRawFrame(aidNotFound);
