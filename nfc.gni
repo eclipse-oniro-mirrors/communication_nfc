@@ -14,7 +14,6 @@
 NFC_DIR = "//foundation/communication/nfc"
 
 fuzz_module_out_path = "nfc/nfc"
-unit_module_out_path = "nfc/nfc"
 
 declare_args() {
   nfc_use_vendor_nci_native = false
