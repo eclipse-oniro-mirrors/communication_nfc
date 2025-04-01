@@ -425,7 +425,7 @@ bool RoutingManager::IsTypeABSupportedInEe(tNFA_HANDLE eeHandle)
     if (status != NFA_STATUS_OK) {
         return rst;
     }
-    for (auto i = 0; i < numEe; i++) {
+    for (uint8_t i = 0; i < numEe; i++) {
         if (eeHandle == eeInfo[i].ee_handle) {
             if (eeInfo[i].la_protocol || eeInfo[i].lb_protocol) {
                 rst = true;
