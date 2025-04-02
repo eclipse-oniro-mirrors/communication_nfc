@@ -255,10 +255,10 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     if (!nciTagProxy_.expired()) {
         nciTagProxy_.lock()->StopFieldChecking();
     }
-    StartPollingLoop(true);
     if (!nciNfccProxy_.expired()) {
         nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
     }
+    StartPollingLoop(true);
     return true;
 }
 
