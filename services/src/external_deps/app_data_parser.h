@@ -53,8 +53,8 @@ public:
 
     struct HceAppAidInfo {
         ElementName element;
-        int32_t labelId;
-        int32_t iconId;
+        uint32_t labelId;
+        uint32_t iconId;
         std::vector<AidInfo> customDataAid;
     };
 
