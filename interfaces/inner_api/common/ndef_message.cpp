@@ -262,7 +262,7 @@ void NdefMessage::ParseRecordLayoutLength(RecordLayout& layout, bool isChunkFoun
     if (layout.sr) {
         layout.payloadLength = NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++) & 0xFF;
     } else {
-        if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + int(sizeof(int))) {
+        if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + sizeof(int)) {
             layout.payloadLength = 0;
         } else {
             std::string lenString = data.substr(parsedDataIndex * HEX_BYTE_LEN, sizeof(int) * HEX_BYTE_LEN);
