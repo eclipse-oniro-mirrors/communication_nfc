@@ -206,6 +206,10 @@ bool NfcPollingManager::IsForegroundEnabled()
 
 void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
 {
+    if (tagInfo == nullptr) {
+        ErrorLog("SendTagToForeground: tagInfo is nullptr");
+        return;
+    }
     if (!IsForegroundEnabled() || foregroundData_->callback_ == nullptr) {
         ErrorLog("SendTagToForeground: invalid foreground state");
         return;
@@ -274,6 +278,10 @@ bool NfcPollingManager::IsReaderModeEnabled()
 
 void NfcPollingManager::SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo)
 {
+    if (tagInfo == nullptr) {
+        ErrorLog("SendTagToReaderApp: tagInfo is nullptr");
+        return;
+    }
     if (!IsReaderModeEnabled() || readerModeData_->callback_ == nullptr) {
         ErrorLog("SendTagToReaderApp: invalid readermode state");
         return;
