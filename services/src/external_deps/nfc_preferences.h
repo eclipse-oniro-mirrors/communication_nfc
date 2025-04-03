@@ -27,6 +27,8 @@ public:
     std::string GetString(const std::string& key);
     void SetInt(const std::string& key, const int value);
     int GetInt(const std::string& key);
+    void SetBool(const std::string& key, const bool value);
+    bool GetBool(const std::string& key);
     void Clear();
     void Delete(const std::string& key);
 
