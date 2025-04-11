@@ -135,6 +135,13 @@ void NciNfccProxy::NotifyMessageToVendor(int key, const std::string& value)
         return nfccInterface_->NotifyMessageToVendor(key, value);
     }
 }
+
+void NciNfccProxy::UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::string& uri)
+{
+    if (nfccInterface_) {
+        return nfccInterface_->UpdateWantExtInfoByVendor(want, uri);
+    }
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

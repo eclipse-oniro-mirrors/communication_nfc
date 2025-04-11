@@ -158,6 +158,9 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     if (uri.size() > 0) {
         want.SetUri(uri);
     }
+    if (!nciNfccProxy_.expired()) {
+        nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
+    }
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("StartAbility fail. ret = %{public}d, harPackage = %{public}s",
