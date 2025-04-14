@@ -81,6 +81,11 @@ public:
      * @brief Send a custom message to vendor
     */
     void NotifyMessageToVendor(int key, const std::string& value) override;
+
+    /**
+     * @brief Send want to vendor update
+    */
+    void UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::string& uri) override;
 private:
     std::shared_ptr<INciNfccInterface> nfccInterface_;
 };

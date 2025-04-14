@@ -15,6 +15,7 @@
 #ifndef I_NCI_NFCC_INTERFACE_H
 #define I_NCI_NFCC_INTERFACE_H
 #include <string>
+#include "want.h"
 
 namespace OHOS {
 namespace NFC {
@@ -81,6 +82,11 @@ public:
      * @brief Send a custom message to vendor
     */
     virtual void NotifyMessageToVendor(int key, const std::string& value) = 0;
+
+    /**
+     * @brief Send want to vendor update
+    */
+    virtual void UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::string& uri) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC
