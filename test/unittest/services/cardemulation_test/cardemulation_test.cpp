@@ -51,7 +51,7 @@ void CardemulationTest::TearDown() {}
  * @tc.desc: Test CardemulationTest IsSupported.
  * @tc.type: FUNC
  */
-HWTEST_F(CardemulationTest, IsSupported001, TestSize.Level1)
+HWTEST_F(CardemulationTest, IsSupported001, TestSize.Level0)
 {
     bool isSupport = false;
     CardEmulation cardemulation = CardEmulation::GetInstance();
