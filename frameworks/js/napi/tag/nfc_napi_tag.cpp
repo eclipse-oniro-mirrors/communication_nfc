@@ -983,6 +983,8 @@ static napi_value InitJs(napi_env env, napi_value exports)
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH))),
         DECLARE_NAPI_STATIC_PROPERTY("NDEF_FORMATABLE",
             GetNapiValue(env, static_cast<int32_t>(TagTechnology::NFC_NDEF_FORMATABLE_TECH))),
+        DECLARE_NAPI_STATIC_PROPERTY("RTD_TEXT", GetNapiValue(env, HEX_RTD_TYPE.at(NdefMessage::EmRtdType::RTD_TEXT))),
+        DECLARE_NAPI_STATIC_PROPERTY("RTD_URI", GetNapiValue(env, HEX_RTD_TYPE.at(NdefMessage::EmRtdType::RTD_URI))),
         DECLARE_NAPI_FUNCTION("registerForegroundDispatch", RegisterForegroundDispatch),
         DECLARE_NAPI_FUNCTION("unregisterForegroundDispatch", UnregisterForegroundDispatch),
         DECLARE_NAPI_FUNCTION("on", On),
