@@ -671,9 +671,6 @@ int BuildOutputErrorCode(int errCode)
     } else if (errCode == ERR_TAG_STATE_IO_FAILED) {
         return BUSI_ERR_IO_OPERATION_INVALID;
     } else if (errCode >= ERR_TAG_BASE && errCode < ERR_CE_BASE) {
-        if ((NfcSdkCommon::GetSdkVersion() >= SDK_VERSION_18) && (errCode == ERR_TAG_STATE_LOST)) {
-            return BUSI_ERR_TAG_LEAVES_FIELD;
-        }
         return BUSI_ERR_TAG_STATE_INVALID;
     }
     return errCode;
