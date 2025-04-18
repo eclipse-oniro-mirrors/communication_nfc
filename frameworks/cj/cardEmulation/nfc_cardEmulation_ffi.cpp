@@ -49,7 +49,7 @@ public:
 
 sptr<CjHceCmdListenerEvent> cjHceCmdListenerEvent =
     sptr<CjHceCmdListenerEvent>(new (std::nothrow) CjHceCmdListenerEvent());
-static bool isEventRegistered = false;
+static bool g_isEventRegistered = false;
 
 std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
 {
@@ -99,13 +99,13 @@ int32_t FfiNfcCardEmulationstart(char* cBundleName, char* cAbilityName, char* cM
 
 int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id)
 {
-    if (!isEventRegistered) {
+    if (!g_isEventRegistered) {
         HceService hceService = HceService::GetInstance();
         ErrorCode ret = hceService.RegHceCmdCallback(cjHceCmdListenerEvent, KITS::EVENT_HCE_CMD);
         if (ret != KITS::ERR_NONE) {
             return ret;
         }
-        isEventRegistered = true;
+        g_isEventRegistered = true;
     }
     auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
@@ -128,7 +128,7 @@ int32_t FfiNfcCardEmulationstop(char* cBundleName, char* cAbilityName, char* cMo
     if (ret != KITS::ERR_NONE) {
         return ret;
     }
-    isEventRegistered = false;
+    g_isEventRegistered = false;
     auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
         return ERR_NO_MEMORY;
