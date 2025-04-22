@@ -69,14 +69,21 @@ static void NativeFormat(napi_env env, void *data)
 
 static void FormatCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "Format");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "format", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -130,14 +137,21 @@ static void NativeFormatReadOnly(napi_env env, void *data)
 
 static void FormatReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "FormatReadOnly");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NdefFormatableContext<int, NapiNdefFormatableTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "formatReadOnly", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }

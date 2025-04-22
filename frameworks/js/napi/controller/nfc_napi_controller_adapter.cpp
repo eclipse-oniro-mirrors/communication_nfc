@@ -19,14 +19,21 @@
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 #include "nfc_napi_ctrl_utils.h"
+#include "nfc_ha_event_report.h"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 napi_value OpenNfc(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "OpenNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOn();
+    if (status == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, status);
+    }
     napi_value result;
     napi_get_boolean(env, (status == KITS::ERR_NONE), &result);
     return result;
@@ -34,16 +41,28 @@ napi_value OpenNfc(napi_env env, napi_callback_info info)
 
 napi_value EnableNfc(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "EnableNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOn();
+    if (status == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, status);
+    }
     CheckNfcStatusCodeAndThrow(env, status, "enableNfc");
     return CreateUndefined(env);
 }
 
 napi_value CloseNfc(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "CloseNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOff();
+    if (status == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, status);
+    }
     napi_value result;
     napi_get_boolean(env, (status == KITS::ERR_NONE), &result);
     return result;
@@ -51,8 +70,14 @@ napi_value CloseNfc(napi_env env, napi_callback_info info)
 
 napi_value DisableNfc(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "DisableNfc");
     NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOff();
+    if (status == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, status);
+    }
     CheckNfcStatusCodeAndThrow(env, status, "disableNfc");
     return CreateUndefined(env);
 }

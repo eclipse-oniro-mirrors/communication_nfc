@@ -114,14 +114,21 @@ static void NativeIsExtendedApduSupported(napi_env env, void *data)
 
 static void IsExtendedApduSupportedCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "IsExtendedApduSupported");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<CallBackContext<bool, NapiIsoDepTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is boolean.
         napi_get_boolean(env, context->value, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string msg = BuildErrorMessage(errCode, "isExtendedApduSupported", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, msg);
     }

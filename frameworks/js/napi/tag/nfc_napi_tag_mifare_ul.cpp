@@ -69,14 +69,21 @@ static void NativeReadMultiplePages(napi_env env, void *data)
 
 static void ReadMultiplePagesCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "ReadMultiplePages");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareUltralightContext<std::string, NapiMifareUltralightTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is number[].
         ConvertStringToNumberArray(env, callbackValue, context->value);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "readMultiplePages", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -152,14 +159,21 @@ static void NativeWriteSinglePages(napi_env env, void *data)
 
 static void WriteSinglePagesCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "WriteSinglePage");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareUltralightContext<int, NapiMifareUltralightTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "writeSinglePage", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }

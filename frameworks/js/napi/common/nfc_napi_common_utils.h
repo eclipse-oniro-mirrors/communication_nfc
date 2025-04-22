@@ -20,6 +20,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "ndef_message.h"
+#include "nfc_ha_event_report.h"
 
 namespace OHOS {
 namespace NFC {
@@ -84,6 +85,7 @@ struct BaseContext {
     napi_ref callbackRef = nullptr;
     bool resolved = false;
     int32_t errorCode = 0;
+    std::shared_ptr<NfcHaEventReport> eventReport = nullptr;
 };
 
 class AsyncContext {

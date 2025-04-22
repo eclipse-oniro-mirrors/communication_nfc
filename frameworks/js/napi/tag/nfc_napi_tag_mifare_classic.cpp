@@ -290,14 +290,21 @@ static void NativeAuthenticateSector(napi_env env, void *data)
 
 static void AuthenticateSectorCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "AuthenticateSector");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<bool, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "authenticateSector", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -377,14 +384,21 @@ static void NativeReadSingleBlock(napi_env env, void *data)
 
 static void ReadSingleBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "ReadSingleBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<std::string, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is number[].
         ConvertStringToNumberArray(env, callbackValue, context->value);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "readSingleBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -460,14 +474,21 @@ static void NativeWriteSingleBlock(napi_env env, void *data)
 
 static void WriteSingleBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "WriteSingleBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "writeSingleBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -544,14 +565,21 @@ static void NativeIncrementBlock(napi_env env, void *data)
 
 static void IncrementBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "IncrementBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "incrementBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -625,14 +653,21 @@ static void NativeDecrementBlock(napi_env env, void *data)
 
 static void DecrementBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "DecrementBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "decrementBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -685,14 +720,21 @@ static void NativeTransferToBlock(napi_env env, void *data)
 
 static void TransferToBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "TransferToBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "transferToBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -745,14 +787,21 @@ static void NativeRestoreFromBlock(napi_env env, void *data)
 
 static void RestoreFromBlockCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "RestoreFromBlock");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<MifareClassicContext<int, NapiMifareClassicTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "restoreFromBlock", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }

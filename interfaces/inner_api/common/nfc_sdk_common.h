@@ -16,17 +16,27 @@
 #define NFC_SDK_COMMON_H
 #include <string>
 #include <vector>
+#include <set>
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 const static int DECIMAL_NOTATION = 10;
 const static int HEX_DECIMAL = 16;
+const static int RESULT_SUCCESS = 0;
+const static int RESULT_FAIL = 1;
 const static uint32_t HEX_BYTE_LEN = 2;
 const static uint32_t HEX_VALUE = 16;
 const static uint32_t HALF_BYTE_BITS = 4;
 static const uint32_t NFC_MANAGER_SYS_ABILITY_ID = 1140;
 static const std::string NFC_MANAGER_SYS_ABILITY_NAME = "nfc_service";
+static const std::string NFC_SERVICE_CONFIG_PATH = "/system/etc/nfc/nfc_service_config.json";
+static const std::string SDK_NAME = "ConnectivityKit";
+static const std::string KEY_REPORT_APPID = "report_appId";
+
+const static std::set<std::string> NFC_SERVICE_CONFIG_KEY_SET = {
+    KEY_REPORT_APPID,
+};
 
 enum ErrorCode : const int {
     ERR_NONE = 0,
@@ -206,6 +216,7 @@ public:
     static std::string CodeMiddlePart(const std::string &src);
     static bool SecureStringToInt(const std::string &str, int32_t &value, int base);
     static int GetSdkVersion(void);
+    static bool GetConfigFromJson(const std::string &key, std::string &value);
 };
 }  // namespace KITS
 }  // namespace NFC

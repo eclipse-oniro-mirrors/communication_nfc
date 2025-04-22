@@ -62,6 +62,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cJson_static",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
