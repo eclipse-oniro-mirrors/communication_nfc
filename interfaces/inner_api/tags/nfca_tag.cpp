@@ -21,6 +21,10 @@ namespace NFC {
 namespace KITS {
 NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_A_TECH)
 {
+    if (tag.expired()) {
+        ErrorLog("tag is null.");
+        return;
+    }
     AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_A_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcATag::NfcATag extra data invalid");

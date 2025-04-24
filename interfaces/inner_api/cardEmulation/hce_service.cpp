@@ -27,6 +27,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
+std::mutex g_hceSessionProxyLock;
 HceService::HceService()
 {
     DebugLog("[HceService] new HceService");
@@ -118,6 +119,7 @@ KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vect
 }
 OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
 {
+    std::lock_guard<std::mutex> lock(g_hceSessionProxyLock);
     if (hceSessionProxy_ == nullptr) {
         OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetHceServiceIface();
         if (iface != nullptr) {
@@ -125,6 +127,12 @@ OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy()
         }
     }
     return hceSessionProxy_;
+}
+void HceService::ClearHceSessionProxy()
+{
+    WarnLog("ClearHceSessionProxy");
+    std::lock_guard<std::mutex> lock(g_hceSessionProxyLock);
+    hceSessionProxy_ = nullptr;
 }
 } // namespace KITS
 } // namespace NFC

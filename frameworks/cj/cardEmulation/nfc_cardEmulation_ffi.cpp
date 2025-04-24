@@ -12,17 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "nfc_cardEmulation_ffi.h"
-
 #include <cstring>
 
-#include "ability_info.h"
 #include "cardEmulation.h"
-#include "element_name.h"
-#include "hce_service.h"
 #include "loghelper.h"
+#include "hce_service.h"
+#include "ability_info.h"
+#include "element_name.h"
 #include "nfc_cardEmulation_controller.h"
+#include "nfc_cardEmulation_ffi.h"
 
 namespace OHOS {
 namespace NFC {
@@ -36,7 +34,7 @@ public:
     virtual ~CjHceCmdListenerEvent() {}
 
 public:
-    void OnCeApduData(const std::vector<uint8_t>& data) override
+    void OnCeApduData(const std::vector<uint8_t> &data) override
     {
         CjNfcCardEmulationController::GetInstance()->HceCmd(data);
     }
@@ -51,7 +49,7 @@ sptr<CjHceCmdListenerEvent> cjHceCmdListenerEvent =
     sptr<CjHceCmdListenerEvent>(new (std::nothrow) CjHceCmdListenerEvent());
 static bool g_isEventRegistered = false;
 
-std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
+std::vector<std::string> CharPtrToVector(char **charPtr, int32_t size)
 {
     std::vector<std::string> result;
     for (int32_t i = 0; i < size; i++) {
@@ -64,7 +62,7 @@ std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
 
 extern "C" {
 int32_t FfiNfcCardEmulationisDefaultService(
-    char* cBundleName, char* cAbilityName, char* cModuleName, char* cardTypeName, bool* ret)
+    char *cBundleName, char *cAbilityName, char *cModuleName, char *cardTypeName, bool *ret)
 {
     bool isDefaultService = false;
     std::string type(cardTypeName);
@@ -81,7 +79,7 @@ int32_t FfiNfcCardEmulationisDefaultService(
     return errorCode;
 }
 
-int32_t FfiNfcCardEmulationstart(char* cBundleName, char* cAbilityName, char* cModuleName, CArrString cAidList)
+int32_t FfiNfcCardEmulationstart(char *cBundleName, char *cAbilityName, char *cModuleName, CArrString cAidList)
 {
     std::string bundleName(cBundleName);
     std::string moduleName(cModuleName);
@@ -114,7 +112,7 @@ int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id)
     return controller->Subscribe(eventType, id);
 }
 
-int32_t FfiNfcCardEmulationstop(char* cBundleName, char* cAbilityName, char* cModuleName)
+int32_t FfiNfcCardEmulationstop(char *cBundleName, char *cAbilityName, char *cModuleName)
 {
     std::string bundleName(cBundleName);
     std::string moduleName(cModuleName);

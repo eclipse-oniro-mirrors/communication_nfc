@@ -95,7 +95,7 @@ void NfcPollingManager::StartPollingLoop(bool force)
     std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
     InfoLog("newParams: %{public}s", newParams->ToString().c_str());
     InfoLog("currParams: %{public}s", currPollingParams_->ToString().c_str());
-    if (force || !(newParams == currPollingParams_)) {
+    if ((force || !(newParams == currPollingParams_)) && !nciNfccProxy_.expired()) {
         if (newParams->ShouldEnablePolling()) {
             bool shouldRestart = currPollingParams_->ShouldEnablePolling();
             InfoLog("StartPollingLoop shouldRestart = %{public}d", shouldRestart);
@@ -218,7 +218,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
     const sptr<KITS::IReaderModeCallback> &callback)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("EnableReaderMode: nfcService_ is nullptr.");
+        ErrorLog("EnableReaderMode: nfcService_ or nciTagProxy_ is nullptr.");
         return false;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
@@ -252,9 +252,13 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     readerModeData_->techMask_ = 0xFFFF;
     readerModeData_->callerToken_ = 0;
     readerModeData_->callback_ = nullptr;
-    nciTagProxy_.lock()->StopFieldChecking();
+    if (!nciTagProxy_.expired()) {
+        nciTagProxy_.lock()->StopFieldChecking();
+    }
     StartPollingLoop(true);
-    nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+    if (!nciNfccProxy_.expired()) {
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+    }
     return true;
 }
 
