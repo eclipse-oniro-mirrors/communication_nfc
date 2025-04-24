@@ -187,11 +187,11 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
     }
 #ifdef NFC_LOCKED_HANDLE
-    bool isLocked - false;
+    bool isLocked = false;
     ScreenLock::ScreenLockManager::GetInstance()->IsLocked(isLocked);
     if (isLocked) {
         g_want = want;
-        sptr<NfcUnLockScreenCallback> listener = new (std:nothrow)NfcUnLockScreenCallback();
+        sptr<NfcUnlockScreenCallback> listener = new (std:nothrow)NfcUnlockScreenCallback();
         ScreenLock::ScreenLockManager::GetInstance()->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         UnlockStartTimer();
@@ -220,18 +220,18 @@ void NdefHarDispatch::UnlockStartTimer()
         NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
         g_unlockTimerId = 0;
     }
-    TimerOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();}
-    NfcTime::GetInstance()->Register(timeoutCallback, g_unlockTimerId, SET_UNLOCK_TIMEOUT);
+    TimeOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();}
+    NfcTimer::GetInstance()->Register(timeoutCallback, g_unlockTimerId, SET_UNLOCK_TIMEOUT);
 }
 
 void NdefHarDispatch::UnlockStopTimer()
 {
     InfoLog("%{public}s : enter!", __func__);
     if (g_unlockTimerId != 0) {
-        NfcTimer::GetInstance()->UnRegister(g_unlockTimeId);
-        g_unlockTimeId = 0;
+        NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
+        g_unlockTimerId = 0;
     }
-    g_isUnlockTomeout = false;
+    g_isUnlockTimeout = false;
 }
 
 void NdefHarDispatch::UnlockTimerCallback()
