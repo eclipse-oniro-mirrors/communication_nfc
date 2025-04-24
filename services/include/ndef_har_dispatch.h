@@ -56,7 +56,8 @@ private:
 #ifdef NFC_LOCKED_HANDLE
 class NfcUnlockScreenCallback : public ScreenLock::ScreenLockCallbackStub {
 public:
-    explicit NfcUnlockScreenCallback() override;
+    explicit NfcUnlockScreenCallback();
+    ~NfcUnlockScreenCallback() override;
     void OnCallBack(const int32_t screenLockResult) override;
 };
 #endif
