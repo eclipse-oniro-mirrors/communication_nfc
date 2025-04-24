@@ -27,7 +27,6 @@
 #include "screenlock_common.h"
 #include "screenlock_callback_stub.h"
 #endif
-
 namespace OHOS {
 namespace NFC {
 namespace TAG {
