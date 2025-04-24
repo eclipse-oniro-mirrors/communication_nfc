@@ -43,6 +43,10 @@ config("nfc_config") {
     defines += [ "NFC_VIBRATOR_DISABLED" ]
   }
 
+  if (nfc_locked_handle) {
+    defines += [ "NFC_LOCKED_HANDLE" ]
+  }
+
   if (is_asan || use_clang_coverage) {
     defines += [ "DTFUZZ_TEST" ]
   }

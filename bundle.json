@@ -46,7 +46,8 @@
             "nfc_use_vendor_nci_native",
             "nfc_service_feature_vendor_applications_enabled",
             "nfc_sim_feature",
-            "nfc_vibrator_disabled"
+            "nfc_vibrator_disabled",
+            "nfc_locked_handle"
         ],
         "adapted_system_type": [
             "standard"
