@@ -220,7 +220,7 @@ void NdefHarDispatch::UnlockStartTimer()
         NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
         g_unlockTimerId = 0;
     }
-    TimeOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();}
+    TimeOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();};
     NfcTimer::GetInstance()->Register(timeoutCallback, g_unlockTimerId, SET_UNLOCK_TIMEOUT);
 }
 
