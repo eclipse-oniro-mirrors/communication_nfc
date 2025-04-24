@@ -191,7 +191,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     ScreenLock::ScreenLockManager::GetInstance()->IsLocked(isLocked);
     if (isLocked) {
         g_want = want;
-        sptr<NfcUnlockScreenCallback> listener = new (std:nothrow)NfcUnlockScreenCallback();
+        sptr<NfcUnlockScreenCallback> listener = new (std::nothrow)NfcUnlockScreenCallback();
         ScreenLock::ScreenLockManager::GetInstance()->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         UnlockStartTimer();
