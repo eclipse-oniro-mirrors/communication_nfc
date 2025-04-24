@@ -77,7 +77,7 @@ int BasicTagSession::Close()
 {
     isConnected_ = false;
     OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (tagSession == nullptr) {
+    if (tagSession == nullptr || tagInfo_.expired()) {
         ErrorLog("Close, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }

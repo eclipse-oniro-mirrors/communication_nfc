@@ -235,6 +235,10 @@ NfcService::NfcSwitchEventHandler::~NfcSwitchEventHandler()
 
 bool NfcService::NfcSwitchEventHandler::CheckNfcState(int param)
 {
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ is nullptr.");
+        return false;
+    }
     int nfcState = nfcService_.lock()->GetNfcState();
     if (nfcState == KITS::STATE_TURNING_OFF || nfcState == KITS::STATE_TURNING_ON) {
         WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState);
@@ -312,6 +316,7 @@ bool NfcService::DoTurnOn()
     // Routing Wake Lock release
     nfcWatchDog.Cancel();
 
+    ceService_->Initialize();
     nciVersion_ = nciNfccProxy_->GetNciVersion();
     InfoLog("Get nci version: ver %{public}d", nciVersion_);
 
@@ -324,7 +329,6 @@ bool NfcService::DoTurnOn()
 
     /* Start polling loop */
     nfcPollingManager_->StartPollingLoop(true);
-    ceService_->Initialize();
     ceService_->InitConfigAidRouting(true);
 
     nfcRoutingManager_->HandleComputeRoutingParams(static_cast<int>(ceService_->GetDefaultPaymentType()));

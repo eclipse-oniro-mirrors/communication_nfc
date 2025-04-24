@@ -522,7 +522,7 @@ void NfccNciAdapter::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
     lastRfFieldTime = 0;
     isRfFieldOn_ = false;
     if (cardEmulationListener_.expired()) {
-        DebugLog("DoNfaDmRfFieldEvt: cardEmulationListener_ is null");
+        ErrorLog("DoNfaDmRfFieldEvt: cardEmulationListener_ is null");
         return;
     }
     if (eventData->rf_field.status == NFA_STATUS_OK) {
@@ -1045,17 +1045,29 @@ bool NfccNciAdapter::ComputeRoutingParams(int defaultPaymentType)
 void NfccNciAdapter::OnCardEmulationData(const std::vector<uint8_t> &data)
 {
     DebugLog("NfccNciAdapter::OnCardEmulationData");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationData(data);
 }
 
 void NfccNciAdapter::OnCardEmulationActivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationActivated");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationActivated();
 }
 void  NfccNciAdapter::OnCardEmulationDeactivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationDeactivated");
+    if (cardEmulationListener_.expired()) {
+        ErrorLog("cardEmulationListener_ is null");
+        return;
+    }
     cardEmulationListener_.lock()->OnCardEmulationDeactivated();
 }
 }  // namespace NCI

@@ -351,7 +351,8 @@ KITS::DefaultPaymentType CeService::GetDefaultPaymentType()
     if (!defaultPaymentBundleInstalled_) {
         return KITS::DefaultPaymentType::TYPE_UNINSTALLED;
     }
-    if (defaultPaymentElement_.GetBundleName() ==  nciCeProxy_.lock()->GetSimVendorBundleName()) {
+    if (!nciCeProxy_.expired() &&
+        (defaultPaymentElement_.GetBundleName() == nciCeProxy_.lock()->GetSimVendorBundleName())) {
         return KITS::DefaultPaymentType::TYPE_UICC;
     }
     if (ExternalDepsProxy::GetInstance().IsHceApp(defaultPaymentElement_)) {
