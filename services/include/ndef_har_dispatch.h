@@ -22,7 +22,7 @@
 #include "taginfo.h"
 #include "inci_nfcc_interface.h"
 #include "iremote_object.h"
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 #include "screenlock_manager.h"
 #include "screenlock_common.h"
 #include "screenlock_callback_stub.h"
@@ -53,7 +53,7 @@ private:
     std::shared_mutex mutex_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 };
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 class NfcUnlockScreenCallback : public ScreenLock::ScreenLockCallbackStub {
 public:
     explicit NfcUnlockScreenCallback();
