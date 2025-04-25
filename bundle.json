@@ -141,15 +141,6 @@
                         ],
                         "header_base": "//foundation/communication/nfc/interfaces/inner_api/tags"
                     }
-                },
-                {
-                    "type": "so",
-                    "name": "//foundation/communication/nfc/frameworks/cj/cardEmulation:cj_nfc_cardemulation_ffi",
-                    "header": {
-                        "header_files": [
-                        ],
-                        "header_base": "//foundation/communication/nfc/frameworks/cj/cardEmulation"
-                    }
                 }
             ],
             "test": [

@@ -830,7 +830,7 @@ bool NfccNciAdapter::SendRawFrame(std::string& rawData)
 {
     uint16_t length = KITS::NfcSdkCommon::GetHexStrBytesLen(rawData);
     if (length > RAWDATA_MAX_LEN) {
-        ErrorLog("NfccNciAdapter::SendRawFrame rawdatalen invalid, length = %{public}d", length);
+        ErrorLog("NfccNciAdapter::SendRawFrame rawdatalen invalid. length = %{public}d", length);
         return false;
     }
     uint8_t data[length];
