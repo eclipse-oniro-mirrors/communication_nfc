@@ -43,8 +43,8 @@ config("nfc_config") {
     defines += [ "NFC_VIBRATOR_DISABLED" ]
   }
 
-  if (nfc_locked_handle) {
-    defines += [ "NFC_LOCKED_HANDLE" ]
+  if (nfc_handle_screen_lock) {
+    defines += [ "NFC_HANDLE_SCREEN_LOCK" ]
   }
 
   if (is_asan || use_clang_coverage) {
