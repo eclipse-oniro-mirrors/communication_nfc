@@ -187,12 +187,21 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
     }
 #ifdef NFC_HANDLE_SCREEN_LOCK
+    auto screenLockIface = ScreenLock::ScreenLockManager::GetInstance();
+    if (screenLockIface == nullptr) {
+        ErrorLog("ScreenLock::ScreenLockManager interface invalid");
+        return false;
+    }
     bool isLocked = false;
-    ScreenLock::ScreenLockManager::GetInstance()->IsLocked(isLocked);
+    screenLockIface->IsLocked(isLocked);
     if (isLocked) {
         g_want = want;
         sptr<NfcUnlockScreenCallback> listener = new (std::nothrow)NfcUnlockScreenCallback();
-        ScreenLock::ScreenLockManager::GetInstance()->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
+        if (listener == nullptr) {
+            ErrorLog("NfcUnlockScreenCallback listener invalid");
+            return false;
+        }
+        screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         UnlockStartTimer();
         return false;
