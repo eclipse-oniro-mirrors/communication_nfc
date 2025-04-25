@@ -22,7 +22,7 @@
 #include "loghelper.h"
 #include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 #include "external_deps_proxy.h"
 #include "nfc_timer.h"
 #include "screenlock_common.h"
@@ -33,7 +33,7 @@ namespace TAG {
 const int USER_ID = 100;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 using namespace OHOS::NFC::KITS;
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 AAFwk::Want g_want;
 static uint32_t g_unlockTimerId = 0;
 static bool g_isUnlockTimeout = false;
@@ -42,7 +42,7 @@ const int SET_UNLOCK_TIMEOUT = 30 * 1000;
 std::string uri_ {};
 std::string browserBundleName_ {};
 
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 NfcUnlockScreenCallback::NfcUnlockScreenCallback() {}
 NfcUnlockScreenCallback::~NfcUnlockScreenCallback() {}
 
@@ -186,7 +186,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     if (!nciNfccProxy_.expired()) {
         nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
     }
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
     bool isLocked = false;
     ScreenLock::ScreenLockManager::GetInstance()->IsLocked(isLocked);
     if (isLocked) {
@@ -212,7 +212,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     return true;
 }
 
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
 void NdefHarDispatch::UnlockStartTimer()
 {
     InfoLog("%{public}s : enter!", __func__);
