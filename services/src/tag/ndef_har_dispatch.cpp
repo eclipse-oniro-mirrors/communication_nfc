@@ -204,7 +204,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         UnlockStartTimer();
-        return false;
+        return true;
     }
 #endif
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
