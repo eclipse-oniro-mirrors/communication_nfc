@@ -42,7 +42,7 @@ public:
     bool DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool DispatchByAppLinkMode(const std::string &uriSchemeValue, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         OHOS::sptr<IRemoteObject> tagServiceIface);
-#ifdef NFC_LOCKED_HANDLE
+#ifdef NFC_HANDLE_SCREEN_LOCK
     void UnlockStartTimer();
     static void UnlockStopTimer();
     void UnlockTimerCallback();
