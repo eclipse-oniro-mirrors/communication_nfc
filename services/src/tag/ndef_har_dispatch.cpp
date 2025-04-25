@@ -95,7 +95,8 @@ bool NdefHarDispatch::DispatchBundleExtensionAbility(const std::string &harPacka
     const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
     std::istringstream iss(harPackageString);
-    std::string bundleName, serviceName;
+    std::string bundleName;
+    std::string serviceName;
     if (!getline(iss, bundleName, '/')) {
         InfoLog("harPackageString bundleName invalid");
         return false;
