@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstring>
 
+#include <cstring>
 #include "cardEmulation.h"
 #include "loghelper.h"
 #include "hce_service.h"

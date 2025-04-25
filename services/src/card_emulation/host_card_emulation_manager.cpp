@@ -500,7 +500,7 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
     regData.callerToken_ = callerToken;
     {
         std::lock_guard<std::mutex> lock(regInfoMutex_);
-        InfoLog("RegHceCmdCallback start, register size =%{public}zu", bundleNameToHceCmdRegData_.size());
+        InfoLog("RegHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
         if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
             InfoLog("override the register data for %{public}s", hapTokenInfo.bundleName.c_str());
         }
@@ -763,7 +763,7 @@ bool HostCardEmulationManager::EraseHceCmdCallback(Security::AccessToken::Access
         return false;
     }
     std::lock_guard<std::mutex> lock(regInfoMutex_);
-    InfoLog("EraseHceCmdCallback start, register size =%{public}zu", bundleNameToHceCmdRegData_.size());
+    InfoLog("EraseHceCmdCallback start, register size =%{public}zu.", bundleNameToHceCmdRegData_.size());
     if (bundleNameToHceCmdRegData_.find(hapTokenInfo.bundleName) != bundleNameToHceCmdRegData_.end()) {
         InfoLog("unregister data for  %{public}s", hapTokenInfo.bundleName.c_str());
     }
