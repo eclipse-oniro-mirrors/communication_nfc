@@ -138,6 +138,7 @@ nfc_service_external_deps = [
   "common_event_service:cesfwk_innerkits",
   "data_share:datashare_consumer",
   "eventhandler:libeventhandler",
+  "ffrt:libffrt",
   "hilog:libhilog",
   "hisysevent:libhisysevent",
   "init:libbegetutil",
