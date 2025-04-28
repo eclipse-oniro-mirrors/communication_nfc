@@ -22,7 +22,11 @@
 #include "taginfo.h"
 #include "inci_nfcc_interface.h"
 #include "iremote_object.h"
-
+#ifdef NFC_HANDLE_SCREEN_LOCK
+#include "screenlock_manager.h"
+#include "screenlock_common.h"
+#include "screenlock_callback_stub.h"
+#endif
 namespace OHOS {
 namespace NFC {
 namespace TAG {
@@ -38,12 +42,25 @@ public:
     bool DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool DispatchByAppLinkMode(const std::string &uriSchemeValue, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         OHOS::sptr<IRemoteObject> tagServiceIface);
+#ifdef NFC_HANDLE_SCREEN_LOCK
+    void UnlockStartTimer();
+    static void UnlockStopTimer();
+    void UnlockTimerCallback();
+#endif
 
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     std::shared_mutex mutex_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
 };
+#ifdef NFC_HANDLE_SCREEN_LOCK
+class NfcUnlockScreenCallback : public ScreenLock::ScreenLockCallbackStub {
+public:
+    explicit NfcUnlockScreenCallback();
+    ~NfcUnlockScreenCallback() override;
+    void OnCallBack(const int32_t screenLockResult) override;
+};
+#endif
 } // namespace TAG
 } // namespace NFC
 } // namespace OHOS

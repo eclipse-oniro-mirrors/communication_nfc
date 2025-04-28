@@ -22,16 +22,48 @@
 #include "loghelper.h"
 #include "bundle_mgr_interface.h"
 #include "if_system_ability_manager.h"
-
+#ifdef NFC_HANDLE_SCREEN_LOCK
+#include "external_deps_proxy.h"
+#include "nfc_timer.h"
+#include "screenlock_common.h"
+#endif
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 const int USER_ID = 100;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 using namespace OHOS::NFC::KITS;
-
+#ifdef NFC_HANDLE_SCREEN_LOCK
+AAFwk::Want g_want;
+static uint32_t g_unlockTimerId = 0;
+static bool g_isUnlockTimeout = false;
+const int SET_UNLOCK_TIMEOUT = 30 * 1000;
+static std::mutex g_isUnlockTimeoutMutex {};
+#endif
 std::string uri_ {};
 std::string browserBundleName_ {};
+
+#ifdef NFC_HANDLE_SCREEN_LOCK
+NfcUnlockScreenCallback::NfcUnlockScreenCallback() {}
+NfcUnlockScreenCallback::~NfcUnlockScreenCallback() {}
+
+void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
+{
+    InfoLog("NfcUnlockScreenCallback OnCallBack enabled.");
+    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
+    if (screenLockResult == 0 && !g_isUnlockTimeout) {
+        InfoLog("Unlock successfully before timeout.");
+        auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+        if (abilityManagerClient == nullptr) {
+            ErrorLog("abilityManagerClient is nullptr.");
+            return;
+        }
+        abilityManagerClient->StartAbility(g_want);
+        NdefHarDispatch::UnlockStopTimer();
+    }
+    g_isUnlockTimeout = false;
+}
+#endif
 
 NdefHarDispatch::NdefHarDispatch(std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
     : nciNfccProxy_(nciNfccProxy)
@@ -162,6 +194,27 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     if (!nciNfccProxy_.expired()) {
         nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
     }
+#ifdef NFC_HANDLE_SCREEN_LOCK
+    auto screenLockIface = ScreenLock::ScreenLockManager::GetInstance();
+    if (screenLockIface == nullptr) {
+        ErrorLog("ScreenLock::ScreenLockManager interface invalid");
+        return false;
+    }
+    bool isLocked = false;
+    screenLockIface->IsLocked(isLocked);
+    if (isLocked) {
+        g_want = want;
+        sptr<NfcUnlockScreenCallback> listener = new (std::nothrow) NfcUnlockScreenCallback();
+        if (listener == nullptr) {
+            ErrorLog("NfcUnlockScreenCallback listener invalid");
+            return false;
+        }
+        screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
+        ExternalDepsProxy::GetInstance().StartVibratorOnce();
+        UnlockStartTimer();
+        return true;
+    }
+#endif
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("StartAbility fail. ret = %{public}d, harPackage = %{public}s",
@@ -175,6 +228,35 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     }
     return true;
 }
+
+#ifdef NFC_HANDLE_SCREEN_LOCK
+void NdefHarDispatch::UnlockStartTimer()
+{
+    InfoLog("%{public}s : enter!", __func__);
+    if (g_unlockTimerId != 0) {
+        NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
+        g_unlockTimerId = 0;
+    }
+    TimeOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();};
+    NfcTimer::GetInstance()->Register(timeoutCallback, g_unlockTimerId, SET_UNLOCK_TIMEOUT);
+}
+
+void NdefHarDispatch::UnlockStopTimer()
+{
+    InfoLog("%{public}s : enter!", __func__);
+    if (g_unlockTimerId != 0) {
+        NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
+        g_unlockTimerId = 0;
+    }
+}
+
+void NdefHarDispatch::UnlockTimerCallback()
+{
+    InfoLog("%{public}s : enter!", __func__);
+    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
+    g_isUnlockTimeout = true;
+}
+#endif
 
 bool NdefHarDispatch::DispatchUriToBundleAbility(const std::string &uri)
 {

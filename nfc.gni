@@ -42,4 +42,8 @@ declare_args() {
   if (defined(global_parts_info.nfc_vibrator_disabled)) {
     nfc_vibrator_disabled = true
   }
+  nfc_handle_screen_lock = false
+  if (defined(global_parts_info.nfc_handle_screen_lock)) {
+    nfc_handle_screen_lock = true
+  }
 }
