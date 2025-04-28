@@ -73,6 +73,7 @@
                 "init",
                 "hisysevent",
                 "data_share",
+                "ffrt",
                 "screenlock_mgr",
                 "power_manager",
                 "distributed_notification_service",
