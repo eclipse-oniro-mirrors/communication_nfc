@@ -202,7 +202,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     screenLockIface->IsLocked(isLocked);
     if (isLocked) {
         g_want = want;
-        sptr<NfcUnlockScreenCallback> listener = new (std::nothrow)NfcUnlockScreenCallback();
+        sptr<NfcUnlockScreenCallback> listener = new (std::nothrow) NfcUnlockScreenCallback();
         if (listener == nullptr) {
             ErrorLog("NfcUnlockScreenCallback listener invalid");
             return false;
