@@ -53,11 +53,12 @@ void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
     std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
     if (screenLockResult == 0 && !g_isUnlockTimeout) {
         InfoLog("Unlock successfully before timeout.");
-        if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
-            ErrorLog("AbilityManagerClient is null.");
+        auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+        if (abilityManagerClient == nullptr) {
+            ErrorLog("abilityManagerClient is nullptr.");
             return;
         }
-        AAFwk::AbilityManagerClient::GetInstance()->StartAbility(g_want);
+        abilityManagerClient->StartAbility(g_want);
         NdefHarDispatch::UnlockStopTimer();
     }
     g_isUnlockTimeout = false;
