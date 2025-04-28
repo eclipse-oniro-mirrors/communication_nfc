@@ -340,10 +340,10 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
             InfoLog("UpdateHceAppList from customizeData, push aid %{public}s", data.value.c_str());
         }
     }
+    // hce App without static aid config should also be added into g_hceAppAndAidMap for invoking HceService.on
     if (customDataAidList.empty()) {
-        WarnLog("UpdateHceAppList, ignore for app %{public}s %{public}s", element.GetBundleName().c_str(),
+        WarnLog("UpdateHceAppList, app %{public}s %{public}s has no static aid config", element.GetBundleName().c_str(),
             element.GetAbilityName().c_str());
-        return;
     }
     HceAppAidInfo hceAppAidInfo;
     hceAppAidInfo.element = element;
