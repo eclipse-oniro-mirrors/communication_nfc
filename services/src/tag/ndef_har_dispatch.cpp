@@ -38,6 +38,7 @@ AAFwk::Want g_want;
 static uint32_t g_unlockTimerId = 0;
 static bool g_isUnlockTimeout = false;
 const int SET_UNLOCK_TIMEOUT = 30 * 1000;
+static std::mutex g_isUnlockTimeoutMutex {};
 #endif
 std::string uri_ {};
 std::string browserBundleName_ {};
@@ -49,8 +50,13 @@ NfcUnlockScreenCallback::~NfcUnlockScreenCallback() {}
 void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
 {
     InfoLog("NfcUnlockScreenCallback OnCallBack enabled.");
+    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
     if (screenLockResult == 0 && !g_isUnlockTimeout) {
         InfoLog("Unlock successfully before timeout.");
+        if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+            ErrorLog("AbilityManagerClient is null.");
+            return;
+        }
         AAFwk::AbilityManagerClient::GetInstance()->StartAbility(g_want);
         NdefHarDispatch::UnlockStopTimer();
     }
@@ -240,12 +246,12 @@ void NdefHarDispatch::UnlockStopTimer()
         NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
         g_unlockTimerId = 0;
     }
-    g_isUnlockTimeout = false;
 }
 
 void NdefHarDispatch::UnlockTimerCallback()
 {
     InfoLog("%{public}s : enter!", __func__);
+    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
     g_isUnlockTimeout = true;
 }
 #endif
