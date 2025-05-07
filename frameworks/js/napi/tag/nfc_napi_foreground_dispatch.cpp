@@ -298,8 +298,7 @@ public:
     }
 };
 
-sptr<ForegroundListenerEvent> foregroundListenerEvent =
-    sptr<ForegroundListenerEvent>(new (std::nothrow) ForegroundListenerEvent());
+sptr<ForegroundListenerEvent> foregroundListenerEvent = sptr<ForegroundListenerEvent>(new ForegroundListenerEvent());
 
 int ForegroundEventRegister::RegisterForegroundEvents(ElementName &element,
     std::vector<uint32_t> &discTech)
@@ -484,8 +483,7 @@ public:
     }
 };
 
-sptr<ReaderModeListenerEvt> readerModeListenerEvt =
-    sptr<ReaderModeListenerEvt>(new (std::nothrow) ReaderModeListenerEvt());
+sptr<ReaderModeListenerEvt> readerModeListenerEvt = sptr<ReaderModeListenerEvt>(new ReaderModeListenerEvt());
 
 int ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
                                             std::vector<uint32_t> &discTech)

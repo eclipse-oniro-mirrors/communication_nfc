@@ -576,6 +576,10 @@ bool CeService::InitDefaultPaymentApp()
         return false;
     }
     Uri nfcDefaultPaymentApp(KITS::NFC_DATA_URI_PAYMENT_DEFAULT_APP);
+    if (dataRdbObserver_ == nullptr) {
+        ErrorLog("dataRdbObserver_ is nullptr");
+        return false;
+    }
     KITS::ErrorCode registerResult = DelayedSingleton<SettingDataShareImpl>::GetInstance()->
         RegisterDataObserver(nfcDefaultPaymentApp, dataRdbObserver_);
     if (registerResult != KITS::ERR_NONE) {

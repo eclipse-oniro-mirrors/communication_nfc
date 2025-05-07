@@ -613,6 +613,10 @@ void HostCardEmulationManager::HandleQueueDataForFa(const std::string &bundleNam
         WarnLog("HandleQueueDataForFa queueHceData is null");
         return;
     }
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("HandleQueueDataForFa abilityConnection_ is null");
+        return;
+    }
     std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
     InfoLog("RegHceCmdCallback queue data for fa %{public}s, hceState= %{public}d, "
             "service connected= %{public}d",
@@ -659,6 +663,10 @@ void HostCardEmulationManager::SendDataToFaService(const std::vector<uint8_t>& d
 {
     std::lock_guard<std::mutex> lock(regInfoMutex_);
     InfoLog("SendDataToFaService register size = %{public}zu.", bundleNameToHceCmdRegData_.size());
+    if (abilityConnection_ == nullptr) {
+        ErrorLog("SendDataToFaService abilityConnection_ is null");
+        return;
+    }
     auto it = bundleNameToHceCmdRegData_.find(bundleName);
     if (it == bundleNameToHceCmdRegData_.end()) {
         ErrorLog("no register data for %{public}s", abilityConnection_->GetConnectedElement().GetURI().c_str());

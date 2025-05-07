@@ -395,6 +395,10 @@ int TagSessionStub::HandleRegForegroundDispatch(MessageParcel &data, MessageParc
             foregroundCallback_ = iface_cast<KITS::IForegroundCallback>(remote);
             if (foregroundCallback_ == nullptr) {
                 foregroundCallback_ = new (std::nothrow) ForegroundCallbackProxy(remote);
+                if (foregroundCallback_ == nullptr) {
+                    ErrorLog("foregroundCallback_ is nullptr");
+                    return KITS::ERR_NFC_PARAMETERS;
+                }
                 DebugLog("create new `ForegroundCallbackProxy`!");
             }
             ret = RegForegroundDispatch(*(element), discTech, foregroundCallback_);
@@ -487,6 +491,10 @@ int TagSessionStub::HandleRegReaderMode(MessageParcel &data, MessageParcel &repl
             readerModeCallback_ = iface_cast<KITS::IReaderModeCallback>(remote);
             if (readerModeCallback_ == nullptr) {
                 readerModeCallback_ = new (std::nothrow) ReaderModeCallbackProxy(remote);
+                if (readerModeCallback_ == nullptr) {
+                    ErrorLog("readerModeCallback_ is nullptr");
+                    return KITS::ERR_NFC_PARAMETERS;
+                }
                 DebugLog("create new `ReaderModeCallbackProxy`!");
             }
             ret = RegReaderMode(*(element), discTech, readerModeCallback_);

@@ -175,8 +175,7 @@ public:
     }
 };
 
-sptr<NfcStateListenerEvent> nfcStateListenerEvent =
-    sptr<NfcStateListenerEvent>(new (std::nothrow) NfcStateListenerEvent());
+sptr<NfcStateListenerEvent> nfcStateListenerEvent = sptr<NfcStateListenerEvent>(new NfcStateListenerEvent());
 
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {

@@ -91,6 +91,10 @@ int HceSessionStub::HandleRegHceCmdCallback(MessageParcel &data, MessageParcel &
             hceCmdCallback_ = iface_cast<KITS::IHceCmdCallback>(remote);
             if (hceCmdCallback_ == nullptr) {
                 hceCmdCallback_ = new (std::nothrow) HceCmdCallbackProxy(remote);
+                if (hceCmdCallback_ == nullptr) {
+                    ErrorLog("hceCmdCallback_ is nullptr");
+                    return KITS::ERR_NFC_PARAMETERS;
+                }
                 DebugLog("create new `HceCmdCallbackProxy`!");
             }
             ret = RegHceCmdCallback(hceCmdCallback_, type);

@@ -426,7 +426,10 @@ HWTEST_F(ExternalDepsProxyTest, PublishNtf001, TestSize.Level1)
     std::string cardName = "";
     int balance = 0;
     ExternalDepsProxy::GetInstance().PublishNfcNotification(TAG::NFC_TAG_DEFAULT_NOTIFICATION_ID, cardName, balance);
-    ASSERT_TRUE(balance == 0);
+    std::vector<int> discTechList;
+    std::vector<ElementName> getDispatchTagAppsByTech =
+        ExternalDepsProxy::GetInstance().GetDispatchTagAppsByTech(discTechList);
+    ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
 
 /**
@@ -440,7 +443,10 @@ HWTEST_F(ExternalDepsProxyTest, PublishNtf002, TestSize.Level1)
     int balance = 0;
     int invalidNotificationId = 0;
     ExternalDepsProxy::GetInstance().PublishNfcNotification(invalidNotificationId, cardName, balance);
-    ASSERT_TRUE(balance == 0);
+    std::vector<int> discTechList;
+    std::vector<ElementName> getDispatchTagAppsByTech =
+        ExternalDepsProxy::GetInstance().GetDispatchTagAppsByTech(discTechList);
+    ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
 }
 }

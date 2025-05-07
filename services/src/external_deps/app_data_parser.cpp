@@ -30,7 +30,7 @@ static AppDataParser g_appDataParser;
 /** Tag type of tag app metadata name */
 static const std::string KEY_TAG_TECH = "tag-tech";
 std::mutex g_appListInitMutex = {};
-sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new (std::nothrow) BundleMgrDeathRecipient());
+sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new BundleMgrDeathRecipient());
 
 void BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
 {
