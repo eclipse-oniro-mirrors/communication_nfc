@@ -658,6 +658,10 @@ bool CeService::StopHce(const ElementName &element, Security::AccessToken::Acces
         InfoLog("StopHce: refresh route table");
         ConfigRoutingAndCommit();
     }
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null"); // no need to unregister if hceManager is already null
+        return true;
+    }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
 }
 
@@ -680,6 +684,10 @@ bool CeService::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerT
         ClearHceInfo();
         InfoLog("remote die: refresh route table");
         ConfigRoutingAndCommit();
+    }
+    if (hostCardEmulationManager_ == nullptr) {
+        ErrorLog("hce is null"); // no need to unregister if hceManager is already null
+        return true;
     }
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
 }
