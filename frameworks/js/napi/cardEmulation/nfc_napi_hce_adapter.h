@@ -116,6 +116,7 @@ private:
     static bool isEventRegistered;
     std::shared_ptr<NfcNapiHceAbilityStatusChange> saStatusListener_;
 };
+
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
