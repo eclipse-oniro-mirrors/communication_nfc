@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-#include "ohos.nfc.controller.nfcController.ani.hpp"
+#include "ohos.nfc.cardEmulation.nfcCardEmulation.ani.hpp"
 
-ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
-{
+ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result) {
     ani_env *env;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }
-    if (ANI_OK != ohos::nfc::controller::nfcController::ANIRegister(env)) {
-        std::cerr << "Error from ohos::nfc::controller::nfcController::ANIRegister" << std::endl;
+    if (ANI_OK != ohos::nfc::cardEmulation::nfcCardEmulation::ANIRegister(env)) {
+        std::cerr << "Error from ohos::nfc::cardEmulation::nfcCardEmulation::ANIRegister" << std::endl;
         return ANI_ERROR;
     }
     *result = ANI_VERSION_1;
