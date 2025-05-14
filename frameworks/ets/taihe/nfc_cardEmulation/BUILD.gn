@@ -16,8 +16,8 @@ import("//build/ohos.gni")
 import("//build/ohos/taihe_idl/taihe.gni")
 import("../../../../nfc.gni")
 
-copy_taihe_idl("copy_taihe_nfc_controller") {
-  sources = [ "idl/ohos.nfc.controller.nfcController.taihe" ]
+copy_taihe_idl("copy_taihe_nfc_cardEmulation") {
+  sources = [ "idl/ohos.nfc.cardEmulation.nfcCardEmulation.taihe" ]
 }
 
 subsystem_name = "communication"
@@ -26,14 +26,14 @@ taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"
 
 ohos_taihe("run_taihe") {
   taihe_generated_file_path = "$taihe_generated_file_path"
-  deps = [ ":copy_taihe_nfc_controller" ]
+  deps = [ ":copy_taihe_nfc_cardEmulation" ]
   outputs = [
-    "$taihe_generated_file_path/src/ohos.nfc.controller.nfcController.ani.cpp",
-    "$taihe_generated_file_path/src/ohos.nfc.controller.nfcController.abi.c",
+    "$taihe_generated_file_path/src/ohos.nfc.cardEmulation.nfcCardEmulation.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.nfc.cardEmulation.nfcCardEmulation.abi.c",
   ]
 }
 
-taihe_shared_library("nfc_fwk_taihe_controller") {
+taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -54,8 +54,7 @@ taihe_shared_library("nfc_fwk_taihe_controller") {
   ]
   sources += [
     "src/ani_constructor.cpp",
-    "src/nfc_taihe_controller_event.cpp",
-    "src/impl/ohos.nfc.controller.nfcController.impl.cpp"
+    "src/impl/ohos.nfc.cardEmulation.nfcCardEmulation.impl.cpp"
   ]
 
   external_deps = [
@@ -68,33 +67,33 @@ taihe_shared_library("nfc_fwk_taihe_controller") {
   deps = [
     ":run_taihe",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller"
+    "$NFC_DIR/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation"
   ]
 
   part_name = "$part_name"
   subsystem_name = "$subsystem_name"
 }
 
-generate_static_abc("nfc_fwk_etc_controller_abc") {
+generate_static_abc("nfc_fwk_etc_cardEmulation_abc") {
   base_url = "$taihe_generated_file_path"
-  files = [ "$taihe_generated_file_path/@ohos.nfc.controller.ets" ]
+  files = [ "$taihe_generated_file_path/@ohos.nfc.cardEmulation.ets" ]
   is_boot_abc = "True"
-  device_dst_file = "/system/framework/nfc_fwk_etc_controller_abc.abc"
+  device_dst_file = "/system/framework/nfc_fwk_etc_cardEmulation_abc.abc"
   dependencies = [ ":run_taihe" ]
 }
 
-ohos_prebuilt_etc("nfc_fwk_etc_controller") {
-  source = "$target_out_dir/nfc_fwk_etc_controller_abc.abc"
-  deps = [ ":nfc_fwk_etc_controller_abc" ]
+ohos_prebuilt_etc("nfc_fwk_etc_cardEmulation") {
+  source = "$target_out_dir/nfc_fwk_etc_cardEmulation_abc.abc"
+  deps = [ ":nfc_fwk_etc_cardEmulation_abc" ]
   module_install_dir = "framework"
   part_name = "$part_name"
   subsystem_name = "$subsystem_name"
 }
 
-group("nfc_taihe_controller") {
+group("nfc_taihe_cardEmulation") {
   deps = [
     ":run_taihe",
-    ":nfc_fwk_etc_controller",
-    ":nfc_fwk_taihe_controller",
+    ":nfc_fwk_etc_cardEmulation",
+    ":nfc_fwk_taihe_cardEmulation",
   ]
 }
