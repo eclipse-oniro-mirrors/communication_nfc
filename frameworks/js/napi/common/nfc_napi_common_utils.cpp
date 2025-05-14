@@ -542,6 +542,11 @@ void DoAsyncCallbackOrPromise(const napi_env &env, BaseContext *baseContext, nap
         } else {
             NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, baseContext->deferred, callbackValue));
         }
+        if (baseContext->eventReport == nullptr) {
+            ErrorLog("eventReport is nullptr");
+            return;
+        }
+        baseContext->eventReport->ReportSdkEvent(RESULT_SUCCESS, baseContext->errorCode);
     }
     napi_delete_async_work(env, baseContext->work);
     delete baseContext;

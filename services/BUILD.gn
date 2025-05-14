@@ -137,6 +137,7 @@ nfc_service_external_deps = [
   "access_token:libaccesstoken_sdk",
   "bundle_framework:appexecfwk_base",
   "bundle_framework:appexecfwk_core",
+  "cJSON:cjson_static",
   "c_utils:utils",
   "common_event_service:cesfwk_core",
   "common_event_service:cesfwk_innerkits",
@@ -194,7 +195,6 @@ ohos_shared_library("nfc_service") {
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
     "src/notification:nfc_notification",
-    "//third_party/cJSON:cjson_static",
   ]
 
   if (!nfc_use_vendor_nci_native) {
@@ -223,7 +223,6 @@ ohos_static_library("nfc_service_static") {
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
     "etc/init:etc",
-    "//third_party/cJSON:cjson_static",
   ]
 
   if (!nfc_use_vendor_nci_native) {

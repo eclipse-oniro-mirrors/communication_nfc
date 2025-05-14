@@ -34,6 +34,7 @@ ohos_shared_library("tag") {
   ]
 
   sources = [
+    "$NFC_DIR/frameworks/js/napi/common/nfc_ha_event_report.cpp",
     "$NFC_DIR/frameworks/js/napi/common/nfc_napi_common_utils.cpp",
     "nfc_napi_foreground_dispatch.cpp",
     "nfc_napi_ndef_message.cpp",
@@ -59,6 +60,7 @@ ohos_shared_library("tag") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
+    "hiappevent:hiappevent_innerapi",
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_napi",

@@ -59,6 +59,7 @@
                 "ipc",
                 "hilog",
                 "bundle_framework",
+                "cJSON",
                 "c_utils",
                 "napi",
                 "ability_base",
@@ -67,6 +68,7 @@
                 "access_token",
                 "common_event_service",
                 "eventhandler",
+                "hiappevent",
                 "miscdevice",
                 "preferences",
                 "safwk",
@@ -82,10 +84,6 @@
                 "i18n",
                 "bluetooth",
                 "image_framework"
-            ],
-            "third_party": [
-                "cJSON",
-                "zlib"
             ]
         },
         "build": {

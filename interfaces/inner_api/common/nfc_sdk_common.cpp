@@ -20,6 +20,8 @@
 #include <sys/time.h>
 #include "bundle_mgr_proxy.h"
 #include "iservice_registry.h"
+#include "cJSON.h"
+#include "file_ex.h"
 
 #include "loghelper.h"
 
@@ -292,6 +294,40 @@ int NfcSdkCommon::GetSdkVersion(void)
 
     version = static_cast<int>(bundleInfo.targetVersion % 100); // %100 to get the real version
     return version;
+}
+
+bool NfcSdkCommon::GetConfigFromJson(const std::string &key, std::string &value)
+{
+    std::string content;
+    if (!LoadStringFromFile(NFC_SERVICE_CONFIG_PATH, content) || content.empty()) {
+        ErrorLog("fail to load string from nfc_service_config.json");
+        return false;
+    }
+    cJSON *json = cJSON_Parse(content.c_str());
+    if (json == nullptr) {
+        ErrorLog("json nullptr");
+        return false;
+    }
+    if (!cJSON_IsObject(json)) {
+        ErrorLog("reader is not cJSON object");
+        cJSON_Delete(json);
+        return false;
+    }
+    if (!NFC_SERVICE_CONFIG_KEY_SET.count(key)) {
+        WarnLog("current key[%{public}s] not exists!", key.c_str());
+        cJSON_Delete(json);
+        return false;
+    }
+
+    cJSON *cJsonObject = cJSON_GetObjectItem(json, key.c_str());
+    if (cJsonObject == nullptr) {
+        ErrorLog("cJsonObject is nullptr.");
+        cJSON_Delete(json);
+        return false;
+    }
+    value = cJSON_GetStringValue(cJsonObject);
+    cJSON_Delete(json);
+    return true;
 }
 }  // namespace KITS
 }  // namespace NFC

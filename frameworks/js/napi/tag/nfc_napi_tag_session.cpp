@@ -15,6 +15,7 @@
 #include "nfc_napi_tag_session.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
+#include "nfc_ha_event_report.h"
 
 namespace OHOS {
 namespace NFC {
@@ -42,15 +43,19 @@ std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_ca
 
 napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "GetTagInfo");
     napi_value argv[] = {nullptr};
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
     if (nfcTag == nullptr) {
+        eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
         return CreateUndefined(env);
     }
     std::weak_ptr<TagInfo> tagInfo = nfcTag->GetTagInfo();
     if (tagInfo.expired()) {
+        eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
         return CreateUndefined(env);
     }
+    eventReport.ReportSdkEvent(RESULT_SUCCESS, ERR_NONE);
     std::string uid = tagInfo.lock()->GetTagUid();
     std::vector<int> techList = tagInfo.lock()->GetTagTechList();
 
@@ -75,6 +80,7 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
 
 napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "ConnectTag");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -82,6 +88,11 @@ napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
         napi_get_boolean(env, false, &result);
     } else {
         int err = nfcTag->Connect();
+        if (err == ERR_NONE) {
+            eventReport.ReportSdkEvent(RESULT_SUCCESS, err);
+        } else {
+            eventReport.ReportSdkEvent(RESULT_FAIL, err);
+        }
         napi_get_boolean(env, err == ErrorCode::ERR_NONE, &result);
     }
     return result;
@@ -89,16 +100,23 @@ napi_value NapiNfcTagSession::ConnectTag(napi_env env, napi_callback_info info)
 
 napi_value NapiNfcTagSession::Reset(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "Reset");
     napi_value argv[] = {nullptr};
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
     if (nfcTag != nullptr) {
-        nfcTag->Close();
+        int err = nfcTag->Close();
+        if (err == ERR_NONE) {
+            eventReport.ReportSdkEvent(RESULT_SUCCESS, err);
+        } else {
+            eventReport.ReportSdkEvent(RESULT_FAIL, err);
+        }
     }
     return CreateUndefined(env);
 }
 
 napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "IsTagConnected");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -107,6 +125,11 @@ napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info in
         napi_get_boolean(env, false, &result);
     } else {
         bool isConnected = nfcTag->IsConnected();
+        if (isConnected) {
+            eventReport.ReportSdkEvent(RESULT_SUCCESS, ERR_NONE);
+        } else {
+            eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
+        }
         napi_get_boolean(env, isConnected, &result);
     }
     return result;
@@ -114,6 +137,7 @@ napi_value NapiNfcTagSession::IsTagConnected(napi_env env, napi_callback_info in
 
 napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "SetSendDataTimeout");
     size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value result = nullptr;
@@ -139,12 +163,18 @@ napi_value NapiNfcTagSession::SetSendDataTimeout(napi_env env, napi_callback_inf
         return result;
     }
     bool succ = nfcTag->SetTimeout(timeoutValue) == ErrorCode::ERR_NONE;
+    if (succ) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, ERR_NONE);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
+    }
     napi_get_boolean(env, succ, &result);
     return result;
 }
 
 napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "GetSendDataTimeout");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -153,7 +183,12 @@ napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_inf
         napi_create_int32(env, 0, &result);
     } else {
         int timeout = 0;
-        nfcTag->GetTimeout(timeout);
+        int err = nfcTag->GetTimeout(timeout);
+        if (err == ERR_NONE) {
+            eventReport.ReportSdkEvent(RESULT_SUCCESS, err);
+        } else {
+            eventReport.ReportSdkEvent(RESULT_FAIL, err);
+        }
         napi_create_int32(env, timeout, &result);
     }
     return result;
@@ -161,6 +196,7 @@ napi_value NapiNfcTagSession::GetSendDataTimeout(napi_env env, napi_callback_inf
 
 napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "GetMaxSendLength");
     napi_value argv[] = {nullptr};
     napi_value result = nullptr;
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
@@ -169,7 +205,12 @@ napi_value NapiNfcTagSession::GetMaxSendLength(napi_env env, napi_callback_info 
         napi_create_int32(env, 0, &result);
     } else {
         int maxsendlen = 0;
-        nfcTag->GetMaxSendCommandLength(maxsendlen);
+        int err = nfcTag->GetMaxSendCommandLength(maxsendlen);
+        if (err == ERR_NONE) {
+            eventReport.ReportSdkEvent(RESULT_SUCCESS, err);
+        } else {
+            eventReport.ReportSdkEvent(RESULT_FAIL, err);
+        }
         napi_create_int32(env, maxsendlen, &result);
     }
     return result;
@@ -214,14 +255,21 @@ static void NativeTransmit(napi_env env, void *data)
 
 static void SendDataCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "SendData");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is number[].
         ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "sendData", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -287,24 +335,36 @@ static bool CheckTagSessionAndThrow(napi_env env, std::shared_ptr<BasicTagSessio
 
 napi_value NapiNfcTagSession::Connect(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "Connect");
     napi_value argv[] = {nullptr};
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
     if (!CheckTagSessionAndThrow(env, nfcTag)) {
         return CreateUndefined(env);
     }
     int statusCode = nfcTag->Connect();
+    if (statusCode == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, statusCode);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, statusCode);
+    }
     CheckTagStatusCodeAndThrow(env, statusCode, "connect");
     return CreateUndefined(env);
 }
 
 napi_value NapiNfcTagSession::ResetConnection(napi_env env, napi_callback_info info)
 {
+    NfcHaEventReport eventReport(SDK_NAME, "ResetConnection");
     napi_value argv[] = {nullptr};
     std::shared_ptr<BasicTagSession> nfcTag = GetTag(env, info, 0, argv);
     if (!CheckTagSessionAndThrow(env, nfcTag)) {
         return nullptr;
     }
     int statusCode = nfcTag->Close();
+    if (statusCode == ERR_NONE) {
+        eventReport.ReportSdkEvent(RESULT_SUCCESS, statusCode);
+    } else {
+        eventReport.ReportSdkEvent(RESULT_FAIL, statusCode);
+    }
     CheckTagStatusCodeAndThrow(env, statusCode, "resetConnection");
     return CreateUndefined(env);
 }
@@ -407,14 +467,21 @@ static bool CheckTransmitParametersAndThrow(napi_env env, const napi_value param
 // the aysnc callback to check the status and throw error.
 static void TransmitCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "Transmit");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NfcTagSessionContext<std::string, NapiNfcTagSession> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is number[].
         ConvertStringToNumberArray(env, callbackValue, context->value.c_str());
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "transmit", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }

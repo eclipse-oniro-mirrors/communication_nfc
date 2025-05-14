@@ -326,6 +326,11 @@ static void NativeReadNdef(napi_env env, void *data)
 
 static void ReadNdefCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "ReadNdef");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag> *>(data);
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is NdefMessage
@@ -346,9 +351,11 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
             },
             nullptr, nullptr);
         if (status == napi_ok) {
+            context->eventReport = nfcHaEventReport;
             DoAsyncCallbackOrPromise(env, context, callbackValue);
         } else {
             ErrorLog("ReadNdefCallback, napi_wrap failed!");
+            nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, status);
             if (napiNdefMessage != nullptr) {
                 ErrorLog("CreateNdefMessage napi_wrap failed");
                 delete napiNdefMessage;
@@ -360,6 +367,7 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
         }
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "readNdef", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -428,14 +436,21 @@ static void NativeWriteNdef(napi_env env, void *data)
 
 static void WriteNdefCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "WriteNdef");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "writeNdef", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }
@@ -537,14 +552,21 @@ static void NativeSetReadOnly(napi_env env, void *data)
 
 static void SetReadOnlyCallback(napi_env env, napi_status status, void *data)
 {
+    auto nfcHaEventReport = std::make_shared<NfcHaEventReport>(SDK_NAME, "SetReadOnly");
+    if (nfcHaEventReport == nullptr) {
+        ErrorLog("nfcHaEventReport is nullptr");
+        return;
+    }
     auto context = static_cast<NdefContext<int, NapiNdefTag> *>(data);
     napi_value callbackValue = nullptr;
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is void.
         napi_get_undefined(env, &callbackValue);
+        context->eventReport = nfcHaEventReport;
         DoAsyncCallbackOrPromise(env, context, callbackValue);
     } else {
         int errCode = BuildOutputErrorCode(context->errorCode);
+        nfcHaEventReport->ReportSdkEvent(RESULT_FAIL, errCode);
         std::string errMessage = BuildErrorMessage(errCode, "setReadOnly", TAG_PERM_DESC, "", "");
         ThrowAsyncError(env, context, errCode, errMessage);
     }

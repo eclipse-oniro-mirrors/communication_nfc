@@ -45,7 +45,6 @@ unit_test_deps = [
   "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
   "$NFC_DIR/interfaces/inner_api/tags:nfc_inner_kits_tags",
   "$NFC_DIR/services:nfc_service_static",
-  "//third_party/googletest:gtest_main",
 ]
 
 unit_test_external_deps = [
@@ -60,6 +59,7 @@ unit_test_external_deps = [
   "c_utils:utils",
   "common_event_service:cesfwk_innerkits",
   "data_share:datashare_consumer",
+  "googletest:gtest_main",
   "hilog:libhilog",
   "ipc:ipc_core",
   "safwk:system_ability_fwk",
@@ -380,6 +380,21 @@ ohos_unittest("service_ipc_test") {
   subsystem_name = "communication"
 }
 
+ohos_unittest("interfaces_test") {
+  module_out_path = unit_module_out_path
+  configs = [ ":nfc_service_unit_test_config" ]
+  cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
+
+  sources = [ "interfaces_test/nfc_sdk_common_test.cpp" ]
+
+  deps = unit_test_deps
+
+  external_deps = unit_test_external_deps
+
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
+
 group("nfc_service_unittest") {
   testonly = true
   deps = [
@@ -390,6 +405,7 @@ group("nfc_service_unittest") {
     ":hce_service_test",
     ":hce_session_test",
     ":host_card_emulation_manager_test",
+    ":interfaces_test",
     ":isodep_card_handler_test",
     ":nci_ce_proxy_test",
     ":nci_nfcc_proxy_test",
