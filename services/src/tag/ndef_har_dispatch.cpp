@@ -26,6 +26,7 @@
 #include "external_deps_proxy.h"
 #include "nfc_timer.h"
 #include "screenlock_common.h"
+#include "power_mgr_client.h"
 #endif
 namespace OHOS {
 namespace NFC {
@@ -213,6 +214,9 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         UnlockStartTimer();
         return true;
+    }
+    if (!PowerMgr::PowerMgrClient::GetInstance().IsScreenOn()) {
+        PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
     }
 #endif
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
