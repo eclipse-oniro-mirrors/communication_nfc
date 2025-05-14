@@ -39,9 +39,9 @@ bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
 #ifdef VENDOR_APPLICATIONS_ENABLED
 static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
-    sptr<QueryAppInfoCallbackStub>(new (std::nothrow) QueryAppInfoCallbackStub());
+    sptr<QueryAppInfoCallbackStub>(new QueryAppInfoCallbackStub());
 static sptr<OnCardEmulationNotifyCbStub> g_onCardEmulationNotifyCbStub =
-    sptr<OnCardEmulationNotifyCbStub>(new (std::nothrow) OnCardEmulationNotifyCbStub());
+    sptr<OnCardEmulationNotifyCbStub>(new OnCardEmulationNotifyCbStub());
 #endif
 
 NfcController::NfcController()

@@ -25,7 +25,7 @@ namespace OHOS {
 namespace NFC {
 std::mutex mutex_ {};
 sptr<AppExecFwk::IAppMgr> appMgrProxy_ {nullptr};
-sptr<AppMgrDeathRecipient> appMgrDeathRecipient_(new (std::nothrow) AppMgrDeathRecipient());
+sptr<AppMgrDeathRecipient> appMgrDeathRecipient_(new AppMgrDeathRecipient());
 
 void AppMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
 {
@@ -56,6 +56,10 @@ bool AppStateObserver::SubscribeAppState()
         return false;
     }
     appStateAwareObserver_ = new (std::nothrow)AppStateAwareObserver();
+    if (appStateAwareObserver_ == nullptr) {
+        ErrorLog("SubscribeAppState: appStateAwareObserver_ is nullptr");
+        return false;
+    }
     auto err = appMgrProxy_->RegisterApplicationStateObserver(appStateAwareObserver_);
     if (err != 0) {
         ErrorLog("SubscribeAppState error, code = %{public}d", err);

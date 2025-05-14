@@ -117,7 +117,8 @@ HWTEST_F(NfcPollingParamsTest, SetTechMask001, TestSize.Level1)
     int techMask = TECH_MASK;
     NfcPollingParams nfcPollingParams;
     nfcPollingParams.SetTechMask(techMask);
-    ASSERT_TRUE(techMask == TECH_MASK);
+    bool shouldEnableHostRouting = nfcPollingParams.ShouldEnableHostRouting();
+    ASSERT_TRUE(shouldEnableHostRouting == false);
 }
 /**
  * @tc.name: ToString001

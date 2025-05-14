@@ -147,6 +147,10 @@ int NfcControllerStub::HandleRegisterCallBack(MessageParcel &data, MessageParcel
             callback_ = iface_cast<INfcControllerCallback>(remote);
             if (callback_ == nullptr) {
                 callback_ = new (std::nothrow) NfcControllerCallBackProxy(remote);
+                if (callback_ == nullptr) {
+                    ErrorLog("callback_ is nullptr");
+                    return KITS::ERR_NFC_PARAMETERS;
+                }
                 DebugLog("create new `NfcControllerCallBackProxy`!");
             }
             ret = RegisterCallBack(callback_, type);
@@ -249,6 +253,10 @@ int NfcControllerStub::HandleRegNdefMsgCb(MessageParcel& data, MessageParcel& re
             ndefCallback_ = iface_cast<INdefMsgCallback>(remote);
             if (ndefCallback_ == nullptr) {
                 ndefCallback_ = new (std::nothrow) NdefMsgCallbackProxy(remote);
+                if (ndefCallback_ == nullptr) {
+                    ErrorLog("ndefCallback_ is nullptr");
+                    return KITS::ERR_NFC_PARAMETERS;
+                }
                 DebugLog("NfcControllerStub::HandleRegNdefMsgCb, create new `NdefMsgCallbackProxy`!");
             }
             ret = RegNdefMsgCallback(ndefCallback_);
@@ -276,6 +284,10 @@ int NfcControllerStub::HandleRegQueryApplicationCb(MessageParcel& data, MessageP
         queryAppInfoCallback_ = iface_cast<IQueryAppInfoCallback>(remote);
         if (queryAppInfoCallback_ == nullptr) {
             queryAppInfoCallback_ = new (std::nothrow) QueryAppInfoCallbackProxy(remote);
+            if (queryAppInfoCallback_ == nullptr) {
+                ErrorLog("queryAppInfoCallback_ is nullptr");
+                return KITS::ERR_NFC_PARAMETERS;
+            }
             DebugLog("NfcControllerStub::HandleRegQueryApplicationCb, create new `QueryAppInfoCallbackProxy`!");
         }
         int ret = RegQueryApplicationCb(queryAppInfoCallback_);
@@ -301,6 +313,10 @@ int NfcControllerStub::HandleRegCardEmulationNotifyCb(MessageParcel& data, Messa
         onCardEmulationNotifyCb_ = iface_cast<IOnCardEmulationNotifyCb>(remote);
         if (onCardEmulationNotifyCb_ == nullptr) {
             onCardEmulationNotifyCb_ = new (std::nothrow) OnCardEmulationNotifyCbProxy(remote);
+            if (onCardEmulationNotifyCb_ == nullptr) {
+                ErrorLog("onCardEmulationNotifyCb_ is nullptr");
+                return KITS::ERR_NFC_PARAMETERS;
+            }
             DebugLog("NfcControllerStub::HandleRegCardEmulationNotifyCb, create new `OnCardEmulationNotifyCbProxy`!");
         }
         int ret = RegCardEmulationNotifyCb(onCardEmulationNotifyCb_);

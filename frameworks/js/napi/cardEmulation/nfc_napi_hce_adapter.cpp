@@ -80,8 +80,7 @@ public:
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override { return nullptr; }
 };
 
-sptr<HceCmdListenerEvent> hceCmdListenerEvent =
-    sptr<HceCmdListenerEvent>(new (std::nothrow) HceCmdListenerEvent());
+sptr<HceCmdListenerEvent> hceCmdListenerEvent = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
 
 napi_value NfcNapiHceAdapter::Init(napi_env env, napi_value exports)
 {
