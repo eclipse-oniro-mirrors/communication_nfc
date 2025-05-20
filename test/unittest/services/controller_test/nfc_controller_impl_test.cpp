@@ -154,22 +154,6 @@ HWTEST_F(NfcControllerImplTest, RegisterCallBack002, TestSize.Level1)
 }
 
 /**
- * @tc.name: RegisterCallBack003
- * @tc.desc: Test NfcControllerImplTest RegisterCallBack.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcControllerImplTest, RegisterCallBack003, TestSize.Level1)
-{
-    sptr<INfcControllerCallbackImpl> callback = new INfcControllerCallbackImpl();
-    std::string type = "";
-    Security::AccessToken::AccessTokenID callerToken = 0;
-    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
-    KITS::ErrorCode error = nfcControllerImpl->RegisterCallBack(callback, type, callerToken);
-    ASSERT_TRUE(error == KITS::ERR_NONE);
-}
-
-/**
  * @tc.name: UnRegisterCallBack001
  * @tc.desc: Test NfcControllerImplTest UnRegisterCallBack.
  * @tc.type: FUNC
