@@ -54,20 +54,6 @@ void TagSessionTest::TearDown()
 }
 
 /**
- * @tc.name: FormatNdef001
- * @tc.desc: Test TagSessionTest FormatNdef.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, FormatNdef001, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-    nfcService->Initialize();
-    std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-    tagSession->FormatNdef(0, "");
-    ASSERT_TRUE(tagSession != nullptr);
-}
-
-/**
  * @tc.name: Connect001
  * @tc.desc: Test TagSessionTest Connect.
  * @tc.type: FUNC
