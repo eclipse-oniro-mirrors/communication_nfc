@@ -90,6 +90,7 @@ public:
     static const int MIN_RECORD_LEN = 3;
     static const long int MAX_PAYLOAD_SIZE = 10 * (1 << 20);  // 10MB
     static const int SHORT_RECORD_SIZE = 256;
+    static const uint8_t TYPE_LONG_PAYLOAD_LEN_SIZE = 8;
     static const unsigned int ONE_BYTE_SHIFT = 8;
 
     // TNF Type define
