@@ -209,7 +209,12 @@ void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::stri
     if (sr) {
         buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(payload)));
     } else {
-        buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(payload)));
+        // when paylodlen > 255, add "0" before the actual value to make hexpayloadLen to be 8.
+        std::string hexPayloadLen = NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(payload));
+        while (static_cast<uint8_t>(hexPayloadLen.length()) < TYPE_LONG_PAYLOAD_LEN_SIZE) {
+            hexPayloadLen.insert(0, "0");
+        }
+        buffer.append(hexPayloadLen);
     }
     if (il) {
         buffer.append(NfcSdkCommon::IntToHexString(NfcSdkCommon::GetHexStrBytesLen(id)));
