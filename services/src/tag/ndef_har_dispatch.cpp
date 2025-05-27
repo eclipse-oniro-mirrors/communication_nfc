@@ -60,8 +60,8 @@ void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
             return;
         }
         abilityManagerClient->StartAbility(g_want);
-        NdefHarDispatch::UnlockStopTimer();
     }
+    NdefHarDispatch::UnlockStopTimer();
     g_isUnlockTimeout = false;
 }
 #endif
@@ -237,6 +237,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
 void NdefHarDispatch::UnlockStartTimer()
 {
     InfoLog("%{public}s : enter!", __func__);
+    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
+    g_isUnlockTimeout = false;
     if (g_unlockTimerId != 0) {
         NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
         g_unlockTimerId = 0;
