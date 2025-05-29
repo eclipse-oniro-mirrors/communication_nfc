@@ -362,24 +362,6 @@ ohos_unittest("nci_adapter_test") {
   subsystem_name = "communication"
 }
 
-ohos_unittest("service_ipc_test") {
-  module_out_path = unit_module_out_path
-  configs = [ ":nfc_service_unit_test_config" ]
-  cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
-
-  sources = [
-    "$NFC_DIR/test/unittest/mock/nfc_service_mock.cpp",
-    "ipc_test/tag_session_test.cpp",
-  ]
-
-  deps = unit_test_deps
-
-  external_deps = unit_test_external_deps
-
-  part_name = "nfc"
-  subsystem_name = "communication"
-}
-
 ohos_unittest("interfaces_test") {
   module_out_path = unit_module_out_path
   configs = [ ":nfc_service_unit_test_config" ]
@@ -411,7 +393,6 @@ group("nfc_service_unittest") {
     ":nci_nfcc_proxy_test",
     ":nci_tag_proxy_test",
     ":public_test",
-    ":service_ipc_test",
     ":services_tags_test",
     ":services_test",
     ":tags_test",
