@@ -62,6 +62,7 @@ unit_test_external_deps = [
   "googletest:gtest_main",
   "hilog:libhilog",
   "ipc:ipc_core",
+  "preferences:native_preferences",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
   "wifi:wifi_sdk",
