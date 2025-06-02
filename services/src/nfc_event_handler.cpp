@@ -31,11 +31,17 @@
 #ifdef NDEF_BT_ENABLED
 #include "bt_connection_manager.h"
 #endif
+#ifdef NFC_HANDLE_SCREEN_LOCK
+#include "ndef_har_dispatch.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
 const std::string EVENT_DATA_SHARE_READY = "usual.event.DATA_SHARE_READY";
 
+#ifdef NFC_HANDLE_SCREEN_LOCK
+const int SET_UNLOCK_TIMEOUT = 30 * 1000;
+#endif
 class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
@@ -106,6 +112,13 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) == 0) {
         screenState = eventHandler_.lock()->IsScreenOn() ?
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+#ifdef NFC_HANDLE_SCREEN_LOCK
+        uint64_t currTime = KITS::NfcSdkCommon::GetCurrentTime();
+        uint64_t lastTime = TAG::NdefHarDispatch::GetAlipayTime();
+        if ((currTime - lastTime) < SET_UNLOCK_TIMEOUT) {
+            TAG::NdefHarDispatch::AbilityAlipay();
+        }
+#endif
     } else {
         ErrorLog("Screen changed receiver event:unknown");
         return;
