@@ -43,8 +43,8 @@ public:
     bool DispatchByAppLinkMode(const std::string &uriSchemeValue, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         OHOS::sptr<IRemoteObject> tagServiceIface);
 #ifdef NFC_HANDLE_SCREEN_LOCK
-    static uint64_t GetAlipayTime();
-    static void AbilityAlipay();
+    static uint64_t GetCarrierReportTime();
+    static void CarrierReportHandle();
 #endif
 
 private:
