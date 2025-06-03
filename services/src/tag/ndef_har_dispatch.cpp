@@ -238,7 +238,7 @@ void NdefHarDispatch::CarrierReportHandle()
             ErrorLog("abilityManagerClient is nullptr.");
             return;
         }
-        abilityManagerClient->StartAbility(g_CarrierWant);
+        abilityManagerClient->StartAbility(g_carrierWant);
     }
     g_isCarrierMode = false;
 }
