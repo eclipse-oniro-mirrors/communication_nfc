@@ -35,10 +35,10 @@ const int USER_ID = 100;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 using namespace OHOS::NFC::KITS;
 #ifdef NFC_HANDLE_SCREEN_LOCK
-AAFwk::Want g_want;
-static std::mutex g_isAlipayModeMutex {};
-static bool g_isAlipayMode = false;
-uint64_t g_lastTime;
+AAFwk::Want g_carrierWant;
+static std::mutex g_isCarrierModeMutex {};
+static bool g_isCarrierMode = false;
+uint64_t g_lastCarrierReportTime;
 #endif
 std::string uri_ {};
 std::string browserBundleName_ {};
@@ -191,15 +191,15 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     bool isLocked = false;
     screenLockIface->IsLocked(isLocked);
     if (isLocked) {
-        g_want = want;
+        g_carrierWant  = want;
         sptr<NfcUnlockScreenCallback> listener = new (std::nothrow) NfcUnlockScreenCallback();
         if (listener == nullptr) {
             ErrorLog("NfcUnlockScreenCallback listener invalid");
             return false;
         }
         screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
-        g_lastTime = KITS::NfcSdkCommon::GetCurrentTime();
-        g_isAlipayMode = true;
+        g_lastCarrierReportTime = KITS::NfcSdkCommon::GetCurrentTime();
+        g_isCarrierMode = true;
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         return true;
     }
@@ -224,23 +224,23 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
 #ifdef NFC_HANDLE_SCREEN_LOCK
 uint64_t NdefHarDispatch::GetAlipayTime()
 {
-    return g_lastTime;
+    return g_lastCarrierReportTime;
 }
 
-void NdefHarDispatch::AbilityAlipay()
+void NdefHarDispatch::CarrierReportHandle()
 {
-    InfoLog("NdefHarDispatch::AbilityAlipay enabled.");
-    std::lock_guard<std::mutex> lock(g_isAlipayModeMutex);
-    if (g_isAlipayMode) {
+    InfoLog("NdefHarDispatch::CarrierReportHandle enabled.");
+    std::lock_guard<std::mutex> lock(g_isCarrierModeMutex);
+    if (g_isCarrierMode) {
         InfoLog("Unlock successfully before timeout.");
         auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
         if (abilityManagerClient == nullptr) {
             ErrorLog("abilityManagerClient is nullptr.");
             return;
         }
-        abilityManagerClient->StartAbility(g_want);
+        abilityManagerClient->StartAbility(g_CarrierWant);
     }
-    g_isAlipayMode = false;
+    g_isCarrierMode = false;
 }
 #endif
 
