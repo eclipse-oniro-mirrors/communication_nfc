@@ -198,7 +198,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
             return false;
         }
         screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
-        g_lastTime = KITS::NfcSdkCommon::GetCurrentTime();    
+        g_lastTime = KITS::NfcSdkCommon::GetCurrentTime();
         g_isAlipayMode = true;
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         return true;
