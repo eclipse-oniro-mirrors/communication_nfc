@@ -50,6 +50,7 @@ NfcUnlockScreenCallback::~NfcUnlockScreenCallback() {}
 void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
 {
     InfoLog("NfcUnlockScreenCallback OnCallBack enabled. screenLockResult = %{public}d.", screenLockResult);
+}
 #endif
 
 NdefHarDispatch::NdefHarDispatch(std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy)
