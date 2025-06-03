@@ -222,7 +222,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
 }
 
 #ifdef NFC_HANDLE_SCREEN_LOCK
-uint64_t NdefHarDispatch::GetAlipayTime()
+uint64_t NdefHarDispatch::GetCarrierReportTime()
 {
     return g_lastCarrierReportTime;
 }
