@@ -98,6 +98,8 @@ private:
     void SetupUnloadNfcSaTimer(bool shouldRestartTimer);
     void CancelUnloadNfcSaTimer();
 
+    bool IsMaxSwitchRetryTime();
+
     class NfcSwitchEventHandler final : public AppExecFwk::EventHandler {
     public:
         explicit NfcSwitchEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
@@ -122,6 +124,7 @@ private:
     static constexpr const int TASK_THREAD_WAIT_MS = 50;
     static constexpr const int TASK_THREAD_WAIT_US = 50 * 1000;
     static constexpr const int MAX_RETRY_TIME = 10;
+    static constexpr const int MAX_ABORT_RETRY_TIME = 3;
     int nciVersion_ = 0;
 
     // service

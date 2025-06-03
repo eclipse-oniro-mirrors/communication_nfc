@@ -289,6 +289,27 @@ void NfcService::NfcSwitchEventHandler::ProcessEvent(const AppExecFwk::InnerEven
     InfoLog("process eventid finished.");
 }
 
+bool NfcService::IsMaxSwitchRetryTime()
+{
+    int abortRetryTime = ExternalDepsProxy::GetInstance().NfcDataGetInt(ABORT_RETRY_TIME);
+    InfoLog("abort retry time = %{public}d", abortRetryTime);
+    if (abortRetryTime < MAX_ABORT_RETRY_TIME) {
+        ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, abortRetryTime + 1);
+        return false;
+    } else {
+        ErrorLog("max retry time reached, turn on err, unload SA in 5 minutes.");
+        UpdateNfcState(KITS::STATE_OFF);
+        ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
+        SetupUnloadNfcSaTimer(true);
+
+        // write hisysevent
+        NfcFailedParams err;
+        ExternalDepsProxy::GetInstance().BuildFailedParams(
+            err, MainErrorCode::NFC_SWITCH_RETRY_MAX_TIME, SubErrorCode::DEFAULT_ERR_DEF);
+        return true;
+    }
+}
+
 bool NfcService::DoTurnOn()
 {
     InfoLog("Nfc do turn on: current state %{public}d", nfcState_);
@@ -296,6 +317,12 @@ bool NfcService::DoTurnOn()
     CancelUnloadNfcSaTimer();
     UpdateNfcState(KITS::STATE_TURNING_ON);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_TURNING_ON));
+
+    if (IsMaxSwitchRetryTime()) {
+        ErrorLog("max retry time reached, do not try to open nfc.");
+        return false;
+    }
+
     NfcWatchDog nfcWatchDog("DoTurnOn", WAIT_MS_INIT, nciNfccProxy_);
     nfcWatchDog.Run();
     // Routing WakeLock acquire
@@ -311,6 +338,7 @@ bool NfcService::DoTurnOn()
         ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(MainErrorCode::NFC_OPEN_FAILED,
             SubErrorCode::NCI_RESP_ERROR);
         NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
+        ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
         return false;
     }
     // Routing Wake Lock release
@@ -340,6 +368,7 @@ bool NfcService::DoTurnOn()
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
+    ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
     InfoLog("Nfc do turn on successfully.");
     return true;
 }
@@ -369,6 +398,7 @@ bool NfcService::DoTurnOff()
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(
         MainErrorCode::NFC_CLOSE_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_OFF));
+    ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
     InfoLog("Nfc do turn off successfully.");
     return result;
 }
@@ -384,6 +414,7 @@ void NfcService::DoInitialize()
         ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
+        WarnLog("nfc state not on, unload SA in 5 minutes.");
         SetupUnloadNfcSaTimer(true);
     }
 }
@@ -497,7 +528,6 @@ void NfcService::UpdateNfcState(int newState)
 int NfcService::GetNfcState()
 {
     InfoLog("start to get nfc state.");
-    std::lock_guard<std::mutex> lock(mutex_);
     // 5min later unload nfc_service, if nfc state is off
     if (nfcState_ == KITS::STATE_OFF) {
         SetupUnloadNfcSaTimer(false);
