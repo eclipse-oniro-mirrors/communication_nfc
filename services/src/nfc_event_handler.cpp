@@ -113,10 +113,10 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         screenState = eventHandler_.lock()->IsScreenOn() ?
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
 #ifdef NFC_HANDLE_SCREEN_LOCK
-        uint64_t currTime = KITS::NfcSdkCommon::GetCurrentTime();
-        uint64_t lastTime = TAG::NdefHarDispatch::GetAlipayTime();
-        if ((currTime - lastTime) < SET_UNLOCK_TIMEOUT) {
-            TAG::NdefHarDispatch::AbilityAlipay();
+        uint64_t currTime = KITS::NfcSdkCommon::GetCurrentTime(); 
+        uint64_t lastCarrierReportTime = TAG::NdefHarDispatch::GetCarrierReportTime();
+        if ((currTime - lastCarrierReportTime) < SET_UNLOCK_TIMEOUT) {
+            TAG::NdefHarDispatch::CarrierReportHandle();
         }
 #endif
     } else {
