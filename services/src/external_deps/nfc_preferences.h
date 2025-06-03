@@ -19,6 +19,8 @@
 
 namespace OHOS {
 namespace NFC {
+constexpr const char* ABORT_RETRY_TIME = "abort_retry_time";
+
 class NfcPreferences {
 public:
     static NfcPreferences& GetInstance();
