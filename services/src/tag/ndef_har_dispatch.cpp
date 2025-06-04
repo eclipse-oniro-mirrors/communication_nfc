@@ -39,6 +39,7 @@ AAFwk::Want g_carrierWant;
 static std::mutex g_isCarrierModeMutex {};
 static bool g_isCarrierMode = false;
 uint64_t g_lastCarrierReportTime;
+const int SET_UNLOCK_TIMEOUT = 30 * 1000;
 #endif
 std::string uri_ {};
 std::string browserBundleName_ {};
@@ -191,7 +192,7 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     bool isLocked = false;
     screenLockIface->IsLocked(isLocked);
     if (isLocked) {
-        g_carrierWant  = want;
+        g_carrierWant = want;
         sptr<NfcUnlockScreenCallback> listener = new (std::nothrow) NfcUnlockScreenCallback();
         if (listener == nullptr) {
             ErrorLog("NfcUnlockScreenCallback listener invalid");
@@ -222,19 +223,16 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
 }
 
 #ifdef NFC_HANDLE_SCREEN_LOCK
-uint64_t NdefHarDispatch::GetCarrierReportTime()
+void NdefHarDispatch::HandleCarrierReport()
 {
-    return g_lastCarrierReportTime;
-}
-
-void NdefHarDispatch::CarrierReportHandle()
-{
-    InfoLog("NdefHarDispatch::CarrierReportHandle enabled.");
+    InfoLog("NdefHarDispatch::HandleCarrierReport enter.");
     std::lock_guard<std::mutex> lock(g_isCarrierModeMutex);
-    if (g_isCarrierMode) {
+    uint64_t currTime = KITS::NfcSdkCommon::GetCurrentTime();
+    if ((currTime - g_lastCarrierReportTime) < SET_UNLOCK_TIMEOUT && g_isCarrierMode) {
         InfoLog("Unlock successfully before timeout.");
         auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
         if (abilityManagerClient == nullptr) {
+            g_isCarrierMode = false;
             ErrorLog("abilityManagerClient is nullptr.");
             return;
         }
