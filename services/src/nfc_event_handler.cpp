@@ -39,9 +39,6 @@ namespace OHOS {
 namespace NFC {
 const std::string EVENT_DATA_SHARE_READY = "usual.event.DATA_SHARE_READY";
 
-#ifdef NFC_HANDLE_SCREEN_LOCK
-const int SET_UNLOCK_TIMEOUT = 30 * 1000;
-#endif
 class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:
     explicit ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
