@@ -58,6 +58,7 @@ ohos_fuzztest("TagSessionsFuzzTest") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "preferences:native_preferences",
   ]
 }
 
