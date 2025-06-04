@@ -31,6 +31,9 @@
 #ifdef NDEF_BT_ENABLED
 #include "bt_connection_manager.h"
 #endif
+#ifdef NFC_HANDLE_SCREEN_LOCK
+#include "ndef_har_dispatch.h"
+#endif
 
 namespace OHOS {
 namespace NFC {
@@ -106,6 +109,9 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) == 0) {
         screenState = eventHandler_.lock()->IsScreenOn() ?
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
+#ifdef NFC_HANDLE_SCREEN_LOCK
+    TAG::NdefHarDispatch::HandleCarrierReport();
+#endif
     } else {
         ErrorLog("Screen changed receiver event:unknown");
         return;

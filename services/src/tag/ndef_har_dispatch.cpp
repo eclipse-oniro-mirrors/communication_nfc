@@ -24,9 +24,9 @@
 #include "if_system_ability_manager.h"
 #ifdef NFC_HANDLE_SCREEN_LOCK
 #include "external_deps_proxy.h"
-#include "nfc_timer.h"
 #include "screenlock_common.h"
 #include "power_mgr_client.h"
+#include "nfc_sdk_common.h"
 #endif
 namespace OHOS {
 namespace NFC {
@@ -35,11 +35,11 @@ const int USER_ID = 100;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 using namespace OHOS::NFC::KITS;
 #ifdef NFC_HANDLE_SCREEN_LOCK
-AAFwk::Want g_want;
-static uint32_t g_unlockTimerId = 0;
-static bool g_isUnlockTimeout = false;
+AAFwk::Want g_carrierWant;
+static std::mutex g_isCarrierModeMutex {};
+static bool g_isCarrierMode = false;
+uint64_t g_lastCarrierReportTime;
 const int SET_UNLOCK_TIMEOUT = 30 * 1000;
-static std::mutex g_isUnlockTimeoutMutex {};
 #endif
 std::string uri_ {};
 std::string browserBundleName_ {};
@@ -50,19 +50,7 @@ NfcUnlockScreenCallback::~NfcUnlockScreenCallback() {}
 
 void NfcUnlockScreenCallback::OnCallBack(const int32_t screenLockResult)
 {
-    InfoLog("NfcUnlockScreenCallback OnCallBack enabled.");
-    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
-    if (screenLockResult == 0 && !g_isUnlockTimeout) {
-        InfoLog("Unlock successfully before timeout.");
-        auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
-        if (abilityManagerClient == nullptr) {
-            ErrorLog("abilityManagerClient is nullptr.");
-            return;
-        }
-        abilityManagerClient->StartAbility(g_want);
-    }
-    NdefHarDispatch::UnlockStopTimer();
-    g_isUnlockTimeout = false;
+    InfoLog("NfcUnlockScreenCallback OnCallBack enabled. screenLockResult = %{public}d.", screenLockResult);
 }
 #endif
 
@@ -204,15 +192,16 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     bool isLocked = false;
     screenLockIface->IsLocked(isLocked);
     if (isLocked) {
-        g_want = want;
+        g_carrierWant = want;
         sptr<NfcUnlockScreenCallback> listener = new (std::nothrow) NfcUnlockScreenCallback();
         if (listener == nullptr) {
             ErrorLog("NfcUnlockScreenCallback listener invalid");
             return false;
         }
         screenLockIface->Unlock(ScreenLock::Action::UNLOCKSCREEN, listener);
+        g_lastCarrierReportTime = KITS::NfcSdkCommon::GetCurrentTime();
+        g_isCarrierMode = true;
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
-        UnlockStartTimer();
         return true;
     }
     if (!PowerMgr::PowerMgrClient::GetInstance().IsScreenOn()) {
@@ -234,33 +223,22 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
 }
 
 #ifdef NFC_HANDLE_SCREEN_LOCK
-void NdefHarDispatch::UnlockStartTimer()
+void NdefHarDispatch::HandleCarrierReport()
 {
-    InfoLog("%{public}s : enter!", __func__);
-    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
-    g_isUnlockTimeout = false;
-    if (g_unlockTimerId != 0) {
-        NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
-        g_unlockTimerId = 0;
+    InfoLog("NdefHarDispatch::HandleCarrierReport enter.");
+    std::lock_guard<std::mutex> lock(g_isCarrierModeMutex);
+    uint64_t currTime = KITS::NfcSdkCommon::GetCurrentTime();
+    if ((currTime - g_lastCarrierReportTime) < SET_UNLOCK_TIMEOUT && g_isCarrierMode) {
+        InfoLog("Unlock successfully before timeout.");
+        auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+        if (abilityManagerClient == nullptr) {
+            g_isCarrierMode = false;
+            ErrorLog("abilityManagerClient is nullptr.");
+            return;
+        }
+        abilityManagerClient->StartAbility(g_carrierWant);
     }
-    TimeOutCallback timeoutCallback = [this]() {NdefHarDispatch::UnlockTimerCallback();};
-    NfcTimer::GetInstance()->Register(timeoutCallback, g_unlockTimerId, SET_UNLOCK_TIMEOUT);
-}
-
-void NdefHarDispatch::UnlockStopTimer()
-{
-    InfoLog("%{public}s : enter!", __func__);
-    if (g_unlockTimerId != 0) {
-        NfcTimer::GetInstance()->UnRegister(g_unlockTimerId);
-        g_unlockTimerId = 0;
-    }
-}
-
-void NdefHarDispatch::UnlockTimerCallback()
-{
-    InfoLog("%{public}s : enter!", __func__);
-    std::lock_guard<std::mutex> lock(g_isUnlockTimeoutMutex);
-    g_isUnlockTimeout = true;
+    g_isCarrierMode = false;
 }
 #endif
 
