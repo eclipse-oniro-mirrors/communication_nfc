@@ -30,8 +30,6 @@ static std::set<std::string> g_supportEventList = {
     EVENT_NFC_STATE_CHANGE,
 };
 
-bool EventRegister::isEventRegistered = false;
-
 constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 constexpr uint32_t WAIT_ON_REMOTE_DIED_MS = 20;
 
@@ -280,38 +278,30 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     RegisterNfcStateChangedEvents(type);
-    if (isEventRegistered) {
-        InfoLog("event %{public}s already registered.", type.c_str());
-        return;
-    }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
     RegObj regObj(env, handlerRef);
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
         g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
-        isEventRegistered = true;
-        InfoLog("Register, add new type.");
         return;
     }
-    auto miter = iter->second.begin();
-    for (; miter != iter->second.end();) {
-        if (env == miter->m_regEnv) {
+    bool hasSameObj = false;
+    for (auto miter : iter->second) {
+        if (env == miter.m_regEnv) {
             napi_value handlerTemp = nullptr;
-            napi_get_reference_value(miter->m_regEnv, miter->m_regHanderRef, &handlerTemp);
+            napi_get_reference_value(miter.m_regEnv, miter.m_regHanderRef, &handlerTemp);
             bool isEqual = false;
-            napi_strict_equals(miter->m_regEnv, handlerTemp, handler, &isEqual);
+            napi_strict_equals(miter.m_regEnv, handlerTemp, handler, &isEqual);
             if (isEqual) {
                 WarnLog("handler function is same");
-                ++miter;
-            } else {
-                iter->second.emplace_back(regObj);
+                hasSameObj = true;
                 break;
             }
-        } else {
-            iter->second.emplace_back(regObj);
-            break;
         }
+    }
+    if (!hasSameObj) {
+        iter->second.emplace_back(regObj);
     }
 }
 
