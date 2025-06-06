@@ -87,11 +87,11 @@ int QueryAppInfoCallbackStub::OnRemoteRequest(
 
 KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryTagAppCallback(const QueryApplicationByVendor tagCallback)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (queryTagAppByTechCallback_ != nullptr) {
         InfoLog("RegisterQueryTagAppCallback::queryTagAppByTechCallback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (tagCallback == nullptr) {
         InfoLog("RegisterQueryTagAppCallback::callback is nullptr!");
         queryTagAppByTechCallback_ = tagCallback;
