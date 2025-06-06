@@ -30,8 +30,6 @@ static std::set<std::string> g_supportEventList = {
     KITS::EVENT_HCE_CMD,
 };
 
-bool EventRegister::isEventRegistered = false;
-
 static std::mutex g_regInfoMutex;
 static std::map<std::string, RegObj> g_eventRegisterInfo;
 
@@ -234,11 +232,8 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
         return;
     }
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
-    if (!isEventRegistered) {
-        if (RegHceCmdCallbackEvents(env, type) != KITS::ERR_NONE) {
-            return;
-        }
-        isEventRegistered = true;
+    if (RegHceCmdCallbackEvents(env, type) != KITS::ERR_NONE) {
+        return;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
@@ -276,10 +271,6 @@ void EventRegister::UnregisterForOffIntf(const napi_env& env, const std::string&
         return;
     }
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
-    if (!isEventRegistered) {
-        DebugLog("The eventType has not been registered!");
-        return;
-    }
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
         ErrorLog("eventType not registered!");
@@ -290,7 +281,6 @@ void EventRegister::UnregisterForOffIntf(const napi_env& env, const std::string&
         return;
     }
     DeleteHceCmdRegisterObj(env);
-    isEventRegistered = false;
     g_eventRegisterInfo.erase(type);
     iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end()) {
@@ -341,9 +331,8 @@ void EventRegister::Unregister(const napi_env& env, ElementName& element)
 
     if (!g_eventRegisterInfo.empty()) {
         g_eventRegisterInfo.erase(KITS::EVENT_HCE_CMD);
-        isEventRegistered = false;
     }
-    InfoLog("hce EventRegister, isEvtRegistered = %{public}d", isEventRegistered);
+    InfoLog("hce Event UnRegister");
 }
 
 void EventRegister::DeleteHceCmdRegisterObj(const napi_env& env)
