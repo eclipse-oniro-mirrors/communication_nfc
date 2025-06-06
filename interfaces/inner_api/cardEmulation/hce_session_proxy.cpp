@@ -65,7 +65,7 @@ KITS::ErrorCode HceSessionProxy::RegHceCmdCallback(const sptr<KITS::IHceCmdCallb
     }
     if (errCode != ERR_NONE) {
         ErrorLog("RegHceCmdCallback failed, errCode is %{public}d", errCode);
-        return KITS::ERR_HCE_PARAMETERS;
+        return KITS::ERR_NONE;
     }
     return KITS::ERR_NONE;
 }
@@ -105,7 +105,7 @@ KITS::ErrorCode HceSessionProxy::UnregHceCmdCallback(
     }
     if (errCode != ERR_NONE) {
         ErrorLog("UnregHceCmdCallback failed, errCode is %{public}d", errCode);
-        return KITS::ERR_HCE_PARAMETERS;
+        return KITS::ERR_NONE;
     }
     return KITS::ERR_NONE;
 }
