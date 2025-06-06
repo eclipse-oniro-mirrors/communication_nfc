@@ -302,6 +302,8 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     }
     if (!hasSameObj) {
         iter->second.emplace_back(regObj);
+    } else {
+        napi_delete_reference(env, handlerRef);
     }
 }
 
@@ -388,7 +390,6 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {
             ErrorLog("UnRegisterNfcEvents failed.");
         }
-        isEventRegistered = false;
     }
 }
 
