@@ -16,6 +16,7 @@
 #define NDEF_HAR_DATA_PARSER_H
 
 #include <string>
+#include <vector>
 #include "ndef_message.h"
 #include "ndef_har_dispatch.h"
 #include "inci_tag_interface.h"
@@ -48,6 +49,7 @@ const std::string TEXT_PLAIN = "text/plain";
 const std::string TEXT_VCARD = "text/vcard";
 const int MIME_MAX_LENGTH = 128;
 const int URI_MAX_LENGTH = 2048;
+const int RECORD_LIST_MAX_SIZE = 20;
 
 class NdefHarDataParser {
 public:
@@ -65,7 +67,7 @@ private:
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool ParseHarPackage(std::vector<std::string> harPackages, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         const std::string &mimeType, const std::string &uri);
-    bool ParseHarPackageInner(const std::vector<std::string> &harPackages,
+    bool DispatchAllHarPackage(const std::vector<std::string> &harPackages,
         const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri);
     void ParseMimeTypeAndStr(const std::vector<std::shared_ptr<NdefRecord>> &records);
     std::vector<std::string> ExtractHarPackages(const std::vector<std::shared_ptr<NdefRecord>> &records);
@@ -81,10 +83,9 @@ private:
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
     RecordsType schemeType_ {RecordsType::TYPE_RTP_UNKNOWN};
-    RecordsType mimeType_ {RecordsType::TYPE_RTP_UNKNOWN};
-    std::string mimeTypeStr_ {};
     std::string uriAddress_ {};
     std::string uriSchemeValue_ {};
+    std::vector<std::pair<RecordsType, std::string>> mimeTypeVec_ {};
 
     std::weak_ptr<NfcService> nfcService_ {};
     std::mutex mutex_ {};

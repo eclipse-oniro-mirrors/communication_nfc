@@ -27,7 +27,7 @@ namespace NFC {
 namespace TAG {
 const uint64_t BT_ENABLE_TIMEOUT = 3000; // ms
 const uint64_t BT_PAIR_TIMEOUT = 10000; // ms
-const uint64_t BT_CONNECT_TIMEOUT = 3000; // ms
+const uint64_t BT_CONNECT_TIMEOUT = 5000; // ms
 const uint8_t PROFILE_MAX_SIZE = 21;
 
 enum BtConnAction {
@@ -41,6 +41,7 @@ enum BtConnState {
     STATE_INIT,
     STATE_INIT_COMPLETE,
     STATE_PAIRING,
+    STATE_PAIR_COMPLETE,
     STATE_CONNECTING,
     STATE_DISCONNECTING,
     STATE_COMPLETE
@@ -140,7 +141,6 @@ void BtConnectionManager::RemoveMsgFromEvtHandler(NfcCommonEvent evt)
 
 void BtConnectionManager::RegisterBtObserver()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("RegisterBtStateObserver");
     if (btObserver_ == nullptr) {
         btObserver_ = BtConnectionManager::BtStateObserver::GetInstance();
@@ -233,7 +233,6 @@ void BtConnectionManager::HandleBtConnectFailed()
 
 bool BtConnectionManager::IsBtEnabled()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     bool isEnabled = Bluetooth::BluetoothHost::GetDefaultHost().IsBrEnabled();
     InfoLog("IsBtEnabled: %{public}d", isEnabled);
     return isEnabled;
@@ -241,7 +240,6 @@ bool BtConnectionManager::IsBtEnabled()
 
 bool BtConnectionManager::HandleEnableBt()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("HandleEnableBt");
     SendMsgToEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT, BT_ENABLE_TIMEOUT);
     if (Bluetooth::BluetoothHost::GetDefaultHost().EnableBle() != Bluetooth::RET_NO_ERROR) { // EnableBt() is deprecated
@@ -253,7 +251,6 @@ bool BtConnectionManager::HandleEnableBt()
 
 bool BtConnectionManager::HandleBtPair()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("HandleBtPair");
     bool isDiscovering = false;
     Bluetooth::BluetoothHost::GetDefaultHost().IsBtDiscovering(isDiscovering, g_btData->transport_);
@@ -307,7 +304,6 @@ bool BtConnectionManager::IsHfpSupported()
 // false to OnFinish()
 bool BtConnectionManager::HandleBtInit()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (g_btData == nullptr) {
         ErrorLog("HandleBtInit: g_btData error");
         return false;
@@ -344,7 +340,6 @@ bool BtConnectionManager::HandleBtInit()
 // false to OnFinish()
 bool BtConnectionManager::DecideInitNextAction()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (g_btData == nullptr) {
         ErrorLog("HandleBtInit: g_btData error");
         return false;
@@ -380,7 +375,6 @@ bool BtConnectionManager::DecideInitNextAction()
 
 bool BtConnectionManager::GetProfileList()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     std::vector<uint32_t> profileList = Bluetooth::BluetoothHost::GetDefaultHost().GetProfileList();
     if (profileList.size() == 0 && profileList.size() > PROFILE_MAX_SIZE) {
         ErrorLog("profile list size error");
@@ -471,7 +465,6 @@ void BtConnectionManager::RegisterProfileObserver(BtProfileType type)
 // true for need wait, false for go to NextStep
 bool BtConnectionManager::HandleBtConnect()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     DebugLog("HandleBtConnect");
     int32_t state = 0;
     if (g_hfp) {
@@ -522,7 +515,6 @@ bool BtConnectionManager::HandleBtConnect()
 // true for need wait, false for go to OnFinish()
 bool BtConnectionManager::HandleBtConnectWaiting()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (g_a2dpConnState == BtConnResult::CONN_RES_WAITING ||
         g_hfpConnState == BtConnResult::CONN_RES_WAITING) {
         InfoLog("HandleBtConnectWaiting: waiting for connect result");
@@ -548,13 +540,13 @@ void BtConnectionManager::NextActionConnect()
         case STATE_INIT_COMPLETE: {
             if (pairState != Bluetooth::PAIR_PAIRED) {
                 g_state = STATE_PAIRING;
-                HandleBtPair();
+                PublishPairBtNtf();
                 break;
             }
             // fall-through
             // when already paired
         }
-        case STATE_PAIRING: {
+        case STATE_PAIR_COMPLETE: {
             g_state = STATE_CONNECTING;
             if (g_btData->transport_ != Bluetooth::GATT_TRANSPORT_TYPE_LE) {
                 if (HandleBtConnect()) {
@@ -581,8 +573,6 @@ void BtConnectionManager::NextActionConnect()
 // true for need wait, false for go to NextStep
 bool BtConnectionManager::HandleBtDisconnect()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
-    DebugLog("HandleBtDisconnect");
     int32_t devState = 0;
     if (g_btData->transport_ == Bluetooth::GATT_TRANSPORT_TYPE_LE) {
         if (!g_hid) {
@@ -635,7 +625,6 @@ bool BtConnectionManager::HandleBtDisconnect()
 // true for need wait, false for go to OnFinish()
 bool BtConnectionManager::HandleBtDisconnectWaiting()
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (g_btData->transport_ == Bluetooth::GATT_TRANSPORT_TYPE_LE) {
         if (g_hidConnState == BtConnResult::CONN_RES_DISCONNECTED) {
             InfoLog("HandleBtDisconnectWaiting:hid disconnected");
@@ -704,28 +693,49 @@ void BtConnectionManager::TryPairBt(std::shared_ptr<BtData> data)
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     if (!data || !data->isValid_) {
-        ErrorLog("data invalid");
+        ErrorLog("TryPairBt: data error");
         return;
     }
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT);
-    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT);
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_CONNECT_TIMEOUT);
     g_btData = data;
-    InfoLog("TryPairBt: Publish notification name: %{private}s", data->name_.c_str());
-    ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_BT_NOTIFICATION_ID, data->name_, 0);
+    g_action = ACTION_INIT;
+    RegisterBtObserver();
+    if (IsBtEnabled()) {
+        g_state = STATE_INIT;
+        NextAction();
+    } else {
+        g_state = STATE_WAITING_FOR_BT_ENABLE;
+        if (!HandleEnableBt()) {
+            ErrorLog("TryPairBt enable bt failed");
+            OnFinish();
+        }
+    }
+}
+
+void BtConnectionManager::PublishPairBtNtf()
+{
+    RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT);
+    if (g_btData == nullptr) {
+        ErrorLog("PublishPairBtNtf: g_btData nullptr");
+        return;
+    }
+    InfoLog("PublishPairBtNtf: Publish notification name: %{private}s", g_btData->name_.c_str());
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_BT_NOTIFICATION_ID, g_btData->name_, 0);
 }
 
 void BtConnectionManager::OnBtNtfClicked()
 {
     InfoLog("OnBtNtfClicked");
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (g_btData == nullptr) {
         ErrorLog("OnBtNtfClicked: g_btData error");
         return;
     }
-    RegisterBtObserver();
-    g_action = ACTION_INIT;
+    g_action = ACTION_CONNECT;
     if (IsBtEnabled()) {
-        g_state = STATE_INIT;
+        g_state = STATE_PAIRING;
+        HandleBtPair();
         NextAction();
     } else {
         g_state = STATE_WAITING_FOR_BT_ENABLE;
@@ -757,6 +767,7 @@ void BtConnectionManager::BtStateObserver::OnStateChanged(const int transport, c
 
 void BtConnectionManager::OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> info)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (info == nullptr) {
         ErrorLog("OnPairStatusChanged: info is null");
         return;
@@ -772,6 +783,7 @@ void BtConnectionManager::OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> 
     if (g_state == STATE_PAIRING) {
         if (info->state_ == Bluetooth::PAIR_PAIRED) {
             RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT);
+            g_state = STATE_PAIR_COMPLETE;
             NextAction();
         } else if (info->state_ == Bluetooth::PAIR_NONE) {
             // timeout msg removed in OnFinish()
@@ -791,6 +803,7 @@ void BtConnectionManager::BtRemoteDevObserver::OnPairStatusChanged(const Bluetoo
 
 void BtConnectionManager::OnConnectionStateChanged(std::shared_ptr<BtConnectionInfo> info)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (info == nullptr) {
         ErrorLog("OnConnectionStateChanged: info is null");
         return;
@@ -805,7 +818,6 @@ void BtConnectionManager::OnConnectionStateChanged(std::shared_ptr<BtConnectionI
     }
     if (info->state_ == static_cast<int32_t>(Bluetooth::BTConnectState::CONNECTED)) {
         {
-            std::unique_lock<std::shared_mutex> guard(mutex_);
             if (info->type_ == static_cast<uint8_t>(HFP_AG)) {
                 g_hfpConnState = CONN_RES_CONNECTED;
             } else if (info->type_ == static_cast<uint8_t>(A2DP_SRC)) {
@@ -817,7 +829,6 @@ void BtConnectionManager::OnConnectionStateChanged(std::shared_ptr<BtConnectionI
         NextAction();
     } else if (info->state_ == static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED)) {
         {
-            std::unique_lock<std::shared_mutex> guard(mutex_);
             if (g_action == ACTION_CONNECT) {
                 // need retry
                 return;

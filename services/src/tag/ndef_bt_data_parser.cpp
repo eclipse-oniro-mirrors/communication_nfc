@@ -240,7 +240,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
+                data->name_ = KITS::NfcSdkCommon::HexArrayToStringWithoutChecking(name);
                 isValid = true;
                 break;
             }
@@ -260,7 +260,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
+                data->name_ = KITS::NfcSdkCommon::HexArrayToStringWithoutChecking(name);
                 isValid = true;
                 break;
             }
@@ -370,7 +370,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBleRecord(const std::string& payl
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
                     break;
                 }
-                data->name_ = KITS::NfcSdkCommon::HexStringToAsciiString(name);
+                data->name_ = KITS::NfcSdkCommon::HexArrayToStringWithoutChecking(name);
                 break;
             }
             case TYPE_SEC_MGR_TK: {
@@ -501,7 +501,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtHandoverSelect(std::shared_ptr<
             return std::make_shared<BtData>();
         }
     }
-    InfoLog("NdefBtDataParser::ParseBtHandoverSelect : is not bt");
+    InfoLog("NdefBtDataParser::ParseBtHandoverSelect : invalid");
     return std::make_shared<BtData>();
 }
 
