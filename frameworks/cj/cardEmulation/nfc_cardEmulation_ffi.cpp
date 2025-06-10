@@ -48,7 +48,7 @@ public:
 };
 
 sptr<CjHceCmdListenerEvent> cjHceCmdListenerEvent =
-    sptr<CjHceCmdListenerEvent>(new (std::nothrow) CjHceCmdListenerEvent());
+    sptr<CjHceCmdListenerEvent>(new CjHceCmdListenerEvent());
 static bool g_isEventRegistered = false;
 
 std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
