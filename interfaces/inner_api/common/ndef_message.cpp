@@ -324,7 +324,7 @@ std::string NdefMessage::ParseRecordType(RecordLayout& layout, const std::string
 std::string NdefMessage::ParseRecordId(RecordLayout& layout, const std::string& data, uint32_t& parsedDataIndex)
 {
     if (layout.idLength <= 0) {
-        ErrorLog("ParseRecordId, idLength <= 0");
+        InfoLog("ParseRecordId, idLength <= 0"); // id type is optional
         return "";
     }
     if (NfcSdkCommon::GetHexStrBytesLen(data) < parsedDataIndex + layout.idLength) {
@@ -434,7 +434,10 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         ErrorLog("ParseRecord, raw data empty.");
         return recordList;
     }
-
+    if (data.length() > static_cast<unsigned long>(MAX_NDEF_MESSAGE_LEN)) {
+        ErrorLog("ParseRecord, raw data exceeds max length.");
+        return recordList;
+    }
     std::string tagRtdType;
     std::string id;
     std::vector<std::string> chunks;

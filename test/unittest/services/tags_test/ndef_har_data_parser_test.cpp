@@ -176,6 +176,39 @@ HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest005, TestSize.Level1)
     bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
     ASSERT_TRUE(!ret);
 }
+
+HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest006, TestSize.Level1)
+{
+    std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::weak_ptr<NfcService> nfcService;
+    TAG::NdefHarDataParser::GetInstance().Initialize(nfcService, testPtr, testNfccInterface);
+    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+
+    // multi-records mime type
+    std::string ndefMessage =
+        "91014E5402656E3034324336323532414135323830783030303042413030303230323031303233313930333868747470733A2F2F71722E"
+        "606373772E636E2F6C6373772F77787061792F3130393637313135521A056170706C69636174696F6E2F636F6D2E7461672E7461677061"
+        "7948656C6C6F";
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
+}
+
+HWTEST_F(NdefHarDataParserTest, GetNdefHarDataParserTest007, TestSize.Level1)
+{
+    std::shared_ptr<NCI::INciTagInterface> testPtr = nullptr;
+    std::shared_ptr<NCI::INciNfccInterface> testNfccInterface = nullptr;
+    std::weak_ptr<NfcService> nfcService;
+    TAG::NdefHarDataParser::GetInstance().Initialize(nfcService, testPtr, testNfccInterface);
+    std::shared_ptr<KITS::TagInfo> tagInfo = nullptr;
+
+    // v-card
+    std::string ndefMessage =
+        "D20A47746578742F7663617264424547494E3A56434152440A56455253494F4E3A332E300A464E3AE5B7ABE994900A4F52473A636F6D70"
+        "616E790A54454C3A31383630303234303330320A454E443A5643415244";
+    bool ret = TAG::NdefHarDataParser::GetInstance().TryNdef(ndefMessage, tagInfo);
+    ASSERT_TRUE(!ret);
+}
 }
 }
 }

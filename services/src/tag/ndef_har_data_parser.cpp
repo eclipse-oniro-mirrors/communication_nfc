@@ -81,26 +81,30 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KI
         return false;
     }
     std::vector<std::shared_ptr<NdefRecord>> records = ndef->GetNdefRecords();
+    if (records.size() == 0 || records.size() > RECORD_LIST_MAX_SIZE) {
+        ErrorLog("record size error");
+        return false;
+    }
     ParseMimeTypeAndStr(records);
+    // handle OpenHarmony Application bundle name
     if (DispatchByHarBundleName(records, tagInfo)) {
         InfoLog("DispatchByHarBundleName succ");
         return true;
     }
-
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
     if (DispatchByAppLinkMode(tagInfo)) {
         InfoLog("DispatchByAppLinkMode succ");
         return true;
     }
+    // handle Mime type
+    if (DispatchMimeToBundleAbility(tagInfo)) {
+        InfoLog("DispatchMimeToBundleAbility succ");
+        return true;
+    }
     // handle uri for TYPE_RTP_SCHEME_TEL/TYPE_RTP_SCHEME_SMS/TYPE_RTP_SCHEME_MAIL
     if (HandleUnsupportSchemeType(records)) {
         InfoLog("HandleUnsupportSchemeType succ");
-        return true;
-    }
-    // dispatch Mime type
-    if (DispatchMimeToBundleAbility(tagInfo)) {
-        InfoLog("DispatchMimeToBundleAbility succ");
         return true;
     }
     WarnLog("TryNdef no handle");
@@ -113,15 +117,21 @@ bool NdefHarDataParser::DispatchByHarBundleName(
     InfoLog("enter");
     std::vector<std::string> harPackages = ExtractHarPackages(records);
     if (harPackages.size() > 0) {
-        InfoLog("mimeTypeStr_:%{public}s", mimeTypeStr_.c_str());
-        std::string mimeTypeStr = (mimeTypeStr_.size() > MIME_MAX_LENGTH) ? "" : mimeTypeStr_;
+        std::string mimeTypeStr = "";
+        if (mimeTypeVec_.size() > 0) {
+            mimeTypeStr = mimeTypeVec_[0].second;
+        }
+        if (mimeTypeStr.size() > MIME_MAX_LENGTH) {
+            ErrorLog("mimeType too long");
+            mimeTypeStr = "";
+        }
         std::string uri = GetUriPayload(records[0]);
         if (uri.size() > URI_MAX_LENGTH) {
             ErrorLog("uri too long");
             uri = "";
         }
         if (ParseHarPackage(harPackages, tagInfo, mimeTypeStr, uri)) {
-            InfoLog("matched HAR to NDEF");
+            InfoLog("matched ndef OpenHarmony bundle name");
             return true;
         }
         /* Handle uninstalled applications */
@@ -134,7 +144,7 @@ bool NdefHarDataParser::DispatchByHarBundleName(
 bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
     const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
-    if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
+    if (DispatchAllHarPackage(harPackages, tagInfo, mimeType, uri)) {
         return true;
     }
     /* Try vendor parse harPackage */
@@ -144,13 +154,14 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
         return false;
     }
     /* Pull up vendor parsed harPackage */
-    if (ParseHarPackageInner(harPackages, tagInfo, mimeType, uri)) {
+    if (DispatchAllHarPackage(harPackages, tagInfo, mimeType, uri)) {
         return true;
     }
+    WarnLog("bundle names do not matched installed App");
     return false;
 }
 
-bool NdefHarDataParser::ParseHarPackageInner(const std::vector<std::string> &harPackages,
+bool NdefHarDataParser::DispatchAllHarPackage(const std::vector<std::string> &harPackages,
     const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
 {
     InfoLog("enter");
@@ -165,7 +176,6 @@ bool NdefHarDataParser::ParseHarPackageInner(const std::vector<std::string> &har
             return true;
         }
     }
-    ErrorLog("package not exist");
     return false;
 }
 
@@ -243,14 +253,16 @@ bool NdefHarDataParser::HandleUnsupportSchemeType(const std::vector<std::shared_
 bool NdefHarDataParser::DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     InfoLog("enter");
-    if (mimeType_ == TYPE_RTP_MIME_OTHER) {
-        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(mimeTypeStr_, tagInfo)) {
-            return true;
-        }
-    } else {
-        if (mimeType_ != TYPE_RTP_UNKNOWN) {
-            if (g_unsupportTypeAndSysEvent.find(mimeType_) != g_unsupportTypeAndSysEvent.end()) {
-                WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[mimeType_]);
+    for (const auto& mimeTypePair : mimeTypeVec_) {
+        RecordsType mimeType = mimeTypePair.first;
+        std::string mimeTypeStr = mimeTypePair.second;
+        if (mimeType == TYPE_RTP_MIME_OTHER) {
+            if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(mimeTypeStr, tagInfo)) {
+                return true;
+            }
+        } else if (mimeType != TYPE_RTP_UNKNOWN) {
+            if (g_unsupportTypeAndSysEvent.find(mimeType) != g_unsupportTypeAndSysEvent.end()) {
+                WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[mimeType]);
                 return true;
             }
         }
@@ -264,34 +276,40 @@ void NdefHarDataParser::ParseMimeTypeAndStr(const std::vector<std::shared_ptr<Nd
     InfoLog("enter");
     if (records.size() == 0 || records[0] == nullptr) {
         ErrorLog("records is empty");
-        mimeType_ = TYPE_RTP_UNKNOWN;
+        mimeTypeVec_.push_back(std::make_pair(TYPE_RTP_UNKNOWN, ""));
         return;
     }
-    InfoLog("record.tnf_: %{public}d", records[0]->tnf_);
-    switch (records[0]->tnf_) {
-        case NdefMessage::TNF_WELL_KNOWN:
-            if (records[0]->tagRtdType_.compare(
-                NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_TEXT))) == 0) {
-                mimeTypeStr_ = TEXT_PLAIN;
-            }
-            break;
-        case NdefMessage::TNF_MIME_MEDIA:
-            mimeTypeStr_ = NfcSdkCommon::HexStringToAsciiString(records[0]->tagRtdType_);
-            break;
-        default:
-            mimeTypeStr_ = "";
-            break;
+    for (int i = 0; i < static_cast<int>(records.size()); i++) {
+        RecordsType mimeType;
+        std::string mimeTypeStr;
+        InfoLog("record.tnf_: %{public}d", records[i]->tnf_);
+        switch (records[i]->tnf_) {
+            case NdefMessage::TNF_WELL_KNOWN:
+                if (records[i]->tagRtdType_.compare(
+                    NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_TEXT))) == 0) {
+                    mimeTypeStr = TEXT_PLAIN;
+                }
+                break;
+            case NdefMessage::TNF_MIME_MEDIA:
+                mimeTypeStr = NfcSdkCommon::HexStringToAsciiString(records[i]->tagRtdType_);
+                break;
+            default:
+                mimeTypeStr = "";
+                break;
+        }
+        if (mimeTypeStr == TEXT_PLAIN) {
+            mimeType = TYPE_RTP_MIME_TEXT_PLAIN;
+        } else if (mimeTypeStr == TEXT_VCARD) {
+            mimeType = TYPE_RTP_MIME_TEXT_VCARD;
+        } else if (!mimeTypeStr.empty()) {
+            mimeType = TYPE_RTP_MIME_OTHER;
+        } else {
+            mimeType = TYPE_RTP_UNKNOWN;
+        }
+        mimeTypeVec_.push_back(std::make_pair(mimeType, mimeTypeStr));
+        InfoLog("mimeType[%{public}d]=%{public}d, mimeTypeStr=%{public}s", i, static_cast<short>(mimeType),
+            mimeTypeStr.c_str());
     }
-    if (mimeTypeStr_ == TEXT_PLAIN) {
-        mimeType_ = TYPE_RTP_MIME_TEXT_PLAIN;
-    } else if (mimeTypeStr_ == TEXT_VCARD) {
-        mimeType_ = TYPE_RTP_MIME_TEXT_VCARD;
-    } else if (!mimeTypeStr_.empty()) {
-        mimeType_ = TYPE_RTP_MIME_OTHER;
-    } else {
-        mimeType_ = TYPE_RTP_UNKNOWN;
-    }
-    InfoLog("mimeType_[%{public}d] mimeTypeStr_[%{public}s]", static_cast<short>(mimeType_), mimeTypeStr_.c_str());
 }
 
 std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &record)
@@ -334,10 +352,11 @@ std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &
                 uri = record->payload_;
                 InfoLog("uri: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
                 if (uri.size() <= 2) {  // 2 is uri identifier length
-                    return NfcSdkCommon::HexStringToAsciiString(uri);
+                    return NfcSdkCommon::HexArrayToStringWithoutChecking(uri);
                 }
                 int32_t num = 0;
-                if (!KITS::NfcSdkCommon::SecureStringToInt(uri.substr(0, 2), num, KITS::DECIMAL_NOTATION)) { // 2 is uri identifier length
+                // 2 is uri identifier length
+                if (!KITS::NfcSdkCommon::SecureStringToInt(uri.substr(0, 2), num, KITS::DECIMAL_NOTATION)) {
                     ErrorLog("SecureStringToInt error");
                     return "";
                 }
@@ -346,7 +365,8 @@ std::string NdefHarDataParser::GetUriPayload(const std::shared_ptr<NdefRecord> &
                 }
                 std::string uriPrefix = g_uriPrefix[num];
                 InfoLog("uriPrefix = %{public}s", uriPrefix.c_str());
-                return uriPrefix + NfcSdkCommon::HexStringToAsciiString(uri.substr(2));  // 2 is uri identifier length
+                // 2 is uri identifier length
+                return uriPrefix + NfcSdkCommon::HexArrayToStringWithoutChecking(uri.substr(2));
             }
             break;
         default:

@@ -92,6 +92,7 @@ public:
     static const int SHORT_RECORD_SIZE = 256;
     static const uint8_t TYPE_LONG_PAYLOAD_LEN_SIZE = 8;
     static const unsigned int ONE_BYTE_SHIFT = 8;
+    static const int MAX_NDEF_MESSAGE_LEN = 0xFFFF;
 
     // TNF Type define
     enum EmTnfType {

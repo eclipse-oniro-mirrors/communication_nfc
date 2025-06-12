@@ -152,6 +152,7 @@ private:
     bool IsA2dpSupported();
     bool IsHfpSupported();
     bool HandleBtInit();
+    void PublishPairBtNtf();
     bool DecideInitNextAction();
 
     bool HandleBtPair();

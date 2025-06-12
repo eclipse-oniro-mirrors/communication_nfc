@@ -165,8 +165,6 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
         isIsoDep = true;
     }
-    DebugLog("HandleTagFound fieldOnCheckInterval_ = %{public}d", fieldOnCheckInterval_);
-
     ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
@@ -195,7 +193,6 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             break;
         }
         PublishTagNotification(tagDiscId, isIsoDep);
-        DispatchTag(tagDiscId);
         break;
     } while (0);
     if (tagInfo != nullptr) {
@@ -205,6 +202,9 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 #ifndef NFC_VIBRATOR_DISABLED
     StartVibratorOnce();
 #endif
+    // Record types of read tags.
+    std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
+    ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
 }
 
 void TagDispatcher::StartVibratorOnce()
@@ -251,20 +251,6 @@ KITS::TagInfoParcelable* TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tag
     KITS::TagInfoParcelable* tagInfo = new (std::nothrow) KITS::TagInfoParcelable(techList, tagTechExtras,
         tagUid, tagDiscId, nfcService_->GetTagServiceIface());
     return tagInfo;
-}
-
-void TagDispatcher::DispatchTag(uint32_t tagDiscId)
-{
-    tagInfo_ = GetTagInfoFromTag(tagDiscId);
-    if (tagInfo_ == nullptr) {
-        ErrorLog("DispatchTag: taginfo is null");
-        return;
-    }
-
-    // select the matched applications, try start ability
-    std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
-    // Record types of read tags.
-    ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
 }
 
 void TagDispatcher::HandleTagDebounce()
