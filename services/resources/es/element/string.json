@@ -1,0 +1,81 @@
+{
+    "string":[
+        {
+            "name":"DefaultTitle",
+            "value":"Etiqueta NFC detectada. Pulsa aquí para ver.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"Algunas aplicaciones pueden contar con sus propios controles de NFC que deben habilitarse de forma manual.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Lingnan Pass",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"tarjeta de transporte de Shenzhen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"Se ha detectado una %s. Saldo: %.2f RMB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"Tarjeta T-Union para Guangxi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"Pulsa para ver los detalles",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Solicitud de enlace NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"tarjeta de transporte de Pekín",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Abrir enlace",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Enlazar",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

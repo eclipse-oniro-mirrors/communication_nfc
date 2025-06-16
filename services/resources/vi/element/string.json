@@ -1,0 +1,165 @@
+{
+    "string":[
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"Mở liên kết: %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"Đã phát hiện thẻ NFC. Chạm để xem.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"Một số ứng dụng có thể cần bật thủ công các chức năng điều khiển NFC riêng.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Thẻ Lingnan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"Kết nối với mạng",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"Thẻ giao thông Shenzhen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"Chọn ứng dụng để dùng thẻ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"Kết nối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"Đã phát hiện %s. Số dư: %.2f RMB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"Vào AppGallery",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"Thông báo NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"Thẻ GX T-Union",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"Chạm để xem chi tiết",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"Không có ứng dụng được hỗ trợ. Tải ứng dụng từ AppGallery.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"Ghép cặp với \"%s\"?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"Thẻ giao thông Thượng Hải",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"Đã phát hiện thẻ giao thông",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"Kết nối với mạng \"%s\"?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Yêu cầu tạo cặp NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"Có sẵn nhiều ứng dụng. Hãy mở ứng dụng bạn muốn dùng.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"Thẻ giao thông Beijing",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Mở liên kết",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Ghép nối",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

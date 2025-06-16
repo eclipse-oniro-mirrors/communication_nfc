@@ -1,0 +1,165 @@
+{
+    "string":[
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"Открыть ссылку: %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"Определен тег NFC. Нажмите, чтобы посмотреть.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"У некоторых приложений есть собственные элементы управления NFC, которые необходимо включить вручную.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Lingnan Pass",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"Подключение к сети",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"Shenzhen Transportation Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"Выберите приложение, чтобы использовать карту",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"Подключить",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"Найдено %s. Баланс: %.2f ¥",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"Перейти в AppGallery",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"Уведомление NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"GX T-Union Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"Нажмите, чтобы посмотреть сведения",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"Нет доступных поддерживаемых приложений. Получите их в AppGallery.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"Сопрячь с устройством %s?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"Шанхайская транспортная карта",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"Найдена транспортная карта",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"Подключиться к сети %s?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Запрос на сопряжение по NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"Доступно несколько приложений. Выберите, какое хотите использовать.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"Beijing Transportation Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Открыть ссылку",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Сопряжение",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
