@@ -306,6 +306,7 @@ bool NfcService::IsMaxSwitchRetryTime()
         NfcFailedParams err;
         ExternalDepsProxy::GetInstance().BuildFailedParams(
             err, MainErrorCode::NFC_SWITCH_RETRY_MAX_TIME, SubErrorCode::DEFAULT_ERR_DEF);
+        ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
         return true;
     }
 }
