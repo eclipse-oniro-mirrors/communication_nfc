@@ -1,0 +1,81 @@
+{
+    "string":[
+        {
+            "name":"DefaultTitle",
+            "value":"Tag NFC découvert. Toucher pour voir.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"Certaines applications pourraient avoir leurs propres contrôles NFC devant être activés manuellement.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Carte Pass Lingnan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"Carte de transport de Shenzhen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"%s découverte. Solde : %.2f RMB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"GX T - Union Card",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"Toucher pour plus de détails",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Requête de pairage de NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"Carte de transport de Pékin",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Ouvrir lien",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Associer",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
