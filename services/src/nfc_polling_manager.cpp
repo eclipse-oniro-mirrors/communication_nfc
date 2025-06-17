@@ -40,6 +40,7 @@ NfcPollingManager::~NfcPollingManager()
 
 void NfcPollingManager::ResetCurrPollingParams()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     currPollingParams_ = std::make_shared<NfcPollingParams>();
 }
 
@@ -87,8 +88,8 @@ void NfcPollingManager::StartPollingLoop(bool force)
         ErrorLog("StartPollingLoop: NFC not enabled, do not Compute Routing Params.");
         return;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nciNfccProxy_);
     pollingWatchDog.Run();
     // Compute new polling parameters
@@ -169,28 +170,34 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
     DebugLog("EnableForegroundDispatch: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (!isDisablePolling) {
-        foregroundData_->isEnabled_ = true;
-        foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
-        foregroundData_->element_ = element;
-        foregroundData_->callback_ = callback;
-        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, element.GetBundleName());
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            foregroundData_->isEnabled_ = true;
+            foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
+            foregroundData_->element_ = element;
+            foregroundData_->callback_ = callback;
+        }
+        if (!nciNfccProxy_.expired()) {
+            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+        }
     }
     return true;
 }
 
 bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName &element)
 {
-    DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
-        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    foregroundData_->isEnabled_ = false;
-    foregroundData_->techMask_ = 0xFFFF;
-    foregroundData_->callerToken_ = 0;
-    foregroundData_->callback_ = nullptr;
-    if (nciNfccProxy_.expired()) {
-        ErrorLog("DisableForegroundDispatch: nciNfccProxy_ is nullptr.");
-        return false;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
+            element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+        foregroundData_->isEnabled_ = false;
+        foregroundData_->techMask_ = 0xFFFF;
+        foregroundData_->callerToken_ = 0;
+        foregroundData_->callback_ = nullptr;
     }
-    nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+    if (!nciNfccProxy_.expired()) {
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+    }
     return true;
 }
 
@@ -201,7 +208,21 @@ bool NfcPollingManager::DisableForegroundByDeathRcpt()
 
 bool NfcPollingManager::IsForegroundEnabled()
 {
-    return foregroundData_->isEnabled_;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (foregroundData_ == nullptr) {
+        ErrorLog("foregroundData_ nullptr");
+        return false;
+    }
+    if (!foregroundData_->isEnabled_) {
+        return false;
+    }
+    std::string bundleName = foregroundData_->element_.GetBundleName();
+    std::string abilityName = foregroundData_->element_.GetAbilityName();
+    if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
+        WarnLog("IsForegroundEnabled %{public}s not foreground", bundleName.c_str());
+        return false;
+    }
+    return true;
 }
 
 void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
@@ -210,7 +231,8 @@ void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
         ErrorLog("SendTagToForeground: tagInfo is nullptr");
         return;
     }
-    if (!IsForegroundEnabled() || foregroundData_->callback_ == nullptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (foregroundData_->callback_ == nullptr) {
         ErrorLog("SendTagToForeground: invalid foreground state");
         return;
     }
@@ -237,11 +259,16 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
     DebugLog("EnableReaderMode: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (!isDisablePolling) {
-        readerModeData_->isEnabled_ = true;
-        readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
-        readerModeData_->element_ = element;
-        readerModeData_->callback_ = callback;
-        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            readerModeData_->isEnabled_ = true;
+            readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
+            readerModeData_->element_ = element;
+            readerModeData_->callback_ = callback;
+        }
+        if (!nciNfccProxy_.expired()) {
+            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+        }
     }
     nciTagProxy_.lock()->StopFieldChecking();
     StartPollingLoop(true);
@@ -252,10 +279,13 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
 {
     DebugLog("DisableReaderMode: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    readerModeData_->isEnabled_ = false;
-    readerModeData_->techMask_ = 0xFFFF;
-    readerModeData_->callerToken_ = 0;
-    readerModeData_->callback_ = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        readerModeData_->isEnabled_ = false;
+        readerModeData_->techMask_ = 0xFFFF;
+        readerModeData_->callerToken_ = 0;
+        readerModeData_->callback_ = nullptr;
+    }
     if (!nciTagProxy_.expired()) {
         nciTagProxy_.lock()->StopFieldChecking();
     }
@@ -273,7 +303,21 @@ bool NfcPollingManager::DisableReaderModeByDeathRcpt()
 
 bool NfcPollingManager::IsReaderModeEnabled()
 {
-    return readerModeData_->isEnabled_;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (readerModeData_ == nullptr) {
+        ErrorLog("readerModeData_ nullptr");
+        return false;
+    }
+    if (!readerModeData_->isEnabled_) {
+        return false;
+    }
+    std::string bundleName = readerModeData_->element_.GetBundleName();
+    std::string abilityName = readerModeData_->element_.GetAbilityName();
+    if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
+        WarnLog("IsReaderModeEnabled %{public}s not foreground", bundleName.c_str());
+        return false;
+    }
+    return true;
 }
 
 void NfcPollingManager::SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo)
@@ -282,12 +326,32 @@ void NfcPollingManager::SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo)
         ErrorLog("SendTagToReaderApp: tagInfo is nullptr");
         return;
     }
-    if (!IsReaderModeEnabled() || readerModeData_->callback_ == nullptr) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (readerModeData_->callback_ == nullptr) {
         ErrorLog("SendTagToReaderApp: invalid readermode state");
         return;
     }
     DebugLog("SendTagToReaderApp: OnTagDiscovered, tagInfo = %{public}s", tagInfo->ToString().c_str());
     readerModeData_->callback_->OnTagDiscovered(tagInfo);
+}
+
+void NfcPollingManager::SetForegroundAbility(const std::string &bundleName, const std::string &abilityName,
+    int abilityState)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
+        DebugLog("SetForegroundAbility element: %{public}s/%{public}s", bundleName.c_str(), abilityName.c_str());
+        fgAppBundleName_ = bundleName;
+        fgAppAbilityName_ = abilityName;
+    } else if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND)
+        || abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
+        if (fgAppBundleName_ == bundleName && fgAppAbilityName_ == abilityName) {
+            DebugLog("SetForegroundAbility element: %{public}s/%{public}s is background", bundleName.c_str(),
+                abilityName.c_str());
+            fgAppBundleName_ = "";
+            fgAppAbilityName_ = "";
+        }
+    }
 }
 } // namespace NFC
 } // namespace OHOS
