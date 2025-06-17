@@ -37,7 +37,7 @@ enum NfcNotificationId : int {
 typedef void (NfcNtfCallback)(int notificationId);
 
 struct NfcNtfInterface {
-    void (*publishNotification)(int notificationId, const std::string &name, int balance);
+    void (*publishNotification)(bool isNfcNotDisturb, int notificationId, const std::string &name, int balance);
     void (*regNtfCallback)(NfcNtfCallback *callback);
 };
 
@@ -62,7 +62,10 @@ private:
     void UnloadNfcNtfLib();
     void InitNfcNtfLib();
 
+    bool IsNfcNtfDisabled();
+
     const static int NOTIFICATION_WAIT_TIME_US = 150 * 1000;
+    const static int INVALID_VALUE = -1;
 
     std::mutex mutex_ {};
     bool isNtfLibLoaded_ = false;

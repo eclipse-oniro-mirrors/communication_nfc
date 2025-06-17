@@ -74,6 +74,7 @@ enum ErrorCode : const int {
 
     // error for nfc database operations
     ERR_NFC_DATABASE_RW = 3100400,
+    ERR_NFC_DATABASE_NULL = 3100401,
 };
 
 enum NfcState { STATE_OFF = 1, STATE_TURNING_ON = 2, STATE_ON = 3, STATE_TURNING_OFF = 4 };

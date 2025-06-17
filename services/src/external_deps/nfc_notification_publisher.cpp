@@ -18,10 +18,13 @@
 #include <dlfcn.h>
 
 #include "loghelper.h"
+#include "nfc_data_share_impl.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+constexpr const char* NFC_NOT_DISTURB_KEYWORD = "settings.nfc.not_disturb";
+
 NfcNotificationPublisher& NfcNotificationPublisher::GetInstance()
 {
     static NfcNotificationPublisher instance;
@@ -49,6 +52,7 @@ static void NfcNotificationCallback(int notificationId)
 
 void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
+    bool isNfcNotDisturb = IsNfcNtfDisabled();
     if (nfcNtfInf_.publishNotification == nullptr) {
         ErrorLog("func handle nullptr, fail to publish notification");
         return;
@@ -56,7 +60,7 @@ void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const 
     if (notificationId == NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID) {
         usleep(NOTIFICATION_WAIT_TIME_US);
     }
-    nfcNtfInf_.publishNotification(notificationId, name, balance);
+    nfcNtfInf_.publishNotification(isNfcNotDisturb, notificationId, name, balance);
 }
 
 void NfcNotificationPublisher::RegNotificationCallback(std::weak_ptr<NfcService> service)
@@ -96,7 +100,7 @@ void NfcNotificationPublisher::InitNfcNtfLib()
     }
     nfcNtfInf_.regNtfCallback = reinterpret_cast<void (*)(NfcNtfCallback *)>
         (dlsym(nfcNtfHandle_, REG_NFC_CALLBACK_FUNC_NAME));
-    nfcNtfInf_.publishNotification = reinterpret_cast<void (*)(int, const std::string &, int)>
+    nfcNtfInf_.publishNotification = reinterpret_cast<void (*)(bool, int, const std::string &, int)>
         (dlsym(nfcNtfHandle_, PUBLISH_NTF_FUNC_NAME));
     if (nfcNtfInf_.regNtfCallback == nullptr || nfcNtfInf_.publishNotification == nullptr) {
         ErrorLog("fail to dlsym nfc notification lib.");
@@ -104,6 +108,37 @@ void NfcNotificationPublisher::InitNfcNtfLib()
         return;
     }
     isNtfLibLoaded_ = true;
+}
+
+bool NfcNotificationPublisher::IsNfcNtfDisabled()
+{
+    const std::string NFC_NOT_DISTURB_SUFFIX =
+        "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=settings.nfc.not_disturb";
+    const std::string NFC_NOT_DISTURB_PREFIX = "datashare://";
+    const std::string NFC_DATA_URI_NOT_DISTURB = NFC_NOT_DISTURB_PREFIX + NFC_NOT_DISTURB_SUFFIX;
+    Uri nfcNotDisturb(NFC_DATA_URI_NOT_DISTURB);
+
+    auto dataShare = NfcDataShareImpl::GetInstance();
+    if (dataShare == nullptr) {
+        ErrorLog("fail to get datashare.");
+        return true; // NFC not disturb switch is on by default.
+    }
+    int32_t value = INVALID_VALUE;
+    int32_t nfcNotDisturbOn = 1;
+    KITS::ErrorCode errCode = dataShare->GetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, value);
+    if (errCode == KITS::ERR_NFC_DATABASE_NULL) {
+        ErrorLog("fail to get datashare proxy.");
+        return true; // should turn on nfc no disturb mode by default.
+    }
+    if (value == INVALID_VALUE) {
+        WarnLog("should turn on nfc no disturb mode by default.");
+        dataShare->SetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, nfcNotDisturbOn);
+        dataShare->GetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, value);
+    }
+
+    // value = 1 : button on(not disturb, no banner), value = 0 : button off(banner on).
+    InfoLog("NFC notification not disturb button value %{public}d", value);
+    return (value == nfcNotDisturbOn);
 }
 
 void NfcNotificationPublisher::OnNotificationButtonClicked(int notificationId)
