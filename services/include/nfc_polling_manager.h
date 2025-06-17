@@ -78,6 +78,7 @@ public:
     bool IsReaderModeEnabled();
     void SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo);
     std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> GetReaderModeData();
+    void SetForegroundAbility(const std::string &bundleName, const std::string &abilityName, int abilityState);
 
 private:
     int screenState_ = 0;
@@ -87,8 +88,9 @@ private:
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
+    std::string fgAppBundleName_;
+    std::string fgAppAbilityName_;
 
-    // lock
     std::mutex mutex_ {};
 };
 } // namespace NFC

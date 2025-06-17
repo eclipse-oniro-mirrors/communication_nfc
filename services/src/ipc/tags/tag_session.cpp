@@ -479,6 +479,9 @@ void TagSession::HandleAppStateChanged(const std::string &bundleName, const std:
     }
     InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
         bundleName.c_str(), abilityName.c_str(), abilityState);
+    if (!nfcPollingManager_.expired()) {
+        nfcPollingManager_.lock()->SetForegroundAbility(bundleName, abilityName, abilityState);
+    }
     CheckFgAppStateChanged(bundleName, abilityName, abilityState);
     CheckReaderAppStateChanged(bundleName, abilityName, abilityState);
 }
