@@ -162,7 +162,7 @@ void CeService::HandleAppStateChanged(const std::string &bundleName, const std::
         return;
     }
 
-    if (bundleName != foregroundElement_.GetBundleName()) {
+    if (bundleName != foregroundElement_.GetBundleName() || abilityName != foregroundElement_.GetAbilityName()) {
         DebugLog("OnForegroundApplicationChanged not equal to the foreground element, no need to handle.");
         return;
     }
