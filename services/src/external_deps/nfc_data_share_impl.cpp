@@ -51,7 +51,7 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
         dataShareHelper_ = CreateDataShareHelper();
         if (dataShareHelper_ == nullptr) {
             ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
-            return KITS::ERR_NFC_DATABASE_RW;
+            return KITS::ERR_NFC_DATABASE_NULL;
         }
     }
     DataShare::DataSharePredicates predicates;
@@ -84,7 +84,7 @@ KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, 
         dataShareHelper_ = CreateDataShareHelper();
         if (dataShareHelper_ == nullptr) {
             ErrorLog("%{public}s: dataShareHelper_ is nullptr, retry init failed.", __func__);
-            return KITS::ERR_NFC_DATABASE_RW;
+            return KITS::ERR_NFC_DATABASE_NULL;
         }
     }
     int oldVal = 0;
