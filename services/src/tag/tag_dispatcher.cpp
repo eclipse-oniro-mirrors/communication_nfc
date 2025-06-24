@@ -326,6 +326,7 @@ void TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
         }
     }
     ExternalDepsProxy::GetInstance().PublishNfcNotification(notificationId, cardName, balance);
+    tagInfo_ = GetTagInfoFromTag(tagDiscId);
 }
 }  // namespace TAG
 }  // namespace NFC
