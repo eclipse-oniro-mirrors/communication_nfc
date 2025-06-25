@@ -1,0 +1,58 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+import("./../../../nfc.gni")
+
+ohos_shared_library("cj_nfc_controller_ffi") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  defines = [ "DEBUG" ]
+
+  deps = [
+    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "hiappevent:hiappevent_innerapi",
+    "hilog:libhilog",
+    "samgr:samgr_proxy",
+    "napi:cj_bind_ffi",
+    "napi:cj_bind_native",
+  ]
+
+  include_dirs = [
+    "$NFC_DIR/frameworks/js/napi/common",
+    "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/controller",
+  ]
+
+  sources = [
+    "cj_nfc_controller_ffi.cpp",
+    "cj_nfc_controller.cpp",
+    "cj_nfc_controller_event.cpp"
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "communication"
+  part_name = "nfc"
+}
