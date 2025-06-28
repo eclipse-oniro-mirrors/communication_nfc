@@ -474,14 +474,14 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
 void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
+    if (!nfcPollingManager_.expired()) {
+        nfcPollingManager_.lock()->SetForegroundAbility(bundleName, abilityName, abilityState);
+    }
     if (GetFgDataVecSize() == 0 && GetReaderDataVecSize() == 0) {
         return;
     }
     InfoLog("HandleAppStateChanged: bundleName = %{public}s, abilityName = %{public}s, abilityState = %{public}d",
         bundleName.c_str(), abilityName.c_str(), abilityState);
-    if (!nfcPollingManager_.expired()) {
-        nfcPollingManager_.lock()->SetForegroundAbility(bundleName, abilityName, abilityState);
-    }
     CheckFgAppStateChanged(bundleName, abilityName, abilityState);
     CheckReaderAppStateChanged(bundleName, abilityName, abilityState);
 }
@@ -510,11 +510,15 @@ bool TagSession::IsVendorProcess()
 int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback)
 {
+    bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
         if (!IsVendorProcess()) {
             ErrorLog("not foreground app.");
             return KITS::ERR_NONE;
+        } else {
+            InfoLog("is vendor app");
+            isVendorApp = true;
         }
 #else
         ErrorLog("not foreground app.");
@@ -522,11 +526,11 @@ int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t
 #endif
     }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
-    return RegForegroundDispatchInner(element, discTech, callback);
+    return RegForegroundDispatchInner(element, discTech, callback, isVendorApp);
 }
 
 int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
+    const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp)
 {
     if (IsFgRegistered(element, discTech, callback)) {
         WarnLog("%{public}s already RegForegroundDispatch", element.GetBundleName().c_str());
@@ -538,7 +542,7 @@ int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vect
         ErrorLog("RegForegroundDispatch, expired");
         return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback)) {
+    if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback, isVendorApp)) {
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
             SubErrorCode::REG_FOREGROUND_DISPATCH, element.GetBundleName());
         return KITS::ERR_NONE;
@@ -667,7 +671,7 @@ bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnre
 }
 
 int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IReaderModeCallback> &callback)
+    const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
     if (IsReaderRegistered(element, discTech, callback)) {
         WarnLog("%{public}s already RegReaderMode", element.GetBundleName().c_str());
@@ -679,7 +683,7 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
         ErrorLog("RegReaderModeInner, expired");
         return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback)) {
+    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
             SubErrorCode::REG_READERMODE, element.GetBundleName());
         return KITS::ERR_NONE;
@@ -708,17 +712,23 @@ int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
 int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback)
 {
+    bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
         if (!IsVendorProcess()) {
+            ErrorLog("not foreground app.");
             return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        } else {
+            InfoLog("is vendor app");
+            isVendorApp = true;
         }
 #else
+        ErrorLog("not foreground app.");
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
 #endif
     }
     std::unique_lock<std::shared_mutex> guard(fgMutex_);
-    return RegReaderModeInner(element, discTech, callback);
+    return RegReaderModeInner(element, discTech, callback, isVendorApp);
 }
 
 int TagSession::UnregReaderMode(ElementName &element)

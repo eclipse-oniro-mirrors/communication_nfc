@@ -172,6 +172,24 @@ HWTEST_F(NfcPollingManagerTest, EnableForegroundDispatch003, TestSize.Level1)
     ASSERT_TRUE(enable == false);
 }
 /**
+ * @tc.name: EnableForegroundDispatch004
+ * @tc.desc: Test NfcPollingManager EnableForegroundDispatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, EnableForegroundDispatch004, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech = {1, 2, 4, 5, 10};
+    const sptr<KITS::IForegroundCallback> callback = nullptr;
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
+    std::weak_ptr<NCI::INciTagInterface> nciTagProxy;
+    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager =
+        std::make_shared<NFC::NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
+    bool enable = nfcPollingManager->EnableForegroundDispatch(element, discTech, callback, true);
+    ASSERT_TRUE(enable == false);
+}
+/**
  * @tc.name: GetForegroundData001
  * @tc.desc: Test NfcPollingManager GetForegroundData.
  * @tc.type: FUNC
@@ -370,6 +388,24 @@ HWTEST_F(NfcPollingManagerTest, EnableReaderMode003, TestSize.Level1)
     std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager =
         std::make_shared<NFC::NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
     bool res = nfcPollingManager->EnableReaderMode(element, discTech, callback);
+    ASSERT_TRUE(!res);
+}
+/**
+ * @tc.name: EnableReaderMode004
+ * @tc.desc: Test NfcPollingManager EnableReaderMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, EnableReaderMode004, TestSize.Level1)
+{
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech;
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    std::weak_ptr<NfcService> nfcService;
+    std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
+    std::shared_ptr<NCI::INciTagInterface> nciTagProxy = NCI::NciNativeSelector::GetInstance().GetNciTagInterface();
+    std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager =
+        std::make_shared<NFC::NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
+    bool res = nfcPollingManager->EnableReaderMode(element, discTech, callback, true);
     ASSERT_TRUE(!res);
 }
 }
