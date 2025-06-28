@@ -152,7 +152,7 @@ bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
 }
 
 bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &element,
-    const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback)
+    const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("EnableForegroundDispatch: nfcService_ is nullptr.");
@@ -173,6 +173,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
         {
             std::lock_guard<std::mutex> lock(mutex_);
             foregroundData_->isEnabled_ = true;
+            foregroundData_->isVendorApp_ = isVendorApp;
             foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
             foregroundData_->element_ = element;
             foregroundData_->callback_ = callback;
@@ -191,6 +192,7 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
         DebugLog("DisableForegroundDispatch: element: %{public}s/%{public}s",
             element.GetBundleName().c_str(), element.GetAbilityName().c_str());
         foregroundData_->isEnabled_ = false;
+        foregroundData_->isVendorApp_ = false;
         foregroundData_->techMask_ = 0xFFFF;
         foregroundData_->callerToken_ = 0;
         foregroundData_->callback_ = nullptr;
@@ -216,10 +218,14 @@ bool NfcPollingManager::IsForegroundEnabled()
     if (!foregroundData_->isEnabled_) {
         return false;
     }
+    if (foregroundData_->isVendorApp_) {
+        InfoLog("vendor app, skip foreground check");
+        return true;
+    }
     std::string bundleName = foregroundData_->element_.GetBundleName();
     std::string abilityName = foregroundData_->element_.GetAbilityName();
     if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
-        WarnLog("IsForegroundEnabled %{public}s not foreground", bundleName.c_str());
+        WarnLog("IsForegroundEnabled %{public}s/%{public}s not foreground", bundleName.c_str(), abilityName.c_str());
         return false;
     }
     return true;
@@ -241,7 +247,7 @@ void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
 }
 
 bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IReaderModeCallback> &callback)
+    const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("EnableReaderMode: nfcService_ or nciTagProxy_ is nullptr.");
@@ -262,6 +268,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
         {
             std::lock_guard<std::mutex> lock(mutex_);
             readerModeData_->isEnabled_ = true;
+            readerModeData_->isVendorApp_ = isVendorApp;
             readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
             readerModeData_->element_ = element;
             readerModeData_->callback_ = callback;
@@ -282,6 +289,7 @@ bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         readerModeData_->isEnabled_ = false;
+        readerModeData_->isVendorApp_ = false;
         readerModeData_->techMask_ = 0xFFFF;
         readerModeData_->callerToken_ = 0;
         readerModeData_->callback_ = nullptr;
@@ -311,10 +319,14 @@ bool NfcPollingManager::IsReaderModeEnabled()
     if (!readerModeData_->isEnabled_) {
         return false;
     }
+    if (readerModeData_->isVendorApp_) {
+        InfoLog("vendor app, skip foreground check");
+        return true;
+    }
     std::string bundleName = readerModeData_->element_.GetBundleName();
     std::string abilityName = readerModeData_->element_.GetAbilityName();
     if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
-        WarnLog("IsReaderModeEnabled %{public}s not foreground", bundleName.c_str());
+        WarnLog("IsReaderModeEnabled %{public}s/%{public}s not foreground", bundleName.c_str(), abilityName.c_str());
         return false;
     }
     return true;

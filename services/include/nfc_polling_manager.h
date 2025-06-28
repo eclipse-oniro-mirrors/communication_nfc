@@ -37,6 +37,7 @@ public:
     class ForegroundRegistryData {
     public:
         bool isEnabled_ = false;
+        bool isVendorApp_ = false;
         uint16_t techMask_ = 0xFFFF;
         AppExecFwk::ElementName element_;
         Security::AccessToken::AccessTokenID callerToken_ = 0;
@@ -46,6 +47,7 @@ public:
     class ReaderModeRegistryData {
     public:
         bool isEnabled_ = false;
+        bool isVendorApp_ = false;
         uint16_t techMask_ = 0xFFFF;
         AppExecFwk::ElementName element_;
         Security::AccessToken::AccessTokenID callerToken_ = 0;
@@ -64,7 +66,7 @@ public:
     bool HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
     bool EnableForegroundDispatch(AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
-                                  const sptr<KITS::IForegroundCallback> &callback);
+                                  const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp = false);
     bool DisableForegroundDispatch(const AppExecFwk::ElementName &element);
     bool DisableForegroundByDeathRcpt();
     bool IsForegroundEnabled();
@@ -72,7 +74,7 @@ public:
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> GetForegroundData();
 
     bool EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
-                          const sptr<KITS::IReaderModeCallback> &callback);
+                          const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
     bool DisableReaderMode(AppExecFwk::ElementName &element);
     bool DisableReaderModeByDeathRcpt();
     bool IsReaderModeEnabled();

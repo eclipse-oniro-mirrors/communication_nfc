@@ -241,14 +241,14 @@ private:
     bool IsFgRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback);
     bool IsFgUnregistered(const ElementName &element, bool isAppUnregister);
-    int RegForegroundDispatchInner(ElementName &element,
-        const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback);
+    int RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
+        const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp = false);
     int UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
     bool IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback);
     bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
     int RegReaderModeInner(ElementName &element,
-        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
+        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
     int UnregReaderModeInner(ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     std::string GetDumpInfo();
