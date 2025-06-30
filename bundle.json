@@ -96,7 +96,8 @@
                     "//foundation/communication/nfc/frameworks/js/napi/controller:controller",
                     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardemulation",
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag",
-                    "//foundation/communication/nfc/frameworks/cj/cardEmulation:cj_nfc_cardemulation_ffi"
+                    "//foundation/communication/nfc/frameworks/cj/cardEmulation:cj_nfc_cardemulation_ffi",
+                    "//foundation/communication/nfc/frameworks/cj/controller:cj_nfc_controller_ffi"
                 ],
                 "service_group": [
                     "//foundation/communication/nfc/sa_profile:nfc_profile",
@@ -149,6 +150,15 @@
                         "header_files": [
                         ],
                         "header_base": "//foundation/communication/nfc/frameworks/cj/cardEmulation"
+                    }
+                },
+                {
+                    "type": "so",
+                    "name": "//foundation/communication/nfc/frameworks/cj/controller:cj_nfc_controller_ffi",
+                    "header": {
+                        "header_files": [
+                        ],
+                        "header_base": "//foundation/communication/nfc/frameworks/cj/controller"
                     }
                 }
             ],
