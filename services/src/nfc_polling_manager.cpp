@@ -62,6 +62,12 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetCurrentParameters()
     return currPollingParams_;
 }
 
+std::string NfcPollingManager::GetForegroundAbility()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return fgAppAbilityName_;
+}
+
 std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int screenState)
 {
     // Recompute polling parameters based on screen state
@@ -223,9 +229,8 @@ bool NfcPollingManager::IsForegroundEnabled()
         return true;
     }
     std::string bundleName = foregroundData_->element_.GetBundleName();
-    std::string abilityName = foregroundData_->element_.GetAbilityName();
-    if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
-        WarnLog("IsForegroundEnabled %{public}s/%{public}s not foreground", bundleName.c_str(), abilityName.c_str());
+    if (bundleName != fgAppBundleName_) {
+        WarnLog("IsForegroundEnabled %{public}s not foreground", bundleName.c_str());
         return false;
     }
     return true;
@@ -324,9 +329,8 @@ bool NfcPollingManager::IsReaderModeEnabled()
         return true;
     }
     std::string bundleName = readerModeData_->element_.GetBundleName();
-    std::string abilityName = readerModeData_->element_.GetAbilityName();
-    if (bundleName != fgAppBundleName_ || abilityName != fgAppAbilityName_) {
-        WarnLog("IsReaderModeEnabled %{public}s/%{public}s not foreground", bundleName.c_str(), abilityName.c_str());
+    if (bundleName != fgAppBundleName_) {
+        WarnLog("IsReaderModeEnabled %{public}s not foreground", bundleName.c_str());
         return false;
     }
     return true;

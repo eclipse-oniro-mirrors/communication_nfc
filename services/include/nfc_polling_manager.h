@@ -57,6 +57,7 @@ public:
     void ResetCurrPollingParams();
     std::shared_ptr<NfcPollingParams> GetCurrentParameters();
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
+    std::string GetForegroundAbility();
 
     // polling
     void StartPollingLoop(bool force);
