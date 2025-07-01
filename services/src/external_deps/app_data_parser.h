@@ -55,6 +55,7 @@ public:
         ElementName element;
         uint32_t labelId;
         uint32_t iconId;
+        int32_t appIndex;
         std::vector<AidInfo> customDataAid;
     };
 
@@ -85,19 +86,19 @@ public:
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
     ElementName GetMatchedTagKeyElement(ElementName &element);
-    ElementName GetMatchedHceKeyElement(ElementName &element);
+    ElementName GetMatchedHceKeyElement(ElementName &element, int32_t appIndex);
     bool IsMatchedByBundleName(ElementName &src, ElementName &target);
     bool InitAppListByAction(const std::string action);
     void QueryAbilityInfos(const std::string action, std::vector<AbilityInfo> &abilityInfos,
         std::vector<ExtensionAbilityInfo> &extensionInfos);
     bool VerifyHapPermission(const std::string bundleName, const std::string action);
-    bool UpdateAppListInfo(ElementName &element, const std::string action);
+    bool UpdateAppListInfo(ElementName &element, const std::string action, int32_t appIndex = 0);
     void UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &element);
-    void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element);
+    void UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element, int32_t appIndex = 0);
     void UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &element);
     bool HaveMatchedOffHostKeyElement(ElementName &element);
     bool RemoveTagAppInfo(ElementName &element);
-    bool RemoveHceAppInfo(ElementName &element);
+    bool RemoveHceAppInfo(ElementName &element, int32_t appIndex);
     bool RemoveOffHostAppInfo(ElementName &element);
     bool IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo);
 #ifdef VENDOR_APPLICATIONS_ENABLED

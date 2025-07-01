@@ -82,9 +82,11 @@ bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
         ErrorLog("HandleAppAddOrChangedEvent, invaid bundleName.");
         return false;
     }
-    DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s", bundleName.c_str());
+    OHOS::AAFwk::Want want = data->GetWant();
+    int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s, appIndex: %{public}d", bundleName.c_str(), appIndex);
     bool tag = UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
-    bool host = UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE);
+    bool host = UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE, appIndex);
     bool offHost = UpdateAppListInfo(element, KITS::ACTION_OFF_HOST_APDU_SERVICE);
     return tag || host || offHost;
 }
@@ -101,12 +103,16 @@ bool AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
         ErrorLog("HandleAppRemovedEvent, invalid bundleName.");
         return false;
     }
-    DebugLog("HandleAppRemovedEvent, bundleName %{public}s tag size %{public}zu, hce size %{public}zu",
+    OHOS::AAFwk::Want want = data->GetWant();
+    int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    DebugLog("HandleAppRemovedEvent, bundleName %{public}s appIndex: %{public}d"
+        "tag size %{public}zu, hce size %{public}zu",
         bundleName.c_str(),
+        appIndex,
         g_tagAppAndTechMap.size(),
         g_hceAppAndAidMap.size());
     bool tag = RemoveTagAppInfo(element);
-    bool hce = RemoveHceAppInfo(element);
+    bool hce = RemoveHceAppInfo(element, appIndex);
     bool offHost = RemoveOffHostAppInfo(element);
     return tag || hce || offHost;
 }
@@ -163,7 +169,7 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
     }
 }
 
-bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action)
+bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action, int32_t appIndex)
 {
     if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0 &&
         action != KITS::ACTION_OFF_HOST_APDU_SERVICE) {
@@ -190,7 +196,7 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
             UpdateTagAppList(abilityInfo, hapElement);
         }
         if (action.compare(KITS::ACTION_HOST_APDU_SERVICE) == 0) {
-            UpdateHceAppList(abilityInfo, hapElement);
+            UpdateHceAppList(abilityInfo, hapElement, appIndex);
         }
         if (action.compare(KITS::ACTION_OFF_HOST_APDU_SERVICE) == 0) {
             UpdateOffHostAppList(abilityInfo, hapElement);
@@ -249,12 +255,12 @@ ElementName AppDataParser::GetMatchedTagKeyElement(ElementName &element)
     return emptyElement;
 }
 
-ElementName AppDataParser::GetMatchedHceKeyElement(ElementName &element)
+ElementName AppDataParser::GetMatchedHceKeyElement(ElementName &element, int32_t appIndex)
 {
     ElementName emptyElement;
     std::vector<HceAppAidInfo>::iterator iter;
     for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); ++iter) {
-        if (IsMatchedByBundleName(element, (*iter).element)) {
+        if (IsMatchedByBundleName(element, (*iter).element) && (*iter).appIndex == appIndex) {
             return (*iter).element;
         }
     }
@@ -316,11 +322,11 @@ void AppDataParser::UpdateTagAppList(AbilityInfo &abilityInfo, ElementName &elem
         element.GetAbilityName().c_str());
 }
 
-void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element)
+void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &element, int32_t appIndex)
 {
-    if (!GetMatchedHceKeyElement(element).GetBundleName().empty()) {
+    if (!GetMatchedHceKeyElement(element, appIndex).GetBundleName().empty()) {
         WarnLog("UpdateHceAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
-        RemoveHceAppInfo(element);
+        RemoveHceAppInfo(element, appIndex);
     }
     std::vector<AidInfo> customDataAidList;
     AidInfo customDataAid;
@@ -349,6 +355,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     hceAppAidInfo.element = element;
     hceAppAidInfo.iconId = abilityInfo.iconId;
     hceAppAidInfo.labelId = abilityInfo.labelId;
+    hceAppAidInfo.appIndex = appIndex;
     hceAppAidInfo.customDataAid = customDataAidList;
     g_hceAppAndAidMap.push_back(hceAppAidInfo);
     DebugLog("UpdateHceAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
@@ -401,9 +408,9 @@ bool AppDataParser::RemoveTagAppInfo(ElementName &element)
     return false;
 }
 
-bool AppDataParser::RemoveHceAppInfo(ElementName &element)
+bool AppDataParser::RemoveHceAppInfo(ElementName &element, int32_t appIndex)
 {
-    ElementName keyElement = GetMatchedHceKeyElement(element);
+    ElementName keyElement = GetMatchedHceKeyElement(element, appIndex);
     if (keyElement.GetBundleName().empty()) {
         WarnLog("RemoveHceAppInfo, keyElement is none, ignore it.");
         return false;
@@ -412,8 +419,9 @@ bool AppDataParser::RemoveHceAppInfo(ElementName &element)
     std::vector<HceAppAidInfo>::iterator iter;
     for (iter = g_hceAppAndAidMap.begin(); iter != g_hceAppAndAidMap.end(); ++iter) {
         // compare only bundle name to remote the app.
-        if (IsMatchedByBundleName(element, (*iter).element)) {
-            DebugLog("RemoveHceAppInfo, erase app %{public}s", keyElement.GetBundleName().c_str());
+        if (IsMatchedByBundleName(element, (*iter).element) && (*iter).appIndex == appIndex) {
+            DebugLog("RemoveHceAppInfo, erase app %{public}s, appIndex = %{public}d",
+                keyElement.GetBundleName().c_str(), appIndex);
             g_hceAppAndAidMap.erase(iter);
             return true;
         }
