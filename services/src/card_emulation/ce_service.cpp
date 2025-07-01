@@ -420,8 +420,9 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
     InfoLog("Found too many applications");
     for (const AppDataParser::HceAppAidInfo &hceApp : hceApps) {
         ElementName elementName = hceApp.element;
-        InfoLog("ElementName: %{public}s", elementName.GetBundleName().c_str());
-        InfoLog("ElementValue: %{public}s", elementName.GetAbilityName().c_str());
+        InfoLog("BundleName: %{public}s", elementName.GetBundleName().c_str());
+        InfoLog("AbilityName: %{public}s", elementName.GetAbilityName().c_str());
+        InfoLog("appIndex: %{public}d", hceApp.appIndex);
 
         bool isForeground = elementName.GetBundleName() == foregroundElement_.GetBundleName() &&
                            elementName.GetAbilityName() == foregroundElement_.GetAbilityName();
