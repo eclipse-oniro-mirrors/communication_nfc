@@ -154,10 +154,9 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                 }
                 std::string key = GetValueFromPayload(payload, offset, len);
                 if (key.empty()) {
-                    ErrorLog("NdefWifiDataParser::ParseWiFiPayload, name error, "
+                    InfoLog("NdefWifiDataParser::ParseWiFiPayload, name error, "
                         "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
-                    data->isValid_ = false;
-                    return data;
+                    break;
                 }
                 data->config_->preSharedKey = KITS::NfcSdkCommon::HexStringToAsciiString(key);
                 break;
