@@ -183,6 +183,10 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
             foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
             foregroundData_->element_ = element;
             foregroundData_->callback_ = callback;
+            if (fgAppBundleName_.empty()) {
+                InfoLog("set fgAppBundleName");
+                fgAppBundleName_ = element.GetBundleName();
+            }
         }
         if (!nciNfccProxy_.expired()) {
             nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
@@ -277,6 +281,10 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
             readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
             readerModeData_->element_ = element;
             readerModeData_->callback_ = callback;
+            if (fgAppBundleName_.empty()) {
+                InfoLog("set fgAppBundleName");
+                fgAppBundleName_ = element.GetBundleName();
+            }
         }
         if (!nciNfccProxy_.expired()) {
             nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
