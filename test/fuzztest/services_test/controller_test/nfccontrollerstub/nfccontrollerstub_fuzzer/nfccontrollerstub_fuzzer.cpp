@@ -262,14 +262,11 @@ public:
 
      void FuzzRemoveNfcDeathRecipient(const uint8_t* data, size_t size)
     {
-        InfoLog("ypwFuzzRemoveNfcDeathRecipient1");
         std::weak_ptr<NFC::NfcService> nfcService;
         sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         wptr<IRemoteObject> remote = nullptr;
-        InfoLog("ypwFuzzRemoveNfcDeathRecipient2");
         nfcCrlStub->RemoveNfcDeathRecipient(remote);
-        InfoLog("ypwFuzzRemoveNfcDeathRecipient3");
     }
 
 }
