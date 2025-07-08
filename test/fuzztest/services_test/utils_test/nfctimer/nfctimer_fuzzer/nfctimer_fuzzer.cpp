@@ -38,6 +38,8 @@ namespace OHOS {
         uint32_t timerIds[1];
         ConvertToUint32s(data, timerIds, 1);
         NFC::NfcTimer::GetInstance()->UnRegister(timerIds[0]);
+        NFC::NfcTimer::GetInstance()->~NfcTimer();
+        NFC::NfcTimer::GetInstance()->UnRegister(timerIds[0]);
     }
 
 }
