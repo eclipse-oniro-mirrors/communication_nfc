@@ -189,7 +189,7 @@ bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &elemen
             }
         }
         if (!nciNfccProxy_.expired()) {
-            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, element.GetBundleName());
         }
     }
     return true;
@@ -287,7 +287,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
             }
         }
         if (!nciNfccProxy_.expired()) {
-            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
         }
     }
     nciTagProxy_.lock()->StopFieldChecking();
