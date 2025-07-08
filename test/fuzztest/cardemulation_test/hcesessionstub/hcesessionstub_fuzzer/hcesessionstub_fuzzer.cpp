@@ -81,6 +81,23 @@ namespace OHOS {
         return true;
     }
 
+    void StopHceFuzzTest(const uint8_t* data, size_t size)
+    {
+        ElementName element;
+        Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
+        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
+        hceSession->StopHce(element, callerToken);
+    }
+
+    void RemoveHceDeathRecipientFuzzTest(const uint8_t* data, size_t size)
+    {
+        wptr<IRemoteObject> remote = nullptr;
+        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
+        hceSession->RemoveHceDeathRecipient(remote);
+    }
+
 }
 
 /* Fuzzer entry point */
@@ -93,6 +110,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     OHOS::NFC::NfcAccessTokenMock::SetNativeTokenInfo();
     OHOS::DoHceSessionStubFuzzTest(data, size);
+    OHOS::StopHceFuzzTest(data, size);
+    OHOS::RemoveHceDeathRecipientFuzzTest(data, size);
     return 0;
 }
 
