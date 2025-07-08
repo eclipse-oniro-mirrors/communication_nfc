@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 #include "ndefbtdataparser_fuzzer.h"
 
 #include <cstddef>
@@ -157,6 +159,30 @@ namespace OHOS {
             "3FstrNo%3D051203673000025&deeplinkId=20241011";
         ndefHarDispatchTest->DispatchByAppLinkMode(uriSchemeValue, tagInfo, tagServiceIface);
     }
+
+    void FuzzParseBleRecord(const uint8_t* data, size_t size)
+    {
+        std::string payload = std::string(reinterpret_cast<const char*>(data), size);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->ParseBleRecord(payload);
+    }
+
+    void FuzzParseBtHandoverSelect(const uint8_t* data, size_t size)
+    {
+        std::string msg = std::string(reinterpret_cast<const char*>(data), size);
+        std::shared_ptr<NFC::KITS::NdefMessage> ndef = NdefMessage::GetNdefMessage(msg);
+        std::string payload = std::string(reinterpret_cast<const char*>(data), size);
+        std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+        if (ndefBtDataParser == nullptr) {
+            return;
+        }
+        ndefBtDataParser->ParseBtHandoverSelect(ndef);
+        std::shared_ptr<NFC::KITS::NdefMessage> ndef1 = nullptr;
+        ndefBtDataParser->ParseBtHandoverSelect(ndef1);
+    }
 }
 
 /* Fuzzer entry point */
@@ -170,5 +196,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzCheckBtRecord(data, size);
     OHOS::FuzzIsVendorPayloadValid(data, size);
     OHOS::FuzzDispatchBundleAbility(data, size);
+    OHOS::FuzzParseBleRecord(data, size);
+    OHOS::FuzzParseBtHandoverSelect(data, size);
     return 0;
 }
