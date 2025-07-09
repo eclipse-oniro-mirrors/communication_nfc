@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 #include "tagsession_fuzzer.h"
 
 #include <cstddef>
@@ -168,6 +170,56 @@ public:
         int timeout = static_cast<int>(data[2]);
         tagSession->GetTimeout(tagRfDiscId, technology, timeout);
     }
+
+    void FuzzRegForegroundDispatchInner(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
+        element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
+        std::vector<uint32_t> discTech;
+        sptr<NFC::KITS::IForegroundCallback> callback = nullptr;
+        bool isVendorApp = true;
+        tagSession->RegForegroundDispatchInner(element, discTech, callback, isVendorApp);
+    }
+
+    void FuzzIsFgRegistered(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
+        element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
+        std::vector<uint32_t> discTech;
+        sptr<NFC::KITS::IForegroundCallback> callback = nullptr;
+        tagSession->IsFgRegistered(element, discTech, callback);
+    }
+
+    void FuzzIsReaderRegistered(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
+        element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
+        std::vector<uint32_t> discTech;
+        sptr<NFC::KITS::IReaderModeCallback> callback = nullptr;
+        tagSession->IsReaderRegistered(element, discTech, callback);
+    }
+
+    void FuzzRegReaderModeInner(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
+        element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
+        std::vector<uint32_t> discTech;
+        sptr<NFC::KITS::IReaderModeCallback> callback = nullptr;
+        bool isVendorApp = true;
+        tagSession->RegReaderModeInner(element, discTech, callback, isVendorApp);
+    }
 }
 
 /* Fuzzer entry point */
@@ -189,6 +241,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzIsConnected(data, size);
     OHOS::FuzzSetTimeout(data, size);
     OHOS::FuzzGetTimeout(data, size);
+    OHOS::FuzzRegForegroundDispatchInner(data, size);
+    OHOS::FuzzIsFgRegistered(data, size);
+    OHOS::FuzzIsReaderRegistered(data, size);
+    OHOS::FuzzRegReaderModeInner(data, size);
     return 0;
 }
 

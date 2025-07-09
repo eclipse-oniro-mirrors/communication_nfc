@@ -260,6 +260,15 @@ public:
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(size), data2, reply, option);
     }
 
+     void FuzzRemoveNfcDeathRecipient(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        wptr<IRemoteObject> remote = nullptr;
+        nfcCrlStub->RemoveNfcDeathRecipient(remote);
+    }
+
 }
 
 /* Fuzzer entry point */
@@ -286,6 +295,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 #endif
     OHOS::FuzzHandleGetNfcHceInterface(data, size);
     OHOS::FuzzOnRemoteRequest(data, size);
+    OHOS::FuzzRemoveNfcDeathRecipient(data, size);
     return 0;
 }
 

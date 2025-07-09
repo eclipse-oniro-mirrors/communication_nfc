@@ -98,6 +98,16 @@ namespace OHOS {
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
         nfcControllerImpl->Dump(fd, args);
     }
+
+    void FuzzNotifyEventStatus(const uint8_t* data, size_t size)
+    {
+        int eventType = 0;
+        int arg1 = 0;
+        std::string arg2 = "";
+        std::shared_ptr<NfcService> service = nullptr;
+        std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
+        nfcControllerImpl->NotifyEventStatus(eventType, arg1, arg2);
+    }
 }
 
 /* Fuzzer entry point */
@@ -116,6 +126,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegCardEmulationNotifyCb(data, size);
     OHOS::FuzzGetHceServiceIface(data, size);
     OHOS::FuzzDump(data, size);
+    OHOS::FuzzNotifyEventStatus(data, size);
     return 0;
 }
 
