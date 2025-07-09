@@ -64,8 +64,9 @@ const int NFC_MAX_NTF_COUNT = 100;
 const int NFC_SERVICE_UID = 1027;
 
 // use this flag to control notification banners
-// 0b010000 represents no vibration
-const uint32_t NFC_NTF_CONTROL_FLAG = 0b010000;
+// bit 4 represents vibration control: 1-off, 0-on
+// bit 0 represents voice control: 1-off, 0-on
+const uint32_t NFC_NTF_CONTROL_FLAG = 1 << 4 | 1;
 // 1 << 9 represents turning on the banner switch for System Ability.
 const uint32_t NFC_NTF_BANNER_SWITCH = 1 << 9;
 
@@ -458,8 +459,9 @@ static void SetBasicOption(Notification::NotificationRequest &request, int notif
     uint32_t controlFlag = NFC_NTF_CONTROL_FLAG;
     if (!isNfcNotDisturb || IsNtfIdWhiteList(notificationId)) {
         InfoLog("turn on banner switch for NFC ntf.");
-        controlFlag = NFC_NTF_BANNER_SWITCH | NFC_NTF_CONTROL_FLAG;
+        controlFlag = NFC_NTF_BANNER_SWITCH;
     }
+    InfoLog("controlFlag = 0x%{public}x", controlFlag);
     request.SetNotificationControlFlags(controlFlag);
 }
 

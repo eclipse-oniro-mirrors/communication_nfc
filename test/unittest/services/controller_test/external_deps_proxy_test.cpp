@@ -22,6 +22,13 @@ namespace NFC {
 namespace TEST {
 using namespace testing::ext;
 using namespace OHOS::NFC;
+std::string g_errLog;
+void MyLogCallback(
+    const LogType type, const LogLevel level, const unsigned int domain, const char *tag, const char *msg)
+{
+    g_errLog = msg;
+}
+
 class ExternalDepsProxyTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -363,11 +370,21 @@ HWTEST_F(ExternalDepsProxyTest, DispatchTagAbility001, TestSize.Level1)
  */
 HWTEST_F(ExternalDepsProxyTest, StartVibratorOnce001, TestSize.Level1)
 {
-    std::shared_ptr<ExternalDepsProxy> externalDepsProxy = std::make_shared<ExternalDepsProxy>();
-    externalDepsProxy->StartVibratorOnce();
-    std::vector<int> discTechList;
-    std::vector<ElementName> getDispatchTagAppsByTech = externalDepsProxy->GetDispatchTagAppsByTech(discTechList);
-    ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
+    LOG_SetCallback(MyLogCallback);
+    ExternalDepsProxy::GetInstance().StartVibratorOnce(true);
+    ASSERT_TRUE(g_errLog.find("vibrator") == std::string::npos);
+}
+
+/**
+ * @tc.name: StartVibratorOnce002
+ * @tc.desc: Test ExternalDepsProxyTest StartVibratorOnce.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ExternalDepsProxyTest, StartVibratorOnce002, TestSize.Level1)
+{
+    LOG_SetCallback(MyLogCallback);
+    ExternalDepsProxy::GetInstance().StartVibratorOnce(false);
+    ASSERT_TRUE(g_errLog.find("vibrator") == std::string::npos);
 }
 
 /**

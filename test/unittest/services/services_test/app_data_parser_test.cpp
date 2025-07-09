@@ -12,12 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 #include "app_data_parser.h"
 #include "nfc_sdk_common.h"
 #include "nfc_notification_publisher.h"
 #include "nfc_param_util.h"
+#include "nfc_data_share_impl.h"
 
 namespace OHOS {
 namespace NFC {
@@ -234,6 +239,26 @@ HWTEST_F(AppDataParserTest, RegNotificationCallback004, TestSize.Level1)
     AppDataParser parser = AppDataParser::GetInstance();
     std::string ret = parser.GetBundleNameByUid(uid);
     ASSERT_TRUE(ret == "");
+}
+
+/**
+ * @tc.name: IsNfcNtfDisabled001
+ * @tc.desc: Test IsNfcNtfDisabled.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, IsNfcNtfDisabled001, TestSize.Level1)
+{
+    constexpr const char* NFC_NOT_DISTURB_KEYWORD = "settings.nfc.not_disturb";
+    int INVALID_VALUE = -1;
+    const std::string NFC_NOT_DISTURB_SUFFIX =
+        "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=settings.nfc.not_disturb";
+    const std::string NFC_NOT_DISTURB_PREFIX = "datashare://";
+    const std::string NFC_DATA_URI_NOT_DISTURB = NFC_NOT_DISTURB_PREFIX + NFC_NOT_DISTURB_SUFFIX;
+    Uri nfcNotDisturb(NFC_DATA_URI_NOT_DISTURB);
+    auto dataShare = NfcDataShareImpl::GetInstance();
+    ASSERT_TRUE(dataShare != nullptr);
+    dataShare->SetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, INVALID_VALUE);
+    ASSERT_TRUE(!NfcNotificationPublisher::GetInstance().IsNfcNtfDisabled());
 }
 
 /**

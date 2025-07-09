@@ -221,9 +221,9 @@ void ExternalDepsProxy::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceI
     TAG::TagAbilityDispatcher::DispatchAppGallery(tagServiceIface, appGalleryBundleName);
 }
 
-void ExternalDepsProxy::StartVibratorOnce()
+void ExternalDepsProxy::StartVibratorOnce(bool isNtfPublished)
 {
-    TAG::TagAbilityDispatcher::StartVibratorOnce();
+    TAG::TagAbilityDispatcher::StartVibratorOnce(isNtfPublished);
 }
 
 void ExternalDepsProxy::GetPaymentAbilityInfos(std::vector<AbilityInfo>& paymentAbilityInfos)
