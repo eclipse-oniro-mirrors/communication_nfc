@@ -58,7 +58,6 @@ private:
 
     std::mutex mutex_ {};
     std::shared_ptr<Media::PixelMap> nfcIconPixelMap_ {};
-    std::vector<int> tagNtfCountVec_ {};
 };
 }  // namespace TAG
 }  // namespace NFC
