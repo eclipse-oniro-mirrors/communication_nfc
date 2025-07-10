@@ -92,7 +92,7 @@ public:
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
     void DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName);
-    void StartVibratorOnce();
+    void StartVibratorOnce(bool isNtfPublished = false);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);

@@ -48,7 +48,7 @@ private:
     void DispatchTag(uint32_t rfDiscId);
     bool HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
     void PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
-    void StartVibratorOnce();
+    void StartVibratorOnce(bool isNtfPublished = false);
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};

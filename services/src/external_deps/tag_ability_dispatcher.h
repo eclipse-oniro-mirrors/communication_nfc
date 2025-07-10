@@ -35,7 +35,7 @@ public:
     static void DispatchAbilityMultiApp(const std::shared_ptr<KITS::TagInfo>& tagInfo, AAFwk::Want& want);
     static void DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName);
     static void DispatchAbilitySingleApp(AAFwk::Want& want);
-    static void StartVibratorOnce();
+    static void StartVibratorOnce(bool isNtfPublished = false);
 
 private:
     // there is only single tag application matched to be dispatched.

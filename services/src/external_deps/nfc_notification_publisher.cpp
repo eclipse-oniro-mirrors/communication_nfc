@@ -121,18 +121,19 @@ bool NfcNotificationPublisher::IsNfcNtfDisabled()
     auto dataShare = NfcDataShareImpl::GetInstance();
     if (dataShare == nullptr) {
         ErrorLog("fail to get datashare.");
-        return true; // NFC not disturb switch is on by default.
+        return false; // NFC not disturb switch is off by default.
     }
     int32_t value = INVALID_VALUE;
+    int32_t nfcNotDisturbOff = 0;
     int32_t nfcNotDisturbOn = 1;
     KITS::ErrorCode errCode = dataShare->GetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, value);
     if (errCode == KITS::ERR_NFC_DATABASE_NULL) {
         ErrorLog("fail to get datashare proxy.");
-        return true; // should turn on nfc no disturb mode by default.
+        return false; // NFC not disturb switch is off by default.
     }
     if (value == INVALID_VALUE) {
-        WarnLog("should turn on nfc no disturb mode by default.");
-        dataShare->SetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, nfcNotDisturbOn);
+        WarnLog("NFC not disturb switch is off by default.");
+        dataShare->SetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, nfcNotDisturbOff);
         dataShare->GetValue(nfcNotDisturb, NFC_NOT_DISTURB_KEYWORD, value);
     }
 

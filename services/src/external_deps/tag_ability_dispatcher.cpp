@@ -78,8 +78,12 @@ void TagAbilityDispatcher::SetWantExtraParam(const std::shared_ptr<KITS::TagInfo
     }
 }
 
-void TagAbilityDispatcher::StartVibratorOnce()
+void TagAbilityDispatcher::StartVibratorOnce(bool isNtfPublished)
 {
+    if (isNtfPublished) {
+        InfoLog("don't vibrate.");
+        return;
+    }
     InfoLog("Start vibrator once.");
     OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
 }

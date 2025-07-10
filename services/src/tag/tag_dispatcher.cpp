@@ -169,6 +169,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
+    bool isNtfPublished = false;
     do {
         if (ndefMessage == nullptr) {
             if (!nciTagProxy_.lock()->Reconnect(tagDiscId)) {
@@ -193,6 +194,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             break;
         }
         PublishTagNotification(tagDiscId, isIsoDep);
+        isNtfPublished = true;
         break;
     } while (0);
     if (tagInfo != nullptr) {
@@ -200,17 +202,17 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         tagInfo = nullptr;
     }
 #ifndef NFC_VIBRATOR_DISABLED
-    StartVibratorOnce();
+    StartVibratorOnce(isNtfPublished);
 #endif
     // Record types of read tags.
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
 }
 
-void TagDispatcher::StartVibratorOnce()
+void TagDispatcher::StartVibratorOnce(bool isNtfPublished)
 {
     if (!ndefCbRes_) {
-        ExternalDepsProxy::GetInstance().StartVibratorOnce();
+        ExternalDepsProxy::GetInstance().StartVibratorOnce(isNtfPublished);
     }
 }
 void TagDispatcher::HandleTagLost(uint32_t tagDiscId)
