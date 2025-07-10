@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@!sts_inject("""
+static { loadLibrary("nfc_fwk_taihe_tag.z"); }
+""")
+
+interface TagSession {
+  connectTag(): bool; // deprecated since API 9, use connect() instead
+  connect(): void;
+
+  reset(): void; // deprecated since API 9, use resetConnection() instead
+  resetConnection(): void;
+
+  isTagConnected(): bool; // deprecated since API 9, use isConnected() instead
+  isConnected(): bool;
+
+  setSendDataTimeout(timeout: i32): bool; // deprecated since API 9, use setTimeout() instead
+  setTimeout(timeout: i32): void;
+
+  getSendDataTimeout(): i32; // deprecated since API 9, use getTimeout() instead
+  getTimeout(): i32;
+
+  @gen_async("sendDataAsync")
+  @gen_promise("sendDataPromise")
+  sendData(data: Array<i32>): Array<i32>; // deprecated since API 9, use transmit() instead
+
+  @gen_async("transmitAsync")
+  @gen_promise("transmitPromise")
+  transmit(data: Array<i32>): Array<i32>;
+
+  getMaxSendLength(): i32; // deprecated since API 9, use getMaxTransmitSize() instead
+  getMaxTransmitSize(): i32;
+}
