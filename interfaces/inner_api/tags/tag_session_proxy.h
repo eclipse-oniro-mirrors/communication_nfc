@@ -61,7 +61,7 @@ public:
     int UnregReaderMode(ElementName &element) override;
 
 private:
-    static inline BrokerDelegator<TagSessionProxy> delegator;
+    static inline BrokerDelegator<TagSessionProxy> delegator_;
 };
 }  // namespace TAG
 }  // namespace NFC
