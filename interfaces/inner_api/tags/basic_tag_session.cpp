@@ -34,13 +34,7 @@ OHOS::sptr<TAG::ITagSession> BasicTagSession::GetTagSessionProxy()
         ErrorLog("GetTagSessionProxy: nfc is not open");
         return nullptr;
     }
-    if (tagSessionProxy_ == nullptr) {
-        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetTagServiceIface();
-        if (iface != nullptr) {
-            tagSessionProxy_ = new TAG::TagSessionProxy(iface);
-        }
-    }
-    return tagSessionProxy_;
+    return NfcController::GetInstance().GetTagSessionProxy();
 }
 
 int BasicTagSession::Connect()

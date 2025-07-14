@@ -21,6 +21,7 @@
 #include "nfc_sdk_common.h"
 #include "infc_controller_callback.h"
 #include "infc_controller_service.h"
+#include "itag_session.h"
 #ifdef VENDOR_APPLICATIONS_ENABLED
 #include "iquery_app_info_callback.h"
 #endif
@@ -98,6 +99,8 @@ public:
 
     ErrorCode RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
 
+    OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
     ErrorCode RegQueryApplicationCb(const std::string& type,
         QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback);
@@ -130,6 +133,7 @@ private:
     static bool remoteDied_;
     static sptr<IRemoteObject> remote_;
     static sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+    static sptr<TAG::ITagSession> tagSessionProxy_;
 
     static const uint8_t MAX_RETRY_TIMES = 3;
 };

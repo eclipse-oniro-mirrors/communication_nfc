@@ -34,6 +34,7 @@ std::shared_ptr<OHOS::NFC::NfcControllerProxy> NfcController::nfcControllerProxy
 std::weak_ptr<INfcControllerService> NfcController::nfcControllerService_;
 sptr<IRemoteObject::DeathRecipient> NfcController::deathRecipient_;
 sptr<IRemoteObject> NfcController::remote_;
+sptr<TAG::ITagSession> NfcController::tagSessionProxy_;
 bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
@@ -99,6 +100,7 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 {
     WarnLog("%{public}s:Remote service is died!", __func__);
     std::lock_guard<std::mutex> lock(mutex_);
+    tagSessionProxy_ = nullptr;
     remoteDied_ = true;
     initialized_ = false;
     if (deathRecipient_ == nullptr || remoteObject == nullptr) {
@@ -270,6 +272,21 @@ OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
         return nullptr;
     }
     return nfcControllerService_.lock()->GetHceServiceIface(res);
+}
+
+OHOS::sptr<TAG::ITagSession> NfcController::GetTagSessionProxy()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (tagSessionProxy_ != nullptr) {
+        return tagSessionProxy_;
+    }
+    auto service = nfcControllerService_.lock();
+    if (service = nullptr) {
+        return nullptr;
+    }
+    sptr<IRemoteObject> remote = service->->GetTagServiceIface();
+    tagSessionProxy_ = iface_cast<TAG::ITagSession>(remote);
+    return tagSessionProxy_;
 }
 }  // namespace KITS
 }  // namespace NFC

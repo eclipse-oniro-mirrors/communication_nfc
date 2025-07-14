@@ -312,6 +312,18 @@ HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
     ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
     ASSERT_TRUE(errorCode == ERR_NONE);
 }
+
+/**
+ * @tc.name: GetTagSessionProxy001
+ * @tc.desc: Test NfcController GetTagSessionProxy.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, GetTagSessionProxy001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    sptr<TAG::ITagSession> errorCode = ctrl.GetTagSessionProxy();
+    ASSERT_TRUE(errorCode != nullptr);
+}
 }
 }
 }
