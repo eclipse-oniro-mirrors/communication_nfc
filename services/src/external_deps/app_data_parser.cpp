@@ -29,7 +29,7 @@ const int USER_ID = 100;
 static AppDataParser g_appDataParser;
 /** Tag type of tag app metadata name */
 static const std::string KEY_TAG_TECH = "tag-tech";
-std::mutex g_appListInitMutex = {};
+std::mutex g_mutex = {};
 sptr<BundleMgrDeathRecipient> bundleMgrDeathRecipient_(new BundleMgrDeathRecipient());
 
 void BundleMgrDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject> &remote)
@@ -451,7 +451,7 @@ bool AppDataParser::RemoveOffHostAppInfo(ElementName &element)
 
 void AppDataParser::InitAppList()
 {
-    std::lock_guard<std::mutex> lock(g_appListInitMutex);
+    std::lock_guard<std::mutex> lock(g_mutex);
     if (appListInitDone_) {
         WarnLog("InitAppList: already done");
         return;
@@ -514,6 +514,7 @@ std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vect
 {
     std::vector<ElementName> elements {};
     std::vector<AAFwk::Want> hceAppList {};
+    std::lock_guard<std::mutex> lock(g_mutex);
     if (queryApplicationByVendor_ == nullptr) {
         ErrorLog("AppDataParser::GetVendorDispatchTagAppsByTech queryApplicationByVendor_ is nullptr.");
         return std::vector<ElementName>();
@@ -524,6 +525,7 @@ std::vector<ElementName> AppDataParser::GetVendorDispatchTagAppsByTech(std::vect
 
 void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     queryApplicationByVendor_ = callback;
 }
 
@@ -553,14 +555,17 @@ void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<AppDataP
 #ifdef VENDOR_APPLICATIONS_ENABLED
 void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
 {
-    if (queryApplicationByVendor_ == nullptr) {
-        WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
-        return;
-    }
     std::vector<int> techList {};
     std::vector<AAFwk::Want> vendorHceAppAndAidList {};
     std::vector<AppExecFwk::ElementName> elementNameList {};
-    queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        if (queryApplicationByVendor_ == nullptr) {
+            WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
+            return;
+        }
+        queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
+    }
     if (vendorHceAppAndAidList.size() != 0) {
         for (auto appAidInfoWant : vendorHceAppAndAidList) {
             std::shared_ptr<HceAppAidInfo> appAidInfo = std::make_shared<HceAppAidInfo>();
