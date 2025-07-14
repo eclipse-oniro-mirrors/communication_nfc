@@ -276,6 +276,7 @@ OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
 
 OHOS::sptr<TAG::ITagSession> NfcController::GetTagSessionProxy()
 {
+    InitNfcRemoteSA();
     std::lock_guard<std::mutex> lock(mutex_);
     if (tagSessionProxy_ != nullptr) {
         return tagSessionProxy_;
