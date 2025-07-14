@@ -281,10 +281,10 @@ OHOS::sptr<TAG::ITagSession> NfcController::GetTagSessionProxy()
         return tagSessionProxy_;
     }
     auto service = nfcControllerService_.lock();
-    if (service = nullptr) {
+    if (service == nullptr) {
         return nullptr;
     }
-    sptr<IRemoteObject> remote = service->->GetTagServiceIface();
+    sptr<IRemoteObject> remote = service->GetTagServiceIface();
     tagSessionProxy_ = iface_cast<TAG::ITagSession>(remote);
     return tagSessionProxy_;
 }
