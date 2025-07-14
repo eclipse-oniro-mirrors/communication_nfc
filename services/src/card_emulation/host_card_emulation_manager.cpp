@@ -39,6 +39,8 @@ const uint8_t INSTR_SELECT = 0xA4;
 const uint32_t MINIMUM_AID_LENGTH = 5;
 const uint8_t SELECT_00 = 0x00;
 const uint8_t SELECT_P1 = 0x04;
+//ISO 7816: P2 is 0x0c when no response data if the Le field absent, or proprietary if Le field present
+const uint8_t SELECT_P2_0C = 0x0c;
 const uint32_t INDEX_CLASS_BYTE = 0;
 const uint32_t INDEX_CHAIN_INSTRUCTION = 1;
 const uint32_t INDEX_P1 = 2;
@@ -452,7 +454,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
 
     if (data[INDEX_CLASS_BYTE] == SELECT_00 && data[INDEX_CHAIN_INSTRUCTION] == INSTR_SELECT &&
         data[INDEX_P1] == SELECT_P1) {
-        if (data[INDEX_3] != SELECT_00) {
+        if (data[INDEX_3] != SELECT_00 && data[INDEX_3] != SELECT_P2_0C) {
             InfoLog("not supported aid");
             return "";
         }
