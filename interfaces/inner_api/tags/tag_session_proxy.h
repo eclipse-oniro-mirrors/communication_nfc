@@ -59,6 +59,9 @@ public:
     int RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback) override;
     int UnregReaderMode(ElementName &element) override;
+
+private:
+    static inline BrokerDelegator<TagSessionProxy> delegator_;
 };
 }  // namespace TAG
 }  // namespace NFC
