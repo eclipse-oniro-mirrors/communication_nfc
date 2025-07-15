@@ -59,8 +59,6 @@ const int MAX_BUFF_LEN = 500;
 const int NFC_UNIT_CHANGE_CONSTANT = 100;
 const int NTF_AUTO_DELETE_TIME = 10000;
 const int MAX_RES_VEC_LEN = 100;
-const int NTF_COUNT_CONSTANT = 1000000; // final notification id = 1000000 * count + NfcNotificationId
-const int NFC_MAX_NTF_COUNT = 100;
 const int NFC_SERVICE_UID = 1027;
 
 // use this flag to control notification banners
@@ -130,7 +128,7 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
 
         std::lock_guard<std::mutex> lock(g_callbackMutex);
         if (deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE && g_ntfCallback) {
-            g_ntfCallback(notificationId % OHOS::NFC::TAG::NTF_COUNT_CONSTANT);
+            g_ntfCallback(notificationId);
         }
     }
     void OnConsumed(const std::shared_ptr<OHOS::Notification::Notification> &notification,
@@ -531,8 +529,6 @@ NfcNotification::NfcNotification()
         ErrorLog("fail to subscribe notification");
     }
     UpdateResourceMapByLanguage();
-    // initialize the vector with the length of (NFC_NTF_END - NFC_TAG_DEFAULT_NTF_ID)
-    tagNtfCountVec_.resize(NFC_NTF_END - NFC_TAG_DEFAULT_NTF_ID);
 }
 
 NfcNotification::~NfcNotification()
@@ -550,15 +546,8 @@ void NfcNotification::PublishNfcNotification(
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
-    Notification::NotificationBundleOption bundle(KITS::NFC_MANAGER_SYS_ABILITY_NAME, NFC_SERVICE_UID);
-    int lastNtfId = (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID]++) * NTF_COUNT_CONSTANT + notificationId;
-    if (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] >= NFC_MAX_NTF_COUNT) {
-        tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID] = 0;
-    }
-    int currentNtfId = (tagNtfCountVec_[notificationId - NFC_TAG_DEFAULT_NTF_ID]) * NTF_COUNT_CONSTANT + notificationId;
-    int ret = Notification::NotificationHelper::CancelAsBundle(bundle, lastNtfId);
-    // ret value 67108880 represents the notification does not exist
-    InfoLog("Cancel ntf result[%{public}d], last id[%{public}d], current id[%{public}d]", ret, lastNtfId, currentNtfId);
+    int ret = Notification::NotificationHelper::CancelAllNotifications();
+    InfoLog("Cancel all ntf result[%{public}d]", ret);
 
     Notification::NotificationRequest request;
     SetBasicOption(request, notificationId, isNfcNotDisturb);
@@ -566,7 +555,7 @@ void NfcNotification::PublishNfcNotification(
         ErrorLog("fail to set request content.");
         return;
     }
-    request.SetNotificationId(currentNtfId);
+    request.SetNotificationId(notificationId);
 
     GetPixelMap(NFC_ICON_PATH);
     if (nfcIconPixelMap_ != nullptr) {
