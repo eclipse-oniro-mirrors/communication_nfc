@@ -118,8 +118,9 @@ bool NfcService::Initialize()
     nfcPollingManager_->ResetCurrPollingParams();
 
     runner->Run();
-    // NFC ROOT
-    ExecuteTask(KITS::TASK_INITIALIZE);
+
+    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
+    ExternalDepsProxy::GetInstance().InitAppList();
     return true;
 }
 
@@ -406,17 +407,16 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
-    eventHandler_->Intialize(tagDispatcher_, ceService_, nfcPollingManager_, nfcRoutingManager_, nciNfccProxy_);
-    ExternalDepsProxy::GetInstance().InitAppList();
-
     int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
     if (nfcStateFromParam == KITS::STATE_ON) {
-        InfoLog("should turn nfc on.");
-        ExecuteTask(KITS::TASK_TURN_ON);
+        if (nfcState_ != KITS::STATE_ON) {
+            InfoLog("should turn nfc on.");
+            ExecuteTask(KITS::TASK_TURN_ON);
+        }
     } else {
         // 5min later unload nfc_service, if nfc state is off
         WarnLog("nfc state not on, unload SA in 5 minutes.");
-        SetupUnloadNfcSaTimer(true);
+        SetupUnloadNfcSaTimer(false);
     }
 }
 
@@ -528,11 +528,6 @@ void NfcService::UpdateNfcState(int newState)
 
 int NfcService::GetNfcState()
 {
-    InfoLog("start to get nfc state.");
-    // 5min later unload nfc_service, if nfc state is off
-    if (nfcState_ == KITS::STATE_OFF) {
-        SetupUnloadNfcSaTimer(false);
-    }
     InfoLog("get nfc state[%{public}d]", nfcState_);
     return nfcState_;
 }

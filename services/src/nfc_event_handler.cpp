@@ -95,7 +95,7 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         return;
     }
     InfoLog("OnScreenChanged: action: %{public}s", action.c_str());
-    if (eventHandler_.expired()) {
+    if (eventHandler_.expired() || nfcService_.expired()) {
         ErrorLog("eventHandler_ is null.");
         return;
     }
@@ -107,10 +107,11 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         screenState = eventHandler_.lock()->IsScreenLocked() ?
             ScreenState::SCREEN_STATE_OFF_LOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) == 0) {
+        nfcService_.lock()->ExecuteTask(KITS::TASK_INITIALIZE);
         screenState = eventHandler_.lock()->IsScreenOn() ?
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
 #ifdef NFC_HANDLE_SCREEN_LOCK
-    TAG::NdefHarDispatch::HandleCarrierReport();
+        TAG::NdefHarDispatch::HandleCarrierReport();
 #endif
     } else {
         ErrorLog("Screen changed receiver event:unknown");

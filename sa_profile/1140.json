@@ -19,6 +19,16 @@
                                 "value":"3"
                             }
                         ]
+                    },
+                    {
+                        "name":"usual.event.BOOT_COMPLETED",
+                        "conditions":[
+                            {
+                                "eventId":"param",
+                                "name":"persist.nfc.switch.state",
+                                "value":"3"
+                            }
+                        ]
                     }
                 ]
             }
