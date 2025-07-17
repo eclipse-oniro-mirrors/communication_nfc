@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 #include "nfccontrollerstub_fuzzer.h"
 
 #include <cstddef>
@@ -112,6 +114,16 @@ public:
         reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
             data2, reply, option);
+    }
+
+    void FuzzRemoveNfcDeathRecipient(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        wptr<IRemoteObject> remote;
+        nfcCrlStub->RemoveNfcDeathRecipient(remote);
     }
 
     void FuzzHandleUnRegisterCallBack(const uint8_t* data, size_t size)
@@ -269,6 +281,16 @@ public:
         nfcCrlStub->RemoveNfcDeathRecipient(remote);
     }
 
+    void FuzzRegNdefMsgCb(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        sptr<NFC::INdefMsgCallback> callback;
+        nfcCrlStub->RegNdefMsgCb(callback);
+    }
+
 }
 
 /* Fuzzer entry point */
@@ -286,6 +308,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleUnRegisterCallBack(data, size);
     OHOS::FuzzHandleIsNfcOpen(data, size);
     OHOS::FuzzHandleGetNfcTagInterface(data, size);
+    OHOS::FuzzRemoveNfcDeathRecipient(data, size);
     OHOS::FuzzUnregisterCallback(data, size);
     OHOS::FuzzregisterCallback(data, size);
     OHOS::FuzzHandleRegNdefMsgCb(data, size);
@@ -296,6 +319,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleGetNfcHceInterface(data, size);
     OHOS::FuzzOnRemoteRequest(data, size);
     OHOS::FuzzRemoveNfcDeathRecipient(data, size);
+    OHOS::FuzzRegNdefMsgCb(data, size);
     return 0;
 }
 
