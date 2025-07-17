@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 #include "hcesessionstub_fuzzer.h"
 
 #include <cstddef>
@@ -98,6 +100,25 @@ namespace OHOS {
         hceSession->RemoveHceDeathRecipient(remote);
     }
 
+    void FuzzHceSessionDump(const uint8_t* data, size_t size)
+    {
+        auto addr = BuildAddressString(data);
+        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+        int32_t fd = 0;
+        std::vector<std::u16string> args;
+        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
+        (void)hceSession->Dump(fd, args);
+    }
+ 
+    void FuzzHceSessionGetPaymentService(const uint8_t* data, size_t size)
+    {
+        auto addr = BuildAddressString(data);
+        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
+        std::vector<AbilityInfo> paymentAbilityInfos;
+        hceSession->GetPaymentServices(paymentAbilityInfos);
+    }
+
 }
 
 /* Fuzzer entry point */
@@ -112,6 +133,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::DoHceSessionStubFuzzTest(data, size);
     OHOS::StopHceFuzzTest(data, size);
     OHOS::RemoveHceDeathRecipientFuzzTest(data, size);
+    OHOS::FuzzHceSessionDump(data, size);
+    OHOS::FuzzHceSessionGetPaymentService(data, size);
     return 0;
 }
 
