@@ -89,6 +89,15 @@ namespace OHOS {
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->GetBalanceValue(balanceStr, balanceValue);
     }
+
+    void FuzzMatchCity(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
+        uint32_t rfDiscId = 0;
+        uint8_t cardIndex = 0;
+        std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+        isodepCardHandler->MatchCity(rfDiscId, cardIndex);
+    }
 }
 
 /* Fuzzer entry point */
@@ -105,6 +114,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzGetBalance(data, size);
     OHOS::FuzzCheckApduResponse(data, size);
     OHOS::FuzzGetBalanceValue(data, size);
+    OHOS::FuzzMatchCity(data, size);
     return 0;
 }
 

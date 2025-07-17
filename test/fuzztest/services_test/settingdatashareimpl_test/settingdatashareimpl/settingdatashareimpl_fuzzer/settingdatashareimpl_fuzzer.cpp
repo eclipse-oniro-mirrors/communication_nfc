@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 #include "settingdatashareimpl_fuzzer.h"
 
 #include <cstddef>
@@ -49,6 +51,23 @@ namespace OHOS {
         settingDataShareImpl->ReleaseDataObserver(uri, nullptr);
     }
 
+    void FuzzRegisterDataObserverWithNull(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+        sptr<AAFwk::IDataAbilityObserver> dataObserver;
+        settingDataShareImpl->dataShareHelper_ = nullptr;
+        Uri uri(NfcSdkCommon::BytesVecToHexString(data, size));
+        settingDataShareImpl->RegisterDataObserver(uri, dataObserver);
+    }
+
+    void FuzzReleaseDataObserverWithNull(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+        settingDataShareImpl->dataShareHelper_ = nullptr;
+        Uri uri(NfcSdkCommon::BytesVecToHexString(data, size));
+        settingDataShareImpl->ReleaseDataObserver(uri, nullptr);
+    }
+
     void FuzzGetElementName(const uint8_t* data, size_t size)
     {
         std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
@@ -69,6 +88,15 @@ namespace OHOS {
         settingDataShareImpl->SetElementName(uri, column, value);
     }
 
+    void FuzzParseElementURI(const uint8_t* data, size_t size)
+    {
+        Uri uri(NfcSdkCommon::BytesVecToHexString(data, size));
+        std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+        std::string urlStr = "abcd/1/2";
+        ElementName value;
+        settingDataShareImpl->ParseElementURI(urlStr, value);
+    }
+
 }
 
 /* Fuzzer entry point */
@@ -80,9 +108,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::FuzzRegisterDataObserver(data, size);
+    OHOS::FuzzRegisterDataObserverWithNull(data, size);
     OHOS::FuzzReleaseDataObserver(data, size);
+    OHOS::FuzzReleaseDataObserverWithNull(data, size);
     OHOS::FuzzGetElementName(data, size);
     OHOS::FuzzSetElementName(data, size);
+    OHOS::FuzzParseElementURI(data, size);
     return 0;
 }
 
