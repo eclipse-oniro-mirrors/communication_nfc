@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
 #include "tagsession_fuzzer.h"
 
 #include <cstddef>
@@ -230,6 +231,86 @@ public:
         bool isSupported = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsSupportedApdusExtended(isSupported);
     }
+
+    void FuzzIsSameAppAbility(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        nfcService->Initialize();
+        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        ElementName fgElement1;
+        ElementName fgElement2;
+        tagSession->IsSameAppAbility(fgElement1, fgElement2);
+        fgElement1.bundleName_ = "1";
+        fgElement1.bundleName_ = "2";
+        tagSession->IsSameAppAbility(fgElement1, fgElement2);
+    }
+ 
+    void FuzzRegForegroundDispatchInner(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        nfcService->Initialize();
+        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        ElementName element;
+        element.bundleName_ = "bundleName";
+        element.abilityName_ = "abilityName";
+        std::vector<uint32_t> discTech = {};
+        tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
+        tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
+ 
+        int abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+ 
+        tagSession->UnregForegroundDispatch(element);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
+        tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
+    }
+ 
+    void FuzzRegReaderModeInner(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        nfcService->Initialize();
+        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        ElementName element;
+        element.bundleName_ = "bundleName";
+        element.abilityName_ = "abilityName";
+        std::vector<uint32_t> discTech = {};
+ 
+        tagSession->RegReaderModeInner(element, discTech, nullptr);
+        tagSession->RegReaderModeInner(element, discTech, nullptr);
+ 
+        int abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+ 
+        tagSession->UnregReaderModeInner(element, false);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+        abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
+        tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
+    }
+ 
+    void FuzzDump(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        nfcService->Initialize();
+        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        int32_t fd = -1;
+        const std::vector<std::u16string> args;
+        tagSession->Dump(fd, args);
+    }
 }
 
 /* Fuzzer entry point */
@@ -258,5 +339,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzCanMakeReadOnly(data, size);
     OHOS::FuzzGetMaxTransceiveLength(data, size);
     OHOS::FuzzIsSupportedApdusExtended(data, size);
+    OHOS::FuzzIsSameAppAbility(data, size);
+    OHOS::FuzzRegForegroundDispatchInner(data, size);
+    OHOS::FuzzRegReaderModeInner(data, size);
+    OHOS::FuzzDump(data, size);
     return 0;
 }
