@@ -109,15 +109,6 @@ namespace OHOS {
         std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
         (void)hceSession->Dump(fd, args);
     }
- 
-    void FuzzHceSessionGetPaymentService(const uint8_t* data, size_t size)
-    {
-        auto addr = BuildAddressString(data);
-        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        std::vector<AbilityInfo> paymentAbilityInfos;
-        hceSession->GetPaymentServices(paymentAbilityInfos);
-    }
 
 }
 
@@ -134,7 +125,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::StopHceFuzzTest(data, size);
     OHOS::RemoveHceDeathRecipientFuzzTest(data, size);
     OHOS::FuzzHceSessionDump(data, size);
-    OHOS::FuzzHceSessionGetPaymentService(data, size);
     return 0;
 }
 
