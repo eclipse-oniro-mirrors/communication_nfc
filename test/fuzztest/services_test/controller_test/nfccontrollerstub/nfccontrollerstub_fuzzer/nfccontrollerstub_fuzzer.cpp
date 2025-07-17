@@ -116,7 +116,7 @@ public:
             data2, reply, option);
     }
 
-    void FuzzRemoveNfcDeathRecipient(const uint8_t* data, size_t size)
+    void FuzzRemoveNfcDeathRecipientData(const uint8_t* data, size_t size)
     {
         std::weak_ptr<NFC::NfcService> nfcService;
         sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
@@ -308,7 +308,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleUnRegisterCallBack(data, size);
     OHOS::FuzzHandleIsNfcOpen(data, size);
     OHOS::FuzzHandleGetNfcTagInterface(data, size);
-    OHOS::FuzzRemoveNfcDeathRecipient(data, size);
+    OHOS::FuzzRemoveNfcDeathRecipientData(data, size);
     OHOS::FuzzUnregisterCallback(data, size);
     OHOS::FuzzregisterCallback(data, size);
     OHOS::FuzzHandleRegNdefMsgCb(data, size);
