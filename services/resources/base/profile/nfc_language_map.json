@@ -1,6 +1,10 @@
 {
     "nfc_language_map": [
         {
+            "system_language": "ar",
+            "file_path": "ar"
+        },
+        {
             "system_language": "en-Latn-US",
             "file_path": "base"
         },
@@ -9,20 +13,44 @@
             "file_path": "base"
         },
         {
+            "system_language": "bo",
+            "file_path": "bo_CN"
+        },
+        {
+            "system_language": "es",
+            "file_path": "es"
+        },
+        {
+            "system_language": "fr",
+            "file_path": "fr"
+        },
+        {
+            "system_language": "ja",
+            "file_path": "ja"
+        },
+        {
+            "system_language": "ko",
+            "file_path": "ko"
+        },
+        {
+            "system_language": "ru",
+            "file_path": "ru"
+        },
+        {
+            "system_language": "ug",
+            "file_path": "ug"
+        },
+        {
+            "system_language": "vi",
+            "file_path": "vi"
+        },
+        {
             "system_language": "zh-Hans",
             "file_path": "zh_CN"
         },
         {
             "system_language": "zh-Hant",
             "file_path": "zh_HK"
-        },
-        {
-            "system_language": "bo",
-            "file_path": "bo_CN"
-        },
-        {
-            "system_language": "ug",
-            "file_path": "ug"
         },
         {
             "system_language": "zz",
