@@ -84,7 +84,7 @@ NfcState getNfcState()
 {
     InfoLog("getNfcState, enter");
     int nfcState = OHOS::NFC::KITS::NfcController::GetInstance().GetNfcState();
-    return static_cast<NfcState::key_t>(nfcState);
+    return  NfcState::from_value(nfcState);
 }
 }  // namespace
 
