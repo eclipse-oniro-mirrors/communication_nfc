@@ -14,7 +14,7 @@
  */
 
 @!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_tag.z"); }
+{ loadLibrary("nfc_fwk_taihe_tag.z"); }
 """)
 
 interface TagSession {
