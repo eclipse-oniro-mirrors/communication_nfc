@@ -412,7 +412,7 @@ void NfcService::DoInitialize()
         return;
     }
     InfoLog("first time init.");
-    isAlreadyInited_ = false;
+    isAlreadyInited_ = true;
     int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
     if (nfcStateFromParam == KITS::STATE_ON) {
         if (nfcState_ != KITS::STATE_ON) {
