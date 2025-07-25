@@ -35,7 +35,7 @@ public:
     DISALLOW_COPY_AND_MOVE(NfcSaManager);
 
     /* Nfc open or close operations */
-    void OnStart() override;
+    void OnStart(const SystemAbilityOnDemandReason &startReason) override;
     void OnStop() override;
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    bool Init();
+    bool Init(const SystemAbilityOnDemandReason &startReason);
     bool registerToService_ = false;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
 
