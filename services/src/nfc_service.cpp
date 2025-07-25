@@ -407,7 +407,7 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
-    if (!isAlreadyInited_) {
+    if (isAlreadyInited_) {
         DebugLog("already initialized.");
         return;
     }
