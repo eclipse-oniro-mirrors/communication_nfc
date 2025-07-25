@@ -155,6 +155,8 @@ private:
     // lock
     std::mutex mutex_ {};
 
+    bool isFirstTimeInit_ = true;
+
     // unload sa timer id
     static uint32_t unloadStaSaTimerId;
 
