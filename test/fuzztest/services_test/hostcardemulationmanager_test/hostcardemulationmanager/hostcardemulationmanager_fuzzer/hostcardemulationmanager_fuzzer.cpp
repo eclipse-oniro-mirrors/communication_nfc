@@ -90,7 +90,7 @@ public:
         std::shared_ptr<NCI::INciCeInterface> nciCeProxy = NciNativeSelector::GetInstance().GetNciCeInterface();
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
         std::shared_ptr<HostCardEmulationManager> manager =
-            std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
         std::vector<uint8_t> datas;
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
