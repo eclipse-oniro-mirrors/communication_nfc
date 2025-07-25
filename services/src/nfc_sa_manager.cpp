@@ -31,14 +31,14 @@ NfcSaManager::~NfcSaManager()
     }
 }
 
-void NfcSaManager::OnStart()
+void NfcSaManager::OnStart(const SystemAbilityOnDemandReason &startReason)
 {
     if (state_ == ServiceRunningState::STATE_RUNNING) {
         InfoLog("NfcSaManager has already started.");
         return;
     }
 
-    if (!Init()) {
+    if (!Init(startReason)) {
         InfoLog("failed to init NfcSaManager");
         // record init sa failed event.
         NfcFailedParams err;
@@ -51,13 +51,17 @@ void NfcSaManager::OnStart()
     InfoLog("NfcSaManager::OnStart start service success.");
 }
 
-bool NfcSaManager::Init()
+bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)
 {
     std::lock_guard<std::mutex> guard(initMutex_);
-    InfoLog("NfcSaManager::Init ready to init.");
+    InfoLog("NfcSaManager::Init ready to init, Reason %{public}s, id %{public}d, value %{public}s",
+        startReason.GetName().c_str(), static_cast<int32_t>(startReason.GetId()), startReason.GetValue().c_str());
     if (!registerToService_) {
         nfcService_ = std::make_shared<NfcService>();
         nfcService_->Initialize();
+        if (startReason.GetName() != "usual.event.BOOT_COMPLETED") {
+            nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
+        }
         bool ret = Publish(nfcService_->nfcControllerImpl_);
         if (ret) {
             InfoLog("NfcSaManager::Init Add System Ability SUCCESS!");
