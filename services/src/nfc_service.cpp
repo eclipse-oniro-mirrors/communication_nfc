@@ -407,12 +407,12 @@ bool NfcService::DoTurnOff()
 
 void NfcService::DoInitialize()
 {
-    if (!isFirstTimeInit_) {
+    if (!isAlreadyInited_) {
         DebugLog("already initialized.");
         return;
     }
     InfoLog("first time init.");
-    isFirstTimeInit_ = false;
+    isAlreadyInited_ = false;
     int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
     if (nfcStateFromParam == KITS::STATE_ON) {
         if (nfcState_ != KITS::STATE_ON) {
