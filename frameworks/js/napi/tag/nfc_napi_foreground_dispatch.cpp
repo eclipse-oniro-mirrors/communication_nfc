@@ -129,7 +129,12 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
     }
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(asyncEvent->env, &loop);
-
+    if (loop == nullptr) {
+        ErrorLog("loop is null");
+        delete asyncEvent;
+        asyncEvent = nullptr;
+        return;
+    }
     uv_work_t *work = new uv_work_t;
     if (work == nullptr) {
         DebugLog("foreground event notify: uv_work_t work is null.");
