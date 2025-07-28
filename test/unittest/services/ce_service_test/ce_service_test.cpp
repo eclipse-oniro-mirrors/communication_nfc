@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "ce_service.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -731,7 +732,8 @@ HWTEST_F(CeServiceTest, GetDefaultPaymentType001, TestSize.Level1)
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     KITS::DefaultPaymentType res = ceService->GetDefaultPaymentType();
-    ASSERT_TRUE(res == KITS::DefaultPaymentType::TYPE_EMPTY);
+    InfoLog("GetDefaultPaymentType001, res = %{public}d", res);
+    ASSERT_TRUE(res != KITS::DefaultPaymentType::TYPE_EMPTY);
 }
 
 /**

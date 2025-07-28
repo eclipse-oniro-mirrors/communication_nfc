@@ -15,6 +15,7 @@
 #ifndef HCE_SESSION_H
 #define HCE_SESSION_H
 
+#include "access_token.h"
 #include "element_name.h"
 #include "infc_service.h"
 #include "ihce_session.h"
@@ -36,33 +37,38 @@ public:
     HceSession(const HceSession &) = delete;
     HceSession &operator=(const HceSession &) = delete;
 
-    KITS::ErrorCode RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback> &callback, const std::string &type,
-                                      Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::ErrorCode UnRegHceCmdCallbackByToken(const std::string &type,
-                                                Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken) override;
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
 
-    int SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
-                     Security::AccessToken::AccessTokenID callerToken) override;
+    ErrCode RegHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std::string& type) override;
 
-    int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos) override;
+    ErrCode UnregHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std::string& type) override;
 
-    KITS::ErrorCode IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService) override;
+    KITS::ErrorCode UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken);
+    KITS::ErrorCode HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken);
 
-    KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids) override;
+    ErrCode SendRawFrame(const std::string& hexCmdData, bool raw, std::string& hexRespData) override;
 
-    KITS::ErrorCode StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken) override;
+    ErrCode GetPaymentServices(CePaymentServicesParcelable& parcelable) override;
 
-    int32_t Dump(int32_t fd, const std::vector<std::u16string> &args) override;
+    ErrCode IsDefaultService(const ElementName& element, const std::string& type, bool& isDefaultService) override;
+
+    ErrCode StartHce(const ElementName& element, const std::vector<std::string>& aids) override;
+
+    ErrCode StopHce(const ElementName& element) override;
+
+    void RemoveHceDeathRecipient(const wptr<IRemoteObject>& remote);
 
 private:
-    std::string GetDumpInfo();
 #ifdef NFC_SIM_FEATURE
     void AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos);
 #endif
+
     std::weak_ptr<NFC::INfcService> nfcService_{};
     std::weak_ptr<CeService> ceService_{};
+    std::mutex mutex_{};
+    sptr<KITS::IHceCmdCallback> hceCmdCallback_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
 };
 } // namespace HCE
 } // namespace NFC

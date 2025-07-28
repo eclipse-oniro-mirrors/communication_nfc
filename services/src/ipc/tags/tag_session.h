@@ -14,7 +14,9 @@
  */
 #ifndef TAG_SESSION_H
 #define TAG_SESSION_H
-#include <shared_mutex>
+
+#include <mutex>
+
 #include "element_name.h"
 #include "itag_session.h"
 #include "nfc_service.h"
@@ -24,6 +26,8 @@
 #include "inci_tag_interface.h"
 #include "app_mgr_constants.h"
 #include "infc_app_state_observer.h"
+#include "iforeground_callback.h"
+#include "ireader_mode_callback.h"
 
 namespace OHOS {
 namespace NFC {
@@ -71,31 +75,34 @@ public:
     TagSession(const TagSession&) = delete;
     TagSession& operator=(const TagSession&) = delete;
 
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
+
     /**
      * @brief To connect the tagRfDiscId by technology.
      * @param tagRfDiscId the rf disc id of tag
      * @param technology the tag technology
      * @return the result to connect the tag
      */
-    int Connect(int tagRfDiscId, int technology) override;
+    ErrCode Connect(int32_t tagRfDiscId, int32_t technology) override;
     /**
     * @brief To get connection status of tag.
     * @param tagRfDiscId the rf disc id of tag
     * @param isConnected the connection status of tag
     * @return the result to get connection status of the tag
     */
-    int IsConnected(int tagRfDiscId, bool &isConnected) override;
+    ErrCode IsConnected(int32_t tagRfDiscId, bool& isConnected) override;
     /**
      * @brief To reconnect the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      * @return the result to reconnect the tag
      */
-    int Reconnect(int tagRfDiscId) override;
+    ErrCode Reconnect(int32_t tagRfDiscId) override;
     /**
      * @brief To disconnect the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      */
-    void Disconnect(int tagRfDiscId) override;
+    ErrCode Disconnect(int32_t tagRfDiscId) override;
         /**
      * @brief Set the Timeout for tag operations
      *
@@ -104,7 +111,7 @@ public:
      * @return true success of setting timeout value
      * @return false failure of setting timeout value
      */
-    int SetTimeout(int tagRfDiscId, int timeout, int technology) override;
+    ErrCode SetTimeout(int32_t tagRfDiscId, int32_t timeout, int32_t technology) override;
     /**
      * @brief Get the Timeout value of tag operations
      * @param tagRfDiscId the rf disc id of tag
@@ -112,64 +119,67 @@ public:
      * @param timeout the output to read the timeout value.
      * @return the status code of function calling.
      */
-    int GetTimeout(int tagRfDiscId, int technology, int &timeout) override;
+    ErrCode GetTimeout(int32_t tagRfDiscId, int32_t technology, int32_t& timeout) override;
     /**
      * @brief Reset the Timeout value of tag operations
      *
      * @param tagRfDiscId the rf disc id of tag
      */
-    void ResetTimeout(int tagRfDiscId) override;
+    ErrCode ResetTimeout(int32_t tagRfDiscId) override;
     /**
      * @brief Get the TechList of the tagRfDiscId.
      * @param tagRfDiscId the rf disc id of tag
      * @return TechList
      */
-    std::vector<int> GetTechList(int tagRfDiscId) override;
+    ErrCode GetTechList(int32_t tagRfDiscId, std::vector<int32_t>& funcResult) override;
     /**
      * @brief Checking the tagRfDiscId is present.
      * @param tagRfDiscId the rf disc id of tag
      * @return true - Presnet; the other - No Presnet
      */
-    bool IsTagFieldOn(int tagRfDiscId) override;
+    ErrCode IsTagFieldOn(int32_t tagRfDiscId, bool& funcResult) override;
     /**
      * @brief Checking the tagRfDiscId is a Ndef Tag.
      * @param tagRfDiscId the rf disc id of tag
      * @return true - Ndef Tag; the other - No Ndef Tag
      */
-    bool IsNdef(int tagRfDiscId) override;
+    ErrCode IsNdef(int32_t tagRfDiscId, bool& funcResult) override;
 
-    int SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData) override;
+    ErrCode SendRawFrame(
+        int32_t tagRfDiscId, const std::string& hexCmdData, bool raw, std::string& hexRespData) override;
     /**
      * @brief Reading from the host tag
      * @param tagRfDiscId the rf disc id of tag
      * @param ndefMessage the read data
      * @return the read Result
      */
-    int NdefRead(int tagRfDiscId, std::string &ndefMessage) override;
+    ErrCode NdefRead(int32_t tagRfDiscId, std::string& ndefMessage) override;
     /**
      * @brief Writing the data into the host tag.
      * @param tagRfDiscId the rf disc id of tag
      * @param msg the wrote data
      * @return the Writing Result
      */
-    int NdefWrite(int tagRfDiscId, std::string msg) override;
+    ErrCode NdefWrite(int32_t tagRfDiscId, const std::string& msg) override;
     /**
      * @brief Making the host tag to read only.
      * @param tagRfDiscId the rf disc id of tag
      * @return the making result
      */
-    int NdefMakeReadOnly(int tagRfDiscId) override;
+    ErrCode NdefMakeReadOnly(int32_t tagRfDiscId) override;
     /**
      * @brief format the tag by Ndef
      * @param tagRfDiscId the rf disc id of tag
      * @param key the format key
      * @return the format result
      */
-    int FormatNdef(int tagRfDiscId, const std::string& key) override;
+    ErrCode FormatNdef(int32_t tagRfDiscId, const std::string& key) override;
 
-    int CanMakeReadOnly(int ndefType, bool &canSetReadOnly) override;
-    int GetMaxTransceiveLength(int technology, int &maxSize) override;
-    int IsSupportedApdusExtended(bool &isSupported) override;
+    ErrCode CanMakeReadOnly(int32_t ndefType, bool& canSetReadOnly) override;
+
+    ErrCode GetMaxTransceiveLength(int32_t technology, int32_t& maxSize) override;
+
+    ErrCode IsSupportedApdusExtended(bool& isSupported) override;
 
     /**
      * @brief register foreground dispatch
@@ -179,8 +189,8 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    int RegForegroundDispatch(ElementName &element,
-        std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback) override;
+    ErrCode RegForegroundDispatch(const ElementName& element,
+        const std::vector<uint32_t>& discTech, const sptr<IForegroundCallback>& cb) override;
 
     /**
      * @brief unregister foreground dispatch
@@ -188,7 +198,7 @@ public:
      * @param element the element name of the hap that request to unregister foreground dispatch.
      * @return The status code for unregister operation.
      */
-    int UnregForegroundDispatch(ElementName &element) override;
+    ErrCode UnregForegroundDispatch(const ElementName& element) override;
 
     /**
      * @brief register reader mode
@@ -198,8 +208,8 @@ public:
      * @param callback the callback to be registered
      * @return The status code for register operation.
      */
-    int RegReaderMode(ElementName &element,
-        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback) override;
+    ErrCode RegReaderMode(const ElementName& element,
+        const std::vector<uint32_t>& discTech, const sptr<IReaderModeCallback>& cb) override;
 
     /**
      * @brief unregister reader mode
@@ -207,33 +217,7 @@ public:
      * @param element the element name of the hap that request to unregister reader mode
      * @return The status code for unregister operation.
      */
-    int UnregReaderMode(ElementName &element) override;
-
-    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-
-    /**
-     * @brief Get numbers of apps in registration of foregroundDispatch.
-     *
-     * @return FgDataVector Size.
-     */
-    uint16_t GetFgDataVecSize();
-
-    /**
-     * @brief Get numbers of apps in registration of readerMode.
-     *
-     * @return readerDataVector Size.
-     */
-    uint16_t GetReaderDataVecSize();
-
-    /**
-     * @brief Handle app state changed.
-     *
-     * @param bundleName bundle name.
-     * @param abilityName ability name.
-     * @param abilityState ability state.
-     */
-    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
-                               int abilityState) override;
+    ErrCode UnregReaderMode(const ElementName& element) override;
 
 private:
     void CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName, int abilityState);
@@ -241,27 +225,38 @@ private:
     bool IsFgRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback);
     bool IsFgUnregistered(const ElementName &element, bool isAppUnregister);
-    int RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
+    int RegForegroundDispatchInner(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp = false);
     int UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
     bool IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback);
     bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
-    int RegReaderModeInner(ElementName &element,
-        std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
-    int UnregReaderModeInner(ElementName &element, bool isAppUnregister);
+    int RegReaderModeInner(const ElementName &element, const std::vector<uint32_t> &discTech,
+        const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
+    int UnregReaderModeInner(const ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
-    std::string GetDumpInfo();
+
+    uint16_t GetFgDataVecSize();
+    uint16_t GetReaderDataVecSize();
+    void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
+                               int abilityState) override;
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
     bool IsVendorProcess();
 #endif
+
     std::weak_ptr<NFC::NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
     std::vector<FgData> fgDataVec_;
     std::vector<ReaderData> readerDataVec_;
-    std::shared_mutex fgMutex_;
+    std::mutex mutex_ {};
+
+    sptr<KITS::IForegroundCallback> foregroundCallback_;
+    sptr<KITS::IReaderModeCallback> readerModeCallback_;
+    sptr<IRemoteObject::DeathRecipient> foregroundDeathRecipient_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> readerModeDeathRecipient_ {nullptr};
 };
 }  // namespace TAG
 }  // namespace NFC

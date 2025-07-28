@@ -62,7 +62,7 @@ public:
     bool UnRegHceCmdCallback(const std::string &type, Security::AccessToken::AccessTokenID callerToken);
 
     bool UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken);
-    bool IsDefaultService(ElementName &element, const std::string &type);
+    bool IsDefaultService(const ElementName &element, const std::string &type);
 
     bool SendHostApduData(const std::string &hexCmdData, bool raw, std::string &hexRespData,
                           Security::AccessToken::AccessTokenID callerToken);

@@ -91,13 +91,11 @@ nfc_service_source = [
   "src/ipc/controller/nfc_controller_callback_proxy.cpp",
   "src/ipc/controller/nfc_controller_death_recipient.cpp",
   "src/ipc/controller/nfc_controller_impl.cpp",
-  "src/ipc/controller/nfc_controller_stub.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
   "src/ipc/tags/foreground_death_recipient.cpp",
   "src/ipc/tags/reader_mode_callback_proxy.cpp",
   "src/ipc/tags/reader_mode_death_recipient.cpp",
   "src/ipc/tags/tag_session.cpp",
-  "src/ipc/tags/tag_session_stub.cpp",
   "src/nci_adapter/nci_ce_proxy.cpp",
   "src/nci_adapter/nci_native_selector.cpp",
   "src/nci_adapter/nci_nfcc_proxy.cpp",
@@ -114,7 +112,6 @@ nfc_service_source = [
   "src/ipc/card_emulation/hce_cmd_callback_proxy.cpp",
   "src/ipc/card_emulation/hce_cmd_death_recipient.cpp",
   "src/ipc/card_emulation/hce_session.cpp",
-  "src/ipc/card_emulation/hce_session_stub.cpp",
   "src/tag/isodep_card_handler.cpp",
   "src/tag/ndef_har_data_parser.cpp",
   "src/tag/ndef_har_dispatch.cpp",
@@ -192,7 +189,10 @@ ohos_shared_library("nfc_service") {
 
   deps = [
     ":nfc_prebuilt_config",
+    "$NFC_DIR/interfaces/inner_api/cardEmulation:libnfc_hce_interface_stub",
+    "$NFC_DIR/interfaces/inner_api/controller:libnfc_controller_interface_stub",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/tags:libnfc_tag_interface_stub",
     "etc/init:etc",
     "src/notification:nfc_notification",
   ]
@@ -221,7 +221,13 @@ ohos_static_library("nfc_service_static") {
   public_configs = [ ":nfc_config" ]
 
   deps = [
+    "$NFC_DIR/interfaces/inner_api/cardEmulation:libnfc_hce_interface_proxy",
+    "$NFC_DIR/interfaces/inner_api/cardEmulation:libnfc_hce_interface_stub",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:libnfc_controller_interface_proxy",
+    "$NFC_DIR/interfaces/inner_api/controller:libnfc_controller_interface_stub",
+    "$NFC_DIR/interfaces/inner_api/tags:libnfc_tag_interface_proxy",
+    "$NFC_DIR/interfaces/inner_api/tags:libnfc_tag_interface_stub",
     "etc/init:etc",
   ]
 

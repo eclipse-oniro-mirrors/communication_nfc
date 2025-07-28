@@ -324,22 +324,6 @@ namespace OHOS {
         reply.WriteInt32(timeOutArray[0]);
         tagSession->OnRemoteRequest(static_cast<uint32_t>(size), data2, reply, option);
     }
-
-    void FuzzRemoveForegroundDeathRcpt(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
-        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-        wptr<IRemoteObject> remote = nullptr;
-        tagSession->RemoveForegroundDeathRcpt(remote);
-    }
-
-    void FuzzRemoveReaderModeDeathRcpt(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
-        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-        wptr<IRemoteObject> remote = nullptr;
-        tagSession->RemoveReaderModeDeathRcpt(remote);
-    }
 }
 
 /* Fuzzer entry point */
@@ -369,8 +353,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzHandleRegForegroundDispatch(data, size);
     OHOS::FuzzHandleUnregForegroundDispatch(data, size);
     OHOS::FuzzOnRemoteRequest(data, size);
-    OHOS::FuzzRemoveForegroundDeathRcpt(data, size);
-    OHOS::FuzzRemoveReaderModeDeathRcpt(data, size);
 
     return 0;
 }

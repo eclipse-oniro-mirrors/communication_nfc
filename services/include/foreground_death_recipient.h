@@ -23,13 +23,13 @@ namespace OHOS {
 namespace NFC {
 class ForegroundDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    explicit ForegroundDeathRecipient(sptr<TAG::TagSessionStub> tagSession,
+    explicit ForegroundDeathRecipient(sptr<TagSessionStub> tagSession,
         Security::AccessToken::AccessTokenID callerToken);
     ~ForegroundDeathRecipient() = default;
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
 private:
-    sptr<TAG::TagSessionStub> tagSession_ = nullptr;
+    sptr<TagSessionStub> tagSession_ = nullptr;
     Security::AccessToken::AccessTokenID callerToken_;
     std::mutex mutex_;
 };

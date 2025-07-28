@@ -16,28 +16,30 @@
 
 #include "loghelper.h"
 #include "nfc_controller_callback_stub.h"
+#include "nfc_controller_proxy.h"
 #include "nfc_sa_client.h"
 #include "nfc_sdk_common.h"
 #include "indef_msg_callback.h"
 #include "infc_controller_callback.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#ifdef VENDOR_APPLICATIONS_ENABLED
-#include "on_card_emulation_notify_cb_stub.h"
-#include "query_app_info_callback_stub.h"
-#endif
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-std::shared_ptr<OHOS::NFC::NfcControllerProxy> NfcController::nfcControllerProxy_;
-std::weak_ptr<INfcControllerService> NfcController::nfcControllerService_;
+static const uint8_t MAX_RETRY_TIMES = 3;
+
 sptr<IRemoteObject::DeathRecipient> NfcController::deathRecipient_;
 sptr<IRemoteObject> NfcController::remote_;
-sptr<TAG::ITagSession> NfcController::tagSessionProxy_;
 bool NfcController::initialized_ = false;
 bool NfcController::remoteDied_ = true;
 std::mutex NfcController::mutex_;
+
+static sptr<NfcControllerCallBackStub> g_nfcControllerCallbackStub =
+    sptr<NfcControllerCallBackStub>(new NfcControllerCallBackStub());
+static sptr<NdefMsgCallbackStub> g_ndefMsgCallbackStub =
+    sptr<NdefMsgCallbackStub>(new NdefMsgCallbackStub());
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
 static sptr<QueryAppInfoCallbackStub> g_queryAppInfoCallbackStub =
     sptr<QueryAppInfoCallbackStub>(new QueryAppInfoCallbackStub());
@@ -58,10 +60,9 @@ NfcController::~NfcController()
 
 void NfcController::InitNfcRemoteSA()
 {
-    DebugLog("NfcController::%{public}s in, initialized_ = %{public}d, nfcControllerService_ = %{public}d",
-        __func__, initialized_, nfcControllerService_.expired());
+    DebugLog("initialized_ = %{public}d, remote_ = %{public}d", initialized_, remote_ == nullptr);
     std::lock_guard<std::mutex> guard(mutex_);
-    if (!initialized_ || nfcControllerService_.expired() || remoteDied_) {
+    if (!initialized_ || remote_ == nullptr || remoteDied_) {
         for (uint8_t i = 0; i < MAX_RETRY_TIMES; ++i) {
             remote_ = NfcSaClient::GetInstance().LoadNfcSa(NFC_MANAGER_SYS_ABILITY_ID);
             if (remote_ == nullptr) {
@@ -80,8 +81,6 @@ void NfcController::InitNfcRemoteSA()
         }
         remote_->AddDeathRecipient(deathRecipient_);
         InfoLog("%{public}s:add remote death listener", __func__);
-        nfcControllerProxy_ = std::make_shared<NfcControllerProxy>(remote_);
-        nfcControllerService_ = nfcControllerProxy_;
 
         initialized_ = true;
         remoteDied_ = false;
@@ -100,7 +99,6 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 {
     WarnLog("%{public}s:Remote service is died!", __func__);
     std::lock_guard<std::mutex> lock(mutex_);
-    tagSessionProxy_ = nullptr;
     remoteDied_ = true;
     initialized_ = false;
     if (deathRecipient_ == nullptr || remoteObject == nullptr) {
@@ -112,9 +110,6 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
         return;
     }
     remote_->RemoveDeathRecipient(deathRecipient_);
-
-    nfcControllerService_.reset();
-    nfcControllerProxy_ = nullptr;
     remote_ = nullptr;
 }
 
@@ -122,20 +117,28 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 int NfcController::TurnOn()
 {
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->TurnOn();
+    ErrCode errCode = controllerProxy->TurnOn();
+    InfoLog("errCode = %{public}d", errCode);
+    return static_cast<int>(errCode);
 }
 
 // Close NFC
 int NfcController::TurnOff()
 {
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->TurnOff();
+    ErrCode errCode = controllerProxy->TurnOff();
+    InfoLog("errCode = %{public}d", errCode);
+    return static_cast<int>(errCode);
 }
 
 // get NFC state
@@ -147,11 +150,12 @@ int NfcController::GetNfcState()
         return state;
     }
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("Nfc controller service expired.");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return state;
     }
-    state = nfcControllerService_.lock()->GetState();
+    controllerProxy->GetState(state);
     InfoLog("nfc state: %{public}d.", state);
     return state;
 }
@@ -178,12 +182,18 @@ ErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callbac
         WarnLog("nfc SA not started yet.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
+    if (g_nfcControllerCallbackStub == nullptr) {
+        ErrorLog("g_nfcControllerCallbackStub is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    g_nfcControllerCallbackStub->RegisterCallBack(callback);
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("nfcControllerService_ expired.");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->RegisterCallBack(callback, type);
+    return static_cast<ErrorCode>(controllerProxy->RegisterNfcStatusCallBack(g_nfcControllerCallbackStub, type));
 }
 
 // unregister NFC state change
@@ -195,32 +205,43 @@ ErrorCode NfcController::UnregListener(const std::string& type)
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("nfcControllerService_ expired.");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->UnRegisterCallBack(type);
+    return static_cast<ErrorCode>(controllerProxy->UnregisterNfcStatusCallBack(type));
 }
 
 OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 {
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::GetTagServiceIface nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return nullptr;
     }
-    return nfcControllerService_.lock()->GetTagServiceIface();
+    OHOS::sptr<IRemoteObject> remoteObj = nullptr;
+    controllerProxy->GetTagServiceIface(remoteObj);
+    return remoteObj;
 }
 
 ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {
     DebugLog("NfcController::RegNdefMsgCb");
+    if (g_ndefMsgCallbackStub == nullptr) {
+        ErrorLog("g_ndefMsgCallbackStub is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    g_ndefMsgCallbackStub->RegisterCallback(callback);
+
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::RegNdefMsgCb nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->RegNdefMsgCb(callback);
+    return static_cast<ErrorCode>(controllerProxy->RegNdefMsgCb(g_ndefMsgCallbackStub));
 }
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -228,9 +249,15 @@ ErrorCode NfcController::RegQueryApplicationCb(const std::string& type,
     QueryApplicationByVendor tagCallback, QueryHceAppByVendor hceCallback)
 {
     DebugLog("NfcController::RegQueryApplicationCb");
+    if (g_queryAppInfoCallbackStub == nullptr) {
+        ErrorLog("g_queryAppInfoCallbackStub is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::RegQueryApplicationCb nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     if (type.compare(KEY_TAG_APP) == 0) {
@@ -238,56 +265,51 @@ ErrorCode NfcController::RegQueryApplicationCb(const std::string& type,
     } else if (type.compare(KEY_HCE_APP) == 0) {
         g_queryAppInfoCallbackStub->RegisterQueryHceAppCallback(hceCallback);
     }
-    return nfcControllerService_.lock()->RegQueryApplicationCb(g_queryAppInfoCallbackStub);
+    return static_cast<ErrorCode>(controllerProxy->RegQueryApplicationCb(g_queryAppInfoCallbackStub));
 }
 
 ErrorCode NfcController::RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback)
 {
     DebugLog("NfcController::RegCardEmulationNotifyCb");
+    if (g_onCardEmulationNotifyCbStub == nullptr) {
+        ErrorLog("g_onCardEmulationNotifyCbStub is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::RegCardEmulationNotifyCb nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
     g_onCardEmulationNotifyCbStub->RegisterCallback(callback);
-    return nfcControllerService_.lock()->RegCardEmulationNotifyCb(g_onCardEmulationNotifyCbStub);
+    return static_cast<ErrorCode>(controllerProxy->RegCardEmulationNotifyCb(g_onCardEmulationNotifyCbStub));
 }
+
 ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string arg2)
 {
     DebugLog("NfcController::NotifyEventStatus");
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::NotifyEventStatus nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    return nfcControllerService_.lock()->NotifyEventStatus(eventType, arg1, arg2);
+    return static_cast<ErrorCode>(controllerProxy->NotifyEventStatus(eventType, arg1, arg2));
 }
-#endif
+#endif // VENDOR_APPLICATIONS_ENABLED
 
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
 {
     InitNfcRemoteSA();
-    if (nfcControllerService_.expired()) {
-        ErrorLog("NfcController::GetHceServiceIface nfcControllerService_ expired");
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
         return nullptr;
     }
-    return nfcControllerService_.lock()->GetHceServiceIface(res);
-}
-
-OHOS::sptr<TAG::ITagSession> NfcController::GetTagSessionProxy()
-{
-    InitNfcRemoteSA();
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (tagSessionProxy_ != nullptr) {
-        return tagSessionProxy_;
-    }
-    auto service = nfcControllerService_.lock();
-    if (service == nullptr) {
-        return nullptr;
-    }
-    sptr<IRemoteObject> remote = service->GetTagServiceIface();
-    tagSessionProxy_ = iface_cast<TAG::ITagSession>(remote);
-    return tagSessionProxy_;
+    OHOS::sptr<IRemoteObject> remoteObj = nullptr;
+    controllerProxy->GetHceServiceIface(remoteObj);
+    return remoteObj;
 }
 }  // namespace KITS
 }  // namespace NFC

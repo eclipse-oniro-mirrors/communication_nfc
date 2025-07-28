@@ -27,13 +27,11 @@
 #include "nfc_sdk_common.h"
 #include "nfc_timer.h"
 #include "nfc_watch_dog.h"
-#include "tag_session.h"
 #include "external_deps_proxy.h"
 #include "want.h"
 #include "nci_nfcc_proxy.h"
 #include "nci_tag_proxy.h"
 #include "nci_ce_proxy.h"
-#include "hce_session.h"
 
 namespace OHOS {
 namespace NFC {

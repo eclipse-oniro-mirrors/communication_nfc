@@ -14,6 +14,8 @@
  */
 #ifndef NFC_CONTROLLER_IMPL_H
 #define NFC_CONTROLLER_IMPL_H
+
+#include "access_token.h"
 #include "infc_controller_callback.h"
 #include "nfc_controller_stub.h"
 #include "nfc_sdk_common.h"
@@ -26,31 +28,33 @@ public:
     explicit NfcControllerImpl(std::weak_ptr<NfcService> nfcService);
     ~NfcControllerImpl() override;
 
-    int GetState() override;
-    int TurnOn() override;
-    int TurnOff() override;
-    int IsNfcOpen(bool &isOpen) override;
-    KITS::ErrorCode RegisterCallBack(const sptr<INfcControllerCallback> &callback,
-        const std::string& type, Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::ErrorCode UnRegisterCallBack(const std::string& type,
-        Security::AccessToken::AccessTokenID callerToken) override;
-    KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken) override;
-    OHOS::sptr<IRemoteObject> GetTagServiceIface() override;
-    OHOS::sptr<IRemoteObject> GetHceServiceIface(int32_t &res) override;
-    KITS::ErrorCode RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback) override;
-#ifdef VENDOR_APPLICATIONS_ENABLED
-    KITS::ErrorCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback) override;
-    KITS::ErrorCode RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb> callback) override;
-    KITS::ErrorCode NotifyEventStatus(int eventType, int arg1, std::string arg2) override;
-#endif
-    int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
 
-private:
-    std::string GetDumpInfo();
+    ErrCode GetState(int32_t& funcResult) override;
+    ErrCode TurnOn() override;
+    ErrCode TurnOff() override;
+
+    ErrCode RegisterNfcStatusCallBack(const sptr<INfcControllerCallback>& cb, const std::string& type) override;
+
+    ErrCode UnregisterNfcStatusCallBack(const std::string& type) override;
+
+    KITS::ErrorCode UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken);
+    ErrCode GetTagServiceIface(sptr<IRemoteObject>& funcResult) override;
+    ErrCode GetHceServiceIface(sptr<IRemoteObject>& funcResult) override;
+    ErrCode RegNdefMsgCb(const sptr<INdefMsgCallback>& cb) override;
+
+    ErrCode RegQueryApplicationCb(const sptr<IQueryAppInfoCallback>& cb) override;
+    ErrCode RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb>& cb) override;
+    ErrCode NotifyEventStatus(int32_t eventType, int32_t arg1, const std::string& arg2) override;
+
+    void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
 
 private:
     std::weak_ptr<NfcService> nfcService_ = {};
     std::mutex mutex_ {};
+    sptr<INfcControllerCallback> callback_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
 };
 }  // namespace NFC
 }  // namespace OHOS

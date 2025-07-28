@@ -566,6 +566,10 @@ void NfcService::HandleShutdown()
 bool NfcService::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {
     DebugLog("NfcService::RegNdefMsgCb");
+    if (tagDispatcher_ == nullptr) {
+        ErrorLog("tagDispatcher_ nullptr.");
+        return false;
+    }
     tagDispatcher_->RegNdefMsgCb(callback);
     return true;
 }

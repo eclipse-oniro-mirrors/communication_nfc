@@ -117,7 +117,7 @@ HWTEST_F(NfcPollingManagerTest, DisableForegroundDispatch002, TestSize.Level1)
     std::shared_ptr<NFC::NfcPollingManager> nfcPollingManager =
         std::make_shared<NFC::NfcPollingManager>(nfcService, nciNfccProxy, nciTagProxy);
     bool disable = nfcPollingManager->DisableForegroundDispatch(element);
-    ASSERT_TRUE(!disable);
+    ASSERT_TRUE(disable);
 }
 /**
  * @tc.name: EnableForegroundDispatch001

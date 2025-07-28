@@ -104,17 +104,21 @@ bool NdefTag::IsNdefWritable() const
 
 int NdefTag::ReadNdef(std::shared_ptr<NdefMessage> &ndefMessage)
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         ErrorLog("[NdefTag::ReadNdef] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
-    if (tagSession->IsNdef(GetTagRfDiscId())) {
+    bool isNdef = false;
+    bool isTagFieldOn = false;
+    tagSession->IsNdef(GetTagRfDiscId(), isNdef);
+    if (isNdef) {
         std::string messageData {};
-        int ret = tagSession->NdefRead(GetTagRfDiscId(), messageData);
+        ErrCode ret = tagSession->NdefRead(GetTagRfDiscId(), messageData);
         if (ret == ERR_NONE) {
-            if (messageData.empty() && !tagSession->IsTagFieldOn(GetTagRfDiscId())) {
+            tagSession->IsTagFieldOn(GetTagRfDiscId(), isTagFieldOn);
+            if (messageData.empty() && !isTagFieldOn) {
                 ErrorLog("[NdefTag::ReadNdef] read ndef message is null and tag is not field on");
                 return ErrorCode::ERR_TAG_STATE_LOST;
             }
@@ -122,7 +126,8 @@ int NdefTag::ReadNdef(std::shared_ptr<NdefMessage> &ndefMessage)
         ndefMessage = NdefMessage::GetNdefMessage(messageData);
         return ret;
     } else {
-        if (!tagSession->IsTagFieldOn(GetTagRfDiscId())) {
+        tagSession->IsTagFieldOn(GetTagRfDiscId(), isTagFieldOn);
+        if (!isTagFieldOn) {
             WarnLog("[NdefTag::ReadNdef] tag is not field on.");
             return ErrorCode::ERR_TAG_STATE_LOST;
         }
@@ -137,12 +142,14 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
 
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         ErrorLog("[NdefTag::WriteNdef] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    if (!tagSession->IsNdef(GetTagRfDiscId())) {
+    bool isNdef = false;
+    tagSession->IsNdef(GetTagRfDiscId(), isNdef);
+    if (!isNdef) {
         ErrorLog("[NdefTag::WriteNdef] not ndef tag.");
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -151,17 +158,17 @@ int NdefTag::WriteNdef(std::shared_ptr<NdefMessage> msg)
         return ErrorCode::ERR_TAG_STATE_IO_FAILED;
     }
     std::string ndefMessage = NdefMessage::MessageToString(msg);
-    return tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage);
+    return static_cast<int>(tagSession->NdefWrite(GetTagRfDiscId(), ndefMessage));
 }
 
 int NdefTag::IsEnableReadOnly(bool &canSetReadOnly)
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         DebugLog("[NdefTag::IsEnableReadOnly] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->CanMakeReadOnly(nfcForumType_, canSetReadOnly);
+    return static_cast<int>(tagSession->CanMakeReadOnly(nfcForumType_, canSetReadOnly));
 }
 
 int NdefTag::EnableReadOnly()
@@ -170,12 +177,12 @@ int NdefTag::EnableReadOnly()
         ErrorLog("[NdefTag::EnableReadOnly] connect tag first!");
         return ErrorCode::ERR_TAG_STATE_DISCONNECTED;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         ErrorLog("[NdefTag::EnableReadOnly] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->NdefMakeReadOnly(GetTagRfDiscId());
+    return static_cast<int>(tagSession->NdefMakeReadOnly(GetTagRfDiscId()));
 }
 }  // namespace KITS
 }  // namespace NFC

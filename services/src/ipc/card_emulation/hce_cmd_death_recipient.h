@@ -16,20 +16,20 @@
 #define HCECMD_DEATH_RECIPIENT_H
 #include <unistd.h>
 #include <ipc_object_stub.h>
-#include "hce_session_stub.h"
+#include "hce_session.h"
 #include "access_token.h"
 
 namespace OHOS {
 namespace NFC {
 class HceCmdDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    explicit HceCmdDeathRecipient(sptr<HCE::HceSessionStub> hceSession,
+    explicit HceCmdDeathRecipient(sptr<HCE::HceSession> hceSession,
                                   Security::AccessToken::AccessTokenID callerToken);
     ~HceCmdDeathRecipient() = default;
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
 private:
-    sptr<HCE::HceSessionStub> hceSession_ = nullptr;
+    sptr<HCE::HceSession> hceSession_ = nullptr;
     Security::AccessToken::AccessTokenID callerToken_;
     std::mutex mutex_;
 };

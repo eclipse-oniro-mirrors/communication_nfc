@@ -13,16 +13,18 @@
  * limitations under the License.
  */
 #include "tag_session.h"
-#include "loghelper.h"
+
 #include "app_state_observer.h"
 #include "external_deps_proxy.h"
+#include "foreground_death_recipient.h"
+#include "ipc_skeleton.h"
+#include "loghelper.h"
+#include "reader_mode_death_recipient.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 using OHOS::AppExecFwk::ElementName;
-const std::string DUMP_LINE = "---------------------------";
-const std::string DUMP_END = "\n";
 
 // NFC_A = 1 ~ NDEF_FORMATABLE = 10
 const int MAX_TECH = 12;
@@ -44,36 +46,53 @@ TagSession::~TagSession()
 {
 }
 
+int32_t TagSession::CallbackEnter(uint32_t code)
+{
+    InfoLog("TagSession, code[%{public}u]", code);
+    return ERR_NONE;
+}
+
+int32_t TagSession::CallbackExit(uint32_t code, int32_t result)
+{
+    InfoLog("TagSession, code[%{public}u], result[%{public}d]", code, result);
+    return ERR_NONE;
+}
+
 /**
  * @brief To connect the tagRfDiscId by technology.
  * @param tagRfDiscId the rf disc id of tag
  * @param technology the tag technology
  * @return the result to connect the tag
  */
-int TagSession::Connect(int tagRfDiscId, int technology)
+ErrCode TagSession::Connect(int32_t tagRfDiscId, int32_t technology)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("Connect, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("Connect, invalid technology %{public}d", technology);
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ERR_TAG_PARAMETERS;
     }
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("Connect, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Connect, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
     if (!nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId)) {
         ErrorLog("Connect, IsTagFieldOn error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_LOST;
+        return KITS::ERR_TAG_STATE_LOST;
     }
 
     if (nciTagProxy_.lock()->Connect(tagRfDiscId, technology)) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     } else {
-        ErrorLog("Connect, unallowd call error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+        ErrorLog("Connect, call error");
+        return KITS::ERR_TAG_STATE_IO_FAILED;
     }
 }
 
@@ -83,18 +102,23 @@ int TagSession::Connect(int tagRfDiscId, int technology)
  * @param isConnected the connection status of tag
  * @return the result to get connection status of the tag
  */
-int TagSession::IsConnected(int tagRfDiscId, bool &isConnected)
+ErrCode TagSession::IsConnected(int32_t tagRfDiscId, bool& isConnected)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("IsConnected, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("Connect, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        ErrorLog("IsConnected, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("Connect, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        ErrorLog("IsConnected, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
     isConnected = nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
 
 /**
@@ -102,94 +126,125 @@ int TagSession::IsConnected(int tagRfDiscId, bool &isConnected)
  * @param tagRfDiscId the rf disc id of tag
  * @return the result to reconnect the tag
  */
-int TagSession::Reconnect(int tagRfDiscId)
+ErrCode TagSession::Reconnect(int32_t tagRfDiscId)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("Reconnect, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("Reconnect, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("Reconnect, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     if (nciTagProxy_.lock()->Reconnect(tagRfDiscId)) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     } else {
-        ErrorLog("Reconnect, unallowd call error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+        ErrorLog("Reconnect, call error");
+        return KITS::ERR_TAG_STATE_IO_FAILED;
     }
 }
+
 /**
  * @brief To disconnect the tagRfDiscId.
  * @param tagRfDiscId the rf disc id of tag
  */
-void TagSession::Disconnect(int tagRfDiscId)
+ErrCode TagSession::Disconnect(int32_t tagRfDiscId)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("Disconnect, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("Disconnect, IsTagFieldOn error");
-        return;
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("Disconnect, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("Disconnect, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     nciTagProxy_.lock()->Disconnect(tagRfDiscId);
+    return KITS::ERR_NONE;
 }
 
-int TagSession::SetTimeout(int tagRfDiscId, int timeout, int technology)
+ErrCode TagSession::SetTimeout(int32_t tagRfDiscId, int32_t timeout, int32_t technology)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("SetTimeout, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("SetTimeout, invalid technology %{public}d", technology);
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ERR_TAG_PARAMETERS;
     }
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("SetTimeout, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SetTimeout, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     nciTagProxy_.lock()->SetTimeout(tagRfDiscId, timeout, technology);
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
 
-int TagSession::GetTimeout(int tagRfDiscId, int technology, int &timeout)
+ErrCode TagSession::GetTimeout(int32_t tagRfDiscId, int32_t technology, int32_t& timeout)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("GetTimeout, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("GetTimeout, invalid technology %{public}d", technology);
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ERR_TAG_PARAMETERS;
     }
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("GetTimeout, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("GetTimeout, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     uint32_t timeoutTemp = 0;
     nciTagProxy_.lock()->GetTimeout(tagRfDiscId, timeoutTemp, technology);
     timeout = static_cast<int>(timeoutTemp);
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
 
-void TagSession::ResetTimeout(int tagRfDiscId)
+ErrCode TagSession::ResetTimeout(int32_t tagRfDiscId)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("ResetTimeout, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("ResetTimeout, expired");
-        return;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("ResetTimeout, IsNfcEnabled error");
-        return;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
     nciTagProxy_.lock()->ResetTimeout(tagRfDiscId);
-    return;
+    return KITS::ERR_NONE;
 }
 
 /**
@@ -197,220 +252,304 @@ void TagSession::ResetTimeout(int tagRfDiscId)
  * @param tagRfDiscId the rf disc id of tag
  * @return TechList
  */
-std::vector<int> TagSession::GetTechList(int tagRfDiscId)
+ErrCode TagSession::GetTechList(int32_t tagRfDiscId, std::vector<int32_t>& funcResult)
 {
-    std::vector<int> techList;
-    // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("GetTechList, IsTagFieldOn error");
-        return techList;
+    funcResult = std::vector<int32_t>();
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("GetTechList, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
     }
 
-    return nciTagProxy_.lock()->GetTechList(tagRfDiscId);
+    // Check if NFC is enabled
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("GetTechList, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("GetTechList, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
+    }
+
+    funcResult = nciTagProxy_.lock()->GetTechList(tagRfDiscId);
+    return KITS::ERR_NONE;
 }
+
 /**
  * @brief Checking the tagRfDiscId is present.
  * @param tagRfDiscId the rf disc id of tag
  * @return true - Presnet; the other - No Presnet
  */
-bool TagSession::IsTagFieldOn(int tagRfDiscId)
+ErrCode TagSession::IsTagFieldOn(int32_t tagRfDiscId, bool& funcResult)
 {
-    // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("IsTagFieldOn, IsTagFieldOn error");
-        return false;
+    funcResult = false;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("IsTagFieldOn, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
     }
 
-    return nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
+    // Check if NFC is enabled
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("IsTagFieldOn, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("IsTagFieldOn, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
+    }
+
+    funcResult = nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
+    return KITS::ERR_NONE;
 }
+
 /**
  * @brief Checking the tagRfDiscId is a Ndef Tag.
  * @param tagRfDiscId the rf disc id of tag
  * @return true - Ndef Tag; the other - No Ndef Tag
  */
-bool TagSession::IsNdef(int tagRfDiscId)
+ErrCode TagSession::IsNdef(int32_t tagRfDiscId, bool& funcResult)
 {
+    funcResult = false;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("IsNdef, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("IsNdef, IsTagFieldOn error");
-        return false;
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("IsNdef, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("IsNdef, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     std::vector<int> ndefInfo;
-    return nciTagProxy_.lock()->DetectNdefInfo(tagRfDiscId, ndefInfo);
+    funcResult = nciTagProxy_.lock()->DetectNdefInfo(tagRfDiscId, ndefInfo);
+    return KITS::ERR_NONE;
 }
 
-int TagSession::SendRawFrame(const int tagRfDiscId, std::string hexCmdData, bool raw, std::string &hexRespData)
+ErrCode TagSession::SendRawFrame(int32_t tagRfDiscId, const std::string& hexCmdData, bool raw, std::string& hexRespData)
 {
     DebugLog("Send Raw(%{public}d) Frame", raw);
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("SendRawFrame, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("SendRawFrame, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("SendRawFrame, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     // Check if length is within limits
     int maxSize = 0;
     GetMaxTransceiveLength(nciTagProxy_.lock()->GetConnectedTech(tagRfDiscId), maxSize);
     if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > static_cast<uint32_t>(maxSize)) {
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        ErrorLog("hexCmdData exceed max size.");
+        return KITS::ERR_TAG_PARAMETERS;
     }
 
     int result = nciTagProxy_.lock()->Transceive(tagRfDiscId, hexCmdData, hexRespData);
     DebugLog("TagSession::SendRawFrame, result = 0x%{public}X", result);
     if ((result == 0) && (!hexRespData.empty())) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     } else if (result == 1) {  // result == 1 means that Tag lost
         ErrorLog("TagSession::SendRawFrame: tag lost.");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_LOST;
+        return KITS::ERR_TAG_STATE_LOST;
     }
     ErrorLog("TagSession::SendRawFrame: result failed.");
-    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+    return KITS::ERR_TAG_STATE_IO_FAILED;
 }
+
 /**
  * @brief Reading from the host tag
  * @param tagRfDiscId the rf disc id of tag
  * @return the read data
  */
-int TagSession::NdefRead(int tagRfDiscId, std::string &ndefMessage)
+ErrCode TagSession::NdefRead(int32_t tagRfDiscId, std::string& ndefMessage)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("NdefRead, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        ErrorLog("NdefRead, IsTagFieldOn error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+    if (nfcService_.expired() || nciTagProxy_.expired()) {
+        ErrorLog("NdefRead, expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (!nfcService_.lock()->IsNfcEnabled()) {
+        ErrorLog("NdefRead, IsNfcEnabled error");
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     ndefMessage = nciTagProxy_.lock()->ReadNdef(tagRfDiscId);
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
+
 /**
  * @brief Writing the data into the host tag.
  * @param tagRfDiscId the rf disc id of tag
  * @param msg the wrote data
  * @return the Writing Result
  */
-int TagSession::NdefWrite(int tagRfDiscId, std::string msg)
+ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("NdefWrite, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("NdefWrite, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefWrite, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     if (msg.empty()) {
         ErrorLog("NdefWrite, msg.empty error");
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ERR_TAG_PARAMETERS;
     }
 
     if (nciTagProxy_.lock()->WriteNdef(tagRfDiscId, msg)) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     }
-    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+    return KITS::ERR_TAG_STATE_IO_FAILED;
 }
+
 /**
  * @brief Making the host tag to read only.
  * @param tagRfDiscId the rf disc id of tag
  * @return the making result
  */
-int TagSession::NdefMakeReadOnly(int tagRfDiscId)
+ErrCode TagSession::NdefMakeReadOnly(int32_t tagRfDiscId)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("NdefMakeReadOnly, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("NdefMakeReadOnly, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("NdefMakeReadOnly, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     if (nciTagProxy_.lock()->SetNdefReadOnly(tagRfDiscId)) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     }
-    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+    return KITS::ERR_TAG_STATE_IO_FAILED;
 }
+
 /**
  * @brief format the tag by Ndef
  * @param tagRfDiscId the rf disc id of tag
  * @param key the format key
  * @return the format result
  */
-int TagSession::FormatNdef(int tagRfDiscId, const std::string& key)
+ErrCode TagSession::FormatNdef(int32_t tagRfDiscId, const std::string& key)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("FormatNdef, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     // Check if NFC is enabled
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("FormatNdef, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcService_.lock()->IsNfcEnabled()) {
         ErrorLog("FormatNdef, IsNfcEnabled error");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+        return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     if (nciTagProxy_.lock()->FormatNdef(tagRfDiscId, key)) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+        return KITS::ERR_NONE;
     }
-    return NFC::KITS::ErrorCode::ERR_TAG_STATE_IO_FAILED;
+    return KITS::ERR_TAG_STATE_IO_FAILED;
 }
 
-int TagSession::CanMakeReadOnly(int ndefType, bool &canSetReadOnly)
+ErrCode TagSession::CanMakeReadOnly(int32_t ndefType, bool& canSetReadOnly)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("CanMakeReadOnly, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("CanMakeReadOnly, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     canSetReadOnly = nciTagProxy_.lock()->CanMakeReadOnly(ndefType);
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
+
 /**
  * @brief Get Max Transceive Length
  * @param technology the tag technology
  * @return Max Transceive Length
  */
-int TagSession::GetMaxTransceiveLength(int technology, int &maxSize)
+ErrCode TagSession::GetMaxTransceiveLength(int32_t technology, int32_t& maxSize)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("GetMaxTransceiveLength, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (technology < 0 || technology >= MAX_TECH) {
         ErrorLog("GetMaxTransceiveLength, technology not support");
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
+        return KITS::ERR_TAG_PARAMETERS;
     }
     maxSize = g_maxTransLength[technology];
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
 
-int TagSession::IsSupportedApdusExtended(bool &isSupported)
+ErrCode TagSession::IsSupportedApdusExtended(bool& isSupported)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("IsSupportedApdusExtended, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("IsSupportedApdusExtended, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     isSupported = nciTagProxy_.lock()->IsExtendedLengthApduSupported();
-    return NFC::KITS::ErrorCode::ERR_NONE;
+    return KITS::ERR_NONE;
 }
 
 uint16_t TagSession::GetFgDataVecSize()
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     return fgDataVec_.size();
 }
 
 uint16_t TagSession::GetReaderDataVecSize()
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     return readerDataVec_.size();
 }
 
 void TagSession::CheckFgAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto fgData = fgDataVec_.begin(); fgData != fgDataVec_.end(); fgData++) {
         ElementName element = fgData->element_;
         if (element.GetBundleName() == bundleName && element.GetAbilityName() == abilityName) {
@@ -442,7 +581,7 @@ void TagSession::CheckFgAppStateChanged(const std::string &bundleName, const std
 void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto readerData = readerDataVec_.begin(); readerData != readerDataVec_.end(); readerData++) {
         ElementName element = readerData->element_;
         if (element.GetBundleName() == bundleName && element.GetAbilityName() == abilityName) {
@@ -507,9 +646,29 @@ bool TagSession::IsVendorProcess()
 }
 #endif
 
-int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IForegroundCallback> &callback)
+ErrCode TagSession::RegForegroundDispatch(
+    const ElementName& element, const std::vector<uint32_t>& discTech, const sptr<IForegroundCallback>& cb)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("RegForegroundDispatch, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("callback nullptr.");
+        return KITS::ERR_TAG_PARAMETERS;
+    }
+
+    std::unique_ptr<ForegroundDeathRecipient> recipient
+        = std::make_unique<ForegroundDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+    sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+    if (!cb->AsObject()->AddDeathRecipient(dr)) {
+        ErrorLog("Failed to add death recipient");
+        return KITS::ERR_TAG_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    foregroundDeathRecipient_ = dr;
+    foregroundCallback_ = cb;
     bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -525,11 +684,10 @@ int TagSession::RegForegroundDispatch(ElementName &element, std::vector<uint32_t
         return KITS::ERR_NONE;
 #endif
     }
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
-    return RegForegroundDispatchInner(element, discTech, callback, isVendorApp);
+    return RegForegroundDispatchInner(element, discTech, cb, isVendorApp);
 }
 
-int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vector<uint32_t> &discTech,
+int TagSession::RegForegroundDispatchInner(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp)
 {
     if (IsFgRegistered(element, discTech, callback)) {
@@ -540,7 +698,7 @@ int TagSession::RegForegroundDispatchInner(ElementName &element, const std::vect
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("RegForegroundDispatch, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback, isVendorApp)) {
         bool isFgAbility = nfcPollingManager_.lock()->GetForegroundAbility() == element.GetAbilityName();
@@ -575,9 +733,14 @@ bool TagSession::IsFgRegistered(const ElementName &element, const std::vector<ui
     return false;
 }
 
-int TagSession::UnregForegroundDispatch(ElementName &element)
+ErrCode TagSession::UnregForegroundDispatch(const ElementName& element)
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("UnregForegroundDispatch, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
     return UnregForegroundDispatchInner(element, true);
 }
 
@@ -591,7 +754,7 @@ int TagSession::UnregForegroundDispatchInner(const ElementName &element, bool is
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregForegroundDispatch, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->DisableForegroundDispatch(element)) {
         return KITS::ERR_NONE;
@@ -673,7 +836,7 @@ bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnre
     return true;
 }
 
-int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &discTech,
+int TagSession::RegReaderModeInner(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
     if (IsReaderRegistered(element, discTech, callback)) {
@@ -684,7 +847,7 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("RegReaderModeInner, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
         bool isFgAbility = nfcPollingManager_.lock()->GetForegroundAbility() == element.GetAbilityName();
@@ -697,7 +860,7 @@ int TagSession::RegReaderModeInner(ElementName &element, std::vector<uint32_t> &
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
+int TagSession::UnregReaderModeInner(const ElementName &element, bool isAppUnregister)
 {
     if (IsReaderUnregistered(element, isAppUnregister)) {
         WarnLog("%{public}s already UnregReaderMode", element.GetBundleName().c_str());
@@ -707,7 +870,7 @@ int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     if (nfcPollingManager_.expired()) {
         ErrorLog("UnregReaderMode, expired");
-        return NFC::KITS::ErrorCode::ERR_TAG_STATE_UNBIND;
+        return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->DisableReaderMode(element)) {
         return KITS::ERR_NONE;
@@ -715,9 +878,29 @@ int TagSession::UnregReaderModeInner(ElementName &element, bool isAppUnregister)
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discTech,
-    const sptr<KITS::IReaderModeCallback> &callback)
+ErrCode TagSession::RegReaderMode(
+    const ElementName& element, const std::vector<uint32_t>& discTech, const sptr<IReaderModeCallback>& cb)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("RegReaderMode, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("callback nullptr.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::unique_ptr<ReaderModeDeathRecipient> recipient
+        = std::make_unique<ReaderModeDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+    sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+    if (!cb->AsObject()->AddDeathRecipient(dr)) {
+        ErrorLog("Failed to add death recipient");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    readerModeDeathRecipient_ = dr;
+    readerModeCallback_ = cb;
     bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
@@ -733,47 +916,17 @@ int TagSession::RegReaderMode(ElementName &element, std::vector<uint32_t> &discT
         return KITS::ERR_TAG_APP_NOT_FOREGROUND;
 #endif
     }
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
-    return RegReaderModeInner(element, discTech, callback, isVendorApp);
+    return RegReaderModeInner(element, discTech, cb, isVendorApp);
 }
 
-int TagSession::UnregReaderMode(ElementName &element)
+ErrCode TagSession::UnregReaderMode(const ElementName& element)
 {
-    std::unique_lock<std::shared_mutex> guard(fgMutex_);
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("UnregReaderMode, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    std::lock_guard<std::mutex> guard(mutex_);
     return UnregReaderModeInner(element, true);
-}
-
-int32_t TagSession::Dump(int32_t fd, const std::vector<std::u16string>& args)
-{
-    std::string info = GetDumpInfo();
-    int ret = dprintf(fd, "%s\n", info.c_str());
-    if (ret < 0) {
-        ErrorLog("TagSession Dump ret = %{public}d", ret);
-        return NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS;
-    }
-    return NFC::KITS::ErrorCode::ERR_NONE;
-}
-
-std::string TagSession::GetDumpInfo()
-{
-    std::string info;
-    if (nfcService_.expired()) {
-        return info;
-    }
-
-    return info.append(DUMP_LINE)
-        .append(" TAG DUMP ")
-        .append(DUMP_LINE)
-        .append(DUMP_END)
-        .append("NFC_STATE          : ")
-        .append(std::to_string(nfcService_.lock()->GetNfcState()))
-        .append(DUMP_END)
-        .append("SCREEN_STATE       : ")
-        .append(std::to_string(nfcService_.lock()->GetScreenState()))
-        .append(DUMP_END)
-        .append("NCI_VERSION        : ")
-        .append(std::to_string(nfcService_.lock()->GetNciVersion()))
-        .append(DUMP_END);
 }
 }  // namespace TAG
 }  // namespace NFC
