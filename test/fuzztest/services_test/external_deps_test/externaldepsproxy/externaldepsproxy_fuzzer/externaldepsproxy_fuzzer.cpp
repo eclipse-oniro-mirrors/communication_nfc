@@ -152,7 +152,7 @@ namespace NFC {
     void FuzzPublishNfcFieldStateChanged(const uint8_t* data, size_t size)
     {
         // Remainder 2 to obtain random bool
-        bool isFieldOn = (size % 2) == 1;
+        bool isFieldOn = (data[0] % 2) == 1;
         ExternalDepsProxy::GetInstance().PublishNfcFieldStateChanged(isFieldOn);
     }
 
