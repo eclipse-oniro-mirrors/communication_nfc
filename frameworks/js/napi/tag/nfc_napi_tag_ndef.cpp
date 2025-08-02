@@ -86,7 +86,7 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
     std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
 
     for (uint32_t i = 0; i < length; i++) {
-        napi_value ndefRecordValue;
+        napi_value ndefRecordValue = nullptr;
         napi_get_element(env, args, i, &ndefRecordValue);
         if (!IsObject(env, ndefRecordValue)) {
             ErrorLog("ParseNdefRecords, Object expected.");
