@@ -704,7 +704,7 @@ napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
 
     // new instance of JS object NfcATag
-    napi_value result;
+    napi_value result = nullptr;
     napi_value constructor = nullptr;
     napi_get_reference_value(env, ref, &constructor);
     napi_new_instance(env, constructor, argc, argv, &result);
