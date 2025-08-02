@@ -92,7 +92,7 @@ void ConvertAbilityInfoToJS(napi_env env, napi_value &result, AbilityInfo &abili
     // std::string iconPath;
     napi_create_object(env, &result);
 
-    napi_value name;
+    napi_value name = nullptr;
     napi_create_string_utf8(env, abilityInfo.name.c_str(), NAPI_AUTO_LENGTH, &name);
     napi_set_named_property(env, result, "name", name);
 
@@ -100,7 +100,7 @@ void ConvertAbilityInfoToJS(napi_env env, napi_value &result, AbilityInfo &abili
     napi_create_int32(env, abilityInfo.labelId, &labelId);
     napi_set_named_property(env, result, "labelId", labelId);
 
-    napi_value bundleName;
+    napi_value bundleName = nullptr;
     napi_create_string_utf8(env, abilityInfo.bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleName);
     napi_set_named_property(env, result, "bundleName", bundleName);
 
