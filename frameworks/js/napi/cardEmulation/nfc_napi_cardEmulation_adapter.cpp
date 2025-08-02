@@ -34,7 +34,7 @@ napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
-    int32_t type;
+    int32_t type = 0;
     if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_1) || !ParseInt32(env, type, argv[ARGV_INDEX_0])) {
         ErrorLog("IsSupported: parse args failed");
         return CreateUndefined(env);
