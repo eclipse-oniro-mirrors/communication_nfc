@@ -59,12 +59,8 @@ void NfcRoutingManager::HandleCommitRouting()
     }
     NfcWatchDog CommitRoutingDog("CommitRouting", WAIT_ROUTING_INIT, nciNfccProxy_);
     CommitRoutingDog.Run();
-    if (currPollingParams->ShouldEnablePolling()) {
-        bool result = nciCeProxy_.lock()->CommitRouting();
-        DebugLog("HandleCommitRouting: result = %{public}d", result);
-    } else {
-        ErrorLog("HandleCommitRouting: NOT Handle CommitRouting when polling not enabled.");
-    }
+    bool result = nciCeProxy_.lock()->CommitRouting();
+    DebugLog("HandleCommitRouting: result = %{public}d", result);
     CommitRoutingDog.Cancel();
 }
 
