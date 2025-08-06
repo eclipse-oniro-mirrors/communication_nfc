@@ -84,7 +84,7 @@ private:
     int UnregisterForegroundEvents(ElementName &element);
     void DeleteRegisterObj(const napi_env &env, RegObj &regObj, napi_value &handler);
 
-    static bool isEvtRegistered;
+    static bool isEvtRegistered_;
 };
 
 class ReaderModeEvtRegister {
@@ -101,7 +101,7 @@ private:
     int UnregReaderModeEvt(std::string &type, ElementName &element);
     void DeleteRegisteredObj(const napi_env &env, RegObj &regObj, napi_value &handler);
 
-    static bool isReaderModeRegistered;
+    static bool isReaderModeRegistered_;
 };
 
 napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo);
