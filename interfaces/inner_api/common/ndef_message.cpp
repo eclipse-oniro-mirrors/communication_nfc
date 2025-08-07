@@ -399,9 +399,9 @@ bool NdefMessage::CheckTnf(short tnf, const std::string& tagRtdType, const std::
         case TNF_UNKNOWN:
         case TNF_RESERVED:
             if (tagRtdType.empty()) {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         case TNF_UNCHANGED:
             return false;
         default:
