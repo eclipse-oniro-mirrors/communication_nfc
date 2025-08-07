@@ -480,6 +480,8 @@ napi_value NapiNdefTag::WriteNdef(napi_env env, napi_callback_info info)
     NapiNdefMessage *napiNdefMessage = nullptr;
     napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&napiNdefMessage));
     if (!CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID)) {
+        delete(context);
+        context = nullptr;
         return CreateUndefined(env);
     }
 
