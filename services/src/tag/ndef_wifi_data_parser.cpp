@@ -39,6 +39,7 @@ namespace TAG {
 #define AUTH_TYPE_WPA2_EAP          0x0010
 #define AUTH_TYPE_WPA2_PSK          0x0020
 #define AUTH_TYPE_WPA_AND_WPA2_PSK  0x0022
+#define AUTH_TYPE_WPA3_SAE          0x0040
 
 #define RECORDS_MAX_SIZE            2000
 #define NETWORK_KEY_MAX_SIZE        64
@@ -95,6 +96,9 @@ void NdefWifiDataParser::SetKeyMgmt(std::string& keyMgmt, uint16_t authType)
             // fall-through
         case AUTH_TYPE_WPA2_EAP:
             keyMgmt = Wifi::KEY_MGMT_EAP;
+            break;
+        case AUTH_TYPE_WPA3_SAE:
+            keyMgmt = Wifi::KEY_MGMT_SAE;
             break;
         default:
             break;
