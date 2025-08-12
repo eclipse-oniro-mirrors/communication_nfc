@@ -218,6 +218,10 @@ bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
 
 bool IsodepCardHandler::CheckApduResponse(const std::string &response, uint8_t cardIndex)
 {
+    if (cardIndex >= cardInfoVec_.size()) {
+        ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
+        return;
+    }
     if (response.length() < APDU_RSP_OK_STR_LEN) {
         ErrorLog("invalid response length");
         return false;
