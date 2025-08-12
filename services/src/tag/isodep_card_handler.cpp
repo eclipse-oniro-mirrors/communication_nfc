@@ -218,10 +218,10 @@ bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
 
 bool IsodepCardHandler::CheckApduResponse(const std::string &response, uint8_t cardIndex)
 {
-    if (cardIndex >= cardInfoVec_.size()) {
+    if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
-        return;
-    }
+        return false;
+    
     if (response.length() < APDU_RSP_OK_STR_LEN) {
         ErrorLog("invalid response length");
         return false;
@@ -252,7 +252,7 @@ bool IsodepCardHandler::CheckApduResponse(const std::string &response)
 
 void IsodepCardHandler::GetBalance(uint32_t rfDiscId, uint8_t cardIndex, int &balance)
 {
-    if (cardIndex >= cardInfoVec_.size()) {
+    if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
         return;
     }
@@ -300,7 +300,7 @@ void IsodepCardHandler::GetBalanceValue(const std::string &balanceStr, int &bala
 
 void IsodepCardHandler::GetCardName(uint8_t cardIndex, std::string &cardName)
 {
-    if (cardIndex >= cardInfoVec_.size()) {
+    if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
         return;
     }
