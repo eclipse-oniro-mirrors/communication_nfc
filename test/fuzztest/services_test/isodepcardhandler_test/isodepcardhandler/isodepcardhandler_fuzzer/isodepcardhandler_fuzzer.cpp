@@ -93,8 +93,8 @@ namespace OHOS {
     void FuzzMatchCity(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
-        uint32_t rfDiscId = 0;
-        uint8_t cardIndex = 0;
+        uint32_t rfDiscId = static_cast<uint32_t>(data[0]);
+        uint8_t cardIndex = static_cast<uint8_t>(data[1]);
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->MatchCity(rfDiscId, cardIndex);
     }

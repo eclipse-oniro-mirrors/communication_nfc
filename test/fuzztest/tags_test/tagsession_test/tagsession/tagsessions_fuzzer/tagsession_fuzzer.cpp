@@ -240,8 +240,8 @@ public:
         ElementName fgElement1;
         ElementName fgElement2;
         tagSession->IsSameAppAbility(fgElement1, fgElement2);
-        fgElement1.bundleName_ = "1";
-        fgElement1.bundleName_ = "2";
+        fgElement1.bundleName_ = std::string(reinterpret_cast<const char*>(data), size);
+        fgElement1.bundleName_ = std::string(reinterpret_cast<const char*>(data), size);
         tagSession->IsSameAppAbility(fgElement1, fgElement2);
     }
  
@@ -257,7 +257,7 @@ public:
         tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
         tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
  
-        int abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        int abilityState = static_cast<int>(data[0]);
         tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
         abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
         tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
@@ -286,7 +286,7 @@ public:
         tagSession->RegReaderModeInner(element, discTech, nullptr);
         tagSession->RegReaderModeInner(element, discTech, nullptr);
  
-        int abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
+        int abilityState = static_cast<int>(data[0]);
         tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
         abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
         tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
@@ -307,7 +307,7 @@ public:
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
         nfcService->Initialize();
         std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int32_t fd = -1;
+        int32_t fd = static_cast<int32_t>(data[0]);
         const std::vector<std::u16string> args;
         tagSession->Dump(fd, args);
     }
