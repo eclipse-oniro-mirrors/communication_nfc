@@ -192,9 +192,9 @@ bool IsodepCardHandler::IsSupportedTransportCard(uint32_t rfDiscId, uint8_t &car
 
 bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
 {
-    if (cardIndex >= cardInfoVec_.size()) {
+    if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
-        return;
+        return false;
     }
     InfoLog("trying to match card type = \"%{public}s\"", cardInfoVec_[cardIndex].name.c_str());
     std::string checkCmdApdu = "";
