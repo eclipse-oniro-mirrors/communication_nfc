@@ -221,7 +221,7 @@ bool IsodepCardHandler::CheckApduResponse(const std::string &response, uint8_t c
     if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
         return false;
-    
+    }
     if (response.length() < APDU_RSP_OK_STR_LEN) {
         ErrorLog("invalid response length");
         return false;
