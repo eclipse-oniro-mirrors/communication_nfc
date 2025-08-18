@@ -143,7 +143,7 @@ private:
     std::shared_ptr<TAG::TagDispatcher> tagDispatcher_ {};
     OHOS::sptr<NfcControllerImpl> nfcControllerImpl_ {};
     // save current state.
-    int nfcState_;
+    volatile int nfcState_;
     // save screen state
     int screenState_ {};
     // current polling params

@@ -357,12 +357,12 @@ bool NfcService::DoTurnOn()
     screenState_ = (int)eventHandler_->CheckScreenState();
     nciNfccProxy_->SetScreenStatus(screenState_);
 
-    /* Start polling loop */
-    nfcPollingManager_->StartPollingLoop(true);
     ceService_->InitConfigAidRouting(true);
 
     nfcRoutingManager_->HandleComputeRoutingParams(static_cast<int>(ceService_->GetDefaultPaymentType()));
     nfcRoutingManager_->HandleCommitRouting();
+    /* Start polling loop */
+    nfcPollingManager_->StartPollingLoop(true);
     nfcRoutingManagerDog.Cancel();
     // Do turn on success, openRequestCnt = 1, others = 0
     ExternalDepsProxy::GetInstance().WriteOpenAndCloseHiSysEvent(DEFAULT_COUNT, NOT_COUNT, NOT_COUNT, NOT_COUNT);
@@ -558,7 +558,6 @@ bool NfcService::IsNfcEnabled()
 void NfcService::HandleShutdown()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    ExternalDepsProxy::GetInstance().UpdateNfcState(nfcState_);
     InfoLog("device is shutting down, nfcState_ = %{public}d", nfcState_);
     nciNfccProxy_->Shutdown();
 }

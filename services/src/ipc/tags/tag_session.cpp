@@ -613,9 +613,6 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
 void TagSession::HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
     int abilityState)
 {
-    if (!nfcPollingManager_.expired()) {
-        nfcPollingManager_.lock()->SetForegroundAbility(bundleName, abilityName, abilityState);
-    }
     if (GetFgDataVecSize() == 0 && GetReaderDataVecSize() == 0) {
         return;
     }
@@ -701,7 +698,8 @@ int TagSession::RegForegroundDispatchInner(const ElementName &element, const std
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback, isVendorApp)) {
-        bool isFgAbility = nfcPollingManager_.lock()->GetForegroundAbility() == element.GetAbilityName();
+        bool isFgAbility = nfcPollingManager_.lock()->
+            CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
             SubErrorCode::REG_FOREGROUND_DISPATCH : SubErrorCode::REG_FOREGROUND_DISPATCH_ABILITY_INVALID;
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
@@ -850,7 +848,8 @@ int TagSession::RegReaderModeInner(const ElementName &element, const std::vector
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
-        bool isFgAbility = nfcPollingManager_.lock()->GetForegroundAbility() == element.GetAbilityName();
+        bool isFgAbility = nfcPollingManager_.lock()->
+            CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
             SubErrorCode::REG_READERMODE : SubErrorCode::REG_READERMODE_ABILITY_INVALID;
         ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(

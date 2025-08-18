@@ -81,7 +81,7 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
     std::string tagUid;
     parcel.ReadString(tagUid);
 
-    int tagRfDiscId;
+    int tagRfDiscId = 0;
     parcel.ReadInt32(tagRfDiscId);
     TagInfoParcelable *taginfo = new (std::nothrow) TagInfoParcelable(tagTechList, tagTechExtrasData,
         tagUid, tagRfDiscId, nullptr);

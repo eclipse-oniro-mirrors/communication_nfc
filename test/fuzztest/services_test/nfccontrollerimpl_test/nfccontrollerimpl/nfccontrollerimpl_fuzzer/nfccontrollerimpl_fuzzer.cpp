@@ -102,8 +102,8 @@ namespace OHOS {
 
     void FuzzNotifyEventStatus(const uint8_t* data, size_t size)
     {
-        int eventType = 0;
-        int arg1 = 0;
+        int eventType = static_cast<int>(data[0]);
+        int arg1 = static_cast<int>(data[1]);
         std::string arg2 = "";
         std::shared_ptr<NfcService> service = nullptr;
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);

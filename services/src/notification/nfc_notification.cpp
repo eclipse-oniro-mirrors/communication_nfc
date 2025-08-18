@@ -19,6 +19,7 @@
 #include <set>
 
 #include "cJSON.h"
+#include "common_event_manager.h"
 #include "file_ex.h"
 #include "locale_config.h"
 #include "locale_info.h"
@@ -104,6 +105,8 @@ constexpr const char* KEY_NO_HAP_TITLE              = "NoHapSupportedNtfTitle";
 constexpr const char* KEY_NO_HAP_TEXT               = "NoHapSupportedNtfText";
 constexpr const char* KEY_NO_HAP_BUTTON_NAME        = "NoHapSupportedNtfButtonName";
 
+constexpr const char* COMMON_EVENT_HIDE_DROPDOWN_WINDOW = "sceneboard.event.HIDE_DROPDOWN_WINDOW";
+
 static std::string g_sysLanguage = "";
 static std::string g_sysRegion = "";
 static std::map<std::string, std::string> g_resourceMap;
@@ -111,6 +114,15 @@ static std::mutex g_callbackMutex {};
 static NfcNtfCallback g_ntfCallback = nullptr;
 
 class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
+    void PublishHideDropDownWindowEvent()
+    {
+        AAFwk::Want want;
+        want.SetAction(COMMON_EVENT_HIDE_DROPDOWN_WINDOW);
+        EventFwk::CommonEventData commonData {want};
+        EventFwk::CommonEventPublishInfo publishInfo;
+        bool isSuccess = EventFwk::CommonEventManager::PublishCommonEvent(commonData, publishInfo, nullptr);
+        InfoLog("isSuccess: %{public}d", isSuccess);
+    }
     void OnConnected() {}
     void OnDisconnected() {}
     void OnUpdate(const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap) {}
@@ -128,6 +140,7 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
 
         std::lock_guard<std::mutex> lock(g_callbackMutex);
         if (deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE && g_ntfCallback) {
+            PublishHideDropDownWindowEvent();
             g_ntfCallback(notificationId);
         }
     }

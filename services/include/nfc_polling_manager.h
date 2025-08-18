@@ -57,9 +57,8 @@ public:
     void ResetCurrPollingParams();
     std::shared_ptr<NfcPollingParams> GetCurrentParameters();
     std::shared_ptr<NfcPollingParams> GetPollingParameters(int screenState);
-    std::string GetForegroundAbility();
+    bool CheckForegroundAbility(const std::string &readerBundle, const std::string &readerAbility);
 
-    // polling
     void StartPollingLoop(bool force);
     // screen changed
     void HandleScreenChanged(int screenState);
@@ -84,6 +83,8 @@ public:
     void SetForegroundAbility(const std::string &bundleName, const std::string &abilityName, int abilityState);
 
 private:
+    bool CheckForegroundApp(const std::string &readerBundle);
+
     int screenState_ = 0;
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData_ {};
     std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> readerModeData_ {};
@@ -91,8 +92,6 @@ private:
     std::weak_ptr<NfcService> nfcService_ {};
     std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy_ {};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
-    std::string fgAppBundleName_;
-    std::string fgAppAbilityName_;
 
     std::mutex mutex_ {};
 };

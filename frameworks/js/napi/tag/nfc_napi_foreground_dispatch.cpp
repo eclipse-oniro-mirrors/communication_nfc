@@ -28,8 +28,8 @@ constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 static std::mutex g_mutex {};
 static RegObj g_foregroundRegInfo;
 static RegObj g_readerModeRegInfo;
-bool ForegroundEventRegister::isEvtRegistered = false;
-bool ReaderModeEvtRegister::isReaderModeRegistered = false;
+bool ForegroundEventRegister::isEvtRegistered_ = false;
+bool ReaderModeEvtRegister::isReaderModeRegistered_ = false;
 const std::string TYPE_FOREGROUND = "foreground";
 const std::string TYPE_READER_MODE = "readerMode";
 
@@ -337,15 +337,15 @@ ForegroundEventRegister& ForegroundEventRegister::GetInstance()
 int ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     std::vector<uint32_t> &discTech, napi_value handler)
 {
-    InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
-    if (!isEvtRegistered) {
+    InfoLog("ForegroundEventRegister::Register event, isEvtRegistered = %{public}d", isEvtRegistered_);
+    if (!isEvtRegistered_) {
         int ret = RegisterForegroundEvents(element, discTech);
         if (ret != ERR_NONE) {
             ErrorLog("ForegroundEventRegister::Register, reg event failed");
             return ret;
         }
-        isEvtRegistered = true;
+        isEvtRegistered_ = true;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
@@ -386,9 +386,9 @@ int ForegroundEventRegister::Unregister(const napi_env &env, ElementName &elemen
     }
     if (!g_foregroundRegInfo.IsEmpty()) {
         g_foregroundRegInfo.Clear();
-        isEvtRegistered = false;
+        isEvtRegistered_ = false;
     }
-    InfoLog("ForegroundEventRegister::Unregister, isEvtRegistered = %{public}d", isEvtRegistered);
+    InfoLog("ForegroundEventRegister::Unregister, isEvtRegistered = %{public}d", isEvtRegistered_);
     return ERR_NONE;
 }
 
@@ -530,15 +530,15 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
 int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
                                     std::vector<uint32_t> &discTech, napi_value handler)
 {
-    InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
     std::lock_guard<std::mutex> lock(g_mutex);
-    if (!isReaderModeRegistered) {
+    InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
+    if (!isReaderModeRegistered_) {
         int ret = RegReaderModeEvt(type, element, discTech);
         if (ret != KITS::ERR_NONE) {
             ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
             return ret;
         }
-        isReaderModeRegistered = true;
+        isReaderModeRegistered_ = true;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
@@ -580,9 +580,9 @@ int ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, El
     DeleteRegisteredObj(env, g_readerModeRegInfo, handler);
     if (!g_readerModeRegInfo.IsEmpty()) {
         g_readerModeRegInfo.Clear();
-        isReaderModeRegistered = false;
+        isReaderModeRegistered_ = false;
     }
-    InfoLog("ReaderModeEvtRegister::Unregister, isReaderModeRegistered = %{public}d", isReaderModeRegistered);
+    InfoLog("ReaderModeEvtRegister::Unregister, isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
     return ERR_NONE;
 }
 

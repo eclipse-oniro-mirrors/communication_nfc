@@ -86,7 +86,7 @@ std::vector<std::shared_ptr<NdefRecord>> ParseNdefRecords(const napi_env &env, n
     std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
 
     for (uint32_t i = 0; i < length; i++) {
-        napi_value ndefRecordValue;
+        napi_value ndefRecordValue = nullptr;
         napi_get_element(env, args, i, &ndefRecordValue);
         if (!IsObject(env, ndefRecordValue)) {
             ErrorLog("ParseNdefRecords, Object expected.");
@@ -480,6 +480,8 @@ napi_value NapiNdefTag::WriteNdef(napi_env env, napi_callback_info info)
     NapiNdefMessage *napiNdefMessage = nullptr;
     napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&napiNdefMessage));
     if (!CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID)) {
+        delete(context);
+        context = nullptr;
         return CreateUndefined(env);
     }
 
