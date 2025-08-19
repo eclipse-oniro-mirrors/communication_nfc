@@ -78,6 +78,9 @@ private:
     bool DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
     bool DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    bool DispatchValidNdef(
+        const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    void ClearNdefDispatchParam();
 
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};

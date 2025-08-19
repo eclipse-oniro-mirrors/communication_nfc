@@ -407,7 +407,7 @@ bool NdefMessage::CheckTnf(short tnf, const std::string& tagRtdType, const std::
                 ErrorLog("CheckTnf, TNF_EMPTY error.");
                 return false;
             }
-            break;
+            return true;
         case TNF_WELL_KNOWN:
         case TNF_MIME_MEDIA:
         case TNF_ABSOLUTE_URI:
