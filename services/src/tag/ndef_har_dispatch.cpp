@@ -204,9 +204,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         return true;
     }
-    if (!PowerMgr::PowerMgrClient::GetInstance().IsScreenOn()) {
-        PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
-    }
+    InfoLog("NdefHarDispatch::DispatchBundleAbility WakeupDevice");
+    PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
 #endif
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
