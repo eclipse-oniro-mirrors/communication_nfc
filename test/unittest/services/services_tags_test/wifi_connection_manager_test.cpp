@@ -75,7 +75,6 @@ HWTEST_F(WifiConnectionManagerTest, TryConnectWifi002, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = nullptr;
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     WifiConnectionManager::GetInstance().Initialize(service);
     WifiConnectionManager::GetInstance().TryConnectWifi(data);
@@ -91,7 +90,7 @@ HWTEST_F(WifiConnectionManagerTest, TryConnectWifi003, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->ssid = "NFC";
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -111,7 +110,7 @@ HWTEST_F(WifiConnectionManagerTest, OnWifiNtfClicked001, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->ssid = "NFC";
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -131,7 +130,7 @@ HWTEST_F(WifiConnectionManagerTest, HandleWifiEnableFailed001, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->ssid = "NFC";
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -151,7 +150,7 @@ HWTEST_F(WifiConnectionManagerTest, HandleWifiConnectFailed001, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->ssid = "NFC";
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -171,7 +170,7 @@ HWTEST_F(WifiConnectionManagerTest, OnWifiEnabled001, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
@@ -190,7 +189,7 @@ HWTEST_F(WifiConnectionManagerTest, OnWifiConnected001, TestSize.Level1)
 {
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     data->isValid_ = true;
-    data->config_ = new Wifi::WifiDeviceConfig();
+    data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     data->config_->ssid = "NFC";
     data->config_->preSharedKey = "88888888";
     data->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;

@@ -26,7 +26,7 @@ public:
     bool isValid_ = false;
     // config will be used in wifi_connection_manager.cpp
     // this pointer should be deleted when WifiData is invalid or wifi connection is finished
-    Wifi::WifiDeviceConfig* config_ = nullptr;
+    std::shared_ptr<Wifi::WifiDeviceConfig> config_ = nullptr;
     std::string vendorPayload_ = "";
 };
 class NdefWifiDataParser {
