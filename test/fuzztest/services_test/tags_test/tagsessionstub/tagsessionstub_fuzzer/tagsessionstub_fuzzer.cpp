@@ -322,7 +322,7 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(size), data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(data[0]), data2, reply, option);
     }
 
     void FuzzRemoveForegroundDeathRcpt(const uint8_t* data, size_t size)
