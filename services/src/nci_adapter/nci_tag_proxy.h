@@ -108,7 +108,7 @@ public:
      * @param command The command to write to NDEF tag.
      * @return True if success, otherwise false.
      */
-    bool WriteNdef(uint32_t tagDiscId, std::string& command) override;
+    bool WriteNdef(uint32_t tagDiscId, const std::string& command) override;
 
     /**
      * @brief Format NDEF tag.

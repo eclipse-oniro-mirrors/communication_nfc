@@ -39,7 +39,8 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        nfcControllerImpl->GetState();
+        int nfcState = 1;
+        nfcControllerImpl->GetState(nfcState);
     }
 
     void FuzzUnRegisterAllCallBack(const uint8_t* data, size_t size)
@@ -63,7 +64,7 @@ namespace OHOS {
         sptr<INdefMsgCallback> callback = nullptr;
         std::shared_ptr<NfcService> service = nullptr;
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        nfcControllerImpl->RegNdefMsgCallback(callback);
+        nfcControllerImpl->RegNdefMsgCb(callback);
     }
 
     void FuzzRegQueryApplicationCb(const uint8_t* data, size_t size)
@@ -86,8 +87,8 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        int32_t res = static_cast<int32_t>(data[0]);
-        nfcControllerImpl->GetHceServiceIface(res);
+        sptr<IRemoteObject> remoteObject = nullptr;
+        nfcControllerImpl->GetHceServiceIface(remoteObject);
     }
 
     void FuzzDump(const uint8_t* data, size_t size)

@@ -58,7 +58,7 @@ void NfcControllerDeathRecipientTest::TearDown()
  */
 HWTEST_F(NfcControllerDeathRecipientTest, OnRemoteDied001, TestSize.Level1)
 {
-    sptr<NfcControllerStub> nfcConctrolService = nullptr;
+    sptr<NfcControllerImpl> nfcConctrolService = nullptr;
     Security::AccessToken::AccessTokenID callerToken = 0;
     wptr<IRemoteObject> remote = nullptr;
     std::shared_ptr<NfcControllerDeathRecipient> nfcControllerDeathRecipient =

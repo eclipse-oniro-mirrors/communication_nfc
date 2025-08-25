@@ -164,6 +164,15 @@
                         ],
                         "header_base": "//foundation/communication/nfc/frameworks/cj/controller"
                     }
+                },
+                {
+                    "type": "so",
+                    "name": "//foundation/communication/nfc/interfaces/inner_api/tags:libnfc_tag_interface_proxy",
+                    "header": {
+                        "header_files": [
+                        ],
+                        "header_base": "//foundation/communication/nfc/interfaces/inner_api/tags"
+                    }
                 }
             ],
             "test": [

@@ -14,52 +14,26 @@
 import("//build/config/features.gni")
 import("//build/test.gni")
 import("../../../../../../nfc.gni")
+import("../../../../nfcfuzz.gni")
 
 ohos_fuzztest("TagSessionsFuzzTest") {
   module_out_path = fuzz_module_out_path
 
   fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/tagsession_test/tagsession/tagsessions_fuzzer"
 
-  include_dirs = [
-    "$NFC_DIR/services/include",
-    "$NFC_DIR/services/src/tags",
-    "$NFC_DIR/interfaces/inner_api/common",
-    "$NFC_DIR/interfaces/inner_api/controller",
-    "$NFC_DIR/test/unittest/mock",
-  ]
+  include_dirs = fuzz_include_dirs
+  include_dirs += [ "$NFC_DIR/test/unittest/mock" ]
 
-  cflags = [
-    "-g",
-    "-O0",
-    "-Wno-unused-variable",
-    "-fno-omit-frame-pointer",
-  ]
+  cflags = fuzz_cflags
 
   sources = [
     "$NFC_DIR/test/unittest/mock/nfc_service_mock.cpp",
     "tagsession_fuzzer.cpp",
   ]
 
-  deps = [
-    "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
-    "$NFC_DIR/services:nfc_service_static",
-  ]
+  deps = fuzz_deps
 
-  external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
-    "ability_runtime:dataobs_manager",
-    "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "data_share:datashare_consumer",
-    "hilog:libhilog",
-    "ipc:ipc_core",
-    "preferences:native_preferences",
-  ]
+  external_deps = fuzz_external_deps
 }
 
 group("fuzztest") {

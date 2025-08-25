@@ -20,6 +20,7 @@
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 #include "iservice_registry.h"
+#include "reader_mode_callback_stub.h"
 #include "system_ability_definition.h"
 #include "tag_session_proxy.h"
 
@@ -34,6 +35,11 @@ TagForeground::TagForeground()
 TagForeground::~TagForeground()
 {
     DebugLog("destruct TagForeground");
+}
+
+OHOS::sptr<ITagSession> TagForeground::GetTagSessionProxy()
+{
+    return iface_cast<ITagSession>(NfcController::GetInstance().GetTagServiceIface());
 }
 
 TagForeground &TagForeground::GetInstance()
@@ -53,12 +59,16 @@ int TagForeground::RegForeground(AppExecFwk::ElementName &element,
         ErrorLog("RegForeground: nfc is not open");
         return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = NfcController::GetInstance().GetTagSessionProxy();
-    if (tagSession == nullptr) {
+
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
         ErrorLog("TagForeground::RegForeground, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    return tagSession->RegForegroundDispatch(element, discTech, callback);
+
+    TAG::ForegroundCallbackStub::GetInstance()->RegForegroundDispatch(callback);
+    return static_cast<int>(
+        tagSession->RegForegroundDispatch(element, discTech, TAG::ForegroundCallbackStub::GetInstance()));
 }
 
 int TagForeground::UnregForeground(AppExecFwk::ElementName &element)
@@ -70,12 +80,13 @@ int TagForeground::UnregForeground(AppExecFwk::ElementName &element)
         ErrorLog("UnregForeground: nfc is not open");
         return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = NfcController::GetInstance().GetTagSessionProxy();
-    if (tagSession == nullptr) {
+
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
         ErrorLog("TagForeground::UnregForeground, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    return tagSession->UnregForegroundDispatch(element);
+    return static_cast<int>(tagSession->UnregForegroundDispatch(element));
 }
 
 int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
@@ -89,12 +100,14 @@ int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
         ErrorLog("RegReaderMode: nfc is not open");
         return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = NfcController::GetInstance().GetTagSessionProxy();
-    if (tagSession == nullptr) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
         ErrorLog("TagForeground::RegReaderMode, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    return tagSession->RegReaderMode(element, discTech, callback);
+
+    TAG::ReaderModeCallbackStub::GetInstance()->RegReaderMode(callback);
+    return static_cast<int>(tagSession->RegReaderMode(element, discTech, TAG::ReaderModeCallbackStub::GetInstance()));
 }
 
 int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
@@ -106,12 +119,12 @@ int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
         ErrorLog("UnregReaderMode: nfc is not open");
         return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
     }
-    OHOS::sptr<TAG::ITagSession> tagSession = NfcController::GetInstance().GetTagSessionProxy();
-    if (tagSession == nullptr) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
         ErrorLog("TagForeground::UnregReaderMode, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    return tagSession->UnregReaderMode(element);
+    return static_cast<int>(tagSession->UnregReaderMode(element));
 }
 }  // namespace KITS
 }  // namespace NFC

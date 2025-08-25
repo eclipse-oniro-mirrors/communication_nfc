@@ -63,7 +63,7 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         ElementName element;
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
-        hceSession->StopHce(element, callerToken);
+        hceSession->StopHce(element);
     }
 
     void FuzzRegHceCmdCallbackByToken(const uint8_t* data, size_t size)
@@ -72,17 +72,16 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        Security::AccessToken::AccessTokenID callerToken = 0;
-        hceSession->RegHceCmdCallbackByToken(callback, type, callerToken);
+        hceSession->RegHceCmdCallback(callback, type);
     }
 
     void FuzzUnRegHceCmdCallback(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = nullptr;
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        Security::AccessToken::AccessTokenID callerToken = 0;
-        hceSession->UnRegHceCmdCallbackByToken(type, callerToken);
+        hceSession->UnregHceCmdCallback(callback, type);
     }
 
     void FuzzUnRegAllCallback(const uint8_t* data, size_t size)

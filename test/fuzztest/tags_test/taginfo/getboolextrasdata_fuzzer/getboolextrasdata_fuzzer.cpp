@@ -23,7 +23,6 @@
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
-    using namespace OHOS::NFC::TAG;
 
     constexpr const auto FUZZER_TEST_UID = "0102";
     constexpr const auto FUZZER_TEST_DISC_ID = 1;

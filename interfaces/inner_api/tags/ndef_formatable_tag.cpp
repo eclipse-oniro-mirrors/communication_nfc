@@ -47,21 +47,23 @@ int NFC::KITS::NdefFormatableTag::FormatReadOnly(std::weak_ptr<NdefMessage> firs
 
 int NFC::KITS::NdefFormatableTag::Format(std::weak_ptr<NdefMessage> firstMessage, bool bMakeReadOnly)
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         ErrorLog("[NdefFormatableTag::Format] tagSession is null.");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     int tagRfDiscId = GetTagRfDiscId();
     std::string keyDefault(MifareClassicTag::MC_KEY_DEFAULT, MifareClassicTag::MC_KEY_LEN);
-    int res = tagSession->FormatNdef(tagRfDiscId, keyDefault);
-    if (res != ErrorCode::ERR_NONE) {
+    ErrCode res = tagSession->FormatNdef(tagRfDiscId, keyDefault);
+    if (res != ERR_NONE) {
         ErrorLog("[NdefFormatableTag::Format] res failed.");
-        return res;
+        return static_cast<int>(res);
     }
 
-    if (!tagSession->IsNdef(tagRfDiscId)) {
+    bool isNdef = false;
+    tagSession->IsNdef(tagRfDiscId, isNdef);
+    if (!isNdef) {
         ErrorLog("[NdefFormatableTag::Format] IsNdef failed.");
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
@@ -72,15 +74,15 @@ int NFC::KITS::NdefFormatableTag::Format(std::weak_ptr<NdefMessage> firstMessage
             return ErrorCode::ERR_TAG_PARAMETERS;
         }
         res = tagSession->NdefWrite(tagRfDiscId, ndefMessage);
-        if (res != ErrorCode::ERR_NONE) {
-            return res;
+        if (res != ERR_NONE) {
+            return static_cast<int>(res);
         }
     }
 
     if (bMakeReadOnly) {
         res = tagSession->NdefMakeReadOnly(tagRfDiscId);
-        if (res != ErrorCode::ERR_NONE) {
-            return res;
+        if (res != ERR_NONE) {
+            return static_cast<int>(res);
         }
     }
     return ErrorCode::ERR_NONE;

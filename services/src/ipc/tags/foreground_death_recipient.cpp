@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace NFC {
 ForegroundDeathRecipient::ForegroundDeathRecipient(
-    sptr<TAG::TagSessionStub> tagSession, Security::AccessToken::AccessTokenID callerToken)
+    sptr<TagSessionStub> tagSession, Security::AccessToken::AccessTokenID callerToken)
 {
     tagSession_ = tagSession;
     callerToken_ = callerToken;

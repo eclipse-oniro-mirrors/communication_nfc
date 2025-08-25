@@ -33,12 +33,12 @@ public:
     int GetTimeout(int &timeout);
     void ResetTimeout();
     std::string GetTagUid();
-    int SendCommand(std::string& hexCmdData, bool raw, std::string &hexRespData);
+    int SendCommand(const std::string& hexCmdData, bool raw, std::string &hexRespData);
     int GetMaxSendCommandLength(int &maxSize);
     std::weak_ptr<TagInfo> GetTagInfo() const;
 
 protected:
-    OHOS::sptr<TAG::ITagSession> GetTagSessionProxy();
+    OHOS::sptr<ITagSession> GetTagSessionProxy();
     int GetTagRfDiscId() const;
     void SetConnectedTagTech(KITS::TagTechnology tech) const;
     KITS::TagTechnology GetConnectedTagTech() const;

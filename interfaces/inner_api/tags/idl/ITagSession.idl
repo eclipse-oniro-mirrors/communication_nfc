@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+sequenceable OHOS.AppExecFwk.ElementName;
+
+interface OHOS.NFC.KITS.IForegroundCallback;
+interface OHOS.NFC.KITS.IReaderModeCallback;
+
+option_stub_hooks on;
+
+interface OHOS.NFC.ITagSession {
+    [ipccode 201] void Connect([in] int tagRfDiscId, [in] int technology);
+    [ipccode 202] void Reconnect([in] int tagRfDiscId);
+    [ipccode 203] void Disconnect([in] int tagRfDiscId);
+    [ipccode 204] List<int> GetTechList([in] int tagRfDiscId);
+    [ipccode 205] boolean IsTagFieldOn([in] int tagRfDiscId);
+    [ipccode 206] boolean IsNdef([in] int tagRfDiscId);
+    [ipccode 207] void SendRawFrame([in] int tagRfDiscId, [in] String hexCmdData, [in] boolean raw, [out] String hexRespData);
+    [ipccode 208] void NdefRead([in] int tagRfDiscId, [out] String ndefMessage);
+    [ipccode 209] void NdefWrite([in] int tagRfDiscId, [in] String msg);
+    [ipccode 210] void NdefMakeReadOnly([in] int tagRfDiscId);
+    [ipccode 211] void FormatNdef([in] int tagRfDiscId, [in] String key);
+    [ipccode 212] void CanMakeReadOnly([in] int ndefType, [out] boolean canSetReadOnly);
+    [ipccode 213] void GetMaxTransceiveLength([in] int technology, [out] int maxSize);
+    [ipccode 214] void IsSupportedApdusExtended([out] boolean isSupported);
+    [ipccode 215] void SetTimeout([in] int tagRfDiscId, [in] int timeout, [in] int technology);
+    [ipccode 216] void GetTimeout([in] int tagRfDiscId, [in] int technology, [out] int timeout);
+    [ipccode 217] void ResetTimeout([in] int tagRfDiscId);
+    [ipccode 218] void IsConnected([in] int tagRfDiscId, [out] boolean isConnected);
+
+    [ipccode 109] void RegForegroundDispatch([in] ElementName element, [in] List<unsigned int> discTech, [in] IForegroundCallback cb);
+    [ipccode 110] void UnregForegroundDispatch([in] ElementName element);
+    [ipccode 118] void RegReaderMode([in] ElementName element, [in] List<unsigned int> discTech, [in] IReaderModeCallback cb);
+    [ipccode 119] void UnregReaderMode([in] ElementName element);
+}
