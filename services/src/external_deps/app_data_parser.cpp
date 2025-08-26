@@ -531,11 +531,13 @@ void AppDataParser::RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback)
 
 void AppDataParser::RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     onCardEmulationNotify_ = callback;
 }
 
 sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback() const
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     return onCardEmulationNotify_;
 }
 #endif
