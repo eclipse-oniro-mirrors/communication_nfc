@@ -17,19 +17,19 @@
 #include <unistd.h>
 #include <ipc_object_stub.h>
 #include "access_token.h"
-#include "nfc_controller_stub.h"
+#include "nfc_controller_impl.h"
 
 namespace OHOS {
 namespace NFC {
 class NfcControllerDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
-    explicit NfcControllerDeathRecipient(sptr<NfcControllerStub> nfcConctrolService,
+    explicit NfcControllerDeathRecipient(sptr<NfcControllerImpl> nfcControllerImpl,
         Security::AccessToken::AccessTokenID callerToken);
     ~NfcControllerDeathRecipient() = default;
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
 private:
-    sptr<NfcControllerStub> nfcConctrolService_ = nullptr;
+    sptr<NfcControllerImpl> nfcControllerImpl_ = nullptr;
     Security::AccessToken::AccessTokenID callerToken_;
     std::mutex mutex_;
 };

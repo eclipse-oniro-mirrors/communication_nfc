@@ -65,7 +65,7 @@ public:
     // package updated
     bool HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data);
 
-    bool EnableForegroundDispatch(AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
+    bool EnableForegroundDispatch(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
                                   const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp = false);
     bool DisableForegroundDispatch(const AppExecFwk::ElementName &element);
     bool DisableForegroundByDeathRcpt();
@@ -73,9 +73,9 @@ public:
     void SendTagToForeground(KITS::TagInfoParcelable* tagInfo);
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> GetForegroundData();
 
-    bool EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+    bool EnableReaderMode(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
                           const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
-    bool DisableReaderMode(AppExecFwk::ElementName &element);
+    bool DisableReaderMode(const AppExecFwk::ElementName &element);
     bool DisableReaderModeByDeathRcpt();
     bool IsReaderModeEnabled();
     void SendTagToReaderApp(KITS::TagInfoParcelable* tagInfo);

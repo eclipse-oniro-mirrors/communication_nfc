@@ -95,7 +95,7 @@ bool CeService::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToke
     return hostCardEmulationManager_->UnRegAllCallback(callerToken);
 }
 
-bool CeService::IsDefaultService(ElementName &element, const std::string &type)
+bool CeService::IsDefaultService(const ElementName &element, const std::string &type)
 {
     return type == KITS::TYPE_PAYMENT && element.GetBundleName() == defaultPaymentElement_.GetBundleName() &&
            element.GetAbilityName() == defaultPaymentElement_.GetAbilityName();

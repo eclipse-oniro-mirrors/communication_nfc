@@ -193,8 +193,7 @@ public:
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
         sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
-        Security::AccessToken::AccessTokenID callerToken = 0;
-        nfcCrlStub->RegisterCallBack(iNfcControllerCallbackImpl, type, callerToken);
+        nfcCrlStub->RegisterNfcStatusCallBack(iNfcControllerCallbackImpl, type);
     }
     void FuzzHandleRegNdefMsgCb(const uint8_t* data, size_t size)
     {

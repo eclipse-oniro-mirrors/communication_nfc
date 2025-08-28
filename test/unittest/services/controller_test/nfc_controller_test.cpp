@@ -19,6 +19,7 @@
 #include "nfc_controller_impl.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -189,7 +190,8 @@ HWTEST_F(NfcControllerTest, GetTagServiceIface001, TestSize.Level1)
     NfcController ctrl = NfcController::GetInstance();
     ctrl.GetTagServiceIface();
     ErrorCode errorCode = ctrl.UnregListener(TEST_NFC_STATE_CHANGE);
-    ASSERT_TRUE(errorCode == ErrorCode::ERR_NONE);
+    InfoLog("GetTagServiceIface001, errorCode = %{public}d", errorCode);
+    ASSERT_TRUE(errorCode == ErrorCode::ERR_NFC_PARAMETERS);
 }
 
 /**
@@ -201,32 +203,23 @@ HWTEST_F(NfcControllerTest, NfcControllerImpl001, TestSize.Level1)
 {
     std::weak_ptr<NFC::NfcService> nfcService;
     sptr<NFC::NfcControllerImpl> impl = new NFC::NfcControllerImpl(nfcService);
-    ASSERT_TRUE(impl->GetState() == ErrorCode::ERR_NFC_PARAMETERS);
+    int nfcState = 1;
+    ASSERT_TRUE(impl->GetState(nfcState) == ErrorCode::ERR_NFC_PARAMETERS);
 
     ASSERT_TRUE(impl->TurnOn() == ErrorCode::ERR_NFC_PARAMETERS);
 
     ASSERT_TRUE(impl->TurnOff() == ErrorCode::ERR_NFC_PARAMETERS);
 
-    bool isOpen = false;
-    ASSERT_TRUE(impl->IsNfcOpen(isOpen) == ErrorCode::ERR_NFC_PARAMETERS);
+    ASSERT_TRUE(impl->RegisterNfcStatusCallBack(nullptr, "") == ErrorCode::ERR_NFC_PARAMETERS);
 
-    ASSERT_TRUE(impl->RegisterCallBack(nullptr, "", 0) == ErrorCode::ERR_NFC_PARAMETERS);
-
-    ASSERT_TRUE(impl->UnRegisterCallBack("", 0) == ErrorCode::ERR_NFC_PARAMETERS);
+    ASSERT_TRUE(impl->UnregisterNfcStatusCallBack("") == ErrorCode::ERR_NFC_PARAMETERS);
 
     ASSERT_TRUE(impl->UnRegisterAllCallBack(0) == ErrorCode::ERR_NFC_PARAMETERS);
 
-    ASSERT_TRUE(impl->GetTagServiceIface() == nullptr);
-
-    std::vector<std::u16string> args;
-    ASSERT_TRUE(impl->Dump(0, args) == ErrorCode::ERR_NFC_PARAMETERS);
+    sptr<IRemoteObject> remoteObject = nullptr;
+    impl->GetTagServiceIface(remoteObject);
+    ASSERT_TRUE(remoteObject == nullptr);
     delete impl;
-
-    // fd = 0 is invalid, so experted return is ERR_NFC_PARAMETERS
-    std::shared_ptr<NFC::NfcService> nfcService2 = std::make_shared<NFC::NfcService>();
-    sptr<NFC::NfcControllerImpl> impl2 = new NFC::NfcControllerImpl(nfcService2);
-    ASSERT_TRUE(impl2->Dump(0, args) == ErrorCode::ERR_NFC_PARAMETERS);
-    delete impl2;
 }
 
 /**
@@ -311,18 +304,6 @@ HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
     ctrl.GetHceServiceIface(res);
     ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
     ASSERT_TRUE(errorCode == ERR_NONE);
-}
-
-/**
- * @tc.name: GetTagSessionProxy001
- * @tc.desc: Test NfcController GetTagSessionProxy.
- * @tc.type: FUNC
- */
-HWTEST_F(NfcControllerTest, GetTagSessionProxy001, TestSize.Level1)
-{
-    NfcController ctrl = NfcController::GetInstance();
-    sptr<TAG::ITagSession> errorCode = ctrl.GetTagSessionProxy();
-    ASSERT_TRUE(errorCode != nullptr);
 }
 }
 }

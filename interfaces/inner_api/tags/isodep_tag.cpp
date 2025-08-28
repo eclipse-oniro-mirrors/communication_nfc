@@ -58,11 +58,11 @@ std::string IsoDepTag::GetHiLayerResponse() const
 
 int IsoDepTag::IsExtendedApduSupported(bool &isSupported)
 {
-    OHOS::sptr<TAG::ITagSession> tagSession = GetTagSessionProxy();
-    if (!tagSession) {
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (!tagSession || tagSession->AsObject() == nullptr) {
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
-    return tagSession->IsSupportedApdusExtended(isSupported);
+    return static_cast<int>(tagSession->IsSupportedApdusExtended(isSupported));
 }
 }  // namespace KITS
 }  // namespace NFC

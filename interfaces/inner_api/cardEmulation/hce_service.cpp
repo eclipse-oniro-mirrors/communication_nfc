@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+#include "hce_service.h"
+
+#include "ce_payment_services_parcelable.h"
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
-#include "hce_service.h"
 #include "ihce_session.h"
 #include "hce_cmd_callback_stub.h"
 #include "nfc_controller.h"
@@ -26,8 +28,10 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-
 std::mutex g_hceSessionProxyLock;
+static sptr<HCE::HceCmdCallbackStub> g_hceCmdCallbackStub =
+    sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
+
 HceService::HceService()
 {
     DebugLog("[HceService] new HceService");
@@ -48,121 +52,154 @@ ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, c
 {
     InfoLog("HceService::RegHceCmdCallback");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::RegHceCmdCallback, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::RegHceCmdCallback, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->RegHceCmdCallback(callback, type);
+    if (g_hceCmdCallbackStub == nullptr) {
+        ErrorLog("g_hceCmdCallbackStub is nullptr");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    g_hceCmdCallbackStub->RegHceCmdCallback(callback);
+    hceSession->RegHceCmdCallback(g_hceCmdCallbackStub, type);
+    return ErrorCode::ERR_NONE;
 }
 
 ErrorCode HceService::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
 {
     InfoLog("HceService::UnRegHceCmdCallback");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::UnRegHceCmdCallback, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::UnRegHceCmdCallback, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->UnregHceCmdCallback(callback, type);
+    if (g_hceCmdCallbackStub == nullptr) {
+        ErrorLog("g_hceCmdCallbackStub is nullptr");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    g_hceCmdCallbackStub->UnRegHceCmdCallback(callback);
+    hceSession->UnregHceCmdCallback(g_hceCmdCallbackStub, type);
+    return ErrorCode::ERR_NONE;
 }
 
 ErrorCode HceService::StopHce(ElementName &element)
 {
     InfoLog("HceService::StopHce");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::StopHce, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::StopHce, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->StopHce(element);
+    ErrorCode ret = static_cast<ErrorCode>(hceSession->StopHce(element));
+    if (ret != ErrorCode::ERR_NO_PERMISSION) {
+        ret = ErrorCode::ERR_NONE;
+    }
+    return ret;
 }
+
 ErrorCode HceService::IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService)
 {
     InfoLog("HceService::IsDefaultService");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::IsDefaultService, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::IsDefaultService, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->IsDefaultService(element, type, isDefaultService);
+    return static_cast<ErrorCode>(hceSession->IsDefaultService(element, type, isDefaultService));
 }
+
 int HceService::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData)
 {
     InfoLog("HceService::SendRawFrame");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::SendRawFrame, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::SendRawFrame, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
+    res = static_cast<int>(hceSession->SendRawFrame(hexCmdData, raw, hexRespData));
+    if (res != ErrorCode::ERR_NO_PERMISSION) {
+        res = ErrorCode::ERR_NONE;
+    }
+    return res;
 }
+
 int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 {
     InfoLog("HceService::GetPaymentServices");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::GetPaymentServices, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::GetPaymentServices, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->GetPaymentServices(abilityInfos);
+
+    KITS::CePaymentServicesParcelable paymentServices;
+    ErrCode errCode = hceSession->GetPaymentServices(paymentServices);
+
+    std::vector<AbilityInfo> paymentAbilityInfos = paymentServices.paymentAbilityInfos;
+    InfoLog("size %{public}zu", paymentAbilityInfos.size());
+    abilityInfos = std::move(paymentAbilityInfos);
+    return static_cast<int>(errCode);
 }
 
 KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vector<std::string> &aids)
 {
     InfoLog("HceService::StartHce");
     int32_t res = ErrorCode::ERR_NONE;
-    OHOS::sptr<HCE::IHceSession> hceSession = GetHceSessionProxy(res);
+    OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
         ErrorLog("HceService::StartHce, ERR_NO_PERMISSION");
         return ErrorCode::ERR_NO_PERMISSION;
     }
-    if (hceSession == nullptr) {
+    if (hceSession == nullptr || hceSession->AsObject() == nullptr) {
         ErrorLog("HceService::StartHce, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return hceSession->StartHce(element, aids);
+    ErrorCode ret = static_cast<ErrorCode>(hceSession->StartHce(element, aids));
+    if (ret != ErrorCode::ERR_NO_PERMISSION) {
+        ret = ErrorCode::ERR_NONE;
+    }
+    return ret;
 }
-OHOS::sptr<HCE::IHceSession> HceService::GetHceSessionProxy(int32_t &res)
+
+OHOS::sptr<IHceSession> HceService::GetHceSessionProxy(int32_t &res)
 {
     std::lock_guard<std::mutex> lock(g_hceSessionProxyLock);
     if (hceSessionProxy_ == nullptr) {
-        OHOS::sptr<IRemoteObject> iface = NfcController::GetInstance().GetHceServiceIface(res);
-        if (iface != nullptr) {
-            hceSessionProxy_ = new HCE::HceSessionProxy(iface);
-        }
+        hceSessionProxy_ = iface_cast<IHceSession>(NfcController::GetInstance().GetHceServiceIface(res));
     }
     return hceSessionProxy_;
 }
+
 void HceService::ClearHceSessionProxy()
 {
     WarnLog("ClearHceSessionProxy");

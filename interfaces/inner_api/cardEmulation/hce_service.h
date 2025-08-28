@@ -43,10 +43,10 @@ public:
     void ClearHceSessionProxy();
 
 protected:
-    OHOS::sptr<HCE::IHceSession> GetHceSessionProxy(int32_t &res);
+    OHOS::sptr<IHceSession> GetHceSessionProxy(int32_t &res);
 
 private:
-    OHOS::sptr<HCE::IHceSession> hceSessionProxy_;
+    OHOS::sptr<IHceSession> hceSessionProxy_;
 };
 } // namespace KITS
 } // namespace NFC

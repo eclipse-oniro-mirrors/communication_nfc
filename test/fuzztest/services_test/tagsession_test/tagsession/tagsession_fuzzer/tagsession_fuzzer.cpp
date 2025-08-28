@@ -72,7 +72,8 @@ public:
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
         int tagRfDiscId = timeOutArray[0];
-        tagSession->IsTagFieldOn(tagRfDiscId);
+        bool isTagFieldOn = false;
+        tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
 
     void FuzzGetFgDataVecSize(const uint8_t* data, size_t size)

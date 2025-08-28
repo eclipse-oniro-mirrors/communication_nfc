@@ -25,7 +25,6 @@
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
-    using namespace OHOS::NFC::TAG;
 
     constexpr const auto FUZZER_THRESHOLD = 12;
     constexpr const auto TEST_UID = "0102";

@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+sequenceable OHOS.IRemoteObject;
+
+interface OHOS.NFC.INdefMsgCallback;
+interface OHOS.NFC.INfcControllerCallback;
+interface OHOS.NFC.IOnCardEmulationNotifyCb;
+interface OHOS.NFC.IQueryAppInfoCallback;
+
+option_stub_hooks on;
+
+interface OHOS.NFC.INfcController {
+    [ipccode 101] int GetState();
+    [ipccode 102] void TurnOn();
+    [ipccode 103] void TurnOff();
+    [ipccode 105] void RegisterNfcStatusCallBack([in] INfcControllerCallback cb, [in] String type);
+    [ipccode 106] void UnregisterNfcStatusCallBack([in] String type);
+    [ipccode 108] IRemoteObject GetTagServiceIface();
+    [ipccode 112] void RegNdefMsgCb([in] INdefMsgCallback cb);
+    [ipccode 114] void RegQueryApplicationCb([in] IQueryAppInfoCallback cb);
+    [ipccode 115] IRemoteObject GetHceServiceIface();
+    [ipccode 116] void RegCardEmulationNotifyCb([in] IOnCardEmulationNotifyCb cb);
+    [ipccode 117] void NotifyEventStatus([in] int eventType, [in] int arg1, [in] String arg2);
+}

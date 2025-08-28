@@ -13,16 +13,18 @@
  * limitations under the License.
  */
 
-#include "loghelper.h"
 #include "hce_session.h"
+
+#include "accesstoken_kit.h"
 #include "external_deps_proxy.h"
+#include "hce_cmd_death_recipient.h"
+#include "ipc_skeleton.h"
+#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
 namespace HCE {
 using OHOS::AppExecFwk::ElementName;
-const std::string DUMP_LINE = "---------------------------";
-const std::string DUMP_END = "\n";
 
 HceSession::HceSession(std::shared_ptr<INfcService> service) : nfcService_(service)
 {
@@ -37,28 +39,87 @@ HceSession::~HceSession()
 {
 }
 
-KITS::ErrorCode HceSession::RegHceCmdCallbackByToken(const sptr<KITS::IHceCmdCallback> &callback,
-                                                     const std::string &type,
-                                                     Security::AccessToken::AccessTokenID callerToken)
+int32_t HceSession::CallbackEnter(uint32_t code)
 {
-    if (ceService_.expired()) {
-        ErrorLog("RegHceCmdCallback:ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    InfoLog("HceSession code[%{public}u]", code);
+    return ERR_NONE;
+}
+
+int32_t HceSession::CallbackExit(uint32_t code, int32_t result)
+{
+    InfoLog("HceSession code[%{public}u], result[%{public}d]", code, result);
+    return ERR_NONE;
+}
+
+void HceSession::RemoveHceDeathRecipient(const wptr<IRemoteObject> &remote)
+{
+    InfoLog("enter.");
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (hceCmdCallback_ == nullptr) {
+        ErrorLog("hce OnRemoteDied callback_ is nullptr");
+        return;
     }
-    if (ceService_.lock()->RegHceCmdCallback(callback, type, callerToken)) {
+    auto serviceRemote = hceCmdCallback_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        hceCmdCallback_ = nullptr;
+        ErrorLog("hce on remote died");
+    }
+}
+
+ErrCode HceSession::RegHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std::string& type)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("RegHceCmdCallback, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("input callback nullptr.");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.expired()) {
+        ErrorLog("ceService_ is nullptr");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    std::unique_ptr<HceCmdDeathRecipient> recipient =
+        std::make_unique<HceCmdDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+    sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+    if (!cb->AsObject()->AddDeathRecipient(dr)) {
+        ErrorLog("Failed to add death recipient");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    deathRecipient_ = dr;
+    hceCmdCallback_ = cb;
+    if (ceService_.lock()->RegHceCmdCallback(cb, type, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-KITS::ErrorCode HceSession::UnRegHceCmdCallbackByToken(
-    const std::string &type, Security::AccessToken::AccessTokenID callerToken)
+ErrCode HceSession::UnregHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std::string& type)
 {
-    if (ceService_.expired()) {
-        ErrorLog("UnRegHceCmdCallback ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("UnregHceCmdCallback, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
     }
-    if (ceService_.lock()->UnRegHceCmdCallback(type, callerToken)) {
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("input callback nullptr.");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (ceService_.expired()) {
+        ErrorLog("ceService_ is nullptr");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (!cb->AsObject()->RemoveDeathRecipient(deathRecipient_)) {
+        ErrorLog("Failed to remove death recipient");
+        return KITS::ERR_NONE;
+    }
+    if (ceService_.lock()->UnRegHceCmdCallback(type, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
@@ -68,7 +129,7 @@ KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenI
 {
     if (ceService_.expired()) {
         ErrorLog("UnRegAllCallback ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     if (ceService_.lock()->UnRegAllCallback(callerToken)) {
         return KITS::ERR_NONE;
@@ -80,7 +141,7 @@ KITS::ErrorCode HceSession::HandleWhenRemoteDie(Security::AccessToken::AccessTok
 {
     if (ceService_.expired()) {
         ErrorLog("HandleWhenRemoteDie ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     if (ceService_.lock()->HandleWhenRemoteDie(callerToken)) {
         return KITS::ERR_NONE;
@@ -88,36 +149,66 @@ KITS::ErrorCode HceSession::HandleWhenRemoteDie(Security::AccessToken::AccessTok
     return KITS::ERR_HCE_PARAMETERS;
 }
 
-int HceSession::SendRawFrameByToken(std::string hexCmdData, bool raw, std::string &hexRespData,
-                                    Security::AccessToken::AccessTokenID callerToken)
+ErrCode HceSession::SendRawFrame(const std::string& hexCmdData, bool raw, std::string& hexRespData)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("SendRawFrame, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
+    if (hexCmdData.size() > KITS::MAX_APDU_DATA_HEX_STR) {
+        ErrorLog("raw frame too long");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
     if (ceService_.expired()) {
         ErrorLog("SendRawFrame ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
-    bool success = ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData, callerToken);
-    if (success) {
-        return NFC::KITS::ErrorCode::ERR_NONE;
+
+    if (ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData, IPCSkeleton::GetCallingTokenID())) {
+        return KITS::ERR_NONE;
     } else {
-        return NFC::KITS::ErrorCode::ERR_HCE_STATE_IO_FAILED;
+        return KITS::ERR_HCE_STATE_IO_FAILED;
     }
 }
 
-KITS::ErrorCode HceSession::IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService)
+ErrCode HceSession::IsDefaultService(const ElementName& element, const std::string& type, bool& isDefaultService)
 {
     if (ceService_.expired()) {
         ErrorLog("IsDefaultService ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     isDefaultService = ceService_.lock()->IsDefaultService(element, type);
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode HceSession::StartHce(const ElementName &element, const std::vector<std::string> &aids)
+ErrCode HceSession::StartHce(const ElementName& element, const std::vector<std::string>& aids)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("StartHce, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("StartHce: not got bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (hapTokenInfo.bundleName != element.GetBundleName()) {
+        ErrorLog("StartHce: wrong bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
     if (ceService_.expired()) {
         ErrorLog("StartHce ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
     if (ceService_.lock()->StartHce(element, aids)) {
         return KITS::ERR_NONE;
@@ -125,54 +216,58 @@ KITS::ErrorCode HceSession::StartHce(const ElementName &element, const std::vect
     return KITS::ERR_HCE_PARAMETERS;
 }
 
-KITS::ErrorCode HceSession::StopHce(const ElementName &element, Security::AccessToken::AccessTokenID callerToken)
+ErrCode HceSession::StopHce(const ElementName& element)
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("StopHce, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    int result = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(callerToken, hapTokenInfo);
+    InfoLog("get hap token info, result = %{public}d", result);
+    if (result) {
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (hapTokenInfo.bundleName.empty()) {
+        ErrorLog("StopHce: not got bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (hapTokenInfo.bundleName != element.GetBundleName()) {
+        ErrorLog("StopHce: wrong bundle name");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+
     if (ceService_.expired()) {
         ErrorLog("StopHce ceService_ is nullptr");
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+        return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->StopHce(element, callerToken)) {
+    if (ceService_.lock()->StopHce(element, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
 }
 
-int32_t HceSession::Dump(int32_t fd, const std::vector<std::u16string> &args)
+ErrCode HceSession::GetPaymentServices(CePaymentServicesParcelable& parcelable)
 {
-    std::string info = GetDumpInfo();
-    int ret = dprintf(fd, "%s\n", info.c_str());
-    if (ret < 0) {
-        ErrorLog("hceSession Dump ret = %{public}d", ret);
-        return NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("GetPaymentServices, ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
     }
-    return NFC::KITS::ErrorCode::ERR_NONE;
+
+    if (!ExternalDepsProxy::GetInstance().IsSystemApp(IPCSkeleton::GetCallingUid())) {
+        ErrorLog("HandleGetPaymentServices, ERR_NOT_SYSTEM_APP");
+        return KITS::ERR_NOT_SYSTEM_APP;
+    }
+
+    ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(parcelable.paymentAbilityInfos);
+#ifdef NFC_SIM_FEATURE
+    AppendSimBundle(parcelable.paymentAbilityInfos);
+#endif
+    return KITS::ERR_NONE;
 }
 
-std::string HceSession::GetDumpInfo()
-{
-    std::string info;
-    return info.append(DUMP_LINE)
-        .append("Hce DUMP ")
-        .append(DUMP_LINE)
-        .append(DUMP_END)
-        .append("NFC_STATE          : ")
-        .append(std::to_string(nfcService_.lock()->GetNfcState()))
-        .append(DUMP_END)
-        .append("SCREEN_STATE       : ")
-        .append(std::to_string(nfcService_.lock()->GetScreenState()))
-        .append(DUMP_END)
-        .append("NCI_VERSION        : ")
-        .append(std::to_string(nfcService_.lock()->GetNciVersion()))
-        .append(DUMP_END);
-}
-int HceSession::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
-{
-    ExternalDepsProxy::GetInstance().GetPaymentAbilityInfos(abilityInfos);
-#ifdef NFC_SIM_FEATURE
-    AppendSimBundle(abilityInfos);
-#endif
-    return NFC::KITS::ErrorCode::ERR_NONE;
-}
 #ifdef NFC_SIM_FEATURE
 void HceSession::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
@@ -193,7 +288,7 @@ void HceSession::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos)
     simAbility.iconId = bundleInfo.applicationInfo.iconId;
     paymentAbilityInfos.push_back(simAbility);
 }
-#endif
+#endif // NFC_SIM_FEATURE
 } // namespace HCE
 } // namespace NFC
 } // namespace OHOS

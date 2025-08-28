@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
 #define private public
 #define protected public
 #include "isodepcardhandler_fuzzer.h"
@@ -67,7 +68,7 @@ namespace OHOS {
     {
         uint32_t rfDiscId = static_cast<uint32_t>(data[0]);
         uint8_t cardIndex = static_cast<uint8_t>(data[1]);
-        int balance = static_cast<uint8_t>(data[2]);
+        int balance = static_cast<int>(data[2]);
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->GetBalance(rfDiscId, cardIndex, balance);

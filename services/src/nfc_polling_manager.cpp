@@ -152,7 +152,7 @@ bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
     }
 }
 
-bool NfcPollingManager::EnableForegroundDispatch(AppExecFwk::ElementName &element,
+bool NfcPollingManager::EnableForegroundDispatch(const AppExecFwk::ElementName &element,
     const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
@@ -242,7 +242,7 @@ void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
     foregroundData_->callback_->OnTagDiscovered(tagInfo);
 }
 
-bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+bool NfcPollingManager::EnableReaderMode(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
@@ -278,7 +278,7 @@ bool NfcPollingManager::EnableReaderMode(AppExecFwk::ElementName &element, std::
     return true;
 }
 
-bool NfcPollingManager::DisableReaderMode(AppExecFwk::ElementName &element)
+bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element)
 {
     DebugLog("DisableReaderMode: element: %{public}s/%{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
