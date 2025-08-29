@@ -139,7 +139,8 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
             creatorUid, notificationId, deleteReason);
 
         std::lock_guard<std::mutex> lock(g_callbackMutex);
-        if (deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE && g_ntfCallback) {
+        if (creatorUid == NFC_SERVICE_UID && deleteReason == Notification::NotificationConstant::CLICK_REASON_DELETE &&
+            g_ntfCallback) {
             PublishHideDropDownWindowEvent();
             g_ntfCallback(notificationId);
         }
