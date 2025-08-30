@@ -64,6 +64,9 @@ public:
      * @return The status code for unregister operation.
      */
     int UnregReaderMode(AppExecFwk::ElementName &element);
+
+protected:
+    OHOS::sptr<ITagSession> GetTagSessionProxy();
 };
 }  // namespace KITS
 }  // namespace NFC

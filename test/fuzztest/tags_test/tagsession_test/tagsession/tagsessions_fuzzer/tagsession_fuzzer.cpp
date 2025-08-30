@@ -130,7 +130,8 @@ public:
         nfcService->Initialize();
         std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
         int tagRfDiscId = static_cast<int>(data[0]);
-        tagSession->GetTechList(tagRfDiscId);
+        std::vector<int32_t> techList = {};
+        tagSession->GetTechList(tagRfDiscId, techList);
     }
 
     void FuzzIsTagFieldOn(const uint8_t* data, size_t size)
@@ -139,7 +140,8 @@ public:
         nfcService->Initialize();
         std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
         int tagRfDiscId = static_cast<int>(data[0]);
-        tagSession->IsTagFieldOn(tagRfDiscId);
+        bool isTagFieldOn = false;
+        tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
 
     void FuzzIsNdef(const uint8_t* data, size_t size)
@@ -148,7 +150,8 @@ public:
         nfcService->Initialize();
         std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
         int tagRfDiscId = static_cast<int>(data[0]);
-        tagSession->IsNdef(tagRfDiscId);
+        bool isNdef = false;
+        tagSession->IsNdef(tagRfDiscId, isNdef);
     }
 
     void FuzzSendRawFrame(const uint8_t* data, size_t size)

@@ -21,9 +21,10 @@
 namespace OHOS {
 namespace NFC {
 HceCmdDeathRecipient::HceCmdDeathRecipient(
-    sptr<HCE::HceSessionStub> hceSession,
+    sptr<HCE::HceSession> hceSession,
     Security::AccessToken::AccessTokenID callerToken)
     : hceSession_(hceSession), callerToken_(callerToken) {}
+
 void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (hceSession_ == nullptr) {

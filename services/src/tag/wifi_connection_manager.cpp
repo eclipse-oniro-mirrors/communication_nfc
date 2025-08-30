@@ -30,7 +30,7 @@ namespace TAG {
 const int64_t ENABLE_WIFI_TIMEOUT = 5000; // ms
 const int64_t CONNECT_WIFI_TIMEOUT = 5000; // ms
 std::shared_ptr<Wifi::WifiDevice> wifiDevPtr_ {};
-Wifi::WifiDeviceConfig* config_ {};
+std::shared_ptr<Wifi::WifiDeviceConfig> config_ {};
 std::shared_ptr<EventFwk::CommonEventSubscriber> wifiSubscriber_ {};
 bool g_isWaitingForWifiEnable = false;
 bool g_isWaitingForWifiConnect = false;
@@ -151,7 +151,6 @@ void WifiConnectionManager::OnFinish()
     DebugLog("OnFinish");
     g_isWaitingForWifiEnable = false;
     g_isWaitingForWifiConnect = false;
-    delete config_;
     config_ = nullptr;
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_ENABLE_TIMEOUT);
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_WIFI_CONNECT_TIMEOUT);

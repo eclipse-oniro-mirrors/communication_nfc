@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 #include "nfc_controller_impl.h"
+
+#include "ipc_skeleton.h"
+#include "nfc_controller_death_recipient.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service.h"
 #include "loghelper.h"
@@ -21,9 +24,6 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string DUMP_LINE = "---------------------------";
-const std::string DUMP_END = "\n";
-
 NfcControllerImpl::NfcControllerImpl(std::weak_ptr<NfcService> nfcService)
     : NfcControllerStub(), nfcService_(nfcService)
 {
@@ -33,12 +33,27 @@ NfcControllerImpl::~NfcControllerImpl()
 {
 }
 
-int NfcControllerImpl::GetState()
+int32_t NfcControllerImpl::CallbackEnter(uint32_t code)
 {
+    InfoLog("NfcControllerImpl, code[%{public}u]", code);
+    return ERR_NONE;
+}
+
+int32_t NfcControllerImpl::CallbackExit(uint32_t code, int32_t result)
+{
+    InfoLog("NfcControllerImpl, code[%{public}u], result[%{public}d]", code, result);
+    return ERR_NONE;
+}
+
+ErrCode NfcControllerImpl::GetState(int32_t& funcResult)
+{
+    funcResult = KITS::STATE_OFF;
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcService_.lock()->GetNfcState();
+    funcResult = nfcService_.lock()->GetNfcState();
+    return KITS::ERR_NONE;
 }
 
 inline bool IsNfcEdmDisallowed()
@@ -60,62 +75,80 @@ inline bool IsNfcEdmDisallowed()
     return false;
 }
 
-int NfcControllerImpl::TurnOn()
+ErrCode NfcControllerImpl::TurnOn()
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("TurnOn no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_ON_NFC, appPackageName);
+
     if (IsNfcEdmDisallowed()) {
         ErrorLog("nfc edm disallowed");
         return KITS::ERR_NFC_EDM_DISALLOWED;
     }
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
     return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
 }
 
-int NfcControllerImpl::TurnOff()
+ErrCode NfcControllerImpl::TurnOff()
 {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("TurnOff no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_OFF_NFC, appPackageName);
+
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
     return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
 }
 
-int NfcControllerImpl::IsNfcOpen(bool &isOpen)
+ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCallback>& cb, const std::string& type)
 {
-    if (nfcService_.expired()) {
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("input callback nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    isOpen = nfcService_.lock()->IsNfcEnabled();
-    return KITS::ERR_NONE;
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::unique_ptr<NfcControllerDeathRecipient> recipient
+        = std::make_unique<NfcControllerDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+    sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+    if (!cb->AsObject()->AddDeathRecipient(dr)) {
+        ErrorLog("Failed to add death recipient");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    deathRecipient_ = dr;
+    callback_ = cb;
+    return nfcService_.lock()->SetRegisterCallBack(cb, type, IPCSkeleton::GetCallingTokenID());
 }
 
-KITS::ErrorCode NfcControllerImpl::RegisterCallBack(const sptr<INfcControllerCallback> &callback,
-    const std::string& type, Security::AccessToken::AccessTokenID callerToken)
+ErrCode NfcControllerImpl::UnregisterNfcStatusCallBack(const std::string& type)
 {
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (!nfcService_.lock()->SetRegisterCallBack(callback, type, callerToken)) {
-        return KITS::ERR_NONE;
-    }
-    return KITS::ERR_NFC_PARAMETERS;
-}
-
-KITS::ErrorCode NfcControllerImpl::UnRegisterCallBack(const std::string& type,
-    Security::AccessToken::AccessTokenID callerToken)
-{
-    if (nfcService_.expired()) {
-        return KITS::ERR_NFC_PARAMETERS;
-    }
-    if (!nfcService_.lock()->RemoveRegisterCallBack(type, callerToken)) {
-        return KITS::ERR_NONE;
-    }
-    return KITS::ERR_NFC_PARAMETERS;
+    return nfcService_.lock()->RemoveRegisterCallBack(type, IPCSkeleton::GetCallingTokenID());
 }
 
 KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
 {
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
     if (!nfcService_.lock()->RemoveAllRegisterCallBack(callerToken)) {
@@ -124,87 +157,111 @@ KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-OHOS::sptr<IRemoteObject> NfcControllerImpl::GetTagServiceIface()
+ErrCode NfcControllerImpl::GetTagServiceIface(sptr<IRemoteObject>& funcResult)
 {
-    if (nfcService_.expired()) {
-        return nullptr;
+    funcResult == nullptr;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("GetTagServiceIface no permission");
+        return KITS::ERR_NO_PERMISSION;
     }
-    return nfcService_.lock()->GetTagServiceIface();
-}
 
-KITS::ErrorCode NfcControllerImpl::RegNdefMsgCallback(const sptr<INdefMsgCallback> &callback)
-{
     if (nfcService_.expired()) {
-        ErrorLog("NfcControllerImpl::RegNdefMsgCallback nfcService_ expired");
+        ErrorLog("nfcService_ expired.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (nfcService_.lock()->RegNdefMsgCb(callback)) {
+    funcResult = nfcService_.lock()->GetTagServiceIface();
+    return KITS::ERR_NONE;
+}
+
+ErrCode NfcControllerImpl::RegNdefMsgCb(const sptr<INdefMsgCallback>& cb)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("RegNdefMsgCb no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (cb == nullptr) {
+        ErrorLog("input callback nullptr.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    if (nfcService_.lock()->RegNdefMsgCb(cb)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
 }
 
-#ifdef VENDOR_APPLICATIONS_ENABLED
-KITS::ErrorCode NfcControllerImpl::RegQueryApplicationCb(const sptr<IQueryAppInfoCallback> callback)
+ErrCode NfcControllerImpl::RegQueryApplicationCb(const sptr<IQueryAppInfoCallback>& cb)
 {
-    ExternalDepsProxy::GetInstance().RegQueryApplicationCb(callback);
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("RegQueryApplicationCb no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    ExternalDepsProxy::GetInstance().RegQueryApplicationCb(cb);
+#endif
     return KITS::ERR_NONE;
 }
 
-KITS::ErrorCode NfcControllerImpl::RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb> callback)
+ErrCode NfcControllerImpl::RegCardEmulationNotifyCb(const sptr<IOnCardEmulationNotifyCb>& cb)
 {
-    ExternalDepsProxy::GetInstance().RegCardEmulationNotifyCb(callback);
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("RegCardEmulationNotifyCb no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    ExternalDepsProxy::GetInstance().RegCardEmulationNotifyCb(cb);
+#endif
     return KITS::ERR_NONE;
 }
-KITS::ErrorCode NfcControllerImpl::NotifyEventStatus(int eventType, int arg1, std::string arg2)
+
+ErrCode NfcControllerImpl::NotifyEventStatus(int32_t eventType, int32_t arg1, const std::string& arg2)
 {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("NotifyEventStatus no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
     if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired");
         return KITS::ERR_NFC_PARAMETERS;
     }
 
     nfcService_.lock()->OnVendorEvent(eventType, arg1, arg2);
-    return KITS::ErrorCode();
-}
 #endif
-
-OHOS::sptr<IRemoteObject> NfcControllerImpl::GetHceServiceIface(int32_t &res)
-{
-    if (nfcService_.expired()) {
-        return nullptr;
-    }
-    return nfcService_.lock()->GetHceServiceIface();
-}
-
-int32_t NfcControllerImpl::Dump(int32_t fd, const std::vector<std::u16string>& args)
-{
-    if (nfcService_.expired()) {
-        return KITS::ERR_NFC_PARAMETERS;
-    }
-    std::string info = GetDumpInfo();
-    int ret = dprintf(fd, "%s\n", info.c_str());
-    if (ret < 0) {
-        ErrorLog("NfcControllerImpl Dump ret = %{public}d", ret);
-        return KITS::ERR_NFC_PARAMETERS;
-    }
     return KITS::ERR_NONE;
 }
 
-std::string NfcControllerImpl::GetDumpInfo()
+ErrCode NfcControllerImpl::GetHceServiceIface(sptr<IRemoteObject>& funcResult)
 {
-    std::string info;
-    return info.append(DUMP_LINE)
-        .append(" NFC DUMP ")
-        .append(DUMP_LINE)
-        .append(DUMP_END)
-        .append("NFC_STATE          : ")
-        .append(std::to_string(nfcService_.lock()->GetNfcState()))
-        .append(DUMP_END)
-        .append("SCREEN_STATE       : ")
-        .append(std::to_string(nfcService_.lock()->GetScreenState()))
-        .append(DUMP_END)
-        .append("NCI_VERSION        : ")
-        .append(std::to_string(nfcService_.lock()->GetNciVersion()))
-        .append(DUMP_END);
+    funcResult == nullptr;
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
+        ErrorLog("GetHceServiceIface no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    funcResult = nfcService_.lock()->GetHceServiceIface();
+    return KITS::ERR_NONE;
+}
+
+void NfcControllerImpl::RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (callback_ == nullptr) {
+        ErrorLog("OnRemoteDied callback_ is nullptr");
+        return;
+    }
+    auto serviceRemote = callback_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        callback_ = nullptr;
+        ErrorLog("on remote died");
+    }
 }
 }  // namespace NFC
 }  // namespace OHOS

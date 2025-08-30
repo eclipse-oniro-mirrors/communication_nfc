@@ -23,7 +23,6 @@
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
-    using namespace OHOS::NFC::TAG;
 
     void FuzzGetStringTech(const uint8_t* data, size_t size)
     {

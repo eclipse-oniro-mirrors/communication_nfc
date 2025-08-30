@@ -40,7 +40,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -53,7 +53,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -67,7 +67,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -81,7 +81,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -95,7 +95,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;
@@ -109,7 +109,7 @@ namespace OHOS {
     {
         std::shared_ptr<WifiData> wifiData = std::make_shared<WifiData>();
         wifiData->isValid_ = data[0] % INT_TO_BOOL_DIVISOR;
-        wifiData->config_ = new Wifi::WifiDeviceConfig();
+        wifiData->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
         wifiData->config_->ssid = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->preSharedKey = NfcSdkCommon::BytesVecToHexString(data, size);
         wifiData->config_->keyMgmt = Wifi::KEY_MGMT_WPA_PSK;

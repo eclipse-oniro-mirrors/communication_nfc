@@ -131,7 +131,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     }
     data->isValid_ = true;
     if (!data->config_) {
-        data->config_ = new Wifi::WifiDeviceConfig();
+        data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     }
     while ((offset * HEX_BYTE_LEN) < payload.length()) {
         type = GetTypeFromPayload(payload, offset);
@@ -208,10 +208,6 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
             ErrorLog("key should not be null when keyMgmt is not NONE");
             data->isValid_ = false;
         }
-    }
-    if (!data->isValid_ && data->config_) {
-        delete data->config_;
-        data->config_ = nullptr;
     }
     InfoLog("parse end, valid: %{public}d", data->isValid_);
     return data;

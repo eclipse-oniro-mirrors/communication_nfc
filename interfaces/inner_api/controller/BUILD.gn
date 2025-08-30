@@ -11,9 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("../../../nfc.gni")
+
+idl_gen_interface("nfc_controller_interface") {
+  sources = [ "idl/INfcController.idl" ]
+  configs = [ ":nfc_inner_kits_public_config" ]
+
+  sequenceable_ext_deps = [ "ability_base:want" ]
+  log_domainid = "0xD000301"
+  log_tag = "Nfc_Controller"
+  part_name = "nfc"
+  subsystem_name = "communication"
+}
 
 config("nfc_inner_kits_config") {
   visibility = [ ":*" ]
@@ -30,6 +42,7 @@ config("nfc_inner_kits_public_config") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
   include_dirs = [
+    "${target_gen_dir}",
     "$NFC_DIR/interfaces/inner_api/common",
     "$NFC_DIR/interfaces/inner_api/controller",
   ]
@@ -49,7 +62,6 @@ ohos_shared_library("nfc_inner_kits_controller") {
     "ndef_msg_callback_stub.cpp",
     "nfc_controller.cpp",
     "nfc_controller_callback_stub.cpp",
-    "nfc_controller_proxy.cpp",
     "nfc_sa_client.cpp",
   ]
   if (nfc_service_feature_vendor_applications_enabled) {
@@ -62,7 +74,11 @@ ohos_shared_library("nfc_inner_kits_controller") {
 
   public_configs = [ ":nfc_inner_kits_public_config" ]
 
-  deps = [ "../common:nfc_inner_kits_common" ]
+  deps = [
+    ":libnfc_controller_interface_proxy",
+    ":nfc_controller_interface",
+    "../common:nfc_inner_kits_common"
+  ]
 
   external_deps = [
     "ability_base:want",
@@ -70,8 +86,6 @@ ohos_shared_library("nfc_inner_kits_controller") {
     "ability_runtime:dataobs_manager",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "data_share:datashare_common",
-    "data_share:datashare_consumer",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

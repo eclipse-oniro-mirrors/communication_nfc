@@ -43,6 +43,8 @@ private:
     std::vector<int> tagTechList_;
     std::vector<AppExecFwk::PacMap> tagTechExtrasData_;
     OHOS::sptr<IRemoteObject> tagServiceIface_;
+
+    static constexpr size_t MAX_TECH_LIST_SIZE = 20;
 };
 }  // namespace KITS
 }  // namespace NFC

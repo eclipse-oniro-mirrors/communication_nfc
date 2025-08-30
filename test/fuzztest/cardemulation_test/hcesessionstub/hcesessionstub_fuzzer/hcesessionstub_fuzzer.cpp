@@ -69,7 +69,7 @@ namespace OHOS {
         auto addr = BuildAddressString(data);
 
         MessageParcel datas;
-        std::u16string descriptor = HceSessionStub::GetDescriptor();
+        std::u16string descriptor = NFC::HceSessionStub::GetDescriptor();
         datas.WriteInterfaceToken(descriptor);
         datas.WriteInt32(*(reinterpret_cast<const int32_t *>(data)));
         datas.WriteString(addr.c_str());
@@ -89,7 +89,7 @@ namespace OHOS {
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
         std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        hceSession->StopHce(element, callerToken);
+        hceSession->StopHce(element);
     }
 
     void RemoveHceDeathRecipientFuzzTest(const uint8_t* data, size_t size)

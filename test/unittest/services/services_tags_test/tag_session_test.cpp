@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
+
 #include "tag_session_stub_test.h"
 
 #include <gtest/gtest.h>
@@ -65,34 +68,6 @@ void TagSessionTest::TearDown()
     std::cout << " TearDown TagSessionTest." << std::endl;
 }
 
-/**
- * @tc.name: Dump001
- * @tc.desc: Test TagSession Dump.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, Dump001, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    int32_t fd = -1;
-    const std::vector<std::u16string> args;
-    int32_t result = tagSession->Dump(fd, args);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
-}
-/**
- * @tc.name: Dump002
- * @tc.desc: Test TagSession Dump.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, Dump002, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    int32_t fd = 1;
-    const std::vector<std::u16string> args;
-    int32_t result = tagSession->Dump(fd, args);
-    ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NONE);
-}
 /**
  * @tc.name: GetMaxTransceiveLength001
  * @tc.desc: Test TagSession GetMaxTransceiveLength.
@@ -248,7 +223,8 @@ HWTEST_F(TagSessionTest, IsTagFieldOn001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
-    bool isTagFieldOn = tagSession->IsTagFieldOn(tagRfDiscId);
+    bool isTagFieldOn = false;
+    tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     ASSERT_TRUE(!isTagFieldOn);
 }
 /**
@@ -261,7 +237,8 @@ HWTEST_F(TagSessionTest, GetTechList001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
-    std::vector<int> getTechList = tagSession->GetTechList(tagRfDiscId);
+    std::vector<int> getTechList = {};
+    tagSession->GetTechList(tagRfDiscId, getTechList);
     ASSERT_TRUE(getTechList.empty());
 }
 /**
@@ -450,8 +427,9 @@ HWTEST_F(TagSessionTest, IsNdef001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int tagRfDiscId = TEST_DISC_ID;
-    bool isNdef = tagSession->IsNdef(tagRfDiscId);
-    ASSERT_TRUE(isNdef == false);
+    bool isNdef = false;
+    tagSession->IsNdef(tagRfDiscId, isNdef);
+    ASSERT_TRUE(!isNdef);
 }
 /**
  * @tc.name: SendRawFrame001
@@ -586,7 +564,7 @@ HWTEST_F(TagSessionTest, RegReaderMode001, TestSize.Level1)
     std::vector<uint32_t> discTech;
     const sptr<KITS::IReaderModeCallback> callback = nullptr;
     int errorCode = tagSession->RegReaderMode(element, discTech, callback);
-    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_TAG_APP_NOT_FOREGROUND);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NFC_PARAMETERS);
 }
 
 /**

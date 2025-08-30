@@ -43,7 +43,8 @@ public:
     static constexpr const auto TEST_REQUEST_INDEX_1 = 3100201;
     static constexpr const auto TEST_REQUEST_INDEX_2 = 3100202;
     static constexpr const auto TEST_REQUEST_INDEX_3 = 305;
-    static constexpr const auto TEST_REQUEST_INDEX_4 = 0;
+    static constexpr const auto TEST_REQUEST_INDEX_4 = 1; // ERR_TRANSACTION_FAILED = 1
+    static constexpr const auto TEST_REQUEST_INDEX_5 = 0;
 };
 
 void TagSessionStubTest::SetUpTestCase()

@@ -85,6 +85,14 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KI
         ErrorLog("record size error");
         return false;
     }
+    bool dispatchResult = DispatchValidNdef(records, tagInfo);
+    ClearNdefDispatchParam();
+    return dispatchResult;
+}
+
+bool NdefHarDataParser::DispatchValidNdef(
+    const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo)
+{
     ParseMimeTypeAndStr(records);
     // handle OpenHarmony Application bundle name
     if (DispatchByHarBundleName(records, tagInfo)) {
@@ -109,6 +117,20 @@ bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KI
     }
     WarnLog("TryNdef no handle");
     return false;
+}
+
+void NdefHarDataParser::ClearNdefDispatchParam()
+{
+    if (mimeTypeVec_.size() > 0) {
+        mimeTypeVec_.clear();
+    }
+    if (uriAddress_.size() > 0) {
+        uriAddress_.clear();
+    }
+    if (uriSchemeValue_.size() > 0) {
+        uriSchemeValue_.clear();
+    }
+    schemeType_ = {RecordsType::TYPE_RTP_UNKNOWN};
 }
 
 bool NdefHarDataParser::DispatchByHarBundleName(
@@ -280,6 +302,11 @@ void NdefHarDataParser::ParseMimeTypeAndStr(const std::vector<std::shared_ptr<Nd
         return;
     }
     for (int i = 0; i < static_cast<int>(records.size()); i++) {
+        if (records[i] == nullptr) {
+            ErrorLog("ndef records[%{public}d] is empty", i);
+            mimeTypeVec_.push_back(std::make_pair(TYPE_RTP_UNKNOWN, ""));
+            continue;
+        }
         RecordsType mimeType;
         std::string mimeTypeStr;
         InfoLog("record.tnf_: %{public}d", records[i]->tnf_);
