@@ -105,7 +105,7 @@ namespace OHOS {
         int eventType = static_cast<int>(data[0]);
         int arg1 = static_cast<int>(data[1]);
         std::string arg2 = "";
-        std::shared_ptr<NfcService> service = nullptr;
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
         nfcControllerImpl->NotifyEventStatus(eventType, arg1, arg2);
     }
