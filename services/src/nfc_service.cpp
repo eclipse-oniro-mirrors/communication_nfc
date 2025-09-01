@@ -184,6 +184,10 @@ void NfcService::FieldDeactivated()
 #ifdef VENDOR_APPLICATIONS_ENABLED
 void NfcService::OnVendorEvent(int eventType, int arg1, std::string arg2)
 {
+    if (eventHandler_ == nullptr) {
+        InfoLog("NfcService::OnVendorEvent is nullptr");
+        return;
+    }
     InfoLog("NfcService::OnVendorEvent");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT), eventType, 0);
 }
