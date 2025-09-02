@@ -37,7 +37,11 @@ using OHOS::AppExecFwk::ElementName;
 using AppExecFwk::AbilityInfo;
 class ExternalDepsProxy {
 public:
-    static ExternalDepsProxy &GetInstance();
+    static ExternalDepsProxy &GetInstance()
+    {
+        static ExternalDepsProxy instance;
+        return instance;
+    }
 
     bool HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
     bool HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventData> data);
