@@ -12,10 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
 #include "hce_cmd_callback_stub.h"
+#include "hce_cmd_death_recipient.h"
 #include "hce_session.h"
 #include "hce_session_stub.h"
 #include "nfc_sdk_common.h"
@@ -23,6 +28,13 @@
 namespace OHOS {
 namespace NFC {
 namespace TEST {
+std::string g_errLog;
+void MyLogCallback(
+    const LogType type, const LogLevel level, const unsigned int domain, const char *tag, const char *msg)
+{
+    g_errLog = msg;
+}
+
 using namespace testing::ext;
 using namespace OHOS::NFC::KITS;
 class HceSessionTest : public testing::Test {
@@ -341,6 +353,102 @@ HWTEST_F(HceSessionTest, StopHce002, TestSize.Level1)
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
     ErrCode errorCode = hceSession->StopHce(element);
     ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_HCE_PARAMETERS);
+}
+
+/**
+ * @tc.name: GetPaymentServices001
+ * @tc.desc: Test HceSessionTest GetPaymentServices.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, GetPaymentServices001, TestSize.Level1)
+{
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nullptr);
+    CePaymentServicesParcelable parcelable;
+    ErrCode errorCode = hceSession->GetPaymentServices(parcelable);
+    ASSERT_TRUE(errorCode == NFC::KITS::ErrorCode::ERR_NONE);
+}
+
+class HceCmdListenerEvent : public IHceCmdCallback {
+public:
+    HceCmdListenerEvent() {}
+    virtual ~HceCmdListenerEvent() {}
+
+public:
+    void OnCeApduData(const std::vector<uint8_t>& data) override { return; }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override { return nullptr; }
+};
+
+/**
+ * @tc.name: RemoveHceDeathRecipient001
+ * @tc.desc: Test HceSessionTest RemoveHceDeathRecipient.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, RemoveHceDeathRecipient001, TestSize.Level1)
+{
+    LOG_SetCallback(MyLogCallback);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    nfcService->Initialize();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    hceSession->CallbackEnter(0);
+    hceSession->CallbackExit(0, 0);
+    hceSession->hceCmdCallback_ = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
+    hceSession->RemoveHceDeathRecipient(nullptr);
+    ASSERT_TRUE(g_errLog.find("callback_ is nullptr") == std::string::npos);
+
+    hceSession->hceCmdCallback_ = nullptr;
+    hceSession->RemoveHceDeathRecipient(nullptr);
+    ASSERT_TRUE(g_errLog.find("callback_ is nullptr") != std::string::npos);
+}
+
+#ifdef NFC_SIM_FEATURE
+/**
+ * @tc.name: AppendSimBundle001
+ * @tc.desc: Test HceSessionTest AppendSimBundle.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, AppendSimBundle001, TestSize.Level1)
+{
+    LOG_SetCallback(MyLogCallback);
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nullptr);
+    std::vector<AbilityInfo> paymentAbilityInfos;
+    hceSession->AppendSimBundle(paymentAbilityInfos);
+    ASSERT_TRUE(g_errLog.find("nfcService_ nullptr") != std::string::npos);
+}
+
+/**
+ * @tc.name: AppendSimBundle002
+ * @tc.desc: Test HceSessionTest AppendSimBundle.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, AppendSimBundle002, TestSize.Level1)
+{
+    LOG_SetCallback(MyLogCallback);
+    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    nfcService->Initialize();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
+    std::vector<AbilityInfo> paymentAbilityInfos;
+    hceSession->AppendSimBundle(paymentAbilityInfos);
+    ASSERT_TRUE(g_errLog.find("nfcService_ nullptr") == std::string::npos);
+}
+#endif
+
+/**
+ * @tc.name: OnRemoteDied001
+ * @tc.desc: Test OnRemoteDied.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, OnRemoteDied001, TestSize.Level1)
+{
+    LOG_SetCallback(MyLogCallback);
+    sptr<HCE::HceSession> hceSession = sptr<HCE::HceSession>(new HCE::HceSession(nullptr));
+    std::shared_ptr<HceCmdDeathRecipient> dr = std::make_shared<HceCmdDeathRecipient>(hceSession, 0);
+    dr->OnRemoteDied(nullptr);
+    ASSERT_TRUE(g_errLog.find("hceSession_ is nullptr") == std::string::npos);
+
+    std::shared_ptr<HceCmdDeathRecipient> dr2 = std::make_shared<HceCmdDeathRecipient>(nullptr, 0);
+    dr2->OnRemoteDied(nullptr);
+    ASSERT_TRUE(g_errLog.find("hceSession_ is nullptr") != std::string::npos);
 }
 }
 }

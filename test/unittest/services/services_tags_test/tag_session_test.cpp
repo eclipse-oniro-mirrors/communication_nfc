@@ -29,6 +29,7 @@
 #include "nfc_service_tdd.h"
 #include "nfc_permission_checker.h"
 #include "tag_session.h"
+#include <iostream>
 
 namespace OHOS {
 namespace NFC {
@@ -582,22 +583,6 @@ HWTEST_F(TagSessionTest, UnregReaderMode001, TestSize.Level1)
 }
 
 /**
- * @tc.name: HandleAppStateChanged001
- * @tc.desc: Test TagSession HandleAppStateChanged.
- * @tc.type: FUNC
- */
-HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
-{
-    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    std::string bundleName = "";
-    std::string abilityName = "";
-    int abilityState = 0;
-    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
-    ASSERT_TRUE(tagSession != nullptr);
-}
-
-/**
  * @tc.name: ResetTimeout001
  * @tc.desc: Test TagSession ResetTimeout.
  * @tc.type: FUNC
@@ -658,6 +643,222 @@ HWTEST_F(TagSessionTest, IsConnected002, TestSize.Level1)
     bool isConnected = false;
     int ret = tagSession->IsConnected(tagRfDiscId, isConnected);
     ASSERT_TRUE(ret == NFC::KITS::ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+}
+
+/**
+ * @tc.name: HandleAppStateChanged001
+ * @tc.desc: Test TagSession HandleAppStateChanged.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    std::string bundleName = "";
+    std::string abilityName = "";
+    int abilityState = 0;
+    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+
+    ElementName element;
+    TAG::FgData fgData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->fgDataVec_.push_back(fgData);
+    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+
+    tagSession->fgDataVec_.clear();
+    tagSession->readerDataVec_.push_back(readerData);
+    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+
+    tagSession->fgDataVec_.push_back(fgData);
+    tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
+    ASSERT_TRUE(tagSession != nullptr);
+}
+
+/**
+ * @tc.name: IsSameAppAbility001
+ * @tc.desc: Test TagSession IsSameAppAbility.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsSameAppAbility001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    ElementName fgElement("", "bundleName", "abilityName", "");
+    ASSERT_TRUE(tagSession->IsSameAppAbility(element, fgElement));
+
+    ElementName element1("", "bundleName1", "abilityName", "");
+    ElementName fgElement1("", "bundleName", "abilityName", "");
+    ASSERT_FALSE(tagSession->IsSameAppAbility(element1, fgElement1));
+
+    ElementName element2("", "bundleName", "abilityName1", "");
+    ElementName fgElement2("", "bundleName", "abilityName", "");
+    ASSERT_FALSE(tagSession->IsSameAppAbility(element2, fgElement2));
+
+    ElementName element3("", "bundleName1", "abilityName1", "");
+    ElementName fgElement3("", "bundleName", "abilityName", "");
+    ASSERT_FALSE(tagSession->IsSameAppAbility(element3, fgElement3));
+}
+
+/**
+ * @tc.name: RegForegroundDispatchInner001
+ * @tc.desc: Test TagSession RegForegroundDispatchInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegForegroundDispatchInner001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->RegForegroundDispatchInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_TAG_STATE_UNBIND);
+
+    TAG::FgData fgData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->fgDataVec_.push_back(fgData);
+    result = tagSession->RegForegroundDispatchInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+
+/**
+ * @tc.name: RegForegroundDispatchInner002
+ * @tc.desc: Test TagSession RegForegroundDispatchInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegForegroundDispatchInner002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->RegForegroundDispatchInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: UnregForegroundDispatchInner001
+ * @tc.desc: Test TagSession UnregForegroundDispatchInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, UnregForegroundDispatchInner001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->UnregForegroundDispatchInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+
+    TAG::FgData fgData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->fgDataVec_.push_back(fgData);
+    result = tagSession->UnregForegroundDispatchInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_TAG_STATE_UNBIND);
+}
+
+/**
+ * @tc.name: UnregForegroundDispatchInner002
+ * @tc.desc: Test TagSession UnregForegroundDispatchInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, UnregForegroundDispatchInner002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::FgData fgData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->fgDataVec_.push_back(fgData);
+    int result = tagSession->UnregForegroundDispatchInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+
+/**
+ * @tc.name: RegReaderModeInner001
+ * @tc.desc: Test TagSession RegReaderModeInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegReaderModeInner001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->RegReaderModeInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_TAG_STATE_UNBIND);
+
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->readerDataVec_.push_back(readerData);
+    result = tagSession->RegReaderModeInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+
+/**
+ * @tc.name: RegReaderModeInner002
+ * @tc.desc: Test TagSession RegReaderModeInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegReaderModeInner002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->RegReaderModeInner(element, std::vector<uint32_t>(), nullptr, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NFC_PARAMETERS);
+}
+
+/**
+ * @tc.name: UnregReaderModeInner001
+ * @tc.desc: Test TagSession UnregReaderModeInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, UnregReaderModeInner001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    int result = tagSession->UnregReaderModeInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->readerDataVec_.push_back(readerData);
+    result = tagSession->UnregReaderModeInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_TAG_STATE_UNBIND);
+}
+
+/**
+ * @tc.name: UnregReaderModeInner002
+ * @tc.desc: Test TagSession UnregReaderModeInner.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, UnregReaderModeInner002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    tagSession->readerDataVec_.push_back(readerData);
+    int result = tagSession->UnregReaderModeInner(element, true);
+    std::cout << "result " << result << std::endl;
+    ASSERT_TRUE(result == KITS::ERR_NONE);
 }
 }
 }

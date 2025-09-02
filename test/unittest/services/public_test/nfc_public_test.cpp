@@ -12,6 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -21,6 +25,7 @@
 #include "nfc_permission_checker.h"
 #include "nfc_watch_dog.h"
 #include "synchronize_event.h"
+#include "mock_nci_nfcc_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -389,6 +394,51 @@ HWTEST_F(NfcPublicTest, NfcWatchDog002, TestSize.Level1)
     nfcWatchDog.Cancel();
     uint64_t currentTime = NfcSdkCommon::GetCurrentTime();
     ASSERT_TRUE(currentTime != 0);
+}
+
+/**
+ * @tc.name: NfcWatchDog003
+ * @tc.desc: Test NfcWatchDog
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, NfcWatchDog003, TestSize.Level1)
+{
+    std::shared_ptr<NCI::INciNfccInterface> nciNfccProxy = nullptr;
+    NfcWatchDog nfcWatchDog("DoTurnOn", 500, nciNfccProxy);
+    nfcWatchDog.canceled_ = true;
+    nfcWatchDog.MainLoop();
+    nfcWatchDog.canceled_ = false;
+    nfcWatchDog.MainLoop();
+    ASSERT_TRUE(nfcWatchDog.threadName_ == "DoTurnOn");
+}
+
+/**
+ * @tc.name: NfcWatchDog004
+ * @tc.desc: Test NfcWatchDog
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, NfcWatchDog004, TestSize.Level1)
+{
+    std::shared_ptr<MockNciNfccProxy> nciNfccProxy = std::make_shared<MockNciNfccProxy>();
+    NfcWatchDog nfcWatchDog("DoTurnOn", 500, nciNfccProxy);
+    nfcWatchDog.canceled_ = false;
+    nfcWatchDog.MainLoop();
+    ASSERT_TRUE(nfcWatchDog.threadName_ == "DoTurnOn");
+
+    NfcWatchDog nfcWatchDog2("DoTurnOff", 500, nciNfccProxy);
+    nfcWatchDog2.canceled_ = false;
+    nfcWatchDog2.MainLoop();
+    ASSERT_TRUE(nfcWatchDog2.threadName_ == "DoTurnOff");
+
+    NfcWatchDog nfcWatchDog3("nfcProcessEvent", 500, nciNfccProxy);
+    nfcWatchDog3.canceled_ = false;
+    nfcWatchDog3.MainLoop();
+    ASSERT_TRUE(nfcWatchDog3.threadName_ == "nfcProcessEvent");
+
+    NfcWatchDog nfcWatchDog4("nfc", 500, nciNfccProxy);
+    nfcWatchDog4.canceled_ = false;
+    nfcWatchDog4.MainLoop();
+    ASSERT_TRUE(nfcWatchDog4.threadName_ == "nfc");
 }
 }
 }
