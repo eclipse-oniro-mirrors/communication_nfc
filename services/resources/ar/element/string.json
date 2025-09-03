@@ -11,49 +11,49 @@
             "name":"DefaultTitle",
             "value":"تم اكتشاف علامة NFC. انقر للعرض.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"تحتاج بعض التطبيقات التي تحتوي على خيارات تحكم بميزة NFC خاصة بها إلى تشغيلها يدويًا.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"بطاقة مواصلات Lingnan Tong",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"الاتصال بالشبكة",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"بطاقة مواصلات شنجن",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"حدد تطبيقًا لاستخدام البطاقة",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"اتصال",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -67,28 +67,28 @@
             "name":"NoHapSupportedNtfButtonName",
             "value":"فتح متجر التطبيقات",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"إشعار NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"بطاقة GX T-Union",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"انقر هنا لمعرفة التفاصيل",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -102,49 +102,49 @@
             "name":"NfcBtNtfText",
             "value":"هل تريد الاقتران بالجهاز \"\u202a%s\u202c\"؟",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"بطاقة مواصلات شنغهاي",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"تم اكتشاف بطاقة مواصلات",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"هل تريد الاتصال بالشبكة \"\u202a%s\u202c\"؟",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"طلب اقتران NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"هناك العديد من التطبيقات المتاحة للاستخدام. افتح التطبيق الذي تريد استخدامه.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"بطاقة مواصلات بكين",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -158,7 +158,7 @@
             "name":"NfcBtButtonName",
             "value":"اقتران",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
