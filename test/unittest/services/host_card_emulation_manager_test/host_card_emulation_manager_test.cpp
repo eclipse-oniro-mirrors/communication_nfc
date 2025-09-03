@@ -12,6 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -346,6 +350,58 @@ HWTEST_F(HostCardEmulationManagerTest, HandleQueueDataForFa001, TestSize.Level1)
     Security::AccessToken::AccessTokenID callerToken = 0;
     bool regHceCmdCallback = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
+}
+
+/**
+ * @tc.name: HandleDataForFaApplication002
+ * @tc.desc: Test HostCardEmulationManagerTest HandleDataForFaApplication.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, HandleDataForFaApplication002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    ElementName elementName;
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::INITIAL_STATE;
+    hostCardEmulationManager->HandleDataForFaApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
+    hostCardEmulationManager->HandleDataForFaApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+    hostCardEmulationManager->HandleDataForFaApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+    hostCardEmulationManager->HandleDataForFaApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_DEACTIVATE;
+    hostCardEmulationManager->HandleDataForFaApplication("", elementName, std::vector<uint8_t>());
+    ASSERT_TRUE(hostCardEmulationManager != nullptr);
+}
+
+/**
+ * @tc.name: HandleDataForStageApplication002
+ * @tc.desc: Test HostCardEmulationManagerTest HandleDataForStageApplication.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, HandleDataForStageApplication002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    ElementName elementName;
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::INITIAL_STATE;
+    hostCardEmulationManager->HandleDataForStageApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_SELECT;
+    hostCardEmulationManager->HandleDataForStageApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
+    hostCardEmulationManager->HandleDataForStageApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::DATA_TRANSFER;
+    hostCardEmulationManager->HandleDataForStageApplication("", elementName, std::vector<uint8_t>());
+    hostCardEmulationManager->hceState_ = HostCardEmulationManager::WAIT_FOR_DEACTIVATE;
+    hostCardEmulationManager->HandleDataForStageApplication("", elementName, std::vector<uint8_t>());
+    ASSERT_TRUE(hostCardEmulationManager != nullptr);
 }
 
 } // namespace TEST
