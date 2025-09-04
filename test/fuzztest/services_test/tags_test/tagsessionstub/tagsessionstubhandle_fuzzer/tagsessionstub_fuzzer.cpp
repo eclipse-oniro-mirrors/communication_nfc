@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "tagsessionstub_fuzzer.h"
+#include "tagsessionstubhandle_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -37,7 +37,7 @@ namespace OHOS {
         }
     }
 
-    void FuzzHandleNdefWrite(const uint8_t* data, size_t size)
+    void FuzzHandleConnect(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -48,11 +48,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_WRITE),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_CONNECT),
             data2, reply, option);
     }
 
-    void FuzzHandleNdefMakeReadOnly(const uint8_t* data, size_t size)
+    void FuzzHandleReconnect(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -63,11 +63,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_MAKE_READ_ONLY),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_RECONNECT),
             data2, reply, option);
     }
 
-    void FuzzHandleFormatNdef(const uint8_t* data, size_t size)
+    void FuzzHandleDisconnect(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -78,11 +78,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_FORMAT_NDEF),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_DISCONNECT),
             data2, reply, option);
     }
 
-    void FuzzHandleCanMakeReadOnly(const uint8_t* data, size_t size)
+    void FuzzHandleSetTimeout(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -93,11 +93,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_CAN_MAKE_READ_ONLY),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_SET_TIMEOUT),
             data2, reply, option);
     }
 
-    void FuzzHandleGetMaxTransceiveLength(const uint8_t* data, size_t size)
+    void FuzzHandleGetTimeout(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -108,12 +108,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(
-            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_MAX_TRANSCEIVE_LENGTH),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TIMEOUT),
             data2, reply, option);
     }
 
-    void FuzzHandleIsSupportedApdusExtended(const uint8_t* data, size_t size)
+    void FuzzHandleGetTechList(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -124,12 +123,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(
-            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_SUPPORTED_APDUS_EXTENDED),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TECHLIST),
             data2, reply, option);
     }
 
-    void FuzzHandleRegForegroundDispatch(const uint8_t* data, size_t size)
+    void FuzzHandleIsTagFieldOn(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -140,12 +138,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(
-            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REG_FOREGROUND),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_PRESENT),
             data2, reply, option);
     }
 
-    void FuzzHandleUnregForegroundDispatch(const uint8_t* data, size_t size)
+    void FuzzHandleIsNdef(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -156,12 +153,11 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(
-            static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREG_FOREGROUND),
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_NDEF),
             data2, reply, option);
     }
 
-    void FuzzOnRemoteRequest(const uint8_t* data, size_t size)
+    void FuzzHandleSendRawFrame(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
@@ -172,7 +168,23 @@ namespace OHOS {
         MessageOption option;
         data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
         reply.WriteInt32(timeOutArray[0]);
-        tagSession->OnRemoteRequest(static_cast<uint32_t>(data[0]), data2, reply, option);
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_SEND_RAW_FRAME),
+            data2, reply, option);
+    }
+
+    void FuzzHandleNdefRead(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(TAGSESSION_DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        tagSession->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_NDEF_READ),
+            data2, reply, option);
     }
 }
 
@@ -184,15 +196,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzHandleNdefWrite(data, size);
-    OHOS::FuzzHandleNdefMakeReadOnly(data, size);
-    OHOS::FuzzHandleFormatNdef(data, size);
-    OHOS::FuzzHandleCanMakeReadOnly(data, size);
-    OHOS::FuzzHandleGetMaxTransceiveLength(data, size);
-    OHOS::FuzzHandleIsSupportedApdusExtended(data, size);
-    OHOS::FuzzHandleRegForegroundDispatch(data, size);
-    OHOS::FuzzHandleUnregForegroundDispatch(data, size);
-    OHOS::FuzzOnRemoteRequest(data, size);
+    OHOS::FuzzHandleConnect(data, size);
+    OHOS::FuzzHandleReconnect(data, size);
+    OHOS::FuzzHandleDisconnect(data, size);
+    OHOS::FuzzHandleSetTimeout(data, size);
+    OHOS::FuzzHandleGetTimeout(data, size);
+    OHOS::FuzzHandleGetTechList(data, size);
+    OHOS::FuzzHandleIsTagFieldOn(data, size);
+    OHOS::FuzzHandleIsNdef(data, size);
+    OHOS::FuzzHandleSendRawFrame(data, size);
+    OHOS::FuzzHandleNdefRead(data, size);
 
     return 0;
 }

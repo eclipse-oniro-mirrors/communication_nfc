@@ -16,7 +16,7 @@ import("//build/test.gni")
 import("../../../../../../nfc.gni")
 import("../../../../nfcfuzz.gni")
 
-ohos_fuzztest("TagSessionStubFuzzTest") {
+ohos_fuzztest("TagSessionStubHandleFuzzTest") {
   module_out_path = fuzz_module_out_path
 
   fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstub_fuzzer"
@@ -40,6 +40,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TagSessionStubFuzzTest",
+    ":TagSessionStubHandleFuzzTest",
   ]
 }

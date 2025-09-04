@@ -15,5 +15,8 @@ import("//build/test.gni")
 
 group("tagsessionstub_fuzztest") {
   testonly = true
-  deps = [ "tagsessionstub_fuzzer:fuzztest" ]
+  deps = [
+    "tagsessionstub_fuzzer:fuzztest",
+    "tagsessionstubhandle_fuzzer:fuzztest",
+  ]
 }

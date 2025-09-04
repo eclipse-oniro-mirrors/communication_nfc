@@ -11,12 +11,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../../../../nfc.gni")
+import("../../../../nfcfuzz.gni")
 
-group("nfccontrollerstub_fuzztest") {
+ohos_fuzztest("TagSessionStubHandleFuzzTest") {
+  module_out_path = fuzz_module_out_path
+
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstubhandle_fuzzer"
+
+  include_dirs = fuzz_include_dirs
+
+  cflags = fuzz_cflags
+
+  sources = [
+    "nfc_service_fuzz.cpp",
+    "tagsessionstubhandle_fuzzer.cpp",
+  ]
+
+  deps = fuzz_deps
+
+  external_deps = fuzz_external_deps
+}
+
+group("fuzztest") {
   testonly = true
-  deps = [
-    "nfccontrollerstub_fuzzer:fuzztest",
-    "nfccontrollerstubhandle_fuzzer:fuzztest",
+  deps = []
+  deps += [
+    # deps file
+    ":TagSessionStubFuzzTest",
   ]
 }
