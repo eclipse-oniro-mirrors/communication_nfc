@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  */
 #define private public
 #define protected public
-#include "nfccontrollerstub_fuzzer.h"
+#include "nfccontrollerstubhandle_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -56,121 +56,125 @@ public:
         }
     }
 
-    void FuzzRemoveNfcDeathRecipientData(const uint8_t* data, size_t size)
+    void FuzzHandleGetState(const uint8_t* data, size_t size)
     {
         std::weak_ptr<NFC::NfcService> nfcService;
         sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
-        wptr<IRemoteObject> remote;
-        nfcCrlStub->RemoveNfcDeathRecipient(remote);
-    }
-
-    void FuzzUnregisterCallback(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         MessageParcel data2;
         MessageParcel reply;
         MessageOption option;
         data2.WriteInterfaceToken(DESCRIPTOR);
-        data2.WriteString(type);
-        data2.WriteInt32(0);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_STATE),
+            data2, reply, option);
+    }
+
+    void FuzzHandleTurnOn(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_ON),
+            data2, reply, option);
+    }
+
+    void FuzzHandleTurnOff(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_TURN_OFF),
+            data2, reply, option);
+    }
+
+    void FuzzHandleRegisterCallBack(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REGISTER_CALLBACK),
+            data2, reply, option);
+    }
+
+    void FuzzHandleUnRegisterCallBack(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
         nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_UNREGISTER_CALLBACK),
             data2, reply, option);
     }
 
-    void FuzzregisterCallback(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        sptr<INfcControllerCallbackImpl> iNfcControllerCallbackImpl =
-        sptr<INfcControllerCallbackImpl>(new (std::nothrow) INfcControllerCallbackImpl());
-        nfcCrlStub->RegisterNfcStatusCallBack(iNfcControllerCallbackImpl, type);
-    }
-
-#ifdef VENDOR_APPLICATIONS_ENABLED
-    void FuzzHandleRegQueryApplicationCb(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        MessageParcel data2;
-        MessageParcel reply;
-        MessageOption option;
-        data2.WriteInterfaceToken(DESCRIPTOR);
-        data2.WriteString(type);
-        data2.WriteInt32(0);
-        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK);
-        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
-    }
-
-    void FuzzHandleRegCardEmulationNotifyCb(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        MessageParcel data2;
-        MessageParcel reply;
-        MessageOption option;
-        data2.WriteInterfaceToken(DESCRIPTOR);
-        data2.WriteString(type);
-        data2.WriteInt32(0);
-        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY);
-        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
-    }
-#endif
-
-    void FuzzHandleGetNfcHceInterface(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        MessageParcel data2;
-        MessageParcel reply;
-        MessageOption option;
-        data2.WriteInterfaceToken(DESCRIPTOR);
-        data2.WriteString(type);
-        data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_HCE_INTERFACE),
-            data2, reply, option);
-    }
-
-    void FuzzOnRemoteRequest(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        MessageParcel data2;
-        MessageParcel reply;
-        MessageOption option;
-        data2.WriteInterfaceToken(DESCRIPTOR);
-        data2.WriteString(type);
-        data2.WriteInt32(0);
-        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(size), data2, reply, option);
-    }
-
-     void FuzzRemoveNfcDeathRecipient(const uint8_t* data, size_t size)
-    {
-        std::weak_ptr<NFC::NfcService> nfcService;
-        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        wptr<IRemoteObject> remote = nullptr;
-        nfcCrlStub->RemoveNfcDeathRecipient(remote);
-    }
-
-    void FuzzRegNdefMsgCb(const uint8_t* data, size_t size)
+    void FuzzHandleIsNfcOpen(const uint8_t* data, size_t size)
     {
         std::weak_ptr<NFC::NfcService> nfcService;
         sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
         uint32_t timeOutArray[1];
         ConvertToUint32s(data, timeOutArray, 1);
-        sptr<NFC::INdefMsgCallback> callback;
-        nfcCrlStub->RegNdefMsgCb(callback);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_IS_NFC_OPEN),
+            data2, reply, option);
     }
 
+    void FuzzHandleGetNfcTagInterface(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        reply.WriteInt32(timeOutArray[0]);
+        nfcCrlStub->OnRemoteRequest(static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_GET_TAG_INTERFACE),
+            data2, reply, option);
+    }
+
+    void FuzzHandleRegNdefMsgCb(const uint8_t* data, size_t size)
+    {
+        std::weak_ptr<NFC::NfcService> nfcService;
+        sptr<NFC::NfcControllerImpl> nfcCrlStub = new NFC::NfcControllerImpl(nfcService);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        MessageParcel data2;
+        MessageParcel reply;
+        MessageOption option;
+        data2.WriteInterfaceToken(DESCRIPTOR);
+        data2.WriteString(type);
+        data2.WriteInt32(0);
+        uint32_t code = static_cast<uint32_t>(NFC::NfcServiceIpcInterfaceCode::COMMAND_REG_NDEF_MSG_CALLBACK);
+        nfcCrlStub->OnRemoteRequest(code, data2, reply, option);
+    }
 }
 
 /* Fuzzer entry point */
@@ -181,17 +185,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzRemoveNfcDeathRecipientData(data, size);
-    OHOS::FuzzUnregisterCallback(data, size);
-    OHOS::FuzzregisterCallback(data, size);
-#ifdef VENDOR_APPLICATIONS_ENABLED
-    OHOS::FuzzHandleRegQueryApplicationCb(data, size);
-    OHOS::FuzzHandleRegCardEmulationNotifyCb(data, size);
-#endif
-    OHOS::FuzzHandleGetNfcHceInterface(data, size);
-    OHOS::FuzzOnRemoteRequest(data, size);
-    OHOS::FuzzRemoveNfcDeathRecipient(data, size);
-    OHOS::FuzzRegNdefMsgCb(data, size);
+    OHOS::FuzzHandleGetState(data, size);
+    OHOS::FuzzHandleTurnOn(data, size);
+    OHOS::FuzzHandleTurnOff(data, size);
+    OHOS::FuzzHandleRegisterCallBack(data, size);
+    OHOS::FuzzHandleUnRegisterCallBack(data, size);
+    OHOS::FuzzHandleIsNfcOpen(data, size);
+    OHOS::FuzzHandleGetNfcTagInterface(data, size);
+    OHOS::FuzzHandleRegNdefMsgCb(data, size);
     return 0;
 }
 
