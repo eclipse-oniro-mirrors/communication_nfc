@@ -40,6 +40,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TagSessionStubFuzzTest",
+    ":TagSessionStubHandleFuzzTest",
   ]
 }
