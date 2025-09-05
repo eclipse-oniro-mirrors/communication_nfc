@@ -11,140 +11,140 @@
             "name":"DefaultTitle",
             "value":"NFC 태그가 발견되었습니다. 터치하여 확인하십시오.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"일부 앱에는 수동으로 실행해야 하는 자체 NFC 제어 장치가 있을 수 있습니다.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"링난 패스",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"네트워크에 연결",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"선전 교통 카드",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"카드를 사용할 앱 선택",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"연결",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
             "value":"%s 감지됨. 잔액: %.2fRMB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"AppGallery로 이동",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"NFC 알림",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"GX T-Union 카드",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"탭하여 상세정보 보기",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"지원되는 앱이 없습니다. AppGallery에서 앱을 받으십시오.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"\"%s\" 장치와 페어링하시겠습니까?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"상하이 교통 카드",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"교통 카드 발견",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"네트워크 \"%s\"에 연결하시겠습니까?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"NFC 페어링 요청",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"여러 앱을 사용할 수 있습니다. 사용하려는 앱을 엽니다.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"베이징 교통 카드",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -158,7 +158,7 @@
             "name":"NfcBtButtonName",
             "value":"페어링",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
