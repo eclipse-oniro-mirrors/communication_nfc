@@ -63,6 +63,7 @@ private:
     void InitNfcNtfLib();
 
     bool IsNfcNtfDisabled();
+    void StartVibrate(bool isNfcNotDisturb, int notificationId);
 
     const static int NOTIFICATION_WAIT_TIME_US = 150 * 1000;
     const static int INVALID_VALUE = -1;
