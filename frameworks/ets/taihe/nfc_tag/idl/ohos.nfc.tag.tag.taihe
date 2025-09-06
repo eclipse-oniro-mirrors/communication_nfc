@@ -11,7 +11,115 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *//*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+@!namespace("@ohos.nfc.tag", "tag")
+@!sts_inject("""
+static { loadLibrary("nfc_fwk_taihe_tag.z"); }
+""")
+
+from nfctech use NfcATag, NfcBTag, NfcFTag, NfcVTag, IsoDepTag, NdefTag, MifareClassicTag, MifareUltralightTag, NdefFormatableTag;
+
+@const
+enum TagType: i8 {
+  NFC_A = 1,
+  NFC_B = 2,
+  ISO_DEP = 3,
+  NFC_F = 4,
+  NFC_V = 5,
+  NDEF = 6,
+  NDEF_FORMATABLE = 7,
+  MIFARE_CLASSIC = 8,
+  MIFARE_ULTRALIGHT = 9,
+}
+
+enum TnfType: i32 {
+  TNF_EMPTY = 0x0,
+  TNF_WELL_KNOWN = 0x1,
+  TNF_MEDIA = 0x2,
+  TNF_ABSOLUTE_URI = 0x3,
+  TNF_EXT_APP = 0x4,
+  TNF_UNKNOWN = 0x5,
+  TNF_UNCHANGED = 0x6
+}
+
+enum NfcForumType: i32 {
+  NFC_FORUM_TYPE_1 = 1,
+  NFC_FORUM_TYPE_2 = 2,
+  NFC_FORUM_TYPE_3 = 3,
+  NFC_FORUM_TYPE_4 = 4,
+  MIFARE_CLASSIC = 101
+}
+
+enum MifareClassicType: i32 {
+  TYPE_UNKNOWN = 0,
+  TYPE_CLASSIC = 1,
+  TYPE_PLUS = 2,
+  TYPE_PRO = 3
+}
+
+enum MifareClassicSize: i32 {
+  MC_SIZE_MINI = 320,
+  MC_SIZE_1K = 1024,
+  MC_SIZE_2K = 2048,
+  MC_SIZE_4K = 4096
+}
+
+enum MifareUltralightType: i32 {
+  TYPE_UNKNOWN = 0,
+  TYPE_ULTRALIGHT = 1,
+  TYPE_ULTRALIGHT_C = 2
+}
+
+struct TagInfo {
+  uid: Array<i32>;
+  technology: Array<i32>;
+  tagRfDiscId: i32;
+  supportedProfiles: Array<i32>;
+}
+
+struct NdefRecord {
+  tnf: i32;
+  rtdType: Array<i32>;
+  id: Array<i32>;
+  payload: Array<i32>;
+}
+
+function getNfcATag(tagInfo: TagInfo): NfcATag; // deprecated since API 9, use getNfcA() instead
+function getNfcA(tagInfo: TagInfo): NfcATag;
+
+function getNfcBTag(tagInfo: TagInfo): NfcBTag; // deprecated since API 9, use getNfcB() instead
+function getNfcB(tagInfo: TagInfo): NfcBTag;
+
+function getNfcFTag(tagInfo: TagInfo): NfcFTag; // deprecated since API 9, use getNfcF() instead
+function getNfcF(tagInfo: TagInfo): NfcFTag;
+
+function getNfcVTag(tagInfo: TagInfo): NfcVTag; // deprecated since API 9, use getNfcV() instead
+function getNfcV(tagInfo: TagInfo): NfcVTag;
+
+function getIsoDep(tagInfo: TagInfo): IsoDepTag;
+
+function getNdef(tagInfo: TagInfo): NdefTag;
+
+function getMifareClassic(tagInfo: TagInfo): MifareClassicTag;
+
+function getMifareUltralight(tagInfo: TagInfo): MifareUltralightTag;
+
+function getNdefFormatable(tagInfo: TagInfo): NdefFormatableTag;
+
 
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_tag.z"); }

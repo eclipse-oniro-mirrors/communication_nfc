@@ -22,10 +22,10 @@ copy_taihe_idl("copy_taihe_nfc_cardEmulation") {
 
 subsystem_name = "communication"
 part_name = "nfc"
-taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"
+taihe_generated_file_path_nfcCardEmulation = "$taihe_file_path/out/$subsystem_name/$part_name/nfcCardEmulation"
 
 ohos_taihe("run_taihe") {
-  taihe_generated_file_path = "$taihe_generated_file_path"
+  taihe_generated_file_path = "${taihe_generated_file_path_nfcCardEmulation}"
   deps = [ ":copy_taihe_nfc_cardEmulation" ]
   outputs = [
     "$taihe_generated_file_path/src/ohos.nfc.cardEmulation.nfcCardEmulation.ani.cpp",
@@ -44,7 +44,7 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
   }
   branch_protector_ret = "pac_ret"
 
-  taihe_generated_file_path = "$taihe_generated_file_path"
+  taihe_generated_file_path = "${taihe_generated_file_path_nfcCardEmulation}"
   sources = get_target_outputs(":run_taihe")
 
   defines = [ "DEBUG" ]
@@ -75,8 +75,8 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
 }
 
 generate_static_abc("nfc_fwk_etc_cardEmulation_abc") {
-  base_url = "$taihe_generated_file_path"
-  files = [ "$taihe_generated_file_path/@ohos.nfc.cardEmulation.ets" ]
+  base_url = "${taihe_generated_file_path_nfcCardEmulation}"
+  files = [ "${taihe_generated_file_path_nfcCardEmulation}/@ohos.nfc.cardEmulation.ets" ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/nfc_fwk_etc_cardEmulation_abc.abc"
   dependencies = [ ":run_taihe" ]
