@@ -15,6 +15,5 @@ group("nfc_taihe_group") {
   deps = [
     "./nfc_cardEmulation:nfc_taihe_cardEmulation",
     "./nfc_controller:nfc_taihe_controller",
-    "./nfc_tag:nfc_taihe_tag",
   ]
 }
