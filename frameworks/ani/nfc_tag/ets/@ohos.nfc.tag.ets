@@ -28,11 +28,11 @@ export namespace tag {
     export const NFC_BARCODE = 10;
 
     export enum NfcForumType {
-    NFC_FORUM_TYPE_1 = 1,
-    NFC_FORUM_TYPE_2 = 2,
-    NFC_FORUM_TYPE_3 = 3,
-    NFC_FORUM_TYPE_4 = 4,
-    MIFARE_CLASSIC = 101
+      NFC_FORUM_TYPE_1 = 1,
+      NFC_FORUM_TYPE_2 = 2,
+      NFC_FORUM_TYPE_3 = 3,
+      NFC_FORUM_TYPE_4 = 4,
+      MIFARE_CLASSIC = 101
     }
 
     export native function isNfcAvailable(): boolean;
