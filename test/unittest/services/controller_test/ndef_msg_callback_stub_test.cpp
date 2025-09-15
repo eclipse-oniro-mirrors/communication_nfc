@@ -37,7 +37,8 @@ public:
     virtual ~INdefMsgCallbackImpl() {}
 
 public:
-    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType) override
+    bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, const std::string &payload,
+        int ndefMsgType) override
     {
         return false;
     }

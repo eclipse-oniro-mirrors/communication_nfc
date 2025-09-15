@@ -84,26 +84,19 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     int msgType = NDEF_TYPE_NORMAL;
     std::string ndef = msg;
-    if (ndefCb_ != nullptr) {
-        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
-    }
-    if (ndefCbRes_) {
-        InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
-        return true;
-    }
+    std::string vendorPayload = "";
 #ifdef NDEF_BT_ENABLED
     std::shared_ptr<BtData> btData = NdefBtDataParser::CheckBtRecord(msg);
     if (btData && btData->isValid_) {
         msgType = NDEF_TYPE_BT;
         if (!btData->vendorPayload_.empty() && NdefBtDataParser::IsVendorPayloadValid(btData->vendorPayload_)) {
             // Bt msg for NdefMsg Callback: bt payload len | bt payload | mac addr | dev name
-            ndef = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length() / HEX_BYTE_LEN);
-            ndef.append(btData->vendorPayload_);
-            ndef.append(btData->macAddrOrg_);
-            ndef.append(NfcSdkCommon::StringToHexString(btData->name_));
+            vendorPayload = NfcSdkCommon::IntToHexString(btData->vendorPayload_.length() / HEX_BYTE_LEN);
+            vendorPayload.append(btData->vendorPayload_);
+            vendorPayload.append(btData->macAddrOrg_);
+            vendorPayload.append(NfcSdkCommon::StringToHexString(btData->name_));
         } else {
             InfoLog("BT vendor payload invalid");
-            ndef = "";
         }
     }
 #endif
@@ -113,14 +106,14 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         wifiData = NdefWifiDataParser::CheckWifiRecord(msg);
         if (wifiData && wifiData->isValid_) {
             msgType = NDEF_TYPE_WIFI;
-            ndef = wifiData->vendorPayload_;
+            vendorPayload = wifiData->vendorPayload_;
         }
     }
 #endif
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
     if (ndefCb_ != nullptr) {
-        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, msgType);
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, vendorPayload, msgType);
     }
     if (ndefCbRes_) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");

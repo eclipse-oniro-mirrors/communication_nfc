@@ -32,11 +32,12 @@ NdefMsgCallbackStub& NdefMsgCallbackStub::GetInstance()
     return instance;
 }
 
-bool NdefMsgCallbackStub::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, int ndefMsgType)
+bool NdefMsgCallbackStub::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
+    const std::string &payload, int ndefMsgType)
 {
     if (callback_) {
         DebugLog("NdefMsgCallbackStub callback_");
-        return callback_->OnNdefMsgDiscovered(tagUid, ndef, ndefMsgType);
+        return callback_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType);
     }
     return false;
 }
@@ -89,9 +90,10 @@ int NdefMsgCallbackStub::RemoteNdefMsgDiscovered(MessageParcel &data, MessagePar
     InfoLog("NdefMsgCallbackStub::RemoteNdefMsgDiscovered");
     std::string tagUid = data.ReadString();
     std::string ndef = data.ReadString();
+    std::string payload = data.ReadString();
     int type = data.ReadInt32();
     std::unique_lock<std::shared_mutex> guard(mutex_);
-    bool res = OnNdefMsgDiscovered(tagUid, ndef, type);
+    bool res = OnNdefMsgDiscovered(tagUid, ndef, payload, type);
     reply.WriteBool(res); // Reply for ndef parse result
     return KITS::ERR_NONE;
 }
