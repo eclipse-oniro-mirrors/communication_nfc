@@ -45,7 +45,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     }
 
     std::array functions = {
-        ani_native_function {"isNfcAvailable", ":Z", reinterpret_cast<ani_boolean *>(IsNfcAvailable)},
+        ani_native_function {"isNfcAvailable", ":z", reinterpret_cast<ani_boolean *>(IsNfcAvailable)},
     };
 
     if (ANI_OK != env->Namespace_BindNativeFunctions(nfcTag, functions.data(), functions.size())) {
