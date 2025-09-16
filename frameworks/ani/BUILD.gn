@@ -11,9 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("nfc_taihe_group") {
+import("//build/ohos.gni")
+group("nfc_ani_group") {
   deps = [
-    "./nfc_cardEmulation:nfc_taihe_cardEmulation",
-    "./nfc_controller:nfc_taihe_controller",
+    "./nfc_tag:nfc_tag_ani",
+    "./nfc_tag:nfc_tag_ani_abc_etc",
   ]
 }
