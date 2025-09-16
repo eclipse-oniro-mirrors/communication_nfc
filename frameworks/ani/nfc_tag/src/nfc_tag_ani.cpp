@@ -36,7 +36,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_OUT_OF_REF;
     }
 
-    static const char *NameSpaceName = "L@ohos/nfc/tag/tag;";
+    static const char *NameSpaceName = "@ohos.nfc.tag.tag";
     ani_namespace nfcTag {};
     if (ANI_OK != env->FindNamespace(NameSpaceName, &nfcTag)) {
         InfoLog("Not found namespace %{public}s", NameSpaceName);
