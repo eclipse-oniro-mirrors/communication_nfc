@@ -14,7 +14,7 @@
  */
 
 @!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_cardEmulation.z"); }
+static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_cardEmulation.z", "@ohos.nfc.cardEmulation"); }
 """)
 
 @!namespace("@ohos.nfc.cardEmulation", "nfcCardEmulation")
