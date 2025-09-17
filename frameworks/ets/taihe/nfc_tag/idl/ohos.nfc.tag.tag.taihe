@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-@!namespace("@ohos.nfc.tag", "tag")
 @!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_tag.z"); }
+static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_tag.z", "@ohos.nfc.tag"); }
 """)
+
+@!namespace("@ohos.nfc.tag", "tag")
 
 from nfctech use NfcATag, NfcBTag, NfcFTag, NfcVTag, IsoDepTag, NdefTag, MifareClassicTag, MifareUltralightTag, NdefFormatableTag;
 
