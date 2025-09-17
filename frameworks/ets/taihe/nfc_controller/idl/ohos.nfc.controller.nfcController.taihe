@@ -14,7 +14,7 @@
  */
 
 @!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_controller.z"); }
+static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_controller.z", "@ohos.nfc.controller"); }
 """)
 
 @!namespace("@ohos.nfc.controller", "nfcController")
