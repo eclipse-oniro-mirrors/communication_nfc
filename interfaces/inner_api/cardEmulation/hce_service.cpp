@@ -24,6 +24,7 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "hce_session_proxy.h"
+#include "nfc_sa_client.h"
 
 namespace OHOS {
 namespace NFC {
@@ -51,6 +52,10 @@ HceService &HceService::GetInstance()
 ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
 {
     InfoLog("HceService::RegHceCmdCallback");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet."); // callback will be registered on NFC SA starts
+        return ErrorCode::ERR_NONE;
+    }
     int32_t res = ErrorCode::ERR_NONE;
     OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
@@ -73,6 +78,10 @@ ErrorCode HceService::RegHceCmdCallback(const sptr<IHceCmdCallback> &callback, c
 ErrorCode HceService::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback, const std::string &type)
 {
     InfoLog("HceService::UnRegHceCmdCallback");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        InfoLog("Nfc SA not started yet."); // no need to invoke into NFC service when NFC SA not start
+        return ErrorCode::ERR_NONE;
+    }
     int32_t res = ErrorCode::ERR_NONE;
     OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
@@ -95,6 +104,10 @@ ErrorCode HceService::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback,
 ErrorCode HceService::StopHce(ElementName &element)
 {
     InfoLog("HceService::StopHce");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        InfoLog("Nfc SA not started yet."); // no need to invoke into NFC service when NFC SA not start
+        return ErrorCode::ERR_NONE;
+    }
     int32_t res = ErrorCode::ERR_NONE;
     OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
@@ -166,6 +179,10 @@ int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
 KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vector<std::string> &aids)
 {
     InfoLog("HceService::StartHce");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
+        return ErrorCode::ERR_NONE;
+    }
     int32_t res = ErrorCode::ERR_NONE;
     OHOS::sptr<IHceSession> hceSession = GetHceSessionProxy(res);
     if (res == ErrorCode::ERR_NO_PERMISSION) {
