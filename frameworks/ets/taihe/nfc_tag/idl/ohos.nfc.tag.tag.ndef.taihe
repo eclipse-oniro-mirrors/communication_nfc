@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
-@!namespace("@ohos.nfc.tag", "tag.ndef")
 @!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_tag.z"); }
+static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_tag.z", "@ohos.nfc.tag"); }
 """)
+
+@!namespace("@ohos.nfc.tag", "tag.ndef")
+
 
 from ohos.nfc.tag.tag use NdefRecord;
 from nfctech use NdefMessage;
