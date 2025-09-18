@@ -39,7 +39,7 @@ namespace OHOS {
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        int nfcState = 1;
+        int nfcState = static_cast<int>(data[0]);
         nfcControllerImpl->GetState(nfcState);
     }
 
