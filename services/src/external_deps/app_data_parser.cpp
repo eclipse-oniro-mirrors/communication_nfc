@@ -84,6 +84,7 @@ bool AppDataParser::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonE
     }
     OHOS::AAFwk::Want want = data->GetWant();
     int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    std::lock_guard<std::mutex> lock(g_mutex);
     DebugLog("HandleAppAddOrChangedEvent bundlename: %{public}s, appIndex: %{public}d", bundleName.c_str(), appIndex);
     bool tag = UpdateAppListInfo(element, KITS::ACTION_TAG_FOUND);
     bool host = UpdateAppListInfo(element, KITS::ACTION_HOST_APDU_SERVICE, appIndex);
@@ -105,6 +106,7 @@ bool AppDataParser::HandleAppRemovedEvent(std::shared_ptr<EventFwk::CommonEventD
     }
     OHOS::AAFwk::Want want = data->GetWant();
     int32_t appIndex = want.GetIntParam(AppExecFwk::Constants::APP_INDEX, AppExecFwk::Constants::DEFAULT_APP_INDEX);
+    std::lock_guard<std::mutex> lock(g_mutex);
     DebugLog("HandleAppRemovedEvent, bundleName %{public}s appIndex: %{public}d"
         "tag size %{public}zu, hce size %{public}zu",
         bundleName.c_str(),
