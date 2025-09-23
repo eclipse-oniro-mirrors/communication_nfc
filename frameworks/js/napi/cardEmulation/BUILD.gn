@@ -29,7 +29,6 @@ ohos_shared_library("cardemulation") {
   install_enable = true
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/cardEmulation",
-    "//base/notification/common_event_service/frameworks/core/include",
     "$NFC_DIR/frameworks/js/napi/common",
   ]
 

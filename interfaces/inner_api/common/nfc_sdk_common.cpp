@@ -279,7 +279,7 @@ int NfcSdkCommon::GetSdkVersion(void)
         ErrorLog("fail to get bundle manager proxy.");
         return version;
     }
-    sptr<AppExecFwk::BundleMgrProxy> bundleMgrProxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     if (bundleMgrProxy == nullptr) {
         ErrorLog("failed to get bundle manager proxy.");
         return version;
