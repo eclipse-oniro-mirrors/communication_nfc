@@ -455,7 +455,7 @@ void AppDataParser::InitAppList()
 {
     std::lock_guard<std::mutex> lock(g_mutex);
     if (appListInitDone_) {
-        WarnLog("InitAppList: already done");
+        InfoLog("InitAppList: already done");
         return;
     }
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
@@ -475,6 +475,7 @@ void AppDataParser::InitAppList()
 
 std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int> discTechList)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     std::vector<ElementName> elements;
     for (size_t i = 0; i < discTechList.size(); i++) {
         std::string discStrTech = KITS::TagInfo::GetStringTech(discTechList[i]);
@@ -546,6 +547,7 @@ sptr<IOnCardEmulationNotifyCb> AppDataParser::GetNotifyCardEmulationCallback() c
 
 void AppDataParser::GetHceAppsByAid(const std::string& aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     for (const HceAppAidInfo& appAidInfo : g_hceAppAndAidMap) {
         for (const AidInfo& aidInfo : appAidInfo.customDataAid) {
             if (aid == aidInfo.value) {
@@ -562,14 +564,11 @@ void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
     std::vector<int> techList {};
     std::vector<AAFwk::Want> vendorHceAppAndAidList {};
     std::vector<AppExecFwk::ElementName> elementNameList {};
-    {
-        std::lock_guard<std::mutex> lock(g_mutex);
-        if (queryApplicationByVendor_ == nullptr) {
-            WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
-            return;
-        }
-        queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
+    if (queryApplicationByVendor_ == nullptr) {
+        WarnLog("AppDataParser::GetHceApps queryApplicationByVendor_ is nullptr.");
+        return;
     }
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
     if (vendorHceAppAndAidList.size() != 0) {
         for (auto appAidInfoWant : vendorHceAppAndAidList) {
             std::shared_ptr<HceAppAidInfo> appAidInfo = std::make_shared<HceAppAidInfo>();
@@ -673,6 +672,7 @@ bool AppDataParser::IsBundleInstalled(const std::string &bundleName)
 }
 void AppDataParser::GetHceApps(std::vector<HceAppAidInfo> &hceApps)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     for (const HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         hceApps.push_back(appAidInfo);
     }
@@ -693,6 +693,7 @@ bool AppDataParser::IsPaymentApp(const AppDataParser::HceAppAidInfo &hceAppInfo)
 
 bool AppDataParser::IsHceApp(const ElementName &elementName)
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (appAidInfo.element.GetBundleName() == elementName.GetBundleName() &&
             appAidInfo.element.GetAbilityName() == elementName.GetAbilityName()) {
@@ -708,10 +709,8 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
-    if (!appListInitDone_) {
-        InfoLog("bundleMgr is null, try to init again.");
-        InitAppList();
-    }
+    InitAppList();
+    std::lock_guard<std::mutex> lock(g_mutex);
     for (const AppDataParser::HceAppAidInfo &appAidInfo : g_hceAppAndAidMap) {
         if (!IsPaymentApp(appAidInfo)) {
             continue;

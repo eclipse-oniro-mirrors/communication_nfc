@@ -61,7 +61,6 @@ NfcController::~NfcController()
 void NfcController::InitNfcRemoteSA()
 {
     DebugLog("initialized_ = %{public}d, remote_ = %{public}d", initialized_, remote_ == nullptr);
-    std::lock_guard<std::mutex> guard(mutex_);
     if (!initialized_ || remote_ == nullptr || remoteDied_) {
         for (uint8_t i = 0; i < MAX_RETRY_TIMES; ++i) {
             remote_ = NfcSaClient::GetInstance().LoadNfcSa(NFC_MANAGER_SYS_ABILITY_ID);
@@ -116,6 +115,7 @@ void NfcController::OnRemoteDied(const wptr<IRemoteObject> &remoteObject)
 // Open NFC
 int NfcController::TurnOn()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -130,6 +130,7 @@ int NfcController::TurnOn()
 // Close NFC
 int NfcController::TurnOff()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -145,6 +146,7 @@ int NfcController::TurnOff()
 int NfcController::GetNfcState()
 {
     int state = NfcState::STATE_OFF;
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
         WarnLog("Nfc SA not started yet.");
         return state;
@@ -186,6 +188,7 @@ ErrorCode NfcController::RegListener(const sptr<INfcControllerCallback> &callbac
         ErrorLog("g_nfcControllerCallbackStub is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     g_nfcControllerCallbackStub->RegisterCallBack(callback);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
@@ -204,6 +207,7 @@ ErrorCode NfcController::UnregListener(const std::string& type)
         WarnLog("nfc SA not started yet.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -215,6 +219,7 @@ ErrorCode NfcController::UnregListener(const std::string& type)
 
 OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -229,6 +234,7 @@ OHOS::sptr<IRemoteObject> NfcController::GetTagServiceIface()
 ErrorCode NfcController::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
 {
     DebugLog("NfcController::RegNdefMsgCb");
+    std::lock_guard<std::mutex> guard(mutex_);
     if (g_ndefMsgCallbackStub == nullptr) {
         ErrorLog("g_ndefMsgCallbackStub is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
@@ -254,6 +260,7 @@ ErrorCode NfcController::RegQueryApplicationCb(const std::string& type,
         return KITS::ERR_NFC_PARAMETERS;
     }
 
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -271,6 +278,7 @@ ErrorCode NfcController::RegQueryApplicationCb(const std::string& type,
 ErrorCode NfcController::RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback)
 {
     DebugLog("NfcController::RegCardEmulationNotifyCb");
+    std::lock_guard<std::mutex> guard(mutex_);
     if (g_onCardEmulationNotifyCbStub == nullptr) {
         ErrorLog("g_onCardEmulationNotifyCbStub is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
@@ -289,6 +297,7 @@ ErrorCode NfcController::RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callba
 ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string arg2)
 {
     DebugLog("NfcController::NotifyEventStatus");
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
@@ -301,6 +310,7 @@ ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string 
 
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
     sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
     if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
