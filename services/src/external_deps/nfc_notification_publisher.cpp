@@ -27,7 +27,7 @@ namespace NFC {
 namespace TAG {
 constexpr const char* NFC_NOT_DISTURB_KEYWORD = "settings.nfc.not_disturb";
 
-const static int NFC_NTF_VIBRATW_TIME = 200; // ms
+const static int NFC_NTF_VIBRATE_TIME = 200; // ms
 const std::set<int> NFC_NTF_ID_WHITELIST = {
     NFC_BT_NOTIFICATION_ID,
     NFC_WIFI_NOTIFICATION_ID,
