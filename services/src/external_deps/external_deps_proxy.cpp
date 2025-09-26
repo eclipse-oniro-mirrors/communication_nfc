@@ -21,6 +21,7 @@ ExternalDepsProxy &ExternalDepsProxy::GetInstance()
     static ExternalDepsProxy instance;
     return instance;
 }
+
 bool ExternalDepsProxy::HandleAppAddOrChangedEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
     return AppDataParser::GetInstance().HandleAppAddOrChangedEvent(data);

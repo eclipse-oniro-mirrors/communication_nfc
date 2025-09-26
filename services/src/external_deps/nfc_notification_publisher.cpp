@@ -16,16 +16,18 @@
 #include "nfc_notification_publisher.h"
 
 #include <dlfcn.h>
+#include <set>
 
 #include "loghelper.h"
 #include "nfc_data_share_impl.h"
+#include "vibrator_agent.h"
 
 namespace OHOS {
 namespace NFC {
 namespace TAG {
 constexpr const char* NFC_NOT_DISTURB_KEYWORD = "settings.nfc.not_disturb";
 
-const static int NFC_NTF_VIBRATW_TIME = 200; //ms
+const static int NFC_NTF_VIBRATW_TIME = 200; // ms
 const std::set<int> NFC_NTF_ID_WHITELIST = {
     NFC_BT_NOTIFICATION_ID,
     NFC_WIFI_NOTIFICATION_ID,
@@ -60,7 +62,7 @@ static void NfcNotificationCallback(int notificationId)
 void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
     bool isNfcNotDisturb = IsNfcNtfDisabled();
-    StartVIbrate(isNfcNotDisturb, notificationId);
+    StartVibrate(isNfcNotDisturb, notificationId);
     if (nfcNtfInf_.publishNotification == nullptr) {
         ErrorLog("func handle nullptr, fail to publish notification");
         return;

@@ -51,7 +51,7 @@
         },
         {
             "name":"NfcBtNtfTitle",
-            "value":"demande d' association NFC",
+            "value":"Demande d'association NFC",
             "attr":{
                 "priority":"LT"
             }
@@ -88,7 +88,7 @@
             "name":"NfcWifiNtfTitle",
             "value":"Se connecter au réseau",
             "attr":{
-                "priority":"traLTnslate"
+                "priority":"LT"
             }
         },
         {
