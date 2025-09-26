@@ -2,23 +2,23 @@
     "string":[
         {
             "name":"DefaultTitle",
-            "value":"NFCタグが見つかりました。タップすると表示します。",
+            "value":"NFCタグを検出。タップして表示。",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"一部のアプリには、手動で有効化する必要がある独自のNFC制御がある可能性があります。",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"嶺南パス",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,35 +32,35 @@
             "name":"TransportCardText",
             "value":"%sが検出されました。残高：%.2f RMB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"GX T-Unionカード",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"タップして詳細を表示",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"NFCペアリング要求",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"北京乗車カード",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -74,7 +74,7 @@
             "name":"NfcBtButtonName",
             "value":"ペアリング",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -88,77 +88,77 @@
             "name":"NfcWifiNtfTitle",
             "value":"ネットワークへの接続",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"カードを使用するアプリの選択",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"接続",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"AppGalleryに移動",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"NFC通知",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"サポートされているアプリがありません。AppGalleryからアプリを入手してください。",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"「%s」とペアリングしますか？",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"上海乗車カード",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
-            "value":"乗車カードが検出されました",
+            "value":"乗車カードを検出",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"ネットワーク「%s」に接続しますか？",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"複数のアプリを利用できます。使用したいアプリを開いてください。",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
