@@ -1,165 +1,165 @@
 {
-"string":[
-    {
-        "name":"NfcOpenLinkTextHead",
-        "value":"Mở liên kết: %s",
-        "attr":{
-            "priority":"translate"
+    "string":[
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"Mở liên kết: %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"Đã phát hiện thẻ NFC. Chạm để xem.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"Một số ứng dụng có thể cần bật thủ công các chức năng điều khiển NFC riêng.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"Thẻ giao thông Lingnan",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"Kết nối với mạng",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"Thẻ giao thông Thâm Quyến",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"Chọn ứng dụng để dùng thẻ",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"Kết nối",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"Đã phát hiện %s. Số dư: %.2f RMB",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"Vào AppGallery",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"Thông báo NFC",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"Thẻ GX T-Union",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"Chạm để xem chi tiết",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"Không có ứng dụng được hỗ trợ. Tải ứng dụng từ AppGallery.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"Ghép cặp với \"%s\"?",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"Thẻ giao thông Thượng Hải",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"Đã phát hiện thẻ giao thông",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"Kết nối với mạng \"%s\"?",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"Yêu cầu ghép cặp NFC",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"Có sẵn nhiều ứng dụng. Hãy mở ứng dụng bạn muốn dùng.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"Thẻ giao thông Bắc Kinh",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"Mở liên kết",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"Ghép cặp",
+            "attr":{
+                "priority":"LT"
+            }
         }
-    },
-    {
-        "name":"DefaultTitle",
-        "value":"Đã phát hiện thẻ NFC. Chạm để xem.",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"DefaultText",
-        "value":"Một số ứng dụng có thể cần bật thủ công các chức năng điều khiển NFC riêng.",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"LingNanTong",
-        "value":"Thẻ giao thông Lingnan",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcWifiNtfTitle",
-        "value":"Kết nối với mạng",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"ShenZhenTong",
-        "value":"Thẻ giao thông Thâm Quyến",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcHceAidConflictedTitle",
-        "value":"Chọn ứng dụng để dùng thẻ",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcWifiButtonName",
-        "value":"Kết nối",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"TransportCardText",
-        "value":"Đã phát hiện %s. Số dư: %.2f RMB",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NoHapSupportedNtfButtonName",
-        "value":"Vào AppGallery",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NoHapSupportedNtfTitle",
-        "value":"Thông báo NFC",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"GuiMinHuLianHuTongKa",
-        "value":"Thẻ GX T-Union",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"ActionButtonName",
-        "value":"Chạm để xem chi tiết",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NoHapSupportedNtfText",
-        "value":"Không có ứng dụng được hỗ trợ. Tải ứng dụng từ AppGallery.",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcBtNtfText",
-        "value":"Ghép cặp với \"%s\"?",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"ShangHaiJiaoTongKa",
-        "value":"Thẻ giao thông Thượng Hải",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"TransportCardTitle",
-        "value":"Đã phát hiện thẻ giao thông",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcWifiNtfText",
-        "value":"Kết nối với mạng \"%s\"?",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcBtNtfTitle",
-        "value":"Yêu cầu ghép cặp NFC",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcHceAidConflictedText",
-        "value":"Có sẵn nhiều ứng dụng. Hãy mở ứng dụng bạn muốn dùng.",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"BeiJingYiKaTong",
-        "value":"Thẻ giao thông Bắc Kinh",
-        "attr":{
-            "priority":"LT"
-        }
-    },
-    {
-        "name":"NfcOpenLinkButtonName",
-        "value":"Mở liên kết",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"NfcBtButtonName",
-        "value":"Ghép cặp",
-        "attr":{
-            "priority":"LT"
-        }
-    }
-]
+    ]
 }
