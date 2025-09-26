@@ -25,6 +25,13 @@ namespace NFC {
 namespace TAG {
 constexpr const char* NFC_NOT_DISTURB_KEYWORD = "settings.nfc.not_disturb";
 
+const static int NFC_NTF_VIBRATW_TIME = 200; //ms
+const std::set<int> NFC_NTF_ID_WHITELIST = {
+    NFC_BT_NOTIFICATION_ID,
+    NFC_WIFI_NOTIFICATION_ID,
+    NFC_TRANSPORT_CARD_NOTIFICATION_ID
+};
+
 NfcNotificationPublisher& NfcNotificationPublisher::GetInstance()
 {
     static NfcNotificationPublisher instance;
@@ -53,6 +60,7 @@ static void NfcNotificationCallback(int notificationId)
 void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
     bool isNfcNotDisturb = IsNfcNtfDisabled();
+    StartVIbrate(isNfcNotDisturb, notificationId);
     if (nfcNtfInf_.publishNotification == nullptr) {
         ErrorLog("func handle nullptr, fail to publish notification");
         return;
@@ -140,6 +148,15 @@ bool NfcNotificationPublisher::IsNfcNtfDisabled()
     // value = 1 : button on(not disturb, no banner), value = 0 : button off(banner on).
     InfoLog("NFC notification not disturb button value %{public}d", value);
     return (value == nfcNotDisturbOn);
+}
+
+void NfcNotificationPublisher::StartVibrate(bool isNfcNotDisturb, int notificationId)
+{
+    if (isNfcNotDisturb && (NFC_NTF_ID_WHITELIST.find(notificationId) == NFC_NTF_ID_WHITELIST.end())) {
+        return;
+    }
+    InfoLog("Start vibrator once.");
+    OHOS::Sensors::StartVibratorOnce(NFC_NTF_VIBRATE_TIME);
 }
 
 void NfcNotificationPublisher::OnNotificationButtonClicked(int notificationId)

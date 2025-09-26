@@ -54,7 +54,7 @@ void NfcSaManager::OnStart(const SystemAbilityOnDemandReason &startReason)
 bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)
 {
     std::lock_guard<std::mutex> guard(initMutex_);
-    InfoLog("NfcSaManager::Init ready to init, Reason %{public}s, id %{public}d, value %{public}s",
+    HILOG_COMM_INFO("NfcSaManager::Init ready to init, Reason %{public}s, id %{public}d, value %{public}s",
         startReason.GetName().c_str(), static_cast<int32_t>(startReason.GetId()), startReason.GetValue().c_str());
     if (!registerToService_) {
         nfcService_ = std::make_shared<NfcService>();
