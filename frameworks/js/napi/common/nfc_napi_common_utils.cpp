@@ -199,18 +199,20 @@ bool ParseArrayBuffer(napi_env env, uint8_t **data, size_t &size, napi_value arg
 {
     napi_status status;
     napi_valuetype valuetype;
-    napi_typeof(env, args, &valuetype);
+    status = napi_typeof(env, args, &valuetype);
+    if (status != napi_ok) {
+        ErrorLog("Failed to get type, error %{public}d", status);
+        return false;
+    }
 
-    DebugLog("param=%{public}d.", valuetype);
     if (valuetype != napi_object) {
-        ErrorLog("Wrong argument type. object expected.");
+        ErrorLog("Wrong argument type. type=%{public}d", valuetype);
         return false;
     }
 
     status = napi_get_arraybuffer_info(env, args, reinterpret_cast<void **>(data), &size);
-    if (status != napi_ok) {
+    if (status != napi_ok || data == nullptr || *data == nullptr) {
         ErrorLog("can not get arraybuffer, error is %{public}d", status);
-        (*data)[0] = 0;
         return false;
     }
     DebugLog("arraybuffer size is %{public}zu,buffer is %{public}d", size, (*data)[0]);
@@ -245,6 +247,10 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     std::string *data = nullptr;
     size_t total = 0;
     NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total), {});
+    if (data == nullptr) {
+        ErrorLog("data is nullptr");
+        return {};
+    }
     length = std::min<size_t>(length, total - offset);
     std::vector<std::string> result(sizeof(std::string) + length);
     int retCode = memcpy_s(result.data(), result.size(), &data[offset], length);
