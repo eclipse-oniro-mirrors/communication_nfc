@@ -133,7 +133,7 @@ const int DATA_SHARE_INVALID_VALUE = -1;
 const std::string EVENT_HCE_CMD = "hceCmd";
 
 /** type const of max apdu length */
-const uint32_t MAX_APDU_DATA_BYTE = 1024;
+const uint32_t MAX_APDU_DATA_BYTE = 1024 * 5;
 const uint32_t MAX_APDU_DATA_HEX_STR = MAX_APDU_DATA_BYTE * 2;
 const uint32_t MAX_AID_LIST_NUM_PER_APP = 100;
 

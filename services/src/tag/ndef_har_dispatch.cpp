@@ -189,6 +189,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         ErrorLog("ScreenLock::ScreenLockManager interface invalid");
         return false;
     }
+    InfoLog("NdefHarDispatch::DispatchBundleAbility WakeupDevice");
+    PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
     bool isLocked = false;
     screenLockIface->IsLocked(isLocked);
     if (isLocked) {
@@ -204,8 +206,6 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
         ExternalDepsProxy::GetInstance().StartVibratorOnce();
         return true;
     }
-    InfoLog("NdefHarDispatch::DispatchBundleAbility WakeupDevice");
-    PowerMgr::PowerMgrClient::GetInstance().WakeupDevice();
 #endif
     errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
