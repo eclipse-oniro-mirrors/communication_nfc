@@ -322,6 +322,9 @@ public:
         std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
         ElementName fgElement1;
         std::vector<uint32_t> discTech;
+        uint32_t timeOutArray[1];
+        ConvertToUint32s(data, timeOutArray, 1);
+        discTech.push_back(timeOutArray[0]);
         const sptr<KITS::IForegroundCallback> callback;
         tagSession->RegForegroundDispatch(fgElement1, discTech, callback);
     }
