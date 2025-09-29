@@ -43,6 +43,28 @@ namespace OHOS {
         nfcControllerImpl->GetState(nfcState);
     }
 
+    void FuzzTurnOn(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
+        nfcControllerImpl->TurnOn();
+    }
+
+    void FuzzTurnOff(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
+        nfcControllerImpl->TurnOff();
+    }
+
+    void FuzzUnregisterNfcStatusCallBack(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
+        std::string type = std::string(reinterpret_cast<const char*>(data), size);
+        nfcControllerImpl->UnregisterNfcStatusCallBack(type);
+    }
+
     void FuzzUnRegisterAllCallBack(const uint8_t* data, size_t size)
     {
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
@@ -120,6 +142,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::FuzzGetState(data, size);
+    OHOS::FuzzTurnOn(data, size);
+    OHOS::FuzzTurnOff(data, size);
+    OHOS::FuzzUnregisterNfcStatusCallBack(data, size);
     OHOS::FuzzUnRegisterAllCallBack(data, size);
     OHOS::FuzzUnRegisterAllCallBack1(data, size);
     OHOS::FuzzRegNdefMsgCallback(data, size);

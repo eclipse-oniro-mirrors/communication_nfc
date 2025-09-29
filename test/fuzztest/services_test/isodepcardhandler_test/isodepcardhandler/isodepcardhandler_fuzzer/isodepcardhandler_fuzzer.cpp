@@ -82,6 +82,15 @@ namespace OHOS {
         isodepCardHandler->CheckApduResponse(response);
     }
 
+    void FuzzCheckApduResponsedata(const uint8_t* data, size_t size)
+    {
+        std::string response = std::string(reinterpret_cast<const char*>(data), size);
+        uint8_t cardIndex = static_cast<uint8_t>(data[0]);
+        std::weak_ptr<INciTagInterface> nciTagProxy;
+        std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+        isodepCardHandler->CheckApduResponse(response, cardIndex);
+    }
+
     void FuzzGetBalanceValue(const uint8_t* data, size_t size)
     {
         std::string balanceStr = std::string(reinterpret_cast<const char*>(data), size);
@@ -114,6 +123,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzIsSupportedTransportCard(data, size);
     OHOS::FuzzGetBalance(data, size);
     OHOS::FuzzCheckApduResponse(data, size);
+    OHOS::FuzzCheckApduResponsedata(data, size);
     OHOS::FuzzGetBalanceValue(data, size);
     OHOS::FuzzMatchCity(data, size);
     return 0;
