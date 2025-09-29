@@ -314,6 +314,17 @@ public:
         const std::vector<std::u16string> args;
         tagSession->Dump(fd, args);
     }
+
+    void FuzzRegForegroundDispatch(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+        nfcService->Initialize();
+        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        ElementName fgElement1;
+        std::vector<uint32_t> discTech;
+        const sptr<KITS::IForegroundCallback> callback;
+        tagSession->RegForegroundDispatch(fgElement1, discTech, callback);
+    }
 }
 
 /* Fuzzer entry point */
@@ -346,5 +357,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegForegroundDispatchInner(data, size);
     OHOS::FuzzRegReaderModeInner(data, size);
     OHOS::FuzzDump(data, size);
+    OHOS::FuzzRegForegroundDispatch(data, size);
     return 0;
 }
