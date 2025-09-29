@@ -85,7 +85,7 @@ namespace OHOS {
     void FuzzCheckApduResponsedata(const uint8_t* data, size_t size)
     {
         std::string response = std::string(reinterpret_cast<const char*>(data), size);
-        uint_8 cardIndex = static_cast<uint_8>(data[0]);
+        uin8_t cardIndex = static_cast<uin8_t>(data[0]);
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->CheckApduResponse(response, cardIndex);
