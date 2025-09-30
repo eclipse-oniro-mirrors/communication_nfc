@@ -13,25 +13,12 @@
  * limitations under the License.
  */
 
- @!namespace("@ohos.nfc.tag", "tag")
+@!namespace("@ohos.nfc.tag", "tag")
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_tag.z"); }
 """)
 
 from nfctech use NfcATag, NfcBTag, NfcFTag, NfcVTag, IsoDepTag, NdefTag, MifareClassicTag, MifareUltralightTag, NdefFormatableTag;
-
-@const
-enum TagType: i8 {
-  NFC_A = 1,
-  NFC_B = 2,
-  ISO_DEP = 3,
-  NFC_F = 4,
-  NFC_V = 5,
-  NDEF = 6,
-  NDEF_FORMATABLE = 7,
-  MIFARE_CLASSIC = 8,
-  MIFARE_ULTRALIGHT = 9,
-}
 
 enum TnfType: i32 {
   TNF_EMPTY = 0x0,
@@ -41,14 +28,6 @@ enum TnfType: i32 {
   TNF_EXT_APP = 0x4,
   TNF_UNKNOWN = 0x5,
   TNF_UNCHANGED = 0x6
-}
-
-enum NfcForumType: i32 {
-  NFC_FORUM_TYPE_1 = 1,
-  NFC_FORUM_TYPE_2 = 2,
-  NFC_FORUM_TYPE_3 = 3,
-  NFC_FORUM_TYPE_4 = 4,
-  MIFARE_CLASSIC = 101
 }
 
 enum MifareClassicType: i32 {

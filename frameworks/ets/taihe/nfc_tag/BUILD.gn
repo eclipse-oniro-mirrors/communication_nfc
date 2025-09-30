@@ -16,21 +16,13 @@ import("//build/ohos.gni")
 import("//build/ohos/taihe_idl/taihe.gni")
 import("../../../../nfc.gni")
 
-copy_taihe_idl("copy_taihe_nfc_tag_session") {
-  sources = [ "idl/tagSession.taihe" ]
-}
-
 copy_taihe_idl("copy_taihe_nfc_tag") {
   sources = [
+    "idl/tagSession.taihe",
+    "idl/ohos.nfc.tag.tag.nedf.taihe",
     "idl/nfctech.taihe",
     "idl/ohos.nfc.tag.tag.taihe",
   ]
-  deps = [ ":copy_taihe_nfc_tag_session" ]
-}
-
-copy_taihe_idl("copy_taihe_nfc_tag_ndef") {
-  sources = [ "idl/ohos.nfc.tag.tag.ndef.taihe" ]
-  deps = [ ":copy_taihe_nfc_tag" ]
 }
 
 subsystem_name = "communication"
@@ -39,11 +31,7 @@ taihe_generated_file_path_nfc_tag = "$taihe_file_path/out/$subsystem_name/$part_
 
 ohos_taihe("run_taihe") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfc_tag}"
-  deps = [
-    ":copy_taihe_nfc_tag_session",
-    ":copy_taihe_nfc_tag",
-    ":copy_taihe_nfc_tag_ndef"
-  ]
+  deps = [ ":copy_taihe_nfc_tag" ]
   outputs = [
     "$taihe_generated_file_path/src/nfctech.ani.cpp",
     "$taihe_generated_file_path/src/nfctech.abi.c",

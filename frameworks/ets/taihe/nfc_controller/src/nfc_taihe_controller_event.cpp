@@ -30,14 +30,14 @@ constexpr uint32_t WAIT_ON_REMOTE_DIED_MS = 20;
 static std::mutex g_callbackMutex {};
 static std::shared_ptr<
     taihe::callback_view<void(ohos::nfc::controller::nfcController::NfcState)>> g_stateCallback = nullptr;
-sptr<NfcStateListenerEvent> nfcStateListenerEvent = sptr<NfcStateListenerEvent>(new NfcStateListenerEvent());
+sptr<NfcStateListenerEvent> g_nfcStateListenerEvent = sptr<NfcStateListenerEvent>(new NfcStateListenerEvent());
 
 void NfcStateListenerEvent::OnNfcStateChanged(int nfcState)
 {
     InfoLog("OnNotify rcvd nfcRfState: %{public}d", nfcState);
     std::lock_guard<std::mutex> lock(g_callbackMutex);
     if (g_stateCallback) {
-        (*g_stateCallback)(static_cast<ohos::nfc::controller::nfcController::NfcState::key_t>(nfcState));
+        (*g_stateCallback)(ohos::nfc::controller::nfcController::NfcState::from_value(nfcState));
     }
 }
 
@@ -60,7 +60,7 @@ void NfcStateEventRegister::Register(
         WarnLog("callback already registered.");
         return;
     }
-    ErrorCode ret = NfcController::GetInstance().RegListener(nfcStateListenerEvent, EVENT_NFC_STATE_CHANGE);
+    ErrorCode ret = NfcController::GetInstance().RegListener(g_nfcStateListenerEvent, EVENT_NFC_STATE_CHANGE);
     if (ret != KITS::ERR_NONE) {
         ErrorLog("Register failed!");
         return;
@@ -88,7 +88,7 @@ void NfcTaiheSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const s
         InfoLog("OnAddSystemAbility g_stateCallback is not null");
         // sleep 20ms for waitting recv OnRemoteDied msg, to reset nfc proxy.
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_ON_REMOTE_DIED_MS));
-        NfcController::GetInstance().RegListener(nfcStateListenerEvent, EVENT_NFC_STATE_CHANGE);
+        NfcController::GetInstance().RegListener(g_nfcStateListenerEvent, EVENT_NFC_STATE_CHANGE);
     } else {
         WarnLog("OnAddSystemAbility g_stateCallback is null");
     }

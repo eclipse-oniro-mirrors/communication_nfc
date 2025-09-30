@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 group("nfc_ani_group") {
   deps = [
-    "./nfc_tag:nfc_tag_ani",
-    "./nfc_tag:nfc_tag_ani_abc_etc",
+    "nfc_tag:nfc_tag_ani",
+    "nfc_tag:nfc_tag_ani_abc_etc",
   ]
 }
