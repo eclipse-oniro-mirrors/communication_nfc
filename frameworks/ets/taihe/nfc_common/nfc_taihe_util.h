@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,23 +19,21 @@
 #include <string>
 #include <vector>
 
-#include "taihe/runtime.cpp"
-
-using namespace taihe;
+#include "taihe/runtime.hpp"
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
 class NfcTaiheUtil {
 public:
-    static std::string NfcTaiheUtil::TaiheArrayToHexString(array_view<uint8_t> data);
-    static std::vector<std::string> NfcTaiheUtil::TaiheStringArrayToStringVec(array_view<::taihe::string> data);
+    static std::string TaiheArrayToHexString(taihe::array_view<uint8_t> data);
+    static std::vector<std::string> TaiheStringArrayToStringVec(taihe::array_view<::taihe::string> data);
 
 private:
     const uint16_t MAX_ARRAY_LEN = 512;
     const uint16_t MAX_AID_LIST_NUM = 100;
 };
-}   //namespace KITS
-}   //namespace NFC
-}   //namespace OHOS
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS
 #endif // #define NFC_TAIHW_UTIL_H

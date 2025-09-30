@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "nfc_taihe_controller_event.h"
+#include "nfc_taihe_card_emulation_event.h"
 
 #include <mutex>
 #include <thread>
@@ -31,16 +31,16 @@ static std::mutex g_callbackMutex {};
 static std::shared_ptr<taihe::callback_view<void(taihe::array_view<uint8_t> data)>> g_hceCmdCallback = nullptr;
 sptr<HceCmdListenerEvent> g_hceCmdListenerEvent = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
 
-void HceCmdListenerEvent::OnCeApduData(const std::vector<uinit8_t>& data)
+void HceCmdListenerEvent::OnCeApduData(const std::vector<uint8_t>& data)
 {
-    InfoLog("data length = %{public}u", data.size());
+    InfoLog("data Length = %{public}zu", data.size());
     std::lock_guard<std::mutex> lock(g_callbackMutex);
     if (!g_hceCmdCallback) {
         ErrorLog("callback nullptr");
         return;
     }
     std::vector<uint8_t> apduData(data);
-    taihe::array<uint8_t> taiheData(apduData); //initialize without "const"
+    taihe::array<uint8_t> taiheData(apduData); // initialize without "const"
     (*g_hceCmdCallback)(taiheData);
 }
 
@@ -72,10 +72,10 @@ void NfcHceEventRegister::Register(
         ErrorLog("Register failed!");
         return;
     }
-    g_hceCmdCallback = std::make_shared<taihe::callback_view<void(taihe::ARray_view<>uint8_t) data>>(callback);
+    g_hceCmdCallback = std::make_shared<taihe::callback_view<void(taihe::array_view<uint8_t> data)>>(callback);
 }
 
-void NfcHceEventRegister::Unregister(taihe::string_view typw)
+void NfcHceEventRegister::Unregister(taihe::string_view type)
 {
     if (type.c_str() != EVENT_TYPE_HCE_CMD) {
         ErrorLog("wrong type: %{public}s", type.c_str());
@@ -84,16 +84,16 @@ void NfcHceEventRegister::Unregister(taihe::string_view typw)
     KITS::ErrorCode ret = KITS::HceService::GetInstance().UnRegHceCmdCallback(
         g_hceCmdListenerEvent, EVENT_TYPE_HCE_CMD);
     if (ret != KITS::ERR_NONE) {
-        ErrorLog("Register failed!");
+        ErrorLog("Unregister failed!");
         return;
     }
     std::lock_guard<std::mutex> lock(g_callbackMutex);
     g_hceCmdCallback = nullptr;
 }
 
-void NfcTaiheSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void NfcTaiheHcetatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    //sleep 3s to wait Nfc turn on
+    // sleep 3s to wait Nfc turn on
     if (!g_hceCmdCallback) {
         return;
     }
@@ -103,7 +103,7 @@ void NfcTaiheSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const s
     InfoLog("RegHceCmdCallback, statusCode = %{public}d", ret);
 }
 
-void NfcTaiheSAStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void NfcTaiheHcetatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     InfoLog("OnRemoveSystemAbility, systemAbilityId = %{public}d", systemAbilityId);
     HceService::GetInstance().ClearHceSessionProxy();
@@ -117,7 +117,7 @@ void NfcTaiheSAStatusChange::Init(int32_t systemAbilityId)
         return;
     }
     int32_t ret = samgrProxy->SubscribeSystemAbility(systemAbilityId, this);
-    InfoLog("SubscribeSystemAbility, systemAbilityId = %{public}d, ret = %{public}d.", systemAbilityId, ret);
+    InfoLog("systemAbilityId = %{public}d, ret = %{public}d", systemAbilityId, ret);
 }
 }  // namespace KITS
 }  // namespace NFC

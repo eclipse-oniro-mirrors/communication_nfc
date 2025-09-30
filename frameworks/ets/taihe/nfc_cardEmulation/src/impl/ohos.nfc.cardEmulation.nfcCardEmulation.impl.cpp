@@ -25,17 +25,17 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_taihe_card_emulation_event.h"
-#include "nfc_taihe_ueil.h"
+#include "nfc_taihe_util.h"
 
 using namespace taihe;
-using namespace ohos::nfc::controller::nfcController;
+using namespace ohos::nfc::cardEmulation::nfcCardEmulation;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::NFC;
 
 namespace {
 class HceServiceImpl {
     public:
-    HceServiceImpl() {};
+    HceServiceImpl() {}
 
     void onHceCmd(string_view type, callback_view<void(array_view<uint8_t> data)> callback)
     {
@@ -44,7 +44,7 @@ class HceServiceImpl {
 
     void offHceCmd(string_view type, optional_view<callback<void(array_view<uint8_t> data)>> callback)
     {
-        KITS::NfcHceEventRegister::GetInstance().UnRegister(type);
+        KITS::NfcHceEventRegister::GetInstance().Unregister(type);
     }
 
     void start(uintptr_t elementName, array_view<::taihe::string> aidList)
@@ -53,12 +53,12 @@ class HceServiceImpl {
         ElementName element;
         CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
 
-        std::vector<std::string> aidvec = KITS::NfcTaiheUtil::TaiheStringArrayToStringVec(aidList);
+        std::vector<std::string> aidVec = KITS::NfcTaiheUtil::TaiheStringArrayToStringVec(aidList);
         KITS::ErrorCode ret = KITS::HceService::GetInstance().StartHce(element, aidVec);
         InfoLog("StartHce, statusCode = %{public}d", ret);
     }
 
-    void start(uintptr_t elementName)
+    void stop(uintptr_t elementName)
     {
         InfoLog("StopHce enter");
         ElementName element;
@@ -68,10 +68,10 @@ class HceServiceImpl {
         InfoLog("StopHce, statusCode = %{public}d", ret);
     }
 
-    void transmit(array_view<uint8_t> data )
+    void transmit(array_view<uint8_t> data)
     {
         InfoLog("transmit enter");
-        std::string hexCmdData = KITS::NfcTaiheUtil:::TaiheArrayToHexString(data);
+        std::string hexCmdData = KITS::NfcTaiheUtil::TaiheArrayToHexString(data);
         std::string hexRspData;
         int errorCode = KITS::HceService::GetInstance().SendRawFrame(hexCmdData, true, hexRspData);
         InfoLog("transmit, errorCode = %{public}d", errorCode);
@@ -84,14 +84,14 @@ bool hasHceCapability()
     return true;
 }
 
-bool isDefaultService(uintptr_elementName, CardType type)
+bool isDefaultService(uintptr_t elementName, CardType type)
 {
-    InfoLog("isDefaultService enter");
+    InfoLog("isDefaultService enter.");
     ElementName element;
     CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
 
-    if (type.get_key() != CardType::ey_t::PAYMENT) {
-        ErrorLog("isDefaultService: unsupported card type");
+    if (type.get_key() != CardType::key_t::PAYMENT) {
+        ErrorLog("IsDefaultService: unsupported card type");
         return false;
     }
 
@@ -105,20 +105,20 @@ bool isDefaultService(uintptr_elementName, CardType type)
 
 array<uintptr_t> getPaymentServices()
 {
-    InfoLog("getPaymentServices enter");
+    InfoLog("GetPaymentServices enter.");
     std::vector<AbilityInfo> paymentAbilityInfos;
     int statusCode = KITS::HceService::GetInstance().GetPaymentServices(paymentAbilityInfos);
-    InfoLog("GetPaymentServices statusCode %{public}d, ability size  %{public}zu.",
+    InfoLog("GetPaymentServices statusCode %{public}d, ability size %{public}zu.",
         statusCode, paymentAbilityInfos.size());
 
     std::vector<uintptr_t> abilityInfoAniVec;
-    for(uint16_t i = 0; i < paymentAbilityInfos.size(); i++) {
+    for (uint16_t i = 0; i < paymentAbilityInfos.size(); i++) {
         abilityInfoAniVec.push_back(reinterpret_cast<uintptr_t>(
-            CommonFunAni::ConvertAbilityInfo(get_env(), paymentAbilityInfos[i])))
+            CommonFunAni::ConvertAbilityInfo(get_env(), paymentAbilityInfos[i])));
     }
-    return array<uintptr_t>(abilityIvfoAniVec);
+    return array<uintptr_t>(abilityInfoAniVec);
 }
-} //namespace
+}  // namespace
 
 // Since these macros are auto-generate, lint will cause false positive.
 // NOLINTBEGIN
@@ -126,4 +126,3 @@ TH_EXPORT_CPP_API_hasHceCapability(hasHceCapability);
 TH_EXPORT_CPP_API_isDefaultService(isDefaultService);
 TH_EXPORT_CPP_API_getPaymentServices(getPaymentServices);
 // NOLINTEND
-

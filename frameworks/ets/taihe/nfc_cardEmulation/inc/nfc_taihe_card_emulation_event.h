@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NFC_TAIHE_CARD_EMULARION_EVENT
-#define NFC_TAIHE_CARD_EMULARION_EVENT
+#ifndef NFC_TAIHE_CARD_EMULATION_EVENT
+#define NFC_TAIHE_CARD_EMULATION_EVENT
 
 #include "ihce_cmd_callback.h"
 #include "nfc_sdk_common.h"
@@ -38,7 +38,7 @@ public:
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override;
 };
 
-class NfcTaiheSAStatusChange : public SystemAbilityStatusChangeStub {
+class NfcTaiheHceSAStatusChange : public SystemAbilityStatusChangeStub {
 public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
@@ -50,16 +50,16 @@ public:
     static NfcHceEventRegister& GetInstance();
 
     void Register(taihe::string_view type, taihe::callback_view<void(taihe::array_view<uint8_t> data)> callback);
-    void Unregister();
+    void Unregister(taihe::string_vies type);
 
 private:
     NfcHceEventRegister() {}
-    ~NfcStateEventRegister() {}
+    ~NfcHceEventRegister() {}
 
-    std::shared_ptr<NfcTaiheSAStatusChange> saStatusListener_;
+    std::shared_ptr<NfcTaiheHceSAStatusChange> saStatusListener_;
 };
 
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
-#endif // #define NFC_TAIHE_CARD_EMULARION_EVENT
+#endif // #define NFC_TAIHE_CARD_EMULATION_EVENT

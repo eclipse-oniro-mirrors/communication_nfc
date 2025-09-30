@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,7 +39,7 @@ std::string NfcTaiheUtil::TaiheArrayToHexString(array_view<uint8_t> data)
 std::vector<std::string> NfcTaiheUtil::TaiheStringArrayToStringVec(array_view<::taihe::string> data)
 {
     std::vector<std::string> ret;
-    if (data.size() > MAX_AIS_LIST_NUM) {
+    if (data.size() > MAX_AID_LIST_NUM) {
         ErrorLog("data size exceed.");
         return ret;
     }
@@ -48,6 +48,6 @@ std::vector<std::string> NfcTaiheUtil::TaiheStringArrayToStringVec(array_view<::
     }
     return ret;
 }
-}   //namespace KITS
-}   //namespace NFC
-}   //namespace OHOS
+}  // namespace KITS
+}  // namespace NFC
+}  // namespace OHOS

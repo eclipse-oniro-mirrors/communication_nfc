@@ -19,7 +19,7 @@ import("../../../../nfc.gni")
 copy_taihe_idl("copy_taihe_nfc_tag") {
   sources = [
     "idl/tagSession.taihe",
-    "idl/ohos.nfc.tag.tag.nedf.taihe",
+    "idl/ohos.nfc.tag.tag.ndef.taihe",
     "idl/nfctech.taihe",
     "idl/ohos.nfc.tag.tag.taihe",
   ]
