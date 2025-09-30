@@ -91,7 +91,7 @@ void NfcHceEventRegister::Unregister(taihe::string_view type)
     g_hceCmdCallback = nullptr;
 }
 
-void NfcTaiheHcetatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void NfcTaiheHceSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
     // sleep 3s to wait Nfc turn on
     if (!g_hceCmdCallback) {
@@ -103,13 +103,13 @@ void NfcTaiheHcetatusChange::OnAddSystemAbility(int32_t systemAbilityId, const s
     InfoLog("RegHceCmdCallback, statusCode = %{public}d", ret);
 }
 
-void NfcTaiheHcetatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void NfcTaiheHceSAStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    InfoLog("OnRemoveSystemAbility, systemAbilityId = %{public}d", systemAbilityId);
+    InfoLog("systemAbilityId = %{public}d, ClearHceSessionProxy ", systemAbilityId);
     HceService::GetInstance().ClearHceSessionProxy();
 }
 
-void NfcTaiheSAStatusChange::Init(int32_t systemAbilityId)
+void NfcTaiheHceSAStatusChange::Init(int32_t systemAbilityId)
 {
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (!samgrProxy) {

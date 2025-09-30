@@ -32,8 +32,9 @@ public:
 private:
     const uint16_t MAX_ARRAY_LEN = 512;
     const uint16_t MAX_AID_LIST_NUM = 100;
+
 };
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
-#endif // #define NFC_TAIHW_UTIL_H
+#endif // #define NFC_TAIHE_UTIL_H

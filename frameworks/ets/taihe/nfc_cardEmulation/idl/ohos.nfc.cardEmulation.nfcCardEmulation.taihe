@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-@!sts_inject_info_module("import {Element} from 'bundleManager.ElementName';")
-@!sts_inject_info_module("import type {AbilityInfo} from 'bundleManager.AbilityInfo';")
+@!sts_inject_into_module("import {ElementName} from 'bundleManager.ElementName';")
+@!sts_inject_into_module("import type {AbilityInfo} from 'bundleManager.AbilityInfo';")
 
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_cardEmulation.z"); }

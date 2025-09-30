@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,7 +50,7 @@ public:
     static NfcHceEventRegister& GetInstance();
 
     void Register(taihe::string_view type, taihe::callback_view<void(taihe::array_view<uint8_t> data)> callback);
-    void Unregister(taihe::string_vies type);
+    void Unregister(taihe::string_view type);
 
 private:
     NfcHceEventRegister() {}
