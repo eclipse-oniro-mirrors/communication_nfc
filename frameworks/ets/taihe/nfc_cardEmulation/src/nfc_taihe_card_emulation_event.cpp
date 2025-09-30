@@ -105,7 +105,7 @@ void NfcTaiheHceSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, cons
 
 void NfcTaiheHceSAStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    InfoLog("systemAbilityId = %{public}d, ClearHceSessionProxy ", systemAbilityId);
+    InfoLog("systemAbilityId = %{public}d, ClearHceSessionProxy", systemAbilityId);
     HceService::GetInstance().ClearHceSessionProxy();
 }
 
