@@ -26,6 +26,7 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 constexpr const char* EVENT_TYPE_HCE_CMD = "hceCmd";
+const uint16_t WAIT_SA_START_TIME = 3;
 
 static std::mutex g_callbackMutex {};
 static std::shared_ptr<taihe::callback_view<void(taihe::array_view<uint8_t> data)>> g_hceCmdCallback = nullptr;
@@ -97,7 +98,7 @@ void NfcTaiheHceSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, cons
     if (!g_hceCmdCallback) {
         return;
     }
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(WAIT_SA_START_TIME));
     std::lock_guard<std::mutex> guard(g_callbackMutex);
     ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(g_hceCmdListenerEvent, EVENT_TYPE_HCE_CMD);
     InfoLog("RegHceCmdCallback, statusCode = %{public}d", ret);

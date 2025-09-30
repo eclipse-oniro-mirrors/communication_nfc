@@ -32,7 +32,6 @@ public:
 private:
     const uint16_t MAX_ARRAY_LEN = 512;
     const uint16_t MAX_AID_LIST_NUM = 100;
-
 };
 }  // namespace KITS
 }  // namespace NFC
