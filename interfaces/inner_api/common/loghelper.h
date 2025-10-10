@@ -15,7 +15,7 @@
 #ifndef LOG_HELPER_H
 #define LOG_HELPER_H
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined (NFC_DEBUG)
 #include "hilog/log.h"
 
 #ifdef FatalLog

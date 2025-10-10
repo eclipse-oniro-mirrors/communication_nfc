@@ -13,8 +13,44 @@
  * limitations under the License.
  */
 
+@!sts_inject_into_module("import {ElementName} from 'bundleManager.ElementName';")
+@!sts_inject_into_module("import type {AbilityInfo} from 'bundleManager.AbilityInfo';")
+
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_cardEmulation.z"); }
 """)
 
 @!namespace("@ohos.nfc.cardEmulation", "nfcCardEmulation")
+
+enum FeatureType: i8 {
+  HCE = 0,
+  UICC = 1,
+  ESE = 2
+}
+
+enum CardType: String {
+  PAYMENT = "payment",
+  OHTER = "ohter"
+}
+
+function hasHceCapability(): bool;
+
+function isDefaultService(elementName: @sts_type("ElementName") Opaque, type: CardType): bool;
+
+function getPaymentServices(): Array<@sts_type("AbilityInfo") Opaque>;
+
+@class
+interface HceService {
+  @static_overload("on")
+  onHceCmd(type: String, callback: (data: Array<u8>) => void): void;
+  @static_overload("off")
+  offHceCmd(type: String, callback: Optional<(data: Array<u8>) => void>): void;
+
+  start(elementName: @sts_type("ElementName") Opaque, aidList: Array<String>): void;
+
+  stop(elementName: @sts_type("ElementName") Opaque): void;
+
+  @gen_async("transmitAsync")
+  @gen_promise("transmitPromise")
+  transmit(data: Array<u8>): void;
+}

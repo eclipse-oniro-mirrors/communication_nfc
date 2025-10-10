@@ -18,7 +18,7 @@
 """)
 
 from tagSession use TagSession;
-from ohos.nfc.tag.tag use NdefRecord, NfcForumType, MifareClassicType, MifareUltralightType;
+from ohos.nfc.tag.tag use NdefRecord, MifareClassicType, MifareUltralightType;
 
 interface NfcATag: TagSession {
   getSak(): i32;
