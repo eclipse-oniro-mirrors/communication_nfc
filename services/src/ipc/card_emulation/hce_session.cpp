@@ -249,6 +249,19 @@ ErrCode HceSession::StopHce(const ElementName& element)
     return KITS::ERR_HCE_PARAMETERS;
 }
 
+bool IsSystemSA()
+{
+    InfoLog("IsSystemSA enter");
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::ATokenTypeEnum callingType =
+        Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (callingType == Security::AccessToken::TOKEN_NATIVE) {
+        return true;
+    }
+    ErrorLog("The caller callingType:%{public}d is not a native process.", callingType);
+    return false;
+}
+
 ErrCode HceSession::GetPaymentServices(CePaymentServicesParcelable& parcelable)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
@@ -256,7 +269,7 @@ ErrCode HceSession::GetPaymentServices(CePaymentServicesParcelable& parcelable)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (!ExternalDepsProxy::GetInstance().IsSystemApp(IPCSkeleton::GetCallingUid())) {
+    if (!(ExternalDepsProxy::GetInstance().IsSystemApp(IPCSkeleton::GetCallingUid()) || IsSystemSA())) {
         ErrorLog("HandleGetPaymentServices, ERR_NOT_SYSTEM_APP");
         return KITS::ERR_NOT_SYSTEM_APP;
     }
