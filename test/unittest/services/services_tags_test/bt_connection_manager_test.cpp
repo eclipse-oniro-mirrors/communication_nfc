@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -469,6 +472,40 @@ HWTEST_F(BtConnectionManagerTest, OnConnectionStateChanged008, TestSize.Level1)
     info->state_ = static_cast<int32_t>(Bluetooth::BTConnectState::DISCONNECTED);
     info->type_ = static_cast<uint8_t>(BtConnectionManager::BtProfileType::HID_HOST);
     BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: NextActionInit
+ * @tc.desc: Test BtConnectionManagerTest NextActionInit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, NextActionInit, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = false;
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    BtConnectionManager::GetInstance().NextActionInit();
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: PublishPairBtNtf
+ * @tc.desc: Test BtConnectionManagerTest PublishPairBtNtf.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, PublishPairBtNtf, TestSize.Level1)
+{
+    std::shared_ptr<BtData> data = std::make_shared<BtData>();
+    data->isValid_ = false;
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().TryPairBt(data);
+
+    BtConnectionManager::GetInstance().PublishPairBtNtf();
     ASSERT_TRUE(service != nullptr);
 }
 

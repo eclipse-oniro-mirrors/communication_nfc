@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -748,6 +751,21 @@ HWTEST_F(CeServiceTest, HandleDataShareReady001, TestSize.Level1)
     ASSERT_TRUE(ceService != nullptr);
     ceService->HandleDataShareReady();
 }
+
+/**
+ * @tc.name: UpdateDefaultPaymentType
+ * @tc.desc: Test CeServiceTest UpdateDefaultPaymentType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, UpdateDefaultPaymentType, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->UpdateDefaultPaymentType();
+    ASSERT_TRUE(ceService != nullptr);
+}
+
 }
 }
 }

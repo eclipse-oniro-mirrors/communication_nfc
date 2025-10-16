@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
 
 #include <gtest/gtest.h>
 #include <thread>
@@ -256,6 +258,37 @@ HWTEST_F(TagDispatcherTest, DispatchAbilityMultiApp001, TestSize.Level1)
     tagAbilityDispatcher->DispatchAbilityMultiApp(tagInfo, want);
     ASSERT_TRUE(element.GetBundleName() == KITS::ACTION_TAG_FOUND);
 }
+
+/**
+ * @tc.name: HandleNdefDispatch
+ * @tc.desc: Test TagSession HandleNdefDispatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, HandleNdefDispatch, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    std::string msg = "";
+    tagDispatcher->HandleNdefDispatch(tagDiscId, msg);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: PublishTagNotification
+ * @tc.desc: Test TagSession PublishTagNotification.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, PublishTagNotification, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    bool isIsoDep = false;
+    tagDispatcher->PublishTagNotification(tagDiscId, isIsoDep);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
 }
 }
 }
