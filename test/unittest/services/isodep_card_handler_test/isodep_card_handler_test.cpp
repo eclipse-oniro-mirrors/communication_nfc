@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -125,6 +128,20 @@ HWTEST_F(IsodepCardHandlerTest, GetCardName001, TestSize.Level1)
     isodepCardHandler->GetCardName(cardIndex, cardName);
     ASSERT_TRUE(isodepCardHandler != nullptr);
 }
+
+/**
+ * @tc.name: MatchCity
+ * @tc.desc: Test IsodepCardHandlerTest MatchCity.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsodepCardHandlerTest, MatchCity, TestSize.Level1)
+{
+    std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
+    std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+    isodepCardHandler->MatchCity(0, 0);
+    ASSERT_TRUE(isodepCardHandler != nullptr);
+}
+
 } // namespace TEST
 } // namespace NFC
 } // namespace OHOS
