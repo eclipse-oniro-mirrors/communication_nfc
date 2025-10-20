@@ -142,6 +142,7 @@ namespace OHOS {
         BtConnectionManager::GetInstance().Initialize(service);
         BtConnectionManager::GetInstance().TryPairBt(btData);
         BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+        Bluetooth::BluetoothHost::GetDefaultHost().Close();
     }
 
 }
