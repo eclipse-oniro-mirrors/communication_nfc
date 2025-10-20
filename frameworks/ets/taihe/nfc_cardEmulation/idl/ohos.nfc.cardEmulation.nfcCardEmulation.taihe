@@ -20,7 +20,7 @@
 static { loadLibrary("nfc_fwk_taihe_cardEmulation.z"); }
 """)
 
-@!namespace("@ohos.nfc.cardEmulation", "nfcCardEmulation")
+@!namespace("@ohos.nfc.cardEmulation", "cardEmulation")
 
 enum FeatureType: i8 {
   HCE = 0,
@@ -30,7 +30,7 @@ enum FeatureType: i8 {
 
 enum CardType: String {
   PAYMENT = "payment",
-  OHTER = "ohter"
+  OTHER = "other"
 }
 
 function hasHceCapability(): bool;
