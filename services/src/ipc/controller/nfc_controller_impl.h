@@ -34,6 +34,7 @@ public:
     ErrCode GetState(int32_t& funcResult) override;
     ErrCode TurnOn() override;
     ErrCode TurnOff() override;
+    ErrCode RestartNfc() override;
 
     ErrCode RegisterNfcStatusCallBack(const sptr<INfcControllerCallback>& cb, const std::string& type) override;
 

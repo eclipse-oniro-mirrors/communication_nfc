@@ -53,6 +53,11 @@ public:
      */
     int TurnOff();
     /**
+     * @Description Restart Nfc.
+     * @return Errorcode of restart nfc. if return 0, means successful.
+     */
+    int RestartNfc();
+    /**
      * @Description Get nfc state of device.
      * @param void
      * @return nfc state.

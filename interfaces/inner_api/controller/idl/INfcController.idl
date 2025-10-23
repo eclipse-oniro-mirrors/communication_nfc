@@ -34,4 +34,5 @@ interface OHOS.NFC.INfcController {
     [ipccode 115] IRemoteObject GetHceServiceIface();
     [ipccode 116] void RegCardEmulationNotifyCb([in] IOnCardEmulationNotifyCb cb);
     [ipccode 117] void NotifyEventStatus([in] int eventType, [in] int arg1, [in] String arg2);
+    [ipccode 118] void RestartNfc();
 }

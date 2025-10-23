@@ -111,6 +111,22 @@ ErrCode NfcControllerImpl::TurnOff()
     return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
 }
 
+ErrCode NfcControllerImpl::RestartNfc()
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("TurnOff no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::RESTART_NFC, appPackageName);
+
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService_ expired.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return nfcService_.lock()->ExecuteTask(KITS::TASK_RESTART);
+}
+
 ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCallback>& cb, const std::string& type)
 {
     if (cb == nullptr || cb->AsObject() == nullptr) {
