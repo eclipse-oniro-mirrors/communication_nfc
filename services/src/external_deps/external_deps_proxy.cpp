@@ -256,6 +256,11 @@ bool ExternalDepsProxy::IsHceApp(const ElementName& elementName)
     return AppDataParser::GetInstance().IsHceApp(elementName);
 }
 
+bool ExternalDepsProxy::IsOffhostAndSecureElementIsSIM(const ElementName &elementName)
+{
+    return AppDataParser::GetInstance().IsOffhostAndSecureElementIsSIM(elementName);
+}
+
 bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
 {
     return AppDataParser::GetInstance().IsBundleInstalled(bundleName);
@@ -273,7 +278,7 @@ void ExternalDepsProxy::SetWantExtraParam(const std::shared_ptr<KITS::TagInfo> &
 
 std::string ExternalDepsProxy::GetBundleNameByUid(uint32_t uid)
 {
-    std::string bundleName = AppDataParser::GetInstance().GetBundleNameByUid(uid);
+    std::string bundleNafme = AppDataParser::GetInstance().GetBundleNameByUid(uid);
     if (bundleName == "") {
         // system abilities have no bundle name, should return UID.
         bundleName = std::to_string(uid);

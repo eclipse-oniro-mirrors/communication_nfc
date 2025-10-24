@@ -56,6 +56,7 @@ public:
         uint32_t labelId;
         uint32_t iconId;
         int32_t appIndex;
+        std::string offhostSe;
         std::vector<AidInfo> customDataAid;
     };
 
@@ -82,6 +83,7 @@ public:
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
+    bool IsOffhostAndSecureElementIsSIM(const ElementName &elementName);
     std::string GetBundleNameByUid(uint32_t uid);
 private:
     static sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();

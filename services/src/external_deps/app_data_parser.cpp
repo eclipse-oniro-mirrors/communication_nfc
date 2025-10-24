@@ -370,12 +370,47 @@ void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &
         WarnLog("UpdateOffHostAppList, rm duplicated app %{public}s", element.GetBundleName().c_str());
         RemoveOffHostAppInfo(element);
     }
+
+    std::vector<AidInfo> customDataAidList;
+    AidInfo customDataAid;
+    for (auto &data : abilityInfo.metadata) {
+        if (KITS::KEY_PAYMENT_AID.compare(data.name) == 0) {
+            customDataAid.name = data.name;
+            customDataAid.value = data.value;
+            customDataAidList.emplace_back(customDataAid);
+            InfoLog("UpdateOffhostAppList from metadata, push aid %{public}s", data.value.c_str());
+        }
+    }
+    for (auto &data : abilityInfo.metaData.customizeData) {
+        if (KITS::KEY_PAYMENT_AID.compare(data.name) == 0) {
+            customDataAid.name = data.name;
+            customDataAid.value = data.value;
+            customDataAidList.emplace_back(customDataAid);
+            InfoLog("UpdateOffhostAppList from customizeData, push aid %{public}s", data.value.c_str());
+        }
+    }
+
+    if (customDataAidList.empty()) {
+        WarnLog("UpdateOffhostAppList, app %{public}s %{public}s has no static aid config",
+            element.GetBundleName().c_str(),
+            element.GetAbilityName().c_str());
+    }
+
     HceAppAidInfo offHostAppAidInfo;
     offHostAppAidInfo.element = element;
     offHostAppAidInfo.iconId = abilityInfo.iconId;
     offHostAppAidInfo.labelId = abilityInfo.labelId;
+    offHostAppAidInfo.customDataAid = customDataAidList;
+    offHostAppAidInfo.offhostSe = "";
+    for (auto &data : abilityInfo.metadata) {
+        if (KITS::KEY_SECURE_ELEMENT.compare(data.name) == 0) {
+            offHostAppAidInfo.offhostSe = data.value;
+            InfoLog("UpdateOffhostAppSe from metadata, secureElement %{public}s", data.value.c_str());
+        }
+    }
     g_offHostAppAndAidMap.push_back(offHostAppAidInfo);
-    DebugLog("UpdateOffHostAppList, push for app %{public}s %{public}s", element.GetBundleName().c_str(),
+    DebugLog("UpdateOffHostAppList, push for app %{public}s %{public}s",
+        element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
 }
 
@@ -705,6 +740,26 @@ bool AppDataParser::IsHceApp(const ElementName &elementName)
 #else
     return false;
 #endif
+}
+
+bool AppDataParser::IsOffhostAndSecureElementIsSIM(const ElementName &elementName)
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : g_offHostAppAndAidMap) {
+        if (appAidInfo.element.GetBundleName() != elementName.GetBundleName() ||
+            appAidInfo.element.GetAbilityName() != elementName.GetAbilityName()) {
+            continue;
+        }
+        InfoLog("bundleName: %{public}s abilityName: %{public}s",
+            elementName.GetBundleName().c_str(),
+            elementName.GetAbilityName().c_str());
+        if (KITS::SIM_TYPE_SECURE_ELEMENT.compare(appAidInfo.offhostSe) == 0) {
+            InfoLog("is offhost app and secureElement is SIM");
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void AppDataParser::GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos)
