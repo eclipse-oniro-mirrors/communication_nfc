@@ -278,7 +278,7 @@ void ExternalDepsProxy::SetWantExtraParam(const std::shared_ptr<KITS::TagInfo> &
 
 std::string ExternalDepsProxy::GetBundleNameByUid(uint32_t uid)
 {
-    std::string bundleNafme = AppDataParser::GetInstance().GetBundleNameByUid(uid);
+    std::string bundleName = AppDataParser::GetInstance().GetBundleNameByUid(uid);
     if (bundleName == "") {
         // system abilities have no bundle name, should return UID.
         bundleName = std::to_string(uid);
