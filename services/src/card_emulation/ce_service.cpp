@@ -358,6 +358,9 @@ KITS::DefaultPaymentType CeService::GetDefaultPaymentType()
     if (ExternalDepsProxy::GetInstance().IsHceApp(defaultPaymentElement_)) {
         return KITS::DefaultPaymentType::TYPE_HCE;
     }
+    if (ExternalDepsProxy::GetInstance().IsOffhostAndSecureElementIsSIM(defaultPaymentElement_)) {
+        return KITS::DefaultPaymentType::TYPE_UICC;
+    }
 
     return KITS::DefaultPaymentType::TYPE_ESE;
 }

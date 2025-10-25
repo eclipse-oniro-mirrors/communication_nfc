@@ -113,6 +113,30 @@ HWTEST_F(AppDataParserTest, GetTechMask002, TestSize.Level1)
     ASSERT_TRUE(parser.GetDispatchTagAppsByTech(discTechList).size() >= 0);
 }
 /**
+ * @tc.name: GetTechMask003
+ * @tc.desc: Test AppDataParser GetTechMask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppDataParserTest, GetTechMask003, TestSize.Level1)
+{
+    AAFwk::Want want;
+    want.SetAction(KITS::ACTION_OFF_HOST_APDU_SERVICE);
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
+    const std::shared_ptr<EventFwk::CommonEventData> mdata =
+        std::make_shared<EventFwk::CommonEventData>(data);
+    AppDataParser parser = AppDataParser::GetInstance();
+    parser.HandleAppAddOrChangedEvent(nullptr);
+    parser.HandleAppAddOrChangedEvent(mdata);
+
+    parser.HandleAppRemovedEvent(nullptr);
+    parser.HandleAppRemovedEvent(mdata);
+
+    parser.InitAppList();
+
+    ASSERT_TRUE(parser.g_offHostAppAndAidMap.size() == 0);
+}
+/**
  * @tc.name: IsBundleInstalled001
  * @tc.desc: Test AppDataParser IsBundleInstalled.
  * @tc.type: FUNC

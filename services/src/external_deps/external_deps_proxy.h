@@ -94,6 +94,7 @@ public:
     void GetHceApps(std::vector<AppDataParser::HceAppAidInfo> &hceApps);
     bool IsSystemApp(uint32_t uid);
     bool IsHceApp(const ElementName &elementName);
+    bool IsOffhostAndSecureElementIsSIM(const ElementName &elementName);
     bool IsBundleInstalled(const std::string &bundleName);
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo, const std::string &bundleName);
     void SetWantExtraParam(const std::shared_ptr<KITS::TagInfo> &tagInfo, AAFwk::Want &want);

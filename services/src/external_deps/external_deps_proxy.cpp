@@ -256,6 +256,11 @@ bool ExternalDepsProxy::IsHceApp(const ElementName& elementName)
     return AppDataParser::GetInstance().IsHceApp(elementName);
 }
 
+bool ExternalDepsProxy::IsOffhostAndSecureElementIsSIM(const ElementName &elementName)
+{
+    return AppDataParser::GetInstance().IsOffhostAndSecureElementIsSIM(elementName);
+}
+
 bool ExternalDepsProxy::IsBundleInstalled(const std::string& bundleName)
 {
     return AppDataParser::GetInstance().IsBundleInstalled(bundleName);

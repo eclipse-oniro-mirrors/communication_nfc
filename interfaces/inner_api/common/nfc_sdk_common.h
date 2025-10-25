@@ -99,6 +99,12 @@ const std::string KEY_PAYMENT_AID = "payment-aid";
 /** Other type of card emulation metadata name */
 const std::string KEY_OHTER_AID = "other-aid";
 
+/** secureElement of metadata name */
+const std::string KEY_SECURE_ELEMENT = "secureElement";
+
+/** SIM type of secureElement metadata value */
+const std::string SIM_TYPE_SECURE_ELEMENT = "SIM";
+
 /** Action for tag application declared */
 const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 
