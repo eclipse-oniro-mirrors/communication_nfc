@@ -52,8 +52,8 @@ public:
     static NfcHceEventRegister& GetInstance();
 
     void Register(
-        std::string type, ::taihecallback_view<void>(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback);
-    void Unregister(taihe::string_view type);
+        std::string type, ::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback);
+    void Unregister(std::string type);
 
 private:
     NfcHceEventRegister() {}

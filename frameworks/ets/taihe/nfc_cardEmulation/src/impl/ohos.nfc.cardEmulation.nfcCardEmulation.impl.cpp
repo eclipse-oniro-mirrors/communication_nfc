@@ -39,18 +39,19 @@ constexpr const char* EVENT_TYPE_HCE_CMD = "hceCmd";
 namespace {
 class HceServiceImpl {
     public:
-    HceServiceImpl() 
+    HceServiceImpl()
     {
         InfoLog("HceServiceImpl constructor.");
     }
 
-    void onHceCmd(string_view type, callback_view<void(array_view<uint8_t> data)> callback)
+    void onHceCmd(::taihe::callback_view<void (uintptr_t err, ::taihe::array_view<uint8_t> data)> callback)
     {
         InfoLog("onHceCmd enter");
         KITS::NfcHceEventRegister::GetInstance().Register(EVENT_TYPE_HCE_CMD, callback);
     }
 
-    void offHceCmd(string_view type, optional_view<callback<void(array_view<uint8_t> data)>> callback)
+    void offHceCmd(
+        ::taihe::optional_view<::taihe::callback<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>> callback)
     {
         InfoLog("offHceCmd enter");
         KITS::NfcHceEventRegister::GetInstance().Unregister(EVENT_TYPE_HCE_CMD);
@@ -93,7 +94,6 @@ class HceServiceImpl {
             return;
         }
         std::vector<uint8_t> dataBytes = {};
-
         for (uint16_t i = 0; i < data.size(); i++)  {
             dataBytes.push_back(data[i]);
         }

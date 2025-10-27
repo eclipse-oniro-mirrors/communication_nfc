@@ -38,7 +38,7 @@ enum TnfType: i32 {
   TNF_EMPTY = 0x0,
   TNF_WELL_KNOWN = 0x1,
   TNF_MEDIA = 0x2,
-  TNF_ABSOLUTE_URT = 0x3,
+  TNF_ABSOLUTE_URI = 0x3,
   TNF_EXT_APP = 0x4,
   TNF_UNKNOWN = 0x5,
   TNF_UNCHANGED = 0x6
@@ -52,15 +52,15 @@ function getPaymentServices(): Array<@sts_type("AbilityInfo") Opaque>;
 
 @class
 interface HceService {
-  onHceCmd(callback: (err: @sts_type("BusinessError<coid>") Opaque, data: Array<u8>) => void): void;
-  offHceCmd(callback: Optional<(err: @sts_type("BusinessError<void>") Opaque, data: Array<u8>) => void): void;
+  onHceCmd(callback: (err: @sts_type("BusinessError<void>") Opaque, data: Array<u8>) => void): void;
+  offHceCmd(callback: Optional<(err: @sts_type("BusinessError<void>") Opaque, data: Array<u8>) => void>): void;
 
   start(elementName: @sts_type("ElementName") Opaque, aidList: Array<String>): void;
   stop(elementName: @sts_type("ElementName") Opaque): void;
 
-  @gen_async("transmitAsync")
-  @gen_promise("transmitPromise")
-  transmit(data: Array<u8>): void;
+  @gen_async("transmit")
+  @gen_promise("transmit")
+  transmitImpl(data: Array<u8>): void;
 }
 
 @rename @constructor("HceService")
