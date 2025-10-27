@@ -20,6 +20,7 @@
 #include "bt_connection_manager.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include "bluetooth_host.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -142,6 +143,10 @@ namespace OHOS {
         BtConnectionManager::GetInstance().Initialize(service);
         BtConnectionManager::GetInstance().TryPairBt(btData);
         BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
+    }
+
+    void OnStop()
+    {
         Bluetooth::BluetoothHost::GetDefaultHost().Close();
     }
 
@@ -163,6 +168,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzOnBtEnabled(data, size);
     OHOS::FuzzOnPairStatusChanged(data, size);
     OHOS::FuzzOnConnectionStateChanged(data, size);
+    OHOS::OnStop();
     return 0;
 }
 
