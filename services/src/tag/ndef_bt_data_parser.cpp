@@ -278,7 +278,7 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
                 break;
             }
             case TYPE_CLASS_OF_DEVICE: {
-                if (tvLen - 1 != CLASS_OF_DEVICE_SIZE) {
+                if (tvLen != CLASS_OF_DEVICE_SIZE + 1) {
                     ErrorLog("NdefBtDataParser::ParseBtRecord, invalid  class of Device len");
                     break;
                 }
