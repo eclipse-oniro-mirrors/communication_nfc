@@ -25,26 +25,36 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "nfc_taihe_card_emulation_event.h"
-#include "nfc_taihe_util.h"
 
 using namespace taihe;
 using namespace ohos::nfc::cardEmulation::nfcCardEmulation;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::NFC;
 
+const uint16_t MAX_ARRAY_LEN = 512;
+const uint16_t MAX_AID_LIST_NUM = 100;
+
+constexpr const char* EVENT_TYPE_HCE_CMD = "hceCmd";
+
 namespace {
 class HceServiceImpl {
     public:
-    HceServiceImpl() {}
-
-    void onHceCmd(string_view type, callback_view<void(array_view<uint8_t> data)> callback)
+    HceServiceImpl()
     {
-        KITS::NfcHceEventRegister::GetInstance().Register(type, callback);
+        InfoLog("HceServiceImpl constructor.");
     }
 
-    void offHceCmd(string_view type, optional_view<callback<void(array_view<uint8_t> data)>> callback)
+    void onHceCmd(::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback)
     {
-        KITS::NfcHceEventRegister::GetInstance().Unregister(type);
+        InfoLog("onHceCmd enter");
+        KITS::NfcHceEventRegister::GetInstance().Register(EVENT_TYPE_HCE_CMD, callback);
+    }
+
+    void offHceCmd(
+        ::taihe::optional_view<::taihe::callback<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>> callback)
+    {
+        InfoLog("offHceCmd enter");
+        KITS::NfcHceEventRegister::GetInstance().Unregister(EVENT_TYPE_HCE_CMD);
     }
 
     void start(uintptr_t elementName, array_view<::taihe::string> aidList)
@@ -52,8 +62,16 @@ class HceServiceImpl {
         InfoLog("StartHce enter");
         ElementName element;
         CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+        if (aidList.size() > MAX_AID_LIST_NUM) {
+            ErrorLog("data size exceed.");
+            return;
+        }
 
-        std::vector<std::string> aidVec = KITS::NfcTaiheUtil::TaiheStringArrayToStringVec(aidList);
+        std::vector<std::string> aidVec;
+        for (uint16_t i = 0; i < aidList.size(); i++) {
+            aidVec.push_back(aidList[i].c_str());
+        }
+
         KITS::ErrorCode ret = KITS::HceService::GetInstance().StartHce(element, aidVec);
         InfoLog("StartHce, statusCode = %{public}d", ret);
     }
@@ -68,10 +86,19 @@ class HceServiceImpl {
         InfoLog("StopHce, statusCode = %{public}d", ret);
     }
 
-    void transmit(array_view<uint8_t> data)
+    void transmitImpl(array_view<uint8_t> data)
     {
         InfoLog("transmit enter");
-        std::string hexCmdData = KITS::NfcTaiheUtil::TaiheArrayToHexString(data);
+        if (data.size() > MAX_ARRAY_LEN) {
+            ErrorLog("data size exceed.");
+            return;
+        }
+        std::vector<uint8_t> dataBytes = {};
+        for (uint16_t i = 0; i < data.size(); i++) {
+            dataBytes.push_back(data[i]);
+        }
+        std::string hexCmdData = KITS::NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
+
         std::string hexRspData;
         int errorCode = KITS::HceService::GetInstance().SendRawFrame(hexCmdData, true, hexRspData);
         InfoLog("transmit, errorCode = %{public}d", errorCode);
@@ -118,6 +145,13 @@ array<uintptr_t> getPaymentServices()
     }
     return array<uintptr_t>(abilityInfoAniVec);
 }
+
+::ohos::nfc::cardEmulation::nfcCardEmulation::HceService MakeHceService()
+{
+    // The parameters in the make_holder function should be of the same type
+    // as the parameters in the constructor of the actual implementation class.
+    return taihe::make_holder<HceServiceImpl, ::ohos::nfc::cardEmulation::nfcCardEmulation::HceService>();
+}
 }  // namespace
 
 // Since these macros are auto-generate, lint will cause false positive.
@@ -125,4 +159,5 @@ array<uintptr_t> getPaymentServices()
 TH_EXPORT_CPP_API_hasHceCapability(hasHceCapability);
 TH_EXPORT_CPP_API_isDefaultService(isDefaultService);
 TH_EXPORT_CPP_API_getPaymentServices(getPaymentServices);
+TH_EXPORT_CPP_API_MakeHceService(MakeHceService);
 // NOLINTEND

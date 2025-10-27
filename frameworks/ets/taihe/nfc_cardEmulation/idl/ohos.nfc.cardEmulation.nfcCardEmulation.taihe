@@ -15,6 +15,7 @@
 
 @!sts_inject_into_module("import {ElementName} from 'bundleManager.ElementName';")
 @!sts_inject_into_module("import type {AbilityInfo} from 'bundleManager.AbilityInfo';")
+@!sts_inject_into_module("import {BusinessError} from '@ohos.base';")
 
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_cardEmulation.z"); }
@@ -41,16 +42,16 @@ function getPaymentServices(): Array<@sts_type("AbilityInfo") Opaque>;
 
 @class
 interface HceService {
-  @static_overload("on")
-  onHceCmd(type: String, callback: (data: Array<u8>) => void): void;
-  @static_overload("off")
-  offHceCmd(type: String, callback: Optional<(data: Array<u8>) => void>): void;
+  onHceCmd(callback: (err: @sts_type("BusinessError<void>") Opaque, data: Array<u8>) => void): void;
+  offHceCmd(callback: Optional<(err: @sts_type("BusinessError<void>") Opaque, data: Array<u8>) => void>): void;
 
   start(elementName: @sts_type("ElementName") Opaque, aidList: Array<String>): void;
-
   stop(elementName: @sts_type("ElementName") Opaque): void;
 
-  @gen_async("transmitAsync")
-  @gen_promise("transmitPromise")
-  transmit(data: Array<u8>): void;
+  @gen_async("transmit")
+  @gen_promise("transmit")
+  transmitImpl(data: Array<u8>): void;
 }
+
+@rename @constructor("HceService")
+function MakeHceService(): HceService;
