@@ -44,7 +44,7 @@ class HceServiceImpl {
         InfoLog("HceServiceImpl constructor.");
     }
 
-    void onHceCmd(::taihe::callback_view<void (uintptr_t err, ::taihe::array_view<uint8_t> data)> callback)
+    void onHceCmd(::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback)
     {
         InfoLog("onHceCmd enter");
         KITS::NfcHceEventRegister::GetInstance().Register(EVENT_TYPE_HCE_CMD, callback);
@@ -94,7 +94,7 @@ class HceServiceImpl {
             return;
         }
         std::vector<uint8_t> dataBytes = {};
-        for (uint16_t i = 0; i < data.size(); i++)  {
+        for (uint16_t i = 0; i < data.size(); i++) {
             dataBytes.push_back(data[i]);
         }
         std::string hexCmdData = KITS::NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
@@ -148,9 +148,9 @@ array<uintptr_t> getPaymentServices()
 
 ::ohos::nfc::cardEmulation::nfcCardEmulation::HceService MakeHceService()
 {
-    //The parameters in the make_holder function should be of the same type
-    //as the parameters in the constructor of the actual implementation class.
-    return taihe::make_holder<HceServiceImpl, ::ohos::nfc::cardEmulation::nfcCadEmulation::HceService>();
+    // The parameters in the make_holder function should be of the same type
+    // as the parameters in the constructor of the actual implementation class.
+    return taihe::make_holder<HceServiceImpl, ::ohos::nfc::cardEmulation::nfcCardEmulation::HceService>();
 }
 }  // namespace
 

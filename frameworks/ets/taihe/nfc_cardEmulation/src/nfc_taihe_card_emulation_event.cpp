@@ -29,7 +29,7 @@ constexpr const char* EVENT_TYPE_HCE_CMD = "hceCmd";
 const uint16_t WAIT_SA_START_TIME = 3;
 
 static std::mutex g_callbackMutex {};
-static stsd::shared_ptr<::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>
+static std::shared_ptr<::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>
     g_hceCmdCallback = nullptr;
 sptr<HceCmdListenerEvent> g_hceCmdListenerEvent = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
 
@@ -76,7 +76,7 @@ void NfcHceEventRegister::Register(
         return;
     }
     g_hceCmdCallback = std::make_shared<
-    ::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>(callback);
+        ::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>(callback);
 }
 
 void NfcHceEventRegister::Unregister(std::string type)
