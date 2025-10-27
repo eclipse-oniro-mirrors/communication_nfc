@@ -145,7 +145,7 @@ namespace OHOS {
         BtConnectionManager::GetInstance().OnConnectionStateChanged(info);
     }
 
-    void OnStop() 
+    void OnStop()
     {
         Bluetooth::BluetoothHost::GetDefaultHost().Close();
     }
