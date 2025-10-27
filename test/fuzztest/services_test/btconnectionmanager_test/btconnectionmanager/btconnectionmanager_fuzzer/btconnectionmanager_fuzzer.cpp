@@ -147,7 +147,7 @@ namespace OHOS {
     }
 
     void OnStop() {
-        Bluetooth:BluetoothHost::GetDefaultHost().Close();
+        Bluetooth::BluetoothHost::GetDefaultHost().Close();
     }
 
 }
