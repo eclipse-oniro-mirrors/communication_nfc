@@ -34,16 +34,6 @@ enum CardType: String {
   OTHER = "other"
 }
 
-enum TnfType: i32 {
-  TNF_EMPTY = 0x0,
-  TNF_WELL_KNOWN = 0x1,
-  TNF_MEDIA = 0x2,
-  TNF_ABSOLUTE_URI = 0x3,
-  TNF_EXT_APP = 0x4,
-  TNF_UNKNOWN = 0x5,
-  TNF_UNCHANGED = 0x6
-}
-
 function hasHceCapability(): bool;
 
 function isDefaultService(elementName: @sts_type("ElementName") Opaque, type: CardType): bool;
