@@ -16,6 +16,8 @@
 #ifndef NFC_TAIHE_CARD_EMULATION_EVENT
 #define NFC_TAIHE_CARD_EMULATION_EVENT
 
+#include <string>
+
 #include "ihce_cmd_callback.h"
 #include "nfc_sdk_common.h"
 #include "nfc_sa_client.h"
@@ -49,7 +51,8 @@ class NfcHceEventRegister {
 public:
     static NfcHceEventRegister& GetInstance();
 
-    void Register(taihe::string_view type, taihe::callback_view<void(taihe::array_view<uint8_t> data)> callback);
+    void Register(
+        std::string type, ::taihecallback_view<void>(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback);
     void Unregister(taihe::string_view type);
 
 private:

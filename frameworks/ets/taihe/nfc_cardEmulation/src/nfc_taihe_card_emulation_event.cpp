@@ -29,7 +29,8 @@ constexpr const char* EVENT_TYPE_HCE_CMD = "hceCmd";
 const uint16_t WAIT_SA_START_TIME = 3;
 
 static std::mutex g_callbackMutex {};
-static std::shared_ptr<taihe::callback_view<void(taihe::array_view<uint8_t> data)>> g_hceCmdCallback = nullptr;
+static stsd::shared_ptr<::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>
+    g_hceCmdCallback = nullptr;
 sptr<HceCmdListenerEvent> g_hceCmdListenerEvent = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
 
 void HceCmdListenerEvent::OnCeApduData(const std::vector<uint8_t>& data)
@@ -42,7 +43,8 @@ void HceCmdListenerEvent::OnCeApduData(const std::vector<uint8_t>& data)
     }
     std::vector<uint8_t> apduData(data);
     taihe::array<uint8_t> taiheData(apduData); // initialize without "const"
-    (*g_hceCmdCallback)(taiheData);
+    uintptr_t err = 0;
+    (*g_hceCmdCallback)(err, taiheData);
 }
 
 OHOS::sptr<OHOS::IRemoteObject> HceCmdListenerEvent::AsObject()
@@ -57,7 +59,7 @@ NfcHceEventRegister& NfcHceEventRegister::GetInstance()
 }
 
 void NfcHceEventRegister::Register(
-    taihe::string_view type, taihe::callback_view<void(taihe::array_view<uint8_t> data)> callback)
+    std::string type, ::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)> callback)
 {
     if (type.c_str() != EVENT_TYPE_HCE_CMD) {
         ErrorLog("wrong type: %{public}s", type.c_str());
@@ -73,10 +75,11 @@ void NfcHceEventRegister::Register(
         ErrorLog("Register failed!");
         return;
     }
-    g_hceCmdCallback = std::make_shared<taihe::callback_view<void(taihe::array_view<uint8_t> data)>>(callback);
+    g_hceCmdCallback = std::make_shared<
+    ::taihe::callback_view<void(uintptr_t err, ::taihe::array_view<uint8_t> data)>>(callback);
 }
 
-void NfcHceEventRegister::Unregister(taihe::string_view type)
+void NfcHceEventRegister::Unregister(std::string type)
 {
     if (type.c_str() != EVENT_TYPE_HCE_CMD) {
         ErrorLog("wrong type: %{public}s", type.c_str());
