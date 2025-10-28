@@ -808,12 +808,13 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
     for (ReaderData &readerData : readerDataVec_) {
         ElementName readerElement = readerData.element_;
         if (IsSameAppAbility(element, readerElement)) {
-            if (readerData.isEnabled_) {
+            if (readerData.isEnabled_ && IsSameDiscoveryPara(readerData.techs_, discTech)) {
                 return true;
             }
             InfoLog("Enable ReaderData: bundleName = %{public}s, abilityName = %{public}s",
                 readerElement.GetBundleName().c_str(), readerElement.GetAbilityName().c_str());
             readerData.isEnabled_ = true;
+            readerData.techs = discTech;
             return false;
         }
     }
