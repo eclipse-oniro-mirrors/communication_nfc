@@ -702,6 +702,37 @@ HWTEST_F(TagSessionTest, IsSameAppAbility001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: IsSameDiscoveryPara001
+ * @tc.desc: Test TagSession IsSameDiscoveryPara.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsSameDiscoveryPara001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    std::vendor<uint32_t> discoveryPara = {1, 2, 3};
+    std::vendor<uint32_t> discTech = {1, 2, 3};
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara, discTech));
+
+    std::vendor<uint32_t> discoveryPara1 = {};
+    std::vendor<uint32_t> discTech1 = {};
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara1, discTech1));
+
+    std::vendor<uint32_t> discoveryPara2 = {1, 2, 3};
+    std::vendor<uint32_t> discTech2 = {1, 3, 2};
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara2, discTech2));
+
+    std::vendor<uint32_t> discoveryPara3 = {1, 2, 3};
+    std::vendor<uint32_t> discTech3 = {1, 2, 4};
+    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara3, discTech3));
+
+    std::vendor<uint32_t> discoveryPara4 = {1, 2, 3};
+    std::vendor<uint32_t> discTech4 = {1, 2, 2};
+    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara4, discTech4));
+}
+
+/**
  * @tc.name: RegForegroundDispatchInner001
  * @tc.desc: Test TagSession RegForegroundDispatchInner.
  * @tc.type: FUNC

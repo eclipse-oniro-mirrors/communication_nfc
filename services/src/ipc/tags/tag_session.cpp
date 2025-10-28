@@ -631,6 +631,22 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
     return false;
 }
 
+bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech)
+{
+    std::set<uint32_t> discoveryParaSet = {};
+    std::set<uint32_t> discTechSet = {};
+    for (uint32_t it : discoveryPara) {
+        discoveryParaSet.insert(it);
+    }
+    for (uint32_t it : discTech) {
+        discTechSet.insert(it);
+    }
+    bool isSameDiscoveryPara = discoveryParaSet.size() == discTechSet.size() &&
+        std::equal(discoveryParaSet.begin(), discoveryParaSet.end(), discTechSet.begin());
+    InfoLog("IsSameDiscoveryPara? %{public}d", isSameDiscoveryPara);
+    return isSameDiscoveryPara;
+}
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
 bool TagSession::IsVendorProcess()
 {
