@@ -814,7 +814,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
             InfoLog("Enable ReaderData: bundleName = %{public}s, abilityName = %{public}s",
                 readerElement.GetBundleName().c_str(), readerElement.GetAbilityName().c_str());
             readerData.isEnabled_ = true;
-            readerData.techs = discTech;
+            readerData.techs_ = discTech;
             return false;
         }
     }
