@@ -235,6 +235,7 @@ private:
         const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
     int UnregReaderModeInner(const ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
+    bool IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech);
 
     uint16_t GetFgDataVecSize();
     uint16_t GetReaderDataVecSize();
