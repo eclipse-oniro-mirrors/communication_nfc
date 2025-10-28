@@ -641,7 +641,7 @@ bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara,
     for (uint32_t it : discTech) {
         discTechSet.insert(it);
     }
-    bool isSameDiscoveryPara = discoveryParaSet.size() == discTechSet.size() &&
+    bool isSameDiscoveryPara = (discoveryParaSet.size() == discTechSet.size()) &&
         std::equal(discoveryParaSet.begin(), discoveryParaSet.end(), discTechSet.begin());
     InfoLog("IsSameDiscoveryPara? %{public}d", isSameDiscoveryPara);
     return isSameDiscoveryPara;
