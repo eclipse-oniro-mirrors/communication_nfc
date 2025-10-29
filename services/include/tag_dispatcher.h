@@ -24,6 +24,7 @@
 #include "nfc_service.h"
 #include "taginfo.h"
 #include "taginfo_parcelable.h"
+#include "ndef_message.h"
 
 namespace OHOS {
 namespace NFC {
@@ -46,8 +47,11 @@ private:
     std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(uint32_t rfDiscId);
     KITS::TagInfoParcelable* GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     void DispatchTag(uint32_t rfDiscId);
-    bool HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
-    void PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
+    uint16_t HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
+    uint16_t PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
+    void SendTagInfoToVendor(long tagFoundStartTime, long readFinishTime, long dispatchFinishTime,
+        std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult);
+    std::string ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage);
     void StartVibratorOnce(bool isNtfPublished = false);
 
 private:

@@ -198,6 +198,8 @@ enum NotifyVendorEvent : int {
     DEF_PAYMENT_APP_ADDED_KEY = 1125,
     TAG_DISPATCH_HAR_PACKAGE = 1130,
     PWR_VOLTAGE_NOTIFY_KEY = 1140,
+    NOTIFY_NDEF_INFO_EVENT = 1150,
+    NOTIFY_READ_TAG_EVENT = 1151,
 };
 
 class NfcSdkCommon final {

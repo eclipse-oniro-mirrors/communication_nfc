@@ -39,7 +39,7 @@ public:
     bool DispatchBundleExtensionAbility(const std::string &harPackage, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         const std::string &mimeType, const std::string &uri);
     bool DispatchUriToBundleAbility(const std::string &uri);
-    bool DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    uint16_t DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool DispatchByAppLinkMode(const std::string &uriSchemeValue, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         OHOS::sptr<IRemoteObject> tagServiceIface);
 #ifdef NFC_HANDLE_SCREEN_LOCK

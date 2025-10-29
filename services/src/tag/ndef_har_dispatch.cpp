@@ -76,18 +76,18 @@ sptr<AppExecFwk::IBundleMgr> NdefHarDispatch::GetBundleMgrProxy()
 }
 
 /* Implicit matching, using mimetype to pull up app */
-bool NdefHarDispatch::DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo)
+uint16_t NdefHarDispatch::DispatchMimeType(const std::string &type, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     if (type.empty() || tagInfo == nullptr) {
         ErrorLog("NdefHarDispatch::DispatchMimeType type is empty");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     AAFwk::Want want;
     want.SetType(type);
     ExternalDepsProxy::GetInstance().SetWantExtraParam(tagInfo, want);
     if (GetBundleMgrProxy() == nullptr) {
         ErrorLog("NdefHarDispatch::DispatchMimeType GetBundleMgrProxy is nullptr");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     bool withDefault = false;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
@@ -99,16 +99,16 @@ bool NdefHarDispatch::DispatchMimeType(const std::string &type, const std::share
     if (!GetBundleMgrProxy()->ImplicitQueryInfos(
         want, abilityInfoFlag, USER_ID, withDefault, abilityInfos, extensionInfos, findDefaultApp)) {
         ErrorLog("NdefHarDispatch::DispatchMimeType ImplicitQueryInfos false");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     int32_t errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (errCode) {
         ErrorLog("NdefHarDispatch::DispatchMimeType call StartAbility fail. ret = %{public}d", errCode);
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::NDEF_HAR_DISPATCH);
-    return true;
+    return DISPATCH_HAR;
 }
 
 /* Verify harPackageString as BundleName/ServiceName and call StartExtensionAbility to pull up app */
