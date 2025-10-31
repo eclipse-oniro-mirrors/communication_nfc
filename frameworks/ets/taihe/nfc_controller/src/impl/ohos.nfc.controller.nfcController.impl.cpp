@@ -25,12 +25,6 @@ using namespace taihe;
 using namespace ohos::nfc::controller::nfcController;
 
 namespace {
-bool isNfcAvailable()
-{
-    InfoLog("isNfcAvailable, enter");
-    return OHOS::NFC::KITS::NfcController::GetInstance().IsNfcAvailable();
-}
-
 void onNfcStateChange(callback_view<void(NfcState)> callback)
 {
     InfoLog("onNfcStateChange, enter");
@@ -43,24 +37,10 @@ void offNfcStateChange(optional_view<callback<void(NfcState)>> callback)
     OHOS::NFC::KITS::NfcStateEventRegister::GetInstance().Unregister();
 }
 
-bool openNfc()
-{
-    InfoLog("openNfc, enter");
-    int status = OHOS::NFC::KITS::NfcController::GetInstance().TurnOn();
-    return (status == OHOS::NFC::KITS::ERR_NONE);
-}
-
 void enableNfc()
 {
     InfoLog("enableNfc, enter");
     OHOS::NFC::KITS::NfcController::GetInstance().TurnOn();
-}
-
-bool closeNfc()
-{
-    InfoLog("closeNfc, enter");
-    int status = OHOS::NFC::KITS::NfcController::GetInstance().TurnOff();
-    return (status == OHOS::NFC::KITS::ERR_NONE);
 }
 
 void disableNfc()
@@ -90,12 +70,9 @@ NfcState getNfcState()
 
 // Since these macros are auto-generate, lint will cause false positive.
 // NOLINTBEGIN
-TH_EXPORT_CPP_API_isNfcAvailable(isNfcAvailable);
 TH_EXPORT_CPP_API_onNfcStateChange(onNfcStateChange);
 TH_EXPORT_CPP_API_offNfcStateChange(offNfcStateChange);
-TH_EXPORT_CPP_API_openNfc(openNfc);
 TH_EXPORT_CPP_API_enableNfc(enableNfc);
-TH_EXPORT_CPP_API_closeNfc(closeNfc);
 TH_EXPORT_CPP_API_disableNfc(disableNfc);
 TH_EXPORT_CPP_API_isNfcOpen(isNfcOpen);
 TH_EXPORT_CPP_API_getNfcState(getNfcState);

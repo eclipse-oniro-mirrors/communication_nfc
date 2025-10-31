@@ -26,17 +26,10 @@ enum NfcState: i32 {
   STATE_TURNING_OFF = 4
 }
 
-function isNfcAvailable(): bool; // deprecated since API 9, use canIUse("SystemCapability.Communication.NFC.Core") instead
-
-@on_off("nfcStateChange")
 function onNfcStateChange(callback: (data: NfcState) => void): void;
-@on_off("nfcStateChange")
 function offNfcStateChange(callback: Optional<(data: NfcState) => void>): void;
 
-function openNfc(): bool; // deprecated since API 9, use enableNfc() instead
 function enableNfc(): void;
-
-function closeNfc(): bool; // deprecated since API 9, use disableNfc() instead
 function disableNfc(): void;
 
 function isNfcOpen(): bool;
