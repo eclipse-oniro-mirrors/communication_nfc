@@ -98,8 +98,7 @@
                     "//foundation/communication/nfc/frameworks/js/napi/cardEmulation:cardemulation",
                     "//foundation/communication/nfc/frameworks/js/napi/tag:tag",
                     "//foundation/communication/nfc/frameworks/cj/cardEmulation:cj_nfc_cardemulation_ffi",
-                    "//foundation/communication/nfc/frameworks/ets/taihe:nfc_taihe_group",
-                    "//foundation/communication/nfc/frameworks/ani:nfc_ani_group"
+                    "//foundation/communication/nfc/frameworks/ets/taihe:nfc_taihe_group"
                 ],
                 "service_group": [
                     "//foundation/communication/nfc/sa_profile:nfc_profile",

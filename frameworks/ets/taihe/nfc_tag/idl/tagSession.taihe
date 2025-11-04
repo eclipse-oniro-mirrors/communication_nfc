@@ -17,30 +17,19 @@
 { loadLibrary("nfc_fwk_taihe_tag.z"); }
 """)
 
+@!namespace("tag.tagSession")
+
 interface TagSession {
-  connectTag(): bool; // deprecated since API 9, use connect() instead
   connect(): void;
-
-  reset(): void; // deprecated since API 9, use resetConnection() instead
   resetConnection(): void;
-
-  isTagConnected(): bool; // deprecated since API 9, use isConnected() instead
   isConnected(): bool;
-
-  setSendDataTimeout(timeout: i32): bool; // deprecated since API 9, use setTimeout() instead
   setTimeout(timeout: i32): void;
-
-  getSendDataTimeout(): i32; // deprecated since API 9, use getTimeout() instead
   getTimeout(): i32;
-
-  @gen_async("sendDataAsync")
-  @gen_promise("sendDataPromise")
-  sendData(data: Array<i32>): Array<i32>; // deprecated since API 9, use transmit() instead
-
-  @gen_async("transmitAsync")
-  @gen_promise("transmitPromise")
-  transmit(data: Array<i32>): Array<i32>;
-
-  getMaxSendLength(): i32; // deprecated since API 9, use getMaxTransmitSize() instead
   getMaxTransmitSize(): i32;
+
+  @gen_async("transmit")
+  @gen_promise("transmit")
+  transmitImpl(data: Array<i32>): Array<i32>;
 }
+
+function MakeTagSession(): TagSession;

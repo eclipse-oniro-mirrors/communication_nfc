@@ -47,7 +47,10 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfcCardEmulation}"
   sources = get_target_outputs(":run_taihe")
 
-  defines = [ "NFC_DEBUG" ]
+  defines = [
+    "NFC_DEBUG",
+    "TAIHE_FWK"
+  ]
   include_dirs = [
     "inc",
     "$NFC_DIR/interfaces/inner_api/common",

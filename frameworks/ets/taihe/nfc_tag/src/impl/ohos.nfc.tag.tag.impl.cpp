@@ -13,482 +13,1714 @@
  * limitations under the License.
  */
 
-#include "ohos.nfc.tag.tag.proj.hpp"
 #include "ohos.nfc.tag.tag.impl.hpp"
+#include "nfctech.impl.hpp"
+#include "tagSession.impl.hpp"
 #include "taihe/runtime.hpp"
 #include "stdexcept"
 
-#include "basic_tag_session.h"
+#include "ani_common_want.h"
+#include "ani_data_ability_helper.h"
+#include "ani_remote_object.h"
 #include "loghelper.h"
-#include "ndef_tag.h"
+#include "common_fun_ani.h"
+#include "element_name.h"
+#include "nfc_taihe_tag_event.h"
+#include "taginfo.h"
+#include "nfc_taihe_util.h"
 
-using namespace nfctech;
+#include "nfca_tag.h"
+#include "nfcb_tag.h"
+#include "nfcf_tag.h"
+#include "iso15693_tag.h" // type V
+#include "isodep_tag.h"
+#include "ndef_tag.h"
+#include "mifare_classic_tag.h"
+#include "mifare_ultralight_tag.h"
+#include "ndef_formatable_tag.h"
+#include "barcode_tag.h"
+
 using namespace taihe;
-using namespace ohos::nfc::tag::tag;
+using namespace OHOS::AppExecFwk;
+
+const uint16_t MAX_ARRAY_LEN = 512;
 
 namespace {
 class TagSessionImpl {
 public:
     TagSessionImpl()
     {
-        // Don't forget to implement the constructor.
-    }
-
-    bool connectTag()
-    {
-        TH_THROW(std::runtime_error, "connectTag not implemented");
+        InfoLog("TagSessionImpl constructor enter");
     }
 
     void connect()
     {
-        TH_THROW(std::runtime_error, "connect not implemented");
-    }
-
-    void reset()
-    {
-        TH_THROW(std::runtime_error, "reset not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return;
+        }
+        tagSession_->Connect();
     }
 
     void resetConnection()
     {
-        TH_THROW(std::runtime_error, "resetConnection not implemented");
-    }
-
-    bool isTagConnected()
-    {
-        TH_THROW(std::runtime_error, "isTagConnected not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return;
+        }
+        tagSession_->Close();
     }
 
     bool isConnected()
     {
-        TH_THROW(std::runtime_error, "isConnected not implemented");
-    }
-
-    bool setSendDataTimeout(int32_t timeout)
-    {
-        TH_THROW(std::runtime_error, "setSendDataTimeout not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
     }
 
     void setTimeout(int32_t timeout)
     {
-        TH_THROW(std::runtime_error, "setTimeout not implemented");
-    }
-
-    int32_t getSendDataTimeout()
-    {
-        TH_THROW(std::runtime_error, "getSendDataTimeout not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
     }
 
     int32_t getTimeout()
     {
-        TH_THROW(std::runtime_error, "getTimeout not implemented");
-    }
-
-    array<int32_t> sendData(array_view<int32_t> data)
-    {
-        TH_THROW(std::runtime_error, "sendData not implemented");
-    }
-
-    array<int32_t> transmit(array_view<int32_t> data)
-    {
-        TH_THROW(std::runtime_error, "transmit not implemented");
-    }
-
-    int32_t getMaxSendLength()
-    {
-        TH_THROW(std::runtime_error, "getMaxSendLength not implemented");
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
     }
 
     int32_t getMaxTransmitSize()
     {
-        TH_THROW(std::runtime_error, "getMaxTransmitSize not implemented");
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
     }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("TagSession nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::BasicTagSession> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::BasicTagSession> tagSession_ = nullptr;
 };
 
-class NfcATagImpl : public TagSessionImpl {
+::tagSession::TagSession MakeTagSession()
+{
+    // The parameters in the make_holder function should be of the same type
+    // as the parameters in the constructor of the actual implementation class.
+    return taihe::make_holder<TagSessionImpl, ::tagSession::TagSession>();
+}
+
+class NfcATagImpl {
 public:
     NfcATagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("tagA constructor enter");
     }
 
     int32_t getSak()
     {
-        TH_THROW(std::runtime_error, "getSak not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return 0;
+        }
+        return tagSession_->GetSak();
     }
 
-    array<int32_t> getAtqa()
+    ::taihe::array<int32_t> getAtqa()
     {
-        TH_THROW(std::runtime_error, "getAtqa not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetAtqa());
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagA nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcATag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::NfcATag> tagSession_ = nullptr;
 };
 
-class NfcBTagImpl : public TagSessionImpl {
+class NfcBTagImpl {
 public:
     NfcBTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("tagB constructor enter");
     }
 
-    array<int32_t> getRespAppData()
+    ::taihe::array<int32_t> getRespAppData()
     {
-        TH_THROW(std::runtime_error, "getRespAppData not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetAppData());
     }
 
-    array<int32_t> getRespProtocol()
+    ::taihe::array<int32_t> getRespProtocol()
     {
-        TH_THROW(std::runtime_error, "getRespProtocol not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetProtocolInfo());
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagB nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcBTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::NfcBTag> tagSession_ = nullptr;
 };
 
-class NfcFTagImpl : public TagSessionImpl {
+class NfcFTagImpl {
 public:
     NfcFTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("tagF constructor enter");
     }
 
-    array<int32_t> getSystemCode()
+    ::taihe::array<int32_t> getSystemCode()
     {
-        TH_THROW(std::runtime_error, "getSystemCode not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->getSystemCode());
     }
 
-    array<int32_t> getPmm()
+    ::taihe::array<int32_t> getPmm()
     {
-        TH_THROW(std::runtime_error, "getPmm not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->getPmm());
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagF nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcFTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::NfcFTag> tagSession_ = nullptr;
 };
 
-class NfcVTagImpl : public TagSessionImpl {
+class NfcVTagImpl {
 public:
     NfcVTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("tagV constructor enter");
     }
 
     int32_t getResponseFlags()
     {
-        TH_THROW(std::runtime_error, "getResponseFlags not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return 0;
+        }
+        return tagSession_->GetRespFlags();
     }
 
     int32_t getDsfId()
     {
-        TH_THROW(std::runtime_error, "getDsfId not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return 0;
+        }
+        return tagSession_->GetDsfId();
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("tagV nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> tagSession_ = nullptr;
 };
 
-class IsoDepTagImpl : public TagSessionImpl {
+class IsoDepTagImpl {
 public:
     IsoDepTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("IsoDepTag constructor enter");
     }
 
-    array<int32_t> getHistoricalBytes()
+    ::taihe::array<int32_t> getHistoricalBytes()
     {
-        TH_THROW(std::runtime_error, "getHistoricalBytes not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetHistoricalBytes());
     }
 
-    array<int32_t> getHiLayerResponse()
+    ::taihe::array<int32_t> getHiLayerResponse()
     {
-        TH_THROW(std::runtime_error, "getHiLayerResponse not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetHiLayerResponse());
     }
 
-    bool isExtendedApduSupported()
+    bool isExtendedApduSupportedImpl()
     {
-        TH_THROW(std::runtime_error, "isExtendedApduSupported not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return false;
+        }
+        bool isSupported = false;
+        tagSession_->IsExtendedApduSupported(isSupported);
+        return isSupported;
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("IsoDepTag nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> tagSession_ = nullptr;
 };
+
+::ohos::nfc::tag::tag::NdefRecord makeNdefRecord(std::shared_ptr<OHOS::NFC::KITS::NdefRecord> ndefRecord)
+{
+    ::ohos::nfc::tag::tag::NdefRecord recordRet{};
+    if (ndefRecord == nullptr) {
+        ErrorLog("ndefRecord nullptr.");
+        return recordRet;
+    }
+    recordRet.tnf = static_cast<int32_t>(ndefRecord->tnf_);
+    recordRet.rtdType = NfcTaiheUtil::HexStringToTaiheArray(ndefRecord->tagRtdType_);
+    recordRet.id = NfcTaiheUtil::HexStringToTaiheArray(ndefRecord->id_);
+    recordRet.payload = NfcTaiheUtil::HexStringToTaiheArray(ndefRecord->payload_);
+    return recordRet;
+}
 
 class NdefMessageImpl {
 public:
     NdefMessageImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("NdefMessage constructor enter");
     }
 
-    array<::ohos::nfc::tag::tag::NdefRecord> getNdefRecords()
+    ::taihe::array<::ohos::nfc::tag::tag::NdefRecord> getNdefRecords()
     {
-        TH_THROW(std::runtime_error, "getNdefRecords not implemented");
+        std::vector<::ohos::nfc::tag::tag::NdefRecord> records {};
+        if (ndefMessage_ == nullptr) {
+            ErrorLog("ndef message nullptr");
+            return array<::ohos::nfc::tag::tag::NdefRecord>(array_view<::ohos::nfc::tag::tag::NdefRecord>(records));
+        }
+        std::vector<std::shared_ptr<OHOS::NFC::KITS::NdefRecord>> ndefRecords = ndefMessage_->GetNdefRecords();
+        for (uint16_t i = 0; i < ndefRecords.size(); i++) {
+            ::ohos::nfc::tag::tag::NdefRecord record = makeNdefRecord(ndefRecords[i]);
+            records.push_back(record);
+        }
+        return array<::ohos::nfc::tag::tag::NdefRecord>(array_view<::ohos::nfc::tag::tag::NdefRecord>(records));
     }
+
+    int64_t getNdefMessageImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setNdefMessage(std::shared_ptr<OHOS::NFC::KITS::NdefMessage> ndefMessage)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        ndefMessage_ = ndefMessage;
+    }
+
+    std::shared_ptr<OHOS::NFC::KITS::NdefMessage> getNdefMessage()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return ndefMessage_;
+    }
+
+private:
+    std::mutex mutex_ {};
+    std::shared_ptr<OHOS::NFC::KITS::NdefMessage> ndefMessage_ = nullptr;
 };
 
-class NdefTagImpl : public TagSessionImpl {
+class NdefTagImpl {
 public:
     NdefTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("NdefTag constructor enter");
     }
 
     ::ohos::nfc::tag::tag::NfcForumType getNdefTagType()
     {
-        TH_THROW(std::runtime_error, "getNdefTagType not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return ::ohos::nfc::tag::tag::NfcForumType::from_value(
+                static_cast<int>(OHOS::NFC::KITS::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN));
+        }
+        return ::ohos::nfc::tag::tag::NfcForumType::from_value(tagSession_->GetNdefTagType());
     }
 
-    NdefMessage getNdefMessage()
+    ::nfctech::NdefMessage getNdefMessage()
     {
         // The parameters in the make_holder function should be of the same type
         // as the parameters in the constructor of the actual implementation class.
-        return make_holder<NdefMessageImpl, NdefMessage>();
+        return taihe::make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
     }
 
     bool isNdefWritable()
     {
-        TH_THROW(std::runtime_error, "isNdefWritable not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return false;
+        }
+        return tagSession_->IsNdefWritable();
     }
 
-    NdefMessage readNdef()
+    ::nfctech::NdefMessage readNdefImpl()
     {
         // The parameters in the make_holder function should be of the same type
         // as the parameters in the constructor of the actual implementation class.
-        return make_holder<NdefMessageImpl, NdefMessage>();
+        return taihe::make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
     }
 
-    void writeNdef(weak::NdefMessage msg)
+    void writeNdefImpl(::nfctech::weak::NdefMessage msg)
     {
         TH_THROW(std::runtime_error, "writeNdef not implemented");
     }
 
     bool canSetReadOnly()
     {
-        TH_THROW(std::runtime_error, "canSetReadOnly not implemented");
+        bool canSetReadOnly = false;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return canSetReadOnly;
+        }
+        tagSession_->IsEnableReadOnly(canSetReadOnly);
+        return canSetReadOnly;
     }
 
-    void setReadOnly()
+    void setReadOnlyImpl()
     {
-        TH_THROW(std::runtime_error, "setReadOnly not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->EnableReadOnly();
     }
 
-    string getNdefTagTypeString(string_view type)
+    ::taihe::string getNdefTagTypeString(::ohos::nfc::tag::tag::NfcForumType type)
     {
-        TH_THROW(std::runtime_error, "getNdefTagTypeString not implemented");
+        std::string typeStr;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return ::taihe::string(typeStr);
+        }
+        typeStr = tagSession_->GetNdefTagTypeString(static_cast<OHOS::NFC::KITS::EmNfcForumType>(type.get_value()));
+        return ::taihe::string(typeStr);
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NdefTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::NdefTag> tagSession_ = nullptr;
 };
 
-class MifareClassicTagImpl : public TagSessionImpl {
+class MifareClassicTagImpl {
 public:
     MifareClassicTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("MifareClassicTag constructor enter");
     }
 
-    void authenticateSector(int32_t sectorIndex, array_view<int32_t> key, bool isKeyA)
+    void authenticateSectorImpl(int32_t sectorIndex, ::taihe::array_view<int32_t> key, bool isKeyA)
     {
-        TH_THROW(std::runtime_error, "authenticateSector not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        std::string keyStr = NfcTaiheUtil::TaiheArrayToHexString(key);
+        tagSession_->AuthenticateSector(sectorIndex, keyStr, isKeyA);
     }
 
-    array<int32_t> readSingleBlock(int32_t blockIndex)
+    ::taihe::array<int32_t> readSingleBlockImpl(uint32_t blockIndex)
     {
-        TH_THROW(std::runtime_error, "readSingleBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        tagSession_->ReadSingleBlock(blockIndex, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
     }
 
-    void writeSingleBlock(int32_t blockIndex, array_view<int32_t> data)
+    void writeSingleBlockImpl(uint32_t blockIndex, ::taihe::array_view<int32_t> data)
     {
-        TH_THROW(std::runtime_error, "writeSingleBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        std::string hexData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->WriteSingleBlock(blockIndex, hexData);
     }
 
-    void incrementBlock(int32_t blockIndex, int32_t value)
+    void incrementBlockImpl(uint32_t blockIndex, int32_t value)
     {
-        TH_THROW(std::runtime_error, "incrementBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->IncrementBlock(blockIndex, value);
     }
 
-    void decrementBlock(int32_t blockIndex, int32_t value)
+    void decrementBlockImpl(uint32_t blockIndex, int32_t value)
     {
-        TH_THROW(std::runtime_error, "decrementBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->DecrementBlock(blockIndex, value);
     }
 
-    void transferToBlock(int32_t blockIndex)
+    void transferToBlockImpl(uint32_t blockIndex)
     {
-        TH_THROW(std::runtime_error, "transferToBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->TransferToBlock(blockIndex);
     }
 
-    void restoreFromBlock(int32_t blockIndex)
+    void restoreFromBlockImpl(uint32_t blockIndex)
     {
-        TH_THROW(std::runtime_error, "restoreFromBlock not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->RestoreFromBlock(blockIndex);
     }
 
     int32_t getSectorCount()
     {
-        TH_THROW(std::runtime_error, "getSectorCount not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return 0;
+        }
+        return tagSession_->GetSectorCount();
     }
 
     int32_t getBlockCountInSector(int32_t sectorIndex)
     {
-        TH_THROW(std::runtime_error, "getBlockCountInSector not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return 0;
+        }
+        return tagSession_->GetBlockCountInSector(sectorIndex);
     }
 
     ::ohos::nfc::tag::tag::MifareClassicType getType()
     {
-        TH_THROW(std::runtime_error, "getType not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return ::ohos::nfc::tag::tag::MifareClassicType::from_value(
+                static_cast<int>(OHOS::NFC::KITS::MifareClassicTag::EmType::TYPE_UNKNOWN));
+        }
+        return ::ohos::nfc::tag::tag::MifareClassicType::from_value(tagSession_->GetMifareTagType());
     }
 
     int32_t getTagSize()
     {
-        TH_THROW(std::runtime_error, "getTagSize not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return 0;
+        }
+        return tagSession_->GetSize();
     }
 
     bool isEmulatedTag()
     {
-        TH_THROW(std::runtime_error, "isEmulatedTag not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return false;
+        }
+        return tagSession_->IsEmulated();
     }
 
     int32_t getBlockIndex(int32_t sectorIndex)
     {
-        TH_THROW(std::runtime_error, "getBlockIndex not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return 0;
+        }
+        return tagSession_->GetBlockIndexFromSector(sectorIndex);
     }
 
     int32_t getSectorIndex(int32_t blockIndex)
     {
-        TH_THROW(std::runtime_error, "getSectorIndex not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return 0;
+        }
+        return tagSession_->GetSectorIndexFromBlock(blockIndex);
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("MifareClassicTag nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> tagSession_ = nullptr;
 };
 
-class MifareUltralightTagImpl : public TagSessionImpl {
+class MifareUltralightTagImpl {
 public:
     MifareUltralightTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("mifareul constructor enter");
     }
 
-    array<int32_t> readMultiplePages(int32_t pageIndex)
+    ::taihe::array<int32_t> readMultiplePagesImpl(uint32_t pageIndex)
     {
-        TH_THROW(std::runtime_error, "readMultiplePages not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        tagSession_->ReadMultiplePages(pageIndex, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
     }
 
-    void writeSinglePage(int32_t pageIndex, array_view<int32_t> data)
+    void writeSinglePageImpl(uint32_t pageIndex, ::taihe::array_view<int32_t> data)
     {
-        TH_THROW(std::runtime_error, "writeSinglePage not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return;
+        }
+        std::string dataStr = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->WriteSinglePage(pageIndex, dataStr);
     }
 
     ::ohos::nfc::tag::tag::MifareUltralightType getType()
     {
-        TH_THROW(std::runtime_error, "getType not implemented");
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return ::ohos::nfc::tag::tag::MifareUltralightType::from_value(
+                static_cast<int>(OHOS::NFC::KITS::MifareUltralightTag::EmType::TYPE_UNKNOWN));
+        }
+        return ::ohos::nfc::tag::tag::MifareUltralightType::from_value(tagSession_->GetType());
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("mifareul nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> tagSession_ = nullptr;
 };
 
-class NdefFormatableTagImpl : public TagSessionImpl {
+class NdefFormatableTagImpl {
 public:
     NdefFormatableTagImpl()
     {
-        // Don't forget to implement the constructor.
+        InfoLog("NdefFormatableTag constructor enter");
     }
 
-    void format(weak::NdefMessage message)
+    void formatImpl(::nfctech::weak::NdefMessage message)
     {
         TH_THROW(std::runtime_error, "format not implemented");
     }
 
-    void formatReadOnly(weak::NdefMessage message)
+    void formatReadOnlyImpl(::nfctech::weak::NdefMessage message)
     {
         TH_THROW(std::runtime_error, "formatReadOnly not implemented");
     }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefFormatableTag nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> tagSession_ = nullptr;
 };
 
-::nfctech::NfcATag getNfcATag(TagInfo const& tagInfo)
+class BarcodeTagImpl {
+public:
+    BarcodeTagImpl()
+    {
+        InfoLog("BarcodeTagImpl constructor enter");
+    }
+
+    taihe::array_view<uint8_t> getBarcodeImpl()
+    {
+        TH_THROW(std::runtime_error, "getBarcodeImpl not implemented");
+    }
+
+    void connect()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return;
+        }
+        tagSession_->Connect();
+    }
+
+    void resetConnection()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return;
+        }
+        tagSession_->Close();
+    }
+
+    bool isConnected()
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return false;
+        }
+        return tagSession_->IsConnected();
+    }
+
+    void setTimeout(int32_t timeout)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return;
+        }
+        tagSession_->SetTimeout(timeout);
+    }
+
+    int32_t getTimeout()
+    {
+        int timeout = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return timeout;
+        }
+        tagSession_->GetTimeout(timeout);
+        return timeout;
+    }
+
+    int32_t getMaxTransmitSize()
+    {
+        int maxSize = 0;
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return maxSize;
+        }
+        tagSession_->GetMaxSendCommandLength(maxSize);
+        return maxSize;
+    }
+
+    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    {
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return ::taihe::array<int32_t>(0);
+        }
+        std::string hexRespData;
+        std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
+        tagSession_->SendCommand(hexCmdData, true, hexRespData);
+        return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
+    }
+
+    int64_t getTagSessionImpl()
+    {
+        return reinterpret_cast<int64_t>(this);
+    }
+
+    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> tagSession)
+    {
+        tagSession_ = tagSession;
+    }
+
+private:
+    std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> tagSession_ = nullptr;
+};
+
+std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcATagImpl, ::nfctech::NfcATag>();
+    std::vector<int> tagTechList = NfcTaiheUtil::TaiheIntArrayToIntVec(tagInfo.technology);
+    std::string tagUid = NfcTaiheUtil::TaiheArrayToHexString(tagInfo.uid);
+    std::vector<OHOS::AppExecFwk::PacMap> tagTechExtrasData;
+    if (tagInfo.extrasData.size() > MAX_ARRAY_LEN) {
+        ErrorLog("extrasData size exceed");
+        return nullptr;
+    }
+    for (uint16_t i = 0; i < tagInfo.extrasData.size(); i++) {
+        OHOS::AppExecFwk::PacMap pacMap;
+        OHOS::AppExecFwk::AnalysisPacMap(pacMap, get_env(), reinterpret_cast<ani_object>(tagInfo.extrasData[i]));
+        tagTechExtrasData.push_back(pacMap);
+    }
+    OHOS::sptr<OHOS::IRemoteObject> tagServiceIface =
+        AniGetNativeRemoteObject(get_env(), reinterpret_cast<ani_object>(tagInfo.remoteTagService));
+    return std::make_shared<OHOS::NFC::KITS::TagInfo>
+        (tagTechList, tagTechExtrasData, tagUid, tagInfo.tagRfDiscId, tagServiceIface);
 }
 
-::nfctech::NfcATag getNfcA(TagInfo const& tagInfo)
+::nfctech::NfcATag getNfcA(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcATagImpl, ::nfctech::NfcATag>();
+    InfoLog("getNfcA enter");
+    std::shared_ptr<OHOS::NFC::KITS::NfcATag> nfcATag =
+        std::make_shared<OHOS::NFC::KITS::NfcATag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcATag nfcATagTaihe = taihe::make_holder<NfcATagImpl, ::nfctech::NfcATag>();
+    auto implPtr = reinterpret_cast<NfcATagImpl *>(nfcATagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc A tag impl ptr.");
+        return nfcATagTaihe;
+    }
+    implPtr->setTagSession(nfcATag);
+    return nfcATagTaihe;
 }
 
-::nfctech::NfcBTag getNfcBTag(TagInfo const& tagInfo)
+::nfctech::NfcBTag getNfcB(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcBTagImpl, ::nfctech::NfcBTag>();
+    InfoLog("getNfcB enter");
+    std::shared_ptr<OHOS::NFC::KITS::NfcBTag> nfcBTag =
+        std::make_shared<OHOS::NFC::KITS::NfcBTag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcBTag nfcBTagTaihe = taihe::make_holder<NfcBTagImpl, ::nfctech::NfcBTag>();
+    auto implPtr = reinterpret_cast<NfcBTagImpl *>(nfcBTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc B tag impl ptr.");
+        return nfcBTagTaihe;
+    }
+    implPtr->setTagSession(nfcBTag);
+    return nfcBTagTaihe;
 }
 
-::nfctech::NfcBTag getNfcB(TagInfo const& tagInfo)
+::nfctech::NfcFTag getNfcF(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcBTagImpl, ::nfctech::NfcBTag>();
+    InfoLog("getNfcF enter");
+    std::shared_ptr<OHOS::NFC::KITS::NfcFTag> nfcFTag =
+        std::make_shared<OHOS::NFC::KITS::NfcFTag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcFTag nfcFTagTaihe = taihe::make_holder<NfcFTagImpl, ::nfctech::NfcFTag>();
+    auto implPtr = reinterpret_cast<NfcFTagImpl *>(nfcFTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc F tag impl ptr.");
+        return nfcFTagTaihe;
+    }
+    implPtr->setTagSession(nfcFTag);
+    return nfcFTagTaihe;
 }
 
-::nfctech::NfcFTag getNfcFTag(TagInfo const& tagInfo)
+::nfctech::NfcVTag getNfcV(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcFTagImpl, ::nfctech::NfcFTag>();
+    InfoLog("getNfcV enter");
+    std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> nfcVTag =
+        std::make_shared<OHOS::NFC::KITS::Iso15693Tag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcVTag nfcVTagTaihe = taihe::make_holder<NfcVTagImpl, ::nfctech::NfcVTag>();
+    auto implPtr = reinterpret_cast<NfcVTagImpl *>(nfcVTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc V tag impl ptr.");
+        return nfcVTagTaihe;
+    }
+    implPtr->setTagSession(nfcVTag);
+    return nfcVTagTaihe;
 }
 
-::nfctech::NfcFTag getNfcF(TagInfo const& tagInfo)
+::nfctech::IsoDepTag getIsoDep(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcFTagImpl, ::nfctech::NfcFTag>();
+    InfoLog("getIsoDep enter");
+    std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> isoDepTag =
+        std::make_shared<OHOS::NFC::KITS::IsoDepTag> (GetTagInfo(tagInfo));
+    ::nfctech::IsoDepTag isoDepTagTaihe =
+        taihe::make_holder<IsoDepTagImpl, ::nfctech::IsoDepTag>();
+    auto implPtr = reinterpret_cast<IsoDepTagImpl *>(isoDepTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc IsoDep tag impl ptr.");
+        return isoDepTagTaihe;
+    }
+    implPtr->setTagSession(isoDepTag);
+    return isoDepTagTaihe;
 }
 
-::nfctech::NfcVTag getNfcVTag(TagInfo const& tagInfo)
+::nfctech::NdefTag getNdef(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcVTagImpl, ::nfctech::NfcVTag>();
+    InfoLog("getNdef enter");
+    std::shared_ptr<OHOS::NFC::KITS::NdefTag> ndefTag =
+        std::make_shared<OHOS::NFC::KITS::NdefTag> (GetTagInfo(tagInfo));
+    ::nfctech::NdefTag ndefTagTaihe = taihe::make_holder<NdefTagImpl, ::nfctech::NdefTag>();
+    auto implPtr = reinterpret_cast<NdefTagImpl *>(ndefTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc Ndef tag impl ptr.");
+        return ndefTagTaihe;
+    }
+    implPtr->setTagSession(ndefTag);
+    return ndefTagTaihe;
 }
 
-::nfctech::NfcVTag getNfcV(TagInfo const& tagInfo)
+::nfctech::MifareClassicTag getMifareClassic(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NfcVTagImpl, ::nfctech::NfcVTag>();
+    InfoLog("getMifareClassic enter");
+    std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> mifareClassicTag =
+        std::make_shared<OHOS::NFC::KITS::MifareClassicTag> (GetTagInfo(tagInfo));
+    ::nfctech::MifareClassicTag mifareClassicTaihe =
+        taihe::make_holder<MifareClassicTagImpl, ::nfctech::MifareClassicTag>();
+    auto implPtr = reinterpret_cast<MifareClassicTagImpl *>(mifareClassicTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc MifareClassic tag impl ptr.");
+        return mifareClassicTaihe;
+    }
+    implPtr->setTagSession(mifareClassicTag);
+    return mifareClassicTaihe;
 }
 
-::nfctech::IsoDepTag getIsoDep(TagInfo const& tagInfo)
+::nfctech::MifareUltralightTag getMifareUltralight(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<IsoDepTagImpl, ::nfctech::IsoDepTag>();
+    InfoLog("getMifareUltralight enter");
+    std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> mifareUlTag =
+        std::make_shared<OHOS::NFC::KITS::MifareUltralightTag> (GetTagInfo(tagInfo));
+    ::nfctech::MifareUltralightTag mifareUlTaihe =
+        taihe::make_holder<MifareUltralightTagImpl, ::nfctech::MifareUltralightTag>();
+    auto implPtr = reinterpret_cast<MifareUltralightTagImpl *>(mifareUlTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc MifareUltralight tag impl ptr.");
+        return mifareUlTaihe;
+    }
+    implPtr->setTagSession(mifareUlTag);
+    return mifareUlTaihe;
 }
 
-::nfctech::NdefTag getNdef(TagInfo const& tagInfo)
+::nfctech::NdefFormatableTag getNdefFormatable(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NdefTagImpl, ::nfctech::NdefTag>();
+    InfoLog("getNdefFormatable enter");
+    std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> ndefFormatableTag =
+        std::make_shared<OHOS::NFC::KITS::NdefFormatableTag> (GetTagInfo(tagInfo));
+    ::nfctech::NdefFormatableTag ndefFormatableTaihe =
+        taihe::make_holder<NdefFormatableTagImpl, ::nfctech::NdefFormatableTag>();
+    auto implPtr = reinterpret_cast<NdefFormatableTagImpl *>(ndefFormatableTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc NdefFormatable tag impl ptr.");
+        return ndefFormatableTaihe;
+    }
+    implPtr->setTagSession(ndefFormatableTag);
+    return ndefFormatableTaihe;
 }
 
-::nfctech::MifareClassicTag getMifareClassic(TagInfo const& tagInfo)
+::nfctech::BarcodeTag getBarcodeTag(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<MifareClassicTagImpl, ::nfctech::MifareClassicTag>();
+    InfoLog("getBarcodeTag enter");
+    std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> barcodeTag =
+        std::make_shared<OHOS::NFC::KITS::BarcodeTag> (GetTagInfo(tagInfo));
+    ::nfctech::BarcodeTag barcodeTagTaihe =
+        taihe::make_holder<BarcodeTagImpl, ::nfctech::BarcodeTag>();
+    auto implPtr = reinterpret_cast<BarcodeTagImpl *>(barcodeTagTaihe->getTagSessionImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("fail to get nfc Barcode tag impl ptr.");
+        return barcodeTagTaihe;
+    }
+    implPtr->setTagSession(barcodeTag);
+    return barcodeTagTaihe;
 }
 
-::nfctech::MifareUltralightTag getMifareUltralight(TagInfo const& tagInfo)
+::ohos::nfc::tag::tag::TagInfo getTagInfo(uintptr_t want)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<MifareUltralightTagImpl, ::nfctech::MifareUltralightTag>();
+    InfoLog("getTagInfo enter");
+    ::ohos::nfc::tag::tag::TagInfo tagInfo = {};
+    OHOS::AAFwk::Want tagInfoWant;
+    bool result = OHOS::AppExecFwk::UnwrapWant(get_env(), reinterpret_cast<ani_object>(want), tagInfoWant);
+    if (!result) {
+        ErrorLog("fail to unwrap want");
+        return tagInfo;
+    }
+    return tagInfo;
 }
 
-::nfctech::NdefFormatableTag getNdefFormatable(TagInfo const& tagInfo)
+void registerForegroundDispatch(uintptr_t elementName, ::taihe::array_view<uint32_t> discTech,
+    ::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<NdefFormatableTagImpl, ::nfctech::NdefFormatableTag>();
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+
+    if (discTech.size() > MAX_ARRAY_LEN) {
+        ErrorLog("discTech size exceed.");
+        return;
+    }
+    std::vector<uint32_t> dataVec = {};
+    for (uint16_t i = 0; i < discTech.size(); i++) {
+        dataVec.push_back(discTech[i]);
+    }
+    OHOS::NFC::KITS::TagFgEventRegister::GetInstance().Register(element, dataVec, callback);
+}
+
+void unregisterForegroundDispatch(uintptr_t elementName)
+{
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+    OHOS::NFC::KITS::TagFgEventRegister::GetInstance().Unregister(element);
+}
+
+void onReaderMode(uintptr_t elementName, ::taihe::array_view<uint32_t> discTech,
+    ::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback)
+{
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+
+    if (discTech.size() > MAX_ARRAY_LEN) {
+        ErrorLog("discTech size exceed.");
+        return;
+    }
+    std::vector<uint32_t> dataVec = {};
+    for (uint16_t i = 0; i < discTech.size(); i++) {
+        dataVec.push_back(discTech[i]);
+    }
+    OHOS::NFC::KITS::TagRmEventRegister::GetInstance().Register(element, dataVec, callback);
+}
+
+void offReaderMode(uintptr_t elementName, ::taihe::optional_view<
+    ::taihe::callback<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)>> callback)
+{
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+    OHOS::NFC::KITS::TagRmEventRegister::GetInstance().Unregister(element);
 }
 }  // namespace
 
 // Since these macros are auto-generate, lint will cause false positive.
 // NOLINTBEGIN
-TH_EXPORT_CPP_API_getNfcATag(getNfcATag);
+TH_EXPORT_CPP_API_MakeTagSession(MakeTagSession);
 TH_EXPORT_CPP_API_getNfcA(getNfcA);
-TH_EXPORT_CPP_API_getNfcBTag(getNfcBTag);
 TH_EXPORT_CPP_API_getNfcB(getNfcB);
-TH_EXPORT_CPP_API_getNfcFTag(getNfcFTag);
 TH_EXPORT_CPP_API_getNfcF(getNfcF);
-TH_EXPORT_CPP_API_getNfcVTag(getNfcVTag);
 TH_EXPORT_CPP_API_getNfcV(getNfcV);
 TH_EXPORT_CPP_API_getIsoDep(getIsoDep);
 TH_EXPORT_CPP_API_getNdef(getNdef);
 TH_EXPORT_CPP_API_getMifareClassic(getMifareClassic);
 TH_EXPORT_CPP_API_getMifareUltralight(getMifareUltralight);
 TH_EXPORT_CPP_API_getNdefFormatable(getNdefFormatable);
+TH_EXPORT_CPP_API_getBarcodeTag(getBarcodeTag);
+TH_EXPORT_CPP_API_getTagInfo(getTagInfo);
+TH_EXPORT_CPP_API_registerForegroundDispatch(registerForegroundDispatch);
+TH_EXPORT_CPP_API_unregisterForegroundDispatch(unregisterForegroundDispatch);
+TH_EXPORT_CPP_API_onReaderMode(onReaderMode);
+TH_EXPORT_CPP_API_offReaderMode(offReaderMode);
 // NOLINTEND
