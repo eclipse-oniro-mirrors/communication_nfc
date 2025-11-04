@@ -144,7 +144,8 @@ const uint32_t MAX_APDU_DATA_HEX_STR = MAX_APDU_DATA_BYTE * 2;
 const uint32_t MAX_AID_LIST_NUM_PER_APP = 100;
 
 /** type const of max ndefmsg length */
-const uint32_t MAX_NDEFMSG_LEN = 1024;
+const uint32_t MAX_NDEFMSG_LEN = 4096;
+const uint32_t MAX_BYTES_LEN = 10000;
 
 const int SDK_VERSION_18 = 18;
 const int SDK_VERSION_UNKNOWN = 0;
