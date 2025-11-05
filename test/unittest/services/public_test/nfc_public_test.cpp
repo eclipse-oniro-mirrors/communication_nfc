@@ -422,22 +422,26 @@ HWTEST_F(NfcPublicTest, NfcWatchDog004, TestSize.Level1)
     std::shared_ptr<MockNciNfccProxy> nciNfccProxy = std::make_shared<MockNciNfccProxy>();
     NfcWatchDog nfcWatchDog("DoTurnOn", 500, nciNfccProxy);
     nfcWatchDog.canceled_ = false;
-    nfcWatchDog.MainLoop();
+    nfcWatchDog.Run();
+    nfcWatchDog.Cancel();
     ASSERT_TRUE(nfcWatchDog.threadName_ == "DoTurnOn");
 
     NfcWatchDog nfcWatchDog2("DoTurnOff", 500, nciNfccProxy);
     nfcWatchDog2.canceled_ = false;
-    nfcWatchDog2.MainLoop();
+    nfcWatchDog2.Run();
+    nfcWatchDog2.Cancel();
     ASSERT_TRUE(nfcWatchDog2.threadName_ == "DoTurnOff");
 
     NfcWatchDog nfcWatchDog3("nfcProcessEvent", 500, nciNfccProxy);
     nfcWatchDog3.canceled_ = false;
-    nfcWatchDog3.MainLoop();
+    nfcWatchDog3.Run();
+    nfcWatchDog3.Cancel();
     ASSERT_TRUE(nfcWatchDog3.threadName_ == "nfcProcessEvent");
 
     NfcWatchDog nfcWatchDog4("nfc", 500, nciNfccProxy);
     nfcWatchDog4.canceled_ = false;
-    nfcWatchDog4.MainLoop();
+    nfcWatchDog4.Run();
+    nfcWatchDog4.Cancel();
     ASSERT_TRUE(nfcWatchDog4.threadName_ == "nfc");
 }
 }
