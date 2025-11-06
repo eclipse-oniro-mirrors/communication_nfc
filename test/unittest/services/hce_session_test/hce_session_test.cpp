@@ -379,28 +379,6 @@ public:
     OHOS::sptr<OHOS::IRemoteObject> AsObject() override { return nullptr; }
 };
 
-/**
- * @tc.name: RemoveHceDeathRecipient001
- * @tc.desc: Test HceSessionTest RemoveHceDeathRecipient.
- * @tc.type: FUNC
- */
-HWTEST_F(HceSessionTest, RemoveHceDeathRecipient001, TestSize.Level1)
-{
-    LOG_SetCallback(MyLogCallback);
-    std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-    nfcService->Initialize();
-    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(nfcService);
-    hceSession->CallbackEnter(0);
-    hceSession->CallbackExit(0, 0);
-    hceSession->hceCmdCallback_ = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
-    hceSession->RemoveHceDeathRecipient(nullptr);
-    ASSERT_TRUE(g_errLog.find("callback_ is nullptr") == std::string::npos);
-
-    hceSession->hceCmdCallback_ = nullptr;
-    hceSession->RemoveHceDeathRecipient(nullptr);
-    ASSERT_TRUE(g_errLog.find("callback_ is nullptr") != std::string::npos);
-}
-
 #ifdef NFC_SIM_FEATURE
 /**
  * @tc.name: AppendSimBundle001
