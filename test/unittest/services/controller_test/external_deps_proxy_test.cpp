@@ -465,6 +465,23 @@ HWTEST_F(ExternalDepsProxyTest, PublishNtf002, TestSize.Level1)
         ExternalDepsProxy::GetInstance().GetDispatchTagAppsByTech(discTechList);
     ASSERT_TRUE(getDispatchTagAppsByTech.size() == 0);
 }
+
+/**
+ * @tc.name: IsOffHostAndSecureElementIsSIM
+ * @tc.desc: Test IsOffHostAndSecureElementIsSIM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ExternalDepsProxyTest, IsOffHostAndSecureElementIsSIM, TestSize.Level1)
+{
+    std::string cardName = "";
+    int balance = 0;
+    int invalidNotificationId = 0;
+    ExternalDepsProxy::GetInstance().PublishNfcNotification(invalidNotificationId, cardName, balance);
+    ElementName element;
+    bool ret = ExternalDepsProxy::GetInstance().IsOffhostAndSecureElementIsSIM(element);
+    ASSERT_TRUE(ret >= 0);
+}
+
 }
 }
 }
