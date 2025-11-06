@@ -766,6 +766,34 @@ HWTEST_F(CeServiceTest, UpdateDefaultPaymentType, TestSize.Level1)
     ASSERT_TRUE(ceService != nullptr);
 }
 
+/**
+ * @tc.name: HandleAppStateChange001
+ * @tc.desc: Test CeServiceTest HandleAppStateChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleAppStateChange001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ASSERT_TRUE(ceService != nullptr);
+    ceService->HandleAppStateChanged("", "", 0);
+}
+
+/**
+ * @tc.name: HandleAppStateChange002
+ * @tc.desc: Test CeServiceTest HandleAppStateChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleAppStateChange002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ASSERT_TRUE(ceService != nullptr);
+    ceService->HandleAppStateChanged("test", "test", 0);
+}
+
 }
 }
 }
