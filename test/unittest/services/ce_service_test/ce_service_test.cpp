@@ -777,7 +777,7 @@ HWTEST_F(CeServiceTest, HandleAppStateChange001, TestSize.Level1)
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ASSERT_TRUE(ceService != nullptr);
-    ceService->HandleAppStateChange("", "", 0);
+    ceService->HandleAppStateChanged("", "", 0);
 }
 
 /**
@@ -791,7 +791,7 @@ HWTEST_F(CeServiceTest, HandleAppStateChange002, TestSize.Level1)
     std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
     std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
     ASSERT_TRUE(ceService != nullptr);
-    ceService->HandleAppStateChange("test", "test", 0);
+    ceService->HandleAppStateChanged("test", "test", 0);
 }
 
 }
