@@ -382,6 +382,20 @@ HWTEST_F(NfcControllerImplTest, GetHceServiceIface002, TestSize.Level1)
     nfcControllerImpl->GetHceServiceIface(iRemoteObject);
     ASSERT_TRUE(iRemoteObject == nullptr);
 }
+
+/**
+ * @tc.name: RestartNfc
+ * @tc.desc: Test RestartNfc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, RestartNfc, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    ErrCode restart = nfcControllerImpl->RestartNfc();
+    ASSERT_TRUE(restart > 0);
+}
+
 }
 }
 }
