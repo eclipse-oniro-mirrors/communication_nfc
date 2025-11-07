@@ -56,6 +56,7 @@ enum SubErrorCode {
     REG_READERMODE_ABILITY_INVALID = 40106, // abilityName wrong or background
     TURN_ON_NFC = 40103,
     TURN_OFF_NFC = 40104,
+    RESTART_NFC = 40107,
     HCE_CMD_CB_EXIST = 40200,
     HCE_CMD_CB_NOT_EXIST = 40201,
     HCE_CMD_CB_NULL = 40202,

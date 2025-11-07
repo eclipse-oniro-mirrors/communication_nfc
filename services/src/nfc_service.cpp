@@ -287,6 +287,9 @@ void NfcService::NfcSwitchEventHandler::ProcessEvent(const AppExecFwk::InnerEven
         case KITS::TASK_TURN_OFF:
             nfcService_.lock()->DoTurnOff();
             break;
+        case KITS::TASK_RESTART:
+            nfcService_.lock()->DoRestart();
+            break;
         default:
             WarnLog("ProcessEvent, unknown eventId %{public}d", eventId);
             break;
@@ -407,6 +410,30 @@ bool NfcService::DoTurnOff()
     ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
     InfoLog("Nfc do turn off successfully.");
     return result;
+}
+
+bool NfcService::DoTurnOnWithRetry()
+{
+    for (uint8_t i = 0; i < MAX_RETRY_TIME; i++) {
+        InfoLog("time %{public}u", i);
+        if (DoTurnOn()) {
+            return true;
+        }
+    }
+    WarnLog("tried best...");
+    return false;
+}
+
+void NfcService::DoRestart()
+{
+    InfoLog("DoRestart");
+    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNIN_ON) {
+        ErrorLog("nfc state not on, do not restart");
+        return;
+    }
+    DoTurnOff();
+    std::this_thread::sleep_for(std::chrono::milliseconds(SWITCH_OPER_WAIT_MS));
+    DoTurnOnWithRetry();
 }
 
 void NfcService::DoInitialize()

@@ -142,6 +142,21 @@ int NfcController::TurnOff()
     return static_cast<int>(errCode);
 }
 
+// Restart NFC
+int NfcController::RestartNfc()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    InitNfcRemoteSA();
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    ErrCode errCode = controllerProxy->RstartNfc();
+    InfoLog("errCode = %{public}d", errCode);
+    return static_cast<int>(errCode);
+}
+
 // get NFC state
 int NfcController::GetNfcState()
 {

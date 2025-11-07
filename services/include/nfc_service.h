@@ -83,7 +83,9 @@ private:
     void UpdateNfcState(int newState);
     // TurnOn/TurnOff Nfc
     bool DoTurnOn();
+    bool DoTurnOnWithRetry();
     bool DoTurnOff();
+    void DoRestart();
     void DoInitialize();
     void UnloadNfcSa();
 
@@ -123,8 +125,9 @@ private:
     static constexpr const int WAIT_ROUTING_INIT = 10 * 1000;
     static constexpr const int TASK_THREAD_WAIT_MS = 50;
     static constexpr const int TASK_THREAD_WAIT_US = 50 * 1000;
-    static constexpr const int MAX_RETRY_TIME = 10;
+    static constexpr const int MAX_RETRY_TIME = 3;
     static constexpr const int MAX_ABORT_RETRY_TIME = 3;
+    static constexpr const int SWITCH_OPER_WAIT_MS = 200;
     int nciVersion_ = 0;
 
     // service
