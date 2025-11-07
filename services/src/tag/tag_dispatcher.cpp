@@ -75,11 +75,11 @@ void TagDispatcher::RegNdefMsgCb(const sptr<INdefMsgCallback> &callback)
     ndefCb_ = callback;
 }
 
-bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
+uint16_t TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 {
     if (nciTagProxy_.expired()) {
         ErrorLog("HandleNdefDispatch, nciTagProxy_ expired");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     std::string tagUid = nciTagProxy_.lock()->GetTagUid(tagDiscId);
     int msgType = NDEF_TYPE_NORMAL;
@@ -117,31 +117,32 @@ bool TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
     }
     if (ndefCbRes_) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
-        return true;
+        return DISPATCH_CALLBACK;
     }
     if (msg.empty()) {
         ErrorLog("HandleNdefDispatch, ndef msg is empty");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
 #ifdef NDEF_BT_ENABLED
     if (msgType == NDEF_TYPE_BT) {
         BtConnectionManager::GetInstance().Initialize(nfcService_);
         BtConnectionManager::GetInstance().TryPairBt(btData);
-        return true;
+        return DISPATCH_BT;
     }
 #endif
 #ifdef NDEF_WIFI_ENABLED
     if (msgType == NDEF_TYPE_WIFI) {
         WifiConnectionManager::GetInstance().Initialize(nfcService_);
         WifiConnectionManager::GetInstance().TryConnectWifi(wifiData);
-        return true;
+        return DISPATCH_WIFI;
     }
 #endif
     std::shared_ptr<KITS::TagInfo> tagInfo = GetTagInfoFromTag(tagDiscId);
-    if (NdefHarDataParser::GetInstance().TryNdef(msg, tagInfo)) {
-        return true;
+    uint16_t dispatchRes = NdefHarDataParser::GetInstance().TryNdef(msg, tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
+        return dispatchRes;
     }
-    return false;
+    return DISPATCH_UNKNOWN;
 }
 
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
@@ -150,7 +151,8 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         ErrorLog("HandleTagFound, invalid state.");
         return;
     }
-
+    long tagFoundTime = KITS::NfcSdkCommon::GetCurrentTime();
+    uint16_t dispatchResult = DISPATCH_UNKNOWN;
     bool isIsoDep = false;
     int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
     if (static_cast<int>(nciTagProxy_.lock()->GetConnectedTech(tagDiscId)) ==
@@ -160,6 +162,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     }
     ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
+    long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
     bool isNtfPublished = false;
@@ -176,17 +179,20 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
         if (nfcService_->GetNfcPollingManager().lock()->IsReaderModeEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToReaderApp(tagInfo);
+            dispatchResult = DISPATCH_FOREGROUND;
             break;
         }
         if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
+            dispatchResult = DISPATCH_READERMODE;
             break;
         }
         ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
-        if (HandleNdefDispatch(tagDiscId, ndefMsg)) {
+        dispatchResult = HandleNdefDispatch(tagDiscId, ndefMsg);
+        if (dispatchResult != DISPATCH_UNKNOWN) {
             break;
         }
-        PublishTagNotification(tagDiscId, isIsoDep);
+        dispatchResult = PublishTagNotification(tagDiscId, isIsoDep);
         isNtfPublished = true;
         break;
     } while (0);
@@ -194,12 +200,59 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         delete tagInfo;
         tagInfo = nullptr;
     }
+    long dispatchFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
+    SendTagInfoToVendor(tagFoundTime, readFinishTime, dispatchFinishTime, ndefMessage, dispatchResult);
+    NdefHarDataParser::GetInstance().ClearRecord0Uri();
+
 #ifndef NFC_VIBRATOR_DISABLED
     StartVibratorOnce(isNtfPublished);
 #endif
     // Record types of read tags.
     std::vector<int> techList = nciTagProxy_.lock()->GetTechList(tagDiscId);
     ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
+}
+
+std::string TagDispatcher::ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage)
+{
+    std::string ndefInfo = "";
+    if (ndefMessage == nullptr) {
+        return ndefInfo;
+    }
+    std::vector<std::shared_ptr<NdefRecord>> records = ndefMessage->GetNdefRecords();
+    uint16_t recordNum = records.size();
+    if (recordNum == 0) {
+        return ndefInfo;
+    }
+    for (uint16_t i = 0; i < recordNum; i++) {
+        std::string tagType = NfcSdkCommon::HexStringToAsciiString(records[i]->tagRtdType_);
+        std::string payload = NfcSdkCommon::HexStringToAsciiString(records[i]->payload_);
+        if (i = 0 && tagType == NdefMessage::GetTagRtdType(NdefMessage::RTD_URI)) {
+            payload = NdefHarDataParser::GetInstance().GetRecord0Uri();
+        }
+        // control the length of ndefInfo
+        uint8_t maxInfoLen = 50;
+        if (payload.length() > maxInfoLen) {
+            payload = payload.substr(0, maxInfoLen);
+        }
+        ndefInfo = ndefInfo + tagType + "=" + payload + "|";
+    }
+    ndefInfo = std::to_string(recordNum) + "|" + ndefInfo;
+    return ndefInfo;
+}
+
+void TagDispatcher::SendTagInfoToVendor(long tagFoundStartTime, long readFinishTime, long dispatchFinishTime,
+    std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult)
+{
+    std::string ndefInfo = ParseNdefInfo(ndefMessage);
+    if (nfcService_ == nullptr) {
+        ErrorLog("nfcService is nullptr");
+        return;
+    }
+    nfcService_->NotifyMessageToVendor(KITS::NOTIFY_NDEF_INFO_EVENT, ndefInfo);
+    std::string readTagInfo = "startTime:" + std::to_string(tagFoundStartTime) + "|readFinishTime:" +
+        std::to_string(readFinishTime) + "|dispatchTime:" + std::to_string(dispatchFinishTime) + "|dispatchResult:" +
+        std::to_string(dispatchResult);
+    nfcService_->NotifyMessageToVendor(KITS::NOTIFY_READ_TAG_EVENT, readTagInfo);
 }
 
 void TagDispatcher::StartVibratorOnce(bool isNtfPublished)
@@ -302,7 +355,7 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
     }
 }
 
-void TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
+uint16_t TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
 {
     NfcNotificationId notificationId = NFC_TAG_DEFAULT_NOTIFICATION_ID;
     std::string cardName = "";
@@ -322,6 +375,7 @@ void TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
     }
     ExternalDepsProxy::GetInstance().PublishNfcNotification(notificationId, cardName, balance);
     tagInfo_ = GetTagInfoFromTag(tagDiscId);
+    return notificationId == NFC_TRANSPORT_CARD_NOTIFICATION_ID ? DISPATCH_TRAFFIC : DISPATCH_UNKNOWN_TAG;
 }
 }  // namespace TAG
 }  // namespace NFC

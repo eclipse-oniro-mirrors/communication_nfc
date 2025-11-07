@@ -40,6 +40,26 @@ enum RecordsType {
     TYPE_RTP_MIME_OTHER
 };
 
+enum DispatchResult : const uint16_t {
+    DISPATCH_UNKNOWN     = 0,
+    DISPATCH_FOREGROUND  = 1,
+    DISPATCH_READERMODE  = 2,
+    DISPATCH_BT          = 3,
+    DISPATCH_WIFI        = 4,
+    DISPATCH_CALLBACK    = 5,
+    DISPATCH_TRAFFIC     = 6,
+    DISPATCH_HAR         = 7,
+    DISPATCH_TEXT        = 8,
+    DISPATCH_UNKNOWN_TAG = 9,
+    DISPATCH_BUNDLENAME  = 10,
+    DISPATCH_APP_LINK    = 11,
+    NDEF_TEL_EVENT       = 301, // copy g_unsupportTypeAndSysEvent MainErrorCode
+    NDEF_SMS_EVENT       = 302,
+    NDEF_MAIL_EVENT      = 303,
+    NDEF_TEXT_EVENT      = 304,
+    NDEF_VCARD_EVENT     = 305,
+};
+
 const std::string HTTP_PREFIX = "http";
 const std::string TEL_PREFIX = "tel";
 const std::string SMS_PREFIX = "sms";
@@ -56,14 +76,16 @@ public:
     static NdefHarDataParser &GetInstance();
     void Initialize(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciTagInterface> nciTagProxy,
         std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy);
-    bool TryNdef(const std::string &msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    uint16_t TryNdef(const std::string &msg, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    std::string GetRecord0Uri();
+    void ClearRecord0Uri();
 
 private:
     NdefHarDataParser();
     ~NdefHarDataParser() {}
     std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record);
     std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster);
-    bool DispatchByHarBundleName(
+    uint16_t DispatchByHarBundleName(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool ParseHarPackage(std::vector<std::string> harPackages, const std::shared_ptr<KITS::TagInfo> &tagInfo,
         const std::string &mimeType, const std::string &uri);
@@ -75,10 +97,10 @@ private:
     bool IsOtherPlatformAppType(const std::string &appType);
     bool StartsWith(const std::string &str, const std::string &prefix);
     void ParseRecordsProperty(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    bool DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
-    bool HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    bool DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
-    bool DispatchValidNdef(
+    uint16_t DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    uint16_t HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
+    uint16_t DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    uint16_t DispatchValidNdef(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     void ClearNdefDispatchParam();
 
@@ -93,6 +115,7 @@ private:
     std::weak_ptr<NfcService> nfcService_ {};
     std::mutex mutex_ {};
     bool isInitialized_ = false;
+    std::string recordUriInfo_ = "";
 };
 } // namespace TAG
 } // namespace NFC

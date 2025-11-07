@@ -69,54 +69,68 @@ void NdefHarDataParser::Initialize(std::weak_ptr<NfcService> nfcService,
 }
 
 /* Ndef process function provided to HandleNdefDispatch */
-bool NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KITS::TagInfo> &tagInfo)
+uint16_t NdefHarDataParser::TryNdef(const std::string& msg, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     if (msg.empty()) {
         ErrorLog("msg is empty");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     std::shared_ptr<NdefMessage> ndef = NdefMessage::GetNdefMessage(msg);
     if (ndef == nullptr) {
         ErrorLog("ndef is nullptr");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     std::vector<std::shared_ptr<NdefRecord>> records = ndef->GetNdefRecords();
     if (records.size() == 0 || records.size() > RECORD_LIST_MAX_SIZE) {
         ErrorLog("record size error");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
-    bool dispatchResult = DispatchValidNdef(records, tagInfo);
+    uint16_t dispatchResult = DispatchValidNdef(records, tagInfo);
     ClearNdefDispatchParam();
     return dispatchResult;
 }
 
-bool NdefHarDataParser::DispatchValidNdef(
+uint16_t NdefHarDataParser::DispatchValidNdef(
     const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     ParseMimeTypeAndStr(records);
     // handle OpenHarmony Application bundle name
-    if (DispatchByHarBundleName(records, tagInfo)) {
+    uint16_t dispatchRes = DispatchByHarBundleName(records, tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("DispatchByHarBundleName succ");
-        return true;
+        return dispatchRes;
     }
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
-    if (DispatchByAppLinkMode(tagInfo)) {
+    dispatchRes = DispatchByAppLinkMode(tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("DispatchByAppLinkMode succ");
-        return true;
+        return dispatchRes;
     }
     // handle Mime type
-    if (DispatchMimeToBundleAbility(tagInfo)) {
+    dispatchRes = DispatchMimeToBundleAbility(tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("DispatchMimeToBundleAbility succ");
-        return true;
+        return dispatchRes;
     }
     // handle uri for TYPE_RTP_SCHEME_TEL/TYPE_RTP_SCHEME_SMS/TYPE_RTP_SCHEME_MAIL
-    if (HandleUnsupportSchemeType(records)) {
+    dispatchRes = HandleUnsupportSchemeType(records);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("HandleUnsupportSchemeType succ");
-        return true;
+        return dispatchRes;
     }
     WarnLog("TryNdef no handle");
-    return false;
+    return DISPATCH_UNKNOWN;
+}
+
+std::string NdefHarDataParser::GetRecord0Uri()
+{
+    return recordUriInfo_;
+}
+
+void NdefHarDataParser::ClearRecord0Uri()
+{
+    recordUriInfo_.clear();
 }
 
 void NdefHarDataParser::ClearNdefDispatchParam()
@@ -133,7 +147,7 @@ void NdefHarDataParser::ClearNdefDispatchParam()
     schemeType_ = {RecordsType::TYPE_RTP_UNKNOWN};
 }
 
-bool NdefHarDataParser::DispatchByHarBundleName(
+uint16_t NdefHarDataParser::DispatchByHarBundleName(
     const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     InfoLog("enter");
@@ -154,13 +168,14 @@ bool NdefHarDataParser::DispatchByHarBundleName(
         }
         if (ParseHarPackage(harPackages, tagInfo, mimeTypeStr, uri)) {
             InfoLog("matched ndef OpenHarmony bundle name");
-            return true;
+            recordUriInfo_ = uri;
+            return DISPATCH_BUNDLENAME;
         }
         /* Handle uninstalled applications */
         WriteNfcFailedHiSysEvent(MainErrorCode::NDEF_APP_NOT_INSTALL);
         harPackages.clear();
     }
-    return false;
+    return DISPATCH_UNKNOWN;
 }
 
 bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
@@ -214,6 +229,7 @@ void NdefHarDataParser::ParseRecordsProperty(const std::vector<std::shared_ptr<N
         return;
     }
     uriAddress_ = GetUriPayload(records[0]);
+    recordUriInfo_ = uriAddress_;
     InfoLog("uri %{public}s", NfcSdkCommon::CodeMiddlePart(uriAddress_).c_str());
     Uri ndefUri(uriAddress_);
     std::string scheme = ndefUri.GetScheme();
@@ -235,61 +251,65 @@ void NdefHarDataParser::ParseRecordsProperty(const std::vector<std::shared_ptr<N
     InfoLog("schemeType_[%{public}d] scheme[%{public}s]", static_cast<short>(schemeType_), scheme.c_str());
 }
 
-bool NdefHarDataParser::DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo)
+uint16_t NdefHarDataParser::DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     InfoLog("enter");
     if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL || schemeType_ == TYPE_RTP_SCHEME_OTHER) {
         if (nfcService_.expired()) {
             ErrorLog("nfcService_ is nullptr");
-            return false;
+            return DISPATCH_UNKNOWN;
         }
         if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchByAppLinkMode(uriSchemeValue_,
             tagInfo, nfcService_.lock()->GetTagServiceIface())) {
-            return true;
+            return DISPATCH_APP_LINK;
         }
     }
-    return false;
+    return DISPATCH_UNKNOWN;
 }
 
-bool NdefHarDataParser::HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records)
+uint16_t NdefHarDataParser::HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records)
 {
     InfoLog("enter");
     if (records.size() == 0 || records[0] == nullptr) {
         ErrorLog("records is empty");
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     if (records[0]->tnf_ != static_cast<short>(NdefMessage::TNF_WELL_KNOWN)) {
         ErrorLog("tnf_ %{public}d", records[0]->tnf_);
-        return false;
+        return DISPATCH_UNKNOWN;
     }
     if (schemeType_ == TYPE_RTP_SCHEME_TEL || schemeType_ == TYPE_RTP_SCHEME_SMS ||
         schemeType_ == TYPE_RTP_SCHEME_MAIL) {
         if (g_unsupportTypeAndSysEvent.find(schemeType_) != g_unsupportTypeAndSysEvent.end()) {
             WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[schemeType_]);
-            return true;
+            return g_unsupportTypeAndSysEvent[schemeType_];
         }
     }
-    return false;
+    return DISPATCH_UNKNOWN;
 }
 
-bool NdefHarDataParser::DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo)
+uint16_t NdefHarDataParser::DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     InfoLog("enter");
     for (const auto& mimeTypePair : mimeTypeVec_) {
         RecordsType mimeType = mimeTypePair.first;
         std::string mimeTypeStr = mimeTypePair.second;
         if (mimeType == TYPE_RTP_MIME_OTHER) {
-            if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchMimeType(mimeTypeStr, tagInfo)) {
-                return true;
+            if (ndefHarDispatch_ == nullptr) {
+                return DISPATCH_UNKNOWN;
+            }
+            uint16_t dispatchRes = ndefHarDispatch_->DispatchMimeType(mimeTypeStr, tagInfo);
+            if (dispatchRes != DISPATCH_UNKNOWN) {
+                return dispatchRes;
             }
         } else if (mimeType != TYPE_RTP_UNKNOWN) {
             if (g_unsupportTypeAndSysEvent.find(mimeType) != g_unsupportTypeAndSysEvent.end()) {
                 WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[mimeType]);
-                return true;
+                return g_unsupportTypeAndSysEvent[mimeType];
             }
         }
     }
-    return false;
+    return DISPATCH_UNKNOWN;
 }
 
 /* get mimetype and mime string */
