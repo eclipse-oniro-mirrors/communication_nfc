@@ -9,9 +9,9 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"NFC རྟགས་བྱང་རྙེད། རྡེབ་ནས་ཉེར་སྤྱོད་འགོ་སློང་བ།",
+            "value":"NFC བྱང་བུ་རྙེད་པ། བརྡབས་ནས་ཉེར་སྤྱོད་འགོ་སློང་བ།",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

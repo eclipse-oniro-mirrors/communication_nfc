@@ -2,9 +2,9 @@
     "string":[
         {
             "name":"DefaultTitle",
-            "value":"NFCタグを検出。タップして表示。",
+            "value":"NFCタグが発見されました",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

@@ -9,9 +9,9 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"NFC 태그가 발견되었습니다. 터치하여 확인하십시오.",
+            "value":"NFC 태그 발견됨",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

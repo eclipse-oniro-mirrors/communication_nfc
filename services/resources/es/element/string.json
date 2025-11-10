@@ -2,9 +2,9 @@
     "string":[
         {
             "name":"DefaultTitle",
-            "value":"Etiqueta NFC detectada. Pulsa aquí para ver.",
+            "value":"Etiqueta NFC detectada",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
@@ -30,7 +30,7 @@
         },
         {
             "name":"TransportCardText",
-            "value":"Se ha detectado una %s. Saldo: %.2f RMB",
+            "value":"Se ha detectado una %s. Saldo: %.2f CNY",
             "attr":{
                 "priority":"LT"
             }

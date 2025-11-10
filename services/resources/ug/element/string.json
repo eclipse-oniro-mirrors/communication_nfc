@@ -9,9 +9,9 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"چېكىپ ئەپنى ئېچىڭ، NFC بەلگىسى بايقالدى",
+            "value":"\u200fNFC بايقالدى",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

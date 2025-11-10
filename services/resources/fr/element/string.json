@@ -2,9 +2,9 @@
     "string":[
         {
             "name":"DefaultTitle",
-            "value":"Tag NFC découvert. Toucher pour voir.",
+            "value":"Étiquette NFC détectée",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
