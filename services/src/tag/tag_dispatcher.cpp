@@ -226,7 +226,7 @@ std::string TagDispatcher::ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndef
     for (uint16_t i = 0; i < recordNum; i++) {
         std::string tagType = NfcSdkCommon::HexStringToAsciiString(records[i]->tagRtdType_);
         std::string payload = NfcSdkCommon::HexStringToAsciiString(records[i]->payload_);
-        if (i = 0 && tagType == NdefMessage::GetTagRtdType(NdefMessage::RTD_URI)) {
+        if (i == 0 && tagType == NdefMessage::GetTagRtdType(NdefMessage::RTD_URI)) {
             payload = NdefHarDataParser::GetInstance().GetRecord0Uri();
         }
         // control the length of ndefInfo
