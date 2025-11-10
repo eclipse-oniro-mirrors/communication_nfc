@@ -14,11 +14,37 @@
  */
 
 @!namespace("@ohos.nfc.tag", "tag")
+
+@!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
+@!sts_inject_into_module("import {ElementName} from 'bundleManager.ElementName';")
+@!sts_inject_into_module("import type {PacMap} from 'ability.dataAbilityHelper';")
+@!sts_inject_into_module("import rpc from '@ohos.rpc';")
+@!sts_inject_into_module("import {BusinessError} from '@ohos.base';")
+
 @!sts_inject("""
 static { loadLibrary("nfc_fwk_taihe_tag.z"); }
 """)
 
-from nfctech use NfcATag, NfcBTag, NfcFTag, NfcVTag, IsoDepTag, NdefTag, MifareClassicTag, MifareUltralightTag, NdefFormatableTag;
+@!sts_inject("const NFC_A: int = 1")
+@!sts_inject("const NFC_B: int = 2")
+@!sts_inject("const ISO_DEP: int = 3")
+@!sts_inject("const NFC_F: int = 4")
+@!sts_inject("const NFC_V: int = 5")
+@!sts_inject("const NDEF: int = 6")
+@!sts_inject("const NDEF_FORMATABLE: int = 7")
+@!sts_inject("const MIFARE_CLASSIC: int = 8")
+@!sts_inject("const MIFARE_ULTRALIGHT: int = 9")
+@!sts_inject("const NFC_BARCODE: int = 10")
+
+from nfctech use NfcATag, NfcBTag, NfcFTag, NfcVTag, IsoDepTag, NdefTag, MifareClassicTag, MifareUltralightTag, NdefFormatableTag, BarcodeTag;
+
+enum NfcForumType: i32 {
+  NFC_FORUM_TYPE_1 = 1,
+  NFC_FORUM_TYPE_2 = 2,
+  NFC_FORUM_TYPE_3 = 3,
+  NFC_FORUM_TYPE_4 = 4,
+  MIFARE_CLASSIC = 101
+}
 
 enum TnfType: i32 {
   TNF_EMPTY = 0x0,
@@ -53,8 +79,9 @@ enum MifareUltralightType: i32 {
 struct TagInfo {
   uid: Array<i32>;
   technology: Array<i32>;
+  extrasData: Array<@sts_type("PacMap") Opaque>;
+  remoteTagService: @sts_type("rpc.RemoteObject") Opaque;
   tagRfDiscId: i32;
-  supportedProfiles: Array<i32>;
 }
 
 struct NdefRecord {
@@ -64,24 +91,24 @@ struct NdefRecord {
   payload: Array<i32>;
 }
 
-function getNfcATag(tagInfo: TagInfo): NfcATag; // deprecated since API 9, use getNfcA() instead
 function getNfcA(tagInfo: TagInfo): NfcATag;
-
-function getNfcBTag(tagInfo: TagInfo): NfcBTag; // deprecated since API 9, use getNfcB() instead
 function getNfcB(tagInfo: TagInfo): NfcBTag;
-
-function getNfcFTag(tagInfo: TagInfo): NfcFTag; // deprecated since API 9, use getNfcF() instead
 function getNfcF(tagInfo: TagInfo): NfcFTag;
-
-function getNfcVTag(tagInfo: TagInfo): NfcVTag; // deprecated since API 9, use getNfcV() instead
 function getNfcV(tagInfo: TagInfo): NfcVTag;
-
 function getIsoDep(tagInfo: TagInfo): IsoDepTag;
-
 function getNdef(tagInfo: TagInfo): NdefTag;
-
 function getMifareClassic(tagInfo: TagInfo): MifareClassicTag;
-
 function getMifareUltralight(tagInfo: TagInfo): MifareUltralightTag;
-
 function getNdefFormatable(tagInfo: TagInfo): NdefFormatableTag;
+function getBarcodeTag(tagInfo: TagInfo): BarcodeTag;
+
+function getTagInfo(want: @sts_type("Want") Opaque): TagInfo;
+
+function registerForegroundDispatch(elementName: @sts_type("ElementName") Opaque, discTech: Array<u32>,
+  callback: (err: @sts_type("BusinessError<void>") Opaque, tagInfo: TagInfo) => void): void;
+function unregisterForegroundDispatch(elementName: @sts_type("ElementName") Opaque): void;
+
+function onReaderMode(elementName: @sts_type("ElementName") Opaque, discTech: Array<u32>,
+  callback: (err: @sts_type("BusinessError<void>") Opaque, tagInfo: TagInfo) => void): void;
+function offReaderMode(elementName: @sts_type("ElementName") Opaque,
+  callback: Optional<(err: @sts_type("BusinessError<void>") Opaque, tagInfo: TagInfo) => void>): void;

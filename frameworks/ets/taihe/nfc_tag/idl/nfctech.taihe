@@ -17,40 +17,54 @@
 { loadLibrary("nfc_fwk_taihe_tag.z"); }
 """)
 
+@!namespace("tag.nfctech")
+
 from tagSession use TagSession;
-from ohos.nfc.tag.tag use NdefRecord, MifareClassicType, MifareUltralightType;
+from ohos.nfc.tag.tag use NfcForumType, NdefRecord, MifareClassicType, MifareUltralightType;
 
 interface NfcATag: TagSession {
   getSak(): i32;
   getAtqa(): Array<i32>;
+
+  getTagSessionImpl(): i64;
 }
 
 interface NfcBTag: TagSession {
   getRespAppData(): Array<i32>;
   getRespProtocol(): Array<i32>;
+
+  getTagSessionImpl(): i64;
 }
 
 interface NfcFTag: TagSession {
   getSystemCode(): Array<i32>;
   getPmm(): Array<i32>;
+
+  getTagSessionImpl(): i64;
 }
 
 interface NfcVTag: TagSession {
   getResponseFlags(): i32;
   getDsfId(): i32;
+
+  getTagSessionImpl(): i64;
 }
 
 interface IsoDepTag: TagSession {
   getHistoricalBytes(): Array<i32>;
   getHiLayerResponse(): Array<i32>;
 
-  @gen_async("isExtendedApduSupportedAsync")
-  @gen_promise("isExtendedApduSupportedPromise")
-  isExtendedApduSupported(): bool;
+  @gen_async("isExtendedApduSupported")
+  @gen_promise("isExtendedApduSupported")
+  isExtendedApduSupportedImpl(): bool;
+
+  getTagSessionImpl(): i64;
 }
 
 interface NdefMessage {
   getNdefRecords(): Array<NdefRecord>;
+
+  getNdefMessageImpl(): i64;
 }
 
 interface NdefTag: TagSession {
@@ -58,51 +72,53 @@ interface NdefTag: TagSession {
   getNdefMessage(): NdefMessage;
   isNdefWritable(): bool;
 
-  @gen_async("readNdefAsync")
-  @gen_promise("readNdefPromise")
-  readNdef(): NdefMessage;
+  @gen_async("readNdef")
+  @gen_promise("readNdef")
+  readNdefImpl(): NdefMessage;
 
-  @gen_async("writeNdefAsync")
-  @gen_promise("writeNdefPromise")
-  writeNdef(msg: NdefMessage): void;
+  @gen_async("writeNdef")
+  @gen_promise("writeNdef")
+  writeNdefImpl(msg: NdefMessage): void;
 
   canSetReadOnly(): bool;
 
-  @gen_async("setReadOnlyAsync")
-  @gen_promise("setReadOnlyPromise")
-  setReadOnly(): void;
+  @gen_async("setReadOnly")
+  @gen_promise("setReadOnly")
+  setReadOnlyImpl(): void;
 
-  getNdefTagTypeString(type: String): String;
+  getNdefTagTypeString(type: NfcForumType): String;
+
+  getTagSessionImpl(): i64;
 }
 
 interface MifareClassicTag: TagSession {
-  @gen_async("authenticateSectorAsync")
-  @gen_promise("authenticateSectorPromise")
-  authenticateSector(sectorIndex: i32, key: Array<i32>, isKeyA: bool): void;
+  @gen_async("authenticateSector")
+  @gen_promise("authenticateSector")
+  authenticateSectorImpl(sectorIndex: i32, key: Array<i32>, isKeyA: bool): void;
 
-  @gen_async("readSingleBlockAsync")
-  @gen_promise("readSingleBlockPromise")
-  readSingleBlock(blockIndex: i32): Array<i32>;
+  @gen_async("readSingleBlock")
+  @gen_promise("readSingleBlock")
+  readSingleBlockImpl(blockIndex: u32): Array<i32>;
 
-  @gen_async("writeSingleBlockAsync")
-  @gen_promise("writeSingleBlockPromise")
-  writeSingleBlock(blockIndex: i32, data: Array<i32>): void;
+  @gen_async("writeSingleBlock")
+  @gen_promise("writeSingleBlock")
+  writeSingleBlockImpl(blockIndex: u32, data: Array<i32>): void;
 
-  @gen_async("incrementBlockAsync")
-  @gen_promise("incrementBlockPromise")
-  incrementBlock(blockIndex: i32, value: i32): void;
+  @gen_async("incrementBlock")
+  @gen_promise("incrementBlock")
+  incrementBlockImpl(blockIndex: u32, value: i32): void;
 
-  @gen_async("decrementBlockAsync")
-  @gen_promise("decrementBlockPromise")
-  decrementBlock(blockIndex: i32, value: i32): void;
+  @gen_async("decrementBlock")
+  @gen_promise("decrementBlock")
+  decrementBlockImpl(blockIndex: u32, value: i32): void;
 
-  @gen_async("transferToBlockAsync")
-  @gen_promise("transferToBlockPromise")
-  transferToBlock(blockIndex: i32): void;
+  @gen_async("transferToBlock")
+  @gen_promise("transferToBlock")
+  transferToBlockImpl(blockIndex: u32): void;
 
-  @gen_async("restoreFromBlockAsync")
-  @gen_promise("restoreFromBlockPromise")
-  restoreFromBlock(blockIndex: i32): void;
+  @gen_async("restoreFromBlock")
+  @gen_promise("restoreFromBlock")
+  restoreFromBlockImpl(blockIndex: u32): void;
 
   getSectorCount(): i32;
   getBlockCountInSector(sectorIndex: i32): i32;
@@ -111,26 +127,40 @@ interface MifareClassicTag: TagSession {
   isEmulatedTag(): bool;
   getBlockIndex(sectorIndex: i32): i32;
   getSectorIndex(blockIndex: i32): i32;
+
+  getTagSessionImpl(): i64;
 }
 
 interface MifareUltralightTag: TagSession {
-  @gen_async("readMultiplePagesAsync")
-  @gen_promise("readMultiplePagesPromise")
-  readMultiplePages(pageIndex: i32): Array<i32>;
+  @gen_async("readMultiplePages")
+  @gen_promise("readMultiplePages")
+  readMultiplePagesImpl(pageIndex: u32): Array<i32>;
 
-  @gen_async("writeSinglePageAsync")
-  @gen_promise("writeSinglePagePromise")
-  writeSinglePage(pageIndex: i32, data: Array<i32>): void;
+  @gen_async("writeSinglePage")
+  @gen_promise("writeSinglePage")
+  writeSinglePageImpl(pageIndex: u32, data: Array<i32>): void;
 
   getType(): MifareUltralightType;
+
+  getTagSessionImpl(): i64;
 }
 
 interface NdefFormatableTag: TagSession {
-  @gen_async("formatAsync")
-  @gen_promise("formatPromise")
-  format(message: NdefMessage): void;
+  @gen_async("format")
+  @gen_promise("format")
+  formatImpl(message: NdefMessage): void;
 
-  @gen_async("formatReadOnlyAsync")
-  @gen_promise("formatReadOnlyPromise")
-  formatReadOnly(message: NdefMessage): void;
+  @gen_async("formatReadOnly")
+  @gen_promise("formatReadOnly")
+  formatReadOnlyImpl(message: NdefMessage): void;
+
+  getTagSessionImpl(): i64;
+}
+
+interface BarcodeTag: TagSession {
+  @gen_async("getBarcode")
+  @gen_promise("getBarcode")
+  getBarcodeImpl(): @arraybuffer Array<u8>;
+
+  getTagSessionImpl(): i64;
 }

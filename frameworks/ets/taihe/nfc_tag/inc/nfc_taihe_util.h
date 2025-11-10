@@ -13,17 +13,21 @@
  * limitations under the License.
  */
 
-@!namespace("@ohos.nfc.tag", "tag.ndef")
-@!sts_inject("""
-static { loadLibrary("nfc_fwk_taihe_tag.z"); }
-""")
+#ifndef NFC_TAIHE_UTIL_H
+#define NFC_TAIHE_UTIL_H
 
-from ohos.nfc.tag.tag use NdefRecord;
-from nfctech use NdefMessage;
+#include <string>
+#include <vector>
 
-function makeUriRecord(uri: String): NdefRecord;
-function makeTextRecord(text: String, locale: String): NdefRecord;
-function makeMimeRecord(mimeType: String, mimeData: Array<i32>): NdefRecord;
-function makeExternalRecord(domainName: String, type: String, externalData: Array<i32>): NdefRecord;
+#include "taihe/array.hpp"
+#include "taihe/runtime.hpp"
 
-function messageToBytes(ndefMessage: NdefMessage): Array<i32>;
+class NfcTaiheUtil {
+public:
+    static std::string TaiheArrayToHexString(const ::taihe::array_view<int32_t> &data);
+    static std::vector<std::string> TaiheStringArrayToStringVec(const ::taihe::array_view<::taihe::string> &data);
+    static std::vector<int> TaiheIntArrayToIntVec(const ::taihe::array<int32_t> &data);
+
+    static ::taihe::array<int32_t> HexStringToTaiheArray(const std::string &src);
+};
+#endif // #define NFC_TAIHE_UTIL_H
