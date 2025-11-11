@@ -14,6 +14,7 @@
  */
 
 #include "ohos.nfc.tag.tag.impl.hpp"
+#include "ohos.nfc.tag.tag.ndef.impl.hpp"
 #include "nfctech.impl.hpp"
 #include "tagSession.impl.hpp"
 #include "taihe/runtime.hpp"
@@ -28,6 +29,7 @@
 #include "nfc_taihe_tag_event.h"
 #include "taginfo.h"
 #include "nfc_taihe_util.h"
+#include "nfc_sdk_common.h"
 
 #include "nfca_tag.h"
 #include "nfcb_tag.h"
@@ -41,7 +43,10 @@
 #include "barcode_tag.h"
 
 using namespace taihe;
+using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::NFC::KITS;
+using namespace ohos::nfc::tag;
 
 const uint16_t MAX_ARRAY_LEN = 512;
 
@@ -111,11 +116,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("TagSession nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -128,20 +133,20 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::BasicTagSession> tagSession)
+    void setTagSession(std::shared_ptr<BasicTagSession> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::BasicTagSession> tagSession_ = nullptr;
+    std::shared_ptr<BasicTagSession> tagSession_ = nullptr;
 };
 
 ::tagSession::TagSession MakeTagSession()
 {
     // The parameters in the make_holder function should be of the same type
     // as the parameters in the constructor of the actual implementation class.
-    return taihe::make_holder<TagSessionImpl, ::tagSession::TagSession>();
+    return make_holder<TagSessionImpl, ::tagSession::TagSession>();
 }
 
 class NfcATagImpl {
@@ -160,11 +165,11 @@ public:
         return tagSession_->GetSak();
     }
 
-    ::taihe::array<int32_t> getAtqa()
+    array<int32_t> getAtqa()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagA nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetAtqa());
     }
@@ -227,11 +232,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagA nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -244,13 +249,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcATag> tagSession)
+    void setTagSession(std::shared_ptr<NfcATag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::NfcATag> tagSession_ = nullptr;
+    std::shared_ptr<NfcATag> tagSession_ = nullptr;
 };
 
 class NfcBTagImpl {
@@ -260,20 +265,20 @@ public:
         InfoLog("tagB constructor enter");
     }
 
-    ::taihe::array<int32_t> getRespAppData()
+    array<int32_t> getRespAppData()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagB nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetAppData());
     }
 
-    ::taihe::array<int32_t> getRespProtocol()
+    array<int32_t> getRespProtocol()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagB nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetProtocolInfo());
     }
@@ -336,11 +341,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagB nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -353,13 +358,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcBTag> tagSession)
+    void setTagSession(std::shared_ptr<NfcBTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::NfcBTag> tagSession_ = nullptr;
+    std::shared_ptr<NfcBTag> tagSession_ = nullptr;
 };
 
 class NfcFTagImpl {
@@ -369,20 +374,20 @@ public:
         InfoLog("tagF constructor enter");
     }
 
-    ::taihe::array<int32_t> getSystemCode()
+    array<int32_t> getSystemCode()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagF nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->getSystemCode());
     }
 
-    ::taihe::array<int32_t> getPmm()
+    array<int32_t> getPmm()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagF nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->getPmm());
     }
@@ -445,11 +450,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagF nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -462,13 +467,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NfcFTag> tagSession)
+    void setTagSession(std::shared_ptr<NfcFTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::NfcFTag> tagSession_ = nullptr;
+    std::shared_ptr<NfcFTag> tagSession_ = nullptr;
 };
 
 class NfcVTagImpl {
@@ -554,11 +559,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("tagV nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -571,13 +576,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> tagSession)
+    void setTagSession(std::shared_ptr<Iso15693Tag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> tagSession_ = nullptr;
+    std::shared_ptr<Iso15693Tag> tagSession_ = nullptr;
 };
 
 class IsoDepTagImpl {
@@ -587,20 +592,20 @@ public:
         InfoLog("IsoDepTag constructor enter");
     }
 
-    ::taihe::array<int32_t> getHistoricalBytes()
+    array<int32_t> getHistoricalBytes()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("IsoDepTag nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetHistoricalBytes());
     }
 
-    ::taihe::array<int32_t> getHiLayerResponse()
+    array<int32_t> getHiLayerResponse()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("IsoDepTag nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         return NfcTaiheUtil::HexStringToTaiheArray(tagSession_->GetHiLayerResponse());
     }
@@ -674,11 +679,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("IsoDepTag nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -691,18 +696,18 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> tagSession)
+    void setTagSession(std::shared_ptr<IsoDepTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> tagSession_ = nullptr;
+    std::shared_ptr<IsoDepTag> tagSession_ = nullptr;
 };
 
-::ohos::nfc::tag::tag::NdefRecord makeNdefRecord(std::shared_ptr<OHOS::NFC::KITS::NdefRecord> ndefRecord)
+::tag::NdefRecord makeNdefRecord(std::shared_ptr<NdefRecord> ndefRecord)
 {
-    ::ohos::nfc::tag::tag::NdefRecord recordRet{};
+    ::tag::NdefRecord recordRet{};
     if (ndefRecord == nullptr) {
         ErrorLog("ndefRecord nullptr.");
         return recordRet;
@@ -721,19 +726,19 @@ public:
         InfoLog("NdefMessage constructor enter");
     }
 
-    ::taihe::array<::ohos::nfc::tag::tag::NdefRecord> getNdefRecords()
+    array<::tag::NdefRecord> getNdefRecords()
     {
-        std::vector<::ohos::nfc::tag::tag::NdefRecord> records {};
+        std::vector<::tag::NdefRecord> records {};
         if (ndefMessage_ == nullptr) {
             ErrorLog("ndef message nullptr");
-            return array<::ohos::nfc::tag::tag::NdefRecord>(array_view<::ohos::nfc::tag::tag::NdefRecord>(records));
+            return array<::tag::NdefRecord>(array_view<::tag::NdefRecord>(records));
         }
-        std::vector<std::shared_ptr<OHOS::NFC::KITS::NdefRecord>> ndefRecords = ndefMessage_->GetNdefRecords();
+        std::vector<std::shared_ptr<NdefRecord>> ndefRecords = ndefMessage_->GetNdefRecords();
         for (uint16_t i = 0; i < ndefRecords.size(); i++) {
-            ::ohos::nfc::tag::tag::NdefRecord record = makeNdefRecord(ndefRecords[i]);
+            ::tag::NdefRecord record = makeNdefRecord(ndefRecords[i]);
             records.push_back(record);
         }
-        return array<::ohos::nfc::tag::tag::NdefRecord>(array_view<::ohos::nfc::tag::tag::NdefRecord>(records));
+        return array<::tag::NdefRecord>(array_view<::tag::NdefRecord>(records));
     }
 
     int64_t getNdefMessageImpl()
@@ -741,13 +746,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setNdefMessage(std::shared_ptr<OHOS::NFC::KITS::NdefMessage> ndefMessage)
+    void setNdefMessage(std::shared_ptr<NdefMessage> ndefMessage)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         ndefMessage_ = ndefMessage;
     }
 
-    std::shared_ptr<OHOS::NFC::KITS::NdefMessage> getNdefMessage()
+    std::shared_ptr<NdefMessage> getNdefMessage()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return ndefMessage_;
@@ -755,7 +760,7 @@ public:
 
 private:
     std::mutex mutex_ {};
-    std::shared_ptr<OHOS::NFC::KITS::NdefMessage> ndefMessage_ = nullptr;
+    std::shared_ptr<NdefMessage> ndefMessage_ = nullptr;
 };
 
 class NdefTagImpl {
@@ -765,21 +770,32 @@ public:
         InfoLog("NdefTag constructor enter");
     }
 
-    ::ohos::nfc::tag::tag::NfcForumType getNdefTagType()
+    ::tag::NfcForumType getNdefTagType()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("NdefTag nullptr");
-            return ::ohos::nfc::tag::tag::NfcForumType::from_value(
-                static_cast<int>(OHOS::NFC::KITS::EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN));
+            return ::tag::NfcForumType::from_value(static_cast<int>(EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN));
         }
-        return ::ohos::nfc::tag::tag::NfcForumType::from_value(tagSession_->GetNdefTagType());
+        return ::tag::NfcForumType::from_value(tagSession_->GetNdefTagType());
     }
 
     ::nfctech::NdefMessage getNdefMessage()
     {
-        // The parameters in the make_holder function should be of the same type
-        // as the parameters in the constructor of the actual implementation class.
-        return taihe::make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+        InfoLog("enter");
+        ::nfctech::NdefMessage ndefMessage = make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return ndefMessage;
+        }
+        std::shared_ptr<NdefMessage> ndefMsg = tagSession_->GetCachedNdefMsg();
+
+        auto implPtr = reinterpret_cast<NdefMessageImpl *>(ndefMessage->getNdefMessageImpl());
+        if (implPtr == nullptr) {
+            ErrorLog("implPtr nullptr");
+            return ndefMessage;
+        }
+        implPtr->setNdefMessage(ndefMsg);
+        return ndefMessage;
     }
 
     bool isNdefWritable()
@@ -793,9 +809,22 @@ public:
 
     ::nfctech::NdefMessage readNdefImpl()
     {
-        // The parameters in the make_holder function should be of the same type
-        // as the parameters in the constructor of the actual implementation class.
-        return taihe::make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+        InfoLog("enter");
+        ::nfctech::NdefMessage ndefMessage = make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return ndefMessage;
+        }
+        std::shared_ptr<NdefMessage> ndefMsg = nullptr;
+        tagSession_->ReadNdef(ndefMsg);
+
+        auto implPtr = reinterpret_cast<NdefMessageImpl *>(ndefMessage->getNdefMessageImpl());
+        if (implPtr == nullptr) {
+            ErrorLog("implPtr nullptr");
+            return ndefMessage;
+        }
+        implPtr->setNdefMessage(ndefMsg);
+        return ndefMessage;
     }
 
     void writeNdefImpl(::nfctech::weak::NdefMessage msg)
@@ -823,14 +852,14 @@ public:
         tagSession_->EnableReadOnly();
     }
 
-    ::taihe::string getNdefTagTypeString(::ohos::nfc::tag::tag::NfcForumType type)
+    ::taihe::string getNdefTagTypeString(::tag::NfcForumType type)
     {
         std::string typeStr;
         if (tagSession_ == nullptr) {
             ErrorLog("NdefTag nullptr");
             return ::taihe::string(typeStr);
         }
-        typeStr = tagSession_->GetNdefTagTypeString(static_cast<OHOS::NFC::KITS::EmNfcForumType>(type.get_value()));
+        typeStr = tagSession_->GetNdefTagTypeString(static_cast<EmNfcForumType>(type.get_value()));
         return ::taihe::string(typeStr);
     }
 
@@ -892,11 +921,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("NdefTag nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -909,13 +938,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NdefTag> tagSession)
+    void setTagSession(std::shared_ptr<NdefTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::NdefTag> tagSession_ = nullptr;
+    std::shared_ptr<NdefTag> tagSession_ = nullptr;
 };
 
 class MifareClassicTagImpl {
@@ -925,7 +954,7 @@ public:
         InfoLog("MifareClassicTag constructor enter");
     }
 
-    void authenticateSectorImpl(int32_t sectorIndex, ::taihe::array_view<int32_t> key, bool isKeyA)
+    void authenticateSectorImpl(int32_t sectorIndex, array_view<int32_t> key, bool isKeyA)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("MifareClassicTag nullptr");
@@ -935,18 +964,18 @@ public:
         tagSession_->AuthenticateSector(sectorIndex, keyStr, isKeyA);
     }
 
-    ::taihe::array<int32_t> readSingleBlockImpl(uint32_t blockIndex)
+    array<int32_t> readSingleBlockImpl(uint32_t blockIndex)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("MifareClassicTag nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         tagSession_->ReadSingleBlock(blockIndex, hexRespData);
         return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
     }
 
-    void writeSingleBlockImpl(uint32_t blockIndex, ::taihe::array_view<int32_t> data)
+    void writeSingleBlockImpl(uint32_t blockIndex, array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("MifareClassicTag nullptr");
@@ -1010,14 +1039,13 @@ public:
         return tagSession_->GetBlockCountInSector(sectorIndex);
     }
 
-    ::ohos::nfc::tag::tag::MifareClassicType getType()
+    ::tag::MifareClassicType getType()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("MifareClassicTag nullptr");
-            return ::ohos::nfc::tag::tag::MifareClassicType::from_value(
-                static_cast<int>(OHOS::NFC::KITS::MifareClassicTag::EmType::TYPE_UNKNOWN));
+            return ::tag::MifareClassicType::from_value(static_cast<int>(MifareClassicTag::EmType::TYPE_UNKNOWN));
         }
-        return ::ohos::nfc::tag::tag::MifareClassicType::from_value(tagSession_->GetMifareTagType());
+        return ::tag::MifareClassicType::from_value(tagSession_->GetMifareTagType());
     }
 
     int32_t getTagSize()
@@ -1114,11 +1142,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("MifareClassicTag nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -1131,13 +1159,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> tagSession)
+    void setTagSession(std::shared_ptr<MifareClassicTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> tagSession_ = nullptr;
+    std::shared_ptr<MifareClassicTag> tagSession_ = nullptr;
 };
 
 class MifareUltralightTagImpl {
@@ -1147,18 +1175,18 @@ public:
         InfoLog("mifareul constructor enter");
     }
 
-    ::taihe::array<int32_t> readMultiplePagesImpl(uint32_t pageIndex)
+    array<int32_t> readMultiplePagesImpl(uint32_t pageIndex)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("mifareul nullptr");
-            return taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         tagSession_->ReadMultiplePages(pageIndex, hexRespData);
         return NfcTaiheUtil::HexStringToTaiheArray(hexRespData);
     }
 
-    void writeSinglePageImpl(uint32_t pageIndex, ::taihe::array_view<int32_t> data)
+    void writeSinglePageImpl(uint32_t pageIndex, array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("mifareul nullptr");
@@ -1168,14 +1196,13 @@ public:
         tagSession_->WriteSinglePage(pageIndex, dataStr);
     }
 
-    ::ohos::nfc::tag::tag::MifareUltralightType getType()
+    ::tag::MifareUltralightType getType()
     {
         if (tagSession_ == nullptr) {
             ErrorLog("mifareul nullptr");
-            return ::ohos::nfc::tag::tag::MifareUltralightType::from_value(
-                static_cast<int>(OHOS::NFC::KITS::MifareUltralightTag::EmType::TYPE_UNKNOWN));
+            return ::tag::MifareUltralightType::from_value(static_cast<int>(MifareUltralightTag::EmType::TYPE_UNKNOWN));
         }
-        return ::ohos::nfc::tag::tag::MifareUltralightType::from_value(tagSession_->GetType());
+        return ::tag::MifareUltralightType::from_value(tagSession_->GetType());
     }
 
     void connect()
@@ -1236,11 +1263,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("mifareul nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -1253,13 +1280,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> tagSession)
+    void setTagSession(std::shared_ptr<MifareUltralightTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> tagSession_ = nullptr;
+    std::shared_ptr<MifareUltralightTag> tagSession_ = nullptr;
 };
 
 class NdefFormatableTagImpl {
@@ -1337,11 +1364,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("NdefFormatableTag nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -1354,13 +1381,13 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> tagSession)
+    void setTagSession(std::shared_ptr<NdefFormatableTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> tagSession_ = nullptr;
+    std::shared_ptr<NdefFormatableTag> tagSession_ = nullptr;
 };
 
 class BarcodeTagImpl {
@@ -1370,9 +1397,17 @@ public:
         InfoLog("BarcodeTagImpl constructor enter");
     }
 
-    taihe::array_view<uint8_t> getBarcodeImpl()
+    array_view<uint8_t> getBarcodeImpl()
     {
-        TH_THROW(std::runtime_error, "getBarcodeImpl not implemented");
+        InfoLog("enter");
+        if (tagSession_ == nullptr) {
+            ErrorLog("BarcodeTag nullptr");
+            return array_view<uint8_t>();
+        }
+        std::string barcodeData = tagSession_->GetBarcode();
+        std::vector<unsigned char> bytes;
+        NfcSdkCommon::HexStringToBytes(barcodeData, bytes);
+        return array_view<uint8_t>(bytes);
     }
 
     void connect()
@@ -1433,11 +1468,11 @@ public:
         return maxSize;
     }
 
-    ::taihe::array<int32_t> transmitImpl(::taihe::array_view<int32_t> data)
+    array<int32_t> transmitImpl(array_view<int32_t> data)
     {
         if (tagSession_ == nullptr) {
             ErrorLog("BarcodeTag nullptr");
-            return ::taihe::array<int32_t>(0);
+            return array<int32_t>(array_view<int32_t>());
         }
         std::string hexRespData;
         std::string hexCmdData = NfcTaiheUtil::TaiheArrayToHexString(data);
@@ -1450,41 +1485,40 @@ public:
         return reinterpret_cast<int64_t>(this);
     }
 
-    void setTagSession(std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> tagSession)
+    void setTagSession(std::shared_ptr<BarcodeTag> tagSession)
     {
         tagSession_ = tagSession;
     }
 
 private:
-    std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> tagSession_ = nullptr;
+    std::shared_ptr<BarcodeTag> tagSession_ = nullptr;
 };
 
-std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+std::shared_ptr<TagInfo> GetTagInfo(::tag::TagInfo const& tagInfo)
 {
     std::vector<int> tagTechList = NfcTaiheUtil::TaiheIntArrayToIntVec(tagInfo.technology);
     std::string tagUid = NfcTaiheUtil::TaiheArrayToHexString(tagInfo.uid);
-    std::vector<OHOS::AppExecFwk::PacMap> tagTechExtrasData;
+    std::vector<PacMap> tagTechExtrasData;
     if (tagInfo.extrasData.size() > MAX_ARRAY_LEN) {
         ErrorLog("extrasData size exceed");
         return nullptr;
     }
     for (uint16_t i = 0; i < tagInfo.extrasData.size(); i++) {
-        OHOS::AppExecFwk::PacMap pacMap;
-        OHOS::AppExecFwk::AnalysisPacMap(pacMap, get_env(), reinterpret_cast<ani_object>(tagInfo.extrasData[i]));
+        PacMap pacMap;
+        AnalysisPacMap(pacMap, get_env(), reinterpret_cast<ani_object>(tagInfo.extrasData[i]));
         tagTechExtrasData.push_back(pacMap);
     }
     OHOS::sptr<OHOS::IRemoteObject> tagServiceIface =
         AniGetNativeRemoteObject(get_env(), reinterpret_cast<ani_object>(tagInfo.remoteTagService));
-    return std::make_shared<OHOS::NFC::KITS::TagInfo>
+    return std::make_shared<TagInfo>
         (tagTechList, tagTechExtrasData, tagUid, tagInfo.tagRfDiscId, tagServiceIface);
 }
 
-::nfctech::NfcATag getNfcA(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NfcATag getNfcA(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNfcA enter");
-    std::shared_ptr<OHOS::NFC::KITS::NfcATag> nfcATag =
-        std::make_shared<OHOS::NFC::KITS::NfcATag> (GetTagInfo(tagInfo));
-    ::nfctech::NfcATag nfcATagTaihe = taihe::make_holder<NfcATagImpl, ::nfctech::NfcATag>();
+    std::shared_ptr<NfcATag> nfcATag = std::make_shared<NfcATag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcATag nfcATagTaihe = make_holder<NfcATagImpl, ::nfctech::NfcATag>();
     auto implPtr = reinterpret_cast<NfcATagImpl *>(nfcATagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc A tag impl ptr.");
@@ -1494,12 +1528,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return nfcATagTaihe;
 }
 
-::nfctech::NfcBTag getNfcB(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NfcBTag getNfcB(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNfcB enter");
-    std::shared_ptr<OHOS::NFC::KITS::NfcBTag> nfcBTag =
-        std::make_shared<OHOS::NFC::KITS::NfcBTag> (GetTagInfo(tagInfo));
-    ::nfctech::NfcBTag nfcBTagTaihe = taihe::make_holder<NfcBTagImpl, ::nfctech::NfcBTag>();
+    std::shared_ptr<NfcBTag> nfcBTag = std::make_shared<NfcBTag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcBTag nfcBTagTaihe = make_holder<NfcBTagImpl, ::nfctech::NfcBTag>();
     auto implPtr = reinterpret_cast<NfcBTagImpl *>(nfcBTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc B tag impl ptr.");
@@ -1509,12 +1542,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return nfcBTagTaihe;
 }
 
-::nfctech::NfcFTag getNfcF(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NfcFTag getNfcF(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNfcF enter");
-    std::shared_ptr<OHOS::NFC::KITS::NfcFTag> nfcFTag =
-        std::make_shared<OHOS::NFC::KITS::NfcFTag> (GetTagInfo(tagInfo));
-    ::nfctech::NfcFTag nfcFTagTaihe = taihe::make_holder<NfcFTagImpl, ::nfctech::NfcFTag>();
+    std::shared_ptr<NfcFTag> nfcFTag = std::make_shared<NfcFTag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcFTag nfcFTagTaihe = make_holder<NfcFTagImpl, ::nfctech::NfcFTag>();
     auto implPtr = reinterpret_cast<NfcFTagImpl *>(nfcFTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc F tag impl ptr.");
@@ -1524,12 +1556,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return nfcFTagTaihe;
 }
 
-::nfctech::NfcVTag getNfcV(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NfcVTag getNfcV(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNfcV enter");
-    std::shared_ptr<OHOS::NFC::KITS::Iso15693Tag> nfcVTag =
-        std::make_shared<OHOS::NFC::KITS::Iso15693Tag> (GetTagInfo(tagInfo));
-    ::nfctech::NfcVTag nfcVTagTaihe = taihe::make_holder<NfcVTagImpl, ::nfctech::NfcVTag>();
+    std::shared_ptr<Iso15693Tag> nfcVTag = std::make_shared<Iso15693Tag> (GetTagInfo(tagInfo));
+    ::nfctech::NfcVTag nfcVTagTaihe = make_holder<NfcVTagImpl, ::nfctech::NfcVTag>();
     auto implPtr = reinterpret_cast<NfcVTagImpl *>(nfcVTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc V tag impl ptr.");
@@ -1539,13 +1570,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return nfcVTagTaihe;
 }
 
-::nfctech::IsoDepTag getIsoDep(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::IsoDepTag getIsoDep(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getIsoDep enter");
-    std::shared_ptr<OHOS::NFC::KITS::IsoDepTag> isoDepTag =
-        std::make_shared<OHOS::NFC::KITS::IsoDepTag> (GetTagInfo(tagInfo));
-    ::nfctech::IsoDepTag isoDepTagTaihe =
-        taihe::make_holder<IsoDepTagImpl, ::nfctech::IsoDepTag>();
+    std::shared_ptr<IsoDepTag> isoDepTag = std::make_shared<IsoDepTag> (GetTagInfo(tagInfo));
+    ::nfctech::IsoDepTag isoDepTagTaihe = make_holder<IsoDepTagImpl, ::nfctech::IsoDepTag>();
     auto implPtr = reinterpret_cast<IsoDepTagImpl *>(isoDepTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc IsoDep tag impl ptr.");
@@ -1555,12 +1584,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return isoDepTagTaihe;
 }
 
-::nfctech::NdefTag getNdef(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NdefTag getNdef(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNdef enter");
-    std::shared_ptr<OHOS::NFC::KITS::NdefTag> ndefTag =
-        std::make_shared<OHOS::NFC::KITS::NdefTag> (GetTagInfo(tagInfo));
-    ::nfctech::NdefTag ndefTagTaihe = taihe::make_holder<NdefTagImpl, ::nfctech::NdefTag>();
+    std::shared_ptr<NdefTag> ndefTag = std::make_shared<NdefTag> (GetTagInfo(tagInfo));
+    ::nfctech::NdefTag ndefTagTaihe = make_holder<NdefTagImpl, ::nfctech::NdefTag>();
     auto implPtr = reinterpret_cast<NdefTagImpl *>(ndefTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc Ndef tag impl ptr.");
@@ -1570,13 +1598,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return ndefTagTaihe;
 }
 
-::nfctech::MifareClassicTag getMifareClassic(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::MifareClassicTag getMifareClassic(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getMifareClassic enter");
-    std::shared_ptr<OHOS::NFC::KITS::MifareClassicTag> mifareClassicTag =
-        std::make_shared<OHOS::NFC::KITS::MifareClassicTag> (GetTagInfo(tagInfo));
-    ::nfctech::MifareClassicTag mifareClassicTaihe =
-        taihe::make_holder<MifareClassicTagImpl, ::nfctech::MifareClassicTag>();
+    std::shared_ptr<MifareClassicTag> mifareClassicTag = std::make_shared<MifareClassicTag> (GetTagInfo(tagInfo));
+    ::nfctech::MifareClassicTag mifareClassicTaihe = make_holder<MifareClassicTagImpl, ::nfctech::MifareClassicTag>();
     auto implPtr = reinterpret_cast<MifareClassicTagImpl *>(mifareClassicTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc MifareClassic tag impl ptr.");
@@ -1586,13 +1612,12 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return mifareClassicTaihe;
 }
 
-::nfctech::MifareUltralightTag getMifareUltralight(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::MifareUltralightTag getMifareUltralight(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getMifareUltralight enter");
-    std::shared_ptr<OHOS::NFC::KITS::MifareUltralightTag> mifareUlTag =
-        std::make_shared<OHOS::NFC::KITS::MifareUltralightTag> (GetTagInfo(tagInfo));
+    std::shared_ptr<MifareUltralightTag> mifareUlTag = std::make_shared<MifareUltralightTag> (GetTagInfo(tagInfo));
     ::nfctech::MifareUltralightTag mifareUlTaihe =
-        taihe::make_holder<MifareUltralightTagImpl, ::nfctech::MifareUltralightTag>();
+        make_holder<MifareUltralightTagImpl, ::nfctech::MifareUltralightTag>();
     auto implPtr = reinterpret_cast<MifareUltralightTagImpl *>(mifareUlTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc MifareUltralight tag impl ptr.");
@@ -1602,13 +1627,12 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return mifareUlTaihe;
 }
 
-::nfctech::NdefFormatableTag getNdefFormatable(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::NdefFormatableTag getNdefFormatable(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getNdefFormatable enter");
-    std::shared_ptr<OHOS::NFC::KITS::NdefFormatableTag> ndefFormatableTag =
-        std::make_shared<OHOS::NFC::KITS::NdefFormatableTag> (GetTagInfo(tagInfo));
+    std::shared_ptr<NdefFormatableTag> ndefFormatableTag = std::make_shared<NdefFormatableTag> (GetTagInfo(tagInfo));
     ::nfctech::NdefFormatableTag ndefFormatableTaihe =
-        taihe::make_holder<NdefFormatableTagImpl, ::nfctech::NdefFormatableTag>();
+        make_holder<NdefFormatableTagImpl, ::nfctech::NdefFormatableTag>();
     auto implPtr = reinterpret_cast<NdefFormatableTagImpl *>(ndefFormatableTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc NdefFormatable tag impl ptr.");
@@ -1618,13 +1642,11 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return ndefFormatableTaihe;
 }
 
-::nfctech::BarcodeTag getBarcodeTag(::ohos::nfc::tag::tag::TagInfo const& tagInfo)
+::nfctech::BarcodeTag getBarcodeTag(::tag::TagInfo const& tagInfo)
 {
     InfoLog("getBarcodeTag enter");
-    std::shared_ptr<OHOS::NFC::KITS::BarcodeTag> barcodeTag =
-        std::make_shared<OHOS::NFC::KITS::BarcodeTag> (GetTagInfo(tagInfo));
-    ::nfctech::BarcodeTag barcodeTagTaihe =
-        taihe::make_holder<BarcodeTagImpl, ::nfctech::BarcodeTag>();
+    std::shared_ptr<BarcodeTag> barcodeTag = std::make_shared<BarcodeTag> (GetTagInfo(tagInfo));
+    ::nfctech::BarcodeTag barcodeTagTaihe = make_holder<BarcodeTagImpl, ::nfctech::BarcodeTag>();
     auto implPtr = reinterpret_cast<BarcodeTagImpl *>(barcodeTagTaihe->getTagSessionImpl());
     if (implPtr == nullptr) {
         ErrorLog("fail to get nfc Barcode tag impl ptr.");
@@ -1634,12 +1656,12 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return barcodeTagTaihe;
 }
 
-::ohos::nfc::tag::tag::TagInfo getTagInfo(uintptr_t want)
+::tag::TagInfo getTagInfo(uintptr_t want)
 {
     InfoLog("getTagInfo enter");
-    ::ohos::nfc::tag::tag::TagInfo tagInfo = {};
-    OHOS::AAFwk::Want tagInfoWant;
-    bool result = OHOS::AppExecFwk::UnwrapWant(get_env(), reinterpret_cast<ani_object>(want), tagInfoWant);
+    ::tag::TagInfo tagInfo = {};
+    Want tagInfoWant;
+    bool result = UnwrapWant(get_env(), reinterpret_cast<ani_object>(want), tagInfoWant);
     if (!result) {
         ErrorLog("fail to unwrap want");
         return tagInfo;
@@ -1647,8 +1669,8 @@ std::shared_ptr<OHOS::NFC::KITS::TagInfo> GetTagInfo(::ohos::nfc::tag::tag::TagI
     return tagInfo;
 }
 
-void registerForegroundDispatch(uintptr_t elementName, ::taihe::array_view<uint32_t> discTech,
-    ::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback)
+void registerForegroundDispatch(uintptr_t elementName, array_view<uint32_t> discTech,
+    callback_view<void(uintptr_t err, ::tag::TagInfo const& tagInfo)> callback)
 {
     InfoLog("enter");
 
@@ -1663,7 +1685,7 @@ void registerForegroundDispatch(uintptr_t elementName, ::taihe::array_view<uint3
     for (uint16_t i = 0; i < discTech.size(); i++) {
         dataVec.push_back(discTech[i]);
     }
-    OHOS::NFC::KITS::TagFgEventRegister::GetInstance().Register(element, dataVec, callback);
+    TagFgEventRegister::GetInstance().Register(element, dataVec, callback);
 }
 
 void unregisterForegroundDispatch(uintptr_t elementName)
@@ -1672,11 +1694,11 @@ void unregisterForegroundDispatch(uintptr_t elementName)
 
     ElementName element;
     CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
-    OHOS::NFC::KITS::TagFgEventRegister::GetInstance().Unregister(element);
+    TagFgEventRegister::GetInstance().Unregister(element);
 }
 
-void onReaderMode(uintptr_t elementName, ::taihe::array_view<uint32_t> discTech,
-    ::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback)
+void onReaderMode(uintptr_t elementName, array_view<uint32_t> discTech,
+    callback_view<void(uintptr_t err, ::tag::TagInfo const& tagInfo)> callback)
 {
     InfoLog("enter");
 
@@ -1691,17 +1713,116 @@ void onReaderMode(uintptr_t elementName, ::taihe::array_view<uint32_t> discTech,
     for (uint16_t i = 0; i < discTech.size(); i++) {
         dataVec.push_back(discTech[i]);
     }
-    OHOS::NFC::KITS::TagRmEventRegister::GetInstance().Register(element, dataVec, callback);
+    TagRmEventRegister::GetInstance().Register(element, dataVec, callback);
 }
 
-void offReaderMode(uintptr_t elementName, ::taihe::optional_view<
-    ::taihe::callback<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)>> callback)
+void offReaderMode(uintptr_t elementName, optional_view<
+    callback<void(uintptr_t err, ::tag::TagInfo const& tagInfo)>> callback)
 {
     InfoLog("enter");
 
     ElementName element;
     CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
-    OHOS::NFC::KITS::TagRmEventRegister::GetInstance().Unregister(element);
+    TagRmEventRegister::GetInstance().Unregister(element);
+}
+
+::tag::NdefRecord makeUriRecord(::taihe::string_view uri)
+{
+    InfoLog("enter");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeUriRecord(uri.c_str());
+    return makeNdefRecord(ndefRecord);
+}
+
+::tag::NdefRecord makeTextRecord(::taihe::string_view text, ::taihe::string_view locale)
+{
+    InfoLog("enter");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeTextRecord(text.c_str(), locale.c_str());
+    return makeNdefRecord(ndefRecord);
+}
+
+::tag::NdefRecord makeApplicationRecord(::taihe::string_view bundleName)
+{
+    InfoLog("enter");
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeApplicationRecord(bundleName.c_str());
+    return makeNdefRecord(ndefRecord);
+}
+
+::tag::NdefRecord makeMimeRecord(::taihe::string_view mimeType, array_view<int32_t> mimeData)
+{
+    InfoLog("enter");
+    std::string mimeDataStr = NfcTaiheUtil::TaiheArrayToHexString(mimeData);
+    std::shared_ptr<NdefRecord> ndefRecord = NdefMessage::MakeMimeRecord(mimeType.c_str(), mimeDataStr);
+    return makeNdefRecord(ndefRecord);
+}
+
+::tag::NdefRecord makeExternalRecord(
+    ::taihe::string_view domainName, ::taihe::string_view type, array_view<int32_t> externalData)
+{
+    InfoLog("enter");
+    std::string externalDataStr = NfcTaiheUtil::TaiheArrayToHexString(externalData);
+    std::shared_ptr<NdefRecord> ndefRecord =
+        NdefMessage::MakeExternalRecord(domainName.c_str(), type.c_str(), externalDataStr);
+    return makeNdefRecord(ndefRecord);
+}
+
+array<int32_t> messageToBytes(::nfctech::weak::NdefMessage ndefMessage)
+{
+    InfoLog("enter");
+    auto implPtr = reinterpret_cast<NdefMessageImpl *>(ndefMessage->getNdefMessageImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("implPtr nullptr");
+        return array<int32_t>(array_view<int32_t>());
+    }
+    std::string buffer = NdefMessage::MessageToString(implPtr->getNdefMessage());
+    return NfcTaiheUtil::HexStringToTaiheArray(buffer);
+}
+
+::nfctech::NdefMessage createNdefMessageByData(array_view<int32_t> data)
+{
+    InfoLog("enter");
+    ::nfctech::NdefMessage ndefMessage = make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+    auto implPtr = reinterpret_cast<NdefMessageImpl *>(ndefMessage->getNdefMessageImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("implPtr nullptr");
+        return ndefMessage;
+    }
+    std::string rawData = NfcTaiheUtil::TaiheArrayToHexString(data);
+    std::shared_ptr<NdefMessage> ndefMsg = NdefMessage::GetNdefMessage(rawData);
+    implPtr->setNdefMessage(ndefMsg);
+    return ndefMessage;
+}
+
+std::vector<std::shared_ptr<NdefRecord>> parseTaiheNdefRecord(array_view<::tag::NdefRecord> record)
+{
+    std::vector<std::shared_ptr<NdefRecord>> records{};
+    if (record.size() > MAX_ARRAY_LEN) {
+        ErrorLog("record length exceed.");
+        return records;
+    }
+    for (uint16_t i = 0; i < record.size(); i++) {
+        std::shared_ptr<NdefRecord> ndefRecord = std::make_shared<NdefRecord>();
+        ndefRecord->id_ = NfcTaiheUtil::TaiheArrayToHexString(record[i].id);
+        ndefRecord->payload_ = NfcTaiheUtil::TaiheArrayToHexString(record[i].payload);
+        ndefRecord->tagRtdType_ = NfcTaiheUtil::TaiheArrayToHexString(record[i].rtdType);
+        ndefRecord->tnf_ = static_cast<short>(record[i].tnf);
+        records.push_back(ndefRecord);
+    }
+    return records;
+}
+
+::nfctech::NdefMessage createNdefMessageByRecords(array_view<::tag::NdefRecord> record)
+{
+    InfoLog("enter");
+    ::nfctech::NdefMessage ndefMessage = make_holder<NdefMessageImpl, ::nfctech::NdefMessage>();
+    auto implPtr = reinterpret_cast<NdefMessageImpl *>(ndefMessage->getNdefMessageImpl());
+    if (implPtr == nullptr) {
+        ErrorLog("implPtr nullptr");
+        return ndefMessage;
+    }
+    std::vector<std::shared_ptr<NdefRecord>> records = parseTaiheNdefRecord(record);
+    std::shared_ptr<NdefMessage> ndefMsg = NdefMessage::GetNdefMessage(records);
+    implPtr->setNdefMessage(ndefMsg);
+    return ndefMessage;
 }
 }  // namespace
 
@@ -1723,4 +1844,12 @@ TH_EXPORT_CPP_API_registerForegroundDispatch(registerForegroundDispatch);
 TH_EXPORT_CPP_API_unregisterForegroundDispatch(unregisterForegroundDispatch);
 TH_EXPORT_CPP_API_onReaderMode(onReaderMode);
 TH_EXPORT_CPP_API_offReaderMode(offReaderMode);
+TH_EXPORT_CPP_API_makeUriRecord(makeUriRecord);
+TH_EXPORT_CPP_API_makeTextRecord(makeTextRecord);
+TH_EXPORT_CPP_API_makeApplicationRecord(makeApplicationRecord);
+TH_EXPORT_CPP_API_makeMimeRecord(makeMimeRecord);
+TH_EXPORT_CPP_API_makeExternalRecord(makeExternalRecord);
+TH_EXPORT_CPP_API_messageToBytes(messageToBytes);
+TH_EXPORT_CPP_API_createNdefMessageByData(createNdefMessageByData);
+TH_EXPORT_CPP_API_createNdefMessageByRecords(createNdefMessageByRecords);
 // NOLINTEND
