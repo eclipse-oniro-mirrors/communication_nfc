@@ -2,163 +2,163 @@
     "string":[
         {
             "name":"NfcOpenLinkTextHead",
-            "value":"Открыть ссылку: %s",
+            "value":"Bağlantıyı aç: %s",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"DefaultTitle",
-            "value":"Обнаружен NFC-тег",
+            "value":"NFC etiketi bulundu",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"DefaultText",
-            "value":"У некоторых приложений есть собственные элементы управления NFC, которые необходимо включить вручную.",
+            "value":"Bazı uygulamalarda manuel olarak etkinleştirilmesi gereken özel NFC kontrolleri bulunabilir.",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"LingNanTong",
-            "value":"Lingnan Pass",
+            "value":"Lingnan Ulaşım Kartı",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
-            "value":"Подключение к сети",
+            "value":"Ağa bağlanma",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"ShenZhenTong",
-            "value":"Shenzhen Transportation Card",
+            "value":"Shenzhen Toplu Taşıma Kartı",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
-            "value":"Выберите приложение, чтобы использовать карту",
+            "value":"Kartı kullanmak için uygulamayı seçin",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcWifiButtonName",
-            "value":"Подключить",
+            "value":"Bağlan",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"Найдено: %s. Баланс: %.2f ¥",
+            "value":"%s keşfedildi. Bakiye: %.2f RMB",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
-            "value":"Перейти в AppGallery",
+            "value":"AppGallery'ye git",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
-            "value":"Уведомление NFC",
+            "value":"NFC bildirimi",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
-            "value":"GX T-Union Card",
+            "value":"GX T-Union Kartı",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"ActionButtonName",
-            "value":"Нажмите, чтобы посмотреть сведения",
+            "value":"Ayrıntılar için dokunun",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
-            "value":"Нет доступных поддерживаемых приложений. Получите их в AppGallery.",
+            "value":"Desteklenen uygulama yok. AppGallery'den uygulama alın.",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcBtNtfText",
-            "value":"Сопрячь с устройством %s?",
+            "value":"\"%s\" ile eşleştirilsin mi?",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
-            "value":"Shanghai Transportation Card",
+            "value":"Şanghay Toplu Taşıma Kartı",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"TransportCardTitle",
-            "value":"Найдена транспортная карта",
+            "value":"Ulaşım kartı bulundu",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcWifiNtfText",
-            "value":"Подключиться к сети %s?",
+            "value":"\"%s\" ağına bağlanılsın mı?",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcBtNtfTitle",
-            "value":"Запрос на сопряжение по NFC",
+            "value":"NFC eşleştirme talebi",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
-            "value":"Доступно несколько приложений. Выберите, какое хотите использовать.",
+            "value":"Birden fazla uygulama mevcut. Kullanmak istediğinizi seçin.",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"BeiJingYiKaTong",
-            "value":"Beijing Transportation Card",
+            "value":"Pekin Toplu Taşıma Kartı",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcOpenLinkButtonName",
-            "value":"Открыть ссылку",
+            "value":"Bağlantıyı aç",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"NfcBtButtonName",
-            "value":"Сопрячь",
+            "value":"Eşleştir",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         }
     ]

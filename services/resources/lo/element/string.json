@@ -1,0 +1,165 @@
+{
+    "string":[
+        {
+            "name":"NfcOpenLinkTextHead",
+            "value":"ເປີດ​ລິ້ງ: %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultTitle",
+            "value":"ຄົ້ນພົບແທັກ NFC ແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"DefaultText",
+            "value":"ບາງ​ແອັບ​ອາດ​ຈະ​ມີ​ການ​ຄວບ​ຄຸມ NFC ຂອງ​ພວກ​ມັນ​ເອງ​ທີ່​ຈຳ​ເປັນ​ຕ້ອງ​ໄດ້​ເປີດ​ໃຊ້​ງານ​ເອົາ​ເອງ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LingNanTong",
+            "value":"ບັດ Lingnan Pass",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfTitle",
+            "value":"ເຊື່ອມຕໍ່ກັບເຄືອຂ່າຍ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShenZhenTong",
+            "value":"ບັດ​ໂດຍສານ Shenzhen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedTitle",
+            "value":"ເລືອກ​ແອັບ​ເພື່ອ​ໃຊ້​ບັດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiButtonName",
+            "value":"ເຊື່ອມ​ຕໍ່",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardText",
+            "value":"ຄົ້ນ​ພົບ %s ​ແລ້ວ. ​ຍອດ​ເຫຼືອ: %.2f RMB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfButtonName",
+            "value":"ໄປທີ່ AppGallery",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfTitle",
+            "value":"ການ​ແຈ້ງ​ເຕືອນ NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"GuiMinHuLianHuTongKa",
+            "value":"ບັດ GX T-Union",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ActionButtonName",
+            "value":"ແຕະສຳລັບລາຍລະອຽດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NoHapSupportedNtfText",
+            "value":"ບໍ່​ມີແອັບ​ທີ່ຮອງ​ຮັບໃຫ້. ຮັບ​ແອັບ​ຈາກ AppGallery.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfText",
+            "value":"ຈັບ​ຄູ່​ກັບ \"%s\" ບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ShangHaiJiaoTongKa",
+            "value":"ບັດ​ໂດຍສານຊຽງໄຮ້",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"TransportCardTitle",
+            "value":"ພົບບັດ​ໂດຍສານ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcWifiNtfText",
+            "value":"ເຊື່ອມຕໍ່ກັບເຄືອຂ່າຍ \"%s\" ບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtNtfTitle",
+            "value":"ການ​ຂໍ​ຈັບ​ຄູ່ NFC",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcHceAidConflictedText",
+            "value":"ມີຫຼາຍ​ແອັບ​ໃຫ້​ໃຊ້​. ເປີດ​ອັນທີ່​ທ່ານ​ຕ້ອງ​ການ​ໃຊ້.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"BeiJingYiKaTong",
+            "value":"ບັດ​ໂດຍສານ Beijing",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenLinkButtonName",
+            "value":"ເປີດ​ລິ້ງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcBtButtonName",
+            "value":"ຈັບຄູ່",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

@@ -37,7 +37,7 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"发现 NFC 标签，点击启动应用",
+            "value":"发现 NFC 卡片，点击启动应用",
             "attr":{
                 "priority":"translate"
             }

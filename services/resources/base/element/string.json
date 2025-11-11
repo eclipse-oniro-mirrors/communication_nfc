@@ -37,9 +37,9 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"NFC tag discovered. Touch to view.",
+            "value":"NFC tag discovered",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

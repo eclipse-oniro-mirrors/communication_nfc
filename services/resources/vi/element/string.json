@@ -9,9 +9,9 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"Đã phát hiện thẻ NFC. Chạm để xem.",
+            "value":"Đã phát hiện thẻ NFC",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
