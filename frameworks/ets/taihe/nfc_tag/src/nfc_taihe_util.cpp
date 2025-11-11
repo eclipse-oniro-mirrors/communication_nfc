@@ -20,13 +20,14 @@
 #include "securec.h"
 
 using namespace taihe;
+using namespace OHOS::NFC::KITS;
 
-const uint16_t MAX_ARRAY_LEN = 512;
-const uint16_t HEX_BYTE_LEN = 2;
+const uint16_t MAX_ARRAY_LENGTH = 512;
+const uint16_t HEX_BYTE_LENGTH = 2;
 
 std::string NfcTaiheUtil::TaiheArrayToHexString(const array_view<int32_t> &data)
 {
-    if (data.size() > MAX_ARRAY_LEN) {
+    if (data.size() > MAX_ARRAY_LENGTH) {
         ErrorLog("data size exceed.");
         return "";
     }
@@ -34,13 +35,13 @@ std::string NfcTaiheUtil::TaiheArrayToHexString(const array_view<int32_t> &data)
     for (uint16_t i = 0; i < data.size(); i++) {
         dataBytes.push_back(static_cast<uint8_t>(data[i]));
     }
-    return OHOS::NFC::KITS::NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
+    return NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
 }
 
 std::vector<std::string> NfcTaiheUtil::TaiheStringArrayToStringVec(const array_view<::taihe::string> &data)
 {
     std::vector<std::string> ret;
-    if (data.size() > MAX_ARRAY_LEN) {
+    if (data.size() > MAX_ARRAY_LENGTH) {
         ErrorLog("data size exceed.");
         return ret;
     }
@@ -53,7 +54,7 @@ std::vector<std::string> NfcTaiheUtil::TaiheStringArrayToStringVec(const array_v
 std::vector<int> NfcTaiheUtil::TaiheIntArrayToIntVec(const array<int32_t> &data)
 {
     std::vector<int> ret;
-    if (data.size() > MAX_ARRAY_LEN) {
+    if (data.size() > MAX_ARRAY_LENGTH) {
         ErrorLog("data size exceed.");
         return ret;
     }
@@ -70,15 +71,15 @@ array<int32_t> NfcTaiheUtil::HexStringToTaiheArray(const std::string &src)
         return array<int32_t>(array_view<int32_t>(dataVec));
     }
 
-    uint32_t bytesLen = src.length() / HEX_BYTE_LEN;
-    if (bytesLen > MAX_ARRAY_LEN) {
+    uint32_t bytesLen = src.length() / HEX_BYTE_LENGTH;
+    if (bytesLen > MAX_ARRAY_LENGTH) {
         ErrorLog("data size exceed.");
         return array<int32_t>(array_view<int32_t>(dataVec));
     }
     std::string strByte;
     unsigned int srcIntValue;
     for (uint32_t i = 0; i < bytesLen; i++) {
-        strByte = src.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
+        strByte = src.substr(i * HEX_BYTE_LENGTH, HEX_BYTE_LENGTH);
         if (sscanf_s(strByte.c_str(), "%x", &srcIntValue) <= 0) {
             ErrorLog("sscanf_s failed.");
             dataVec.clear();
