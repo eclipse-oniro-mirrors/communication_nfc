@@ -17,12 +17,28 @@
             "file_path": "bo_CN"
         },
         {
+            "system_language": "de",
+            "file_path": "de"
+        },
+        {
+            "system_language": "en-GB",
+            "file_path": "en_GB"
+        },
+        {
             "system_language": "es",
             "file_path": "es"
         },
         {
             "system_language": "fr",
             "file_path": "fr"
+        },
+        {
+            "system_language": "id",
+            "file_path": "id"
+        },
+        {
+            "system_language": "it",
+            "file_path": "it"
         },
         {
             "system_language": "ja",
@@ -33,8 +49,36 @@
             "file_path": "ko"
         },
         {
+            "system_language": "lo",
+            "file_path": "lo"
+        },
+        {
+            "system_language": "ms",
+            "file_path": "ms"
+        },
+        {
+            "system_language": "my",
+            "file_path": "my"
+        },
+        {
+            "system_language": "pl",
+            "file_path": "pl"
+        },
+        {
+            "system_language": "pt-PT",
+            "file_path": "pt_PT"
+        },
+        {
             "system_language": "ru",
             "file_path": "ru"
+        },
+        {
+            "system_language": "th",
+            "file_path": "th"
+        },
+        {
+            "system_language": "tr",
+            "file_path": "tr"
         },
         {
             "system_language": "ug",
