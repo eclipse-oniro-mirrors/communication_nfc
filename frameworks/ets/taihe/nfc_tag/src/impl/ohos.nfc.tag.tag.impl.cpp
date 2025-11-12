@@ -772,11 +772,15 @@ public:
 
     ::tag::NfcForumType getNdefTagType()
     {
+        InfoLog("enter");
         if (tagSession_ == nullptr) {
             ErrorLog("NdefTag nullptr");
             return ::tag::NfcForumType::from_value(static_cast<int>(EmNfcForumType::NFC_FORUM_TYPE_UNKNOWN));
         }
-        return ::tag::NfcForumType::from_value(tagSession_->GetNdefTagType());
+        
+        EmNfcForumType type = tagSession_->GetNdefTagType();
+        InfoLog("type %{public}d", static_cast<int>(type));
+        return ::tag::NfcForumType::from_value(1);
     }
 
     ::nfctech::NdefMessage getNdefMessage()
@@ -829,7 +833,18 @@ public:
 
     void writeNdefImpl(::nfctech::weak::NdefMessage msg)
     {
-        TH_THROW(std::runtime_error, "writeNdef not implemented");
+        InfoLog("enter");
+        auto implPtr = reinterpret_cast<NdefMessageImpl *>(msg->getNdefMessageImpl());
+        if (implPtr == nullptr) {
+            ErrorLog("implPtr nullptr");
+            return;
+        }
+        std::shared_ptr<NdefMessage> ndefMsg = implPtr->getNdefMessage();
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->WriteNdef(ndefMsg);
     }
 
     bool canSetReadOnly()
@@ -1045,7 +1060,7 @@ public:
             ErrorLog("MifareClassicTag nullptr");
             return ::tag::MifareClassicType::from_value(static_cast<int>(MifareClassicTag::EmType::TYPE_UNKNOWN));
         }
-        return ::tag::MifareClassicType::from_value(tagSession_->GetMifareTagType());
+        return ::tag::MifareClassicType::from_value(static_cast<int>(tagSession_->GetMifareTagType()));
     }
 
     int32_t getTagSize()
@@ -1202,7 +1217,7 @@ public:
             ErrorLog("mifareul nullptr");
             return ::tag::MifareUltralightType::from_value(static_cast<int>(MifareUltralightTag::EmType::TYPE_UNKNOWN));
         }
-        return ::tag::MifareUltralightType::from_value(tagSession_->GetType());
+        return ::tag::MifareUltralightType::from_value(static_cast<int>(tagSession_->GetType()));
     }
 
     void connect()
@@ -1298,12 +1313,34 @@ public:
 
     void formatImpl(::nfctech::weak::NdefMessage message)
     {
-        TH_THROW(std::runtime_error, "format not implemented");
+        InfoLog("enter");
+        auto implPtr = reinterpret_cast<NdefMessageImpl *>(message->getNdefMessageImpl());
+        if (implPtr == nullptr) {
+            ErrorLog("implPtr nullptr");
+            return;
+        }
+        std::shared_ptr<NdefMessage> ndefMsg = implPtr->getNdefMessage();
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->Format(ndefMsg);
     }
 
     void formatReadOnlyImpl(::nfctech::weak::NdefMessage message)
     {
-        TH_THROW(std::runtime_error, "formatReadOnly not implemented");
+        InfoLog("enter");
+        auto implPtr = reinterpret_cast<NdefMessageImpl *>(message->getNdefMessageImpl());
+        if (implPtr == nullptr) {
+            ErrorLog("implPtr nullptr");
+            return;
+        }
+        std::shared_ptr<NdefMessage> ndefMsg = implPtr->getNdefMessage();
+        if (tagSession_ == nullptr) {
+            ErrorLog("NdefTag nullptr");
+            return;
+        }
+        tagSession_->FormatReadOnly(ndefMsg);
     }
 
     void connect()
