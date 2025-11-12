@@ -179,12 +179,12 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
         if (nfcService_->GetNfcPollingManager().lock()->IsReaderModeEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToReaderApp(tagInfo);
-            dispatchResult = DISPATCH_FOREGROUND;
+            dispatchResult = DISPATCH_READERMODE;
             break;
         }
         if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
-            dispatchResult = DISPATCH_READERMODE;
+            dispatchResult = DISPATCH_FOREGROUND;
             break;
         }
         ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
