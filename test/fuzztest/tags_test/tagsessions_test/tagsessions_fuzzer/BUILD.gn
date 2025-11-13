@@ -13,8 +13,8 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-import("../../../../../../nfc.gni")
-import("../../../../nfcfuzz.gni")
+import("../../../../../nfc.gni")
+import("../../../nfcfuzz.gni")
 
 ohos_fuzztest("TagSessionsFuzzTest") {
   module_out_path = fuzz_module_out_path
