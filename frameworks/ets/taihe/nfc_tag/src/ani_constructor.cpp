@@ -15,6 +15,7 @@
 
 #include "tagSession.ani.hpp"
 #include "nfctech.ani.hpp"
+#include "ohos.nfc.tag.tag.ndef.ani.hpp"
 #include "ohos.nfc.tag.tag.ani.hpp"
 #if __has_include(<ani.h>)
 #include <ani.h>
@@ -37,6 +38,10 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     }
     if (ANI_OK != nfctech::ANIRegister(env)) {
         std::cerr << "Error from nfctech::ANIRegister" << std::endl;
+        status = ANI_ERROR;
+    }
+    if (ANI_OK != ohos::nfc::tag::tag::ndef::ANIRegister(env)) {
+        std::cerr << "Error from ohos::nfc::tag::tag::ndef::ANIRegister" << std::endl;
         status = ANI_ERROR;
     }
     if (ANI_OK != ohos::nfc::tag::tag::ANIRegister(env)) {
