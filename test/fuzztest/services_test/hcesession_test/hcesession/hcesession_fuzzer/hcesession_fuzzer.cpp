@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
 #include "hcesession_fuzzer.h"
 
 #include <cstddef>
@@ -99,6 +100,24 @@ namespace OHOS {
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->HandleWhenRemoteDie(callerToken);
     }
+
+    void FuzzGetPaymentServices(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        service->Initialize();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        CePaymentServicesParcelable parcelable;
+        hceSession->GetPaymentServices(parcelable);
+    }
+
+    void FuzzAppendSimBundle(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        service->Initialize();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        std::vector<AbilityInfo> paymentAbilityInfos;
+        hceSession->AppendSimBundle(paymentAbilityInfos);
+    }
 }
 
 /* Fuzzer entry point */
@@ -116,6 +135,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzUnRegHceCmdCallback(data, size);
     OHOS::FuzzUnRegAllCallback(data, size);
     OHOS::FuzzHandleWhenRemoteDie(data, size);
+    OHOS::FuzzGetPaymentServices(data, size);
+    OHOS::FuzzAppendSimBundle(data, size);
+    
     return 0;
 }
-

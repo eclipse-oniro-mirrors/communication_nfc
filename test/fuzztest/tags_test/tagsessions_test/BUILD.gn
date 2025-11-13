@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-group("tagsession_fuzztest") {
+group("tagsessions_fuzztest") {
   testonly = true
   deps = [ "tagsessions_fuzzer:fuzztest" ]
 }

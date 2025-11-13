@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #define private public
-#include "tagsession_fuzzer.h"
+#include "tagsessions_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -23,7 +23,6 @@
 #include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
-    using namespace OHOS::NFC;
     using namespace OHOS::NFC::TAG;
     using namespace OHOS::NFC::KITS;
 
@@ -57,109 +56,52 @@ public:
 
     void FuzzConnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[1]);
-        int technology = static_cast<int>(data[2]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
+        int32_t technology = static_cast<int32_t>(data[1]);
         tagSession->Connect(tagRfDiscId, technology);
-    }
-
-    void FuzzIsConnected(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[1]);
-        bool isConnected = data[0] % INT_TO_BOOL_DIVISOR;
-        tagSession->IsConnected(tagRfDiscId, isConnected);
     }
 
     void FuzzReconnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->Reconnect(tagRfDiscId);
     }
 
     void FuzzDisconnect(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->Disconnect(tagRfDiscId);
-    }
-
-    void FuzzSetTimeout(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
-        int timeout = static_cast<int>(data[1]);
-        int technology = static_cast<int>(data[2]);
-        tagSession->SetTimeout(tagRfDiscId, timeout, technology);
-    }
-
-    void FuzzGetTimeout(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
-        int timeout = static_cast<int>(data[1]);
-        int technology = static_cast<int>(data[2]);
-        tagSession->GetTimeout(tagRfDiscId, technology, timeout);
-    }
-
-    void FuzzResetTimeout(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
-        tagSession->ResetTimeout(tagRfDiscId);
     }
 
     void FuzzGetTechList(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         std::vector<int32_t> techList = {};
         tagSession->GetTechList(tagRfDiscId, techList);
     }
 
-    void FuzzIsTagFieldOn(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
-        bool isTagFieldOn = false;
-        tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
-    }
-
     void FuzzIsNdef(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         bool isNdef = false;
         tagSession->IsNdef(tagRfDiscId, isNdef);
     }
 
     void FuzzSendRawFrame(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         std::string hexCmdData = NfcSdkCommon::BytesVecToHexString(data, size);
         bool raw = data[0] % INT_TO_BOOL_DIVISOR;
         std::string hexRespData = NfcSdkCommon::BytesVecToHexString(data, size);
@@ -168,20 +110,18 @@ public:
 
     void FuzzNdefRead(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         std::string ndefMessage = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->NdefRead(tagRfDiscId, ndefMessage);
     }
 
     void FuzzNdefWrite(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         std::string msg = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->NdefWrite(tagRfDiscId, "");
         tagSession->NdefWrite(tagRfDiscId, msg);
@@ -189,57 +129,51 @@ public:
 
     void FuzzNdefMakeReadOnly(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->NdefMakeReadOnly(tagRfDiscId);
     }
 
     void FuzzFormatNdef(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         std::string key = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->FormatNdef(tagRfDiscId, key);
     }
 
     void FuzzCanMakeReadOnly(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         bool canSetReadOnly = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->CanMakeReadOnly(tagRfDiscId, canSetReadOnly);
     }
 
     void FuzzGetMaxTransceiveLength(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int tagRfDiscId = static_cast<int>(data[0]);
-        int maxSize = static_cast<int>(data[1]);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
+        int32_t maxSize = static_cast<int32_t>(data[1]);
         tagSession->GetMaxTransceiveLength(tagRfDiscId, maxSize);
     }
 
     void FuzzIsSupportedApdusExtended(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         bool isSupported = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsSupportedApdusExtended(isSupported);
     }
 
     void FuzzIsSameAppAbility(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         ElementName fgElement1;
         ElementName fgElement2;
         tagSession->IsSameAppAbility(fgElement1, fgElement2);
@@ -247,12 +181,11 @@ public:
         fgElement1.bundleName_ = std::string(reinterpret_cast<const char*>(data), size);
         tagSession->IsSameAppAbility(fgElement1, fgElement2);
     }
- 
-    void FuzzRegForegroundDispatchInner(const uint8_t* data, size_t size)
+
+    void FuzzRegForegroundDispatchInnerData(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         ElementName element;
         element.bundleName_ = "bundleName";
         element.abilityName_ = "abilityName";
@@ -276,11 +209,10 @@ public:
         tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
     }
  
-    void FuzzRegReaderModeInner(const uint8_t* data, size_t size)
+    void FuzzRegReaderModeInnerData(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         ElementName element;
         element.bundleName_ = "bundleName";
         element.abilityName_ = "abilityName";
@@ -304,29 +236,23 @@ public:
         abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED);
         tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
     }
- 
-    void FuzzDump(const uint8_t* data, size_t size)
+
+    void FuzzIsReaderUnregistered(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        int32_t fd = static_cast<int32_t>(data[0]);
-        const std::vector<std::u16string> args;
-        tagSession->Dump(fd, args);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.bundleName_ = "bundleName";
+        element.abilityName_ = "abilityName";
+        bool isAppUnregistered = data[0] % INT_TO_BOOL_DIVISOR;
+        tagSession->IsReaderUnregistered(element, isAppUnregistered);
     }
 
-    void FuzzRegForegroundDispatch(const uint8_t* data, size_t size)
+    void FuzzIsVendorProcess(const uint8_t* data, size_t size)
     {
-        std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
-        nfcService->Initialize();
-        std::shared_ptr<TAG::TagSession> tagSession = std::make_shared<TAG::TagSession>(nfcService);
-        ElementName fgElement1;
-        std::vector<uint32_t> discTech;
-        uint32_t timeOutArray[1];
-        ConvertToUint32s(data, timeOutArray, 1);
-        discTech.push_back(timeOutArray[0]);
-        const sptr<KITS::IForegroundCallback> callback;
-        tagSession->RegForegroundDispatch(fgElement1, discTech, callback);
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        tagSession->IsVendorProcess();
     }
 }
 
@@ -339,14 +265,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::FuzzConnect(data, size);
-    OHOS::FuzzIsConnected(data, size);
     OHOS::FuzzReconnect(data, size);
     OHOS::FuzzDisconnect(data, size);
-    OHOS::FuzzSetTimeout(data, size);
-    OHOS::FuzzGetTimeout(data, size);
-    OHOS::FuzzResetTimeout(data, size);
     OHOS::FuzzGetTechList(data, size);
-    OHOS::FuzzIsTagFieldOn(data, size);
     OHOS::FuzzIsNdef(data, size);
     OHOS::FuzzSendRawFrame(data, size);
     OHOS::FuzzNdefRead(data, size);
@@ -357,9 +278,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzGetMaxTransceiveLength(data, size);
     OHOS::FuzzIsSupportedApdusExtended(data, size);
     OHOS::FuzzIsSameAppAbility(data, size);
-    OHOS::FuzzRegForegroundDispatchInner(data, size);
-    OHOS::FuzzRegReaderModeInner(data, size);
-    OHOS::FuzzDump(data, size);
-    OHOS::FuzzRegForegroundDispatch(data, size);
+    OHOS::FuzzRegForegroundDispatchInnerData(data, size);
+    OHOS::FuzzRegReaderModeInnerData(data, size);
+    OHOS::FuzzIsReaderUnregistered(data, size);
+    OHOS::FuzzIsVendorProcess(data, size);
+
     return 0;
 }

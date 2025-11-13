@@ -143,6 +143,16 @@ public:
         tagSession->RegReaderMode(element, discTech, callback);
     }
 
+    void FuzzUnregReaderMode(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.SetBundleName(NfcSdkCommon::BytesVecToHexString(data, size));
+        element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
+        tagSession->UnregReaderMode(element);
+    }
+
     void FuzzIsConnected(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
@@ -239,6 +249,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegForegroundDispatch(data, size);
     OHOS::FuzzUnregForegroundDispatch(data, size);
     OHOS::FuzzRegReaderMode(data, size);
+    OHOS::FuzzUnregReaderMode(data, size);
     OHOS::FuzzIsConnected(data, size);
     OHOS::FuzzSetTimeout(data, size);
     OHOS::FuzzGetTimeout(data, size);

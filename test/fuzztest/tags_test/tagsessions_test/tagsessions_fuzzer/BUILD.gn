@@ -19,17 +19,13 @@ import("../../../../nfcfuzz.gni")
 ohos_fuzztest("TagSessionsFuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/tagsession_test/tagsession/tagsessions_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/tagsessions_test/tagsessions_fuzzer"
 
   include_dirs = fuzz_include_dirs
-  include_dirs += [ "$NFC_DIR/test/unittest/mock" ]
 
   cflags = fuzz_cflags
 
-  sources = [
-    "$NFC_DIR/test/unittest/mock/nfc_service_mock.cpp",
-    "tagsession_fuzzer.cpp",
-  ]
+  sources = [ "tagsession_fuzzer.cpp" ]
 
   deps = fuzz_deps
 
