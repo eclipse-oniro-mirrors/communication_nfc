@@ -25,7 +25,7 @@ ohos_fuzztest("TagSessionsFuzzTest") {
 
   cflags = fuzz_cflags
 
-  sources = [ "tagsession_fuzzer.cpp" ]
+  sources = [ "tagsessions_fuzzer.cpp" ]
 
   deps = fuzz_deps
 
