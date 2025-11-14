@@ -53,6 +53,6 @@ group("fuzztest") {
     "tags_test/nfca_tag:nfca_tag_fuzztest",
     "tags_test/nfcsdkcommon:nfcsdkcommon_fuzztest",
     "tags_test/taginfo:taginfo_fuzztest",
-    "tags_test/tagsession_test:tagsessions_fuzztest",
+    "tags_test/tagsessions_test:tagsessions_fuzztest",
   ]
 }
