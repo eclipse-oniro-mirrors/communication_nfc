@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,22 +13,19 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-import("../../../../../../nfc.gni")
-import("../../../../nfcfuzz.gni")
+import("../../../../../nfc.gni")
+import("../../../nfcfuzz.gni")
 
-ohos_fuzztest("TagSessionStubHandleFuzzTest") {
+ohos_fuzztest("TagSessionsFuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/tags_test/tagsessionstub/tagsessionstubhandle_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/tagsessions_test/tagsessions_fuzzer"
 
   include_dirs = fuzz_include_dirs
 
   cflags = fuzz_cflags
 
-  sources = [
-    "nfc_service_fuzz.cpp",
-    "tagsessionstubhandle_fuzzer.cpp",
-  ]
+  sources = [ "tagsessions_fuzzer.cpp" ]
 
   deps = fuzz_deps
 
@@ -40,6 +37,6 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TagSessionStubHandleFuzzTest",
+    ":TagSessionsFuzzTest",
   ]
 }
