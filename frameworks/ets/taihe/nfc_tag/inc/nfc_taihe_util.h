@@ -13,23 +13,21 @@
  * limitations under the License.
  */
 
-@!sts_inject("""
-{ loadLibrary("nfc_fwk_taihe_tag.z"); }
-""")
+#ifndef NFC_TAIHE_UTIL_H
+#define NFC_TAIHE_UTIL_H
 
-@!namespace("tag.tagSession")
+#include <string>
+#include <vector>
 
-interface TagSession {
-  connect(): void;
-  resetConnection(): void;
-  isConnected(): bool;
-  setTimeout(timeout: i32): void;
-  getTimeout(): i32;
-  getMaxTransmitSize(): i32;
+#include "taihe/array.hpp"
+#include "taihe/runtime.hpp"
 
-  @gen_async("transmit")
-  @gen_promise("transmit")
-  transmitImpl(data: Array<i32>): Array<i32>;
-}
+class NfcTaiheUtil {
+public:
+    static std::string TaiheArrayToHexString(const ::taihe::array_view<int32_t> &data);
+    static std::vector<std::string> TaiheStringArrayToStringVec(const ::taihe::array_view<::taihe::string> &data);
+    static std::vector<int> TaiheIntArrayToIntVec(const ::taihe::array<int32_t> &data);
 
-function MakeTagSession(): TagSession;
+    static ::taihe::array<int32_t> HexStringToTaiheArray(const std::string &src);
+};
+#endif // #define NFC_TAIHE_UTIL_H

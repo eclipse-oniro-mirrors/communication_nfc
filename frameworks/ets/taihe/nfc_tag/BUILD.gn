@@ -19,9 +19,9 @@ import("../../../../nfc.gni")
 copy_taihe_idl("copy_taihe_nfc_tag") {
   sources = [
     "idl/tagSession.taihe",
-    "idl/ohos.nfc.tag.tag.ndef.taihe",
     "idl/nfctech.taihe",
     "idl/ohos.nfc.tag.tag.taihe",
+    "idl/ohos.nfc.tag.tag.ndef.taihe",
   ]
 }
 
@@ -33,14 +33,14 @@ ohos_taihe("run_taihe") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfc_tag}"
   deps = [ ":copy_taihe_nfc_tag" ]
   outputs = [
+    "$taihe_generated_file_path/src/tagSession.ani.cpp",
+    "$taihe_generated_file_path/src/tagSession.abi.c",
     "$taihe_generated_file_path/src/nfctech.ani.cpp",
     "$taihe_generated_file_path/src/nfctech.abi.c",
     "$taihe_generated_file_path/src/ohos.nfc.tag.tag.ani.cpp",
     "$taihe_generated_file_path/src/ohos.nfc.tag.tag.abi.c",
     "$taihe_generated_file_path/src/ohos.nfc.tag.tag.ndef.ani.cpp",
     "$taihe_generated_file_path/src/ohos.nfc.tag.tag.ndef.abi.c",
-    "$taihe_generated_file_path/src/tagSession.ani.cpp",
-    "$taihe_generated_file_path/src/tagSession.abi.c",
   ]
 }
 
@@ -58,20 +58,31 @@ taihe_shared_library("nfc_fwk_taihe_tag") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfc_tag}"
   sources = get_target_outputs(":run_taihe")
 
-  defines = [ "DEBUG" ]
+  defines = [
+    "NFC_DEBUG",
+    "TAIHE_FWK"
+  ]
   include_dirs = [
+    "inc",
     "$NFC_DIR/interfaces/inner_api/common",
   ]
   sources += [
     "src/ani_constructor.cpp",
+    "src/nfc_taihe_util.cpp",
+    "src/nfc_taihe_tag_event.cpp",
     "src/impl/ohos.nfc.tag.tag.impl.cpp",
-    "src/impl/ohos.nfc.tag.tag.ndef.impl.cpp",
   ]
 
   external_deps = [
+    "ability_base:want",
+    "ability_runtime:ani_common",
+    "ability_runtime:featureability_ani",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:bms_ani_common",
     "c_utils:utils",
     "hilog:libhilog",
-    "ipc:ipc_single",
+    "ipc:rpc_ani",
   ]
 
   deps = [
@@ -87,9 +98,9 @@ taihe_shared_library("nfc_fwk_taihe_tag") {
 generate_static_abc("nfc_fwk_etc_tag_abc") {
   base_url = "${taihe_generated_file_path_nfc_tag}"
   files = [
+    "${taihe_generated_file_path_nfc_tag}/tag.tagSession.ets",
+    "${taihe_generated_file_path_nfc_tag}/tag.nfctech.ets",
     "${taihe_generated_file_path_nfc_tag}/@ohos.nfc.tag.ets",
-    "${taihe_generated_file_path_nfc_tag}/nfctech.ets",
-    "${taihe_generated_file_path_nfc_tag}/tagSession.ets",
   ]
   is_boot_abc = "True"
   device_dst_file = "/system/framework/nfc_fwk_etc_tag_abc.abc"
