@@ -38,7 +38,7 @@ public:
     napi_value CreateResult(const napi_env &env, TagInfoParcelable tagInfo);
     static bool IsForegroundRegistered();
     static bool IsReaderModeRegistered();
-    void EventNotify(AsyncEventData *asyncEvent);
+    void EventNotify(AsyncEventData *asyncEvent, const std::string &type);
 
     template<typename T>
     void CheckAndNotify(const T& obj, const std::string &type)
@@ -70,7 +70,7 @@ public:
         if (asyncEvent == nullptr) {
             return;
         }
-        EventNotify(asyncEvent);
+        EventNotify(asyncEvent, type);
     }
 };
 
@@ -121,7 +121,7 @@ static void AfterWorkCb(uv_work_t *work, int status)
     ReleaseAfterWorkCb(work, asyncData, scope,  refCount);
 }
 
-void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
+void NapiEvent::EventNotify(AsyncEventData *asyncEvent, const std::string &type)
 {
     if (asyncEvent == nullptr) {
         DebugLog("foreground event notify: asyncEvent is null.");
@@ -148,11 +148,12 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent)
     napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
     work->data = asyncEvent;
     uv_after_work_cb tmpAfterWorkCb = AfterWorkCb;
-    int ret = uv_queue_work(
+    int ret = uv_queue_work_internal(
         loop,
         work,
         [](uv_work_t *work) {},
-        tmpAfterWorkCb);
+        tmpAfterWorkCb,
+        type.c_str());
     if (ret != 0) {
         ErrorLog("uv_queue_work failed");
         delete asyncEvent;
