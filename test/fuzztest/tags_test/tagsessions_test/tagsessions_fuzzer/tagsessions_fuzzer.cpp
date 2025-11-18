@@ -54,6 +54,23 @@ public:
         }
     }
 
+    void FuzzCallbackEnter(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        tagSession->CallbackEnter(code);
+    }
+
+    void FuzzCallbackExit(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        int32_t result = static_cast<int32_t>(data[1]);
+        tagSession->CallbackExit(code, result);
+    }
+
     void FuzzConnect(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
@@ -264,6 +281,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
+    OHOS::FuzzCallbackEnter(data, size);
+    OHOS::FuzzCallbackExit(data, size);
     OHOS::FuzzConnect(data, size);
     OHOS::FuzzReconnect(data, size);
     OHOS::FuzzDisconnect(data, size);

@@ -21,6 +21,7 @@
 #include "hce_session.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#includec "loghelper.h"
 
 namespace OHOS {
     using namespace OHOS::NFC;
@@ -30,12 +31,49 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
+    class HceCmdListener : public IHceCmdCallback {
+public:
+    HceCmdListener() {}
+
+    virtual ~HceCmdListener() {}
+
+public:
+    void OnCeApduData(const std::vector<uint8_t>& data) override
+    {
+        std::cout << "ONCeApduData" << std::endl;
+    }
+
+    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
         for (uint16_t i = 0 ; i < outParaLen ; i++) {
             // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
+    }
+
+    void FuzzCallbackEnter(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        service->initialize();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        hceSession->CallbackEnter(code);
+    }
+
+    void FuzzCallbackExit(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        service->initialize();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        int32_t result = static_cast<int32_t>(data[1]);
+        hceSession->CallbackExit(code, result);
     }
 
     void FuzzIsDefaultService(const uint8_t* data, size_t size)
@@ -128,6 +166,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
+    OHOS::FuzzCallbackEnter(data, size);
+    OHOS::FuzzCallbackExit(data, size);
     OHOS::FuzzIsDefaultService(data, size);
     OHOS::FuzzStartHce(data, size);
     OHOS::FuzzStopHce(data, size);
