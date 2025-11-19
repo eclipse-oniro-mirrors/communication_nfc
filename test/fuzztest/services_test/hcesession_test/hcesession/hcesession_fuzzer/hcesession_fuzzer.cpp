@@ -32,21 +32,21 @@ namespace OHOS {
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
 class HceCmdListener : public IHceCmdCallback {
-public:
-    HceCmdListener() {}
+    public:
+        HceCmdListener() {}
 
-    virtual ~HceCmdListener() {}
+        virtual ~HceCmdListener() {}
 
-public:
-    void OnCeApduData(const std::vector<uint8_t>& data) override
-    {
-        std::cout << "OnCeApduData" << std::endl;
-    }
+    public:
+        void OnCeApduData(const std::vector<uint8_t>& data) override
+        {
+            std::cout << "OnCeApduData" << std::endl;
+        }
 
-    OHOS::sptr<OHOS::IRemoteObject> AsObject() override
-    {
-        return nullptr;
-    }
+        OHOS::sptr<OHOS::IRemoteObject> AsObject() override
+        {
+            return nullptr;
+       }
 };
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
