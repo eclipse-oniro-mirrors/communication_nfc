@@ -28,6 +28,7 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
+std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
 
 class IForegroundCallbackImpl : public IForegroundCallback {
 public:
@@ -271,6 +272,15 @@ public:
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         tagSession->IsVendorProcess();
     }
+
+    void FuzzIsForegroundApp(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.bundleName_ = std::string(reinterpret_cast<const char*>(data), size);
+        g_appStateObserver->IsForegroundApp(element.GetBundleName());
+    }
 }
 
 /* Fuzzer entry point */
@@ -301,6 +311,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegReaderModeInnerData(data, size);
     OHOS::FuzzIsReaderUnregistered(data, size);
     OHOS::FuzzIsVendorProcess(data, size);
+    OHOS::FuzzIsForegroundApp(data, size);
 
     return 0;
 }

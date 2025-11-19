@@ -40,7 +40,7 @@ namespace OHOS {
         uint32_t interval = static_cast<uint32_t>(data[1]);
         NFC::NfcTimer::GetInstance()->Register(callback, outTimerId, interval);
     }
-    
+
     void FuzzUnRegister(const uint8_t* data, size_t size)
     {
         uint32_t timerIds[1];
