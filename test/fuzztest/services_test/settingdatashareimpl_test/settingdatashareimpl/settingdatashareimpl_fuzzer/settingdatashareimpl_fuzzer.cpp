@@ -76,6 +76,8 @@ namespace OHOS {
         ElementName value;
         value.GetURI() = NfcSdkCommon::BytesVecToHexString(data, size);
         settingDataShareImpl->GetElementName(uri, column, value);
+        settingDataShareImpl->dataShareHelper_ = nullptr;
+        settingDataShareImpl->GetElementName(uri, column, value);
     }
 
     void FuzzSetElementName(const uint8_t* data, size_t size)
@@ -86,6 +88,8 @@ namespace OHOS {
         ElementName value;
         value.GetURI() = NfcSdkCommon::BytesVecToHexString(data, size);
         settingDataShareImpl->SetElementName(uri, column, value);
+        settingDataShareImpl->dataShareHelper_ = nullptr;
+        settingDataShareImpl->SetElementName(uri, column, value);
     }
 
     void FuzzParseElementURI(const uint8_t* data, size_t size)
@@ -95,6 +99,15 @@ namespace OHOS {
         std::string urlStr = "abcd/1/2";
         ElementName value;
         settingDataShareImpl->ParseElementURI(urlStr, value);
+    }
+
+    void FuzzSplit(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+        std::string str = std::string(reinterpret_cast<const char*>(data), size);
+        std::string delim = std::string(reinterpret_cast<const char*>(data), size);
+        std::vector<std::string> vec;
+        settingDataShareImpl->Split(str, delim, vec);
     }
 
 }
@@ -114,6 +127,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzGetElementName(data, size);
     OHOS::FuzzSetElementName(data, size);
     OHOS::FuzzParseElementURI(data, size);
+    OHOS::FuzzSplit(data, size);
     return 0;
 }
 

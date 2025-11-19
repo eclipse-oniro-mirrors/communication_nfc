@@ -20,6 +20,7 @@
 
 #include "tag_session.h"
 #include "nfc_sdk_common.h"
+#include "app_state_observer.h"
 #include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
@@ -28,6 +29,7 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
+    std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
 
 class IForegroundCallbackImpl : public IForegroundCallback {
 public:
@@ -52,6 +54,23 @@ public:
             // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
+    }
+
+    void FuzzCallbackEnter(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        tagSession->CallbackEnter(code);
+    }
+
+    void FuzzCallbackExit(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        uint32_t code = static_cast<uint32_t>(data[0]);
+        int32_t result = static_cast<int32_t>(data[1]);
+        tagSession->CallbackExit(code, result);
     }
 
     void FuzzConnect(const uint8_t* data, size_t size)
@@ -254,6 +273,15 @@ public:
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         tagSession->IsVendorProcess();
     }
+
+    void FuzzIsForegroundApp(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
+        sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+        ElementName element;
+        element.bundleName_ = std::string(reinterpret_cast<const char*>(data), size);
+        g_appStateObserver->IsForegroundApp(element.GetBundleName());
+    }
 }
 
 /* Fuzzer entry point */
@@ -264,6 +292,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
+    OHOS::FuzzCallbackEnter(data, size);
+    OHOS::FuzzCallbackExit(data, size);
     OHOS::FuzzConnect(data, size);
     OHOS::FuzzReconnect(data, size);
     OHOS::FuzzDisconnect(data, size);
@@ -282,6 +312,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzRegReaderModeInnerData(data, size);
     OHOS::FuzzIsReaderUnregistered(data, size);
     OHOS::FuzzIsVendorProcess(data, size);
+    OHOS::FuzzIsForegroundApp(data, size);
 
     return 0;
 }
