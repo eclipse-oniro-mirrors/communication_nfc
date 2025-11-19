@@ -126,7 +126,7 @@ public:
     void FuzzUnRegAllCallback(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(nullptr);
+        std::shared_ptr<HceSession> hceSession1 = std::make_shared<HceSession>(nullptr);
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->UnRegAllCallback(callerToken);
