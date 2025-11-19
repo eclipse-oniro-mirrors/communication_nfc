@@ -29,7 +29,7 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
-std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
+    std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
 
 class IForegroundCallbackImpl : public IForegroundCallback {
 public:

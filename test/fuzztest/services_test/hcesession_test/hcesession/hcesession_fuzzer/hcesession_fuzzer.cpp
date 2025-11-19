@@ -31,7 +31,7 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
-    class HceCmdListener : public IHceCmdCallback {
+class HceCmdListener : public IHceCmdCallback {
 public:
     HceCmdListener() {}
 
