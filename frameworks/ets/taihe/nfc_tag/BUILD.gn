@@ -75,8 +75,9 @@ taihe_shared_library("nfc_fwk_taihe_tag") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:abilitykit_native",
     "ability_runtime:ani_common",
-    "featureAbility:featureability_ani",
+    "ability_runtime:featureability_ani",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:bms_ani_common",
