@@ -26,7 +26,7 @@ taihe_generated_file_path_nfcController = "$taihe_file_path/out/$subsystem_name/
 
 ohos_taihe("run_taihe") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfcController}"
-  deps = [":copy_taihe_nfc_controller"]
+  deps = [ ":copy_taihe_nfc_controller" ]
   outputs = [
     "$taihe_generated_file_path/src/ohos.nfc.controller.nfcController.ani.cpp",
     "$taihe_generated_file_path/src/ohos.nfc.controller.nfcController.abi.c",
@@ -47,7 +47,10 @@ taihe_shared_library("nfc_fwk_taihe_controller") {
   taihe_generated_file_path = "${taihe_generated_file_path_nfcController}"
   sources = get_target_outputs(":run_taihe")
 
-  defines = [ "DEBUG" ]
+  defines = [
+    "NFC_DEBUG",
+    "TAIHE_FWK"
+  ]
   include_dirs = [
     "inc",
     "$NFC_DIR/interfaces/inner_api/common",

@@ -15,7 +15,7 @@
 #ifndef LOG_HELPER_H
 #define LOG_HELPER_H
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined (NFC_DEBUG)
 #include "hilog/log.h"
 
 #ifdef FatalLog
@@ -46,7 +46,14 @@
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
+
+#ifdef TAIHE_FWK
+#define LOG_TAG "Nfc_EtsFwk"
+#endif
+
+#ifndef LOG_TAG
 #define LOG_TAG "Nfc_Core"
+#endif
 
 #define FatalLog(fmt, ...) HILOG_FATAL( \
     LOG_CORE, "[(%{public}s:%{public}d)]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)

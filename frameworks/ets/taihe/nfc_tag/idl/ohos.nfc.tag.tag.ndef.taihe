@@ -13,18 +13,21 @@
  * limitations under the License.
  */
 
+@!namespace("@ohos.nfc.tag", "tag.ndef")
 @!sts_inject("""
 static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_tag.z", "@ohos.nfc.tag"); }
 """)
-
-@!namespace("@ohos.nfc.tag", "tag.ndef")
 
 from ohos.nfc.tag.tag use NdefRecord;
 from nfctech use NdefMessage;
 
 function makeUriRecord(uri: String): NdefRecord;
 function makeTextRecord(text: String, locale: String): NdefRecord;
+function makeApplicationRecord(bundleName: String): NdefRecord;
 function makeMimeRecord(mimeType: String, mimeData: Array<i32>): NdefRecord;
 function makeExternalRecord(domainName: String, type: String, externalData: Array<i32>): NdefRecord;
 
 function messageToBytes(ndefMessage: NdefMessage): Array<i32>;
+
+function createNdefMessageByData(data: Array<i32>): NdefMessage;
+function createNdefMessageByRecords(record: Array<NdefRecord>): NdefMessage;
