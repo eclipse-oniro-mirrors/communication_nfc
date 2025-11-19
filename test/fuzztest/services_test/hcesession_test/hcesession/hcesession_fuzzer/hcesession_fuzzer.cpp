@@ -31,7 +31,7 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
-class HceCmdListener : public IHceCmdCallback {
+    class HceCmdListener : public IHceCmdCallback {
     public:
         HceCmdListener() {}
 
@@ -46,8 +46,8 @@ class HceCmdListener : public IHceCmdCallback {
         OHOS::sptr<OHOS::IRemoteObject> AsObject() override
         {
             return nullptr;
-       }
-};
+        }
+    };
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
