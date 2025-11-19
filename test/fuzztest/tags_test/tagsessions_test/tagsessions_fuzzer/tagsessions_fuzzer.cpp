@@ -20,6 +20,7 @@
 
 #include "tag_session.h"
 #include "nfc_sdk_common.h"
+#include "app_state_observer.h"
 #include "nfc_service_ipc_interface_code.h"
 
 namespace OHOS {
