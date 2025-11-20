@@ -42,9 +42,9 @@ namespace OHOS {
         virtual ~HceCmdListenerEvent() {}
     
     public:
-        void OnCeApduData(const std::vector<uint8_t>& data) override {return}
+        void OnCeApduData(const std::vector<uint8_t>& data) override {return;}
 
-        OHOS::sptr<OHOS::IRemoteObject> AsObject() override {return nullptr}
+        OHOS::sptr<OHOS::IRemoteObject> AsObject() override {return nullptr;}
     };
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
@@ -123,7 +123,7 @@ namespace OHOS {
         bool raw = data[0] % INT_TO_BOOL_DIVISOR;
         std::string hexRespData = std::string(reinterpret_cast<const char*>(data), size);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
-        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
         hceSession->ceService_ = ceService;
         hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
         hceSession->ceService_ = {};
