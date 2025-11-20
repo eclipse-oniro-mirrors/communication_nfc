@@ -36,7 +36,6 @@ namespace OHOS {
         HceCmdListener() {}
 
         virtual ~HceCmdListener() {}
-        
 
     public:
         void OnCeApduData(const std::vector<uint8_t>& data) override
