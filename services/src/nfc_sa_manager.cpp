@@ -23,7 +23,7 @@ namespace OHOS {
 namespace NFC {
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<NfcSaManager>::GetInstance().get());
-/* The highest process priority in a Linux system (-20) */
+/* The highest process priority */
 const int MAX_PRIORITY = -20;
 
 NfcSaManager::NfcSaManager() : SystemAbility(NFC_MANAGER_SYS_ABILITY_ID, false) {}
