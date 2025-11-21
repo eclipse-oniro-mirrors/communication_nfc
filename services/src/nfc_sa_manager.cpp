@@ -16,11 +16,15 @@
 #include "loghelper.h"
 #include "system_ability_definition.h"
 #include "external_deps_proxy.h"
-
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
 namespace OHOS {
 namespace NFC {
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<NfcSaManager>::GetInstance().get());
+/* The highest process priority */
+const int MAX_PRIORITY = -20;
 
 NfcSaManager::NfcSaManager() : SystemAbility(NFC_MANAGER_SYS_ABILITY_ID, false) {}
 
@@ -33,6 +37,7 @@ NfcSaManager::~NfcSaManager()
 
 void NfcSaManager::OnStart(const SystemAbilityOnDemandReason &startReason)
 {
+    SetPriority();
     if (state_ == ServiceRunningState::STATE_RUNNING) {
         InfoLog("NfcSaManager has already started.");
         return;
@@ -49,6 +54,16 @@ void NfcSaManager::OnStart(const SystemAbilityOnDemandReason &startReason)
     }
     state_ = ServiceRunningState::STATE_RUNNING;
     InfoLog("NfcSaManager::OnStart start service success.");
+}
+
+void NfcSaManager::SetPriority()
+{
+    // Increase service priority
+    if (setpriority(PRIO_PROCESS, 0, MAX_PRIORITY) != 0) {
+        ErrorLog("setpriority err %{public}s", strerror(errno));
+        return;
+    }
+    InfoLog("setpriority succeed.");
 }
 
 bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)

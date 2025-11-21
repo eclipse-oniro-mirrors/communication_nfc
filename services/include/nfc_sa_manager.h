@@ -46,6 +46,9 @@ public:
         return state_;
     }
 
+    /* Increase service priority */
+    void SetPriority();
+
 private:
     bool Init(const SystemAbilityOnDemandReason &startReason);
     bool registerToService_ = false;
