@@ -30,6 +30,7 @@ ohos_shared_library("cardemulation") {
   include_dirs = [
     "$NFC_DIR/interfaces/inner_api/cardEmulation",
     "$NFC_DIR/frameworks/js/napi/common",
+    "$NFC_DIR/interfaces/inner_api/controller",
   ]
 
   sources = [
@@ -43,6 +44,7 @@ ohos_shared_library("cardemulation") {
   deps = [
     "$NFC_DIR/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller",
   ]
 
   external_deps = [

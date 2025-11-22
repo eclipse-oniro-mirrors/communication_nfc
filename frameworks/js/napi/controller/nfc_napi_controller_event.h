@@ -101,7 +101,6 @@ private:
     void DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs, napi_value& handler);
     void DeleteAllRegisterObj(const napi_env& env, std::vector<RegObj>& vecRegObjs);
 
-    static bool isEventRegistered;
     std::shared_ptr<NfcNapiAbilityStatusChange> mSaStatusListener_;
 };
 

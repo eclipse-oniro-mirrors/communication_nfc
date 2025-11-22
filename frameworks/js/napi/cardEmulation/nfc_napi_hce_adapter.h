@@ -113,7 +113,6 @@ private:
     bool IsEventSupport(const std::string& type);
     void DeleteHceCmdRegisterObj(const napi_env& env);
 
-    static bool isEventRegistered;
     std::shared_ptr<NfcNapiHceAbilityStatusChange> saStatusListener_;
 };
 } // namespace KITS
