@@ -23,6 +23,7 @@
 #include "reader_mode_callback_stub.h"
 #include "system_ability_definition.h"
 #include "tag_session_proxy.h"
+#include "nfc_sa_client.h"
 
 namespace OHOS {
 namespace NFC {
@@ -74,11 +75,9 @@ int TagForeground::RegForeground(AppExecFwk::ElementName &element,
 int TagForeground::UnregForeground(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregForeground");
-    bool isNfcOpen = false;
-    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
-    if (!isNfcOpen) {
-        ErrorLog("UnregForeground: nfc is not open");
-        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
+        return ErrorCode::ERR_NONE;
     }
 
     OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
@@ -113,11 +112,9 @@ int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
 int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregReaderMode");
-    bool isNfcOpen = false;
-    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
-    if (!isNfcOpen) {
-        ErrorLog("UnregReaderMode: nfc is not open");
-        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
+        return ErrorCode::ERR_NONE;
     }
     OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
     if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
