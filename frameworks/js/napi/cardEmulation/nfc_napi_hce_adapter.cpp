@@ -16,6 +16,7 @@
 #include "nfc_napi_hce_adapter.h"
 #include "loghelper.h"
 #include "hce_service.h"
+#include "nfc_controller.h"
 #include <uv.h>
 #include "iservice_registry.h"
 #include <thread>
@@ -600,16 +601,17 @@ void NfcNapiHceAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, 
     // sleep 3s to wait Nfc turn on
     std::this_thread::sleep_for(std::chrono::seconds(3));
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
-    for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
-        ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
-        InfoLog("OnAddSystemAbility: RegHceCmdCallback, statusCode = %{public}d", ret);
+    if (NfcController::GetInstance().IsNfcOpen()) {
+        for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
+            ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
+            InfoLog("OnAddSystemAbility: RegHceCmdCallback, statusCode = %{public}d", ret);
+        }
     }
 }
 
 void NfcNapiHceAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    InfoLog("%{public}s, systemAbilityId = %{public}d, ClearHceSessionProxy", __func__, systemAbilityId);
-    HceService::GetInstance().ClearHceSessionProxy();
+    InfoLog("%{public}s, systemAbilityId = %{public}d", __func__, systemAbilityId);
 }
 
 void NfcNapiHceAbilityStatusChange::Init(int32_t systemAbilityId)

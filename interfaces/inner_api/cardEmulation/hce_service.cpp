@@ -198,18 +198,7 @@ KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vect
 
 OHOS::sptr<IHceSession> HceService::GetHceSessionProxy(int32_t &res)
 {
-    std::lock_guard<std::mutex> lock(g_hceSessionProxyLock);
-    if (hceSessionProxy_ == nullptr) {
-        hceSessionProxy_ = iface_cast<IHceSession>(NfcController::GetInstance().GetHceServiceIface(res));
-    }
-    return hceSessionProxy_;
-}
-
-void HceService::ClearHceSessionProxy()
-{
-    WarnLog("ClearHceSessionProxy");
-    std::lock_guard<std::mutex> lock(g_hceSessionProxyLock);
-    hceSessionProxy_ = nullptr;
+    return iface_cast<IHceSession>(NfcController::GetInstance().GetHceServiceIface(res));
 }
 } // namespace KITS
 } // namespace NFC

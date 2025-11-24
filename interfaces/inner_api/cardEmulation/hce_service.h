@@ -40,7 +40,6 @@ public:
     int SendRawFrame(std::string hexCmdData, bool raw, std::string &hexRespData);
     int GetPaymentServices(std::vector<AbilityInfo> &abilityInfos);
     KITS::ErrorCode StartHce(const ElementName &element, const std::vector<std::string> &aids);
-    void ClearHceSessionProxy();
 
 protected:
     OHOS::sptr<IHceSession> GetHceSessionProxy(int32_t &res);
