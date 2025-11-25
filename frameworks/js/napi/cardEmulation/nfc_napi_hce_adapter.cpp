@@ -601,7 +601,9 @@ void NfcNapiHceAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, 
     // sleep 3s to wait Nfc turn on
     std::this_thread::sleep_for(std::chrono::seconds(3));
     std::lock_guard<std::mutex> guard(g_regInfoMutex);
-    if (NfcController::GetInstance().IsNfcOpen()) {
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (isNfcOpen) {
         for (auto it = g_eventRegisterInfo.begin(); it != g_eventRegisterInfo.end(); ++it) {
             ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(hceCmdListenerEvent, it->first);
             InfoLog("OnAddSystemAbility: RegHceCmdCallback, statusCode = %{public}d", ret);
