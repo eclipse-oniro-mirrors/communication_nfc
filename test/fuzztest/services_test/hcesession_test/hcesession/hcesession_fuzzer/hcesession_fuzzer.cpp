@@ -123,6 +123,15 @@ namespace OHOS {
         hceSession->RegHceCmdCallback(callback, type);
     }
 
+    void FuzzRegHceCmdCallbackByToken2(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        hceSession->RegHceCmdCallback(callback, type);
+    }
+
     void FuzzUnRegHceCmdCallback(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
@@ -133,6 +142,15 @@ namespace OHOS {
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
         hceSession->ceService_ = ceService;
+        hceSession->UnregHceCmdCallback(callback, type);
+    }
+
+    void FuzzUnRegHceCmdCallback2(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         hceSession->UnregHceCmdCallback(callback, type);
     }
 
@@ -196,7 +214,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzStartHce(data, size);
     OHOS::FuzzStopHce(data, size);
     OHOS::FuzzRegHceCmdCallbackByToken(data, size);
+    OHOS::FuzzRegHceCmdCallbackByToken2(data, size);
     OHOS::FuzzUnRegHceCmdCallback(data, size);
+    OHOS::FuzzUnRegHceCmdCallback2(data, size);
     OHOS::FuzzUnRegAllCallback(data, size);
     OHOS::FuzzHandleWhenRemoteDie(data, size);
     OHOS::FuzzGetPaymentServices(data, size);

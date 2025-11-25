@@ -57,7 +57,6 @@ public:
 
     void FuzzResetTimeout(const uint8_t* data, size_t size)
     {
-        //std::shared_ptr<NFC::NfcService> service = nullptr;
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
@@ -65,13 +64,12 @@ public:
         int tagRfDiscId = timeOutArray[0];
         tagSession->ResetTimeout(tagRfDiscId);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->ResetTimeout(tagRfDiscId);
     }
 
     void FuzzIsTagFieldOn(const uint8_t* data, size_t size)
     {
-        // std::shared_ptr<NFC::NfcService> service = nullptr;
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         uint32_t timeOutArray[1];
@@ -80,7 +78,7 @@ public:
         bool isTagFieldOn = false;
         tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
 
@@ -169,7 +167,7 @@ public:
         bool isConnected = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsConnected(tagRfDiscId, isConnected);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsConnected(tagRfDiscId, isConnected);
     }
 

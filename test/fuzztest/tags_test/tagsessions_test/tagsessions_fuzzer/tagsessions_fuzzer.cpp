@@ -81,7 +81,7 @@ public:
         int32_t technology = static_cast<int32_t>(data[1]);
         tagSession->Connect(tagRfDiscId, technology);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->Connect(tagRfDiscId, technology);
     }
 
@@ -92,7 +92,7 @@ public:
         int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->Reconnect(tagRfDiscId);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->Reconnect(tagRfDiscId);
     }
 
@@ -103,7 +103,7 @@ public:
         int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->Disconnect(tagRfDiscId);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->Disconnect(tagRfDiscId);
     }
 
@@ -115,7 +115,7 @@ public:
         std::vector<int32_t> techList = {};
         tagSession->GetTechList(tagRfDiscId, techList);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->GetTechList(tagRfDiscId, techList);
     }
 
@@ -127,7 +127,7 @@ public:
         bool isNdef = false;
         tagSession->IsNdef(tagRfDiscId, isNdef);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsNdef(tagRfDiscId, isNdef);
     }
 
@@ -141,7 +141,7 @@ public:
         std::string hexRespData = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
     }
 
@@ -153,7 +153,7 @@ public:
         std::string ndefMessage = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->NdefRead(tagRfDiscId, ndefMessage);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->NdefRead(tagRfDiscId, ndefMessage);
     }
 
@@ -166,7 +166,7 @@ public:
         tagSession->NdefWrite(tagRfDiscId, "");
         tagSession->NdefWrite(tagRfDiscId, msg);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->NdefWrite(tagRfDiscId, "");
         tagSession1->NdefWrite(tagRfDiscId, msg);
     }
@@ -178,7 +178,7 @@ public:
         int32_t tagRfDiscId = static_cast<int32_t>(data[0]);
         tagSession->NdefMakeReadOnly(tagRfDiscId);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->NdefMakeReadOnly(tagRfDiscId);
     }
 
@@ -190,7 +190,7 @@ public:
         std::string key = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->FormatNdef(tagRfDiscId, key);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->FormatNdef(tagRfDiscId, key);
     }
 
@@ -202,7 +202,7 @@ public:
         bool canSetReadOnly = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->CanMakeReadOnly(tagRfDiscId, canSetReadOnly);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->CanMakeReadOnly(tagRfDiscId, canSetReadOnly);
     }
 
@@ -222,7 +222,7 @@ public:
         bool isSupported = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsSupportedApdusExtended(isSupported);
         service->Initialize();
-        sptr<NFC::TAG::TagSession> TagSession1 = new NFC::TAG::TagSession(service);
+        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsSupportedApdusExtended(isSupported);
     }
 

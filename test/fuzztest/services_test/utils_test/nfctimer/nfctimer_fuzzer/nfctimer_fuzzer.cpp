@@ -19,6 +19,7 @@
 
 #include "nfc_timer.h"
 #include "nfc_sdk_common.h"
+#include "loghelper.h"
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -37,7 +38,9 @@ namespace OHOS {
     {
         NFC::NfcTimer::TimerCallback callback;
         uint32_t outTimerId = static_cast<uint32_t>(data[0]);
+        InfoLog("outTimerId data is %{public}u", outTimerId);
         uint32_t interval = static_cast<uint32_t>(data[1]);
+        InfoLog("interval data is %{public}u", interval);
         NFC::NfcTimer::GetInstance()->Register(callback, outTimerId, interval);
     }
 
