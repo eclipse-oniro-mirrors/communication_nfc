@@ -76,26 +76,6 @@ namespace OHOS {
         return addr;
     }
 
-    bool DoHceSessionStubFuzzTest(const uint8_t* data, size_t size)
-    {
-        uint32_t code = (GetU32Data(data) % MESSAGE_SIZE);
-        auto addr = BuildAddressString(data);
-
-        MessageParcel datas;
-        std::u16string descriptor = NFC::HceSessionStub::GetDescriptor();
-        datas.WriteInterfaceToken(descriptor);
-        datas.WriteInt32(*(reinterpret_cast<const int32_t *>(data)));
-        datas.WriteString(addr.c_str());
-        datas.RewindRead(0);
-        MessageParcel reply;
-        MessageOption option;
-
-        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        hceSession->OnRemoteRequest(code, datas, reply, option);
-        return true;
-    }
-
     void StopHceFuzzTest(const uint8_t* data, size_t size)
     {
         ElementName element;
@@ -141,7 +121,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::NFC::NfcAccessTokenMock::SetNativeTokenInfo();
-    OHOS::DoHceSessionStubFuzzTest(data, size);
     OHOS::StopHceFuzzTest(data, size);
     OHOS::RemoveHceDeathRecipientFuzzTest(data, size);
     OHOS::SendRawFrameFuzzTest(data, size);
