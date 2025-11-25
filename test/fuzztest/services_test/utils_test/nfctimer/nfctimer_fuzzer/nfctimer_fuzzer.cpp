@@ -33,6 +33,14 @@ namespace OHOS {
         }
     }
 
+    void FuzzRegister(const uint8_t* data, size_t size)
+    {
+        NFC::NfcTimer::TimerCallback callback;
+        uint32_t outTimerId = static_cast<uint32_t>(data[0]);
+        uint32_t interval = static_cast<uint32_t>(data[1]);
+        NFC::NfcTimer::GetInstance()->Register(callback, outTimerId, interval);
+    }
+
     void FuzzUnRegister(const uint8_t* data, size_t size)
     {
         uint32_t timerIds[1];
@@ -52,6 +60,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
+    OHOS::FuzzRegister(data, size);
     OHOS::FuzzUnRegister(data, size);
     return 0;
 }
