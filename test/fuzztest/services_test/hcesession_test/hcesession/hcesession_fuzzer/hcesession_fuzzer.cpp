@@ -20,6 +20,7 @@
 
 #include "hce_session.h"
 #include "nfc_sdk_common.h"
+#include "hce_cmd_callback_stub.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
 
@@ -84,6 +85,10 @@ namespace OHOS {
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         bool isDefaultService = data[0] % INT_TO_BOOL_DIVISOR;
         hceSession->IsDefaultService(element, type, isDefaultService);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->IsDefaultService(element, type, isDefaultService);
     }
 
     void FuzzStartHce(const uint8_t* data, size_t size)
@@ -112,6 +117,19 @@ namespace OHOS {
         sptr<KITS::IHceCmdCallback> callback = nullptr;
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         hceSession->RegHceCmdCallback(callback, type);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->RegHceCmdCallback(callback, type);
+    }
+
+    void FuzzRegHceCmdCallbackByToken2(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        hceSession->RegHceCmdCallback(callback, type);
     }
 
     void FuzzUnRegHceCmdCallback(const uint8_t* data, size_t size)
@@ -119,6 +137,19 @@ namespace OHOS {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
+        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        hceSession->UnregHceCmdCallback(callback, type);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->UnregHceCmdCallback(callback, type);
+    }
+
+    void FuzzUnRegHceCmdCallback2(const uint8_t* data, size_t size)
+    {
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
         std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
         hceSession->UnregHceCmdCallback(callback, type);
     }
@@ -130,6 +161,10 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
         hceSession->UnRegAllCallback(callerToken);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->UnRegAllCallback(callerToken);
     }
 
     void FuzzHandleWhenRemoteDie(const uint8_t* data, size_t size)
@@ -137,6 +172,10 @@ namespace OHOS {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(data[0]);
+        hceSession->HandleWhenRemoteDie(callerToken);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
         hceSession->HandleWhenRemoteDie(callerToken);
     }
 
@@ -156,6 +195,8 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         std::vector<AbilityInfo> paymentAbilityInfos;
         hceSession->AppendSimBundle(paymentAbilityInfos);
+        std::shared_ptr<HceSession> hceSession1 = std::make_shared<HceSession>(nullptr);
+        hceSession1->AppendSimBundle(paymentAbilityInfos);
     }
 }
 
@@ -173,7 +214,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzStartHce(data, size);
     OHOS::FuzzStopHce(data, size);
     OHOS::FuzzRegHceCmdCallbackByToken(data, size);
+    OHOS::FuzzRegHceCmdCallbackByToken2(data, size);
     OHOS::FuzzUnRegHceCmdCallback(data, size);
+    OHOS::FuzzUnRegHceCmdCallback2(data, size);
     OHOS::FuzzUnRegAllCallback(data, size);
     OHOS::FuzzHandleWhenRemoteDie(data, size);
     OHOS::FuzzGetPaymentServices(data, size);

@@ -28,11 +28,24 @@
 #include "nfc_access_token_mock.h"
 
 namespace OHOS {
+    using namespace OHOS::NFC;
     using namespace OHOS::NFC::KITS;
     using namespace OHOS::NFC::HCE;
 
     constexpr uint32_t MESSAGE_SIZE = NFC::NfcServiceIpcInterfaceCode::COMMAND_CE_HCE_SESSION_BOTTOM;
     constexpr const auto FUZZER_THRESHOLD = 6;
+    constexpr const auto INT_TO_BOOL_DIVISOR = 2;
+
+    class HceCmdListenerEvent : public IHceCmdCallback {
+    public:
+        HceCmdListenerEvent() {}
+        virtual ~HceCmdListenerEvent() {}
+    
+    public:
+        void OnCeApduData(const std::vector<uint8_t>& data) override {return;}
+
+        OHOS::sptr<OHOS::IRemoteObject> AsObject() override {return nullptr;}
+    };
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -63,26 +76,6 @@ namespace OHOS {
         return addr;
     }
 
-    bool DoHceSessionStubFuzzTest(const uint8_t* data, size_t size)
-    {
-        uint32_t code = (GetU32Data(data) % MESSAGE_SIZE);
-        auto addr = BuildAddressString(data);
-
-        MessageParcel datas;
-        std::u16string descriptor = NFC::HceSessionStub::GetDescriptor();
-        datas.WriteInterfaceToken(descriptor);
-        datas.WriteInt32(*(reinterpret_cast<const int32_t *>(data)));
-        datas.WriteString(addr.c_str());
-        datas.RewindRead(0);
-        MessageParcel reply;
-        MessageOption option;
-
-        std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-        std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        hceSession->OnRemoteRequest(code, datas, reply, option);
-        return true;
-    }
-
     void StopHceFuzzTest(const uint8_t* data, size_t size)
     {
         ElementName element;
@@ -98,16 +91,23 @@ namespace OHOS {
         std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
         std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
         hceSession->RemoveHceDeathRecipient(remote);
+        hceSession->hceCmdCallback_ = sptr<HceCmdListenerEvent>(new HceCmdListenerEvent());
+        hceSession->RemoveHceDeathRecipient(remote);
     }
 
-    void FuzzHceSessionDump(const uint8_t* data, size_t size)
+    void SendRawFrameFuzzTest(const uint8_t* data, size_t size)
     {
-        auto addr = BuildAddressString(data);
         std::shared_ptr<OHOS::NFC::NfcService> nfcService = std::make_shared<OHOS::NFC::NfcService>();
-        int32_t fd = 0;
-        std::vector<std::u16string> args;
         std::shared_ptr<NFC::HCE::HceSession> hceSession = std::make_shared<NFC::HCE::HceSession>(nfcService);
-        (void)hceSession->Dump(fd, args);
+        std::string hexCmdData = std::string(reinterpret_cast<const char*>(data), size);
+        bool raw = data[0] % INT_TO_BOOL_DIVISOR;
+        std::string hexRespData = std::string(reinterpret_cast<const char*>(data), size);
+        std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
+        hceSession->ceService_ = {};
+        hceSession->SendRawFrame(hexCmdData, raw, hexRespData);
     }
 
 }
@@ -121,10 +121,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     OHOS::NFC::NfcAccessTokenMock::SetNativeTokenInfo();
-    OHOS::DoHceSessionStubFuzzTest(data, size);
     OHOS::StopHceFuzzTest(data, size);
     OHOS::RemoveHceDeathRecipientFuzzTest(data, size);
-    OHOS::FuzzHceSessionDump(data, size);
+    OHOS::SendRawFrameFuzzTest(data, size);
     return 0;
 }
 
