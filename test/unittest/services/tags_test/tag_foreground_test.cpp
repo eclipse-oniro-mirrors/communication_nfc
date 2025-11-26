@@ -132,7 +132,7 @@ HWTEST_F(TagForegroundTest, UnregForeground002, TestSize.Level1)
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregForeground(element);
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
 }
 
 /**
@@ -210,7 +210,7 @@ HWTEST_F(TagForegroundTest, UnregReaderMode002, TestSize.Level1)
     AppExecFwk::ElementName element;
     TagForeground instance = TagForeground::GetInstance();
     int result = instance.UnregReaderMode(element);
-    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+    ASSERT_TRUE(result == ErrorCode::ERR_NO_PERMISSION);
 }
 
 /**
