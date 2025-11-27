@@ -77,7 +77,7 @@ bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)
         nfcService_->Initialize();
         if (startReason.GetName() != "usual.event.BOOT_COMPLETED") {
             nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
-        } else if ((NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME) == "true") && 
+        } else if ((NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME) == "true") &&
             (NfcParamUtil::GetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME) == "true")) {
             nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
         }
