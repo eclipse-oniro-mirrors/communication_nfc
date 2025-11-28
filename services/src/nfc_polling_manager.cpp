@@ -198,9 +198,12 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
         foregroundData_->callerToken_ = 0;
         foregroundData_->callback_ = nullptr;
     }
-    if (nfcService_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        WarnLog("nfc is closed.");
-        return true;
+    auto nfcServiceLock = nfcService_.lock();
+    if (nfcServiceLock) {
+        if (!nfcServiceLock->IsNfcEnabled()) {
+            WarnLog("nfc is closed.");
+            return true;
+        }
     }
     if (!nciNfccProxy_.expired()) {
         nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
@@ -294,9 +297,12 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
         readerModeData_->callerToken_ = 0;
         readerModeData_->callback_ = nullptr;
     }
-    if (nfcService_.expired() || !nfcService_.lock()->IsNfcEnabled()) {
-        WarnLog("nfc is closed.");
-        return true;
+    auto nfcServiceLock = nfcService_.lock();
+    if (nfcServiceLock) {
+        if (!nfcServiceLock->IsNfcEnabled()) {
+            WarnLog("nfc is closed.");
+            return true;
+        }
     }
     if (!nciTagProxy_.expired()) {
         nciTagProxy_.lock()->StopFieldChecking();
