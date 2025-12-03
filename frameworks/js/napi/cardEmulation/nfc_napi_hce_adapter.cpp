@@ -249,7 +249,11 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     if (env == oldRegObj.m_regEnv) {
         DebugLog("handler env is same");
         napi_value oldHandler = nullptr;
-        napi_get_reference_value(oldRegObj.m_regEnv, oldRegObj.m_regHanderRef, &oldHandler);
+        napi_status status = napi_get_reference_value(oldRegObj.m_regEnv, oldRegObj.m_regHanderRef, &oldHandler);
+        if (status != napi_ok) {
+            ErrorLog("napi_get_reference_value ret %{public}d", status);
+            return;
+        }
         bool isEqual = false;
         napi_strict_equals(oldRegObj.m_regEnv, oldHandler, handler, &isEqual);
         if (isEqual) {
@@ -383,14 +387,15 @@ static void after_work_cb(uv_work_t* work, int status)
     uint32_t refCount = INVALID_REF_COUNT;
     napi_open_handle_scope(asyncData->env, &scope);
     napi_value handler = nullptr;
+    napi_status napiStatus = napi_ok;
     if (scope == nullptr) {
         ErrorLog("after_work_cb: scope is nullptr");
         goto EXIT;
     }
 
-    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
-    if (handler == nullptr) {
-        ErrorLog("after_work_cb: handler is nullptr");
+    napiStatus = napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+    if (napiStatus != napi_ok || handler == nullptr) {
+        ErrorLog("napi_get_reference_value ret %{public}d", napiStatus);
         goto EXIT;
     }
     napi_value resArgs[ARGV_INDEX_2];

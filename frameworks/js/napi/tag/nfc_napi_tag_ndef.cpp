@@ -136,7 +136,7 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
     }
 
     // check parameter data type
-    NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
+    std::unique_ptr<NapiNdefMessage> napiNdefMessage = std::make_unique<NapiNdefMessage>();
     if (IsNumberArray(env, argv[ARGV_INDEX_0])) {
         // data: number[]
         std::vector<unsigned char> dataVec;
@@ -152,12 +152,10 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
     } else {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PARAM,
             BuildErrorMessage(BUSI_ERR_PARAM, "", "", "data | ndefRecords", "number[] | NdefRecord[]")));
-        delete napiNdefMessage;
         return CreateUndefined(env);
     }
 
     if (napiNdefMessage->ndefMessage == nullptr) {
-        delete napiNdefMessage;
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
             BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
         return CreateUndefined(env);
@@ -165,19 +163,19 @@ napi_value NapiNdefTag::CreateNdefMessage(napi_env env, napi_callback_info info)
 
     napi_value ndefMessage = nullptr;
     napi_value constructor = nullptr;
-    napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    napi_status status = napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    if (status != napi_ok) {
+        ErrorLog("napi_get_reference_value ret %{public}d", status);
+        return ndefMessage;
+    }
     napi_new_instance(env, constructor, 0, nullptr, &ndefMessage);
-    napi_status status = napi_wrap(env, ndefMessage, napiNdefMessage,
+    status = napi_wrap(env, ndefMessage, napiNdefMessage.release(),
         [](napi_env env, void *data, void *hint) {
             if (data) {
                 NapiNdefMessage *message = static_cast<NapiNdefMessage *>(data);
                 delete message;
             }
         }, nullptr, nullptr);
-    if (status != napi_ok && napiNdefMessage != nullptr) {
-        delete napiNdefMessage;
-        napiNdefMessage = nullptr;
-    }
     NAPI_ASSERT(env, status == napi_ok, "CreateNdefMessage, failed to wrap ndefMessage");
     return ndefMessage;
 }
@@ -227,7 +225,11 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
     }
 
     napi_value constructor = nullptr;
-    napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    status = napi_get_reference_value(env, ndefMessageRef_, &constructor);
+    if (status != napi_ok) {
+        ErrorLog("napi_get_reference_value ret %{public}d", status);
+        return CreateUndefined(env);
+    }
     napi_new_instance(env, constructor, 0, nullptr, &ndefMessage);
 
     NdefTag *nfcNdefTagPtr = static_cast<NdefTag *>(static_cast<void *>(objectInfo->tagSession.get()));
@@ -236,16 +238,15 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
         return CreateUndefined(env);
     }
 
-    NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
+    std::unique_ptr<NapiNdefMessage> napiNdefMessage = std::make_unique<NapiNdefMessage>();
     napiNdefMessage->ndefMessage = nfcNdefTagPtr->GetCachedNdefMsg();
     if (napiNdefMessage->ndefMessage == nullptr) {
         ErrorLog("GetNdefMessage ndefMessage failed!");
-        delete napiNdefMessage;
         return CreateUndefined(env);
     }
 
     napi_status status2 = napi_wrap(
-        env, ndefMessage, napiNdefMessage,
+        env, ndefMessage, napiNdefMessage.release(),
         [](napi_env env, void *data, void *hint) {
             if (data) {
                 NapiNdefMessage *message = static_cast<NapiNdefMessage *>(data);
@@ -257,8 +258,6 @@ napi_value NapiNdefTag::GetNdefMessage(napi_env env, napi_callback_info info)
         ErrorLog("GetNdefMessage, napi_wrap failed, object is null.");
         if (napiNdefMessage != nullptr) {
             ErrorLog("CreateNdefMessage napi_wrap failed");
-            delete napiNdefMessage;
-            napiNdefMessage = nullptr;
         }
         return CreateUndefined(env);
     }
@@ -339,9 +338,13 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
         napi_value callbackValue = nullptr;
         napi_value constructor = nullptr;
 
-        napi_get_reference_value(env, ndefMessageRef_, &constructor);
+        napi_status status = napi_get_reference_value(env, ndefMessageRef_, &constructor);
+        if (status != napi_ok) {
+            ErrorLog("napi_get_reference_value ret %{public}d", status);
+            return;
+        }
         napi_new_instance(env, constructor, 0, nullptr, &callbackValue);
-        napi_status status = napi_wrap(
+        status = napi_wrap(
             env, callbackValue, napiNdefMessage,
             [](napi_env env, void *data, void *hint) {
                 if (data) {

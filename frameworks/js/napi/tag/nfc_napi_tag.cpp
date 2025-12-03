@@ -707,6 +707,11 @@ napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref
     napi_value result = nullptr;
     napi_value constructor = nullptr;
     napi_get_reference_value(env, ref, &constructor);
+    napi_status status = napi_get_reference_value(env, ref, &constructor);
+    if (status != napi_ok) {
+        ErrorLog("napi_get_reference_value ret %{public}d", status);
+        return result;
+    }
     napi_new_instance(env, constructor, argc, argv, &result);
     return result;
 }
