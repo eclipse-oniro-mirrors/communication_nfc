@@ -102,9 +102,9 @@ static void AfterWorkCb(uv_work_t *work, int status)
     }
 
     napi_value callback = nullptr;
-    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &callback);
-    if (callback == nullptr) {
-        ErrorLog("AfterWorkCb: callback is nullptr");
+    napi_status napiStatus = napi_get_reference_value(asyncData->env, asyncData->callbackRef, &callback);
+    if (napiStatus != napi_ok || callback == nullptr) {
+        ErrorLog("napi_get_reference_value ret %{public}d", napiStatus);
         ReleaseAfterWorkCb(work, asyncData, scope,  refCount);
         return;
     }
@@ -354,7 +354,11 @@ int ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     g_foregroundRegInfo = regObj;
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
-        napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+        napi_status status = napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+        if (status != napi_ok) {
+            ErrorLog("napi_get_reference_value ret %{public}d", status);
+            return ERR_NONE;
+        }
     }
     return ERR_NONE;
 }
@@ -547,7 +551,11 @@ int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, Elem
     g_readerModeRegInfo = regObj;
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
-        napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+        napi_status status = napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+        if (status != napi_ok) {
+            ErrorLog("napi_get_reference_value ret %{public}d", status);
+            return ERR_NONE;
+        }
     }
     return ERR_NONE;
 }

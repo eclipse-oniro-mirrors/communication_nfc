@@ -75,12 +75,17 @@ static void after_work_cb(uv_work_t *work, int status)
     napi_open_handle_scope(asyncData->env, &scope);
     napi_value handler = nullptr;
     napi_value jsEvent = nullptr;
+    napi_status napiStatus;
     if (scope == nullptr) {
         ErrorLog("scope is nullptr");
         goto EXIT;
     }
 
-    napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+    napiStatus = napi_get_reference_value(asyncData->env, asyncData->callbackRef, &handler);
+    if (napiStatus != napi_ok) {
+        ErrorLog("napi_get_reference_value ret %{public}d", napiStatus);
+        goto EXIT;
+    }
     if (handler == nullptr) {
         ErrorLog("handler is nullptr");
         goto EXIT;
@@ -296,7 +301,11 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     for (auto miter : iter->second) {
         if (env == miter.m_regEnv) {
             napi_value handlerTemp = nullptr;
-            napi_get_reference_value(miter.m_regEnv, miter.m_regHanderRef, &handlerTemp);
+            napi_status napiStatus = napi_get_reference_value(miter.m_regEnv, miter.m_regHanderRef, &handlerTemp);
+            if (napiStatus != napi_ok) {
+                ErrorLog("napi_get_reference_value ret %{public}d", napiStatus);
+                return;
+            }
             bool isEqual = false;
             napi_strict_equals(miter.m_regEnv, handlerTemp, handler, &isEqual);
             if (isEqual) {
@@ -319,7 +328,11 @@ void EventRegister::DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& 
     for (; iter != vecRegObjs.end();) {
         if (env == iter->m_regEnv) {
             napi_value handlerTemp = nullptr;
-            napi_get_reference_value(iter->m_regEnv, iter->m_regHanderRef, &handlerTemp);
+            napi_status napiStatus = napi_get_reference_value(iter->m_regEnv, iter->m_regHanderRef, &handlerTemp);
+            if (napiStatus != napi_ok) {
+                ErrorLog("napi_get_reference_value ret %{public}d", napiStatus);
+                return;
+            }
             bool isEqual = false;
             if (handlerTemp == nullptr) {
                 DebugLog("handlerTemp is null");
