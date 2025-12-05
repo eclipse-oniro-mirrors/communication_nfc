@@ -306,6 +306,7 @@ ohos_unittest("services_test") {
     "services_test/nfc_event_handler_test.cpp",
     "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
+    "services_test/settingdatashareimpl_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
