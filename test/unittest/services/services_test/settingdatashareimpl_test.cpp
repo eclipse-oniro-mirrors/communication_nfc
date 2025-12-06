@@ -20,7 +20,7 @@
 
 #include "setting_data_share_impl.h"
 #include "nfc_sdk_common.h"
-#include "jfc_service_ipc_interface_code.h"
+#include "nfc_service_ipc_interface_code.h"
 #include "nfc_service.h"
 
 namespace OHOS {

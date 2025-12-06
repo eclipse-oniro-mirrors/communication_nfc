@@ -642,7 +642,7 @@ HWTEST_F(BtConnectionManagerTest, RemoveMsgFromEvtHandler001, TestSize.Level1)
  * @tc.desc: Test BtConnectionManagerTest HandleEnableBt.
  * @tc.type: FUNC
  */
-HWTEST_F(BtConnectionManagerTest, RemoveMsgFromEvtHandler001, TestSize.Level1)
+HWTEST_F(BtConnectionManagerTest, HandleEnableBt001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
@@ -664,15 +664,15 @@ HWTEST_F(BtConnectionManagerTest, IsA2dpSupported001, TestSize.Level1)
 }
 
 /**
- * @tc.name: IsHfpSuported001
- * @tc.desc: Test BtConnectionManagerTest IsHfpSuported.
+ * @tc.name: IsHfpSupported001
+ * @tc.desc: Test BtConnectionManagerTest IsHfpSupported.
  * @tc.type: FUNC
  */
-HWTEST_F(BtConnectionManagerTest, IsHfpSuported001, TestSize.Level1)
+HWTEST_F(BtConnectionManagerTest, IsHfpSupported001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
-    BtConnectionManager::GetInstance().IsHfpSuported();
+    BtConnectionManager::GetInstance().IsHfpSupported();
     ASSERT_TRUE(service != nullptr);
 }
 

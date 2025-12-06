@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,8 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#define private publi
+#define private public
 #define protected public
 
 #include <gtest/gtest.h>
@@ -66,7 +65,7 @@ void BasicTagSessionTest::TearDown()
  * @tc.desc: Test BasicTagSessionTest GetTagRfDiscId.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, GetTagRfDiscId001, TestSize.Level1)
+HWTEST_F(BasicTagSessionTest, GetTagRfDiscId001, TestSize.Level1)
 {
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
@@ -76,16 +75,16 @@ HWTEST_F(NfcPollingParamsTest, GetTagRfDiscId001, TestSize.Level1)
 }
 
 /**
- * @tc.name: SetVonnectedTagTech001
- * @tc.desc: Test BasicTagSessionTest SetVonnectedTagTech.
+ * @tc.name: SetConnectedTagTech001
+ * @tc.desc: Test BasicTagSessionTest SetConnectedTagTech.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, SetVonnectedTagTech001, TestSize.Level1)
+HWTEST_F(BasicTagSessionTest, SetConnectedTagTech001, TestSize.Level1)
 {
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
     BasicTagSession basicTagSession{tagInfo, tagTechnology};
-    basicTagSession.SetVonnectedTagTech();
+    basicTagSession.SetConnectedTagTech(TagTechnology::NFC_INVALID_TECH);
 }
 
 /**
@@ -93,7 +92,7 @@ HWTEST_F(NfcPollingParamsTest, SetVonnectedTagTech001, TestSize.Level1)
  * @tc.desc: Test BasicTagSessionTest GetConnectedTagTech.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, GetConnectedTagTech001, TestSize.Level1)
+HWTEST_F(BasicTagSessionTest, GetConnectedTagTech001, TestSize.Level1)
 {
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
@@ -103,18 +102,17 @@ HWTEST_F(NfcPollingParamsTest, GetConnectedTagTech001, TestSize.Level1)
 }
 
 /**
- * @tc.name: ResetTimout001
- * @tc.desc: Test BasicTagSessionTest ResetTimout.
+ * @tc.name: ResetTimeout001
+ * @tc.desc: Test BasicTagSessionTest ResetTimeout.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, ResetTimout001, TestSize.Level1)
+HWTEST_F(BasicTagSessionTest, ResetTimeout001, TestSize.Level1)
 {
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
     BasicTagSession basicTagSession{tagInfo, tagTechnology};
-    basicTagSession.ResetTimout();
+    basicTagSession.ResetTimeout();
 }
-
 }
 }
 }
