@@ -253,6 +253,7 @@ ohos_unittest("tags_test") {
   module_out_path = unit_module_out_path
 
   sources = [
+    "tags_test/basic_tag_session_test.cpp",
     "tags_test/foreground_callback_stub_test.cpp",
     "tags_test/iso15693_tag_test.cpp",
     "tags_test/isodep_tag_test.cpp",

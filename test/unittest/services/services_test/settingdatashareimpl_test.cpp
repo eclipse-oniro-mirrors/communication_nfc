@@ -14,7 +14,6 @@
  */
 
 #define private public
-
 #define protected public
 
 #include <gtest/gtest.h>
@@ -54,7 +53,7 @@ void SettingDataShareImplTest::TearDown()
 {
     std::cout << " TearDown SettingDataShareImplTest." << std::endl;
 }
-ReleaseDataObserver
+
 /**
  * @tc.name: ReleaseDataObserver001
  * @tc.desc: Test SettingDataShareImplTest ReleaseDataObserver.
@@ -68,6 +67,41 @@ HWTEST_F(NfcPollingParamsTest, ReleaseDataObserver001, TestSize.Level1)
     Uri uri(KITS::NFC_DATA_URI);
     ErrorCode errorCode = settingDataShareImpl->ReleaseDataObserver(uri, dataObserver);
     ASSERT_TRUE(errorCode == ERR_NONE);
+}
+
+/**
+ * @tc.name: SetElementName001
+ * @tc.desc: Test SettingDataShareImplTest SetElementName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingParamsTest, SetElementName001, TestSize.Level1)
+{
+    std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+    Uri uri(KITS::NFC_DATA_URI);
+    std::string column = "test";
+    ElementName value;
+    value.GetURI()= "";
+    settingDataShareImpl->SetElementName(uri, column, value);
+    settingDataShareImpl->dataShareHelper_ = nullptr;
+    ErrorCode errorCode = settingDataShareImpl->SetElementName(uri, column, value);
+    ASSERT_TRUE(errorCode == ERR_NONE);
+}
+
+/**
+ * @tc.name: GetElementName001
+ * @tc.desc: Test SettingDataShareImplTest GetElementName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingParamsTest, GetElementName001, TestSize.Level1)
+{
+    std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
+    Uri uri(KITS::NFC_DATA_URI);
+    std::string column = "test";
+    ElementName value;
+    settingDataShareImpl->GetElementName(uri, column, value);
+    settingDataShareImpl->dataShareHelper_ = nullptr;
+    ErrorCode errorCode = settingDataShareImpl->GetElementName(uri, column, value);
+    ASSERT_TRUE(errorCode == ERR_NFC_DATABASE_RW);
 }
 
 }

@@ -794,6 +794,110 @@ HWTEST_F(CeServiceTest, HandleAppStateChange002, TestSize.Level1)
     ceService->HandleAppStateChanged("test", "test", 0);
 }
 
+/**
+ * @tc.name: UpdateDefaultPaymentBundleInstalledStatus001
+ * @tc.desc: Test CeServiceTest UpdateDefaultPaymentBundleInstalledStatus.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, UpdateDefaultPaymentBundleInstalledStatus001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    bool installed = true;
+    ceService->UpdateDefaultPaymentBundleInstalledStatus(installed);
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: UpdateDefaultPaymentElement001
+ * @tc.desc: Test CeServiceTest UpdateDefaultPaymentElement.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, UpdateDefaultPaymentElement001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ElementName element;
+    ceService->UpdateDefaultPaymentElement(element);
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: HandleOtherAidConflicted001
+ * @tc.desc: Test CeServiceTest HandleOtherAidConflicted.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, HandleOtherAidConflicted001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
+    ceService->HandleOtherAidConflicted(hceApps);
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: Deinitialize001
+ * @tc.desc: Test CeServiceTest Deinitialize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, Deinitialize001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->Deinitialize();
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: SetHceInfo001
+ * @tc.desc: Test CeServiceTest SetHceInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, SetHceInfo001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    std::vector<std::string> aid;
+    ElementName element;
+    ceService->SetHceInfo(element, aid);
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: ClearHceInfo001
+ * @tc.desc: Test CeServiceTest ClearHceInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, ClearHceInfo001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    ceService->ClearHceInfo();
+    ASSERT_TRUE(ceService != nullptr);
+}
+
+/**
+ * @tc.name: StopHce001
+ * @tc.desc: Test CeServiceTest StopHce.
+ * @tc.type: FUNC
+ */
+HWTEST_F(CeServiceTest, StopHce001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = std::make_shared<CeService>(nfcService, nciCeProxy);
+    Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(0);
+    ElementName element;
+    bool ret = ceService->StopHce(element, callerToken);
+    ASSERT_TRUE(ret);
+
 }
 }
 }
