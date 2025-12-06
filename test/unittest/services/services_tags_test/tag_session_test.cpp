@@ -34,20 +34,21 @@
 namespace OHOS {
 namespace NFC {
 namespace TEST {
-using namespace testing::ext;
-using namespace OHOS::NFC;
-using namespace OHOS::NFC::KITS;
-class TagSessionTest : public testing::Test {
-public:
-    static void SetUpTestCase();
-    static void TearDownTestCase();
-    void SetUp();
-    void TearDown();
-public:
-    static constexpr const auto MAX_TECH = 12;
-    static constexpr const auto TEST_DISC_ID = 1;
-    int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
-};
+    using namespace testing::ext;
+    using namespace OHOS::NFC;
+    using namespace OHOS::NFC::KITS;
+    std::shared_ptr<NFC::AppStateOvserver> g_appStateObserver = nullptr;
+    class TagSessionTest : public testing::Test {
+    public:
+        static void SetUpTestCase();
+        static void TearDownTestCase();
+        void SetUp();
+        void TearDown();
+    public:
+        static constexpr const auto MAX_TECH = 12;
+        static constexpr const auto TEST_DISC_ID = 1;
+        int g_maxTransLength[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+    };
 
 void TagSessionTest::SetUpTestCase()
 {
@@ -212,6 +213,9 @@ HWTEST_F(TagSessionTest, NdefRead001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     std::string ndefRead {};
     tagSession->NdefRead(tagRfDiscId, ndefRead);
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
+    tagSession1->NdefRead(tagRfDiscId, ndefRead);
     ASSERT_TRUE(ndefRead == "");
 }
 /**
@@ -226,6 +230,9 @@ HWTEST_F(TagSessionTest, IsTagFieldOn001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     bool isTagFieldOn = false;
     tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
+    service->Initialize();
+    sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
+    tagSession1->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     ASSERT_TRUE(!isTagFieldOn);
 }
 /**
@@ -325,6 +332,7 @@ HWTEST_F(TagSessionTest, SetTimeout001, TestSize.Level1)
 HWTEST_F(TagSessionTest, SetTimeout002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = MAX_TECH;
@@ -890,6 +898,34 @@ HWTEST_F(TagSessionTest, UnregReaderModeInner002, TestSize.Level1)
     int result = tagSession->UnregReaderModeInner(element, true);
     std::cout << "result " << result << std::endl;
     ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+
+/**
+ * @tc.name: IsVendorProcess001
+ * @tc.desc: Test TagSession IsVendorProcess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsVendorProcess001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    bool ret = tagSession->IsVemdorProcess();
+    ASSERT_TRUE(！ret);
+}
+
+/**
+ * @tc.name: IsForegroundApp001
+ * @tc.desc: Test TagSession IsForegroundApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, IsForegroundApp001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+    ElementName element;
+    element.bundleName_ = "test";
+    bool ret = g_appStateObserver->IsForegroundApp(element.GetBundleName());
+    ASSERT_TRUE(！ret);
 }
 }
 }
