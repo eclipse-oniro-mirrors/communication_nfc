@@ -19,7 +19,6 @@
 #include <thread>
 
 #include "ce_service.h"
-#include "loghelper.h"
 
 namespace OHOS {
 namespace NFC {
@@ -897,7 +896,7 @@ HWTEST_F(CeServiceTest, StopHce001, TestSize.Level1)
     ElementName element;
     bool ret = ceService->StopHce(element, callerToken);
     ASSERT_TRUE(ret);
-
+}
 }
 }
 }

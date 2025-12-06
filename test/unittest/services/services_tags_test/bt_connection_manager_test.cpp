@@ -556,6 +556,138 @@ HWTEST_F(BtConnectionManagerTest, OnStateChanged004, TestSize.Level1)
     instance->OnStateChanged(1, 0);
     ASSERT_TRUE(instance != nullptr);
 }
+
+/**
+ * @tc.name: SendMsgToEvtHandler001
+ * @tc.desc: Test BtConnectionManagerTest SendMsgToEvtHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, SendMsgToEvtHandler001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    NfcCommonEvent evt = NfcCommonEvent::MSG_TAG_FOUND;
+    int64_t delay = 0;
+    BtConnectionManager::GetInstance().SendMsgToEvtHandler(evt, delay);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: SendMsgToEvtHandler002
+ * @tc.desc: Test BtConnectionManagerTest SendMsgToEvtHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, SendMsgToEvtHandler002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    BtConnectionManager::GetInstance().Initialize(service);
+    NfcCommonEvent evt = NfcCommonEvent::MSG_TAG_FOUND;
+    int64_t delay = 0;
+    BtConnectionManager::GetInstance().SendMsgToEvtHandler(evt, delay);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: SendConnMsgToEvtHandler001
+ * @tc.desc: Test BtConnectionManagerTest SendConnMsgToEvtHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, SendConnMsgToEvtHandler001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    NfcCommonEvent evt = NfcCommonEvent::MSG_TAG_FOUND;
+    Bluetooth::BluetoothRemoteDevice device;
+    int32_t state = 1;
+    BtConnectionManager::BtProfileType type = BtConnectionManager::BtProfileType::A2DP_SRC;
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(evt, device, state, type);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: SendConnMsgToEvtHandler002
+ * @tc.desc: Test BtConnectionManagerTest SendConnMsgToEvtHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, SendConnMsgToEvtHandler002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    BtConnectionManager::GetInstance().Initialize(service);
+    NfcCommonEvent evt = NfcCommonEvent::MSG_TAG_FOUND;
+    Bluetooth::BluetoothRemoteDevice device;
+    int32_t state = 1;
+    BtConnectionManager::BtProfileType type = BtConnectionManager::BtProfileType::A2DP_SRC;
+    BtConnectionManager::GetInstance().SendConnMsgToEvtHandler(evt, device, state, type);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: RemoveMsgFromEvtHandler001
+ * @tc.desc: Test BtConnectionManagerTest RemoveMsgFromEvtHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, RemoveMsgFromEvtHandler001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    NfcCommonEvent evt = NfcCommonEvent::MSG_TAG_FOUND;
+    BtConnectionManager::GetInstance().RemoveMsgFromEvtHandler(evt);
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: HandleEnableBt001
+ * @tc.desc: Test BtConnectionManagerTest HandleEnableBt.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, RemoveMsgFromEvtHandler001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().HandleEnableBt();
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: IsA2dpSupported001
+ * @tc.desc: Test BtConnectionManagerTest IsA2dpSupported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, IsA2dpSupported001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().IsA2dpSupported();
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: IsHfpSuported001
+ * @tc.desc: Test BtConnectionManagerTest IsHfpSuported.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, IsHfpSuported001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().IsHfpSuported();
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: HandleBtInit001
+ * @tc.desc: Test BtConnectionManagerTest HandleBtInit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(BtConnectionManagerTest, HandleBtInit001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    BtConnectionManager::GetInstance().Initialize(service);
+    BtConnectionManager::GetInstance().HandleBtInit();
+    ASSERT_TRUE(service != nullptr);
+}
 } // namespace TEST
 } // namespace TAG
 } // namespace NFC

@@ -436,7 +436,7 @@ HWTEST_F(HceSessionTest, OnRemoteDied001, TestSize.Level1)
  */
 HWTEST_F(HceSessionTest, CallbackEnter001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_shared<HCE::HceSession>(service);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(service);
     uint32_t code = 1;
@@ -451,7 +451,7 @@ HWTEST_F(HceSessionTest, CallbackEnter001, TestSize.Level1)
  */
 HWTEST_F(HceSessionTest, CallbackExit001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_shared<HCE::HceSession>(service);
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
     std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(service);
     uint32_t code = 1;

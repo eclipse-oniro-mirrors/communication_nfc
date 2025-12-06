@@ -37,7 +37,7 @@ namespace TEST {
     using namespace testing::ext;
     using namespace OHOS::NFC;
     using namespace OHOS::NFC::KITS;
-    std::shared_ptr<NFC::AppStateOvserver> g_appStateObserver = nullptr;
+    std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
     class TagSessionTest : public testing::Test {
     public:
         static void SetUpTestCase();
@@ -909,8 +909,8 @@ HWTEST_F(TagSessionTest, IsVendorProcess001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    bool ret = tagSession->IsVemdorProcess();
-    ASSERT_TRUE(！ret);
+    bool ret = tagSession->IsVendorProcess();
+    ASSERT_TRUE(!ret);
 }
 
 /**
@@ -925,7 +925,7 @@ HWTEST_F(TagSessionTest, IsForegroundApp001, TestSize.Level1)
     ElementName element;
     element.bundleName_ = "test";
     bool ret = g_appStateObserver->IsForegroundApp(element.GetBundleName());
-    ASSERT_TRUE(！ret);
+    ASSERT_TRUE(!ret);
 }
 }
 }

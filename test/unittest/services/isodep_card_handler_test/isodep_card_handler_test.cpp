@@ -153,7 +153,7 @@ HWTEST_F(IsodepCardHandlerTest, GetBalanceValue, TestSize.Level1)
     int balanceValue = 0;
     std::weak_ptr<INciTagInterface> nciTagProxy;
     std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-    isodepCardHandler->GetBalanceValue(balanceStr, balanceValues);
+    isodepCardHandler->GetBalanceValue(balanceStr, balanceValue);
     ASSERT_TRUE(isodepCardHandler != nullptr);
 }
 
@@ -168,7 +168,7 @@ HWTEST_F(IsodepCardHandlerTest, GetCardName, TestSize.Level1)
     std::string cardName = "test";
     std::weak_ptr<INciTagInterface> nciTagProxy;
     std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-    isodepCardHandler->GetBalanceValue(cardIndex, cardName);
+    isodepCardHandler->GetCardName(cardIndex, cardName);
     ASSERT_TRUE(isodepCardHandler != nullptr);
 }
 

@@ -12,12 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #define private public
 #define protected public
 
 #include <gtest/gtest.h>
 #include <thread>
+
+#include "setting_data_share_impl.h"
+#include "nfc_sdk_common.h"
+#include "jfc_service_ipc_interface_code.h"
+#include "nfc_service.h"
 
 namespace OHOS {
 namespace NFC {
@@ -59,7 +63,7 @@ void SettingDataShareImplTest::TearDown()
  * @tc.desc: Test SettingDataShareImplTest ReleaseDataObserver.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, ReleaseDataObserver001, TestSize.Level1)
+HWTEST_F(SettingDataShareImplTest, ReleaseDataObserver001, TestSize.Level1)
 {
     std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
     sptr<AAFwk::IDataAbilityObserver> dataObserver;
@@ -74,13 +78,13 @@ HWTEST_F(NfcPollingParamsTest, ReleaseDataObserver001, TestSize.Level1)
  * @tc.desc: Test SettingDataShareImplTest SetElementName.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, SetElementName001, TestSize.Level1)
+HWTEST_F(SettingDataShareImplTest, SetElementName001, TestSize.Level1)
 {
     std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
     Uri uri(KITS::NFC_DATA_URI);
     std::string column = "test";
     ElementName value;
-    value.GetURI()= "";
+    value.GetURI() = "";
     settingDataShareImpl->SetElementName(uri, column, value);
     settingDataShareImpl->dataShareHelper_ = nullptr;
     ErrorCode errorCode = settingDataShareImpl->SetElementName(uri, column, value);
@@ -92,7 +96,7 @@ HWTEST_F(NfcPollingParamsTest, SetElementName001, TestSize.Level1)
  * @tc.desc: Test SettingDataShareImplTest GetElementName.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcPollingParamsTest, GetElementName001, TestSize.Level1)
+HWTEST_F(SettingDataShareImplTest, GetElementName001, TestSize.Level1)
 {
     std::shared_ptr<SettingDataShareImpl> settingDataShareImpl = std::make_shared<SettingDataShareImpl>();
     Uri uri(KITS::NFC_DATA_URI);
@@ -103,7 +107,6 @@ HWTEST_F(NfcPollingParamsTest, GetElementName001, TestSize.Level1)
     ErrorCode errorCode = settingDataShareImpl->GetElementName(uri, column, value);
     ASSERT_TRUE(errorCode == ERR_NFC_DATABASE_RW);
 }
-
 }
 }
 }
