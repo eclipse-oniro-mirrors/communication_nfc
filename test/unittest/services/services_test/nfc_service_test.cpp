@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #define private public
 
 #include <gtest/gtest.h>
@@ -56,37 +57,37 @@ void NfcServiceTest::TearDown()
 }
 
 /**
- * @tc.name: ShoultTurnOnNfc001
- * @tc.desc: Test NfcServiceTest ShoultTurnOnNfc.
+ * @tc.name: ShouldTurnOnNfc001
+ * @tc.desc: Test NfcServiceTest ShouldTurnOnNfc.
  * @tc.type: FUNC
  */
-HWTEST_F(NfcServiceTest, ShoultTurnOnNfc001, TestSize.Level1)
+HWTEST_F(NfcServiceTest, ShouldTurnOnNfc001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-    NfcParamUtil::UpdateNfcStateToParm(KITS::STATE_TURNING_ON);
-    NfcParamUtil::UpdateNfcStateToParm(KITS::STATE_TURNING_OFF);
-    NfcParamUtil::UpdateNfcStateToParm(KITS::STATE_ON);
-    service->nfcState_ KITS::STATE_OFF;
-    InfoLog("ShouldTurnOnNfc 1 %{public}d", service->ShouldTurnOnNfc);
-    
-    service->nfcState_ KITS::STATE_ON;
-    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PAEAM_NAME, "false");
-    InfoLog("ShouldTurnOnNfc 2 %{public}d", service->ShouldTurnOnNfc);
+    NfcParamUtil::UpdateNfcStateToParam(KITS::STATE_TURNING_ON);
+    NfcParamUtil::UpdateNfcStateToParam(KITS::STATE_TURNING_OFF);
+    NfcParamUtil::UpdateNfcStateToParam(KITS::STATE_ON);
+    service->nfcState_ = KITS::STATE_OFF;
+    InfoLog("ShouldTurnOnNfc 1 %{public}d", service->ShouldTurnOnNfc());
 
-    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PAEAM_NAME, "true");
-    InfoLog("ShouldTurnOnNfc 3 %{public}d", service->ShouldTurnOnNfc);
+    service->nfcState_ = KITS::STATE_ON;
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "false");
+    InfoLog("ShouldTurnOnNfc 2 %{public}d", service->ShouldTurnOnNfc());
+
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "true");
+    InfoLog("ShouldTurnOnNfc 3 %{public}d", service->ShouldTurnOnNfc());
 
     NfcParamUtil::UpdateNfcStateToParam(KITS::STATE_OFF);
-    InfoLog("ShouldTurnOnNfc 4 %{public}d", service->ShouldTurnOnNfc);
+    InfoLog("ShouldTurnOnNfc 4 %{public}d", service->ShouldTurnOnNfc());
 
-    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PAEAM_NAME, "false");
-    InfoLog("ShouldTurnOnNfc 5 %{public}d", service->ShouldTurnOnNfc);
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "false");
+    InfoLog("ShouldTurnOnNfc 5 %{public}d", service->ShouldTurnOnNfc());
 
     service->nfcState_ = KITS::STATE_OFF;
-    InfoLog("ShouldTurnOnNfc 6 %{public}d", service->ShouldTurnOnNfc);
+    InfoLog("ShouldTurnOnNfc 6 %{public}d", service->ShouldTurnOnNfc());
 
-    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PAEAM_NAME, "true");
-    InfoLog("ShouldTurnOnNfc 7 %{public}d", service->ShouldTurnOnNfc);
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "true");
+    InfoLog("ShouldTurnOnNfc 7 %{public}d", service->ShouldTurnOnNfc());
     ASSERT_TRUE(NfcParamUtil::GetNfcStateFromParam() >= 0);
 }
 }
