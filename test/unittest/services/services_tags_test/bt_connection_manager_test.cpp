@@ -646,8 +646,8 @@ HWTEST_F(BtConnectionManagerTest, HandleEnableBt001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
-    BtConnectionManager::GetInstance().HandleEnableBt();
-    ASSERT_TRUE(service != nullptr);
+    bool ret = BtConnectionManager::GetInstance().HandleEnableBt();
+    ASSERT_TRUE(!ret);
 }
 
 /**
@@ -659,8 +659,8 @@ HWTEST_F(BtConnectionManagerTest, IsA2dpSupported001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
-    BtConnectionManager::GetInstance().IsA2dpSupported();
-    ASSERT_TRUE(service != nullptr);
+    bool ret = BtConnectionManager::GetInstance().IsA2dpSupported();
+    ASSERT_TRUE(!ret);
 }
 
 /**
@@ -672,8 +672,8 @@ HWTEST_F(BtConnectionManagerTest, IsHfpSupported001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
-    BtConnectionManager::GetInstance().IsHfpSupported();
-    ASSERT_TRUE(service != nullptr);
+    bool ret = BtConnectionManager::GetInstance().IsHfpSupported();
+    ASSERT_TRUE(!ret);
 }
 
 /**
@@ -685,8 +685,8 @@ HWTEST_F(BtConnectionManagerTest, HandleBtInit001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     BtConnectionManager::GetInstance().Initialize(service);
-    BtConnectionManager::GetInstance().HandleBtInit();
-    ASSERT_TRUE(service != nullptr);
+    bool ret = BtConnectionManager::GetInstance().HandleBtInit();
+    ASSERT_TRUE(!ret);
 }
 } // namespace TEST
 } // namespace TAG
