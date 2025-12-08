@@ -34,21 +34,21 @@
 namespace OHOS {
 namespace NFC {
 namespace TEST {
-    using namespace testing::ext;
-    using namespace OHOS::NFC;
-    using namespace OHOS::NFC::KITS;
-    std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
-    class TagSessionTest : public testing::Test {
-    public:
-        static void SetUpTestCase();
-        static void TearDownTestCase();
-        void SetUp();
-        void TearDown();
-    public:
-        static constexpr const auto MAX_TECH = 12;
-        static constexpr const auto TEST_DISC_ID = 1;
-        const int G_MAX_TRANS_LENGTH[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
-    };
+using namespace testing::ext;
+using namespace OHOS::NFC;
+using namespace OHOS::NFC::KITS;
+std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
+class TagSessionTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+    void SetUp();
+    void TearDown();
+public:
+    static constexpr const auto MAX_TECH = 12;
+    static constexpr const auto TEST_DISC_ID = 1;
+    const int G_MAX_TRANS_LENGTH[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+};
 
 void TagSessionTest::SetUpTestCase()
 {
