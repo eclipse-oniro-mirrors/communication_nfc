@@ -81,10 +81,20 @@ HWTEST_F(BasicTagSessionTest, GetTagRfDiscId001, TestSize.Level1)
  */
 HWTEST_F(BasicTagSessionTest, SetConnectedTagTech001, TestSize.Level1)
 {
+    std::vector<int> tagTechList;
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    std::string tagUid = "123";
+    int tagRfDiscId = 1;
+    std::shared_ptr<TagInfo> tagInfo = std::make_shared<TagInfo> (tagTechList,
+                                                                  tagTechExtras,
+                                                                  tagUid,
+                                                                  tagRfDiscId,
+                                                                  nullptr);
     std::shared_ptr<TagInfo> tagInfo = nullptr;
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
     BasicTagSession basicTagSession{tagInfo, tagTechnology};
     basicTagSession.SetConnectedTagTech(TagTechnology::NFC_INVALID_TECH);
+    ASSERT_TRUE(tagInfo != nullptr);
 }
 
 /**
@@ -108,10 +118,19 @@ HWTEST_F(BasicTagSessionTest, GetConnectedTagTech001, TestSize.Level1)
  */
 HWTEST_F(BasicTagSessionTest, ResetTimeout001, TestSize.Level1)
 {
-    std::shared_ptr<TagInfo> tagInfo = nullptr;
+    std::vector<int> tagTechList;
+    std::vector<AppExecFwk::PacMap> tagTechExtras;
+    std::string tagUid = "123";
+    int tagRfDiscId = 1;
+    std::shared_ptr<TagInfo> tagInfo = std::make_shared<TagInfo> (tagTechList,
+                                                                  tagTechExtras,
+                                                                  tagUid,
+                                                                  tagRfDiscId,
+                                                                  nullptr);
     TagTechnology tagTechnology = TagTechnology::NFC_INVALID_TECH;
     BasicTagSession basicTagSession{tagInfo, tagTechnology};
     basicTagSession.ResetTimeout();
+    ASSERT_TRUE(tagInfo != nullptr);
 }
 }
 }
