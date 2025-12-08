@@ -25,16 +25,15 @@
 namespace OHOS {
 namespace NFC {
 namespace TEST {
-    using namespace testing::ext;
-    using namespace OHOS::NFC;
-
-    class NfcServiceTest : public testing::Test {
-    public:
-        static void SetUpTestCase();
-        static void TearDownTestCase();
-        void SetUp();
-        void TearDown();
-    };
+using namespace testing::ext;
+using namespace OHOS::NFC;
+class NfcServiceTest : public testing::Test {
+public:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+    void SetUp();
+    void TearDown();
+};
 
 void NfcServiceTest::SetUpTestCase()
 {
