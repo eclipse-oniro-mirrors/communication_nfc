@@ -47,7 +47,7 @@ public:
 public:
     static constexpr const auto MAX_TECH = 12;
     static constexpr const auto TEST_DISC_ID = 1;
-    const int G_MAX_TRANS_LENGTH[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
+    const int MAX_TRANS_LENGTH[MAX_TECH] = {0, 253, 253, 261, 255, 253, 0, 0, 253, 253, 0, 0};
 };
 
 void TagSessionTest::SetUpTestCase()
@@ -80,10 +80,10 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength001, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = MAX_TECH;
-    int maxSize = G_MAX_TRANS_LENGTH[0];
+    int maxSize = MAX_TRANS_LENGTH[0];
     int result = tagSession->GetMaxTransceiveLength(technology, maxSize);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
-    ASSERT_TRUE(maxSize == G_MAX_TRANS_LENGTH[0]);
+    ASSERT_TRUE(maxSize == MAX_TRANS_LENGTH[0]);
 }
 /**
  * @tc.name: GetMaxTransceiveLength002
@@ -95,10 +95,10 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength002, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = -1;
-    int maxSize = G_MAX_TRANS_LENGTH[0];
+    int maxSize = MAX_TRANS_LENGTH[0];
     int result = tagSession->GetMaxTransceiveLength(technology, maxSize);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_TAG_PARAMETERS);
-    ASSERT_TRUE(maxSize == G_MAX_TRANS_LENGTH[0]);
+    ASSERT_TRUE(maxSize == MAX_TRANS_LENGTH[0]);
 }
 /**
  * @tc.name: GetMaxTransceiveLength003
@@ -110,10 +110,10 @@ HWTEST_F(TagSessionTest, GetMaxTransceiveLength003, TestSize.Level1)
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int technology = static_cast<int>(KITS::TagTechnology::NFC_A_TECH);
-    int maxSize = G_MAX_TRANS_LENGTH[0];
+    int maxSize = MAX_TRANS_LENGTH[0];
     int result = tagSession->GetMaxTransceiveLength(technology, maxSize);
     ASSERT_TRUE(result == NFC::KITS::ErrorCode::ERR_NONE);
-    ASSERT_TRUE(maxSize == G_MAX_TRANS_LENGTH[1]);
+    ASSERT_TRUE(maxSize == MAX_TRANS_LENGTH[1]);
 }
 /**
  * @tc.name: UnregForegroundDispatch001
