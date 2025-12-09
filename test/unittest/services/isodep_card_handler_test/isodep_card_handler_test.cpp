@@ -142,6 +142,36 @@ HWTEST_F(IsodepCardHandlerTest, MatchCity, TestSize.Level1)
     ASSERT_TRUE(isodepCardHandler != nullptr);
 }
 
+/**
+ * @tc.name: GetBalanceValue
+ * @tc.desc: Test IsodepCardHandlerTest GetBalanceValue.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsodepCardHandlerTest, GetBalanceValue, TestSize.Level1)
+{
+    std::string balanceStr = "test";
+    int balanceValue = 0;
+    std::weak_ptr<INciTagInterface> nciTagProxy;
+    std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+    isodepCardHandler->GetBalanceValue(balanceStr, balanceValue);
+    ASSERT_TRUE(isodepCardHandler != nullptr);
+}
+
+/**
+ * @tc.name: GetCardName
+ * @tc.desc: Test IsodepCardHandlerTest GetCardName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(IsodepCardHandlerTest, GetCardName, TestSize.Level1)
+{
+    uint8_t cardIndex = 1;
+    std::string cardName = "test";
+    std::weak_ptr<INciTagInterface> nciTagProxy;
+    std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
+    isodepCardHandler->GetCardName(cardIndex, cardName);
+    ASSERT_TRUE(isodepCardHandler != nullptr);
+}
+
 } // namespace TEST
 } // namespace NFC
 } // namespace OHOS

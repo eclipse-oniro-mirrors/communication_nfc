@@ -253,6 +253,7 @@ ohos_unittest("tags_test") {
   module_out_path = unit_module_out_path
 
   sources = [
+    "tags_test/basic_tag_session_test.cpp",
     "tags_test/foreground_callback_stub_test.cpp",
     "tags_test/iso15693_tag_test.cpp",
     "tags_test/isodep_tag_test.cpp",
@@ -306,6 +307,8 @@ ohos_unittest("services_test") {
     "services_test/nfc_event_handler_test.cpp",
     "services_test/nfc_polling_manager_test.cpp",
     "services_test/nfc_polling_params_test.cpp",
+    "services_test/nfc_service_test.cpp",
+    "services_test/settingdatashareimpl_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]

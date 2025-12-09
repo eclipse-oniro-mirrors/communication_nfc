@@ -428,6 +428,37 @@ HWTEST_F(HceSessionTest, OnRemoteDied001, TestSize.Level1)
     dr2->OnRemoteDied(nullptr);
     ASSERT_TRUE(g_errLog.find("hceSession_ is nullptr") != std::string::npos);
 }
+
+/**
+ * @tc.name: CallbackEnter001
+ * @tc.desc: Test HceSessionTest CallbackEnter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, CallbackEnter001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(service);
+    uint32_t code = 1;
+    int32_t ret = hceSession->CallbackEnter(code);
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
+ * @tc.name: CallbackExit001
+ * @tc.desc: Test HceSessionTest CallbackExit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HceSessionTest, CallbackExit001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<HCE::HceSession> hceSession = std::make_shared<HCE::HceSession>(service);
+    uint32_t code = 1;
+    int32_t result = 1;
+    int32_t ret = hceSession->CallbackExit(code, result);
+    ASSERT_TRUE(ret == 0);
+}
 }
 }
 }
