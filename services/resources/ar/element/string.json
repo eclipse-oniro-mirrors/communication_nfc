@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"تم اكتشاف بطاقة الاسم. هل تريد فتح جهات الاتصال؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"فتح",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"تم اكتشاف رسالة نصية. هل تريد فتح تطبيق الرسائل؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"تم اكتشاف رسالة بريد إلكتروني. هل تريد فتح تطبيق البريد الإلكتروني؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"تم اكتشاف نص. هل تريد فتح تطبيق المفكرة؟",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

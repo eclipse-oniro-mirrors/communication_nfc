@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"མིང་བྱང་ཀློག་ལེན་བྱུང་། ཁ་པར་ཐོ་དེབ་ཁ་འབྱེད་དགོས་སམ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"ཁ་འབྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"འཕྲིན་ཐུང་བརྡ་འཕྲིན་ཀློག་ལེན་བྱུང་། འཕྲིན་ཐུང་ཁ་འབྱེད་དགོས་སམ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"གློག་ཡིག་ཀློག་ལེན་བྱུང་། ཡིག་སྒམ་ཁ་འབྱེད་དགོས་སམ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"ཡིག་གཞིའི་བརྡ་འཕྲིན་ཀློག་ལེན་བྱུང་། དྲན་ཐོ་ཁ་འབྱེད་དགོས་སམ།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

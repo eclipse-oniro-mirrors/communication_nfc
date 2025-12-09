@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"讀取到名片。是否開啟聯絡人？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"開啟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"讀取到簡訊訊息。是否開啟簡訊？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"讀取到郵件。是否開啟信箱？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"讀取到文字訊息。是否開啟筆記本？",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

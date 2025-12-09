@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"Scheda identificativa rilevata. Vuoi aprire Contatti?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"Apri",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"Messaggio SMS rilevato. Vuoi aprire Messaggi?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"E-mail rilevata. Vuoi aprire l'app E-mail?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"Testo rilevato. Vuoi aprire Blocco note?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

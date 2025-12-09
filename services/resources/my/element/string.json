@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"အမည်ကတ် တွေ့ရှိထားသည်။ အဆက်အသွယ်ကို ဖွင့်မည်လား။",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"ဖွင့်ရန်",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"SMS မက်ဆေ့ခ်ျ တွေ့ရှိထားသည်။ မက်ဆေ့ခ်ျကို ဖွင့်မည်လား။",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"အီးမေးလ် တွေ့ရှိထားသည်။ အီးမေးလ် အက်ပ်ကို ဖွင့်မည်လား။",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"စာသား တွေ့ရှိထားသည်။ မှတ်စုစာအုပ်ကို ဖွင့်မည်လား။",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

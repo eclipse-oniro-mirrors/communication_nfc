@@ -91,6 +91,26 @@
         {
             "name":"NfcHceAidConflictedText",
             "value":"[TS_1000972]_Multiple apps available. Open the one you want to use."
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"[TS_1141207]_Name card detected. Open Contacts?"
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"[TS_1141204]_Open"
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"[TS_1141212]_SMS message detected. Open Messaging?"
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"[TS_1141213]_Email detected. Open Email app?"
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"[TS_1141202]_Text detected. Open Notepad?"
         }
     ]
 }

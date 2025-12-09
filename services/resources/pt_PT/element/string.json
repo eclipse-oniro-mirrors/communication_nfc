@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"Cartão de visita detetado. Abrir os Contactos?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"Abrir",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"Mensagem SMS detetada. Abrir as Mensagens?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"E-mail detetado. Abrir o E-mail?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"Texto detetado. Abrir o Bloco de notas?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"ກວດພົບນາມບັດ. ເປີດລາຍຊື່ບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"ເປີດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"ກວດພົບຂໍ້ຄວາມ SMS. ເປີດຂໍ້ຄວາມບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"ກວດພົບອີເມວ. ເປີດແອັບອີເມວບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"ກວດພົບຂໍ້ຄວາມແລ້ວ. ເປີດແຜ່ນບັນທຶກບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

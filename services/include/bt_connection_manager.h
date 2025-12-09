@@ -160,6 +160,8 @@ private:
     bool HandleBtConnectWaiting();
     bool HandleBtDisconnect();
     bool HandleBtDisconnectWaiting();
+    // show Bt pair toast
+    void ShowBtConnectionToast(int type);
 
     // clear function
     void OnFinish();

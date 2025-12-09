@@ -35,6 +35,14 @@ std::shared_ptr<EventFwk::CommonEventSubscriber> wifiSubscriber_ {};
 bool g_isWaitingForWifiEnable = false;
 bool g_isWaitingForWifiConnect = false;
 
+enum WifiToastType : int {
+    UNABLE_TO_CONNECT = 201,
+    CONNECTING_WITH_WIFI,
+    CONNECT_SUCCESS,
+    CONNECT_FAILURE,
+    CONNECT_TIME_OUT,
+};
+
 WifiConnectionManager::WifiConnectionManager()
 {
 }
@@ -157,10 +165,25 @@ void WifiConnectionManager::OnFinish()
     UnsubscribeWifiCommonEvents();
 }
 
+void WifiConnectionManager::ShowWifiConnectionToast(int type)
+{
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService expired");
+        return;
+    }
+    std::string wifiToastValue = std::to_string(type);
+    if (type == CONNECTING_WITH_WIFI && config_ != nullptr) {
+        wifiToastValue.append(config_->ssid);
+    }
+    InfoLog("NotifyMessageToVendor wifiToastValue: %{public}s", wifiToastValue.c_str());
+    nfcService_.lock()->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, wifiToastValue);
+}
+
 void WifiConnectionManager::HandleWifiEnableFailed()
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     ErrorLog("Wifi Enable Failed");
+    ShowWifiConnectionToast(UNABLE_TO_CONNECT);
     OnFinish();
 }
 
@@ -168,6 +191,7 @@ void WifiConnectionManager::HandleWifiConnectFailed()
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     ErrorLog("Wifi Connect Failed");
+    ShowWifiConnectionToast(CONNECT_TIME_OUT);
     OnFinish();
 }
 
@@ -191,6 +215,7 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleEnableWifi
 {
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
+        ShowWifiConnectionToast(UNABLE_TO_CONNECT);
         return false;
     }
     ErrCode ret = wifiDevPtr_->EnableWifi();
@@ -248,6 +273,7 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
 {
     if (IsSameSsid()) {
         InfoLog("already connected to target");
+        ShowWifiConnectionToast(CONNECT_SUCCESS);
         OnFinish();
         return true;
     }
@@ -255,20 +281,24 @@ __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWif
     InfoLog("HandleConnectWifi");
     if (GetWifiDevPtr() == nullptr) {
         ErrorLog("wifi dev is null");
+        ShowWifiConnectionToast(UNABLE_TO_CONNECT);
         OnFinish();
         return false;
     }
     if (config_ == nullptr) {
         ErrorLog("config_ is null");
+        ShowWifiConnectionToast(UNABLE_TO_CONNECT);
         OnFinish();
         return false;
     }
     // NDEF msg does not include hiddenSSID info, set true to connect all type WiFi.
     config_->hiddenSSID = true;
+    ShowWifiConnectionToast(CONNECTING_WITH_WIFI);
     ErrCode err = wifiDevPtr_->ConnectToDevice(*(config_));
     InfoLog("ConnectToDevice err: %{public}d", err);
     if (err != Wifi::WIFI_OPT_SUCCESS) {
         ErrorLog("ConnectToDevice failed err: %{public}d", err);
+        ShowWifiConnectionToast(CONNECT_FAILURE);
         OnFinish();
         return false;
     }
@@ -311,9 +341,11 @@ void WifiConnectionManager::OnWifiConnected()
         return;
     }
     if (!IsSameSsid()) {
+        ShowWifiConnectionToast(UNABLE_TO_CONNECT);
         OnFinish();
     } else {
         InfoLog("connected to target config");
+        ShowWifiConnectionToast(CONNECT_SUCCESS);
         OnFinish();
     }
 }
