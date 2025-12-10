@@ -89,6 +89,349 @@ HWTEST_F(NfcServiceTest, ShouldTurnOnNfc001, TestSize.Level1)
     InfoLog("ShouldTurnOnNfc 7 %{public}d", service->ShouldTurnOnNfc());
     ASSERT_TRUE(NfcParamUtil::GetNfcStateFromParam() >= 0);
 }
+
+/**
+ * @tc.name: GetInstance001
+ * @tc.desc: Test NfcServiceTest GetInstance.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetInstance001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr nfcService = service->GetInstance();
+    ASSERT_TRUE(service != nullptr);
+}
+
+/**
+ * @tc.name: UnloadNfcSa001
+ * @tc.desc: Test NfcServiceTest UnloadNfcSa.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, UnloadNfcSa001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcservice->UnloadNfcSa();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnTagDiscovered001
+ * @tc.desc: Test NfcServiceTest OnTagDiscovered.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnTagDiscovered001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    uint32_t tagDiscId = 1;
+    nfcservice->OnTagDiscovered(tagDiscId);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: GetTagDispatcher001
+ * @tc.desc: Test NfcServiceTest GetTagDispatcher.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetTagDispatcher001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    std::weak_ptr<TAG::TagDispatcher> tagDispatcher = nfcService->GetTagDispatcher();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnTagLost001
+ * @tc.desc: Test NfcServiceTest OnTagLost.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnTagLost001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    uint32_t tagDiscId = 1;
+    nfcService->OnTagLost(tagDiscId);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: FieldActicated001
+ * @tc.desc: Test NfcServiceTest FieldActicated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, FieldActicated001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcService->FieldActicated();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: FieldDeacticated001
+ * @tc.desc: Test NfcServiceTest FieldDeacticate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, FieldDeacticated001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcService->FieldDeacticated();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnVendorEvent001
+ * @tc.desc: Test NfcServiceTest OnVendorEvent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnVendorEvent001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    int eventType = 0;
+    int arg1 = 1;
+    std::string arg2 = "test";
+    nfcService->OnVendorEvent(enentType, arg1, arg2);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnCardEmulationData001
+ * @tc.desc: Test NfcServiceTest OnCardEmulationData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnCardEmulationData001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    std::vector<uint8_t> data;
+    nfcService->OnCardEmulationData(data);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnCardEmulationActivated001
+ * @tc.desc: Test NfcServiceTest OnCardEmulationActivated.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnCardEmulationActivated001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcService->OnCardEmulationActivated();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: OnCardEmulationDectivate001
+ * @tc.desc: Test NfcServiceTest OnCardEmulationDectivate.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, OnCardEmulationDectivate001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcService->OnCardEmulationDectivate();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: NfcSwitchEventHandler001
+ * @tc.desc: Test NfcServiceTest NfcSwitchEventHandler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, NfcSwitchEventHandler001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+        std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
+    nfcSwitchEventHandler->~NfcSwitchEventHandler();
+    ASSERT_TRUE(ret == ERR_NONE);
+}
+
+/**
+ * @tc.name: CheckNfcState001
+ * @tc.desc: Test NfcServiceTest CheckNfcState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, CheckNfcState001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+        std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
+    int parm = 1;
+    bool ret = nfcSwitchEventHandler->CheckNfcState(parm);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: CheckNfcState002
+ * @tc.desc: Test NfcServiceTest CheckNfcState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, CheckNfcState002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+        std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
+    int parm = 1;
+    bool ret = nfcSwitchEventHandler->CheckNfcState(parm);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: ProcessEvent001
+ * @tc.desc: Test NfcServiceTest ProcessEvent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, ProcessEvent001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+        std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
+    AppExecFwk::InnerEvent ::Pointer event =
+        AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), 0);
+    nfcSwitchEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: ProcessEvent002
+ * @tc.desc: Test NfcServiceTest ProcessEvent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, ProcessEvent002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = nullptr;
+    std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+        std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
+    AppExecFwk::InnerEvent ::Pointer event =
+        AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), 0);
+    nfcSwitchEventHandler->ProcessEvent(event);
+    ASSERT_TRUE(nfcservice == nullptr);
+}
+
+/**
+ * @tc.name: IsMaxSwitchRetryTime001
+ * @tc.desc: Test NfcServiceTest IsMaxSwitchRetryTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, IsMaxSwitchRetryTime001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    int ret = nfcService->IsMaxSwitchRetryTime();
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: SetRegisterCallBack001
+ * @tc.desc: Test NfcServiceTest SetRegisterCallBack.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, SetRegisterCallBack001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    sptr<INfcControllerCallback> callBack = nullptr;
+    std::string type = "test";
+    Security::AccessToken::AccessTokenID callerToken = static_cast<Security::AccessToken::AccessTokenID>(0);
+    nfcService->SetRegisterCallBack(callBack, type, callerToken);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: UpdateNfcState001
+ * @tc.desc: Test NfcServiceTest UpdateNfcState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, UpdateNfcState001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    int newState = 1;
+    nfcService->UpdateNfcState(newState);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: GetScreenState001
+ * @tc.desc: Test NfcServiceTest GetScreenState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetScreenState001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    nfcService->GetScreenState();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: GetNciVersion001
+ * @tc.desc: Test NfcServiceTest GetNciVersion.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetNciVersion001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    int ret = nfcService->GetNciVersion();
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
+ * @tc.name: SetupUnloadNfcSaTimer001
+ * @tc.desc: Test NfcServiceTest SetupUnloadNfcSaTimer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, SetupUnloadNfcSaTimer001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    bool shouldRestartTimer = true;
+    int ret = nfcService->SetupUnloadNfcSaTimer(shouldRestartTimer);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: SetupUnloadNfcSaTimer001
+ * @tc.desc: Test NfcServiceTest SetupUnloadNfcSaTimer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, SetupUnloadNfcSaTimer001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    bool shouldRestartTimer = false;
+    int ret = nfcService->SetupUnloadNfcSaTimer(shouldRestartTimer);
+    ASSERT_TRUE(nfcservice != nullptr);
+}
+
+/**
+ * @tc.name: CancelUnloadNfcSaTimer001
+ * @tc.desc: Test NfcServiceTest CancelUnloadNfcSaTimer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, CancelUnloadNfcSaTimer001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcservice = std::make_shared<NfcService>();
+    nfcservice->Initialize();
+    int ret = nfcService->CancelUnloadNfcSaTimer();
+    ASSERT_TRUE(nfcservice != nullptr);
+}
 }
 }
 }
