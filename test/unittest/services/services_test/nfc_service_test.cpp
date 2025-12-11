@@ -249,7 +249,7 @@ HWTEST_F(NfcServiceTest, CheckNfcState001, TestSize.Level1)
     std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
     nfcService->Initialize();
     std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
-    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler =
         std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
     int param = 1;
     bool ret = nfcSwitchEventHandler->CheckNfcState(param);
@@ -265,7 +265,7 @@ HWTEST_F(NfcServiceTest, CheckNfcState002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> nfcService = nullptr;
     std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
-    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler =
         std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
     int param = 1;
     bool ret = nfcSwitchEventHandler->CheckNfcState(param);
@@ -282,7 +282,7 @@ HWTEST_F(NfcServiceTest, ProcessEvent001, TestSize.Level1)
     std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
     nfcService->Initialize();
     std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
-    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler = 
+    std::shared_ptr<NfcService::NfcSwitchEventHandler> nfcSwitchEventHandler =
         std::make_shared<NfcService::NfcSwitchEventHandler>(runner, nfcService);
     AppExecFwk::InnerEvent::Pointer event =
         AppExecFwk::InnerEvent::Get(static_cast<uint32_t>(NfcCommonEvent::MSG_TAG_FOUND), 0);
