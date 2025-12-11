@@ -337,6 +337,33 @@ HWTEST_F(NdefBtDataParserTest, IsVendorPayloadValid003, TestSize.Level1)
     bool ret = ndefBtDataParser->IsVendorPayloadValid(msg);
     ASSERT_TRUE(ret);
 }
+
+/**
+ * @tc.name: ParseBleRecord001
+ * @tc.desc: Test NdefBtDataParserTest ParseBleRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtDataParserTest, ParseBleRecord001, TestSize.Level1)
+{
+    std::strint payload = "D220566170706C69636174696F6E2F766E626C7565746F6F746F6F74682E65";
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    ndefBtDataParser->ParseBleRecord(msg);
+    ASSERT_TRUE(ndefBtDataParser != nullptr);
+}
+
+/**
+ * @tc.name: ParseBtHandoverSelect001
+ * @tc.desc: Test NdefBtDataParserTest ParseBtHandoverSelect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtDataParserTest, ParseBtHandoverSelect001, TestSize.Level1)
+{
+    std::string msg = "test";
+    std::shared_ptr<NFC::KITS::NdefMessage> ndef = KITS::NdefMessage::GetNdefMessage(msg);
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    ndefBtDataParser->ParseBtHandoverSelect(ndef);
+    ASSERT_TRUE(ndefBtDataParser != nullptr);
+}
 } // namespace TEST
 } // namespace TAG
 } // namespace NFC

@@ -260,13 +260,29 @@ HWTEST_F(TagDispatcherTest, DispatchAbilityMultiApp001, TestSize.Level1)
 }
 
 /**
- * @tc.name: HandleNdefDispatch
+ * @tc.name: HandleNdefDispatch001
  * @tc.desc: Test TagSession HandleNdefDispatch.
  * @tc.type: FUNC
  */
-HWTEST_F(TagDispatcherTest, HandleNdefDispatch, TestSize.Level1)
+HWTEST_F(TagDispatcherTest, HandleNdefDispatch001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    std::string msg = "";
+    tagDispatcher->HandleNdefDispatch(tagDiscId, msg);
+    ASSERT_TRUE(tagDispatcher != nullptr);
+}
+
+/**
+ * @tc.name: HandleNdefDispatch002
+ * @tc.desc: Test TagSession HandleNdefDispatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, HandleNdefDispatch002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
     std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
     uint32_t tagDiscId = 0;
     std::string msg = "";
@@ -289,6 +305,65 @@ HWTEST_F(TagDispatcherTest, PublishTagNotification, TestSize.Level1)
     ASSERT_TRUE(tagDispatcher != nullptr);
 }
 
+/**
+ * @tc.name: GetTagInfoFromTag001
+ * @tc.desc: Test TagSession GetTagInfoFromTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, GetTagInfoFromTag001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    std::shared_ptr<KITS::TagInfo> tagInfo = tagDispatcher->GetTagInfoFromTag001(tagDiscId);
+    ASSERT_TRUE(tagInfo != nullptr);
+}
+
+/**
+ * @tc.name: GetTagInfoParcelableFromTag001
+ * @tc.desc: Test TagSession GetTagInfoParcelableFromTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, GetTagInfoParcelableFromTag001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    tagDispatcher->GetTagInfoParcelableFromTag(tagDiscId);
+    ASSERT_TRUE(tagInfo != nullptr);
+}
+
+/**
+ * @tc.name: GerTagInfoParcelableFromTag002
+ * @tc.desc: Test TagSession GerTagInfoParcelableFromTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, GerTagInfoParcelableFromTag002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    uint32_t tagDiscId = 0;
+    tagDispatcher->GetTagInfoParcelableFromTag(tagDiscId);
+    ASSERT_TRUE(tagInfo != nullptr);
+}
+
+/**
+ * @tc.name: ParseNdefInfo001
+ * @tc.desc: Test TagSession ParseNdefInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, ParseNdefInfo001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    std::string ndefMsg = "test";
+    std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
+    std::string ndefInfo = tagDispatcher->ParseNdefInfo(ndefMessage);
+    ASSERT_TRUE(ndefInfo == "");
+}
 }
 }
 }
