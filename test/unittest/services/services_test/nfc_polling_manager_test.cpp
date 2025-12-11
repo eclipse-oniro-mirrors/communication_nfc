@@ -419,10 +419,10 @@ HWTEST_F(NfcPollingManagerTest, EnableReaderMode004, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, GetReaderModeData001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
-    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> data = nfcPollingNanager.lock()->GetReaderModeData();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> data = nfcPollingManager.lock()->GetReaderModeData();
     ASSERT_TRUE(data != nullptr);
 }
 
@@ -433,10 +433,10 @@ HWTEST_F(NfcPollingManagerTest, GetReaderModeData001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, GetCurrentParameters001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
-    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> data = nfcPollingNanager.lock()->GetReaderModeData();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> data = nfcPollingManager.lock()->GetReaderModeData();
     std::shared_ptr<NfcPollingParams> nfcCurrentParameters = nfcPollingManager.lock()->GetCurrentParameters();
     ASSERT_TRUE(nfcCurrentParameters != nullptr);
 }
@@ -448,9 +448,9 @@ HWTEST_F(NfcPollingManagerTest, GetCurrentParameters001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, DisableReaderModeByDeathRcpt001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     bool ret = nfcPollingManager.lock()->DisableReaderModeByDeathRcpt();
     ASSERT_TRUE(ret);
 }
@@ -462,9 +462,9 @@ HWTEST_F(NfcPollingManagerTest, DisableReaderModeByDeathRcpt001, TestSize.Level1
  */
 HWTEST_F(NfcPollingManagerTest, IsReaderModeEnabled001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     bool ret = nfcPollingManager.lock()->IsReaderModeEnabled();
     ASSERT_TRUE(!ret);
 }
@@ -476,11 +476,11 @@ HWTEST_F(NfcPollingManagerTest, IsReaderModeEnabled001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, SendTagToReaderApp001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
     std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     KITS::TagInfoParcelable* tagInfo = nullptr;
-    bool ret = nfcPollingManager.lock()->SendTagToReaderApp(tagInfo);
+    nfcPollingManager.lock()->SendTagToReaderApp(tagInfo);
     ASSERT_TRUE(service != nullptr);
 }
 
@@ -491,12 +491,12 @@ HWTEST_F(NfcPollingManagerTest, SendTagToReaderApp001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, SendTagToReaderApp002, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     MessageParcel data;
     KITS::TagInfoParcelable* tagInfo = KITS::TagInfoParcelable::Unmarshalling(data);
-    bool ret = nfcPollingManager.lock()->SendTagToReaderApp(tagInfo);
+    nfcPollingManager.lock()->SendTagToReaderApp(tagInfo);
     ASSERT_TRUE(service != nullptr);
 }
 
@@ -507,9 +507,9 @@ HWTEST_F(NfcPollingManagerTest, SendTagToReaderApp002, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, CheckForegroundApp001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     std::string readerBundle = "test";
     bool ret = nfcPollingManager.lock()->CheckForegroundApp(readerBundle);
     ASSERT_TRUE(!ret);
@@ -522,9 +522,9 @@ HWTEST_F(NfcPollingManagerTest, CheckForegroundApp001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, CheckForegroundAbility001, TestSize.Level1)
 {
-    std::shared_ptr<NfcService> service = std::make_share<HfcService>();
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     std::string readerBundle = "test";
     std::string readerAbility = "123";
     bool ret = nfcPollingManager.lock()->CheckForegroundAbility(readerBundle, readerAbility);

@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -345,9 +348,9 @@ HWTEST_F(NdefBtDataParserTest, IsVendorPayloadValid003, TestSize.Level1)
  */
 HWTEST_F(NdefBtDataParserTest, ParseBleRecord001, TestSize.Level1)
 {
-    std::strint payload = "D220566170706C69636174696F6E2F766E626C7565746F6F746F6F74682E65";
+    std::strint payload = "D220566170706C69636174696F6E2F766E642E626C7565746F6F82E65";
     std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
-    ndefBtDataParser->ParseBleRecord(msg);
+    ndefBtDataParser->ParseBleRecord(payload);
     ASSERT_TRUE(ndefBtDataParser != nullptr);
 }
 
