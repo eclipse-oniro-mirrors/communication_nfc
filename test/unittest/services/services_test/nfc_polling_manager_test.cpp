@@ -478,7 +478,7 @@ HWTEST_F(NfcPollingManagerTest, SendTagToReaderApp001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
-    std::weak_ptr<Nfc::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     KITS::TagInfoParcelable* tagInfo = nullptr;
     nfcPollingManager.lock()->SendTagToReaderApp(tagInfo);
     ASSERT_TRUE(service != nullptr);
