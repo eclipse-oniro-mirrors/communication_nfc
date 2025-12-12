@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
+#define protected public
+
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -336,6 +339,33 @@ HWTEST_F(NdefBtDataParserTest, IsVendorPayloadValid003, TestSize.Level1)
     std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
     bool ret = ndefBtDataParser->IsVendorPayloadValid(msg);
     ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: ParseBleRecord001
+ * @tc.desc: Test NdefBtDataParserTest ParseBleRecord.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtDataParserTest, ParseBleRecord001, TestSize.Level1)
+{
+    std::string payload = "D220566170706C69636174696F6E2F766E642E626C7565746F6F74682E65";
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    ndefBtDataParser->ParseBleRecord(payload);
+    ASSERT_TRUE(ndefBtDataParser != nullptr);
+}
+
+/**
+ * @tc.name: ParseBtHandoverSelect001
+ * @tc.desc: Test NdefBtDataParserTest ParseBtHandoverSelect.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NdefBtDataParserTest, ParseBtHandoverSelect001, TestSize.Level1)
+{
+    std::string msg = "test";
+    std::shared_ptr<NFC::KITS::NdefMessage> ndef = KITS::NdefMessage::GetNdefMessage(msg);
+    std::shared_ptr<NdefBtDataParser> ndefBtDataParser = std::make_shared<NdefBtDataParser>();
+    ndefBtDataParser->ParseBtHandoverSelect(ndef);
+    ASSERT_TRUE(ndefBtDataParser != nullptr);
 }
 } // namespace TEST
 } // namespace TAG
