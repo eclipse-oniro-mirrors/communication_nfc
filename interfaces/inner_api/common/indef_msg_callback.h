@@ -16,13 +16,14 @@
 #define OHOS_I_NDEF_MSG_CALLBACK_H
 
 #include <iremote_broker.h>
+#include "taginfo_parcelable.h"
 
 namespace OHOS {
 namespace NFC {
 class INdefMsgCallback : public IRemoteBroker {
 public:
     virtual bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, const std::string &payload,
-        int ndefMsgType) = 0;
+        int ndefMsgType, KITS::TagInfoParcelable* tagInfo) = 0;
 
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.nfc.kits.INdefMsgCallback");

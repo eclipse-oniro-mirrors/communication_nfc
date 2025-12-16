@@ -112,9 +112,7 @@ uint16_t TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 #endif
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
-    if (ndefCb_ != nullptr) {
-        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, vendorPayload, msgType);
-    }
+    HandleOnNdefMsgDiscovered(tagUid, ndef, vendorPayload, msgType, tagDiscId);
     if (ndefCbRes_) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
         return DISPATCH_CALLBACK;
@@ -143,6 +141,17 @@ uint16_t TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         return dispatchRes;
     }
     return DISPATCH_UNKNOWN;
+}
+
+void TagDispatcher::HandleOnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
+    const std::string &payload, int ndefMsgType, uint32_t tagDiscId)
+{
+    if (ndefCb_ != nullptr) {
+        KITS::TagInfoParcelable* tagInfoParcel = GetTagInfoParcelableFromTag(tagDiscId);
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType, tagInfoParcel);
+        delete tagInfoParcel;
+        tagInfoParcel = nullptr;
+    }
 }
 
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
