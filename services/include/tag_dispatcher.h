@@ -48,6 +48,8 @@ private:
     KITS::TagInfoParcelable* GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     void DispatchTag(uint32_t rfDiscId);
     uint16_t HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
+    void HandleOnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
+        const std::string &payload, int ndefMsgType, uint32_t tagDiscId);
     uint16_t PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
     void SendTagInfoToVendor(long tagFoundStartTime, long readFinishTime, long dispatchFinishTime,
         std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult);

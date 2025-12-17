@@ -37,7 +37,7 @@ public:
 
 private:
     bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, const std::string &payload,
-        int ndefMsgType) override;
+        int ndefMsgType, KITS::TagInfoParcelable* tagInfo) override;
     int RemoteNdefMsgDiscovered(MessageParcel &data, MessageParcel &reply);
     sptr<INdefMsgCallback> callback_;
     std::shared_mutex mutex_;
