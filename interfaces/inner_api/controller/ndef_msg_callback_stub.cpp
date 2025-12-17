@@ -33,11 +33,11 @@ NdefMsgCallbackStub& NdefMsgCallbackStub::GetInstance()
 }
 
 bool NdefMsgCallbackStub::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
-    const std::string &payload, int ndefMsgType)
+    const std::string &payload, int ndefMsgType, KITS::TagInfoParcelable* tagInfo)
 {
     if (callback_) {
         DebugLog("NdefMsgCallbackStub callback_");
-        return callback_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType);
+        return callback_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType, tagInfo);
     }
     return false;
 }
@@ -92,9 +92,12 @@ int NdefMsgCallbackStub::RemoteNdefMsgDiscovered(MessageParcel &data, MessagePar
     std::string ndef = data.ReadString();
     std::string payload = data.ReadString();
     int type = data.ReadInt32();
+    KITS::TagInfoParcelable* tagInfo = KITS::TagInfoParcelable::Unmarshalling(data);
     std::unique_lock<std::shared_mutex> guard(mutex_);
-    bool res = OnNdefMsgDiscovered(tagUid, ndef, payload, type);
+    bool res = OnNdefMsgDiscovered(tagUid, ndef, payload, type, tagInfo);
     reply.WriteBool(res); // Reply for ndef parse result
+    delete tagInfo;
+    tagInfo = nullptr;
     return KITS::ERR_NONE;
 }
 }  // namespace NFC

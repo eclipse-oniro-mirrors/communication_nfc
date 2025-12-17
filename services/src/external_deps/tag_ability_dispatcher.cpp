@@ -19,6 +19,8 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "vibrator_agent.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace NFC {
@@ -189,6 +191,43 @@ void TagAbilityDispatcher::DispatchAbilitySingleApp(AAFwk::Want& want)
     InfoLog("DispatchAbilitySingleApp call StartAbility end.");
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::UNKNOWN_TAG_DISPATCH);
+}
+
+bool TagAbilityDispatcher::StartNotepadAbility(const std::string &notepadBundleName)
+{
+    AAFwk::Want want;
+    const int USER_ID = 100;
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        ErrorLog("NfcGetBundleMgrProxy, systemAbilityManager is null");
+        return false;
+    }
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        ErrorLog("NfcGetBundleMgrProxy, remoteObject is null");
+        return false;
+    }
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgrProxy == nullptr) {
+        ErrorLog("QueryAbilityInfos, bundleMgrProxy is nullptr.");
+        return false;
+    }
+    int32_t errCode = bundleMgrProxy->GetLaunchWantForBundle(notepadBundleName, want, USER_ID);
+    if (errCode) {
+        InfoLog("GetLaunchWantForBundle fail. ret = %{public}d", errCode);
+        return false;
+    }
+    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+        ErrorLog("AbilityManagerClient is null");
+        return false;
+    }
+    errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    if (errCode) {
+        ErrorLog("StartAbility fail. ret = %{public}d", errCode);
+        return false;
+    }
+    return true;
 }
 }  // namespace TAG
 }  // namespace NFC

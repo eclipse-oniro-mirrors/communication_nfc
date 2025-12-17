@@ -222,6 +222,11 @@ void ExternalDepsProxy::DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInf
     TAG::TagAbilityDispatcher::DispatchTagAbility(tagInfo, tagServiceIface);
 }
 
+bool ExternalDepsProxy::StartNotepadAbility(const std::string &notepadBundleName)
+{
+    return TAG::TagAbilityDispatcher::StartNotepadAbility(notepadBundleName);
+}
+
 void ExternalDepsProxy::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName)
 {
     TAG::TagAbilityDispatcher::DispatchAppGallery(tagServiceIface, appGalleryBundleName);

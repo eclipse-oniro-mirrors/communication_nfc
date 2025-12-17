@@ -359,28 +359,18 @@ bool NciTagProxy::VendorParseHarPackage(std::vector<std::string> &harPackages)
 }
 
 /**
- * @brief Get browser bundle name of the vendor.
- * @return Browser bundle name of the vendor.
+ * @brief Get vendor info according type.
+ * @param type the type of want to get.
+ * @return the info of type.
  */
-std::string NciTagProxy::GetVendorBrowserBundleName()
+std::string NciTagProxy::GetVendorInfo(uint16_t type)
 {
     if (nciTagInterface_) {
-        return nciTagInterface_->GetVendorBrowserBundleName();
+        return nciTagInterface_->GetVendorInfo(type);
     }
     return "";
 }
 
-/**
- * @brief Get appGallery bundle name of the vendor.
- * @return appGallery bundle name of the vendor.
- */
-std::string NciTagProxy::GetVendorAppGalleryBundleName()
-{
-    if (nciTagInterface_) {
-        return nciTagInterface_->GetVendorAppGalleryBundleName();
-    }
-    return "";
-}
 #ifdef VENDOR_APPLICATIONS_ENABLED
 /**
  * @brief Check current ipc thread come from vendor process or not.

@@ -107,6 +107,12 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
         InfoLog("DispatchByAppLinkMode succ");
         return dispatchRes;
     }
+    // handle text launch notepad app
+    dispatchRes = DispatchText(tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
+        InfoLog("DispatchText succ");
+        return dispatchRes;
+    }
     // handle Mime type
     dispatchRes = DispatchMimeToBundleAbility(tagInfo);
     if (dispatchRes != DISPATCH_UNKNOWN) {
@@ -283,6 +289,30 @@ uint16_t NdefHarDataParser::HandleUnsupportSchemeType(const std::vector<std::sha
         if (g_unsupportTypeAndSysEvent.find(schemeType_) != g_unsupportTypeAndSysEvent.end()) {
             WriteNfcFailedHiSysEvent(g_unsupportTypeAndSysEvent[schemeType_]);
             return g_unsupportTypeAndSysEvent[schemeType_];
+        }
+    }
+    return DISPATCH_UNKNOWN;
+}
+
+uint16_t NdefHarDataParser::DispatchText(const std::shared_ptr<KITS::TagInfo> &tagInfo)
+{
+    InfoLog("enter");
+    for (const auto& mimeTypePair : mimeTypeVec_) {
+        RecordsType mimeType = mimeTypePair.first;
+        std::string mimeTypeStr = mimeTypePair.second;
+        if (nciTagProxy_.expired()) {
+            ErrorLog("nciTagProxy_ is expired");
+            return DISPATCH_UNKNOWN;
+        }
+        auto tagProxy = nciTagProxy_.lock();
+        if (tagProxy && (mimeType == TYPE_RTP_MIME_TEXT_PLAIN || mimeType == TYPE_RTP_MIME_TEXT_VCARD)) {
+            std::string notePadBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_NOTEPAD);
+            if (ExternalDepsProxy::GetInstance().IsBundleInstalled(notePadBundleName)) {
+                ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_TEXT_NOTIFICATION_ID, "", 0);
+            } else {
+                ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID, "", 0);
+            }
+            return NDEF_TEXT_EVENT;
         }
     }
     return DISPATCH_UNKNOWN;

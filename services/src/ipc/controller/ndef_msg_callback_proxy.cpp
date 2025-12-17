@@ -25,7 +25,7 @@ NdefMsgCallbackProxy::NdefMsgCallbackProxy(const sptr<IRemoteObject> &remote)
 {}
 
 bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
-    const std::string &payload, int ndefMsgType)
+    const std::string &payload, int ndefMsgType, KITS::TagInfoParcelable* tagInfo)
 {
     DebugLog("NdefMsgCallbackProxy::OnNdefMsgDiscovered");
     MessageOption option = {MessageOption::TF_ASYNC};
@@ -40,6 +40,9 @@ bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(const std::string &tagUid, const 
     data.WriteString(ndef);
     data.WriteString(payload);
     data.WriteInt32(ndefMsgType);
+    if (tagInfo != nullptr) {
+        tagInfo->Marshalling(data);
+    }
 
     int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NDEF_MSG_NOTIFY),
         data, reply, option);

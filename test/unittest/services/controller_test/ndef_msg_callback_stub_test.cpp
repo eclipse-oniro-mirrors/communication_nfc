@@ -38,7 +38,7 @@ public:
 
 public:
     bool OnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef, const std::string &payload,
-        int ndefMsgType) override
+        int ndefMsgType, KITS::TagInfoParcelable* tagInfo) override
     {
         return false;
     }

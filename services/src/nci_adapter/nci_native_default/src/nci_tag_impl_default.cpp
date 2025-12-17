@@ -228,15 +228,11 @@ bool NciTagImplDefault::VendorParseHarPackage(std::vector<std::string> &harPacka
     return false;
 }
 
-std::string NciTagImplDefault::GetVendorBrowserBundleName()
+std::string NciTagImplDefault::GetVendorInfo(uint16_t type)
 {
     return "";
 }
 
-std::string NciTagImplDefault::GetVendorAppGalleryBundleName()
-{
-    return "";
-}
 #ifdef VENDOR_APPLICATIONS_ENABLED
 bool NciTagImplDefault::IsVendorProcess()
 {

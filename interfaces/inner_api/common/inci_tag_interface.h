@@ -216,16 +216,11 @@ public:
     virtual bool VendorParseHarPackage(std::vector<std::string> &harPackages) = 0;
 
     /**
-     * @brief Get browser bundle name of the vendor.
-     * @return Browser bundle name of the vendor.
+     * @brief Get vendor info according type.
+     * @param type the type of want to get.
+     * @return bundle name of the vendor.
      */
-    virtual std::string GetVendorBrowserBundleName() = 0;
-    
-    /**
-     * @brief Get appGallery bundle name of the vendor.
-     * @return appGallery bundle name of the vendor.
-     */
-    virtual std::string GetVendorAppGalleryBundleName() = 0;
+    virtual std::string GetVendorInfo(uint16_t type) = 0;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     /**

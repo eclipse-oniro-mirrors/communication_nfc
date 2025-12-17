@@ -112,9 +112,7 @@ uint16_t TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
 #endif
     InfoLog("HandleNdefDispatch, tagUid = %{public}s, msgType = %{public}d",
         KITS::NfcSdkCommon::CodeMiddlePart(tagUid).c_str(), msgType);
-    if (ndefCb_ != nullptr) {
-        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, vendorPayload, msgType);
-    }
+    HandleOnNdefMsgDiscovered(tagUid, ndef, vendorPayload, msgType, tagDiscId);
     if (ndefCbRes_) {
         InfoLog("HandleNdefDispatch, is dispatched by ndefMsg callback");
         return DISPATCH_CALLBACK;
@@ -143,6 +141,17 @@ uint16_t TagDispatcher::HandleNdefDispatch(uint32_t tagDiscId, std::string &msg)
         return dispatchRes;
     }
     return DISPATCH_UNKNOWN;
+}
+
+void TagDispatcher::HandleOnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
+    const std::string &payload, int ndefMsgType, uint32_t tagDiscId)
+{
+    if (ndefCb_ != nullptr) {
+        KITS::TagInfoParcelable* tagInfoParcel = GetTagInfoParcelableFromTag(tagDiscId);
+        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType, tagInfoParcel);
+        delete tagInfoParcel;
+        tagInfoParcel = nullptr;
+    }
 }
 
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
@@ -340,15 +349,37 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             break;
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             // start AppGallery
-            if (!nciTagProxy_.expired() && nfcService_) {
-                std::string appGalleryBundleName = nciTagProxy_.lock()->GetVendorAppGalleryBundleName();
-                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
-                                                                    appGalleryBundleName);
-            }
+            HandleNoHapSupportId();
+            break;
+        case NFC_TEXT_NOTIFICATION_ID:
+            HandleTextId();
             break;
         default:
             WarnLog("unknown notification Id");
             break;
+    }
+}
+
+void TagDispatcher::HandleNoHapSupportId()
+{
+    if (!nciTagProxy_.expired() && nfcService_) {
+        auto tagProxy = nciTagProxy_.lock();
+        if (tagProxy) {
+            std::string appGalleryBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_GALLERY);
+            ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
+                                                                appGalleryBundleName);
+        }
+    }
+}
+
+void TagDispatcher::HandleTextId()
+{
+    if (!nciTagProxy_.expired()) {
+        auto tagProxy = nciTagProxy_.lock();
+        if (tagProxy) {
+            std::string notepadBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_NOTEPAD);
+            ExternalDepsProxy::GetInstance().StartNotepadAbility(notepadBundleName);
+        }
     }
 }
 
