@@ -201,6 +201,7 @@ enum NotifyVendorEvent : int {
     PWR_VOLTAGE_NOTIFY_KEY = 1140,
     NOTIFY_NDEF_INFO_EVENT = 1150,
     NOTIFY_READ_TAG_EVENT = 1151,
+    TOAST_TYPE_KEY = 1160,
 };
 
 class NfcSdkCommon final {

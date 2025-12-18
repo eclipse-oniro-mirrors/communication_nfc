@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"Đã phát hiện thẻ tên. Mở Danh bạ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"Mở",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"Đã phát hiện tin nhắn SMS. Mở ứng dụng Nhắn tin?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"Đã phát hiện email. Mở ứng dụng Email?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"Đã phát hiện văn bản. Mở ứng dụng Sổ tay?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

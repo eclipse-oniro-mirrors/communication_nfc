@@ -53,6 +53,14 @@ enum BtConnResult {
     CONN_RES_DISCONNECTED
 };
 
+enum BtToastType : int {
+    UNABLE_TO_PAIR = 101,
+    PAIRING_WITH_DEVICE,
+    PAIRING_SUCCESS,
+    PAIRING_FAILURE,
+    PAIR_TIME_OUT,
+};
+
 static Bluetooth::A2dpSource *g_a2dp;
 static Bluetooth::HandsFreeAudioGateway *g_hfp;
 static Bluetooth::HidHost *g_hid;
@@ -64,6 +72,7 @@ bool g_isStateObserverRegistered = false;
 bool g_isDevObserverRegistered = false;
 bool g_isA2dpSupported = false;
 bool g_isHfpSupported = false;
+bool g_isOnBtNtClicked = false;
 
 uint8_t g_a2dpConnState = 0;
 uint8_t g_hfpConnState = 0;
@@ -202,6 +211,7 @@ void BtConnectionManager::OnFinish()
     g_isDevObserverRegistered = false;
     g_isA2dpSupported = false;
     g_isHfpSupported = false;
+    g_isOnBtNtClicked = false;
     g_a2dpConnState = 0;
     g_hfpConnState = 0;
     g_hidConnState = 0;
@@ -221,6 +231,7 @@ void BtConnectionManager::HandleBtPairFailed()
 {
     std::unique_lock<std::shared_mutex> guard(mutex_);
     ErrorLog("Bt Pair Failed");
+    ShowBtConnectionToast(PAIR_TIME_OUT);
     OnFinish();
 }
 
@@ -244,6 +255,7 @@ bool BtConnectionManager::HandleEnableBt()
     SendMsgToEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT, BT_ENABLE_TIMEOUT);
     if (Bluetooth::BluetoothHost::GetDefaultHost().EnableBle() != Bluetooth::RET_NO_ERROR) { // EnableBt() is deprecated
         ErrorLog("HandleEnableBt: failed");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return false;
     }
     return true;
@@ -266,6 +278,7 @@ bool BtConnectionManager::HandleBtPair()
     g_isDevObserverRegistered = true;
 
     InfoLog("Handle bt pair start");
+    ShowBtConnectionToast(PAIRING_WITH_DEVICE);
     g_device.StartCrediblePair();
     SendMsgToEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT, BT_PAIR_TIMEOUT);
     return true;
@@ -306,6 +319,7 @@ bool BtConnectionManager::HandleBtInit()
 {
     if (g_btData == nullptr) {
         ErrorLog("HandleBtInit: g_btData error");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return false;
     }
     if (g_device.GetDeviceAddr().compare(g_btData->macAddress_) != 0) {
@@ -342,12 +356,14 @@ bool BtConnectionManager::DecideInitNextAction()
 {
     if (g_btData == nullptr) {
         ErrorLog("HandleBtInit: g_btData error");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return false;
     }
     int32_t state = 0;
     if (g_btData->transport_ == Bluetooth::GATT_TRANSPORT_TYPE_LE) {
         if (!g_hid) {
             ErrorLog("DecideInitNextAction: hid not supported");
+            ShowBtConnectionToast(UNABLE_TO_PAIR);
             return false;
         }
         g_hid->GetDeviceState(g_device, state);
@@ -694,6 +710,7 @@ void BtConnectionManager::TryPairBt(std::shared_ptr<BtData> data)
     std::unique_lock<std::shared_mutex> guard(mutex_);
     if (!data || !data->isValid_) {
         ErrorLog("TryPairBt: data error");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return;
     }
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT);
@@ -728,6 +745,7 @@ void BtConnectionManager::OnBtNtfClicked()
 {
     InfoLog("OnBtNtfClicked");
     std::unique_lock<std::shared_mutex> guard(mutex_);
+    g_isOnBtNtClicked = true;
     if (g_btData == nullptr) {
         ErrorLog("OnBtNtfClicked: g_btData error");
         return;
@@ -756,6 +774,24 @@ void BtConnectionManager::OnBtEnabled()
     }
 }
 
+void BtConnectionManager::ShowBtConnectionToast(int type)
+{
+    if (nfcService_.expired()) {
+        ErrorLog("nfcService expired");
+        return;
+    }
+    if (!g_isOnBtNtClicked) {
+        ErrorLog("g_isOnBtNtClicked is false, not shuow toast");
+        return;
+    }
+    std::string btToastValue = std::to_string(type);
+    if (type == PAIRING_WITH_DEVICE && g_btData != nullptr) {
+        btToastValue.append(g_btData->name_);
+    }
+    InfoLog("NotifyMessageToVendor btToastValue: %{public}s", btToastValue.c_str());
+    nfcService_.lock()->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, btToastValue);
+}
+
 void BtConnectionManager::BtStateObserver::OnStateChanged(const int transport, const int status)
 {
     InfoLog("OnStateChanged transport: %{public}d, status: %{public}d", transport, status);
@@ -770,23 +806,29 @@ void BtConnectionManager::OnPairStatusChanged(std::shared_ptr<BtConnectionInfo> 
     std::unique_lock<std::shared_mutex> guard(mutex_);
     if (info == nullptr) {
         ErrorLog("OnPairStatusChanged: info is null");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return;
     }
     if (g_btData == nullptr) {
         ErrorLog("OnPairStatusChanged: g_btData error");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return;
     }
     if (info->macAddr_.compare(g_btData->macAddress_) != 0) {
         ErrorLog("OnPairStatusChanged not same device");
+        ShowBtConnectionToast(UNABLE_TO_PAIR);
         return;
     }
     if (g_state == STATE_PAIRING) {
         if (info->state_ == Bluetooth::PAIR_PAIRED) {
             RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_PAIR_TIMEOUT);
+            ShowBtConnectionToast(PAIRING_SUCCESS);
             g_state = STATE_PAIR_COMPLETE;
             NextAction();
         } else if (info->state_ == Bluetooth::PAIR_NONE) {
             // timeout msg removed in OnFinish()
+            ErrorLog("OnPairStatusChanged: pair failed");
+            ShowBtConnectionToast(PAIRING_FAILURE);
             OnFinish();
         }
     }

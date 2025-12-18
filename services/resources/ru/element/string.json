@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"Обнаружена визитная карточка. Открыть приложение Контакты?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"Открыть",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"Обнаружено SMS-сообщение. Открыть приложение Сообщения?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"Обнаружено электронное письмо. Открыть приложение Эл. почта?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"Обнаружен текст. Открыть приложение Заметки?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

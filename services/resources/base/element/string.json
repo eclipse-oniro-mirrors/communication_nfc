@@ -162,106 +162,36 @@
             }
         },
         {
-            "name":"NfcConnotPair",
-            "value":"Unable to pair with the target",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcParingInProgress",
-            "value":"Pairing with %s...",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcPairSuccess",
-            "value":"Pairing successfully",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcPairFailed",
-            "value":"Pairing failed",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcPairTimeout",
-            "value":"pairing timed out",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcConnectedNetwork",
-            "value":"Connected to the target WiFi",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcConnotConnectNetwork",
-            "value":"Unable to connect to WiFi",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcConnectingNetwork",
-            "value":"Connecting to %s...",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcConnectNetworkFailed",
-            "value":"Failed to connect to WiFi",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"NfcConnectNetworkTimeout",
-            "value":"Connecting to WiFi timed out",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"NfcFoundBusinessCard",
-            "value":"Found business card, open address book?",
+            "value":"Name card detected. Open Contacts?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"NfcFoundShortMessage",
-            "value":"Found short message, open short message?",
+            "value":"SMS message detected. Open Messaging?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"NfcFoundEmail",
-            "value":"Found email, open mailbox?",
+            "value":"Email detected. Open Email app?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"NfcFoundText",
-            "value":"Found text, open memo?",
+            "value":"Text detected. Open Notepad?",
             "attr":{
-                "priority":"translate?"
+                "priority":"translate"
             }
         },
         {
             "name":"NfcOpenTag",
-            "value":"open",
+            "value":"Open",
             "attr":{
                 "priority":"translate"
             }

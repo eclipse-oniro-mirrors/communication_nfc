@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"ئالاقە كارتىسى ئوقۇلدى، «ئالاقىداش» ئەپنى ئاچامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"ئېچىش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"قىسقا ئۇچۇر ئوقۇلدى، «ئۇچۇر» ئەپنى ئاچامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"تورخەت ئوقۇلدى، «تورخەت» ئەپنى ئاچامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"تېكىست ئوقۇلدى، «ئەسلەتمە» ئەپنى ئاچامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

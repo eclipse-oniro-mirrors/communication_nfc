@@ -160,6 +160,41 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"NfcFoundBusinessCard",
+            "value":"ตรวจพบนามบัตร เปิดรายชื่อหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcOpenTag",
+            "value":"เปิด",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundShortMessage",
+            "value":"ตรวจพบข้อความ SMS เปิดข้อความหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundEmail",
+            "value":"ตรวจพบอีเมล เปิดแอปอีเมลหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"NfcFoundText",
+            "value":"ตรวจพบข้อความ เปิดสมุดโน้ตหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

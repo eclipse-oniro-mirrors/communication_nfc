@@ -53,6 +53,8 @@ private:
     // step 2: wifi connect
     bool IsSameSsid();
     bool HandleConnectWifi();
+    // connection status toast
+    void ShowWifiConnectionToast(int type);
     // clear function
     void OnFinish();
 
