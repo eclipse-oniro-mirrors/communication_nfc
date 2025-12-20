@@ -98,6 +98,80 @@ HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA002, TestSize.
 }
 
 /**
+ * @tc.name: OnHostCardEmulationDataNfcA003
+ * @tc.desc: Test HostCardEmulationManagerTest OnHostCardEmulationDataNfcA.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::vector<uint8_t> data = {0x00, 0xA4, 0x04, 0x00, 0x06, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+    sptr<KITS::IHceCmdCallback> callback = nullptr;
+    std::string type = "";
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->OnHostCardEmulationDataNfcA(data);
+    Security::AccessToken::AccessTokenID callerToken = 0;
+    bool ret = hostCardEmulationManager->RegHceCmdCallback(callback, type, callerToken);
+    ASSERT_TRUE(!ret);
+}
+
+#ifdef VENDOR_APPLICATIONS_ENABLED
+/**
+ * @tc.name: OnHostCardEmulationDataNfcA003
+ * @tc.desc: Test HostCardEmulationManagerTest OnHostCardEmulationDataNfcA.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, OnHostCardEmulationDataNfcA003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    std::string aid = "1122334455";
+    bool ret = hostCardEmulationManager->IsVendorHandleHce(aid);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: IsForegroundApp001
+ * @tc.desc: Test HostCardEmulationManagerTest IsForegroundApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, IsForegroundApp001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    std::string bundleName = "nfc123";
+    bool ret = hostCardEmulationManager->IsForegroundApp(bundleName);
+    ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: IsForegroundApp001
+ * @tc.desc: Test HostCardEmulationManagerTest IsForegroundApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HostCardEmulationManagerTest, IsForegroundApp001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = nullptr;
+    std::shared_ptr<NCI::INciCeInterface> nciCeProxy = nullptr;
+    std::shared_ptr<CeService> ceService = nullptr;
+    std::shared_ptr<HostCardEmulationManager> hostCardEmulationManager =
+        std::make_shared<HostCardEmulationManager>(nfcService, nciCeProxy, ceService);
+    hostCardEmulationManager->SetVendorCeActivated(false);
+    bool ret = hostCardEmulationManager->IsVendorCeActivated();
+    ASSERT_TRUE(!ret);
+}
+#endif
+
+/**
  * @tc.name: OnCardEmulationActivated001
  * @tc.desc: Test HostCardEmulationManagerTest OnCardEmulationActivated.
  * @tc.type: FUNC

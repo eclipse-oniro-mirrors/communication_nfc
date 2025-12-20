@@ -91,6 +91,15 @@ private:
     bool DispatchAbilitySingleAppForFaModel(ElementName& element);
     bool EraseHceCmdCallback(Security::AccessToken::AccessTokenID callerToken);
     bool IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken);
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    bool IsForegroundApp(const std::string &appBundleName);
+    bool ShouldVendorHandleHce(const std::string &aid);
+    bool IsVendorHandleHce(const std::string &aid);
+    bool IsVendorCeActivated();
+    bool SetVendorCeActivated(bool isActivated);
+    bool shouldVendorHandleHce_ = false;
+    bool isVendorCeActivated_ = false;
+#endif
 
     std::weak_ptr<NfcService> nfcService_{};
     std::weak_ptr<NCI::INciCeInterface> nciCeProxy_{};

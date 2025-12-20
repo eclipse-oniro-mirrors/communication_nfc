@@ -75,6 +75,7 @@ public:
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback() const;
+    void GetVendorHceAppsByAid(const std::string &aid, std::vector<HceAppAidInfo> &hceApps);
 #endif
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     bool IsBundleInstalled(const std::string &bundleName);
