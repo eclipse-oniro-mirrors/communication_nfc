@@ -293,7 +293,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
         ExternalDepsProxy::GetInstance().GetNotifyCardEmulationCallback();
     if ((notifyApduDataCallback != nullptr) && IsVendorHandleHce(aid)) {
         if (!IsVendorCeActivated()) {
-            InfoLog("send vendor ce activated")
+            InfoLog("send vendor ce activated");
             std::string data{};
             notifyApduDataCallback->OnCardEmulationNotify(CODE_SEND_FIELD_ACTIVATE, data);
             SetVendorCeActivated(true);
