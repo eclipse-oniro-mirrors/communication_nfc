@@ -48,7 +48,7 @@ public:
     void RegQueryApplicationCb(sptr<IQueryAppInfoCallback> callback);
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
-    void GetVendorHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
+    void GetVendorHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo> &hceApps);
 #endif
 
     KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);

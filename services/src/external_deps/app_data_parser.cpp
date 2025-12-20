@@ -693,10 +693,11 @@ void AppDataParser::GetVendorHceAppsByAid(const std::string &aid, std::vector<Hc
     std::vector<HceAppAidInfo> vendorHceApps;
     GetHceAppsFromVendor(vendorHceApps);
     for (const auto &appAidInfo : vendorHceApps) {
-        for (const AidInfo &aidInfo : appAidInfo.customDataAid)
-        if (aid == aidInfo.value) {
-            hceApps.push_back(appAidInfo);
-            break;
+        for (const AidInfo &aidInfo : appAidInfo.customDataAid) {
+            if (aid == aidInfo.value) {
+                hceApps.push_back(appAidInfo);
+                break;
+            }
         }
     }
 }

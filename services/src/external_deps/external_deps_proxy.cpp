@@ -63,8 +63,8 @@ sptr<IOnCardEmulationNotifyCb> ExternalDepsProxy::GetNotifyCardEmulationCallback
     return AppDataParser::GetInstance().GetNotifyCardEmulationCallback();
 }
 
-void ExternalDepsProxy::GetVendorHceAppsByAid(const std::string& aid, 
-    std::vector<AppDataParser::HceAppAidInfo>& hceApps)
+void ExternalDepsProxy::GetVendorHceAppsByAid(const std::string &aid,
+    std::vector<AppDataParser::HceAppAidInfo> &hceApps)
 {
     AppDataParser::GetInstance().GetVendorHceAppsByAid(aid, hceApps);
 }

@@ -96,9 +96,9 @@ private:
     bool ShouldVendorHandleHce(const std::string &aid);
     bool IsVendorHandleHce(const std::string &aid);
     bool IsVendorCeActivated();
-    bool SetVendorCeActivated(bool isActivated);
-    bool shouldVendorHandleHce_ = false;
+    void SetVendorCeActivated(bool isActivated);
     bool isVendorCeActivated_ = false;
+    bool shouldVendorHandleHce_ = false;
 #endif
 
     std::weak_ptr<NfcService> nfcService_{};
