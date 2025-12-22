@@ -973,7 +973,7 @@ int TagSession::RegReaderModeInnerWithIntvl(const ElementName &element, const st
 }
 
 ErrCode TagSession::RegReaderModeWithIntvl(const ElementName& element, const std::vector<uint32_t>& discTech,
-    const sptr<IReaderModeCallback>& cb, in interval)
+    const sptr<IReaderModeCallback>& cb, int interval)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("ERR_NO_PERMISSION");
