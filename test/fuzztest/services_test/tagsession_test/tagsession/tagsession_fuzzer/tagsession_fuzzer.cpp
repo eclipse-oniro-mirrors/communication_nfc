@@ -63,7 +63,7 @@ public:
         ConvertToUint32s(data, timeOutArray, 1);
         int tagRfDiscId = timeOutArray[0];
         tagSession->ResetTimeout(tagRfDiscId);
-service->Initialize();
+        service->Initialize();
         sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->ResetTimeout(tagRfDiscId);
     }
@@ -77,7 +77,7 @@ service->Initialize();
         int tagRfDiscId = timeOutArray[0];
         bool isTagFieldOn = false;
         tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
-service->Initialize();
+        service->Initialize();
         sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
@@ -166,7 +166,7 @@ service->Initialize();
         int tagRfDiscId = static_cast<int>(data[0]);
         bool isConnected = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsConnected(tagRfDiscId, isConnected);
-service->Initialize();
+        service->Initialize();
         sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
         tagSession1->IsConnected(tagRfDiscId, isConnected);
     }
