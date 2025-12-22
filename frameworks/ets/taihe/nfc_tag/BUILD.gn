@@ -44,7 +44,17 @@ ohos_taihe("run_taihe") {
   ]
 }
 
+config("nfc_taihe_config") {
+  cflags = [
+    "-flto=full",
+  ]
+  ldflags = [
+    "-flto=full",
+  ]
+}
+
 taihe_shared_library("nfc_fwk_taihe_tag") {
+  shlib_type = "ani"
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -71,6 +81,10 @@ taihe_shared_library("nfc_fwk_taihe_tag") {
     "src/nfc_taihe_util.cpp",
     "src/nfc_taihe_tag_event.cpp",
     "src/impl/ohos.nfc.tag.tag.impl.cpp",
+  ]
+
+  configs = [
+    ":nfc_taihe_config",
   ]
 
   external_deps = [
