@@ -60,7 +60,7 @@ public:
     int interval_ = 0;
 
     explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
-        sptr<KITS::IReaderModeCallback> cb)
+        sptr<KITS::IReaderModeCallback> cb, int interval)
         : isEnabled_(isEnable),
         element_(element),
         techs_(techs),
