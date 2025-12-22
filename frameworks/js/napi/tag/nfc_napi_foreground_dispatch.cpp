@@ -356,7 +356,7 @@ int ForegroundEventRegister::Register(const napi_env &env, ElementName &element,
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
         napi_status status = napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
-if (status != napi_ok) {
+        if (status != napi_ok) {
             ErrorLog("napi_get_reference_value ret %{public}d", status);
             return ERR_NONE;
         }
@@ -538,7 +538,7 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
     return inst;
 }
 
-int ReaderModeEvtRegister::Register(const napi_env &env,
+int ReaderModeEvtRegister::Register(napi_env &env,
     napi_value* argv, std::vector<uint32_t> &discTech, int interval)
 {
     std::string type = "";
@@ -562,7 +562,7 @@ int ReaderModeEvtRegister::Register(const napi_env &env,
     if (env == regObj.regEnv) {
         napi_value handlerTemp = nullptr;
         napi_status status = napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
-if (status != napi_ok) {
+        if (status != napi_ok) {
             ErrorLog("napi_get_reference_value ret %{public}d", status);
             return ERR_NONE;
         }
@@ -617,8 +617,6 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         ErrorLog("On: arg num error: %{public}zu", argc);
         return CreateUndefined(env);
     }
-    std::string type = "";
-    ElementName element;
     std::vector<uint32_t> dataVec;
     int interval = 0;
     if (!CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
