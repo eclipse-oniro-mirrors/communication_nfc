@@ -171,8 +171,8 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     }
     ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxy_.lock()->FindNdefTech(tagDiscId);
-long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
-        std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
+    long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
+    std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
     bool isNtfPublished = false;
     do {
@@ -192,13 +192,13 @@ long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
         tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
         if (nfcService_->GetNfcPollingManager().lock()->IsReaderModeEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToReaderApp(tagInfo);
-dispatchResult = DISPATCH_READERMODE;
-                        break;
+            dispatchResult = DISPATCH_READERMODE;
+            break;
         }
         if (nfcService_->GetNfcPollingManager().lock()->IsForegroundEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToForeground(tagInfo);
-dispatchResult = DISPATCH_FOREGROUND;
-                        break;
+            dispatchResult = DISPATCH_FOREGROUND;
+            break;
         }
         ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
         dispatchResult = HandleNdefDispatch(tagDiscId, ndefMsg);
@@ -213,11 +213,11 @@ dispatchResult = DISPATCH_FOREGROUND;
         delete tagInfo;
         tagInfo = nullptr;
     }
-long dispatchFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
+    long dispatchFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
     SendTagInfoToVendor(tagFoundTime, readFinishTime, dispatchFinishTime, ndefMessage, dispatchResult);
     NdefHarDataParser::GetInstance().ClearRecord0Uri();
 
-    #ifndef NFC_VIBRATOR_DISABLED
+#ifndef NFC_VIBRATOR_DISABLED
     StartVibratorOnce(isNtfPublished);
 #endif
     // Record types of read tags.
