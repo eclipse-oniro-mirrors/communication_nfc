@@ -232,6 +232,19 @@ HWTEST_F(TagDispatcherTest, DispatchAbilitySingleApp001, TestSize.Level1)
     tagAbilityDispatcher->DispatchAbilitySingleApp(want);
     ASSERT_TRUE(element.GetBundleName() == "");
 }
+
+/**
+ * @tc.name: StartNotepadAbility
+ * @tc.desc: Test TagSession StartNotepadAbility.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, StartNotepadAbility, TestSize.Level1)
+{
+    std::shared_ptr<NFC::TAG::TagAbilityDispatcher> tagAbilityDispatcher =
+        std::make_shared<NFC::TAG::TagAbilityDispatcher>();
+    ASSERT_TRUE(!tagAbilityDispatcher->StartNotepadAbility(""));
+}
+
 /**
  * @tc.name: DispatchAbilityMultiApp001
  * @tc.desc: Test TagSession DispatchAbilityMultiApp.

@@ -349,15 +349,37 @@ void TagDispatcher::OnNotificationButtonClicked(int notificationId)
             break;
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             // start AppGallery
-            if (!nciTagProxy_.expired() && nfcService_) {
-                std::string appGalleryBundleName = nciTagProxy_.lock()->GetVendorAppGalleryBundleName();
-                ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
-                                                                    appGalleryBundleName);
-            }
+            HandleNoHapSupportId();
+            break;
+        case NFC_TEXT_NOTIFICATION_ID:
+            HandleTextId();
             break;
         default:
             WarnLog("unknown notification Id");
             break;
+    }
+}
+
+void TagDispatcher::HandleNoHapSupportId()
+{
+    if (!nciTagProxy_.expired() && nfcService_) {
+        auto tagProxy = nciTagProxy_.lock();
+        if (tagProxy) {
+            std::string appGalleryBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_GALLERY);
+            ExternalDepsProxy::GetInstance().DispatchAppGallery(nfcService_->GetTagServiceIface(),
+                                                                appGalleryBundleName);
+        }
+    }
+}
+
+void TagDispatcher::HandleTextId()
+{
+    if (!nciTagProxy_.expired()) {
+        auto tagProxy = nciTagProxy_.lock();
+        if (tagProxy) {
+            std::string notepadBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_NOTEPAD);
+            ExternalDepsProxy::GetInstance().StartNotepadAbility(notepadBundleName);
+        }
     }
 }
 

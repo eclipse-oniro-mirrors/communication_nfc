@@ -50,8 +50,7 @@ public:
     bool IsExtendedLengthApduSupported() override;
     uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) override;
     bool VendorParseHarPackage(std::vector<std::string> &harPackages) override;
-    std::string GetVendorBrowserBundleName() override;
-    std::string GetVendorAppGalleryBundleName() override;
+    std::string GetVendorInfo(uint16_t type) override;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     bool IsVendorProcess() override;

@@ -45,6 +45,7 @@ enum NfcNotificationId : int {
     NFC_BROWSER_NOTIFICATION_ID = 114004,
     NFC_HCE_AID_CONFLICTED_ID = 114005,
     NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID = 114006,
+    NFC_TEXT_NOTIFICATION_ID = 114007,
 
     // add NTF ID type before NFC_NTF_END
     NFC_NTF_END,
@@ -104,6 +105,8 @@ constexpr const char* KEY_HCE_AID_CONFLICTED_TEXT   = "NfcHceAidConflictedText";
 constexpr const char* KEY_NO_HAP_TITLE              = "NoHapSupportedNtfTitle";
 constexpr const char* KEY_NO_HAP_TEXT               = "NoHapSupportedNtfText";
 constexpr const char* KEY_NO_HAP_BUTTON_NAME        = "NoHapSupportedNtfButtonName";
+constexpr const char* KEY_TEXT_BUTTON_NAME          = "NfcFoundText";
+constexpr const char* KEY_OPEN_TAG                  = "NfcOpenTag";
 
 constexpr const char* COMMON_EVENT_HIDE_DROPDOWN_WINDOW = "sceneboard.event.HIDE_DROPDOWN_WINDOW";
 
@@ -342,6 +345,13 @@ static bool SetTitleAndTextForOtherNotificationId(int notificationId,
                 nfcContent->SetText(g_resourceMap[KEY_NO_HAP_TEXT]);
             }
             break;
+        case NFC_TEXT_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_TAG_DEFAULT_NTF_TITLE) != g_resourceMap.end() &&
+                g_resourceMap.find(KEY_TEXT_BUTTON_NAME) != g_resourceMap.end()) {
+                nfcContent->SetTitle(g_resourceMap[KEY_TAG_DEFAULT_NTF_TITLE]);
+                nfcContent->SetText(g_resourceMap[KEY_TEXT_BUTTON_NAME]);
+            }
+            break;
         default:
             WarnLog("unknown notification ID");
             return false;
@@ -418,6 +428,11 @@ static std::string GetButtonName(int notificationId)
         case NFC_NO_HAP_SUPPORTED_NOTIFICATION_ID:
             if (g_resourceMap.find(KEY_NO_HAP_BUTTON_NAME) != g_resourceMap.end()) {
                 return g_resourceMap[KEY_NO_HAP_BUTTON_NAME];
+            }
+            return "";
+        case NFC_TEXT_NOTIFICATION_ID:
+            if (g_resourceMap.find(KEY_OPEN_TAG) != g_resourceMap.end()) {
+                return g_resourceMap[KEY_OPEN_TAG];
             }
             return "";
         default:

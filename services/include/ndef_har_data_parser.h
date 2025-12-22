@@ -100,6 +100,7 @@ private:
     uint16_t DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
     uint16_t HandleUnsupportSchemeType(const std::vector<std::shared_ptr<NdefRecord>> &records);
     uint16_t DispatchMimeToBundleAbility(const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    uint16_t DispatchText(const std::shared_ptr<KITS::TagInfo> &tagInfo);
     uint16_t DispatchValidNdef(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     void ClearNdefDispatchParam();

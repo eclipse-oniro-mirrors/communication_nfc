@@ -87,6 +87,7 @@ public:
     bool IsGranted(std::string permission);
 
     void DispatchTagAbility(std::shared_ptr<KITS::TagInfo> tagInfo, OHOS::sptr<IRemoteObject> tagServiceIface);
+    bool StartNotepadAbility(const std::string &notepadBundleName);
     void DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServiceIface, std::string appGalleryBundleName);
     void StartVibratorOnce(bool isNtfPublished = false);
     void GetPaymentAbilityInfos(std::vector<AbilityInfo> &paymentAbilityInfos);

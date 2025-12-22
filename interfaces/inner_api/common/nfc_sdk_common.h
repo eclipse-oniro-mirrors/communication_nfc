@@ -204,6 +204,12 @@ enum NotifyVendorEvent : int {
     TOAST_TYPE_KEY = 1160,
 };
 
+enum VendorInfoType : uint16_t {
+    HAP_NAME_NOTEPAD = 0,
+    HAP_NAME_GALLERY = 1,
+    HAP_NAME_BROWSER = 2,
+};
+
 class NfcSdkCommon final {
 public:
     static const int SHIFT_SIZE = 8;

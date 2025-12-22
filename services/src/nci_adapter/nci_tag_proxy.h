@@ -207,16 +207,12 @@ public:
     bool VendorParseHarPackage(std::vector<std::string> &harPackages) override;
 
     /**
-     * @brief Get browser bundle name of the vendor.
-     * @return Browser bundle name of the vendor.
+     * @brief Get vendor info according type.
+     * @param type the type of want to get.
+     * @return the info of type.
      */
-    std::string GetVendorBrowserBundleName() override;
+    std::string GetVendorInfo(uint16_t type) override;
 
-    /**
-     * @brief Get AppGallery bundle name of the vendor.
-     * @return AppGallery bundle name of the vendor.
-     */
-    std::string GetVendorAppGalleryBundleName() override;
 #ifdef VENDOR_APPLICATIONS_ENABLED
     /**
      * @brief Check current ipc thread come from vendor process or not.
