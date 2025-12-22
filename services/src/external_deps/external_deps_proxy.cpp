@@ -62,6 +62,12 @@ sptr<IOnCardEmulationNotifyCb> ExternalDepsProxy::GetNotifyCardEmulationCallback
 {
     return AppDataParser::GetInstance().GetNotifyCardEmulationCallback();
 }
+
+void ExternalDepsProxy::GetVendorHceAppsByAid(const std::string &aid,
+    std::vector<AppDataParser::HceAppAidInfo> &hceApps)
+{
+    AppDataParser::GetInstance().GetVendorHceAppsByAid(aid, hceApps);
+}
 #endif
 
 KITS::ErrorCode ExternalDepsProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)
