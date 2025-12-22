@@ -44,7 +44,7 @@ ohos_taihe("run_taihe") {
   ]
 }
 
-config("scene_ani_extra_config") {
+config("nfc_taihe_config") {
   cflags = [
     "-flto=full",
   ]
@@ -84,7 +84,7 @@ taihe_shared_library("nfc_fwk_taihe_tag") {
   ]
 
   configs = [
-    ":scene_ani_extra_config",
+    ":nfc_taihe_config",
   ]
 
   external_deps = [
