@@ -213,7 +213,7 @@ HWTEST_F(TagSessionTest, NdefRead001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     std::string ndefRead {};
     tagSession->NdefRead(tagRfDiscId, ndefRead);
-service->Initialize();
+    service->Initialize();
     sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
     tagSession1->NdefRead(tagRfDiscId, ndefRead);
     ASSERT_TRUE(ndefRead == "");
@@ -230,7 +230,7 @@ HWTEST_F(TagSessionTest, IsTagFieldOn001, TestSize.Level1)
     int tagRfDiscId = TEST_DISC_ID;
     bool isTagFieldOn = false;
     tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
-service->Initialize();
+    service->Initialize();
     sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
     tagSession1->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     ASSERT_TRUE(!isTagFieldOn);
@@ -332,7 +332,7 @@ HWTEST_F(TagSessionTest, SetTimeout001, TestSize.Level1)
 HWTEST_F(TagSessionTest, SetTimeout002, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-service->Initialize();
+    service->Initialize();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
     int timeout = 0;
     int technology = MAX_TECH;
@@ -893,7 +893,7 @@ HWTEST_F(TagSessionTest, UnregReaderModeInner002, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
 
     ElementName element("", "bundleName", "abilityName", "");
-    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
     tagSession->readerDataVec_.push_back(readerData);
     int result = tagSession->UnregReaderModeInner(element, true);
     std::cout << "result " << result << std::endl;
