@@ -93,7 +93,7 @@ private:
     bool IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken);
 #ifdef VENDOR_APPLICATIONS_ENABLED
     bool IsForegroundApp(const std::string &appBundleName);
-    bool ShouldVendorHandleHce(const std::string &aid);
+    bool ShouldVendorHandleHce(const std::string &aid, const ElementName &aidElement);
     bool IsVendorHandleHce(const std::string &aid);
     bool IsVendorCeActivated();
     void SetVendorCeActivated(bool isActivated);

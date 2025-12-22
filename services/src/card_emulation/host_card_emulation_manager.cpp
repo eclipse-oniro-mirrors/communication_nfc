@@ -195,17 +195,17 @@ bool HostCardEmulationManager::IsForegroundApp(const std::string &appBundleName)
     return false;
 }
 
-bool HostCardEmulationManager::ShouldVendorHandleHce(const std::string &aid)
+bool HostCardEmulationManager::ShouldVendorHandleHce(const std::string &aid, const ElementName &aidElement)
 {
     if (aid.empty()) {
         return false;
     }
     std::vector<AppDataParser::HceAppAidInfo> vendorHceApps;
     ExternalDepsProxy::GetInstance().GetVendorHceAppsByAid(aid, vendorHceApps);
-    if (!aidElement_.GetBundleName().empty()) {
+    if (!aidElement.GetBundleName().empty()) {
         // no vendor hce
         if (vendorHceApps.empty()) {
-            InfoLog("only local hce app bundle name: %{public}s", aidElement_.GetBundleName().c_str());
+            InfoLog("only local hce app bundle name: %{public}s", aidElement.GetBundleName().c_str());
             return false;
         }
     } else {
@@ -215,8 +215,8 @@ bool HostCardEmulationManager::ShouldVendorHandleHce(const std::string &aid)
 
     // if local and vendor hce have same aid, resolve conflicts
     // local hce is foreground, resolved
-    if (IsForegroundApp(aidElement_.GetBundleName())) {
-        InfoLog("local foreground hce app bundle name: %{public}s", aidElement_.GetBundleName().c_str());
+    if (IsForegroundApp(aidElement.GetBundleName())) {
+        InfoLog("local foreground hce app bundle name: %{public}s", aidElement.GetBundleName().c_str());
         return false;
     }
 
@@ -227,8 +227,8 @@ bool HostCardEmulationManager::ShouldVendorHandleHce(const std::string &aid)
     }
 
     // local hce is default payment, resolved
-    if (ceService->IsDefaultService(aidElement_, KITS::TYPE_PAYMENT)) {
-        InfoLog("local default hce bundle name: %{public}s", aidElement_.GetBundleName().c_str());
+    if (ceService->IsDefaultService(aidElement, KITS::TYPE_PAYMENT)) {
+        InfoLog("local default hce bundle name: %{public}s", aidElement.GetBundleName().c_str());
         return false;
     }
 
@@ -246,7 +246,7 @@ bool HostCardEmulationManager::IsVendorHandleHce(const std::string &aid)
 {
     std::lock_guard<std::mutex> lock(hceStateMutex_);
     if (!aid.empty()) {
-        shouldVendorHandleHce_ = ShouldVendorHandleHce(aid);
+        shouldVendorHandleHce_ = ShouldVendorHandleHce(aid, aidElement_);
         InfoLog("vendor handle hce: %{public}d", shouldVendorHandleHce_);
     }
     return shouldVendorHandleHce_;
@@ -285,6 +285,7 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     ceService_.lock()->SearchElementByAid(aid, aidElement);
     /* check aid */
     if (!aid.empty() && !aidElement.GetBundleName().empty()) {
+        std::lock_guard<std::mutex> lock(hceStateMutex_);
         aidElement_ = aidElement;
     }
 
@@ -641,8 +642,14 @@ bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw
         ErrorLog("SendHostApduData: NFC not enabled, do not send.");
         return false;
     }
-    if (IsFaModeApplication(aidElement_)) {
-        if (!IsFaServiceConnected(aidElement_)) {
+
+    ElementName aidElement;
+    {
+        std::lock_guard<std::mutex> lock(hceStateMutex_);
+        aidElement = aidElement_;
+    }
+    if (IsFaModeApplication(aidElement)) {
+        if (!IsFaServiceConnected(aidElement)) {
             ErrorLog("SendHostApduData fa: not the connected app, do not send.");
             return false;
         }
