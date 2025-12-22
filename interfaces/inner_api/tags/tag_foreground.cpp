@@ -109,6 +109,29 @@ int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
     return static_cast<int>(tagSession->RegReaderMode(element, discTech, TAG::ReaderModeCallbackStub::GetInstance()));
 }
 
+int TagForeground::RegReaderModeWithIntvl(AppExecFwk::ElementName &element,
+    std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback,
+    int interval)
+{
+    DebugLog("TagForeground::RegReaderModeWithIntvl");
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (!isNfcOpen) {
+        ErrorLog("nfc is not open");
+        return ErrorCode::ERR_TAG_STATE_NFC_CLOSED;
+    }
+    OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr) {
+        ErrorLog("ERR_NO_PERMISSION");
+        return ErrorCode::ERR_NO_PERMISSION;
+    }
+
+    TAG::ReaderModeCallbackStub::GetInstance()->RegReaderMode(callback);
+    return static_cast<int>(tagSession->RegReaderModeWithIntvl(
+        element, discTech, TAG::ReaderModeCallbackStub::GetInstance(), interval));
+}
+
 int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)
 {
     DebugLog("TagForeground::UnregReaderMode");

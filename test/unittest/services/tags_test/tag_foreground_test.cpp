@@ -177,6 +177,25 @@ HWTEST_F(TagForegroundTest, RegReaderMode002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: RegReaderModeWithIntvl001
+ * @tc.desc: Test TagForeground RegReaderModeWithIntvl.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagForegroundTest, RegReaderModeWithIntvl001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.TurnOff();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    AppExecFwk::ElementName element;
+    std::vector<uint32_t> discTech;
+    sptr<KITS::IReaderModeCallback> callback = nullptr;
+    int interval = 0;
+    TagForeground instance = TagForeground::GetInstance();
+    int result = instance.RegReaderModeWithIntvl(element, discTech, callback, interval);
+    ASSERT_TRUE(result == ErrorCode::ERR_TAG_STATE_NFC_CLOSED);
+}
+
+/**
  * @tc.name: UnregReaderMode001
  * @tc.desc: Test TagForeground UnregReaderMode.
  * @tc.type: FUNC

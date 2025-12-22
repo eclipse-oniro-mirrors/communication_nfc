@@ -44,4 +44,6 @@ interface OHOS.NFC.ITagSession {
     [ipccode 110] void UnregForegroundDispatch([in] ElementName element);
     [ipccode 118] void RegReaderMode([in] ElementName element, [in] List<unsigned int> discTech, [in] IReaderModeCallback cb);
     [ipccode 119] void UnregReaderMode([in] ElementName element);
+
+    [ipccode 128] void RegReaderModeWithIntvl([in] ElementName element, [in] List<unsigned int> discTech, [in] IReaderModeCallback cb, int interval);
 }

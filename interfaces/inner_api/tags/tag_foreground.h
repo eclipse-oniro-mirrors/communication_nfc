@@ -59,6 +59,17 @@ public:
         std::vector<uint32_t> &discTech, const sptr<KITS::IReaderModeCallback> &callback);
 
     /**
+     * @Description Registers the callback for tag reader mode.
+     * @param element the element name of the hap that request to register reader mode.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @param interval the interval for card presense checking
+     * @return The status code for register operation.
+     */
+    int RegReaderModeWithIntvl(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+        const sptr<KITS::IReaderModeCallback> &callback, int interval);
+
+    /**
      * @Description Unregisters the callback for tag reader mode.
      * @param element the element name of the hap that request to unregister reader mode.
      * @return The status code for unregister operation.

@@ -57,13 +57,15 @@ public:
     ElementName element_;
     std::vector<uint32_t> techs_ = {};
     sptr<KITS::IReaderModeCallback> cb_ = nullptr;
+    int interval_ = 0;
 
     explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
         sptr<KITS::IReaderModeCallback> cb)
         : isEnabled_(isEnable),
         element_(element),
         techs_(techs),
-        cb_(cb) {};
+        cb_(cb),
+        interval_(interval) {};
     ~ReaderData() {};
 };
 
@@ -212,6 +214,18 @@ public:
         const std::vector<uint32_t>& discTech, const sptr<IReaderModeCallback>& cb) override;
 
     /**
+     * @brief register reader mode
+     *
+     * @param element the element name of the hap that request to register reader mode.
+     * @param discTech the tag technologies in int array the the hap wants to discover.
+     * @param callback the callback to be registered
+     * @param interval the interval for card presense checking
+     * @return The status code for register operation.
+     */
+    ErrCode RegReaderModeWithIntvl(const ElementName& element, const std::vector<uint32_t>& discTech,
+        const sptr<IReaderModeCallback>& cb, int interval) override;
+
+    /**
      * @brief unregister reader mode
      *
      * @param element the element name of the hap that request to unregister reader mode
@@ -229,10 +243,12 @@ private:
         const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp = false);
     int UnregForegroundDispatchInner(const ElementName &element, bool isAppUnregister);
     bool IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
-        const sptr<KITS::IReaderModeCallback> &callback);
+        const sptr<KITS::IReaderModeCallback> &callback, int interval);
     bool IsReaderUnregistered(const ElementName &element, bool isAppUnregistered);
     int RegReaderModeInner(const ElementName &element, const std::vector<uint32_t> &discTech,
         const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
+    int RegReaderModeInnerWithIntvl(const ElementName &element, const std::vector<uint32_t> &discTech,
+        const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false, int interval = 0);
     int UnregReaderModeInner(const ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
     bool IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech);
@@ -241,6 +257,7 @@ private:
     uint16_t GetReaderDataVecSize();
     void HandleAppStateChanged(const std::string &bundleName, const std::string &abilityName,
                                int abilityState) override;
+    void SetFieldCheckInterval(int interval);
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
     bool IsVendorProcess();
@@ -250,6 +267,7 @@ private:
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};
     // polling manager
     std::weak_ptr<NfcPollingManager> nfcPollingManager_ {};
+    std::weak_ptr<TagDispatcher> tagDispatcher_ {};
     std::vector<FgData> fgDataVec_;
     std::vector<ReaderData> readerDataVec_;
     std::mutex mutex_ {};
