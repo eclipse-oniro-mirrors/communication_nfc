@@ -33,7 +33,17 @@ ohos_taihe("run_taihe") {
   ]
 }
 
+config("scene_ani_extra_config") {
+  cflags = [
+    "-flto=full",
+  ]
+  ldflags = [
+    "-flto=full",
+  ]
+}
+
 taihe_shared_library("nfc_fwk_taihe_controller") {
+  shlib_type = "ani"
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -59,6 +69,10 @@ taihe_shared_library("nfc_fwk_taihe_controller") {
     "src/ani_constructor.cpp",
     "src/nfc_taihe_controller_event.cpp",
     "src/impl/ohos.nfc.controller.nfcController.impl.cpp"
+  ]
+
+  configs = [
+    ":scene_ani_extra_config",
   ]
 
   external_deps = [

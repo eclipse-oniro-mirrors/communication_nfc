@@ -20,8 +20,6 @@ copy_taihe_idl("copy_taihe_nfc_cardEmulation") {
   sources = [ "idl/ohos.nfc.cardEmulation.nfcCardEmulation.taihe" ]
 }
 
-
-
 subsystem_name = "communication"
 part_name = "nfc"
 taihe_generated_file_path_nfcCardEmulation = "$taihe_file_path/out/$subsystem_name/$part_name/nfcCardEmulation"
@@ -35,7 +33,17 @@ ohos_taihe("run_taihe") {
   ]
 }
 
+config("scene_ani_extra_config") {
+  cflags = [
+    "-flto=full",
+  ]
+  ldflags = [
+    "-flto=full",
+  ]
+}
+
 taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
+  shlib_type = "ani"
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -61,6 +69,10 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
     "src/ani_constructor.cpp",
     "src/nfc_taihe_card_emulation_event.cpp",
     "src/impl/ohos.nfc.cardEmulation.nfcCardEmulation.impl.cpp"
+  ]
+
+  configs = [
+    ":scene_ani_extra_config",
   ]
 
   external_deps = [
