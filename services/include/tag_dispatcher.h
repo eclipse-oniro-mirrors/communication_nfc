@@ -52,12 +52,12 @@ private:
     void HandleOnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
         const std::string &payload, int ndefMsgType, uint32_t tagDiscId);
     uint16_t PublishTagNotification(uint32_t tagDiscId, bool isIsoDep);
-void HandleNoHapSupportId();
+    void HandleNoHapSupportId();
     void HandleTextId();
     void SendTagInfoToVendor(long tagFoundStartTime, long readFinishTime, long dispatchFinishTime,
         std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult);
     std::string ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage);
-        void StartVibratorOnce(bool isNtfPublished = false);
+    void StartVibratorOnce(bool isNtfPublished = false);
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};
