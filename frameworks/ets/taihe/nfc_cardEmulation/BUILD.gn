@@ -20,6 +20,8 @@ copy_taihe_idl("copy_taihe_nfc_cardEmulation") {
   sources = [ "idl/ohos.nfc.cardEmulation.nfcCardEmulation.taihe" ]
 }
 
+
+
 subsystem_name = "communication"
 part_name = "nfc"
 taihe_generated_file_path_nfcCardEmulation = "$taihe_file_path/out/$subsystem_name/$part_name/nfcCardEmulation"
