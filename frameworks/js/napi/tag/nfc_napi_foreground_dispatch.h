@@ -92,12 +92,11 @@ public:
     ReaderModeEvtRegister() {}
     ~ReaderModeEvtRegister() {}
     static ReaderModeEvtRegister& GetInstance();
-    int Register(const napi_env &env, std::string &type, ElementName &element,
-                       std::vector<uint32_t> &discTech, napi_value handler);
+    int Register(napi_env &env, napi_value* argv, std::vector<uint32_t> &discTech, int interval);
     int Unregister(const napi_env &env, std::string &type, ElementName &element, napi_value handler);
 
 private:
-    int RegReaderModeEvt(std::string &type, ElementName &element, std::vector<uint32_t> &discTech);
+    int RegReaderModeEvt(std::string &type, ElementName &element, std::vector<uint32_t> &discTech, int interval);
     int UnregReaderModeEvt(std::string &type, ElementName &element);
     void DeleteRegisteredObj(const napi_env &env, RegObj &regObj, napi_value &handler);
 

@@ -30,8 +30,9 @@ static RegObj g_foregroundRegInfo;
 static RegObj g_readerModeRegInfo;
 bool ForegroundEventRegister::isEvtRegistered_ = false;
 bool ReaderModeEvtRegister::isReaderModeRegistered_ = false;
-const std::string TYPE_FOREGROUND = "foreground";
-const std::string TYPE_READER_MODE = "readerMode";
+constexpr const char* TYPE_FOREGROUND = "foreground";
+constexpr const char* TYPE_READER_MODE = "readerMode";
+constexpr const char* TYPE_READER_MODE_WITH_INTVL = "readerModeWithInterval";
 
 class NapiEvent {
 public:
@@ -496,14 +497,19 @@ public:
 sptr<ReaderModeListenerEvt> readerModeListenerEvt = sptr<ReaderModeListenerEvt>(new ReaderModeListenerEvt());
 
 int ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
-                                            std::vector<uint32_t> &discTech)
+                                            std::vector<uint32_t> &discTech, int interval)
 {
-    if (type.compare(TYPE_READER_MODE) != 0) {
+    if (type.compare(TYPE_READER_MODE) != 0 && type.compare(TYPE_READER_MODE_WITH_INTVL) != 0) {
         ErrorLog("RegReaderModeEvt invalid type: %{public}s", type.c_str());
         return KITS::ERR_NFC_PARAMETERS;
     }
-    TagForeground tagForeground = TagForeground::GetInstance();
-    int ret = tagForeground.RegReaderMode(element, discTech, readerModeListenerEvt);
+    int ret = KITS::ERR_NONE;
+    if (type.compare(TYPE_READER_MODE) == 0) {
+        ret = TagForeground::GetInstance().RegReaderMode(element, discTech, readerModeListenerEvt);
+    } else {
+        ret = TagForeground::GetInstance().RegReaderModeWithIntvl(
+            element, discTech, readerModeListenerEvt, interval);
+    }
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegReaderModeEvt register failed!");
         return ret;
@@ -532,13 +538,17 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
     return inst;
 }
 
-int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
-                                    std::vector<uint32_t> &discTech, napi_value handler)
+int ReaderModeEvtRegister::Register(napi_env &env,
+    napi_value* argv, std::vector<uint32_t> &discTech, int interval)
 {
+    std::string type = "";
+    ElementName element;
+    ParseString(env, type, argv[ARGV_INDEX_0]);
+    ParseElementName(env, element, argv[ARGV_INDEX_1]);
     std::lock_guard<std::mutex> lock(g_mutex);
     InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
     if (!isReaderModeRegistered_) {
-        int ret = RegReaderModeEvt(type, element, discTech);
+        int ret = RegReaderModeEvt(type, element, discTech, interval);
         if (ret != KITS::ERR_NONE) {
             ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
             return ret;
@@ -546,7 +556,7 @@ int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, Elem
         isReaderModeRegistered_ = true;
     }
     napi_ref handlerRef = nullptr;
-    napi_create_reference(env, handler, 1, &handlerRef);
+    napi_create_reference(env, argv[ARGV_INDEX_3], 1, &handlerRef);
     RegObj regObj(env, handlerRef, element, discTech);
     g_readerModeRegInfo = regObj;
     if (env == regObj.regEnv) {
@@ -598,24 +608,33 @@ int ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, El
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("On ReaderMode");
-    size_t argc = ARGV_NUM_4;
-    napi_value argv[ARGV_NUM_4] = {0};
+    size_t argc = ARGV_NUM_5;
+    napi_value argv[ARGV_NUM_5] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr);
-    std::string type = "";
-    ElementName element;
+    if (argc != ARGV_NUM_4 && argc != ARGV_NUM_5) {
+        CheckArgCountAndThrow(env, argc, ARGV_NUM_5);
+        ErrorLog("On: arg num error: %{public}zu", argc);
+        return CreateUndefined(env);
+    }
     std::vector<uint32_t> dataVec;
-    if (!CheckArgCountAndThrow(env, argc, ARGV_NUM_4) ||
-        !CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
-        !ParseString(env, type, argv[ARGV_INDEX_0]) ||
+    int interval = 0;
+    if (!CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
         !CheckObjectAndThrow(env, argv[ARGV_INDEX_1], "elementName", "ElementName") ||
-        !ParseElementName(env, element, argv[ARGV_INDEX_1]) ||
         !ParseDiscTechVector(env, dataVec, argv[ARGV_INDEX_2]) ||
         !CheckFunctionAndThrow(env, argv[ARGV_INDEX_3], "callback", "AsyncCallback<TagInfo>")) {
         ErrorLog("On: parse args failed");
         return CreateUndefined(env);
     }
-    int ret = ReaderModeEvtRegister::GetInstance().Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
+    if (argc == ARGV_NUM_5) {
+        if (!CheckNumberAndThrow(env, argv[ARGV_INDEX_4], "interval", "number") ||
+            !ParseInt32(env, interval, argv[ARGV_INDEX_4])) {
+            ErrorLog("On: parse interval failed");
+            return CreateUndefined(env);
+        }
+        InfoLog("interval = %{public}d", interval);
+    }
+    int ret = ReaderModeEvtRegister::GetInstance().Register(env, argv, dataVec, interval);
     CheckResultAndThrow(env, ret, "On");
     return CreateUndefined(env);
 }

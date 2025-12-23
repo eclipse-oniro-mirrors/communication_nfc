@@ -225,7 +225,7 @@ public:
         element.SetAbilityName(NfcSdkCommon::BytesVecToHexString(data, size));
         std::vector<uint32_t> discTech;
         sptr<NFC::KITS::IReaderModeCallback> callback = nullptr;
-        tagSession->IsReaderRegistered(element, discTech, callback);
+        tagSession->IsReaderRegistered(element, discTech, callback, 0);
     }
 
     void FuzzRegReaderModeInner(const uint8_t* data, size_t size)

@@ -38,6 +38,7 @@ TagSession::TagSession(std::shared_ptr<NfcService> service)
     if (service) {
         nciTagProxy_ = service->GetNciTagProxy();
         nfcPollingManager_ = service->GetNfcPollingManager();
+        tagDispatcher_ = service->GetTagDispatcher();
     }
     g_appStateObserver = std::make_shared<AppStateObserver>(this);
 }
@@ -584,28 +585,33 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
     std::lock_guard<std::mutex> guard(mutex_);
     for (auto readerData = readerDataVec_.begin(); readerData != readerDataVec_.end(); readerData++) {
         ElementName element = readerData->element_;
-        if (element.GetBundleName() == bundleName && element.GetAbilityName() == abilityName) {
-            // app changes to foreground, RegReaderModeInner.
-            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND) &&
-                !readerData->isEnabled_) {
-                InfoLog("app changes to foreground, RegReaderModeInner");
+        if (element.GetBundleName() != bundleName || element.GetAbilityName() != abilityName) {
+            continue;
+        }
+        // app changes to foreground, RegReaderModeInner.
+        if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND) &&
+            !readerData->isEnabled_) {
+            InfoLog("app changes to foreground, RegReaderModeInner");
+            if (readerData->interval_ > 0) {
+                RegReaderModeInnerWithIntvl(element, readerData->techs_, readerData->cb_, readerData->interval_);
+            } else {
                 RegReaderModeInner(element, readerData->techs_, readerData->cb_);
-                return;
             }
-            // app changes to background, UnregReaderModeInner.
-            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND) &&
-                readerData->isEnabled_) {
-                InfoLog("app changes to background, UnregReaderModeInner");
-                UnregReaderModeInner(element, false);
-                return;
-            }
-            // app death, UnregReaderModeInner and erase from readerDataVec_.
-            if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
-                InfoLog("app died, UnregReaderModeInner and erase readerData");
-                UnregReaderModeInner(element, false);
-                readerDataVec_.erase(readerData);
-                return;
-            }
+            return;
+        }
+        // app changes to background, UnregReaderModeInner.
+        if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND) &&
+            readerData->isEnabled_) {
+            InfoLog("app changes to background, UnregReaderModeInner");
+            UnregReaderModeInner(element, false);
+            return;
+        }
+        // app death, UnregReaderModeInner and erase from readerDataVec_.
+        if (abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_TERMINATED)) {
+            InfoLog("app died, UnregReaderModeInner and erase readerData");
+            UnregReaderModeInner(element, false);
+            readerDataVec_.erase(readerData);
+            return;
         }
     }
 }
@@ -803,22 +809,24 @@ bool TagSession::IsFgUnregistered(const ElementName &element, bool isAppUnregist
 }
 
 bool TagSession::IsReaderRegistered(const ElementName &element, const std::vector<uint32_t> &discTech,
-    const sptr<KITS::IReaderModeCallback> &callback)
+    const sptr<KITS::IReaderModeCallback> &callback, int interval)
 {
     for (ReaderData &readerData : readerDataVec_) {
         ElementName readerElement = readerData.element_;
         if (IsSameAppAbility(element, readerElement)) {
-            if (readerData.isEnabled_ && IsSameDiscoveryPara(readerData.techs_, discTech)) {
+            if (readerData.isEnabled_ &&
+                IsSameDiscoveryPara(readerData.techs_, discTech) && readerData.interval_ == interval) {
                 return true;
             }
             InfoLog("Enable ReaderData: bundleName = %{public}s, abilityName = %{public}s",
                 readerElement.GetBundleName().c_str(), readerElement.GetAbilityName().c_str());
             readerData.isEnabled_ = true;
             readerData.techs_ = discTech;
+            readerData.interval_ = interval;
             return false;
         }
     }
-    ReaderData readerData(true, element, discTech, callback);
+    ReaderData readerData(true, element, discTech, callback, interval);
     readerDataVec_.push_back(readerData);
     InfoLog("Add new ReaderData to vector: %{public}s, %{public}s", element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
@@ -854,7 +862,7 @@ bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnre
 int TagSession::RegReaderModeInner(const ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
-    if (IsReaderRegistered(element, discTech, callback)) {
+    if (IsReaderRegistered(element, discTech, callback, 0)) {
         WarnLog("%{public}s already RegReaderMode", element.GetBundleName().c_str());
         return KITS::ERR_NONE;
     }
@@ -888,6 +896,7 @@ int TagSession::UnregReaderModeInner(const ElementName &element, bool isAppUnreg
         ErrorLog("UnregReaderMode, expired");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
+    SetFieldCheckInterval(0);
     if (nfcPollingManager_.lock()->DisableReaderMode(element)) {
         return KITS::ERR_NONE;
     }
@@ -935,6 +944,75 @@ ErrCode TagSession::RegReaderMode(
     return RegReaderModeInner(element, discTech, cb, isVendorApp);
 }
 
+int TagSession::RegReaderModeInnerWithIntvl(const ElementName &element, const std::vector<uint32_t> &discTech,
+    const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp, int interval)
+{
+    if (IsReaderRegistered(element, discTech, callback, interval)) {
+        WarnLog("%{public}s already RegReaderMode", element.GetBundleName().c_str());
+        return KITS::ERR_NONE;
+    }
+    InfoLog("bundleName = %{public}s, abilityName = %{public}s",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str());
+    if (nfcPollingManager_.expired()) {
+        ErrorLog("nfcPollingManager expired");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
+        bool isFgAbility = nfcPollingManager_.lock()->
+            CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
+        SubErrorCode subErrorCode = isFgAbility ?
+            SubErrorCode::REG_READERMODE : SubErrorCode::REG_READERMODE_ABILITY_INVALID;
+        ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(
+            subErrorCode, element.GetBundleName());
+        if (interval > 0) {
+            SetFieldCheckInterval(interval);
+        }
+        return KITS::ERR_NONE;
+    }
+    return KITS::ERR_NFC_PARAMETERS;
+}
+
+ErrCode TagSession::RegReaderModeWithIntvl(const ElementName& element, const std::vector<uint32_t>& discTech,
+    const sptr<IReaderModeCallback>& cb, int interval)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
+        ErrorLog("ERR_NO_PERMISSION");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    if (cb == nullptr || cb->AsObject() == nullptr) {
+        ErrorLog("callback nullptr.");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::unique_ptr<ReaderModeDeathRecipient> recipient
+        = std::make_unique<ReaderModeDeathRecipient>(this, IPCSkeleton::GetCallingTokenID());
+    sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
+    if (!cb->AsObject()->AddDeathRecipient(dr)) {
+        ErrorLog("Failed to add death recipient");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::lock_guard<std::mutex> guard(mutex_);
+    readerModeDeathRecipient_ = dr;
+    readerModeCallback_ = cb;
+    bool isVendorApp = false;
+    if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            ErrorLog("not foreground app.");
+            return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+        } else {
+            InfoLog("is vendor app");
+            isVendorApp = true;
+        }
+#else
+        ErrorLog("not foreground app.");
+        return KITS::ERR_TAG_APP_NOT_FOREGROUND;
+#endif
+    }
+    return RegReaderModeInnerWithIntvl(element, discTech, cb, isVendorApp, interval);
+}
+
 ErrCode TagSession::UnregReaderMode(const ElementName& element)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
@@ -943,6 +1021,15 @@ ErrCode TagSession::UnregReaderMode(const ElementName& element)
     }
     std::lock_guard<std::mutex> guard(mutex_);
     return UnregReaderModeInner(element, true);
+}
+
+void TagSession::SetFieldCheckInterval(int interval)
+{
+    if (tagDispatcher_.expired()) {
+        ErrorLog("tag dispatcher expired.");
+        return;
+    }
+    tagDispatcher_.lock()->SetFieldCheckInterval(interval);
 }
 }  // namespace TAG
 }  // namespace NFC

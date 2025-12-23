@@ -669,7 +669,7 @@ HWTEST_F(TagSessionTest, HandleAppStateChanged001, TestSize.Level1)
 
     ElementName element;
     TAG::FgData fgData(true, element, std::vector<uint32_t>(), nullptr);
-    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
     tagSession->fgDataVec_.push_back(fgData);
     tagSession->HandleAppStateChanged(bundleName, abilityName, abilityState);
 
@@ -835,7 +835,7 @@ HWTEST_F(TagSessionTest, RegReaderModeInner001, TestSize.Level1)
     std::cout << "result " << result << std::endl;
     ASSERT_TRUE(result == KITS::ERR_TAG_STATE_UNBIND);
 
-    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
     tagSession->readerDataVec_.push_back(readerData);
     result = tagSession->RegReaderModeInner(element, std::vector<uint32_t>(), nullptr, true);
     std::cout << "result " << result << std::endl;
@@ -874,7 +874,7 @@ HWTEST_F(TagSessionTest, UnregReaderModeInner001, TestSize.Level1)
     std::cout << "result " << result << std::endl;
     ASSERT_TRUE(result == KITS::ERR_NONE);
 
-    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
     tagSession->readerDataVec_.push_back(readerData);
     result = tagSession->UnregReaderModeInner(element, true);
     std::cout << "result " << result << std::endl;
@@ -893,7 +893,7 @@ HWTEST_F(TagSessionTest, UnregReaderModeInner002, TestSize.Level1)
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
 
     ElementName element("", "bundleName", "abilityName", "");
-    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr);
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
     tagSession->readerDataVec_.push_back(readerData);
     int result = tagSession->UnregReaderModeInner(element, true);
     std::cout << "result " << result << std::endl;

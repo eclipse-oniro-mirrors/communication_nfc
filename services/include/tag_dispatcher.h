@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public:
     void HandleTagLost(uint32_t rfDiscId);
     void RegNdefMsgCb(const sptr<INdefMsgCallback> &callback);
     void OnNotificationButtonClicked(int notificationId);
+    void SetFieldCheckInterval(int interval);
 
 private:
     std::shared_ptr<KITS::TagInfo> GetTagInfoFromTag(uint32_t rfDiscId);
@@ -75,6 +76,7 @@ private:
 
     std::shared_ptr<KITS::TagInfo> tagInfo_ {};
     bool ndefCbRes_ = false;
+    int fieldOnCheckInterval_ = 0;
 };
 }  // namespace TAG
 }  // namespace NFC

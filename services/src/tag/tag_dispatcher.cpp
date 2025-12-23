@@ -163,10 +163,10 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     long tagFoundTime = KITS::NfcSdkCommon::GetCurrentTime();
     uint16_t dispatchResult = DISPATCH_UNKNOWN;
     bool isIsoDep = false;
-    int fieldOnCheckInterval_ = DEFAULT_FIELD_ON_CHECK_DURATION;
+    int fieldOnCheckInterval = DEFAULT_FIELD_ON_CHECK_DURATION;
     if (static_cast<int>(nciTagProxy_.lock()->GetConnectedTech(tagDiscId)) ==
         static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
-        fieldOnCheckInterval_ = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
+        fieldOnCheckInterval = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
         isIsoDep = true;
     }
     ndefCbRes_ = false;
@@ -184,7 +184,11 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
             }
         }
         lastNdefMsg_ = ndefMsg;
-        nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval_);
+        if (fieldOnCheckInterval_ != 0) {
+            fieldOnCheckInterval = fieldOnCheckInterval_;
+        }
+        InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
+        nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
         tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
         if (nfcService_->GetNfcPollingManager().lock()->IsReaderModeEnabled()) {
             nfcService_->GetNfcPollingManager().lock()->SendTagToReaderApp(tagInfo);
@@ -404,6 +408,12 @@ uint16_t TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep
     ExternalDepsProxy::GetInstance().PublishNfcNotification(notificationId, cardName, balance);
     tagInfo_ = GetTagInfoFromTag(tagDiscId);
     return notificationId == NFC_TRANSPORT_CARD_NOTIFICATION_ID ? DISPATCH_TRAFFIC : DISPATCH_UNKNOWN_TAG;
+}
+
+void TagDispatcher::SetFieldCheckInterval(int interval)
+{
+    InfoLog("interval = %{public}d", interval);
+    fieldOnCheckInterval_ = interval;
 }
 }  // namespace TAG
 }  // namespace NFC
