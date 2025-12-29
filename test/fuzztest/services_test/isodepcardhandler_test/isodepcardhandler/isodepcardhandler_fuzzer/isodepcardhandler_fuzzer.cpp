@@ -32,9 +32,9 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
 
-    const uint8_t *g_baseFuzzData_ = nullptr;
-    size_t g_baseFuzzSize_ = 0;
-    size_t g_baseFuzzPos_;
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -48,15 +48,16 @@ namespace OHOS {
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos_ += objectSize;
+        g_baseFuzzPos += objectSize;
         return object;
+    }return object;
     }
 
     void FuzzInitTransportCardInfo(const uint8_t* data, size_t size)
@@ -77,9 +78,9 @@ namespace OHOS {
 
     void FuzzIsSupportedTransportCard(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         uint32_t rfDiscId = GetData<uint32_t>();
         uint8_t cardIndex = GetData<uint8_t>();
@@ -90,9 +91,9 @@ namespace OHOS {
 
     void FuzzGetBalance(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         uint32_t rfDiscId = GetData<uint32_t>();
         uint8_t cardIndex = GetData<uint8_t>();
@@ -121,9 +122,9 @@ namespace OHOS {
 
     void FuzzGetBalanceValue(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         std::string balanceStr = std::string(reinterpret_cast<const char*>(data), size);
         int balanceValue = GetData<int>();
@@ -134,9 +135,9 @@ namespace OHOS {
 
     void FuzzMatchCity(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
         uint32_t rfDiscId = GetData<uint32_t>();

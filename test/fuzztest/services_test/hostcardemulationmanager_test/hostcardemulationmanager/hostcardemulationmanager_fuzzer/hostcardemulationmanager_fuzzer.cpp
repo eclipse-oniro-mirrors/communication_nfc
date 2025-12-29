@@ -49,9 +49,9 @@ public:
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
-    const uint8_t *g_baseFuzzData_ = nullptr;
-    size_t g_baseFuzzSize_ = 0;
-    size_t g_baseFuzzPos_;
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -65,14 +65,14 @@ public:
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos_ += objectSize;
+        g_baseFuzzPos += objectSize;
         return object;
     }
 
@@ -181,9 +181,9 @@ public:
 
     void FuzzUnRegAllCallback(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         std::weak_ptr<NfcService> nfcService;
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
@@ -234,9 +234,9 @@ public:
 
     void FuzzOnAbilityDisconnectDone(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         AppExecFwk::ElementName element;
         int resultCode = GetData<int>();
@@ -290,9 +290,9 @@ public:
 
     void FuzzHandleComputeRoutingParams(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         int defaultPaymentType = GetData<int>();
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;

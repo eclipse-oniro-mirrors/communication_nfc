@@ -31,22 +31,22 @@ namespace OHOS {
     constexpr const auto TEST_DISC_ID = 1;
     constexpr const auto TAG_TECHNOLOGY_MAX_LEN = 10;
 
-    const uint8_t *g_baseFuzzData_ = nullptr;
-    size_t g_baseFuzzSize_ = 0;
-    size_t g_baseFuzzPos_;
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     template <class T> T GetData()
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos_ += objectSize;
+        g_baseFuzzPos += objectSize;
         return object;
     }
 
@@ -66,9 +66,9 @@ namespace OHOS {
 
     std::shared_ptr<TagInfo> GetTagInfoData(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         std::vector<int> tagTechList;
         std::vector<AppExecFwk::PacMap> tagTechExtras;

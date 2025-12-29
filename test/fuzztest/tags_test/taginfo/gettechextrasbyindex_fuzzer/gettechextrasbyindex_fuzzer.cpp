@@ -29,9 +29,9 @@ namespace OHOS {
     constexpr const auto FUZZER_TEST_UID = "0102";
     constexpr const auto FUZZER_TEST_DISC_ID = 1;
 
-    const uint8_t *g_baseFuzzData_ = nullptr;
-    size_t g_baseFuzzSize_ = 0;
-    size_t g_baseFuzzPos_;
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
     {
@@ -51,22 +51,22 @@ namespace OHOS {
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos_ += objectSize;
+        g_baseFuzzPos += objectSize;
         return object;
     }
 
     void FuzzGetTechExtraByIndex(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData_ = data;
-        g_baseFuzzSize_ = size;
-        g_baseFuzzPos_ = 0;
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
 
         std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
         if (tagInfo == nullptr) {
