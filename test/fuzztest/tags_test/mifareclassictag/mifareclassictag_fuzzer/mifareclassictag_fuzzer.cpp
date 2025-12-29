@@ -38,7 +38,7 @@ namespace OHOS {
 
     const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
-    size_t g_baseFuzzPos;
+    size_t g_baseFuzzPos = 0;
 
     uint32_t ConvertToUint32(const uint8_t* ptr)
     {
