@@ -82,7 +82,7 @@ namespace OHOS {
         g_baseFuzzPos = 0;
 
         uint32_t rfDiscId = GetData<uint32_t>();
-        uint8_t cardIndex = GetData<uint32_t>();
+        uint8_t cardIndex = GetData<uint8_t>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->IsSupportedTransportCard(rfDiscId, cardIndex);
@@ -95,7 +95,7 @@ namespace OHOS {
         g_baseFuzzPos = 0;
 
         uint32_t rfDiscId = GetData<uint32_t>();
-        uint8_t cardIndex = GetData<uint32_t>();
+        uint8_t cardIndex = GetData<uint8_t>();
         int balance = GetData<int>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
@@ -126,7 +126,7 @@ namespace OHOS {
         g_baseFuzzPos = 0;
 
         std::string balanceStr = std::string(reinterpret_cast<const char*>(data), size);
-        int balanceValue = GetData<uint32_t>();
+        int balanceValue = GetData<int>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->GetBalanceValue(balanceStr, balanceValue);

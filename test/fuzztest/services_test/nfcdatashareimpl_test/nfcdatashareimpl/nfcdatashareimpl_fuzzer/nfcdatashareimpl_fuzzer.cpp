@@ -20,6 +20,7 @@
 #include "nfc_data_share_impl.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC;
@@ -27,12 +28,31 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
 
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
+
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
         for (uint16_t i = 0 ; i < outParaLen ; i++) {
             // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
+    }
+
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
     }
 
     void FuzzCreateDataShareHelper(const uint8_t* data, size_t size)
@@ -43,18 +63,26 @@ namespace OHOS {
 
     void FuzzGetValue(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         Uri uri(std::string(reinterpret_cast<const char*>(data), size));
         std::string column = std::string(reinterpret_cast<const char*>(data), size);
-        int32_t value = static_cast<int32_t>(data[0]);
+        int32_t value = GetData<int32_t>();
         std::shared_ptr<NfcDataShareImpl> nfcDataShareImpl = std::make_shared<NfcDataShareImpl>();
         nfcDataShareImpl->GetValue(uri, column, value);
     }
 
     void FuzzSetValue(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         Uri uri(std::string(reinterpret_cast<const char*>(data), size));
         std::string column = std::string(reinterpret_cast<const char*>(data), size);
-        int value = static_cast<int>(data[0]);
+        int value = GetData<int>();
         std::shared_ptr<NfcDataShareImpl> nfcDataShareImpl = std::make_shared<NfcDataShareImpl>();
         nfcDataShareImpl->SetValue(uri, column, value);
     }

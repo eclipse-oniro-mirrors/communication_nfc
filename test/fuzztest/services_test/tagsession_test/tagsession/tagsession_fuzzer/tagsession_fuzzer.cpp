@@ -184,7 +184,7 @@ public:
         g_baseFuzzData = data;
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
-        
+
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         int tagRfDiscId = GetData<int>();

@@ -59,7 +59,7 @@ namespace OHOS {
         g_baseFuzzData = data;
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
-        
+
         AppExecFwk::ElementName element;
         sptr<IRemoteObject> remoteObject = nullptr;
         int resultCode = GetData<int>();

@@ -184,7 +184,7 @@ public:
         g_baseFuzzData = data;
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
-        
+
         std::weak_ptr<NfcService> nfcService;
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::weak_ptr<CeService> ceService;
@@ -239,7 +239,7 @@ public:
         g_baseFuzzPos = 0;
 
         AppExecFwk::ElementName element;
-        int resultCode =  GetData<uint64_t>();
+        int resultCode = GetData<int>();
         std::shared_ptr<NfcAbilityConnectionCallback> callback = std::make_shared<NfcAbilityConnectionCallback>();
         callback->OnAbilityDisconnectDone(element, resultCode);
     }
@@ -294,7 +294,7 @@ public:
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
 
-        int defaultPaymentType =  GetData<uint64_t>();
+        int defaultPaymentType = GetData<int>();
         std::shared_ptr<AppExecFwk::EventRunner> runner = nullptr;
         std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
         std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;

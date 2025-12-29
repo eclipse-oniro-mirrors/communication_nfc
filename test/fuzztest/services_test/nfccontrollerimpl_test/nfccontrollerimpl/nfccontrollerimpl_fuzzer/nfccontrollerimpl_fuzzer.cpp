@@ -158,7 +158,7 @@ namespace OHOS {
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
 
-        int32_t fd = GetData<int>();
+        int32_t fd = GetData<int32_t>();
         std::vector<std::u16string> args;
         std::shared_ptr<NfcService> service = nullptr;
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);

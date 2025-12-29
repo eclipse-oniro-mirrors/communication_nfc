@@ -49,7 +49,7 @@ namespace OHOS {
         g_baseFuzzData = data;
         g_baseFuzzSize = size;
         g_baseFuzzPos = 0;
-        
+
         int tech = GetData<int>();
         NFC::KITS::TagInfo::GetStringTech(tech);
     }
