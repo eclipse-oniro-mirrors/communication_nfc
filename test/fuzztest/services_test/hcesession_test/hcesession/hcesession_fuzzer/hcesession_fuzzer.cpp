@@ -23,6 +23,7 @@
 #include "hce_cmd_callback_stub.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC;
@@ -31,6 +32,10 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
+
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     class HceCmdListener : public IHceCmdCallback {
     public:
@@ -58,22 +63,45 @@ namespace OHOS {
         }
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzCallbackEnter(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         service->Initialize();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        uint32_t code = static_cast<uint32_t>(data[0]);
+        uint32_t code = GetData<uint32_t>();
         hceSession->CallbackEnter(code);
     }
 
     void FuzzCallbackExit(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         service->Initialize();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        uint32_t code = static_cast<uint32_t>(data[0]);
-        int32_t result = static_cast<int32_t>(data[1]);
+        uint32_t code = GetData<int32_t>();
+        int32_t result = GetData<int32_t>();
         hceSession->CallbackExit(code, result);
     }
 

@@ -20,11 +20,16 @@
 #include "nfc_timer.h"
 #include "nfc_sdk_common.h"
 #include "loghelper.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     constexpr const auto FUZZER_THRESHOLD = 8;
+
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -34,12 +39,31 @@ namespace OHOS {
         }
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzRegister(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         NFC::NfcTimer::TimerCallback callback;
-        uint32_t outTimerId = static_cast<uint32_t>(data[0]);
+        uint32_t outTimerId = GetData<uint32_t>();
         InfoLog("outTimerId data is %{public}u", outTimerId);
-        uint32_t interval = static_cast<uint32_t>(data[1]);
+        uint32_t interval = GetData<uint32_t>();
         InfoLog("interval data is %{public}u", interval);
         NFC::NfcTimer::GetInstance()->Register(callback, outTimerId, interval);
     }

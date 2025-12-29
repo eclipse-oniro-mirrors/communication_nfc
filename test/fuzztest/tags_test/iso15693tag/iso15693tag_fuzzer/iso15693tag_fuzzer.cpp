@@ -22,6 +22,7 @@
 #include "nfca_tag.h"
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -31,6 +32,10 @@ namespace OHOS {
     constexpr const auto TEST_DISC_ID = 1;
     constexpr const auto TEST_DSF_ID = '1';
     constexpr const auto TEST_RESPONSE_FLAGS = '0';
+
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     std::shared_ptr<TagInfo> GetTagInfo()
     {
@@ -60,12 +65,31 @@ namespace OHOS {
         }
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzGetTag(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::vector<int> tagTechList;
         std::vector<AppExecFwk::PacMap> tagTechExtras;
         std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        int tagRfDiscId = GetData<int>();
         std::shared_ptr<TagInfo> tagInfo =
             std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         if (tagInfo == nullptr) {

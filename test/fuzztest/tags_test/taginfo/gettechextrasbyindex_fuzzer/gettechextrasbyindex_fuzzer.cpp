@@ -20,6 +20,7 @@
 
 #include "taginfo.h"
 #include "tag_session_proxy.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -27,6 +28,10 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto FUZZER_TEST_UID = "0102";
     constexpr const auto FUZZER_TEST_DISC_ID = 1;
+
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
 
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
     {
@@ -42,14 +47,33 @@ namespace OHOS {
         return std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzGetTechExtraByIndex(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
         if (tagInfo == nullptr) {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
-        size_t techIndex = static_cast<int>(data[0]);
+        size_t techIndex = GetData<int>();
         tagInfo->GetTechExtrasByIndex(techIndex);
     }
 }

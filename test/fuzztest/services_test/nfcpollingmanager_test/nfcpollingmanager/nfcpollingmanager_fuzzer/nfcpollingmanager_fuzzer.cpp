@@ -21,6 +21,7 @@
 #include "nfc_service.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC;
@@ -28,12 +29,31 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos;
+
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
         for (uint16_t i = 0 ; i < outParaLen ; i++) {
             // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
+    }
+
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
     }
 
     void FuzzStartPollingLoop(const uint8_t* data, size_t size)
@@ -49,6 +69,10 @@ namespace OHOS {
 
     void FuzzEnableForegroundDispatch(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::weak_ptr<NfcService> nfcService;
         std::weak_ptr<NCI::INciNfccInterface> nciNfccProxy;
         std::weak_ptr<NCI::INciTagInterface> nciTagProxy;
@@ -60,7 +84,7 @@ namespace OHOS {
         std::string moduleName = std::string(reinterpret_cast<const char*>(data), size);
         AppExecFwk::ElementName element(deviceId, bundleName, abilityName, moduleName);
         std::vector<uint32_t> discTech;
-        discTech.push_back(static_cast<uint32_t>(data[0]));
+        discTech.push_back(GetData<uint32_t>());
         sptr<KITS::IForegroundCallback> callback = nullptr;
         nfcPollingManager->EnableForegroundDispatch(element, discTech, callback);
     }
