@@ -33,9 +33,9 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
 
-    const uint8_t *g_baseFuzzData = nullptr;
-    size_t g_baseFuzzSize = 0;
-    size_t g_baseFuzzPos;
+    const uint8_t *g_baseFuzzData_ = nullptr;
+    size_t g_baseFuzzSize_ = 0;
+    size_t g_baseFuzzPos_;
 
     class HceCmdListener : public IHceCmdCallback {
     public:
@@ -67,22 +67,22 @@ namespace OHOS {
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos += objectSize;
+        g_baseFuzzPos_ += objectSize;
         return object;
     }
 
     void FuzzCallbackEnter(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData = data;
-        g_baseFuzzSize = size;
-        g_baseFuzzPos = 0;
+        g_baseFuzzData_ = data;
+        g_baseFuzzSize_ = size;
+        g_baseFuzzPos_ = 0;
 
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         service->Initialize();
@@ -93,9 +93,9 @@ namespace OHOS {
 
     void FuzzCallbackExit(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData = data;
-        g_baseFuzzSize = size;
-        g_baseFuzzPos = 0;
+        g_baseFuzzData_ = data;
+        g_baseFuzzSize_ = size;
+        g_baseFuzzPos_ = 0;
 
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         service->Initialize();

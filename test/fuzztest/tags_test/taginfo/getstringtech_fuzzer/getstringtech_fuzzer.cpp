@@ -25,30 +25,30 @@
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
-    const uint8_t *g_baseFuzzData = nullptr;
-    size_t g_baseFuzzSize = 0;
-    size_t g_baseFuzzPos;
+    const uint8_t *g_baseFuzzData_ = nullptr;
+    size_t g_baseFuzzSize_ = 0;
+    size_t g_baseFuzzPos_;
 
     template <class T> T GetData()
     {
         T object{};
         size_t objectSize = sizeof(object);
-        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+        if (g_baseFuzzData_ == nullptr || objectSize > g_baseFuzzSize_ - g_baseFuzzPos_) {
             return object;
         }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData_ + g_baseFuzzPos_, objectSize);
         if (ret != EOK) {
             return {};
         }
-        g_baseFuzzPos += objectSize;
+        g_baseFuzzPos_ += objectSize;
         return object;
     }
 
     void FuzzGetStringTech(const uint8_t* data, size_t size)
     {
-        g_baseFuzzData = data;
-        g_baseFuzzSize = size;
-        g_baseFuzzPos = 0;
+        g_baseFuzzData_ = data;
+        g_baseFuzzSize_ = size;
+        g_baseFuzzPos_ = 0;
 
         int tech = GetData<int>();
         NFC::KITS::TagInfo::GetStringTech(tech);
