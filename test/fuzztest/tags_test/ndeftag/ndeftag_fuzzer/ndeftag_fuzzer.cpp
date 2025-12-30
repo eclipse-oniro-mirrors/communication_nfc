@@ -24,6 +24,7 @@
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
 #include "tag_session_proxy.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -37,6 +38,10 @@ namespace OHOS {
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
     constexpr const uint8_t MAX_TNF_NUMS = 7;
 
+    const uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos = 0;
+
     uint32_t ConvertToUint32(const uint8_t* ptr)
     {
         if (ptr == nullptr) {
@@ -46,6 +51,21 @@ namespace OHOS {
         // Shift the 0th number to the left by 24 bits, shift the 1st number to the left by 16 bits,
         // shift the 2nd number to the left by 8 bits, and not shift the 3rd number to the left
         return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+    }
+
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
     }
 
     bool CheckTnf(short tnf, const std::string& tagRtdType, const std::string& id, const std::string& payload)
@@ -119,10 +139,14 @@ namespace OHOS {
 
     void FuzzGetTag(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::vector<int> tagTechList;
         std::vector<AppExecFwk::PacMap> tagTechExtras;
         std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        int tagRfDiscId = GetData<int>();
         std::shared_ptr<TagInfo> tagInfo =
             std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         if (tagInfo == nullptr) {
@@ -134,13 +158,17 @@ namespace OHOS {
 
     void FuzzIsEnableReadOnly(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
         if (tagInfo == nullptr) {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
         std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
-        bool canSetReadOnly = (static_cast<int>(data[0]) % 2) == 1;
+        bool canSetReadOnly = (GetData<int>(); % 2) == 1;
         ndefTag->IsEnableReadOnly(canSetReadOnly);
     }
     
