@@ -23,6 +23,7 @@
 #include "isodep_card_handler.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::NCI;
@@ -31,12 +32,31 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 4;
 
+    uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos = 0;
+
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
         for (uint16_t i = 0 ; i < outParaLen ; i++) {
             // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
             outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
         }
+    }
+
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
     }
 
     void FuzzInitTransportCardInfo(const uint8_t* data, size_t size)
@@ -57,8 +77,12 @@ namespace OHOS {
 
     void FuzzIsSupportedTransportCard(const uint8_t* data, size_t size)
     {
-        uint32_t rfDiscId = static_cast<uint32_t>(data[0]);
-        uint8_t cardIndex = static_cast<uint8_t>(data[1]);
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
+        uint32_t rfDiscId = GetData<uint32_t>();
+        uint8_t cardIndex = GetData<uint8_t>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->IsSupportedTransportCard(rfDiscId, cardIndex);
@@ -66,9 +90,13 @@ namespace OHOS {
 
     void FuzzGetBalance(const uint8_t* data, size_t size)
     {
-        uint32_t rfDiscId = static_cast<uint32_t>(data[0]);
-        uint8_t cardIndex = static_cast<uint8_t>(data[1]);
-        int balance = static_cast<int>(data[2]);
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
+        uint32_t rfDiscId = GetData<uint32_t>();
+        uint8_t cardIndex = GetData<uint8_t>();
+        int balance = GetData<int>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->GetBalance(rfDiscId, cardIndex, balance);
@@ -93,8 +121,12 @@ namespace OHOS {
 
     void FuzzGetBalanceValue(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::string balanceStr = std::string(reinterpret_cast<const char*>(data), size);
-        int balanceValue = static_cast<uint32_t>(data[0]);
+        int balanceValue = GetData<int>();
         std::weak_ptr<INciTagInterface> nciTagProxy;
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->GetBalanceValue(balanceStr, balanceValue);
@@ -102,9 +134,13 @@ namespace OHOS {
 
     void FuzzMatchCity(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
-        uint32_t rfDiscId = static_cast<uint32_t>(data[0]);
-        uint8_t cardIndex = static_cast<uint8_t>(data[1]);
+        uint32_t rfDiscId = GetData<uint32_t>();
+        uint8_t cardIndex = GetData<uint8_t>();
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
         isodepCardHandler->MatchCity(rfDiscId, cardIndex);
     }

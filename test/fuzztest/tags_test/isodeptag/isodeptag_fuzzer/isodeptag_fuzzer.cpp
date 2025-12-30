@@ -23,6 +23,7 @@
 #include "nfcb_tag.h"
 #include "nfc_sdk_common.h"
 #include "taginfo.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
@@ -31,6 +32,10 @@ namespace OHOS {
     constexpr const auto TEST_DISC_ID = 1;
     constexpr const auto TEST_HISTORICAL_BYTES = "1015";
     constexpr const auto TEST_HILAYER_RESPONSE = "0106";
+
+    uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos = 0;
 
     std::shared_ptr<TagInfo> FuzzGetTagInfo()
     {
@@ -59,12 +64,31 @@ namespace OHOS {
         return tagInfo;
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzGetTag(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::vector<int> tagTechList;
         std::vector<AppExecFwk::PacMap> tagTechExtras;
         std::string tagUid = std::string(reinterpret_cast<const char*>(data), size);
-        int tagRfDiscId = static_cast<int>(data[0]);
+        int tagRfDiscId = GetData<int>();
         std::shared_ptr<TagInfo> tagInfo =
             std::make_shared<TagInfo>(tagTechList, tagTechExtras, tagUid, tagRfDiscId, nullptr);
         if (tagInfo == nullptr) {
@@ -76,13 +100,17 @@ namespace OHOS {
 
     void FuzzIsExtendedApduSupported(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<TagInfo> tagInfo = FuzzGetTagInfo();
         if (tagInfo == nullptr) {
             std::cout << "tagInfo is nullptr." << std::endl;
             return;
         }
         std::shared_ptr<IsoDepTag> isoDepTag = IsoDepTag::GetTag(tagInfo);
-        bool isSupported = (static_cast<int>(data[0]) % 2) == 1;
+        bool isSupported = (GetData<int>() % 2) == 1;
         isoDepTag->IsExtendedApduSupported(isSupported);
     }
 }

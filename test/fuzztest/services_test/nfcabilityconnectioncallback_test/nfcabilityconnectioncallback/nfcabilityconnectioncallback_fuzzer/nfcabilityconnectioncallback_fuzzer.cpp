@@ -20,11 +20,16 @@
 #include "nfc_ability_connection_callback.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
+
+    uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos = 0;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -34,11 +39,30 @@ namespace OHOS {
         }
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzOnAbilityConnectDone(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         AppExecFwk::ElementName element;
         sptr<IRemoteObject> remoteObject = nullptr;
-        int resultCode = static_cast<int>(data[0]);
+        int resultCode = GetData<int>();
         std::shared_ptr<NfcAbilityConnectionCallback> nfcAbilityConnectionCallback =
             std::make_shared<NfcAbilityConnectionCallback>();
         nfcAbilityConnectionCallback->OnAbilityConnectDone(element, remoteObject, resultCode);

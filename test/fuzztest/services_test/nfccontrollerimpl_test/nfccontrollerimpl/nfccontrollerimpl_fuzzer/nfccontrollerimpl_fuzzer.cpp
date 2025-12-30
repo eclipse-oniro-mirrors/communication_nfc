@@ -21,11 +21,16 @@
 #include "nfc_service.h"
 #include "nfc_sdk_common.h"
 #include "nfc_service_ipc_interface_code.h"
+#include <securec.h>
 
 namespace OHOS {
     using namespace OHOS::NFC;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
+
+    uint8_t *g_baseFuzzData = nullptr;
+    size_t g_baseFuzzSize = 0;
+    size_t g_baseFuzzPos = 0;
 
     void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
     {
@@ -35,11 +40,30 @@ namespace OHOS {
         }
     }
 
+    template <class T> T GetData()
+    {
+        T object{};
+        size_t objectSize = sizeof(object);
+        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+            return object;
+        }
+        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+        if (ret != EOK) {
+            return {};
+        }
+        g_baseFuzzPos += objectSize;
+        return object;
+    }
+
     void FuzzGetState(const uint8_t* data, size_t size)
     {
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
-        int nfcState = static_cast<int>(data[0]);
+        int nfcState = GetData<int>();
         nfcControllerImpl->GetState(nfcState);
         std::shared_ptr<NfcService> service1 = nullptr;
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl1 = std::make_shared<NfcControllerImpl>(service1);
@@ -130,7 +154,11 @@ namespace OHOS {
 
     void FuzzDump(const uint8_t* data, size_t size)
     {
-        int32_t fd = static_cast<int32_t>(data[0]);
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
+        int32_t fd = GetData<int32_t>();
         std::vector<std::u16string> args;
         std::shared_ptr<NfcService> service = nullptr;
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);
@@ -139,8 +167,12 @@ namespace OHOS {
 
     void FuzzNotifyEventStatus(const uint8_t* data, size_t size)
     {
-        int eventType = static_cast<int>(data[0]);
-        int arg1 = static_cast<int>(data[1]);
+        g_baseFuzzData = data;
+        g_baseFuzzSize = size;
+        g_baseFuzzPos = 0;
+
+        int eventType = GetData<int>();
+        int arg1 = GetData<int>();
         std::string arg2 = "";
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(service);

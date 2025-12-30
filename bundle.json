@@ -58,6 +58,7 @@
             "components": [
                 "ipc",
                 "hilog",
+                "bounds_checking_function",
                 "bundle_framework",
                 "cJSON",
                 "c_utils",
