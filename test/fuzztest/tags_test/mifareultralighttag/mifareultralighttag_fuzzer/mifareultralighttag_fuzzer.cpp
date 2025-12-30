@@ -33,7 +33,7 @@ namespace OHOS {
     constexpr const auto TEST_SAK = 0x28;
     constexpr const auto TEST_ATQA = "0400";
 
-    const uint8_t *g_baseFuzzData = nullptr;
+    uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

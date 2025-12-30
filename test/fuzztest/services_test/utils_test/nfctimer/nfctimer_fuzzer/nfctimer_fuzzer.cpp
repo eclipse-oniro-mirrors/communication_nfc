@@ -27,7 +27,7 @@ namespace OHOS {
 
     constexpr const auto FUZZER_THRESHOLD = 8;
 
-    const uint8_t *g_baseFuzzData = nullptr;
+    uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

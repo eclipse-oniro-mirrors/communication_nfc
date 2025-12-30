@@ -25,7 +25,7 @@
 namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
-    const uint8_t *g_baseFuzzData = nullptr;
+    uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

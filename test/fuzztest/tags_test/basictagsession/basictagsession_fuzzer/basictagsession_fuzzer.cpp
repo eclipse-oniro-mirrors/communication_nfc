@@ -31,7 +31,7 @@ namespace OHOS {
     constexpr const auto TEST_DISC_ID = 1;
     constexpr const auto TAG_TECHNOLOGY_MAX_LEN = 10;
 
-    const uint8_t *g_baseFuzzData = nullptr;
+    uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 
