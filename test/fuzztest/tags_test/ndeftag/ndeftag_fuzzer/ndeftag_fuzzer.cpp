@@ -168,7 +168,7 @@ namespace OHOS {
             return;
         }
         std::shared_ptr<NdefTag> ndefTag = NdefTag::GetTag(tagInfo);
-        bool canSetReadOnly = (GetData<int>(); % 2) == 1;
+        bool canSetReadOnly = (GetData<int>() % 2) == 1;
         ndefTag->IsEnableReadOnly(canSetReadOnly);
     }
     
