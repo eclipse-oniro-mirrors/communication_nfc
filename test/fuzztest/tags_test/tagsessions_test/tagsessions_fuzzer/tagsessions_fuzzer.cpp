@@ -32,7 +32,7 @@ namespace OHOS {
     constexpr const auto INT_TO_BOOL_DIVISOR = 2;
     std::shared_ptr<NFC::AppStateObserver> g_appStateObserver = nullptr;
 
-    uint8_t *g_baseFuzzData = nullptr;
+    const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

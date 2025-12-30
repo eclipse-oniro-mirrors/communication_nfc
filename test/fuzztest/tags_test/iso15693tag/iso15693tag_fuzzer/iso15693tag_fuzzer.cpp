@@ -33,7 +33,7 @@ namespace OHOS {
     constexpr const auto TEST_DSF_ID = '1';
     constexpr const auto TEST_RESPONSE_FLAGS = '0';
 
-    uint8_t *g_baseFuzzData = nullptr;
+    const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

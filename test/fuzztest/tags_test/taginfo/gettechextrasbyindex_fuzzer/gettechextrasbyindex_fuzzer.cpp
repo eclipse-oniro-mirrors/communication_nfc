@@ -29,7 +29,7 @@ namespace OHOS {
     constexpr const auto FUZZER_TEST_UID = "0102";
     constexpr const auto FUZZER_TEST_DISC_ID = 1;
 
-    uint8_t *g_baseFuzzData = nullptr;
+    const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 

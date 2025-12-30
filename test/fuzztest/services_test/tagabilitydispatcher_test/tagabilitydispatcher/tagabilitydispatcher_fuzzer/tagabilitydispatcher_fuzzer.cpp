@@ -29,7 +29,7 @@ namespace NFC {
     using namespace OHOS::NFC::KITS;
     constexpr const auto FUZZER_THRESHOLD = 4;
 
-    uint8_t *g_baseFuzzData = nullptr;
+    const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 
