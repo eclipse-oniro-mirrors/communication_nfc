@@ -38,7 +38,7 @@ namespace OHOS {
     constexpr const auto TEST_NDEF_TAG_LENGTH = 2;
     constexpr const uint8_t MAX_TNF_NUMS = 7;
 
-    uint8_t *g_baseFuzzData = nullptr;
+    const uint8_t *g_baseFuzzData = nullptr;
     size_t g_baseFuzzSize = 0;
     size_t g_baseFuzzPos = 0;
 
