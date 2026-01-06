@@ -538,7 +538,7 @@ void CeService::HandleFieldDeactivated()
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
         nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
-                                                     FIELD_COMMON_EVENT_INTERVAL);
+                                                FIELD_COMMON_EVENT_INTERVAL);
     }
 }
 void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
