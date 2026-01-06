@@ -47,7 +47,7 @@ std::shared_ptr<NdefTag> NdefTag::GetTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("tag is null.");
         return nullptr;
     }
-    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_NDEF_TECH)) {
         ErrorLog("NdefTag::GetTag error, no mathced technology.");
         return nullptr;
     }

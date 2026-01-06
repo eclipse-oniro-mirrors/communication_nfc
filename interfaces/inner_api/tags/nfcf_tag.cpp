@@ -41,7 +41,7 @@ std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("NfcFTag::NfcFTag tag invalid.");
         return nullptr;
     }
-    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
         ErrorLog("NfcFTag::GetTag error, no mathced technology.");
         return nullptr;
     }

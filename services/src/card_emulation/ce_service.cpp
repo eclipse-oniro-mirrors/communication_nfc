@@ -494,7 +494,7 @@ void CeService::HandleFieldActivated()
         ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.expired() || nfcServicePtr->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         return;
     }
     nfcServicePtr->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
@@ -522,7 +522,7 @@ void CeService::HandleFieldDeactivated()
         ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.expired() || nfcServicePtr->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         return;
     }
     nfcServicePtr->eventHandler_->RemoveEvent(

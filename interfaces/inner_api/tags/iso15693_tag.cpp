@@ -48,7 +48,7 @@ std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("tag is null.");
         return nullptr;
     }
-    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
         ErrorLog("Iso15693Tag::GetTag error, no mathced technology.");
         return nullptr;
     }

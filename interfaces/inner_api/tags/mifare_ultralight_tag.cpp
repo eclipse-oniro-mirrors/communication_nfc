@@ -60,7 +60,7 @@ std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<T
         ErrorLog("tag is null.");
         return nullptr;
     }
-    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
         !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
         ErrorLog("MifareUltralightTag::GetTag error, no mathced technology.");
         return nullptr;
