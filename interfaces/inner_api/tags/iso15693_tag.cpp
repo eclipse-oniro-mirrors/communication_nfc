@@ -21,17 +21,18 @@ namespace NFC {
 namespace KITS {
 Iso15693Tag::Iso15693Tag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_V_TECH)
 {
-    if (tag.expired()) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_V_TECH);
+    AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_V_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("Iso15693Tag::Iso15693Tag extra data invalid");
         return;
     }
-    dsfId_ = char(tag.lock()->GetIntExtrasData(extraData, TagInfo::DSF_ID));
-    respFlags_ = char(tag.lock()->GetIntExtrasData(extraData, TagInfo::RESPONSE_FLAGS));
+    dsfId_ = char(tagPtr->GetIntExtrasData(extraData, TagInfo::DSF_ID));
+    respFlags_ = char(tagPtr->GetIntExtrasData(extraData, TagInfo::RESPONSE_FLAGS));
 }
 
 Iso15693Tag::~Iso15693Tag()
@@ -42,7 +43,12 @@ Iso15693Tag::~Iso15693Tag()
 
 std::shared_ptr<Iso15693Tag> Iso15693Tag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return nullptr;
+    }
+    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_V_TECH)) {
         ErrorLog("Iso15693Tag::GetTag error, no mathced technology.");
         return nullptr;
     }

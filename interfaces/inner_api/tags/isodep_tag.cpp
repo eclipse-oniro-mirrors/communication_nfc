@@ -21,24 +21,30 @@ namespace NFC {
 namespace KITS {
 IsoDepTag::IsoDepTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_ISODEP_TECH)
 {
-    if (tag.expired()) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_ISODEP_TECH);
+    AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_ISODEP_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("IsoDepTag::IsoDepTag extra data invalid");
         return;
     }
-    historicalBytes_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::HISTORICAL_BYTES);
-    hiLayerResponse_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::HILAYER_RESPONSE);
+    historicalBytes_ = tagPtr->GetStringExtrasData(extraData, TagInfo::HISTORICAL_BYTES);
+    hiLayerResponse_ = tagPtr->GetStringExtrasData(extraData, TagInfo::HILAYER_RESPONSE);
     DebugLog("IsoDepTag::IsoDepTag historicalBytes_(%{public}s) hiLayerResponse_(%{public}s)",
         historicalBytes_.c_str(), hiLayerResponse_.c_str());
 }
 
 std::shared_ptr<IsoDepTag> IsoDepTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_ISODEP_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return;
+    }
+    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_ISODEP_TECH)) {
         ErrorLog("IsoDepTag::GetTag error, no mathced technology.");
         return nullptr;
     }

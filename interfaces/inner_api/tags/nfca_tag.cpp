@@ -21,30 +21,36 @@ namespace NFC {
 namespace KITS {
 NfcATag::NfcATag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_A_TECH)
 {
-    if (tag.expired()) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_A_TECH);
+    AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_A_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcATag::NfcATag extra data invalid");
         return;
     }
-    if (tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
-        AppExecFwk::PacMap mifareExtra = tag.lock()->GetTechExtrasByTech(
+    if (tagPtr->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
+        AppExecFwk::PacMap mifareExtra = tagPtr->GetTechExtrasByTech(
             KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH);
-        sak_ = tag.lock()->GetIntExtrasData(mifareExtra, TagInfo::SAK);
+        sak_ = tagPtr->GetIntExtrasData(mifareExtra, TagInfo::SAK);
         InfoLog("NfcATag::NfcATag mifare tech found, sak_ (0x%{public}x)", sak_);
     }
     sak_ = static_cast<uint32_t>(sak_) |
-           static_cast<uint32_t>(tag.lock()->GetIntExtrasData(extraData, TagInfo::SAK));
-    atqa_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::ATQA);
+           static_cast<uint32_t>(tagPtr->GetIntExtrasData(extraData, TagInfo::SAK));
+    atqa_ = tagPtr->GetStringExtrasData(extraData, TagInfo::ATQA);
     InfoLog("NfcATag::NfcATag sak_ (0x%{public}x), atqa_(%{public}s)", sak_, atqa_.c_str());
 }
 
 std::shared_ptr<NfcATag> NfcATag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return nullptr;
+    }
+    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH)) {
         ErrorLog("NfcATag::GetTag error, no mathced technology.");
         return nullptr;
     }

@@ -20,22 +20,28 @@ namespace NFC {
 namespace KITS {
 NfcFTag::NfcFTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_F_TECH)
 {
-    if (tag.expired()) {
-        ErrorLog("NfcFTag::NfcFTag tag invalid ");
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("NfcFTag::NfcFTag tag invalid.");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_F_TECH);
+    AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_F_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcFTag::NfcFTag extra data invalid");
         return;
     }
-    pmm_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_PMM);
-    systemCode_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::NFCF_SC);
+    pmm_ = tagPtr->GetStringExtrasData(extraData, TagInfo::NFCF_PMM);
+    systemCode_ = tagPtr->GetStringExtrasData(extraData, TagInfo::NFCF_SC);
 }
 
 std::shared_ptr<NfcFTag> NfcFTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("NfcFTag::NfcFTag tag invalid.");
+        return nullptr;
+    }
+    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_F_TECH)) {
         ErrorLog("NfcFTag::GetTag error, no mathced technology.");
         return nullptr;
     }

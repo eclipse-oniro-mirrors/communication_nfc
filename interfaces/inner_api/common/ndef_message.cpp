@@ -178,28 +178,30 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeApplicationRecord(const std::string
 std::string NdefMessage::MessageToString(std::weak_ptr<NdefMessage> ndefMessage)
 {
     std::string buffer;
-    if (ndefMessage.expired()) {
+    auto ndefMessagePtr = ndefMessage.lock();
+    if (ndefMessagePtr == nullptr) {
         ErrorLog("MessageToString, ndefMessage invalid.");
         return buffer;
     }
-    for (size_t i = 0; i < ndefMessage.lock()->ndefRecordList_.size(); i++) {
+    for (size_t i = 0; i < ndefMessagePtr->ndefRecordList_.size(); i++) {
         bool bIsMB = (i == 0);                                                // first record
-        bool bIsME = (i == ndefMessage.lock()->ndefRecordList_.size() - 1);  // last record
-        NdefRecordToString(ndefMessage.lock()->ndefRecordList_.at(i), buffer, bIsMB, bIsME);
+        bool bIsME = (i == ndefMessagePtr->ndefRecordList_.size() - 1);  // last record
+        NdefRecordToString(ndefMessagePtr->ndefRecordList_.at(i), buffer, bIsMB, bIsME);
     }
     return buffer;
 }
 
 void NdefMessage::NdefRecordToString(std::weak_ptr<NdefRecord> record, std::string& buffer, bool bIsMB, bool bIsME)
 {
-    if (record.expired()) {
+    auto recordPtr = record.lock();
+    if (recordPtr == nullptr) {
         ErrorLog("NdefRecordToString, record invalid.");
         return;
     }
-    std::string payload = record.lock()->payload_;
-    uint32_t tnf = record.lock()->tnf_;
-    std::string id = record.lock()->id_;
-    std::string rtdType = record.lock()->tagRtdType_;
+    std::string payload = recordPtr->payload_;
+    uint32_t tnf = recordPtr->tnf_;
+    std::string id = recordPtr->id_;
+    std::string rtdType = recordPtr->tagRtdType_;
     bool sr = NfcSdkCommon::GetHexStrBytesLen(payload) < SHORT_RECORD_SIZE;
     bool il = (tnf == TNF_EMPTY) ? true : (NfcSdkCommon::GetHexStrBytesLen(id) > 0);
     unsigned char flag = (unsigned char)((bIsMB ? FLAG_MB : 0) | (bIsME ? FLAG_ME : 0)

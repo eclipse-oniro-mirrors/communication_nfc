@@ -86,8 +86,13 @@ void MifareClassicTag::SetSizeBySak(int sak)
 
 std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
-        !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return;
+    }
+    if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
+        !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {
         ErrorLog("MifareClassicTag::GetTag error, no mathced technology.");
         return nullptr;
     }
