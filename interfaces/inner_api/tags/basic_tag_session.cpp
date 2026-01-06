@@ -118,11 +118,12 @@ void BasicTagSession::ResetTimeout()
 
 std::string BasicTagSession::GetTagUid()
 {
-    if (tagInfo_.expired()) {
-        ErrorLog("taginfo expired.");
+    auto tagInfoPtr = tagInfo_.lock();
+    if (tagInfoPtr == nullptr) {
+        ErrorLog("taginfo is nullptr.");
         return "";
     }
-    return tagInfo_.lock()->GetTagUid();
+    return tagInfoPtr->GetTagUid();
 }
 
 int BasicTagSession::SendCommand(const std::string& hexCmdData, bool raw, std::string &hexRespData)
@@ -151,30 +152,33 @@ int BasicTagSession::GetMaxSendCommandLength(int &maxSize)
 
 int BasicTagSession::GetTagRfDiscId() const
 {
-    if (tagInfo_.expired()) {
+    auto tagInfoPtr = tagInfo_.lock();
+    if (tagInfoPtr == nullptr) {
         ErrorLog("[BasicTagSession::GetTagRfDiscId] tag is null.");
         return ErrorCode::ERR_TAG_PARAMETERS;
     }
-    return tagInfo_.lock()->GetTagRfDiscId();
+    return tagInfoPtr->GetTagRfDiscId();
 }
 
 void BasicTagSession::SetConnectedTagTech(KITS::TagTechnology tech) const
 {
-    if (tagInfo_.expired()) {
+    auto tagInfoPtr = tagInfo_.lock();
+    if (tagInfoPtr == nullptr) {
         ErrorLog("[BasicTagSession::SetConnectedTagTech] tag is null.");
         return;
     }
-    tagInfo_.lock()->SetConnectedTagTech(tech);
+    tagInfoPtr->SetConnectedTagTech(tech);
 }
 
 KITS::TagTechnology BasicTagSession::GetConnectedTagTech() const
 {
-    if (tagInfo_.expired()) {
+    auto tagInfoPtr = tagInfo_.lock();
+    if (tagInfoPtr == nullptr) {
         ErrorLog("[BasicTagSession::GetConnectedTagTech] tag is null.");
         return KITS::TagTechnology::NFC_INVALID_TECH;
     }
 
-    return tagInfo_.lock()->GetConnectedTagTech();
+    return tagInfoPtr->GetConnectedTagTech();
 }
 
 std::weak_ptr<TagInfo> BasicTagSession::GetTagInfo() const

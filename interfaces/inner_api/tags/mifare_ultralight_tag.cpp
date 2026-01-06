@@ -28,19 +28,20 @@ MifareUltralightTag::MifareUltralightTag(std::weak_ptr<TagInfo> tag)
         ErrorLog("MifareUltralightTag, not support NfcA.");
         return;
     }
-    if (tag.expired()) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
         return;
     }
-    if (tag.lock()->GetTagUid().empty()) {
+    if (tagPtr->GetTagUid().empty()) {
         ErrorLog("MifareUltralightTag, tag uid is empty.");
         return;
     }
 
     if (nfcA->GetSak() == 0x00 &&
-        KITS::NfcSdkCommon::GetByteFromHexStr(tag.lock()->GetTagUid(), 0) == NXP_MANUFACTURER_ID) {
-        AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
-        if (tag.lock()->GetBoolExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
+        KITS::NfcSdkCommon::GetByteFromHexStr(tagPtr->GetTagUid(), 0) == NXP_MANUFACTURER_ID) {
+        AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH);
+        if (tagPtr->GetBoolExtrasData(extraData, TagInfo::MIFARE_ULTRALIGHT_C_TYPE)) {
             type_ = EmType::TYPE_ULTRALIGHT_C;
         } else {
             type_ = EmType::TYPE_ULTRALIGHT;
@@ -54,8 +55,13 @@ MifareUltralightTag::~MifareUltralightTag()
 
 std::shared_ptr<MifareUltralightTag> MifareUltralightTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
-        !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return nullptr;
+    }
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
+        !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_ULTRALIGHT_TECH)) {
         ErrorLog("MifareUltralightTag::GetTag error, no mathced technology.");
         return nullptr;
     }

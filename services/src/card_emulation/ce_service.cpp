@@ -124,11 +124,12 @@ bool CeService::InitConfigAidRouting(bool forceUpdate)
         return false;
     }
 
-    if (nciCeProxy_.expired()) {
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if (nciCeProxyPtr == nullptr) {
         ErrorLog("InitConfigAidRouting: nciCeProxy_ is nullptr.");
         return false;
     }
-    nciCeProxy_.lock()->ClearAidTable();
+    nciCeProxyPtr->ClearAidTable();
     aidToAidEntry_.clear();
     bool addAllResult = true;
     for (const auto &pair : aidEntries) {
@@ -140,7 +141,7 @@ bool CeService::InitConfigAidRouting(bool forceUpdate)
         InfoLog("AddAidRoutingHceAids: aid= %{public}s, aidInfo= "
                 "0x%{public}x, route=0x%{public}x, power=0x%{public}x",
                 aid.c_str(), aidInfo, route, power);
-        bool addResult = nciCeProxy_.lock()->AddAidRouting(aid, route, aidInfo, power);
+        bool addResult = nciCeProxyPtr->AddAidRouting(aid, route, aidInfo, power);
         if (!addResult) {
             ErrorLog("AddAidRoutingHceAids: add aid failed aid= %{public}s", aid.c_str());
             addAllResult = false;
@@ -238,15 +239,16 @@ void CeService::OnDefaultPaymentServiceChange()
         return;
     }
 
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfcService_ is nullptr.");
         return;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NFC not enabled, should not happen.The default payment app is be set when nfc is enabled.");
         return;
     }
-    nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_CHANGE_KEY, newElement.GetBundleName());
+    nfcServicePtr->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_CHANGE_KEY, newElement.GetBundleName());
     ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(defaultPaymentElement_.GetBundleName(),
                                                                             newElement.GetBundleName());
     UpdateDefaultPaymentElement(newElement);
@@ -270,8 +272,9 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
             bundleName.c_str(), defaultPaymentElement_.GetBundleName().c_str(),
             defaultPaymentBundleInstalled_);
 
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ is nullptr.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
         return;
     }
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
@@ -279,7 +282,7 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
         UpdateDefaultPaymentBundleInstalledStatus(false);
         ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
             defaultPaymentElement_.GetBundleName(), APP_REMOVED);
-        nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_REMOVED_KEY, bundleName);
+        nfcServicePtr->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_REMOVED_KEY, bundleName);
     }
 
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
@@ -287,10 +290,10 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
         UpdateDefaultPaymentBundleInstalledStatus(true);
         ExternalDepsProxy::GetInstance().WriteDefaultPaymentAppChangeHiSysEvent(
             defaultPaymentElement_.GetBundleName(), APP_ADDED);
-        nfcService_.lock()->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_ADDED_KEY, bundleName);
+        nfcServicePtr->NotifyMessageToVendor(KITS::DEF_PAYMENT_APP_ADDED_KEY, bundleName);
     }
 
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog(" NFC not enabled, not need to update routing entry ");
         return;
     }
@@ -367,12 +370,14 @@ KITS::DefaultPaymentType CeService::GetDefaultPaymentType()
 
 void CeService::ConfigRoutingAndCommit()
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("ConfigRoutingAndCommit: nfc service is null");
         return;
     }
-    std::weak_ptr<NfcRoutingManager> routingManager = nfcService_.lock()->GetNfcRoutingManager();
-    if (routingManager.expired()) {
+    std::weak_ptr<NfcRoutingManager> routingManager = nfcServicePtr->GetNfcRoutingManager();
+    auto routingManagerPtr = routingManager.lock();
+    if (routingManagerPtr == nullptr) {
         ErrorLog("ConfigRoutingAndCommit: routing manager is null");
         return;
     }
@@ -389,8 +394,8 @@ void CeService::ConfigRoutingAndCommit()
         "ConfigRoutingAndCommit: aids updated status %{public}d, default payment type updated status %{public}d.",
         updateAids, updatePaymentType);
     if (updateAids || updatePaymentType) {
-        routingManager.lock()->ComputeRoutingParams(defaultPaymentType_);
-        routingManager.lock()->CommitRouting();
+        routingManagerPtr->ComputeRoutingParams(defaultPaymentType_);
+        routingManagerPtr->CommitRouting();
     }
 }
 
@@ -484,13 +489,18 @@ bool CeService::IsPaymentAid(const std::string &aid, const AppDataParser::HceApp
 
 void CeService::HandleFieldActivated()
 {
-    if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
-    nfcService_.lock()->eventHandler_->RemoveEvent(
+    if (nfcServicePtr->eventHandler_ == nullptr) {
+        return;
+    }
+    nfcServicePtr->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcServicePtr->eventHandler_->RemoveEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
-    nfcService_.lock()->eventHandler_->SendEvent(
+    nfcServicePtr->eventHandler_->SendEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT), DEACTIVATE_TIMEOUT);
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetRelativeTime();
@@ -501,18 +511,23 @@ void CeService::HandleFieldActivated()
     }
     if (currentTime - lastFieldOnTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOnTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
+        nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_ON));
     }
 }
 
 void CeService::HandleFieldDeactivated()
 {
-    if (nfcService_.expired() || nfcService_.lock()->eventHandler_ == nullptr) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    nfcService_.lock()->eventHandler_->RemoveEvent(
+    if (nfcServicePtr->eventHandler_ == nullptr) {
+        return;
+    }
+    nfcServicePtr->eventHandler_->RemoveEvent(
         static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT));
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
+    nfcServicePtr->eventHandler_->RemoveEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF));
 
     uint64_t currentTime = KITS::NfcSdkCommon::GetRelativeTime();
     if (currentTime < lastFieldOffTime_) {
@@ -522,8 +537,8 @@ void CeService::HandleFieldDeactivated()
     }
     if (currentTime - lastFieldOffTime_ > FIELD_COMMON_EVENT_INTERVAL) {
         lastFieldOffTime_ = currentTime;
-        nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
-                                                     FIELD_COMMON_EVENT_INTERVAL);
+        nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_NOTIFY_FIELD_OFF),
+                                                FIELD_COMMON_EVENT_INTERVAL);
     }
 }
 void CeService::OnCardEmulationData(const std::vector<uint8_t> &data)
@@ -625,11 +640,12 @@ void CeService::Deinitialize()
 
 bool CeService::StartHce(const ElementName &element, const std::vector<std::string> &aids)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfcService_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NFC not enabled, should not happen.");
         return false;
     }
@@ -707,11 +723,12 @@ bool CeService::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerT
 void CeService::NotifyDefaultPaymentType(int paymentType)
 {
     InfoLog("NotifyDefaultPaymentType: %{public}d", paymentType);
-    if (nciCeProxy_.expired()) {
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if (nciCeProxyPtr == nullptr) {
         ErrorLog("NotifyDefaultPaymentType: nciCeProxy_ is nullptr.");
         return;
     }
-    nciCeProxy_.lock()->NotifyDefaultPaymentType(paymentType);
+    nciCeProxyPtr->NotifyDefaultPaymentType(paymentType);
 }
 
 void CeService::HandleDataShareReady()

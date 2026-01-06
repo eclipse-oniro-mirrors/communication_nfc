@@ -21,25 +21,31 @@ namespace NFC {
 namespace KITS {
 NfcBTag::NfcBTag(std::weak_ptr<TagInfo> tag) : BasicTagSession(tag, KITS::TagTechnology::NFC_B_TECH)
 {
-    if (tag.expired()) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
         return;
     }
-    AppExecFwk::PacMap extraData = tag.lock()->GetTechExtrasByTech(KITS::TagTechnology::NFC_B_TECH);
+    AppExecFwk::PacMap extraData = tagPtr->GetTechExtrasByTech(KITS::TagTechnology::NFC_B_TECH);
     if (extraData.IsEmpty()) {
         ErrorLog("NfcBTag::NfcBTag extra data invalid");
         return;
     }
 
-    appData_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::APP_DATA);
-    protocolInfo_ = tag.lock()->GetStringExtrasData(extraData, TagInfo::PROTOCOL_INFO);
+    appData_ = tagPtr->GetStringExtrasData(extraData, TagInfo::APP_DATA);
+    protocolInfo_ = tagPtr->GetStringExtrasData(extraData, TagInfo::PROTOCOL_INFO);
     InfoLog("NfcBTag::NfcBTag appData_(%{public}s) protocolInfo_(%{public}s)",
         appData_.c_str(), protocolInfo_.c_str());
 }
 
 std::shared_ptr<NfcBTag> NfcBTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_B_TECH)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is null.");
+        return nullptr;
+    }
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_B_TECH)) {
         ErrorLog("NfcBTag::GetTag error, no mathced technology.");
         return nullptr;
     }

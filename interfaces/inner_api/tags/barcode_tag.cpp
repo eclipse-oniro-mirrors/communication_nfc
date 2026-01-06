@@ -26,7 +26,12 @@ BarcodeTag::BarcodeTag(std::weak_ptr<TagInfo> tag)
 
 std::shared_ptr<BarcodeTag> BarcodeTag::GetTag(std::weak_ptr<TagInfo> tag)
 {
-    if (tag.expired() || !tag.lock()->IsTechSupported(KITS::TagTechnology::NFC_BARCODE)) {
+    auto tagPtr = tag.lock();
+    if (tagPtr == nullptr) {
+        ErrorLog("tag is nullptr");
+        return nullptr;
+    }
+    if (!tagPtr->IsTechSupported(KITS::TagTechnology::NFC_BARCODE)) {
         ErrorLog("BarcodeTag::GetTag error, no mathced technology.");
         return nullptr;
     }
