@@ -178,7 +178,7 @@ KITS::TagTechnology BasicTagSession::GetConnectedTagTech() const
         return KITS::TagTechnology::NFC_INVALID_TECH;
     }
 
-    return tagInfoPtrs->GetConnectedTagTech();
+    return tagInfoPtr->GetConnectedTagTech();
 }
 
 std::weak_ptr<TagInfo> BasicTagSession::GetTagInfo() const

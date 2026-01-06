@@ -89,7 +89,7 @@ std::shared_ptr<MifareClassicTag> MifareClassicTag::GetTag(std::weak_ptr<TagInfo
     auto tagPtr = tag.lock();
     if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
-        return;
+        return nullptr;
     }
     if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_A_TECH) ||
         !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_MIFARE_CLASSIC_TECH)) {

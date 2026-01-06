@@ -30,7 +30,7 @@ std::shared_ptr<NdefFormatableTag> NdefFormatableTag::GetTag(std::weak_ptr<TagIn
     auto tagPtr = tag.lock();
     if (tagPtr == nullptr) {
         ErrorLog("tag is null.");
-        return;
+        return nullptr;
     }
     if (tag.expired() || !tagPtr->IsTechSupported(KITS::TagTechnology::NFC_NDEF_FORMATABLE_TECH)) {
         ErrorLog("NdefFormatableTag::GetTag error, no mathced technology.");

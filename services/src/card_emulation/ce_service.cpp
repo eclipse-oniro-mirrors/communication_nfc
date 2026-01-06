@@ -123,7 +123,7 @@ bool CeService::InitConfigAidRouting(bool forceUpdate)
         InfoLog("aid entries do not change.");
         return false;
     }
-    
+
     auto nciCeProxyPtr = nciCeProxy_.lock();
     if (nciCeProxyPtr == nullptr) {
         ErrorLog("InitConfigAidRouting: nciCeProxy_ is nullptr.");
@@ -274,7 +274,7 @@ void CeService::OnAppAddOrChangeOrRemove(std::shared_ptr<EventFwk::CommonEventDa
 
     auto nfcServicePtr = nfcService_.lock();
     if (nfcServicePtr == nullptr) {
-        ErrorLog("nfcService_ is nullptr.");
+        ErrorLog("nfcService_ is nullptr");
         return;
     }
     if (bundleName == defaultPaymentElement_.GetBundleName() &&
@@ -645,7 +645,7 @@ bool CeService::StartHce(const ElementName &element, const std::vector<std::stri
         ErrorLog("nfcService_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NFC not enabled, should not happen.");
         return false;
     }
