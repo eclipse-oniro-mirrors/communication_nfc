@@ -278,11 +278,12 @@ void HostCardEmulationManager::OnHostCardEmulationDataNfcA(const std::vector<uin
     std::string aid = ParseSelectAid(data);
     InfoLog("onHostCardEmulationDataNfcA: selectAid = %{public}s, state %{public}d", aid.c_str(), hceState_);
     ElementName aidElement;
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("ce service expired.");
         return;
     }
-    ceService_.lock()->SearchElementByAid(aid, aidElement);
+    ceServicePtr->SearchElementByAid(aid, aidElement);
     /* check aid */
     if (!aid.empty() && !aidElement.GetBundleName().empty()) {
         std::lock_guard<std::mutex> lock(hceStateMutex_);
@@ -424,11 +425,12 @@ void HostCardEmulationManager::HandleDataOnW4SelectForFa(const std::string& aid,
     } else {
         InfoLog("no aid got");
         std::string unknowError = "6F00";
-        if (nciCeProxy_.expired()) {
+        auto nciCeProxyPtr == nciCeProxy_.lock();
+        if (nciCeProxyPtr == nullptr) {
             ErrorLog("HandleDataOnW4SelectForFa: nciCeProxy_ is nullptr.");
             return;
         }
-        nciCeProxy_.lock()->SendRawFrame(unknowError);
+        nciCeProxyPtr->SendRawFrame(unknowError);
     }
 }
 
@@ -574,11 +576,12 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
                                                  const std::string& type,
                                                  Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("RegHceCmdCallback: nfcService_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("RegHceCmdCallback: NFC not enabled, do not set");
         return false;
     }
@@ -634,11 +637,12 @@ bool HostCardEmulationManager::RegHceCmdCallback(const sptr<KITS::IHceCmdCallbac
 bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw, std::string& hexRespData,
                                                 Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("SendHostApduData: nfcService_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("SendHostApduData: NFC not enabled, do not send.");
         return false;
     }
@@ -825,10 +829,15 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
 
 bool HostCardEmulationManager::DispatchAbilitySingleAppForFaModel(ElementName& element)
 {
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if (nciCeProxyPtr == nullptr) {
+        ErrorLog("nciCeProxy is nullptr");
+        return false;
+    }
     if (element.GetBundleName().empty() && !nciCeProxy_.expired()) {
         ErrorLog("DispatchAbilitySingleAppForFaModel element empty");
         std::string aidNotFound = "6A82";
-        nciCeProxy_.lock()->SendRawFrame(aidNotFound);
+        nciCeProxyPtr->SendRawFrame(aidNotFound);
         return false;
     }
 

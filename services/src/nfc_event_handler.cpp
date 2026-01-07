@@ -95,20 +95,22 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         return;
     }
     InfoLog("OnScreenChanged: action: %{public}s", action.c_str());
-    if (eventHandler_.expired() || nfcService_.expired()) {
-        ErrorLog("eventHandler_ is null.");
+    auto eventHandlerPtr = eventHandler_.lock();
+    auto nfcServicePtr = nfcService_.lock();
+    if ((eventHandlerPtr == nulllptr) || (nfcServicePtr == nullptr)) {
+        ErrorLog("eventHandler or nfcService is null.");
         return;
     }
     ScreenState screenState = ScreenState::SCREEN_STATE_UNKNOWN;
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_ON) == 0) {
-        screenState = eventHandler_.lock()->IsScreenLocked() ?
+        screenState = eventHandlerPtr->IsScreenLocked() ?
             ScreenState::SCREEN_STATE_ON_LOCKED : ScreenState::SCREEN_STATE_ON_UNLOCKED;
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_OFF) == 0) {
-        screenState = eventHandler_.lock()->IsScreenLocked() ?
+        screenState = eventHandlerPtr->IsScreenLocked() ?
             ScreenState::SCREEN_STATE_OFF_LOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
     } else if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) == 0) {
-        nfcService_.lock()->ExecuteTask(KITS::TASK_INITIALIZE);
-        screenState = eventHandler_.lock()->IsScreenOn() ?
+        nfcServicePtr->ExecuteTask(KITS::TASK_INITIALIZE);
+        screenState = eventHandlerPtr->IsScreenOn() ?
             ScreenState::SCREEN_STATE_ON_UNLOCKED : ScreenState::SCREEN_STATE_OFF_UNLOCKED;
 #ifdef NFC_HANDLE_SCREEN_LOCK
         TAG::NdefHarDispatch::HandleCarrierReport();
@@ -155,7 +157,8 @@ void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::Com
         ErrorLog("action is empty");
         return;
     }
-    if (eventHandler_.expired()) {
+    auto eventHandlerPtr = eventHandler_.lock();
+    if (eventHandlerPtr == nullptr) {
         ErrorLog("eventHandler_ is null.");
         return;
     }
@@ -164,7 +167,7 @@ void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::Com
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) == 0 ||
         action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) == 0) {
-        eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_PACKAGE_UPDATED),
+        eventHandlerPtr->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_PACKAGE_UPDATED),
             mdata, static_cast<int64_t>(0));
     }
 }
@@ -199,13 +202,14 @@ void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::Comm
         ErrorLog("action is empty");
         return;
     }
-    if (eventHandler_.expired()) {
+    auto eventHandlerPtr = eventHandler_.lock();
+    if (eventHandlerPtr == nullptr) {
         ErrorLog("eventHandler_ is null.");
         return;
     }
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN) == 0) {
-        eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SHUTDOWN),
-                                        static_cast<int64_t>(0));
+        eventHandlerPtr->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SHUTDOWN),
+                                   static_cast<int64_t>(0));
     }
 }
 
@@ -240,9 +244,14 @@ void NfcEventHandler::DataShareChangedReceiver::OnReceiveEvent(const EventFwk::C
         return;
     }
     InfoLog("DataShareChangedReceiver: action = %{public}s", action.c_str());
+    auto eventHandlerPtr = eventHandler_.lock();
+    if (eventHandlerPtr == nullptr) {
+        ErrorLog("eventHandler_ is null.");
+        return;
+    }
     if (action.compare(EVENT_DATA_SHARE_READY) == 0 && !eventHandler_.expired()) {
-        eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_DATA_SHARE_READY),
-                                        static_cast<int64_t>(0));
+        eventHandlerPtr->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_DATA_SHARE_READY),
+                                   static_cast<int64_t>(0));
     }
 }
 
@@ -398,83 +407,96 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
             }
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
-            if (!nfcPollingManager_.expired()) {
-                nfcPollingManager_.lock()->HandleScreenChanged(event->GetParam());
+            auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+            if (nfcPollingManagerPtr != nullptr) {
+                nfcPollingManagerPtr->HandleScreenChanged(event->GetParam());
             }
             break;
         }
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
-            if (nfcPollingManager_.expired()) {
+            auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+            auto ceServicePtr = ceService_.lock();
+            if (nfcPollingManagerPtr == nullptr) {
                 break;
             }
-            bool updated = nfcPollingManager_.lock()->HandlePackageUpdated(
+            bool updated = nfcPollingManagerPtr->HandlePackageUpdated(
                 event->GetSharedObject<EventFwk::CommonEventData>());
             if (updated) {
-                ceService_.lock()->OnAppAddOrChangeOrRemove(event->GetSharedObject<EventFwk::CommonEventData>());
+                ceServicePtr->OnAppAddOrChangeOrRemove(event->GetSharedObject<EventFwk::CommonEventData>());
             }
             break;
         }
         case NfcCommonEvent::MSG_COMMIT_ROUTING: {
-            if (!nfcRoutingManager_.expired()) {
-                nfcRoutingManager_.lock()->HandleCommitRouting();
+            auto nfcRoutingManagerPtr = nfcRoutingManager_.lock();
+            if (nfcRoutingManagerPtr != nullptr) {
+                nfcRoutingManagerPtr->HandleCommitRouting();
             }
             break;
         }
         case NfcCommonEvent::MSG_COMPUTE_ROUTING_PARAMS: {
             int defaultPaymentType = event->GetParam();
-            if (!nfcRoutingManager_.expired()) {
-                nfcRoutingManager_.lock()->HandleComputeRoutingParams(defaultPaymentType);
+            auto nfcRoutingManagerPtr = nfcRoutingManager_.lock();
+            if (nfcRoutingManagerPtr != nullptr) {
+                nfcRoutingManagerPtr->HandleComputeRoutingParams(defaultPaymentType);
             }
             break;
         }
         case NfcCommonEvent::MSG_FIELD_ACTIVATED: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->HandleFieldActivated();
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->HandleFieldActivated();
             }
             break;
         }
         case NfcCommonEvent::MSG_FIELD_DEACTIVATED: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->HandleFieldDeactivated();
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->HandleFieldDeactivated();
             }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_ON: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->PublishFieldOnOrOffCommonEvent(true);
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->PublishFieldOnOrOffCommonEvent(true);
             }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->PublishFieldOnOrOffCommonEvent(false);
             }
             break;
         }
         case NfcCommonEvent::MSG_NOTIFY_FIELD_OFF_TIMEOUT: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->PublishFieldOnOrOffCommonEvent(false);
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->PublishFieldOnOrOffCommonEvent(false);
             }
             break;
         }
         case NfcCommonEvent::MSG_SHUTDOWN: {
-            if (!nfcService_.expired()) {
-                nfcService_.lock()->HandleShutdown();
+            auto nfcServicePtr = nfcService_.lock();
+            if (nfcServicePtr != nullptr) {
+                nfcServicePtr->HandleShutdown();
             }
             break;
         }
         case NfcCommonEvent::MSG_DATA_SHARE_READY: {
-            if (!ceService_.expired()) {
-                ceService_.lock()->HandleDataShareReady();
+            auto ceServicePtr = ceService_.lock();
+            if (ceServicePtr != nullptr) {
+                ceServicePtr->HandleDataShareReady();
             }
             break;
         }
 #ifdef VENDOR_APPLICATIONS_ENABLED
         case NfcCommonEvent::MSG_VENDOR_EVENT: {
             int eventType = event->GetParam();
+            auto ceServicePtr = ceService_.lock();
             if ((eventType == KITS::VENDOR_APP_INIT_DONE || eventType == KITS::VENDOR_APP_CHANGE)
-                && !ceService_.expired()) {
-                ceService_.lock()->ConfigRoutingAndCommit();
+                && (ceServicePtr != nullptr)) {
+                ceServicePtr->ConfigRoutingAndCommit();
             }
             break;
         }

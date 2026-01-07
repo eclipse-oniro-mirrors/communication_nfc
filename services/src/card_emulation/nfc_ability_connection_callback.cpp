@@ -36,11 +36,12 @@ void NfcAbilityConnectionCallback::OnAbilityConnectDone(const AppExecFwk::Elemen
     connectedElement_.SetAbilityName(element.GetAbilityName());
     connectedElement_.SetDeviceID(element.GetDeviceID());
     connectedElement_.SetModuleName(element.GetModuleName());
-    if (hceManager_.expired()) {
+    auto hceManagerPtr = hceManager_.lock();
+    if (hceManagerPtr == nullptr) {
         ErrorLog("hce manager is expired");
         return;
     }
-    hceManager_.lock()->HandleQueueData();
+    hceManagerPtr->HandleQueueData();
 }
 
 void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)

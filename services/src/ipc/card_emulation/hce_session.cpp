@@ -127,11 +127,12 @@ ErrCode HceSession::UnregHceCmdCallback(const sptr<IHceCmdCallback>& cb, const s
 
 KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenID callerToken)
 {
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("UnRegAllCallback ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->UnRegAllCallback(callerToken)) {
+    if (ceServicePtr->UnRegAllCallback(callerToken)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
@@ -139,11 +140,12 @@ KITS::ErrorCode HceSession::UnRegAllCallback(Security::AccessToken::AccessTokenI
 
 KITS::ErrorCode HceSession::HandleWhenRemoteDie(Security::AccessToken::AccessTokenID callerToken)
 {
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("HandleWhenRemoteDie ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->HandleWhenRemoteDie(callerToken)) {
+    if (ceServicePtr->HandleWhenRemoteDie(callerToken)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
@@ -161,12 +163,13 @@ ErrCode HceSession::SendRawFrame(const std::string& hexCmdData, bool raw, std::s
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("SendRawFrame ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    if (ceService_.lock()->SendHostApduData(hexCmdData, raw, hexRespData, IPCSkeleton::GetCallingTokenID())) {
+    if (ceServicePtr->SendHostApduData(hexCmdData, raw, hexRespData, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     } else {
         return KITS::ERR_HCE_STATE_IO_FAILED;
@@ -175,11 +178,12 @@ ErrCode HceSession::SendRawFrame(const std::string& hexCmdData, bool raw, std::s
 
 ErrCode HceSession::IsDefaultService(const ElementName& element, const std::string& type, bool& isDefaultService)
 {
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("IsDefaultService ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    isDefaultService = ceService_.lock()->IsDefaultService(element, type);
+    isDefaultService = ceServicePtr->IsDefaultService(element, type);
     return KITS::ERR_NONE;
 }
 
@@ -284,11 +288,12 @@ ErrCode HceSession::GetPaymentServices(CePaymentServicesParcelable& parcelable)
 #ifdef NFC_SIM_FEATURE
 void HceSession::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nulltr) {
         ErrorLog("nfcService_ nullptr");
         return;
     }
-    std::string simBundleName = nfcService_.lock()->GetSimVendorBundleName();
+    std::string simBundleName = nfcServicePtr->GetSimVendorBundleName();
     AppExecFwk::BundleInfo bundleInfo;
     bool result = ExternalDepsProxy::GetInstance().GetBundleInfo(bundleInfo, simBundleName);
     if (!result) {

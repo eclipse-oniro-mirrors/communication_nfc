@@ -76,20 +76,22 @@ ErrCode TagSession::Connect(int32_t tagRfDiscId, int32_t technology)
         ErrorLog("Connect, invalid technology %{public}d", technology);
         return KITS::ERR_TAG_PARAMETERS;
     }
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("Connect, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("Connect, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("Connect, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
-    if (!nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId)) {
+    if (!nciTagProxyPtr->IsTagFieldOn(tagRfDiscId)) {
         ErrorLog("Connect, IsTagFieldOn error");
         return KITS::ERR_TAG_STATE_LOST;
     }
 
-    if (nciTagProxy_.lock()->Connect(tagRfDiscId, technology)) {
+    if (nciTagProxyPtr->Connect(tagRfDiscId, technology)) {
         return KITS::ERR_NONE;
     } else {
         ErrorLog("Connect, call error");
@@ -110,15 +112,17 @@ ErrCode TagSession::IsConnected(int32_t tagRfDiscId, bool& isConnected)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("IsConnected, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("IsConnected, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("IsConnected, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
-    isConnected = nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
+    isConnected = nfcServicePtr->IsTagFieldOn(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -135,16 +139,18 @@ ErrCode TagSession::Reconnect(int32_t tagRfDiscId)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("Reconnect, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("Reconnect, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("Reconnect, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    if (nciTagProxy_.lock()->Reconnect(tagRfDiscId)) {
+    if (nciTagProxyPtr->Reconnect(tagRfDiscId)) {
         return KITS::ERR_NONE;
     } else {
         ErrorLog("Reconnect, call error");
@@ -164,16 +170,18 @@ ErrCode TagSession::Disconnect(int32_t tagRfDiscId)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("Disconnect, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("Disconnect, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("Disconnect, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    nciTagProxy_.lock()->Disconnect(tagRfDiscId);
+    nciTagProxyPtr->Disconnect(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -189,16 +197,18 @@ ErrCode TagSession::SetTimeout(int32_t tagRfDiscId, int32_t timeout, int32_t tec
         return KITS::ERR_TAG_PARAMETERS;
     }
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("SetTimeout, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("SetTimeout, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("SetTimeout, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    nciTagProxy_.lock()->SetTimeout(tagRfDiscId, timeout, technology);
+    nciTagProxyPtr->SetTimeout(tagRfDiscId, timeout, technology);
     return KITS::ERR_NONE;
 }
 
@@ -214,17 +224,19 @@ ErrCode TagSession::GetTimeout(int32_t tagRfDiscId, int32_t technology, int32_t&
         return KITS::ERR_TAG_PARAMETERS;
     }
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("GetTimeout, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("GetTimeout, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("GetTimeout, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     uint32_t timeoutTemp = 0;
-    nciTagProxy_.lock()->GetTimeout(tagRfDiscId, timeoutTemp, technology);
+    nciTagProxyPtr->GetTimeout(tagRfDiscId, timeoutTemp, technology);
     timeout = static_cast<int>(timeoutTemp);
     return KITS::ERR_NONE;
 }
@@ -236,15 +248,17 @@ ErrCode TagSession::ResetTimeout(int32_t tagRfDiscId)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("ResetTimeout, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("ResetTimeout, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("ResetTimeout, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
-    nciTagProxy_.lock()->ResetTimeout(tagRfDiscId);
+    nciTagProxyPtr->ResetTimeout(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -262,16 +276,18 @@ ErrCode TagSession::GetTechList(int32_t tagRfDiscId, std::vector<int32_t>& funcR
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("GetTechList, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("GetTechList, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("GetTechList, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    funcResult = nciTagProxy_.lock()->GetTechList(tagRfDiscId);
+    funcResult = nciTagProxyPtr->GetTechList(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -289,16 +305,18 @@ ErrCode TagSession::IsTagFieldOn(int32_t tagRfDiscId, bool& funcResult)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("IsTagFieldOn, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("IsTagFieldOn, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("IsTagFieldOn, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    funcResult = nciTagProxy_.lock()->IsTagFieldOn(tagRfDiscId);
+    funcResult = nciTagProxyPtr->IsTagFieldOn(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -316,17 +334,19 @@ ErrCode TagSession::IsNdef(int32_t tagRfDiscId, bool& funcResult)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("IsNdef, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("IsNdef, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("IsNdef, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     std::vector<int> ndefInfo;
-    funcResult = nciTagProxy_.lock()->DetectNdefInfo(tagRfDiscId, ndefInfo);
+    funcResult = nciTagProxyPtr->DetectNdefInfo(tagRfDiscId, ndefInfo);
     return KITS::ERR_NONE;
 }
 
@@ -339,24 +359,26 @@ ErrCode TagSession::SendRawFrame(int32_t tagRfDiscId, const std::string& hexCmdD
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("SendRawFrame, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("SendRawFrame, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("SendRawFrame, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
     // Check if length is within limits
     int maxSize = 0;
-    GetMaxTransceiveLength(nciTagProxy_.lock()->GetConnectedTech(tagRfDiscId), maxSize);
+    GetMaxTransceiveLength(nciTagProxyPtr->GetConnectedTech(tagRfDiscId), maxSize);
     if (KITS::NfcSdkCommon::GetHexStrBytesLen(hexCmdData) > static_cast<uint32_t>(maxSize)) {
         ErrorLog("hexCmdData exceed max size.");
         return KITS::ERR_TAG_PARAMETERS;
     }
 
-    int result = nciTagProxy_.lock()->Transceive(tagRfDiscId, hexCmdData, hexRespData);
+    int result = nciTagProxyPtr->Transceive(tagRfDiscId, hexCmdData, hexRespData);
     DebugLog("TagSession::SendRawFrame, result = 0x%{public}X", result);
     if ((result == 0) && (!hexRespData.empty())) {
         return KITS::ERR_NONE;
@@ -381,16 +403,18 @@ ErrCode TagSession::NdefRead(int32_t tagRfDiscId, std::string& ndefMessage)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("NdefRead, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("NdefRead, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NdefRead, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    ndefMessage = nciTagProxy_.lock()->ReadNdef(tagRfDiscId);
+    ndefMessage = nciTagProxyPtr->ReadNdef(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -408,11 +432,13 @@ ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("NdefWrite, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("NdefWrite, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NdefWrite, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
@@ -422,7 +448,7 @@ ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
         return KITS::ERR_TAG_PARAMETERS;
     }
 
-    if (nciTagProxy_.lock()->WriteNdef(tagRfDiscId, msg)) {
+    if (nciTagProxyPtr->WriteNdef(tagRfDiscId, msg)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_TAG_STATE_IO_FAILED;
@@ -441,16 +467,18 @@ ErrCode TagSession::NdefMakeReadOnly(int32_t tagRfDiscId)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("NdefMakeReadOnly, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("NdefMakeReadOnly, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("NdefMakeReadOnly, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    if (nciTagProxy_.lock()->SetNdefReadOnly(tagRfDiscId)) {
+    if (nciTagProxyPtr->SetNdefReadOnly(tagRfDiscId)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_TAG_STATE_IO_FAILED;
@@ -470,16 +498,18 @@ ErrCode TagSession::FormatNdef(int32_t tagRfDiscId, const std::string& key)
     }
 
     // Check if NFC is enabled
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
-        ErrorLog("FormatNdef, expired");
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
+        ErrorLog("FormatNdef, nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("FormatNdef, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
 
-    if (nciTagProxy_.lock()->FormatNdef(tagRfDiscId, key)) {
+    if (nciTagProxyPtr->FormatNdef(tagRfDiscId, key)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_TAG_STATE_IO_FAILED;
@@ -492,11 +522,16 @@ ErrCode TagSession::CanMakeReadOnly(int32_t ndefType, bool& canSetReadOnly)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
+    if (nfcService_.expired()) {
         ErrorLog("CanMakeReadOnly, expired");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    canSetReadOnly = nciTagProxy_.lock()->CanMakeReadOnly(ndefType);
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr == nullptr) {
+        ErrorLog("nciTagProxy is nullptr");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    canSetReadOnly = nciTagProxyPtr->CanMakeReadOnly(ndefType);
     return KITS::ERR_NONE;
 }
 
@@ -527,11 +562,16 @@ ErrCode TagSession::IsSupportedApdusExtended(bool& isSupported)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
+    if (nfcService_.expired()) {
         ErrorLog("IsSupportedApdusExtended, expired");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    isSupported = nciTagProxy_.lock()->IsExtendedLengthApduSupported();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr == nullptr) {
+        ErrorLog("nciTagProxy is nullptr");
+        return KITS::ERR_TAG_STATE_UNBIND;
+    }
+    isSupported = nciTagProxyPtr->IsExtendedLengthApduSupported();
     return KITS::ERR_NONE;
 }
 
@@ -715,12 +755,13 @@ int TagSession::RegForegroundDispatchInner(const ElementName &element, const std
     }
     InfoLog("RegForegroundDispatch: bundleName = %{public}s, abilityName = %{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (nfcPollingManager_.expired()) {
-        ErrorLog("RegForegroundDispatch, expired");
+    auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+    if (nfcPollingManagerPtr == nullptr) {
+        ErrorLog("RegForegroundDispatch nfcPollingManager is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->EnableForegroundDispatch(element, discTech, callback, isVendorApp)) {
-        bool isFgAbility = nfcPollingManager_.lock()->
+    if (nfcPollingManagerPtr->EnableForegroundDispatch(element, discTech, callback, isVendorApp)) {
+        bool isFgAbility = nfcPollingManagerPtr->
             CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
             SubErrorCode::REG_FOREGROUND_DISPATCH : SubErrorCode::REG_FOREGROUND_DISPATCH_ABILITY_INVALID;
@@ -868,12 +909,13 @@ int TagSession::RegReaderModeInner(const ElementName &element, const std::vector
     }
     InfoLog("RegReaderModeInner: bundleName = %{public}s, abilityName = %{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (nfcPollingManager_.expired()) {
-        ErrorLog("RegReaderModeInner, expired");
+    auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+    if (nfcPollingManagerPtr == nullptr) {
+        ErrorLog("RegForegroundDispatch nfcPollingManager is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
-        bool isFgAbility = nfcPollingManager_.lock()->
+    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
+        bool isFgAbility = nfcPollingManagerPtr->
             CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
             SubErrorCode::REG_READERMODE : SubErrorCode::REG_READERMODE_ABILITY_INVALID;
@@ -953,12 +995,13 @@ int TagSession::RegReaderModeInnerWithIntvl(const ElementName &element, const st
     }
     InfoLog("bundleName = %{public}s, abilityName = %{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (nfcPollingManager_.expired()) {
-        ErrorLog("nfcPollingManager expired");
+    auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+    if (nfcPollingManagerPtr == nullptr) {
+        ErrorLog("RegForegroundDispatch nfcPollingManager is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->EnableReaderMode(element, discTech, callback, isVendorApp)) {
-        bool isFgAbility = nfcPollingManager_.lock()->
+    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
+        bool isFgAbility = nfcPollingManagerPtr->
             CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
             SubErrorCode::REG_READERMODE : SubErrorCode::REG_READERMODE_ABILITY_INVALID;
@@ -1025,11 +1068,12 @@ ErrCode TagSession::UnregReaderMode(const ElementName& element)
 
 void TagSession::SetFieldCheckInterval(int interval)
 {
-    if (tagDispatcher_.expired()) {
-        ErrorLog("tag dispatcher expired.");
+    auto tagDispatcherPtr = tagDispatcher_.lock();
+    if (tagDispatcherPtr == nullptr) {
+        ErrorLog("tagDispatcher_ is nullptr.");
         return;
     }
-    tagDispatcher_.lock()->SetFieldCheckInterval(interval);
+    tagDispatcherPtr->SetFieldCheckInterval(interval);
 }
 }  // namespace TAG
 }  // namespace NFC

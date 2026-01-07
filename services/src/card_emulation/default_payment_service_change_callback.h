@@ -35,11 +35,12 @@ public:
     }
     void OnChange() override
     {
-        if (callback_.expired()) {
+        auto callbackPtr = callback_.lock();
+        if (callbackPtr == nullptr) {
             ErrorLog("OnDefaultPaymentServiceChange: callback is expired");
             return;
         }
-        callback_.lock()->OnDefaultPaymentServiceChange();
+        callbackPtr->OnDefaultPaymentServiceChange();
     }
 
 private:

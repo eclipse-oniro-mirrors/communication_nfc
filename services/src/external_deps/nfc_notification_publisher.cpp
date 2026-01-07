@@ -164,16 +164,18 @@ void NfcNotificationPublisher::StartVibrate(bool isNfcNotDisturb, int notificati
 void NfcNotificationPublisher::OnNotificationButtonClicked(int notificationId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfc service expired, fail to callback.");
         return;
     }
-    std::weak_ptr<TAG::TagDispatcher> tagDispatcher = nfcService_.lock()->GetTagDispatcher();
-    if (tagDispatcher.expired()) {
+    std::weak_ptr<TAG::TagDispatcher> tagDispatcher = nfcServicePtr->GetTagDispatcher();
+    auto tagDispatcherPtr = tagDispatcher.lock();
+    if (tagDispatcherPtr == nullptr) {
         ErrorLog("tagDispatcher expired, fail to inform button clicking");
         return;
     }
-    tagDispatcher.lock()->OnNotificationButtonClicked(notificationId);
+    tagDispatcherPtr->OnNotificationButtonClicked(notificationId);
 }
 }  // namespace TAG
 }  // namespace NFC
