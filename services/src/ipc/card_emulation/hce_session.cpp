@@ -289,7 +289,7 @@ ErrCode HceSession::GetPaymentServices(CePaymentServicesParcelable& parcelable)
 void HceSession::AppendSimBundle(std::vector<AbilityInfo> &paymentAbilityInfos)
 {
     auto nfcServicePtr = nfcService_.lock();
-    if (nfcServicePtr == nulltr) {
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfcService_ nullptr");
         return;
     }

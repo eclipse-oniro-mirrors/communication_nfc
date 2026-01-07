@@ -97,7 +97,7 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
     InfoLog("OnScreenChanged: action: %{public}s", action.c_str());
     auto eventHandlerPtr = eventHandler_.lock();
     auto nfcServicePtr = nfcService_.lock();
-    if ((eventHandlerPtr == nulllptr) || (nfcServicePtr == nullptr)) {
+    if ((eventHandlerPtr == nullptr) || (nfcServicePtr == nullptr)) {
         ErrorLog("eventHandler or nfcService is null.");
         return;
     }
@@ -204,7 +204,7 @@ void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::Comm
     }
     auto eventHandlerPtr = eventHandler_.lock();
     if (eventHandlerPtr == nullptr) {
-        ErrorLog("eventHandler_ is null.");
+        ErrorLog("eventHandler_ is nullptr");
         return;
     }
     if (action.compare(EventFwk::CommonEventSupport::COMMON_EVENT_SHUTDOWN) == 0) {

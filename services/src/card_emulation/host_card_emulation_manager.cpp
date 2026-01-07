@@ -425,7 +425,7 @@ void HostCardEmulationManager::HandleDataOnW4SelectForFa(const std::string& aid,
     } else {
         InfoLog("no aid got");
         std::string unknowError = "6F00";
-        auto nciCeProxyPtr == nciCeProxy_.lock();
+        auto nciCeProxyPtr = nciCeProxy_.lock();
         if (nciCeProxyPtr == nullptr) {
             ErrorLog("HandleDataOnW4SelectForFa: nciCeProxy_ is nullptr.");
             return;

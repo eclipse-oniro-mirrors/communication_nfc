@@ -68,7 +68,7 @@ int32_t TagSession::CallbackExit(uint32_t code, int32_t result)
 ErrCode TagSession::Connect(int32_t tagRfDiscId, int32_t technology)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
-        ErrorLog("Connect, ERR_NO_PERMISSION");
+        ErrorLog("Connect ERR_NO_PERMISSION");
         return KITS::ERR_NO_PERMISSION;
     }
 
@@ -122,7 +122,7 @@ ErrCode TagSession::IsConnected(int32_t tagRfDiscId, bool& isConnected)
         ErrorLog("IsConnected, IsNfcEnabled error");
         return KITS::ERR_TAG_STATE_NFC_CLOSED;
     }
-    isConnected = nfcServicePtr->IsTagFieldOn(tagRfDiscId);
+    isConnected = nciTagProxyPtr->IsTagFieldOn(tagRfDiscId);
     return KITS::ERR_NONE;
 }
 
@@ -173,7 +173,7 @@ ErrCode TagSession::Disconnect(int32_t tagRfDiscId)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("Disconnect, nfcService or nciTagProxy is nullptr");
+        ErrorLog("Disconnect nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -200,7 +200,7 @@ ErrCode TagSession::SetTimeout(int32_t tagRfDiscId, int32_t timeout, int32_t tec
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("SetTimeout, nfcService or nciTagProxy is nullptr");
+        ErrorLog("SetTimeout nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -227,7 +227,7 @@ ErrCode TagSession::GetTimeout(int32_t tagRfDiscId, int32_t technology, int32_t&
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("GetTimeout, nfcService or nciTagProxy is nullptr");
+        ErrorLog("GetTimeout nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -251,7 +251,7 @@ ErrCode TagSession::ResetTimeout(int32_t tagRfDiscId)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("ResetTimeout, nfcService or nciTagProxy is nullptr");
+        ErrorLog("ResetTimeout nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -279,7 +279,7 @@ ErrCode TagSession::GetTechList(int32_t tagRfDiscId, std::vector<int32_t>& funcR
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("GetTechList, nfcService or nciTagProxy is nullptr");
+        ErrorLog("GetTechList nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -308,7 +308,7 @@ ErrCode TagSession::IsTagFieldOn(int32_t tagRfDiscId, bool& funcResult)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("IsTagFieldOn, nfcService or nciTagProxy is nullptr");
+        ErrorLog("IsTagFieldOn nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -337,7 +337,7 @@ ErrCode TagSession::IsNdef(int32_t tagRfDiscId, bool& funcResult)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("IsNdef, nfcService or nciTagProxy is nullptr");
+        ErrorLog("IsNdef nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -362,7 +362,7 @@ ErrCode TagSession::SendRawFrame(int32_t tagRfDiscId, const std::string& hexCmdD
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("SendRawFrame, nfcService or nciTagProxy is nullptr");
+        ErrorLog("SendRawFrame nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -406,7 +406,7 @@ ErrCode TagSession::NdefRead(int32_t tagRfDiscId, std::string& ndefMessage)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("NdefRead, nfcService or nciTagProxy is nullptr");
+        ErrorLog("NdefRead nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -435,7 +435,7 @@ ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("NdefWrite, nfcService or nciTagProxy is nullptr");
+        ErrorLog("NdefWrite nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -470,7 +470,7 @@ ErrCode TagSession::NdefMakeReadOnly(int32_t tagRfDiscId)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("NdefMakeReadOnly, nfcService or nciTagProxy is nullptr");
+        ErrorLog("NdefMakeReadOnly nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -501,7 +501,7 @@ ErrCode TagSession::FormatNdef(int32_t tagRfDiscId, const std::string& key)
     auto nfcServicePtr = nfcService_.lock();
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
-        ErrorLog("FormatNdef, nfcService or nciTagProxy is nullptr");
+        ErrorLog("FormatNdef nfcService or nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (!nfcServicePtr->IsNfcEnabled()) {
@@ -568,7 +568,7 @@ ErrCode TagSession::IsSupportedApdusExtended(bool& isSupported)
     }
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr == nullptr) {
-        ErrorLog("nciTagProxy is nullptr");
+        ErrorLog("IsSupportedApdusExtended nciTagProxy is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     isSupported = nciTagProxyPtr->IsExtendedLengthApduSupported();
@@ -911,7 +911,7 @@ int TagSession::RegReaderModeInner(const ElementName &element, const std::vector
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     auto nfcPollingManagerPtr = nfcPollingManager_.lock();
     if (nfcPollingManagerPtr == nullptr) {
-        ErrorLog("RegForegroundDispatch nfcPollingManager is nullptr");
+        ErrorLog("RegReaderModeInner nfcPollingManager_ is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
@@ -997,7 +997,7 @@ int TagSession::RegReaderModeInnerWithIntvl(const ElementName &element, const st
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
     auto nfcPollingManagerPtr = nfcPollingManager_.lock();
     if (nfcPollingManagerPtr == nullptr) {
-        ErrorLog("RegForegroundDispatch nfcPollingManager is nullptr");
+        ErrorLog("RegReaderModeInnerWithIntvl nfcPollingManager_ is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
