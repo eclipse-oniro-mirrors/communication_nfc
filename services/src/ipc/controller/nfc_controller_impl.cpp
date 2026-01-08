@@ -48,11 +48,12 @@ int32_t NfcControllerImpl::CallbackExit(uint32_t code, int32_t result)
 ErrCode NfcControllerImpl::GetState(int32_t& funcResult)
 {
     funcResult = KITS::STATE_OFF;
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    funcResult = nfcService_.lock()->GetNfcState();
+    funcResult = nfcServicePtr->GetNfcState();
     return KITS::ERR_NONE;
 }
 
@@ -154,20 +155,22 @@ ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCa
 
 ErrCode NfcControllerImpl::UnregisterNfcStatusCallBack(const std::string& type)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcService_.lock()->RemoveRegisterCallBack(type, IPCSkeleton::GetCallingTokenID());
+    return nfcServicePtr->RemoveRegisterCallBack(type, IPCSkeleton::GetCallingTokenID());
 }
 
 KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::AccessTokenID callerToken)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (!nfcService_.lock()->RemoveAllRegisterCallBack(callerToken)) {
+    if (!nfcServicePtr->RemoveAllRegisterCallBack(callerToken)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -240,12 +243,13 @@ ErrCode NfcControllerImpl::NotifyEventStatus(int32_t eventType, int32_t arg1, co
         ErrorLog("NotifyEventStatus no permission");
         return KITS::ERR_NO_PERMISSION;
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
         return KITS::ERR_NFC_PARAMETERS;
     }
 
-    nfcService_.lock()->OnVendorEvent(eventType, arg1, arg2);
+    nfcServicePtr->OnVendorEvent(eventType, arg1, arg2);
 #endif
     return KITS::ERR_NONE;
 }
