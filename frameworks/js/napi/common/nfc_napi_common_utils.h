@@ -222,6 +222,7 @@ bool CheckFunctionAndThrow(const napi_env &env, const napi_value &param, const s
 bool CheckArgCountAndThrow(const napi_env &env, int argCount, int expCount);
 bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
 bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::string &funcName);
+void ThrowCapabilityError(const napi_env &env);
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
