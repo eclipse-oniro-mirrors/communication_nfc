@@ -84,7 +84,11 @@
                 "i18n",
                 "bluetooth",
                 "image_framework",
-                "runtime_core"
+                "runtime_core",
+                "libnfc_nci"
+            ],
+            "third_party": [
+                "zlib"
             ]
         },
         "build": {

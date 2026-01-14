@@ -427,7 +427,7 @@ bool NfcService::DoTurnOnWithRetry()
 void NfcService::DoRestart()
 {
     InfoLog("DoRestart");
-    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNIN_ON) {
+    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNING_ON) {
         ErrorLog("nfc state not on, do not restart");
         return;
     }

@@ -116,7 +116,7 @@ public:
      * @param command The command to write to NDEF tag.
      * @return True if success, otherwise false.
      */
-    virtual bool WriteNdef(uint32_t tagDiscId, const std::string& command) = 0;
+    virtual bool WriteNdef(uint32_t tagDiscId, std::string& command) = 0;
 
     /**
      * @brief Format NDEF tag.

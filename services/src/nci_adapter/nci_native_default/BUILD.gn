@@ -20,18 +20,27 @@ config("nci_native_default_config") {
 
   defines = [ "DEBUG" ]
 
-  cflags_cc = [ "-DNXP_EXTNS=TRUE" ]
+  cflags_cc = [
+    "-DNXP_EXTNS=TRUE",
+    "-DTMS_NFC"
+  ]
 
   include_dirs = [
-    "//third_party/libnfc-nci/SN100x/src/gki/common/",
-    "//third_party/libnfc-nci/SN100x/src/gki/ulinux/",
-    "//third_party/libnfc-nci/SN100x/src/include",
-    "//third_party/libnfc-nci/SN100x/src/nfa/include",
-    "//third_party/libnfc-nci/SN100x/src/nfc/include",
-    "//third_party/libnfc-nci/SN100x/utils/include",
     "$NFC_DIR/interfaces/inner_api/common",
     "include",
   ]
+
+  if (defined(global_parts_info) &&
+    defined(global_parts_info.soc_p7885_libnfc_nci)) {
+    include_dirs += [
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/gki/common/",
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/gki/ulinux/",
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/include",
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/nfa/include",
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/nfc/include",
+      "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/utils/include",
+    ]
+  }
 }
 
 ohos_shared_library("nci_native_default") {
@@ -64,7 +73,6 @@ ohos_shared_library("nci_native_default") {
 
   deps = [
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "//third_party/libnfc-nci/SN100x:nfc-nci",
   ]
 
   external_deps = [
@@ -72,6 +80,13 @@ ohos_shared_library("nci_native_default") {
     "c_utils:utils",
     "hilog:libhilog",
   ]
+
+  if (defined(global_parts_info) &&
+    defined(global_parts_info.soc_p7885_libnfc_nci)) {
+    external_deps += [
+      "libnfc_nci:nfc-nci",
+    ]
+  }
 
   part_name = "nfc"
   subsystem_name = "communication"

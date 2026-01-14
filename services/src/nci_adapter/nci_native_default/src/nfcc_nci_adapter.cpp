@@ -40,6 +40,11 @@ const unsigned int FLAG_MULTI_TAG_MIFARE = 0x02;
 // wait nci event 2000 ms
 const unsigned int NCI_EVT_WAIT_TIMEOUT = 2000;
 const uint16_t RAWDATA_MAX_LEN = 1000;
+// wait enable event 20* 1000 ms
+#ifdef TMS_NFC
+const unsigned int ENABLE_EVT_WAIT_TIMEOUT = 20 * 1000;
+#endif
+
 
 NfccNciAdapter::NfccNciAdapter() = default;
 NfccNciAdapter::~NfccNciAdapter() = default;
@@ -194,7 +199,11 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
     if (Extns::GetInstance().EXTNS_GetConnectFlag() == true) {
         TagNciAdapterNtf::GetInstance().SetTagActivated();
         TagNciAdapterNtf::GetInstance().SetConnectStatus(true);
+#ifndef TMS_NFC
         return;
+#else
+        // return;
+#endif
     }
 
     // handle ActivationResult for normal tags
@@ -665,7 +674,11 @@ bool NfccNciAdapter::Initialize()
     NFA_Init(halFuncEntries);
     status = NFA_Enable(NfcDeviceManagementCallback, NfcConnectionCallback);
     if (status == NFA_STATUS_OK) {
+#ifdef TMS_NFC
+        if (nfcEnableEvent_.Wait(ENABLE_EVT_WAIT_TIMEOUT) == false) {
+#else
         if (nfcEnableEvent_.Wait(NCI_EVT_WAIT_TIMEOUT) == false) {
+#endif
             ErrorLog("NfccNciAdapter::Initialize : Enable nfc timeout");
         }
     }
