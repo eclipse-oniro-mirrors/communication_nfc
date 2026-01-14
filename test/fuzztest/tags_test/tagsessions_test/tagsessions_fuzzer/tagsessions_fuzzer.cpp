@@ -23,6 +23,7 @@
 #include "app_state_observer.h"
 #include "nfc_service_ipc_interface_code.h"
 #include <securec.h>
+#include <fuzzer/FuzzedDataProvider.h>
 
 namespace OHOS {
     using namespace OHOS::NFC::TAG;
@@ -316,6 +317,7 @@ public:
 
     void FuzzRegForegroundDispatchInnerData(const uint8_t* data, size_t size)
     {
+        FuzzedDataProvider fdp(data, size);
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         ElementName element;
@@ -325,7 +327,7 @@ public:
         tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
         tagSession->RegForegroundDispatchInner(element, discTech, nullptr);
  
-        int abilityState = static_cast<int>(data[0]);
+        int abilityState = fdp.ConsumeIntegral<int>();
         tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
         abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
         tagSession->CheckFgAppStateChanged("bundleName", "abilityName", abilityState);
@@ -343,6 +345,7 @@ public:
  
     void FuzzRegReaderModeInnerData(const uint8_t* data, size_t size)
     {
+        FuzzedDataProvider fdp(data, size);
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         ElementName element;
@@ -353,7 +356,7 @@ public:
         tagSession->RegReaderModeInner(element, discTech, nullptr);
         tagSession->RegReaderModeInner(element, discTech, nullptr);
  
-        int abilityState = static_cast<int>(data[0]);
+        int abilityState = fdp.ConsumeIntegral<int>();
         tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
         abilityState = static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
         tagSession->CheckReaderAppStateChanged("bundleName", "abilityName", abilityState);
