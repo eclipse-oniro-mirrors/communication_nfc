@@ -421,7 +421,7 @@ ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
         return KITS::ERR_TAG_PARAMETERS;
     }
 
-    std::string Msg = msg;
+    std::string rMsg = msg;
     if (nciTagProxy_.lock()->WriteNdef(tagRfDiscId, Msg)) {
         return KITS::ERR_NONE;
     }
