@@ -202,7 +202,7 @@ void NfccNciAdapter::DoNfaActivatedEvt(tNFA_CONN_EVT_DATA* eventData)
 #ifndef TMS_NFC
         return;
 #else
-        // return;
+
 #endif
     }
 
