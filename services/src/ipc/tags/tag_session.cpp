@@ -867,7 +867,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
             readerData.techs_ = discTech;
             readerData.interval_ = interval;
             if (!IsSameDiscoveryPara(readerData.techs_, discTech, readerData.interval_, interval)) {
-                readerData.regTime_ = std::chrono::duration_cast<std::chrono::millisends>(
+                readerData.regTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now().time_since_epoch()).count();
             }
             return false;
@@ -882,7 +882,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
 
 long TagSession::GetRegTime(const ElementName &element)
 {
-    InfoLog("ready ro getRegTime of %{public}s/%{public}s", element.GetBundleName().c_str(),
+    InfoLog("ready to getRegTime of %{public}s/%{public}s", element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
     long regTime = 0;
     for (ReaderData &readerData : readerDataVec_) {

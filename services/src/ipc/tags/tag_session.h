@@ -58,7 +58,7 @@ public:
     std::vector<uint32_t> techs_ = {};
     sptr<KITS::IReaderModeCallback> cb_ = nullptr;
     int interval_ = 0;
-    long regTime_ = std::chrono::duration_cast<std::chrono::millisends>(
+    long regTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
 
     explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
