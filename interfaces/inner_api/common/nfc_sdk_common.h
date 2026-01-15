@@ -202,6 +202,7 @@ enum NotifyVendorEvent : int {
     NOTIFY_NDEF_INFO_EVENT = 1150,
     NOTIFY_READ_TAG_EVENT = 1151,
     TOAST_TYPE_KEY = 1160,
+    REG_READERMODE_TIME = 1170,
 };
 
 enum VendorInfoType : uint16_t {

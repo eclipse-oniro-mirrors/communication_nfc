@@ -250,7 +250,7 @@ void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
 }
 
 bool NfcPollingManager::EnableReaderMode(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
-    const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
+    const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp, long regTime)
 {
     if (nfcService_.expired() || nciTagProxy_.expired()) {
         ErrorLog("EnableReaderMode: nfcService_ or nciTagProxy_ is nullptr.");
@@ -278,6 +278,7 @@ bool NfcPollingManager::EnableReaderMode(const AppExecFwk::ElementName &element,
         }
         if (!nciNfccProxy_.expired()) {
             nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
+            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::REG_READERMODE_TIME, std::to_string(regTime));
         }
     }
     nciTagProxy_.lock()->StopFieldChecking();
@@ -309,6 +310,7 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
     }
     if (!nciNfccProxy_.expired()) {
         nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::REG_READERMODE_TIME, "0");
     }
     StartPollingLoop(true);
     return true;

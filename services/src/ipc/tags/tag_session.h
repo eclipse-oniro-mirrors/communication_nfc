@@ -58,6 +58,8 @@ public:
     std::vector<uint32_t> techs_ = {};
     sptr<KITS::IReaderModeCallback> cb_ = nullptr;
     int interval_ = 0;
+    long regTime_ = std::chrono::duration_cast<std::chrono::millisends>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
 
     explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
         sptr<KITS::IReaderModeCallback> cb, int interval)
@@ -251,7 +253,9 @@ private:
         const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false, int interval = 0);
     int UnregReaderModeInner(const ElementName &element, bool isAppUnregister);
     bool IsSameAppAbility(const ElementName &element, const ElementName &fgElement);
-    bool IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech);
+    bool IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech,
+        int intervalPara, int interval);
+    long GetRegTime(const ElementName &element);
 
     uint16_t GetFgDataVecSize();
     uint16_t GetReaderDataVecSize();

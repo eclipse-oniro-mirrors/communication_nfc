@@ -74,7 +74,8 @@ public:
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> GetForegroundData();
 
     bool EnableReaderMode(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
-                          const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false);
+                          const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp = false,
+                          long regTime = 0);
     bool DisableReaderMode(const AppExecFwk::ElementName &element);
     bool DisableReaderModeByDeathRcpt();
     bool IsReaderModeEnabled();
