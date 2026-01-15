@@ -422,7 +422,7 @@ ErrCode TagSession::NdefWrite(int32_t tagRfDiscId, const std::string& msg)
     }
 
     std::string rMsg = msg;
-    if (nciTagProxy_.lock()->WriteNdef(tagRfDiscId, Msg)) {
+    if (nciTagProxy_.lock()->WriteNdef(tagRfDiscId, rMsg)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_TAG_STATE_IO_FAILED;
