@@ -30,13 +30,18 @@ void ReaderModeCallbackProxy::OnTagDiscovered(KITS::TagInfoParcelable* tagInfo)
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        DebugLog("Write interface token error: %{public}s", __func__);
+        DebugLog("Write interface token error");
         return;
     }
     data.WriteInt32(0);
     tagInfo->Marshalling(data);
 
-    int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TAG_FOUND_READER_MODE),
+    auto remote = Remote();
+    if (remote == nullptr) {
+        ErrorLog("remote nullptr");
+        return;
+    }
+    int error = remote->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_TAG_FOUND_READER_MODE),
         data, reply, option);
     if (error != ERR_NONE) {
         InfoLog("Set Attr %{public}d failed,error code is %{public}d",

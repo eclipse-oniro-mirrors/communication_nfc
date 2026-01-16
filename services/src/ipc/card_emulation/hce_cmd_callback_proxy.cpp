@@ -33,13 +33,18 @@ void HceCmdCallbackProxy::OnCeApduData(const std::vector<uint8_t> &apduData)
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        DebugLog("Write interface token error: %{public}s", __func__);
+        DebugLog("Write interface token error");
         return;
     }
     data.WriteInt32(0);
     data.WriteUInt8Vector(apduData);
 
-    int error = Remote()->SendRequest(
+    auto remote = Remote();
+    if (remote == nullptr) {
+        ErrorLog("remote nullptr");
+        return;
+    }
+    int error = remote->SendRequest(
         static_cast<uint32_t>(
             NfcServiceIpcInterfaceCode::COMMAND_ON_CE_APDU_DATA),
         data, reply, option);

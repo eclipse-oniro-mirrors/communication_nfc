@@ -30,6 +30,10 @@ static void WriteEvent(const std::string& eventType, HiviewDFX::HiSysEvent::Even
 
 void NfcHisysEvent::WriteNfcFailedHiSysEvent(const NfcFailedParams* failedParams)
 {
+    if (failedParams == nullptr) {
+        ErrorLog("failedParams nullptr");
+        return;
+    }
     WriteEvent("OPERATION_FAILED", HiviewDFX::HiSysEvent::EventType::FAULT,
                "MAIN_ERROR_CODE", static_cast<int>(failedParams->mainErrorCode),
                "SUB_ERROR_CODE", static_cast<int>(failedParams->subErrorCode),

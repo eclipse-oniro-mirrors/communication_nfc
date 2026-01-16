@@ -39,9 +39,14 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
     data.WriteInt32(0);
     data.WriteString(type);
     DebugLog("query %{pubic}s app.", type.c_str());
+    auto remote = Remote();
+    if (remote == nullptr) {
+        ErrorLog("remote nullptr");
+        return false;
+    }
     if (type.compare(KEY_TAG_APP) == 0) {
         data.WriteInt32Vector(techList);
-        int error = Remote()->SendRequest(
+        int error = remote->SendRequest(
             static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
             data, reply, option);
         if (error != ERR_NONE) {
@@ -65,7 +70,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         }
         return true;
     } else if (type.compare(KEY_HCE_APP) == 0) {
-        int error = Remote()->SendRequest(
+        int error = remote->SendRequest(
             static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_QUERY_APP_INFO_MSG_CALLBACK),
             data, reply, option);
         if (error != ERR_NONE) {

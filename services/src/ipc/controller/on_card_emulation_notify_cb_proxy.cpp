@@ -36,7 +36,13 @@ bool OnCardEmulationNotifyCbProxy::OnCardEmulationNotify(uint32_t eventType, std
     data.WriteInt32(0);
     data.WriteUint32(eventType);
     data.WriteString(apduData);
-    int error = Remote()->SendRequest(
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        ErrorLog("remote nullptr");
+        return false;
+    }
+    int error = remote->SendRequest(
         static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_CARD_EMULATION_NOTIFY), data, reply, option);
     if (error != ERR_NONE) {
         ErrorLog("OnCardEmulationNotifyCbProxy::OnCardEmulationNotify, Set Attr %{public}d error: %{public}d",
