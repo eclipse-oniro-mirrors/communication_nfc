@@ -873,6 +873,11 @@ bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
                                           BuildErrorMessage(BUSI_ERR_HCE_STATE_INVALID, "", "", "", "")));
     return false;
 }
+
+void ThrowCapabilityError(const napi_env &env)
+{
+    napi_throw(env, GenerateBusinessError(env, BUSI_ERR_CAPABILITY, "Capability not supported"));
+}
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

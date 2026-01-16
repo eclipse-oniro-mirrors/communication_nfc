@@ -82,6 +82,10 @@ bool CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
     return true;
 }
 
+void ThrowCapabilityError(const napi_env &env)
+{
+    napi_throw(env, GenerateBusinessError(env, BUSI_ERR_CAPABILITY, "Capability not supported"));
+}
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS
