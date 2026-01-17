@@ -103,26 +103,28 @@ void BtConnectionManager::Initialize(std::weak_ptr<NfcService> nfcService)
 
 void BtConnectionManager::SendMsgToEvtHandler(NfcCommonEvent evt, int64_t delay)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.lock()->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         ErrorLog("event handler is null");
         return;
     }
     DebugLog("SendMsgToEvtHandler: event:%{public}d, delay:%{public}ld", evt, delay);
-    nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(evt), delay);
+    nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(evt), delay);
 }
 
 void BtConnectionManager::SendConnMsgToEvtHandler(NfcCommonEvent evt, const Bluetooth::BluetoothRemoteDevice &device,
                                                   int32_t state, BtProfileType type)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.lock()->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         ErrorLog("event handler is null");
         return;
     }
@@ -131,21 +133,22 @@ void BtConnectionManager::SendConnMsgToEvtHandler(NfcCommonEvent evt, const Blue
     info->state_ = state;
     info->type_ = static_cast<uint8_t>(type);
     DebugLog("SendConnMsgToEvtHandler: event:%{public}d", evt);
-    nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(evt), info, 0);
+    nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(evt), info, 0);
 }
 
 void BtConnectionManager::RemoveMsgFromEvtHandler(NfcCommonEvent evt)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.lock()->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         ErrorLog("event handler is null");
         return;
     }
     DebugLog("RemoveMsgFromEvtHandler: event:%{public}d", evt);
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(evt), static_cast<int64_t>(0));
+    nfcServicePtr->eventHandler_->RemoveEvent(static_cast<uint32_t>(evt), static_cast<int64_t>(0));
 }
 
 void BtConnectionManager::RegisterBtObserver()
@@ -776,8 +779,9 @@ void BtConnectionManager::OnBtEnabled()
 
 void BtConnectionManager::ShowBtConnectionToast(int type)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
     if (!g_isOnBtNtClicked) {
@@ -789,7 +793,7 @@ void BtConnectionManager::ShowBtConnectionToast(int type)
         btToastValue.append(g_btData->name_);
     }
     InfoLog("NotifyMessageToVendor btToastValue: %{public}s", btToastValue.c_str());
-    nfcService_.lock()->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, btToastValue);
+    nfcServicePtr->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, btToastValue);
 }
 
 void BtConnectionManager::BtStateObserver::OnStateChanged(const int transport, const int status)

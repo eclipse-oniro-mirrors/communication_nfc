@@ -56,9 +56,14 @@ private:
 NfcEventHandler::ScreenChangedReceiver::ScreenChangedReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
-    nfcService_(nfcService),
-    eventHandler_(nfcService.lock()->eventHandler_)
+    nfcService_(nfcService)
 {
+    auto nfcServicePtr = nfcService.lock();
+    if (nfcServicePtr != nullptr) {
+        eventHandler_ = nfcServicePtr->eventHandler_;
+    } else {
+        ErrorLog("nfcService is nullptr");
+    }
 }
 
 bool NfcEventHandler::IsScreenOn()
@@ -119,11 +124,11 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         ErrorLog("Screen changed receiver event:unknown");
         return;
     }
-    if (eventHandler_.expired()) {
+    if (eventHandlerPtr == nullptr) {
         ErrorLog("eventHandler_ is null.");
         return;
     }
-    eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED),
+    eventHandlerPtr->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED),
         static_cast<int64_t>(screenState), static_cast<int64_t>(0));
 }
 
@@ -144,9 +149,14 @@ private:
 NfcEventHandler::PackageChangedReceiver::PackageChangedReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
-    nfcService_(nfcService),
-    eventHandler_(nfcService.lock()->eventHandler_)
+    nfcService_(nfcService)
 {
+    auto nfcServicePtr = nfcService.lock();
+    if (nfcServicePtr != nullptr) {
+        eventHandler_ = nfcServicePtr->eventHandler_;
+    } else {
+        ErrorLog("nfcService is nullptr");
+    }
 }
 
 void NfcEventHandler::PackageChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
@@ -189,9 +199,14 @@ private:
 NfcEventHandler::ShutdownEventReceiver::ShutdownEventReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
-    nfcService_(nfcService),
-    eventHandler_(nfcService.lock()->eventHandler_)
+    nfcService_(nfcService)
 {
+    auto nfcServicePtr = nfcService.lock();
+    if (nfcServicePtr != nullptr) {
+        eventHandler_ = nfcServicePtr->eventHandler_;
+    } else {
+        ErrorLog("nfcService is nullptr");
+    }
 }
 
 void NfcEventHandler::ShutdownEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
@@ -230,9 +245,14 @@ private:
 NfcEventHandler::DataShareChangedReceiver::DataShareChangedReceiver(std::weak_ptr<NfcService> nfcService,
     const EventFwk::CommonEventSubscribeInfo& subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo),
-    nfcService_(nfcService),
-    eventHandler_(nfcService.lock()->eventHandler_)
+    nfcService_(nfcService)
 {
+    auto nfcServicePtr = nfcService.lock();
+    if (nfcServicePtr != nullptr) {
+        eventHandler_ = nfcServicePtr->eventHandler_;
+    } else {
+        ErrorLog("nfcService is nullptr");
+    }
 }
 
 void NfcEventHandler::DataShareChangedReceiver::OnReceiveEvent(const EventFwk::CommonEventData& data)
@@ -389,22 +409,29 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
     NfcWatchDog nfcProcessEventDog(
         "ProcessEvent_" + std::to_string(static_cast<int>(eventId)), WAIT_PROCESS_EVENT_TIMES, nciNfccProxy_);
+    auto tagDispatcherPtr = tagDispatcher_.lock();
     nfcProcessEventDog.Run();
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
-            if (!tagDispatcher_.expired()) {
-                tagDispatcher_.lock()->HandleTagFound(event->GetParam());
+            if (tagDispatcherPtr == nullptr) {
+                ErrorLog("tagDispatcher is nullptr");
+                break;
             }
+            tagDispatcherPtr->HandleTagFound(event->GetParam());
             break;
         case NfcCommonEvent::MSG_TAG_DEBOUNCE:
-            if (!tagDispatcher_.expired()) {
-                tagDispatcher_.lock()->HandleTagDebounce();
+            if (tagDispatcherPtr == nullptr) {
+                ErrorLog("tagDispatcher is nullptr");
+                break;
             }
+            tagDispatcherPtr->HandleTagDebounce();
             break;
         case NfcCommonEvent::MSG_TAG_LOST:
-            if (!tagDispatcher_.expired()) {
-                tagDispatcher_.lock()->HandleTagLost(event->GetParam());
+            if (tagDispatcherPtr == nullptr) {
+                ErrorLog("tagDispatcher is nullptr");
+                break;
             }
+            tagDispatcherPtr->HandleTagLost(event->GetParam());
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
             auto nfcPollingManagerPtr = nfcPollingManager_.lock();
@@ -416,7 +443,7 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
             auto nfcPollingManagerPtr = nfcPollingManager_.lock();
             auto ceServicePtr = ceService_.lock();
-            if (nfcPollingManagerPtr == nullptr) {
+            if ((nfcPollingManagerPtr == nullptr) || (ceServicePtr == nullptr)) {
                 break;
             }
             bool updated = nfcPollingManagerPtr->HandlePackageUpdated(

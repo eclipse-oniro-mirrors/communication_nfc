@@ -41,7 +41,8 @@ void NfcWatchDog::MainLoop()
         return;
     }
     // If Routing Wake Lock is held, Routing Wake Lock release. Watchdog triggered, release lock before aborting.
-    if (nciNfccProxy_.expired()) {
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if (nciNfccProxyPtr == nullptr) {
         return;
     }
     InfoLog("Watchdog [%{public}s] triggered, aborting.", threadName_.c_str());
@@ -60,7 +61,7 @@ void NfcWatchDog::MainLoop()
             SubErrorCode::PROCESS_ABORT);
     }
     ExternalDepsProxy::GetInstance().WriteNfcFailedHiSysEvent(&err);
-    nciNfccProxy_.lock()->Abort();
+    nciNfccProxyPtr->Abort();
 }
 
 void NfcWatchDog::Run()
