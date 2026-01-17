@@ -413,25 +413,20 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
     nfcProcessEventDog.Run();
     switch (eventId) {
         case NfcCommonEvent::MSG_TAG_FOUND:
-            if (tagDispatcherPtr == nullptr) {
-                ErrorLog("tagDispatcher is nullptr");
-                break;
+            if (tagDispatcherPtr) {
+                tagDispatcherPtr->HandleTagFound(event->GetParam());
             }
-            tagDispatcherPtr->HandleTagFound(event->GetParam());
             break;
         case NfcCommonEvent::MSG_TAG_DEBOUNCE:
-            if (tagDispatcherPtr == nullptr) {
-                ErrorLog("tagDispatcher is nullptr");
-                break;
+            if (tagDispatcherPtr) {
+                tagDispatcherPtr->HandleTagDebounce();
             }
-            tagDispatcherPtr->HandleTagDebounce();
+            
             break;
         case NfcCommonEvent::MSG_TAG_LOST:
-            if (tagDispatcherPtr == nullptr) {
-                ErrorLog("tagDispatcher is nullptr");
-                break;
+            if (tagDispatcherPtr) {
+                tagDispatcherPtr->HandleTagLost(event->GetParam());
             }
-            tagDispatcherPtr->HandleTagLost(event->GetParam());
             break;
         case NfcCommonEvent::MSG_SCREEN_CHANGED: {
             auto nfcPollingManagerPtr = nfcPollingManager_.lock();
