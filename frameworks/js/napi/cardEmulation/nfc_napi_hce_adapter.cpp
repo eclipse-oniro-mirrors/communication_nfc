@@ -17,7 +17,7 @@
 #include "loghelper.h"
 #include "hce_service.h"
 #include "nfc_controller.h"
-#include "nfc_api_controller.h"
+#include "nfc_api_control.h"
 #include <uv.h>
 #include "iservice_registry.h"
 #include <thread>
