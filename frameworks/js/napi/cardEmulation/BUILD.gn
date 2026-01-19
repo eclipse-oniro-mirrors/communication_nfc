@@ -36,7 +36,7 @@ ohos_shared_library("cardemulation") {
   sources = [
     "$NFC_DIR/frameworks/js/napi/common/nfc_ha_event_report.cpp",
     "$NFC_DIR/frameworks/js/napi/common/nfc_napi_common_utils.cpp",
-    "$NFC_DIR/frameworks/js/napi/common/nfc_napi_control.cpp",
+    "$NFC_DIR/frameworks/js/napi/common/nfc_api_control.cpp",
     "nfc_napi_cardEmulation.cpp",
     "nfc_napi_cardEmulation_adapter.cpp",
     "nfc_napi_hce_adapter.cpp",
