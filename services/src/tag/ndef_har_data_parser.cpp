@@ -193,7 +193,7 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
     /* Try vendor parse harPackage */
     if (nciTagProxy_.expired()) {
         ErrorLog("nciTagProxy_ is nullptr");
-    } else if (!nciTagProxy_.lock()->VendorParseHarPackage(harPackages)) {
+    } else if (!nciTagProxy_.lock()->VendorParseHarPackage(harPackages, uri)) {
         return false;
     }
     /* Pull up vendor parsed harPackage */

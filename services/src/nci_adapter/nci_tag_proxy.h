@@ -204,7 +204,7 @@ public:
      * @brief Try parse harPackage in vendor.
      * @return True if vendor parsed harPackage, otherwise false.
      */
-    bool VendorParseHarPackage(std::vector<std::string> &harPackages) override;
+    bool VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri) override;
 
     /**
      * @brief Get vendor info according type.

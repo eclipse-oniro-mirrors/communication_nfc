@@ -213,7 +213,7 @@ public:
      * @brief Try parse harPackage in vendor.
      * @return True if vendor parsed harPackage, otherwise false.
      */
-    virtual bool VendorParseHarPackage(std::vector<std::string> &harPackages) = 0;
+    virtual bool VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri) = 0;
 
     /**
      * @brief Get vendor info according type.

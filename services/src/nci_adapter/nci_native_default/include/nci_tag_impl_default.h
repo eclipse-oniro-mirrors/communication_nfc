@@ -49,7 +49,7 @@ public:
     uint32_t GetIsoDepMaxTransceiveLength() override;
     bool IsExtendedLengthApduSupported() override;
     uint16_t GetTechMaskFromTechList(const std::vector<uint32_t> &discTech) override;
-    bool VendorParseHarPackage(std::vector<std::string> &harPackages) override;
+    bool VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri) override;
     std::string GetVendorInfo(uint16_t type) override;
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
