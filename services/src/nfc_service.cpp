@@ -384,6 +384,7 @@ bool NfcService::DoTurnOn()
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
     ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "false");
     InfoLog("Nfc do turn on successfully.");
     return true;
 }
@@ -433,13 +434,25 @@ bool NfcService::DoTurnOnWithRetry()
 void NfcService::DoRestart()
 {
     InfoLog("DoRestart");
-    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNIN_ON) {
+    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNING_ON) {
         ErrorLog("nfc state not on, do not restart");
         return;
     }
     DoTurnOff();
     std::this_thread::sleep_for(std::chrono::milliseconds(SWITCH_OPER_WAIT_MS));
     DoTurnOnWithRetry();
+}
+
+bool NfcService::ShouldTurnOnNfc()
+{
+    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
+    if ((nfcStateFromParam == KITS::STATE_ON) && (nfcState_ != KITS::STATE_ON)) {
+        return true;
+    }
+    std::string isNfcDefaultOn = NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME);
+    std::string isFirstTimeEnable = NfcParamUtil::GetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME);
+    InfoLog("default [%{public}s], first time [%{public}s]", isNfcDefaultOn.c_str(), isFirstTimeEnable.c_str());
+    return ((isNfcDefaultOn == "true") && (isFirstTimeEnable == "true"));
 }
 
 void NfcService::DoInitialize()
@@ -450,12 +463,9 @@ void NfcService::DoInitialize()
     }
     InfoLog("first time init.");
     isAlreadyInited_ = true;
-    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
-    if (nfcStateFromParam == KITS::STATE_ON) {
-        if (nfcState_ != KITS::STATE_ON) {
-            InfoLog("should turn nfc on.");
-            ExecuteTask(KITS::TASK_TURN_ON);
-        }
+    if (ShouldTurnOnNfc()) {
+        InfoLog("should turn nfc on.");
+        ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
         WarnLog("nfc state not on, unload SA in 5 minutes.");

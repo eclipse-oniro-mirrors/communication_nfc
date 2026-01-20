@@ -834,7 +834,7 @@ bool HostCardEmulationManager::DispatchAbilitySingleAppForFaModel(ElementName& e
         ErrorLog("nciCeProxy is nullptr");
         return false;
     }
-    if (element.GetBundleName().empty() && !nciCeProxy_.expired()) {
+    if (element.GetBundleName().empty()) {
         ErrorLog("DispatchAbilitySingleAppForFaModel element empty");
         std::string aidNotFound = "6A82";
         nciCeProxyPtr->SendRawFrame(aidNotFound);
