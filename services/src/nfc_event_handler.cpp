@@ -119,11 +119,11 @@ void NfcEventHandler::ScreenChangedReceiver::OnReceiveEvent(const EventFwk::Comm
         ErrorLog("Screen changed receiver event:unknown");
         return;
     }
-    if (eventHandler_.expired()) {
+    if (eventHandlerPtr == nullptr) {
         ErrorLog("eventHandler_ is null.");
         return;
     }
-    eventHandler_.lock()->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED),
+    eventHandlerPtr->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_SCREEN_CHANGED),
         static_cast<int64_t>(screenState), static_cast<int64_t>(0));
 }
 
@@ -416,7 +416,7 @@ void NfcEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
         case NfcCommonEvent::MSG_PACKAGE_UPDATED: {
             auto nfcPollingManagerPtr = nfcPollingManager_.lock();
             auto ceServicePtr = ceService_.lock();
-            if (nfcPollingManagerPtr == nullptr) {
+            if ((nfcPollingManagerPtr == nullptr) || (ceServicePtr == nullptr)) {
                 break;
             }
             bool updated = nfcPollingManagerPtr->HandlePackageUpdated(

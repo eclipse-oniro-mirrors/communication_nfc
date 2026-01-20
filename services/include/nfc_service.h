@@ -101,6 +101,7 @@ private:
     void CancelUnloadNfcSaTimer();
 
     bool IsMaxSwitchRetryTime();
+    bool ShouldTurnOnNfc();
 
     class NfcSwitchEventHandler final : public AppExecFwk::EventHandler {
     public:

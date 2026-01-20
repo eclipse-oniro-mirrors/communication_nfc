@@ -64,6 +64,7 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
   include_dirs = [
     "inc",
     "$NFC_DIR/interfaces/inner_api/common",
+    "$NFC_DIR/interfaces/inner_api/controller",
   ]
   sources += [
     "src/ani_constructor.cpp",
@@ -89,7 +90,8 @@ taihe_shared_library("nfc_fwk_taihe_cardEmulation") {
   deps = [
     ":run_taihe",
     "$NFC_DIR/interfaces/inner_api/common:nfc_inner_kits_common",
-    "$NFC_DIR/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation"
+    "$NFC_DIR/interfaces/inner_api/cardEmulation:nfc_inner_kits_card_emulation",
+    "$NFC_DIR/interfaces/inner_api/controller:nfc_inner_kits_controller"
   ]
 
   part_name = "$part_name"

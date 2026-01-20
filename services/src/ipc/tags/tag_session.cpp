@@ -633,7 +633,9 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
             !readerData->isEnabled_) {
             InfoLog("app changes to foreground, RegReaderModeInner");
             if (readerData->interval_ > 0) {
-                RegReaderModeInnerWithIntvl(element, readerData->techs_, readerData->cb_, readerData->interval_);
+                bool isVendorApp = false;
+                RegReaderModeInnerWithIntvl(element, readerData->techs_,
+                    readerData->cb_, isVendorApp, readerDtaa->interval_);
             } else {
                 RegReaderModeInner(element, readerData->techs_, readerData->cb_);
             }

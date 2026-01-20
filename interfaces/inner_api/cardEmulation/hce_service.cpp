@@ -118,7 +118,11 @@ ErrorCode HceService::StopHce(ElementName &element)
         ErrorLog("HceService::StopHce, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return static_cast<ErrorCode>(hceSession->StopHce(element));
+    ErrorCode ret = static_cast<ErrorCode>(hceSession->StopHce(element));
+    if (ret != ErrorCode::ERR_NO_PERMISSION) {
+        ret = ErrorCode::ERR_NONE;
+    }
+    return ret;
 }
 
 ErrorCode HceService::IsDefaultService(ElementName &element, const std::string &type, bool &isDefaultService)
@@ -150,7 +154,11 @@ int HceService::SendRawFrame(std::string hexCmdData, bool raw, std::string &hexR
         ErrorLog("HceService::SendRawFrame, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return static_cast<int>(hceSession->SendRawFrame(hexCmdData, raw, hexRespData));
+    res = static_cast<int>(hceSession->SendRawFrame(hexCmdData, raw, hexRespData));
+    if (res != ErrorCode::ERR_NO_PERMISSION) {
+        res = ErrorCode::ERR_NONE;
+    }
+    return res;
 }
 
 int HceService::GetPaymentServices(std::vector<AbilityInfo> &abilityInfos)
@@ -193,7 +201,11 @@ KITS::ErrorCode HceService::StartHce(const ElementName &element, const std::vect
         ErrorLog("HceService::StartHce, ERR_HCE_STATE_UNBIND");
         return ErrorCode::ERR_HCE_STATE_UNBIND;
     }
-    return static_cast<ErrorCode>(hceSession->StartHce(element, aids));
+    ErrorCode ret = static_cast<ErrorCode>(hceSession->StartHce(element, aids));
+    if (ret != ErrorCode::ERR_NO_PERMISSION) {
+        ret = ErrorCode::ERR_NONE;
+    }
+    return ret;
 }
 
 OHOS::sptr<IHceSession> HceService::GetHceSessionProxy(int32_t &res)

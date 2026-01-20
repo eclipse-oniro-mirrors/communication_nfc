@@ -152,7 +152,7 @@ int NfcController::RestartNfc()
         ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    ErrCode errCode = controllerProxy->RstartNfc();
+    ErrCode errCode = controllerProxy->RestartNfc();
     InfoLog("errCode = %{public}d", errCode);
     return static_cast<int>(errCode);
 }

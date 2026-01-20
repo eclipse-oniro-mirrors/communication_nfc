@@ -17,16 +17,18 @@
 
 #include <string>
 
-constexpr const char* NFC_SWITCH_STATE_PARAM_NAME = "persist.nfc.switch.state";
-const int PROPERTY_VALUE_MAX = 16;
-const int NFC_SWITCH_PARAM_LEN = 1;
-
 namespace OHOS {
 namespace NFC {
+constexpr const char* NFC_SWITCH_STATE_PARAM_NAME = "persist.nfc.switch.state";
+constexpr const char* NFC_DEFAULT_ON_PARAM_NAME = "const.nfc.nfc_default_on";
+constexpr const char* IS_FIRST_TIME_ENABLE_PARAM_NAME = "persist.nfc.first_time_enable";
 class NfcParamUtil {
 public:
     static void UpdateNfcStateToParam(int newState);
     static int GetNfcStateFromParam();
+
+    static void SetNfcParamStr(const std::string &paramName, const std::string &paramStr);
+    static std::string GetNfcParamStr(const std::string &paramName);
 };
 }  // namespace NFC
 }  // namespace OHOS

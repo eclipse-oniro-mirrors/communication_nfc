@@ -30,6 +30,21 @@
                                 "value":"3"
                             }
                         ]
+                    },
+                    {
+                        "name":"usual.event.BOOT_COMPLETED",
+                        "conditions":[
+                            {
+                                "eventId":"param",
+                                "name":"const.nfc.nfc_default_on",
+                                "value":"true"
+                            },
+                            {
+                                "eventId":"param"，
+                                "name":"persist.nfc.first_time_enable",
+                                "value":"true"
+                            }
+                        ]
                     }
                 ]
             }

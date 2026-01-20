@@ -20,6 +20,9 @@
 
 namespace OHOS {
 namespace NFC {
+const int PROPERTY_VALUE_MAX = 16;
+const int NFC_SWITCH_PARAM_LEN = 1;
+
 void NfcParamUtil::UpdateNfcStateToParam(int newState)
 {
     if (newState != KITS::STATE_ON && newState != KITS::STATE_OFF) {
@@ -48,6 +51,27 @@ int NfcParamUtil::GetNfcStateFromParam()
         return 0; // return invalid nfc state
     }
     return static_cast<int>(num);
+}
+
+void NfcParamutil::SetNfcParamStr(const std::string &paramName, const std::string &paramStr)
+{
+    InfoLog("setting %{public}s as %{public}s", paramName.c_str(), paramStr.c_str());
+    int errCode = SetParameter(paramName.c_str(), paramStr.c_str());
+    if (errCode < 0) {
+        ErrorLog("fail to set param, errCode[%{public}d]", errCode);
+    }
+}
+
+std::string NfcParamUtil::GetNfcParamStr(const std::string &paramName)
+{
+    char param[PROPERTY_VALUE_MAX] = {0};
+    int errCode = GetParameter (paramName.c_str(), "", param, PROPERTY_VALUE_MAX);
+    if (errCode < 0) {
+        ErrorLog("failed to get param, errCode[%{public}d]", errCode);
+        return "";
+    }
+    InfoLog("%{public}s = %{public}s", paramName.c_str(), param);
+    return std::string(param);
 }
 }  // namespace NFC
 }  // namespace OHOS
