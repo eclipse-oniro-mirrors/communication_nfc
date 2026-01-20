@@ -81,11 +81,12 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int sc
 void NfcPollingManager::StartPollingLoop(bool force)
 {
     InfoLog("StartPollingLoop force = %{public}d", force);
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("StartPollingLoop: nfcService_ is nullptr.");
         return;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("StartPollingLoop: NFC not enabled, do not Compute Routing Params.");
         return;
     }
@@ -97,17 +98,22 @@ void NfcPollingManager::StartPollingLoop(bool force)
     std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
     InfoLog("newParams: %{public}s", newParams->ToString().c_str());
     InfoLog("currParams: %{public}s", currPollingParams_->ToString().c_str());
-    if ((force || !(newParams == currPollingParams_)) && !nciNfccProxy_.expired()) {
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if (nciNfccProxyPtr == nullptr) {
+        ErrorLog("nciNfccProxy is nullptr");
+        return;
+    }
+    if (force || !(newParams == currPollingParams_)) {
         if (newParams->ShouldEnablePolling()) {
             bool shouldRestart = currPollingParams_->ShouldEnablePolling();
             InfoLog("StartPollingLoop shouldRestart = %{public}d", shouldRestart);
 
-            nciNfccProxy_.lock()->EnableDiscovery(newParams->GetTechMask(),
-                                                  newParams->ShouldEnableReaderMode(),
-                                                  newParams->ShouldEnableHostRouting(),
-                                                  shouldRestart || force);
+            nciNfccProxyPtr->EnableDiscovery(newParams->GetTechMask(),
+                                             newParams->ShouldEnableReaderMode(),
+                                             newParams->ShouldEnableHostRouting(),
+                                             shouldRestart || force);
         } else {
-            nciNfccProxy_.lock()->DisableDiscovery();
+            nciNfccProxyPtr->DisableDiscovery();
         }
         currPollingParams_ = newParams;
     } else {
@@ -121,12 +127,14 @@ void NfcPollingManager::HandleScreenChanged(int screenState)
     std::lock_guard<std::mutex> lock(mutex_);
     screenState_ = screenState;
     InfoLog("Screen changed screenState %{public}d", screenState_);
-    if (nciTagProxy_.expired() || nciNfccProxy_.expired()) {
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if ((nciTagProxyPtr == nullptr) || (nciNfccProxyPtr == nullptr)) {
         ErrorLog("nci proxy nullptr");
         return;
     }
-    nciTagProxy_.lock()->StopFieldChecking();
-    nciNfccProxy_.lock()->SetScreenStatus(screenState_);
+    nciTagProxyPtr->StopFieldChecking();
+    nciNfccProxyPtr->SetScreenStatus(screenState_);
 }
 
 bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEventData> data)
@@ -155,11 +163,13 @@ bool NfcPollingManager::HandlePackageUpdated(std::shared_ptr<EventFwk::CommonEve
 bool NfcPollingManager::EnableForegroundDispatch(const AppExecFwk::ElementName &element,
     const std::vector<uint32_t> &discTech, const sptr<KITS::IForegroundCallback> &callback, bool isVendorApp)
 {
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
         ErrorLog("EnableForegroundDispatch: nfcService_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("EnableForegroundDispatch: NFC not enabled, do not set foreground");
         return false;
     }
@@ -205,8 +215,9 @@ bool NfcPollingManager::DisableForegroundDispatch(const AppExecFwk::ElementName 
             return true;
         }
     }
-    if (!nciNfccProxy_.expired()) {
-        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if (nciNfccProxyPtr != nullptr) {
+        nciNfccProxyPtr->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, "");
     }
     return true;
 }
@@ -252,11 +263,13 @@ void NfcPollingManager::SendTagToForeground(KITS::TagInfoParcelable* tagInfo)
 bool NfcPollingManager::EnableReaderMode(const AppExecFwk::ElementName &element, const std::vector<uint32_t> &discTech,
     const sptr<KITS::IReaderModeCallback> &callback, bool isVendorApp)
 {
-    if (nfcService_.expired() || nciTagProxy_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciTagProxyPtr == nullptr)) {
         ErrorLog("EnableReaderMode: nfcService_ or nciTagProxy_ is nullptr.");
         return false;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("EnableReaderMode: NFC not enabled, do not set reader mode");
         return false;
     }
@@ -304,11 +317,13 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
             return true;
         }
     }
-    if (!nciTagProxy_.expired()) {
-        nciTagProxy_.lock()->StopFieldChecking();
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr != nullptr) {
+        nciTagProxyPtr->StopFieldChecking();
     }
-    if (!nciNfccProxy_.expired()) {
-        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if (nciNfccProxyPtr != nullptr) {
+        nciNfccProxyPtr->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
     }
     StartPollingLoop(true);
     return true;

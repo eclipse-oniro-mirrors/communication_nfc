@@ -240,11 +240,12 @@ NfcService::NfcSwitchEventHandler::~NfcSwitchEventHandler()
 
 bool NfcService::NfcSwitchEventHandler::CheckNfcState(int param)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfcService_ is nullptr.");
         return false;
     }
-    int nfcState = nfcService_.lock()->GetNfcState();
+    int nfcState = nfcServicePtr->GetNfcState();
     if (nfcState == KITS::STATE_TURNING_OFF || nfcState == KITS::STATE_TURNING_ON) {
         WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState);
         return false;
@@ -277,18 +278,23 @@ void NfcService::NfcSwitchEventHandler::ProcessEvent(const AppExecFwk::InnerEven
     if (!CheckNfcState(eventId)) {
         return;
     }
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return;
+    }
     switch (eventId) {
         case KITS::TASK_INITIALIZE:
-            nfcService_.lock()->DoInitialize();
+            nfcServicePtr->DoInitialize();
             break;
         case KITS::TASK_TURN_ON:
-            nfcService_.lock()->DoTurnOn();
+            nfcServicePtr->DoTurnOn();
             break;
         case KITS::TASK_TURN_OFF:
-            nfcService_.lock()->DoTurnOff();
+            nfcServicePtr->DoTurnOff();
             break;
         case KITS::TASK_RESTART:
-            nfcService_.lock()->DoRestart();
+            nfcServicePtr->DoRestart();
             break;
         default:
             WarnLog("ProcessEvent, unknown eventId %{public}d", eventId);
