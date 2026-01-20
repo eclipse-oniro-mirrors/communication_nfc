@@ -191,9 +191,10 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
         return true;
     }
     /* Try vendor parse harPackage */
-    if (nciTagProxy_.expired()) {
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr == nullptr) {
         ErrorLog("nciTagProxy_ is nullptr");
-    } else if (!nciTagProxy_.lock()->VendorParseHarPackage(harPackages, uri)) {
+    } else if (!nciTagProxyPtr->VendorParseHarPackage(harPackages, uri)) {
         return false;
     }
     /* Pull up vendor parsed harPackage */
@@ -212,10 +213,14 @@ bool NdefHarDataParser::DispatchAllHarPackage(const std::vector<std::string> &ha
         ErrorLog("harPackages is empty");
         return false;
     }
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
+        return false;
+    }
     for (std::string harPackage : harPackages) {
-        if (ndefHarDispatch_ != nullptr && !nfcService_.expired() &&
-            ndefHarDispatch_->DispatchBundleAbility(
-                harPackage, tagInfo, mimeType, uri, nfcService_.lock()->GetTagServiceIface())) {
+        if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchBundleAbility(
+            harPackage, tagInfo, mimeType, uri, nfcServicePtr->GetTagServiceIface())) {
             return true;
         }
     }
@@ -261,12 +266,13 @@ uint16_t NdefHarDataParser::DispatchByAppLinkMode(const std::shared_ptr<KITS::Ta
 {
     InfoLog("enter");
     if (schemeType_ == TYPE_RTP_SCHEME_HTTP_WEB_URL || schemeType_ == TYPE_RTP_SCHEME_OTHER) {
-        if (nfcService_.expired()) {
-            ErrorLog("nfcService_ is nullptr");
+        auto nfcServicePtr = nfcService_.lock();
+        if (nfcServicePtr == nullptr) {
+            ErrorLog("nfcService is nullptr");
             return DISPATCH_UNKNOWN;
         }
         if (ndefHarDispatch_ != nullptr && ndefHarDispatch_->DispatchByAppLinkMode(uriSchemeValue_,
-            tagInfo, nfcService_.lock()->GetTagServiceIface())) {
+            tagInfo, nfcServicePtr->GetTagServiceIface())) {
             return DISPATCH_APP_LINK;
         }
     }

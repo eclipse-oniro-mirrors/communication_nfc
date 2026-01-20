@@ -42,24 +42,26 @@ void NfcRoutingManager::CommitRouting()
 void NfcRoutingManager::HandleCommitRouting()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (nfcService_.expired() || nciCeProxy_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciCeProxyPtr == nullptr)) {
         ErrorLog("HandleCommitRouting nfcService_ or nciCeProxy_ is nullptr.");
         return;
     }
-    int nfcState = nfcService_.lock()->GetNfcState();
+    int nfcState = nfcServicePtr->GetNfcState();
     if (nfcState == KITS::STATE_OFF || nfcState == KITS::STATE_TURNING_OFF) {
         WarnLog("HandleCommitRouting: NOT Handle CommitRouting in state off or turning off.");
         return;
     }
     std::shared_ptr<NfcPollingParams> currPollingParams =
-        nfcService_.lock()->GetNfcPollingManager().lock()->GetCurrentParameters();
+        nfcServicePtr->GetNfcPollingManager().lock()->GetCurrentParameters();
     if (currPollingParams == nullptr) {
         ErrorLog("HandleCommitRouting: currPollingParams is nullptr.");
         return;
     }
     NfcWatchDog CommitRoutingDog("CommitRouting", WAIT_ROUTING_INIT, nciNfccProxy_);
     CommitRoutingDog.Run();
-    bool result = nciCeProxy_.lock()->CommitRouting();
+    bool result = nciCeProxyPtr->CommitRouting();
     DebugLog("HandleCommitRouting: result = %{public}d", result);
     CommitRoutingDog.Cancel();
 }
@@ -72,18 +74,20 @@ void NfcRoutingManager::ComputeRoutingParams(KITS::DefaultPaymentType defaultPay
 
 void NfcRoutingManager::HandleComputeRoutingParams(int defaultPaymentType)
 {
-    if (nfcService_.expired() || nciCeProxy_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if ((nfcServicePtr == nullptr) || (nciCeProxyPtr == nullptr)) {
         ErrorLog("HandleComputeRoutingParams nfcService_ or nciCeProxy_ is nullptr.");
         return;
     }
-    if (!nfcService_.lock()->IsNfcEnabled()) {
+    if (!nfcServicePtr->IsNfcEnabled()) {
         ErrorLog("HandleComputeRoutingParams: NFC not enabled, do not Compute Routing Params");
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
     NfcWatchDog ComputeRoutingParamDog("ComputeRoutingParam", WAIT_ROUTING_INIT, nciNfccProxy_);
     ComputeRoutingParamDog.Run();
-    bool result = nciCeProxy_.lock()->ComputeRoutingParams(defaultPaymentType);
+    bool result = nciCeProxyPtr->ComputeRoutingParams(defaultPaymentType);
     DebugLog("HandleComputeRoutingParams result = %{public}d", result);
     ComputeRoutingParamDog.Cancel();
 }
