@@ -53,7 +53,7 @@ int NfcParamUtil::GetNfcStateFromParam()
     return static_cast<int>(num);
 }
 
-void NfcParamutil::SetNfcParamStr(const std::string &paramName, const std::string &paramStr)
+void NfcParamUtil::SetNfcParamStr(const std::string &paramName, const std::string &paramStr)
 {
     InfoLog("setting %{public}s as %{public}s", paramName.c_str(), paramStr.c_str());
     int errCode = SetParameter(paramName.c_str(), paramStr.c_str());
@@ -65,7 +65,7 @@ void NfcParamutil::SetNfcParamStr(const std::string &paramName, const std::strin
 std::string NfcParamUtil::GetNfcParamStr(const std::string &paramName)
 {
     char param[PROPERTY_VALUE_MAX] = {0};
-    int errCode = GetParameter (paramName.c_str(), "", param, PROPERTY_VALUE_MAX);
+    int errCode = GetParameter(paramName.c_str(), "", param, PROPERTY_VALUE_MAX);
     if (errCode < 0) {
         ErrorLog("failed to get param, errCode[%{public}d]", errCode);
         return "";

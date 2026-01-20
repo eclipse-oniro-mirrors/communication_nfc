@@ -635,7 +635,7 @@ void TagSession::CheckReaderAppStateChanged(const std::string &bundleName, const
             if (readerData->interval_ > 0) {
                 bool isVendorApp = false;
                 RegReaderModeInnerWithIntvl(element, readerData->techs_,
-                    readerData->cb_, isVendorApp, readerDtaa->interval_);
+                    readerData->cb_, isVendorApp, readerData->interval_);
             } else {
                 RegReaderModeInner(element, readerData->techs_, readerData->cb_);
             }

@@ -40,7 +40,7 @@
                                 "value":"true"
                             },
                             {
-                                "eventId":"param"，
+                                "eventId":"param",
                                 "name":"persist.nfc.first_time_enable",
                                 "value":"true"
                             }

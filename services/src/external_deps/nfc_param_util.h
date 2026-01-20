@@ -22,6 +22,7 @@ namespace NFC {
 constexpr const char* NFC_SWITCH_STATE_PARAM_NAME = "persist.nfc.switch.state";
 constexpr const char* NFC_DEFAULT_ON_PARAM_NAME = "const.nfc.nfc_default_on";
 constexpr const char* IS_FIRST_TIME_ENABLE_PARAM_NAME = "persist.nfc.first_time_enable";
+
 class NfcParamUtil {
 public:
     static void UpdateNfcStateToParam(int newState);

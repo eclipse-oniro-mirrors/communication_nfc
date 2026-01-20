@@ -440,7 +440,7 @@ void NfcService::DoRestart()
 bool NfcService::ShouldTurnOnNfc()
 {
     int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
-    if ((nfcStateFromParam == KITS::STATE_ON) && (nfcState_!= KITS::STATE_ON)) {
+    if ((nfcStateFromParam == KITS::STATE_ON) && (nfcState_ != KITS::STATE_ON)) {
         return true;
     }
     std::string isNfcDefaultOn = NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME);
@@ -458,7 +458,7 @@ void NfcService::DoInitialize()
     InfoLog("first time init.");
     isAlreadyInited_ = true;
     if (ShouldTurnOnNfc()) {
-        InfoLog("should turn nfc on");
+        InfoLog("should turn nfc on.");
         ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
