@@ -313,7 +313,7 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
         readerModeData_->callback_ = nullptr;
     }
     auto nfcServicePtr = nfcService_.lock();
-    if (nfcServicePtr) {
+    if (nfcServicePtr != nullptr) {
         if (!nfcServicePtr->IsNfcEnabled()) {
             WarnLog("nfc is closed.");
             return true;
