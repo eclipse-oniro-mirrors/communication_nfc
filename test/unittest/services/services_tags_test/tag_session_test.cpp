@@ -945,8 +945,31 @@ HWTEST_F(TagSessionTest, GetRegTime001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    ElementName element;
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
+    tagSession->readerDataVec_.push_back(readerData);
+
     long result = tagSession->GetRegTime(element);
+    ASSERT_TRUE(result > 0);
+}
+
+/**
+ * @tc.name: GetRegTime002
+ * @tc.desc: Test TagSession GetRegTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, GetRegTime002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
+    tagSession->readerDataVec_.push_back(readerData);
+
+    ElementName element1("", "test", "abilityName", "");
+    long result = tagSession->GetRegTime(element1);
     ASSERT_TRUE(result == 0);
 }
 }

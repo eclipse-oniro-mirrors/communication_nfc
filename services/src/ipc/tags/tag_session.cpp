@@ -883,7 +883,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
 
 long TagSession::GetRegTime(const ElementName &element)
 {
-    InfoLog("ready to getRegTime of %{public}s/%{public}s", element.GetBundleName().c_str(),
+    DebugLog("ready to getRegTime of %{public}s/%{public}s", element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
     long regTime = 0;
     for (ReaderData &readerData : readerDataVec_) {
@@ -892,7 +892,7 @@ long TagSession::GetRegTime(const ElementName &element)
             break;
         }
     }
-    InfoLog("GetRegTime: %{public}ld", regTime);
+    DebugLog("GetRegTime: %{public}ld", regTime);
     return regTime;
 }
 

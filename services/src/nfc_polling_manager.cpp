@@ -285,16 +285,17 @@ bool NfcPollingManager::EnableReaderMode(const AppExecFwk::ElementName &element,
             std::lock_guard<std::mutex> lock(mutex_);
             readerModeData_->isEnabled_ = true;
             readerModeData_->isVendorApp_ = isVendorApp;
-            readerModeData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
+            readerModeData_->techMask_ = nciTagProxyPtr->GetTechMaskFromTechList(discTech);
             readerModeData_->element_ = element;
             readerModeData_->callback_ = callback;
         }
-        if (!nciNfccProxy_.expired()) {
-            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
-            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::REG_READERMODE_TIME, std::to_string(regTime));
+        auto nciNfccProxyPtr = nciNfccProxy_.lock();
+        if (nciNfccProxyPtr != nullptr) {
+            nciNfccProxyPtr->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, element.GetBundleName());
+            nciNfccProxyPtr->NotifyMessageToVendor(KITS::REG_READERMODE_TIME, std::to_string(regTime));
         }
     }
-    nciTagProxy_.lock()->StopFieldChecking();
+    nciTagProxyPtr->StopFieldChecking();
     StartPollingLoop(true);
     return true;
 }
@@ -311,9 +312,9 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
         readerModeData_->callerToken_ = 0;
         readerModeData_->callback_ = nullptr;
     }
-    auto nfcServiceLock = nfcService_.lock();
-    if (nfcServiceLock) {
-        if (!nfcServiceLock->IsNfcEnabled()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr) {
+        if (!nfcServicePtr->IsNfcEnabled()) {
             WarnLog("nfc is closed.");
             return true;
         }
@@ -325,6 +326,7 @@ bool NfcPollingManager::DisableReaderMode(const AppExecFwk::ElementName &element
     auto nciNfccProxyPtr = nciNfccProxy_.lock();
     if (nciNfccProxyPtr != nullptr) {
         nciNfccProxyPtr->NotifyMessageToVendor(KITS::READERMODE_APP_KEY, "");
+        nciNfccProxyPtr->NotifyMessageToVendor(KITS::REG_READERMODE_TIME, "0");
     }
     StartPollingLoop(true);
     return true;
