@@ -53,9 +53,12 @@ NdefWifiDataParser::NdefWifiDataParser()
 {
 }
 
-uint16_t NdefWifiDataParser::GetTypeFromPayload(const std::string& src, uint32_t &offset)
+uint16_t NdefWifiDataParser::GetTypeFromPayload(
+    const std::string& src, uint32_t &offset, std::shared_ptr<WifiData> data)
 {
     if (src.length() == 0 || (src.length() < (offset + WIFI_TYPE_LEN) * HEX_BYTE_LEN)) {
+        data->isValid_ = false;
+        ErrorLog("NdefWifiDataParser::GetTypeFromPayload, invalid src length");
         return 0;
     }
     unsigned char firstByte = KITS::NfcSdkCommon::GetByteFromHexStr(src, offset);
@@ -116,14 +119,14 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     DebugLog("ParseWiFiPayload");
     std::shared_ptr<WifiData> data = std::make_shared<WifiData>();
     uint32_t offset = 0;
-    uint16_t type = GetTypeFromPayload(payload, offset);
-    uint16_t len = GetTypeFromPayload(payload, offset);
+    uint16_t type = GetTypeFromPayload(payload, offset, data);
+    uint16_t len = GetTypeFromPayload(payload, offset, data);
     InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     for (int i = 0; i < MAX_PARSE_TIMES && len > 0 && (offset * HEX_BYTE_LEN) < payload.length()
         && type != CREDENTIAL_FIELD_TYPE; i++) {
         offset += len;
-        type = GetTypeFromPayload(payload, offset);
-        len = GetTypeFromPayload(payload, offset);
+        type = GetTypeFromPayload(payload, offset, data);
+        len = GetTypeFromPayload(payload, offset, data);
         InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
     }
     if (len == 0) {
@@ -133,9 +136,9 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
     if (!data->config_) {
         data->config_ = std::make_shared<Wifi::WifiDeviceConfig>();
     }
-    while ((offset * HEX_BYTE_LEN) < payload.length()) {
-        type = GetTypeFromPayload(payload, offset);
-        len = GetTypeFromPayload(payload, offset);
+    while ((offset * HEX_BYTE_LEN) < payload.length() && data->isValid_) {
+        type = GetTypeFromPayload(payload, offset, data);
+        len = GetTypeFromPayload(payload, offset, data);
         InfoLog("NdefWifiDataParser::ParseWiFiPayload, type: 0x%{public}X, len: %{public}d", type, len);
         switch (type) {
             case WIFI_SSID_TYPE: {
@@ -171,7 +174,7 @@ std::shared_ptr<WifiData> NdefWifiDataParser::ParseWiFiPayload(const std::string
                     data->isValid_ = false;
                     return data;
                 }
-                uint16_t authType = GetTypeFromPayload(payload, offset);
+                uint16_t authType = GetTypeFromPayload(payload, offset, data);
                 if (authType == 0) {
                     ErrorLog("NdefWifiDataParser::ParseWiFiPayload, invalid auth type value");
                     data->isValid_ = false;

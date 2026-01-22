@@ -560,7 +560,7 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
         }
 
         uint8_t aidLength = data[INDEX_AID_LEN];
-        if (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) {
+        if ((aidLength == 0) || (data.size() < SELECT_APDU_HDR_LENGTH + aidLength)) {
             InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
         }
@@ -703,7 +703,10 @@ void HostCardEmulationManager::HandleQueueData()
     std::lock_guard<std::mutex> lock(hceStateMutex_);
     bool shouldSendQueueData = hceState_ == HostCardEmulationManager::WAIT_FOR_SERVICE && !queueHceData_.empty();
 
-    std::string queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
+    std::string queueData = "";
+    if (!queueHceData_.empty()) {
+        queueData = KITS::NfcSdkCommon::BytesVecToHexString(&queueHceData_[0], queueHceData_.size());
+    }
     if (abilityConnection_ == nullptr) {
         ErrorLog("HandleQueueData abilityConnection_ is null");
         return;
