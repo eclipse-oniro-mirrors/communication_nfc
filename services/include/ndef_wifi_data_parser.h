@@ -36,7 +36,7 @@ public:
     static std::shared_ptr<WifiData> CheckWifiRecord(const std::string& msg);
 
 private:
-    static uint16_t GetTypeFromPayload(const std::string& src, uint32_t& offset);
+    static uint16_t GetTypeFromPayload(const std::string& src, uint32_t& offset, std::shared_ptr<WifiData> data);
     static std::string GetValueFromPayload(const std::string& payload, uint32_t& offset, uint16_t dataLen);
     static void SetKeyMgmt(std::string& keyMgmt, uint16_t authType);
     static std::shared_ptr<WifiData> ParseWiFiPayload(const std::string& payload);

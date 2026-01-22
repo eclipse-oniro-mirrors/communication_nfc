@@ -58,7 +58,7 @@
         },
         {
             "name":"TransportCardText",
-            "value":"%s. Saldo: %.2f?RMB",
+            "value":"%s. Saldo: %.2f RMB",
             "attr":{
                 "priority":"translate"
             }
