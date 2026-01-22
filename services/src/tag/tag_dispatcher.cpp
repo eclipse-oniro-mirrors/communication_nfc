@@ -149,9 +149,13 @@ void TagDispatcher::HandleOnNdefMsgDiscovered(const std::string &tagUid, const s
 {
     if (ndefCb_ != nullptr) {
         KITS::TagInfoParcelable* tagInfoParcel = GetTagInfoParcelableFromTag(tagDiscId);
-        ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType, tagInfoParcel);
-        delete tagInfoParcel;
-        tagInfoParcel = nullptr;
+        if (tagInfoParcel != nullptr) {
+            ndefCbRes_ = ndefCb_->OnNdefMsgDiscovered(tagUid, ndef, payload, ndefMsgType, tagInfoParcel);
+            delete tagInfoParcel;
+            tagInfoParcel = nullptr;
+        } else {
+            ErrorLog("tagInfoParcel is nullptr");
+        }
     }
 }
 
@@ -162,10 +166,10 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         ErrorLog("nciTagProxy_ is nullptr");
         return;
     }
-    long tagFoundTime = KITS::NfcSdkCommon::GetCurrentTime();
+    long tagFoundTime = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
     ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxyPtr->FindNdefTech(tagDiscId);
-    long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
+    long readFinishTime = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
     bool isNtfPublished = false;
@@ -174,7 +178,7 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
         delete tagInfo;
         tagInfo = nullptr;
     }
-    long dispatchFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
+    long dispatchFinishTime = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
     SendTagInfoToVendor(tagFoundTime, readFinishTime, dispatchFinishTime, ndefMessage, dispatchResult);
     NdefHarDataParser::GetInstance().ClearRecord0Uri();
 
