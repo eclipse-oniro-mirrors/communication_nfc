@@ -416,6 +416,18 @@ HWTEST_F(NfcServiceTest, CancelUnloadNfcSaTimer001, TestSize.Level1)
     nfcService->CancelUnloadNfcSaTimer();
     ASSERT_TRUE(nfcService != nullptr);
 }
+
+/**
+ * @tc.name: NotifyMessageToVendor
+ * @tc.desc: Test NfcServiceTest NotifyMessageToVendor.
+ * @tc.type: FUNC
+*/
+HWTEST_F(NfcServiceTest, NotifyMessageToVendor, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->NotifyMessageToVendor(KITS::NOTIFY_TAG_DISCONNECT, "");
+    ASSERT_TRUE(nfcService != nullptr);
+}
 }
 }
 }

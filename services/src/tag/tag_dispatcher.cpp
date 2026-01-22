@@ -159,67 +159,17 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 {
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr == nullptr) {
-        ErrorLog("nciTagProxy is nullptr");
-        return;
-    }
-    if (nfcService_ == nullptr || nfcService_->GetNfcPollingManager().expired()) {
-        ErrorLog("HandleTagFound, invalid state.");
+        ErrorLog("nciTagProxy_ is nullptr");
         return;
     }
     long tagFoundTime = KITS::NfcSdkCommon::GetCurrentTime();
-    uint16_t dispatchResult = DISPATCH_UNKNOWN;
-    bool isIsoDep = false;
-    int fieldOnCheckInterval = DEFAULT_FIELD_ON_CHECK_DURATION;
-    if (static_cast<int>(nciTagProxyPtr->GetConnectedTech(tagDiscId)) ==
-        static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
-        fieldOnCheckInterval = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
-        isIsoDep = true;
-    }
     ndefCbRes_ = false;
     std::string ndefMsg = nciTagProxyPtr->FindNdefTech(tagDiscId);
     long readFinishTime = KITS::NfcSdkCommon::GetCurrentTime();
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     KITS::TagInfoParcelable* tagInfo = nullptr;
     bool isNtfPublished = false;
-    do {
-        if (ndefMessage == nullptr) {
-            if (!nciTagProxyPtr->Reconnect(tagDiscId)) {
-                nciTagProxyPtr->Disconnect(tagDiscId);
-                ErrorLog("HandleTagFound bad connection, tag disconnected");
-                break;
-            }
-        }
-        lastNdefMsg_ = ndefMsg;
-        if (fieldOnCheckInterval_ != 0) {
-            fieldOnCheckInterval = fieldOnCheckInterval_;
-        }
-        InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
-        nciTagProxyPtr->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
-        tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
-        auto nfcPollingManagerPtr = nfcService_->GetNfcPollingManager().lock();
-        if (nfcPollingManagerPtr == nullptr) {
-            ErrorLog("nfcPollingManagerPtr is nullptr");
-            break;
-        }
-        if (nfcPollingManagerPtr->IsReaderModeEnabled()) {
-            nfcPollingManagerPtr->SendTagToReaderApp(tagInfo);
-            dispatchResult = DISPATCH_READERMODE;
-            break;
-        }
-        if (nfcPollingManagerPtr->IsForegroundEnabled()) {
-            nfcPollingManagerPtr->SendTagToForeground(tagInfo);
-            dispatchResult = DISPATCH_FOREGROUND;
-            break;
-        }
-        ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
-        dispatchResult = HandleNdefDispatch(tagDiscId, ndefMsg);
-        if (dispatchResult != DISPATCH_UNKNOWN) {
-            break;
-        }
-        dispatchResult = PublishTagNotification(tagDiscId, isIsoDep);
-        isNtfPublished = true;
-        break;
-    } while (0);
+    uint16_t dispatchResult = HandleTagDispatch(ndefMsg, ndefMessage, tagInfo, tagDiscId, isNtfPublished);
     if (tagInfo != nullptr) {
         delete tagInfo;
         tagInfo = nullptr;
@@ -234,6 +184,61 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     // Record types of read tags.
     std::vector<int> techList = nciTagProxyPtr->GetTechList(tagDiscId);
     ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
+}
+
+uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<KITS::NdefMessage> ndefMessage,
+    KITS::TagInfoParcelable* tagInfo, uint32_t tagDiscId, bool &isNtfPublished)
+{
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nfcService_ == nullptr || nciTagProxyPtr == nullptr) {
+        ErrorLog("nfcService_ or nciTagProxy_ is nullptr");
+        return DISPATCH_UNKNOWN;
+    }
+    if (ndefMessage == nullptr) {
+        if (!nciTagProxyPtr->Reconnect(tagDiscId)) {
+            nciTagProxyPtr->Disconnect(tagDiscId);
+            ErrorLog("HandleTagFound bad connection, tag disconnected");
+            nfcService_->NotifyMessageToVendor(KITS::NOTIFY_TAG_DISCONNECT, "");
+            return DISPATCH_UNKNOWN;
+        }
+    }
+    lastNdefMsg_ = ndefMsg;
+    bool isIsoDep = false;
+    int fieldOnCheckInterval = GetFieldOnCheckInterval(isIsoDep, tagDiscId);
+    InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
+    nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
+    tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
+    auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
+    if (pollingMgr->IsReaderModeEnabled()) {
+        pollingMgr->SendTagToReaderApp(tagInfo);
+        return DISPATCH_READERMODE;
+    }
+    if (pollingMgr->IsForegroundEnabled()) {
+        pollingMgr->SendTagToForeground(tagInfo);
+        return DISPATCH_FOREGROUND;
+    }
+    ExternalDepsProxy::GetInstance().RegNotificationCallback(nfcService_);
+    uint16_t dispatchResult = HandleNdefDispatch(tagDiscId, ndefMsg);
+    if (dispatchResult != DISPATCH_UNKNOWN) {
+        return dispatchResult;
+    }
+    isNtfPublished = true;
+    return PublishTagNotification(tagDiscId, isIsoDep);
+}
+
+int TagDispatcher::GetFieldOnCheckInterval(bool &isIsoDep, uint32_t tagDiscId)
+{
+    int fieldOnCheckInterval = DEFAULT_FIELD_ON_CHECK_DURATION;
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr && static_cast<int>(nciTagProxyPtr->GetConnectedTech(tagDiscId)) ==
+        static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+        fieldOnCheckInterval = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
+        isIsoDep = true;
+    }
+    if (fieldOnCheckInterval_ != 0) {
+        fieldOnCheckInterval = fieldOnCheckInterval_;
+    }
+    return fieldOnCheckInterval;
 }
 
 std::string TagDispatcher::ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage)
@@ -273,6 +278,21 @@ void TagDispatcher::SendTagInfoToVendor(long tagFoundStartTime, long readFinishT
     std::string readTagInfo = "startTime:" + std::to_string(tagFoundStartTime) + "|readFinishTime:" +
         std::to_string(readFinishTime) + "|dispatchTime:" + std::to_string(dispatchFinishTime) + "|dispatchResult:" +
         std::to_string(dispatchResult);
+    auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
+    if (dispatchResult == DISPATCH_FOREGROUND && pollingMgr) {
+        std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData = pollingMgr->GetForegroundData();
+        if (foregroundData != nullptr) {
+            std::string foregroundBundle = foregroundData->element_.GetBundleName();
+            readTagInfo = readTagInfo + "|foregroundBundle:" + foregroundBundle;
+        }
+    }
+    if (dispatchResult == DISPATCH_READERMODE && pollingMgr) {
+        std::shared_ptr<NfcPollingManager::ReaderModeRegistryData> readerModeData = pollingMgr->GetReaderModeData();
+        if (readerModeData != nullptr) {
+            std::string readerModeBundle = readerModeData->element_.GetBundleName();
+            readTagInfo = readTagInfo + "|readerModeBundle:" + readerModeBundle;
+        }
+    }
     nfcService_->NotifyMessageToVendor(KITS::NOTIFY_READ_TAG_EVENT, readTagInfo);
 }
 
