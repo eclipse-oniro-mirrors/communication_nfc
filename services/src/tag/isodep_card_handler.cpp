@@ -174,11 +174,12 @@ bool IsodepCardHandler::DoJsonRead()
 bool IsodepCardHandler::IsSupportedTransportCard(uint32_t rfDiscId, uint8_t &cardIndex)
 {
     InfoLog("IsSupportedTransportCard, cardInfoVec_ size = [%{public}lu]", cardInfoVec_.size());
-    if (nciTagProxy_.expired()) {
-        WarnLog("nciTagProxy_ expired.");
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr == nullptr) {
+        WarnLog("nciTagProxy_ is nullptr.");
         return false;
     }
-    nciTagProxy_.lock()->Connect(rfDiscId, static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
+    nciTagProxyPtr->Connect(rfDiscId, static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
     for (uint8_t index = 0; index < cardInfoVec_.size(); ++index) {
         if (MatchCity(rfDiscId, index)) {
             InfoLog("card match \"%{public}s\"", cardInfoVec_[index].name.c_str());
@@ -201,11 +202,12 @@ bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
     std::string rspApdu = "";
     for (uint8_t i = 0; i < cardInfoVec_[cardIndex].checkApdus.size(); ++i) {
         checkCmdApdu = cardInfoVec_[cardIndex].checkApdus[i];
-        if (nciTagProxy_.expired()) {
-            WarnLog("nciTagProxy_ expired.");
+        auto nciTagProxyPtr = nciTagProxy_.lock();
+        if (nciTagProxyPtr == nullptr) {
+            WarnLog("nciTagProxy_ is nullptr.");
             return false;
         }
-        nciTagProxy_.lock()->Transceive(rfDiscId, checkCmdApdu, rspApdu);
+        nciTagProxyPtr->Transceive(rfDiscId, checkCmdApdu, rspApdu);
         InfoLog("rspApdu = %{public}s", rspApdu.c_str());
         if (!CheckApduResponse(rspApdu, cardIndex)) {
             InfoLog("check result false");
@@ -262,11 +264,12 @@ void IsodepCardHandler::GetBalance(uint32_t rfDiscId, uint8_t cardIndex, int &ba
     uint8_t apduNum = cardInfoVec_[cardIndex].balanceApdus.size();
     for (uint8_t i = 0; i < apduNum; ++i) {
         getBalanceCmdApdu = cardInfoVec_[cardIndex].balanceApdus[i];
-        if (nciTagProxy_.expired()) {
-            WarnLog("nciTagProxy_ expired.");
+        auto nciTagProxyPtr = nciTagProxy_.lock();
+        if (nciTagProxyPtr == nullptr) {
+            WarnLog("nciTagProxy_ is nullptr.");
             return;
         }
-        nciTagProxy_.lock()->Transceive(rfDiscId, getBalanceCmdApdu, rspApdu);
+        nciTagProxyPtr->Transceive(rfDiscId, getBalanceCmdApdu, rspApdu);
         InfoLog("rspApdu = %{public}s", rspApdu.c_str());
         if (CheckApduResponse(rspApdu)) {
             if (i != apduNum - 1) {

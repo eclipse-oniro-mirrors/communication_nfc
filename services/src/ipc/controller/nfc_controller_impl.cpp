@@ -256,7 +256,7 @@ ErrCode NfcControllerImpl::NotifyEventStatus(int32_t eventType, int32_t arg1, co
 
 ErrCode NfcControllerImpl::GetHceServiceIface(sptr<IRemoteObject>& funcResult)
 {
-    funcResult == nullptr;
+    funcResult = nullptr;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::CARD_EMU_PERM)) {
         ErrorLog("GetHceServiceIface no permission");
         return KITS::ERR_NO_PERMISSION;

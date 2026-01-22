@@ -120,30 +120,32 @@ void WifiConnectionManager::UnsubscribeWifiCommonEvents()
 
 void WifiConnectionManager::SendMsgToEvtHandler(NfcCommonEvent evt, int64_t delay)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.lock()->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         ErrorLog("event handler is null");
         return;
     }
     DebugLog("SendMsgToEvtHandler: event:%{public}d, delay:%{public}ld", evt, delay);
-    nfcService_.lock()->eventHandler_->SendEvent(static_cast<uint32_t>(evt), delay);
+    nfcServicePtr->eventHandler_->SendEvent(static_cast<uint32_t>(evt), delay);
 }
 
 void WifiConnectionManager::RemoveMsgFromEvtHandler(NfcCommonEvent evt)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
-    if (nfcService_.lock()->eventHandler_ == nullptr) {
+    if (nfcServicePtr->eventHandler_ == nullptr) {
         ErrorLog("event handler is null");
         return;
     }
     DebugLog("RemoveMsgFromEvtHandler: event:%{public}d", evt);
-    nfcService_.lock()->eventHandler_->RemoveEvent(static_cast<uint32_t>(evt), static_cast<int64_t>(0));
+    nfcServicePtr->eventHandler_->RemoveEvent(static_cast<uint32_t>(evt), static_cast<int64_t>(0));
 }
 
 std::shared_ptr<Wifi::WifiDevice> WifiConnectionManager::GetWifiDevPtr()
@@ -167,8 +169,9 @@ void WifiConnectionManager::OnFinish()
 
 void WifiConnectionManager::ShowWifiConnectionToast(int type)
 {
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService is nullptr");
         return;
     }
     std::string wifiToastValue = std::to_string(type);
@@ -176,7 +179,7 @@ void WifiConnectionManager::ShowWifiConnectionToast(int type)
         wifiToastValue.append(config_->ssid);
     }
     InfoLog("NotifyMessageToVendor wifiToastValue: %{public}s", wifiToastValue.c_str());
-    nfcService_.lock()->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, wifiToastValue);
+    nfcServicePtr->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, wifiToastValue);
 }
 
 void WifiConnectionManager::HandleWifiEnableFailed()

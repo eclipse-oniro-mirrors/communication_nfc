@@ -22,6 +22,8 @@
 #include "mifare_classic_tag.h"
 #include "mifare_ultralight_tag.h"
 #include "barcode_tag.h"
+#include "nfc_api_control.h"
+#include "nfc_napi_common_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -695,8 +697,8 @@ napi_value RegisterBarcodeTagJSClass(napi_env env, napi_value exports)
 
 napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref)
 {
-    if (ref == nullptr) {
-        ErrorLog("GetSpecificTagObj error ref");
+    if (ref == nullptr || IsNfcNotSupported()) {
+        ErrorLog("GetSpecificTagObj error ref or not support nfc");
         return CreateUndefined(env);
     }
     std::size_t argc = ARGV_NUM_1;
@@ -912,6 +914,10 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 
 napi_value GetTagInfo(napi_env env, napi_callback_info info)
 {
+    if (IsNfcNotSupported()) {
+        ThrowCapabilityError(env);
+        return CreateUndefined(env);
+    }
     // has only one arg, want: Want
     std::size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {nullptr};

@@ -20,7 +20,7 @@
 #include "ability_info.h"
 #include "nfc_napi_common_utils.h"
 #include "element_name.h"
-
+#include "nfc_api_control.h"
 
 namespace OHOS {
 namespace NFC {
@@ -29,6 +29,11 @@ using AppExecFwk::AbilityInfo;
 using AppExecFwk::ElementName;
 napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
 {
+    napi_value result;
+    if (IsNfcNotSupported()) { // force not support controled by const.nfc.not_support
+        napi_get_boolean(env, false, &result);
+        return result;
+    }
     bool isSupported = false;
     size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
@@ -40,21 +45,29 @@ napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
         return CreateUndefined(env);
     }
     isSupported = type == FeatureType::HCE;
-    napi_value result;
     napi_get_boolean(env, isSupported, &result);
     return result;
 }
 
 napi_value HasHceCapability(napi_env env, napi_callback_info info)
 {
-    bool hasHceCapability = true;
     napi_value result;
+    if (IsNfcNotSupported()) {
+        napi_get_boolean(env, false, &result);
+        return result;
+    }
+    bool hasHceCapability = true;
     napi_get_boolean(env, hasHceCapability, &result);
     return result;
 }
 
 napi_value IsDefaultService(napi_env env, napi_callback_info cbinfo)
 {
+    napi_value result;
+    if (IsNfcNotSupported()) {
+        napi_get_boolean(env, false, &result);
+        return result;
+    }
     bool isDefaultService = false;
 
     size_t argc = ARGV_NUM_2;
@@ -79,7 +92,6 @@ napi_value IsDefaultService(napi_env env, napi_callback_info cbinfo)
         ErrorLog("IsDefaultService, statusCode = %{public}d", statusCode);
         return CreateUndefined(env);
     }
-    napi_value result;
     napi_get_boolean(env, isDefaultService, &result);
     return result;
 }
@@ -127,6 +139,11 @@ void ConvertAbilityInfoVectorToJS(napi_env env, napi_value &result, std::vector<
 napi_value GetPaymentServices(napi_env env, napi_callback_info info)
 {
     DebugLog("GetPaymentServices ability start.");
+    napi_value result;
+    if (IsNfcNotSupported()) {
+        napi_get_boolean(env, false, &result);
+        return result;
+    }
     HceService hceService = HceService::GetInstance();
     std::vector<AbilityInfo> paymentAbilityInfos;
     int statusCode = hceService.GetPaymentServices(paymentAbilityInfos);
@@ -136,7 +153,7 @@ napi_value GetPaymentServices(napi_env env, napi_callback_info info)
         ErrorLog("GetPaymentServices, statusCode = %{public}d", statusCode);
         return CreateUndefined(env);
     }
-    napi_value result = nullptr;
+    result = nullptr;
     ConvertAbilityInfoVectorToJS(env, result, paymentAbilityInfos);
     DebugLog("GetPaymentServices ability end.");
     return result;

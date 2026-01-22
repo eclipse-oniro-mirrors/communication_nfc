@@ -27,11 +27,11 @@ HceCmdDeathRecipient::HceCmdDeathRecipient(
 
 void HceCmdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (hceSession_ == nullptr) {
         ErrorLog("HceCmdDeathRecipient hceSession_ is nullptr!");
         return;
     }
-    std::lock_guard<std::mutex> lock(mutex_);
     KITS::ErrorCode ret = hceSession_->UnRegAllCallback(callerToken_);
     InfoLog("OnRemoteDied, UnRegAllCallback ret=%{public}d", ret);
     hceSession_->RemoveHceDeathRecipient(remote);

@@ -66,6 +66,10 @@ sptr<AppExecFwk::IBundleMgr> AppDataParser::GetBundleMgrProxy()
         return nullptr;
     }
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    if (bundleMgrProxy == nullptr || bundleMgrProxy->AsObject() == nullptr) {
+        ErrorLog("GetBundleMgrProxy, bundleMgrProxy is nullptr");
+        return nullptr;
+    }
     bundleMgrProxy->AsObject()->AddDeathRecipient(bundleMgrDeathRecipient_);
     return bundleMgrProxy;
 }

@@ -52,11 +52,11 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
 KITS::ErrorCode HceCmdCallbackStub::UnRegHceCmdCallback(const sptr<IHceCmdCallback> &callback)
 {
     DebugLog("HceCmdCallbackStub UnRegisterCallBack");
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback_ == nullptr) {
         InfoLog("HceCmdCallbackStub:Callback_ has unregistered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     callback_ = nullptr;
     return KITS::ERR_NONE;
 }

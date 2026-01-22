@@ -240,11 +240,12 @@ NfcService::NfcSwitchEventHandler::~NfcSwitchEventHandler()
 
 bool NfcService::NfcSwitchEventHandler::CheckNfcState(int param)
 {
-    if (nfcService_.expired()) {
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
         ErrorLog("nfcService_ is nullptr.");
         return false;
     }
-    int nfcState = nfcService_.lock()->GetNfcState();
+    int nfcState = nfcServicePtr->GetNfcState();
     if (nfcState == KITS::STATE_TURNING_OFF || nfcState == KITS::STATE_TURNING_ON) {
         WarnLog("Execute task %{public}d from bad state %{public}d", param, nfcState);
         return false;
@@ -277,18 +278,23 @@ void NfcService::NfcSwitchEventHandler::ProcessEvent(const AppExecFwk::InnerEven
     if (!CheckNfcState(eventId)) {
         return;
     }
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return;
+    }
     switch (eventId) {
         case KITS::TASK_INITIALIZE:
-            nfcService_.lock()->DoInitialize();
+            nfcServicePtr->DoInitialize();
             break;
         case KITS::TASK_TURN_ON:
-            nfcService_.lock()->DoTurnOn();
+            nfcServicePtr->DoTurnOn();
             break;
         case KITS::TASK_TURN_OFF:
-            nfcService_.lock()->DoTurnOff();
+            nfcServicePtr->DoTurnOff();
             break;
         case KITS::TASK_RESTART:
-            nfcService_.lock()->DoRestart();
+            nfcServicePtr->DoRestart();
             break;
         default:
             WarnLog("ProcessEvent, unknown eventId %{public}d", eventId);
@@ -378,6 +384,7 @@ bool NfcService::DoTurnOn()
         MainErrorCode::NFC_OPEN_SUCCEED, SubErrorCode::DEFAULT_ERR_DEF);
     NotifyMessageToVendor(KITS::NFC_SWITCH_KEY, std::to_string(KITS::STATE_ON));
     ExternalDepsProxy::GetInstance().NfcDataSetInt(ABORT_RETRY_TIME, 0);
+    NfcParamUtil::SetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME, "false");
     InfoLog("Nfc do turn on successfully.");
     return true;
 }
@@ -427,13 +434,25 @@ bool NfcService::DoTurnOnWithRetry()
 void NfcService::DoRestart()
 {
     InfoLog("DoRestart");
-    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNIN_ON) {
+    if (GetNfcState() != KITS::STATE_ON && GetNfcState() != KITS::STATE_TURNING_ON) {
         ErrorLog("nfc state not on, do not restart");
         return;
     }
     DoTurnOff();
     std::this_thread::sleep_for(std::chrono::milliseconds(SWITCH_OPER_WAIT_MS));
     DoTurnOnWithRetry();
+}
+
+bool NfcService::ShouldTurnOnNfc()
+{
+    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
+    if ((nfcStateFromParam == KITS::STATE_ON) && (nfcState_ != KITS::STATE_ON)) {
+        return true;
+    }
+    std::string isNfcDefaultOn = NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME);
+    std::string isFirstTimeEnable = NfcParamUtil::GetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME);
+    InfoLog("default [%{public}s], first time [%{public}s]", isNfcDefaultOn.c_str(), isFirstTimeEnable.c_str());
+    return ((isNfcDefaultOn == "true") && (isFirstTimeEnable == "true"));
 }
 
 void NfcService::DoInitialize()
@@ -444,12 +463,9 @@ void NfcService::DoInitialize()
     }
     InfoLog("first time init.");
     isAlreadyInited_ = true;
-    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
-    if (nfcStateFromParam == KITS::STATE_ON) {
-        if (nfcState_ != KITS::STATE_ON) {
-            InfoLog("should turn nfc on.");
-            ExecuteTask(KITS::TASK_TURN_ON);
-        }
+    if (ShouldTurnOnNfc()) {
+        InfoLog("should turn nfc on.");
+        ExecuteTask(KITS::TASK_TURN_ON);
     } else {
         // 5min later unload nfc_service, if nfc state is off
         WarnLog("nfc state not on, unload SA in 5 minutes.");

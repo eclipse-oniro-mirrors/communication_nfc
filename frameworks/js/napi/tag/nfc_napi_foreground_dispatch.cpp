@@ -20,6 +20,8 @@
 #include "loghelper.h"
 #include "tag_foreground.h"
 #include "taginfo_parcelable.h"
+#include "nfc_api_control.h"
+#include "nfc_napi_common_utils.h"
 
 namespace OHOS {
 namespace NFC {
@@ -439,6 +441,10 @@ bool CheckResultAndThrow(napi_env &env, int result, std::string funcName)
 napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("RegisterForegroundDispatch");
+    if (IsNfcNotSupported()) {
+        ThrowCapabilityError(env);
+        return CreateUndefined(env);
+    }
     size_t argc = ARGV_NUM_3;
     napi_value argv[ARGV_NUM_3] = {0};
     napi_value thisVar = 0;
@@ -461,6 +467,10 @@ napi_value RegisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
 napi_value UnregisterForegroundDispatch(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("UnregisterForegroundDispatch");
+    if (IsNfcNotSupported()) {
+        ThrowCapabilityError(env);
+        return CreateUndefined(env);
+    }
     size_t argc = ARGV_NUM_1;
     napi_value argv[ARGV_NUM_1] = {0};
     napi_value thisVar = 0;
@@ -608,6 +618,10 @@ int ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, El
 napi_value On(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("On ReaderMode");
+    if (IsNfcNotSupported()) {
+        ThrowCapabilityError(env);
+        return CreateUndefined(env);
+    }
     size_t argc = ARGV_NUM_5;
     napi_value argv[ARGV_NUM_5] = {0};
     napi_value thisVar = 0;
@@ -642,6 +656,10 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
 napi_value Off(napi_env env, napi_callback_info cbinfo)
 {
     DebugLog("Off ReaderMode");
+    if (IsNfcNotSupported()) {
+        ThrowCapabilityError(env);
+        return CreateUndefined(env);
+    }
     size_t requiredArgc = ARGV_NUM_2;
     size_t requiredArgcWithCb = ARGV_NUM_3;
     size_t argc = ARGV_NUM_3;

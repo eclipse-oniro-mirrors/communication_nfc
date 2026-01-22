@@ -21,6 +21,7 @@
 #include "hce_service.h"
 #include "iservice_registry.h"
 #include "loghelper.h"
+#include "nfc_controller.h"
 
 namespace OHOS {
 namespace NFC {
@@ -103,13 +104,17 @@ void NfcTaiheHceSAStatusChange::OnAddSystemAbility(int32_t systemAbilityId, cons
     }
     std::this_thread::sleep_for(std::chrono::seconds(WAIT_SA_START_TIME));
     std::lock_guard<std::mutex> guard(g_callbackMutex);
-    ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(g_hceCmdListenerEvent, EVENT_TYPE_HCE_CMD);
-    InfoLog("RegHceCmdCallback, statusCode = %{public}d", ret);
+    bool isNfcOpen = false;
+    NfcController::GetInstance().IsNfcOpen(isNfcOpen);
+    if (isNfcOpen) {
+        ErrorCode ret = HceService::GetInstance().RegHceCmdCallback(g_hceCmdListenerEvent, EVENT_TYPE_HCE_CMD);
+        InfoLog("RegHceCmdCallback, statusCode = %{public}d", ret);
+    }
 }
 
 void NfcTaiheHceSAStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    InfoLog("systemAbilityId = %{public}d", systemAbilityId);
+    InfoLog("systemAbilityId = %{public}d, ClearHceSessionProxy", systemAbilityId);
 }
 
 void NfcTaiheHceSAStatusChange::Init(int32_t systemAbilityId)

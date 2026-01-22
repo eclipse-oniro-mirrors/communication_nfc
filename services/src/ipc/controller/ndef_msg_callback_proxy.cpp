@@ -44,7 +44,12 @@ bool NdefMsgCallbackProxy::OnNdefMsgDiscovered(const std::string &tagUid, const 
         tagInfo->Marshalling(data);
     }
 
-    int error = Remote()->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NDEF_MSG_NOTIFY),
+    auto remote = Remote();
+    if (remote == nullptr) {
+        ErrorLog("remote nullptr");
+        return false;
+    }
+    int error = remote->SendRequest(static_cast<uint32_t>(NfcServiceIpcInterfaceCode::COMMAND_ON_NDEF_MSG_NOTIFY),
         data, reply, option);
     if (error != ERR_NONE) {
         ErrorLog("NdefMsgCallbackProxy::OnNdefMsgDiscovered, Set Attr %{public}d error: %{public}d",
