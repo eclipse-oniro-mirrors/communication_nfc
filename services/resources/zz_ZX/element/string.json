@@ -26,7 +26,7 @@
         },
         {
             "name":"TransportCardText",
-            "value":"[TS_1000975]_%s discovered. Balance: %.2f RMB"
+            "value":"[TS_1000975]_%s. Balance: %.2f RMB"
         },
         {
             "name":"NfcBtNtfText",

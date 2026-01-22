@@ -9,7 +9,7 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"تم اكتشاف علامة NFC. انقر للعرض.",
+            "value":"تم اكتشاف علامة NFC",
             "attr":{
                 "priority":"LT"
             }
@@ -58,7 +58,7 @@
         },
         {
             "name":"TransportCardText",
-            "value":"تم اكتشاف %s. الرصيد الحالي: %.2f¥.",
+            "value":"%s. الرصيد: %.2f يوان صيني",
             "attr":{
                 "priority":"translate"
             }

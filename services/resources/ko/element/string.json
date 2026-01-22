@@ -11,7 +11,7 @@
             "name":"DefaultTitle",
             "value":"NFC 태그 발견됨",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -58,9 +58,9 @@
         },
         {
             "name":"TransportCardText",
-            "value":"%s 감지됨. 잔액: %.2fRMB",
+            "value":"%s. 잔액: %.2fRMB",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

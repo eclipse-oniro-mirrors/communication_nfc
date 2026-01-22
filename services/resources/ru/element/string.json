@@ -11,7 +11,7 @@
             "name":"DefaultTitle",
             "value":"Обнаружен NFC-тег",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -58,9 +58,9 @@
         },
         {
             "name":"TransportCardText",
-            "value":"Найдено: %s. Баланс: %.2f ¥",
+            "value":"%s. Баланс: ¥%.2f",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

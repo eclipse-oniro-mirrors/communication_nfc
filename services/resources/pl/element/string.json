@@ -11,14 +11,14 @@
             "name":"DefaultTitle",
             "value":"Wykryto znacznik NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
-            "value":"Niektóre aplikacje mogą mieć własne ustawienia sterowania NFC, które należy włączyć ręcznie.",
+            "value":"Niektóre aplikacje mogą mieć własne ustawienia elementów sterowania NFC, które należy włączyć ręcznie.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,33 +32,33 @@
             "name":"NfcWifiNtfTitle",
             "value":"Połącz z siecią",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"kartę miejską Shenzhen Transportation",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
-            "value":"Wybierz aplikację, aby użyć kartę",
+            "value":"Wybierz aplikację, aby użyć karty",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"Połącz",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"Wykryto %s. Saldo: %.2f CNY",
+            "value":"%s. Saldo: %.2f RMB",
             "attr":{
                 "priority":"translate"
             }
@@ -67,77 +67,77 @@
             "name":"NoHapSupportedNtfButtonName",
             "value":"Przejdź do AppGallery",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"Powiadomienie NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"kartę GX T-Union",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"Dotknij, aby wyświetlić szczegóły",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"Brak obsługiwanych aplikacji. Pobierz aplikacje z AppGallery.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"Sparować z %s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"kartę miejską Shanghai Transportation",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"Znaleziono kartę miejską",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"Połączyć z siecią %s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"Żądanie sparowania NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"Dostępne jest kilka aplikacji. Otwórz tę, której chcesz użyć.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -156,9 +156,9 @@
         },
         {
             "name":"NfcBtButtonName",
-            "value":"Powiąż",
+            "value":"Sparuj",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
