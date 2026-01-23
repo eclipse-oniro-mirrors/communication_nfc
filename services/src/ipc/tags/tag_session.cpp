@@ -679,7 +679,8 @@ bool TagSession::IsSameAppAbility(const ElementName &element, const ElementName 
     return false;
 }
 
-bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech)
+bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara, const std::vector<uint32_t> &discTech,
+    int intervalPara, int interval)
 {
     std::set<uint32_t> discoveryParaSet = {};
     std::set<uint32_t> discTechSet = {};
@@ -690,7 +691,8 @@ bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara,
         discTechSet.insert(it);
     }
     bool isSameDiscoveryPara = (discoveryParaSet.size() == discTechSet.size()) &&
-        std::equal(discoveryParaSet.begin(), discoveryParaSet.end(), discTechSet.begin());
+        std::equal(discoveryParaSet.begin(), discoveryParaSet.end(), discTechSet.begin()) &&
+        intervalPara == interval;
     InfoLog("IsSameDiscoveryPara? %{public}d", isSameDiscoveryPara);
     return isSameDiscoveryPara;
 }
@@ -858,7 +860,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
         ElementName readerElement = readerData.element_;
         if (IsSameAppAbility(element, readerElement)) {
             if (readerData.isEnabled_ &&
-                IsSameDiscoveryPara(readerData.techs_, discTech) && readerData.interval_ == interval) {
+                IsSameDiscoveryPara(readerData.techs_, discTech, readerData.interval_, interval)) {
                 return true;
             }
             InfoLog("Enable ReaderData: bundleName = %{public}s, abilityName = %{public}s",
@@ -866,6 +868,9 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
             readerData.isEnabled_ = true;
             readerData.techs_ = discTech;
             readerData.interval_ = interval;
+            if (!IsSameDiscoveryPara(readerData.techs_, discTech, readerData.interval_, interval)) {
+                readerData.regTime_ = KITS::NfcSdkCommon::GetCurrentTime();
+            }
             return false;
         }
     }
@@ -874,6 +879,21 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
     InfoLog("Add new ReaderData to vector: %{public}s, %{public}s", element.GetBundleName().c_str(),
         element.GetAbilityName().c_str());
     return false;
+}
+
+long TagSession::GetRegTime(const ElementName &element)
+{
+    DebugLog("ready to getRegTime of %{public}s/%{public}s", element.GetBundleName().c_str(),
+        element.GetAbilityName().c_str());
+    long regTime = 0;
+    for (ReaderData &readerData : readerDataVec_) {
+        if (IsSameAppAbility(element, readerData.element_)) {
+            regTime = readerData.regTime_;
+            break;
+        }
+    }
+    DebugLog("GetRegTime: %{public}ld", regTime);
+    return regTime;
 }
 
 bool TagSession::IsReaderUnregistered(const ElementName &element, bool isAppUnregistered)
@@ -916,7 +936,7 @@ int TagSession::RegReaderModeInner(const ElementName &element, const std::vector
         ErrorLog("RegReaderModeInner nfcPollingManager_ is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
+    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp, GetRegTime(element))) {
         bool isFgAbility = nfcPollingManagerPtr->
             CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?
@@ -1002,7 +1022,7 @@ int TagSession::RegReaderModeInnerWithIntvl(const ElementName &element, const st
         ErrorLog("RegReaderModeInnerWithIntvl nfcPollingManager_ is nullptr");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp)) {
+    if (nfcPollingManagerPtr->EnableReaderMode(element, discTech, callback, isVendorApp, GetRegTime(element))) {
         bool isFgAbility = nfcPollingManagerPtr->
             CheckForegroundAbility(element.GetBundleName(), element.GetAbilityName());
         SubErrorCode subErrorCode = isFgAbility ?

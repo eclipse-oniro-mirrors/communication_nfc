@@ -721,23 +721,31 @@ HWTEST_F(TagSessionTest, IsSameDiscoveryPara001, TestSize.Level1)
 
     std::vector<uint32_t> discoveryPara = {1, 2, 3};
     std::vector<uint32_t> discTech = {1, 2, 3};
-    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara, discTech));
+    int intervalPara = 0;
+    int interval = 0;
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara, discTech, intervalPara, interval));
 
     std::vector<uint32_t> discoveryPara1 = {};
     std::vector<uint32_t> discTech1 = {};
-    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara1, discTech1));
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara1, discTech1, intervalPara, interval));
 
     std::vector<uint32_t> discoveryPara2 = {1, 2, 3};
     std::vector<uint32_t> discTech2 = {1, 3, 2};
-    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara2, discTech2));
+    ASSERT_TRUE(tagSession->IsSameDiscoveryPara(discoveryPara2, discTech2, intervalPara, interval));
 
     std::vector<uint32_t> discoveryPara3 = {1, 2, 3};
     std::vector<uint32_t> discTech3 = {1, 2, 4};
-    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara3, discTech3));
+    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara3, discTech3, intervalPara, interval));
 
     std::vector<uint32_t> discoveryPara4 = {1, 2, 3};
     std::vector<uint32_t> discTech4 = {1, 2, 2};
-    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara4, discTech4));
+    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara4, discTech4, intervalPara, interval));
+
+    std::vector<uint32_t> discoveryPara5 = {1, 2, 3};
+    std::vector<uint32_t> discTech5 = {1, 2, 3};
+    int intervalPara1 = 1;
+    int interval1 = 2;
+    ASSERT_FALSE(tagSession->IsSameDiscoveryPara(discoveryPara5, discTech5, intervalPara1, interval1));
 }
 
 /**
@@ -926,6 +934,43 @@ HWTEST_F(TagSessionTest, IsForegroundApp001, TestSize.Level1)
     element.bundleName_ = "test";
     bool ret = g_appStateObserver->IsForegroundApp(element.GetBundleName());
     ASSERT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: GetRegTime001
+ * @tc.desc: Test TagSession GetRegTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, GetRegTime001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
+    tagSession->readerDataVec_.push_back(readerData);
+
+    long result = tagSession->GetRegTime(element);
+    ASSERT_TRUE(result > 0);
+}
+
+/**
+ * @tc.name: GetRegTime002
+ * @tc.desc: Test TagSession GetRegTime.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, GetRegTime002, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    ElementName element("", "bundleName", "abilityName", "");
+    TAG::ReaderData readerData(true, element, std::vector<uint32_t>(), nullptr, 0);
+    tagSession->readerDataVec_.push_back(readerData);
+
+    ElementName element1("", "test", "abilityName", "");
+    long result = tagSession->GetRegTime(element1);
+    ASSERT_TRUE(result == 0);
 }
 }
 }
