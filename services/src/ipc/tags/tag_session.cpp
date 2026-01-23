@@ -870,7 +870,7 @@ bool TagSession::IsReaderRegistered(const ElementName &element, const std::vecto
             readerData.techs_ = discTech;
             readerData.interval_ = interval;
             if (!IsSameDiscoveryPara(readerData.techs_, discTech, readerData.interval_, interval)) {
-                readerData.regTime_ = KITS::NfcSdkCommon::GetCurrentTime();
+                readerData.regTime_ = static_cast<uint64_t>(KITS::NfcSdkCommon::GetCurrentTime());
             }
             return false;
         }

@@ -213,11 +213,11 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
     nciTagProxyPtr->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
     tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
     auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
-    if (pollingMgr->IsReaderModeEnabled()) {
+    if (pollingMgr != nullptr && pollingMgr->IsReaderModeEnabled()) {
         pollingMgr->SendTagToReaderApp(tagInfo);
         return DISPATCH_READERMODE;
     }
-    if (pollingMgr->IsForegroundEnabled()) {
+    if (pollingMgr != nullptr && pollingMgr->IsForegroundEnabled()) {
         pollingMgr->SendTagToForeground(tagInfo);
         return DISPATCH_FOREGROUND;
     }
