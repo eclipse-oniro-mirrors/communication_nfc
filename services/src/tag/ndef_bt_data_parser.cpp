@@ -246,7 +246,6 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
             }
             case TYPE_LONG_LOCAL_NAME: {
                 if (!data->name_.empty()) {
-                    offset += (tvLen - 1);
                     break; // already contains short name
                 }
                 if (tvLen < 1) {
@@ -271,6 +270,10 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
             case TYPE_128_BIT_UUIDS_PARTIAL:
             case TYPE_128_BIT_UUIDS_COMPLETE: {
                 data->uuids_.clear();
+                if (tvLen < 1) {
+                    ErrorLog("NdefBtDataParser::ParseBtRecord, invalid tvllen.");
+                    break;
+                }
                 data->uuids_ = GetUuidFromPayload(payload, offset, type, tvLen - 1);
                 if (!data->uuids_.empty()) {
                     isValid = true;
@@ -279,13 +282,17 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
             }
             case TYPE_CLASS_OF_DEVICE: {
                 if (tvLen != CLASS_OF_DEVICE_SIZE + 1) {
-                    ErrorLog("NdefBtDataParser::ParseBtRecord, invalid  class of Device len");
+                    ErrorLog("NdefBtDataParser::ParseBtRecord, invalid class of Device len");
                     break;
                 }
                 isValid = GetBtDevClass(payload, offset, data->btClass_);
                 break;
             }
             case TYPE_VENDOR: {
+                if (tvLen < 1) {
+                    ErrorLog("NdefBtDataParser::ParseBtRecord, type TYPE_VENDOR invalid tvllen.");
+                    break;
+                }
                 std::string vendorPayload = GetDataFromPayload(payload, offset, tvLen - 1);
                 if (vendorPayload.empty()) {
                     ErrorLog("NdefBtDataParser::ParseBtRecord, vendor error, "
@@ -298,20 +305,13 @@ std::shared_ptr<BtData> NdefBtDataParser::ParseBtRecord(const std::string& paylo
             }
             default: {
                 ErrorLog("NdefBtDataParser::ParseBtRecord, unknown type = %{public}d", type);
-                if (tvLen < 1) {
-                    ErrorLog("NdefBtDataParser::ParseBtRecord, invalid  local name len. ");
-                    return data;
-                }
-                offset += (tvLen - 1);
-                isValid = true;
                 break;
             }
         }
         if (!isValid) {
             ErrorLog("NdefBtDataParser::ParseBtRecord, vendor error, "
                 "payload len.%{public}lu offset.%{public}d type.0x%{public}X", payload.length(), offset, type);
-            data->isValid_ = false;
-            return data;
+            offset = offset + tvLen - 1;
         }
     }
     return data;
