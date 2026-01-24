@@ -194,7 +194,7 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr == nullptr) {
         ErrorLog("nciTagProxy_ is nullptr");
-    } else if (!nciTagProxyPtr->VendorParseHarPackage(harPackages)) {
+    } else if (!nciTagProxyPtr->VendorParseHarPackage(harPackages, uri)) {
         return false;
     }
     /* Pull up vendor parsed harPackage */
