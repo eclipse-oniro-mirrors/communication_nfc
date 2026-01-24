@@ -89,11 +89,12 @@ ErrCode NfcControllerImpl::TurnOn()
         ErrorLog("nfc edm disallowed");
         return KITS::ERR_NFC_EDM_DISALLOWED;
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_ON);
+    return nfcServicePtr->ExecuteTask(KITS::TASK_TURN_ON);
 }
 
 ErrCode NfcControllerImpl::TurnOff()
@@ -105,11 +106,12 @@ ErrCode NfcControllerImpl::TurnOff()
     std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_OFF_NFC, appPackageName);
 
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcService_.lock()->ExecuteTask(KITS::TASK_TURN_OFF);
+    return nfcServicePtr->ExecuteTask(KITS::TASK_TURN_OFF);
 }
 
 ErrCode NfcControllerImpl::RestartNfc()
@@ -121,11 +123,13 @@ ErrCode NfcControllerImpl::RestartNfc()
     std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::RESTART_NFC, appPackageName);
 
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcService_.lock()->ExecuteTask(KITS::TASK_RESTART);
+
+    return nfcServicePtr->ExecuteTask(KITS::TASK_RESTART);
 }
 
 ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCallback>& cb, const std::string& type)
@@ -134,8 +138,9 @@ ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCa
         ErrorLog("input callback nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
 
@@ -150,7 +155,7 @@ ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCa
     std::lock_guard<std::mutex> guard(mutex_);
     deathRecipient_ = dr;
     callback_ = cb;
-    return nfcService_.lock()->SetRegisterCallBack(cb, type, IPCSkeleton::GetCallingTokenID());
+    return nfcServicePtr->SetRegisterCallBack(cb, type, IPCSkeleton::GetCallingTokenID());
 }
 
 ErrCode NfcControllerImpl::UnregisterNfcStatusCallBack(const std::string& type)
@@ -184,11 +189,12 @@ ErrCode NfcControllerImpl::GetTagServiceIface(sptr<IRemoteObject>& funcResult)
         return KITS::ERR_NO_PERMISSION;
     }
 
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired.");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    funcResult = nfcService_.lock()->GetTagServiceIface();
+    funcResult = nfcServicePtr->GetTagServiceIface();
     return KITS::ERR_NONE;
 }
 
@@ -202,11 +208,12 @@ ErrCode NfcControllerImpl::RegNdefMsgCb(const sptr<INdefMsgCallback>& cb)
         ErrorLog("input callback nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    if (nfcService_.lock()->RegNdefMsgCb(cb)) {
+    if (nfcServicePtr->RegNdefMsgCb(cb)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -261,11 +268,12 @@ ErrCode NfcControllerImpl::GetHceServiceIface(sptr<IRemoteObject>& funcResult)
         ErrorLog("GetHceServiceIface no permission");
         return KITS::ERR_NO_PERMISSION;
     }
-    if (nfcService_.expired()) {
-        ErrorLog("nfcService_ expired");
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    funcResult = nfcService_.lock()->GetHceServiceIface();
+    funcResult = nfcServicePtr->GetHceServiceIface();
     return KITS::ERR_NONE;
 }
 
