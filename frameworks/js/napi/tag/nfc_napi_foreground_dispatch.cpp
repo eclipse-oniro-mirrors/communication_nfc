@@ -582,7 +582,7 @@ int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, Elem
     return ERR_NONE;
 }
 
-int ReaderModeEvtRegister::RegisterWithIntvl(const napi_env &env, std::string &type,
+int ReaderModeEvtRegister::RegisterWithIntvl(const napi_env &env, ElementName &element,
     std::vector<uint32_t> &discTech, napi_value handler, int interval)
 {
     std::lock_guard<std::mutex> lock(g_mutex);
@@ -680,12 +680,12 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     }
     int ret = KITS::ERR_NONE;
     if (argc == ARGV_NUM_4 && type.compare(TYPE_READER_MODE) == 0) {
-        ret = ReaderModeEvtRegister::GetInstance.Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
+        ret = ReaderModeEvtRegister::GetInstance().Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
     } else if (argc == ARGV_NUM_5 && type.compare(TYPE_READER_MODE_WITH_INTVL) == 0) {
         ret = ReaderModeEvtRegister::GetInstance().RegisterWithIntvl(
             env, element, dataVec, argv[ARGV_INDEX_3], interval);
     } else {
-        ret == KITS::ERR_NFC_PARAMETERS;
+        ret = KITS::ERR_NFC_PARAMETERS;
     }
     CheckResultAndThrow(env, ret, "On");
     return CreateUndefined(env);
