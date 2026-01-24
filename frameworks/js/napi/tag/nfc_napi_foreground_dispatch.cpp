@@ -507,19 +507,14 @@ public:
 sptr<ReaderModeListenerEvt> readerModeListenerEvt = sptr<ReaderModeListenerEvt>(new ReaderModeListenerEvt());
 
 int ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &element,
-                                            std::vector<uint32_t> &discTech, int interval)
+                                            std::vector<uint32_t> &discTech)
 {
-    if (type.compare(TYPE_READER_MODE) != 0 && type.compare(TYPE_READER_MODE_WITH_INTVL) != 0) {
+    if (type.compare(TYPE_READER_MODE) != 0) {
         ErrorLog("RegReaderModeEvt invalid type: %{public}s", type.c_str());
         return KITS::ERR_NFC_PARAMETERS;
     }
-    int ret = KITS::ERR_NONE;
-    if (type.compare(TYPE_READER_MODE) == 0) {
-        ret = TagForeground::GetInstance().RegReaderMode(element, discTech, readerModeListenerEvt);
-    } else {
-        ret = TagForeground::GetInstance().RegReaderModeWithIntvl(
-            element, discTech, readerModeListenerEvt, interval);
-    }
+    TagForeground tagForeground = TagForeground::GetInstance();
+    int ret = tagForeground.RegReaderMode(element, discTech, readerModeListenerEvt);
     if (ret != KITS::ERR_NONE) {
         DebugLog("RegReaderModeEvt register failed!");
         return ret;
@@ -527,9 +522,20 @@ int ReaderModeEvtRegister::RegReaderModeEvt(std::string &type, ElementName &elem
     return ret;
 }
 
+int ReaderModeEvtRegister::RegReaderModeEvtWithIntvl(ElementName &element,
+    std::vector<uint32_t> &discTech, int interval)
+{
+    int ret = TagForeground::GetInstance().RegReaderModeWithIntvl(
+        element, discTech, readerModeListenerEvt, interval);
+    if (ret != KITS::ERR_NONE) {
+        DebugLog("register failed!");
+    }
+    return ret;
+}
+
 int ReaderModeEvtRegister::UnregReaderModeEvt(std::string &type, ElementName &element)
 {
-    if (type.compare(TYPE_READER_MODE) != 0) {
+    if (type.compare(TYPE_READER_MODE) != 0 && type.compare(TYPE_READER_MODE_WITH_INTVL) != 0) {
         ErrorLog("UnregReaderModeEvt invalid type: %{public}s", type.c_str());
         return KITS::ERR_NFC_PARAMETERS;
     }
@@ -548,17 +554,13 @@ ReaderModeEvtRegister& ReaderModeEvtRegister::GetInstance()
     return inst;
 }
 
-int ReaderModeEvtRegister::Register(napi_env &env,
-    napi_value* argv, std::vector<uint32_t> &discTech, int interval)
+int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, ElementName &element,
+                                    std::vector<uint32_t> &discTech, napi_value handler)
 {
-    std::string type = "";
-    ElementName element;
-    ParseString(env, type, argv[ARGV_INDEX_0]);
-    ParseElementName(env, element, argv[ARGV_INDEX_1]);
     std::lock_guard<std::mutex> lock(g_mutex);
     InfoLog("ReaderModeEvtRegister::Register event, isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
     if (!isReaderModeRegistered_) {
-        int ret = RegReaderModeEvt(type, element, discTech, interval);
+        int ret = RegReaderModeEvt(type, element, discTech);
         if (ret != KITS::ERR_NONE) {
             ErrorLog("ReaderModeEvtRegister::Register, reg event failed");
             return ret;
@@ -566,7 +568,35 @@ int ReaderModeEvtRegister::Register(napi_env &env,
         isReaderModeRegistered_ = true;
     }
     napi_ref handlerRef = nullptr;
-    napi_create_reference(env, argv[ARGV_INDEX_3], 1, &handlerRef);
+    napi_create_reference(env, handler, 1, &handlerRef);
+    RegObj regObj(env, handlerRef, element, discTech);
+    g_readerModeRegInfo = regObj;
+    if (env == regObj.regEnv) {
+        napi_value handlerTemp = nullptr;
+        napi_status status = napi_get_reference_value(regObj.regEnv, regObj.regHandlerRef, &handlerTemp);
+        if (status != napi_ok) {
+            ErrorLog("napi_get_reference_value ret %{public}d", status);
+            return ERR_NONE;
+        }
+    }
+    return ERR_NONE;
+}
+
+int ReaderModeEvtRegister::RegisterWithIntvl(const napi_env &env, std::string &type,
+    std::vector<uint32_t> &discTech, napi_value handler, int interval)
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    InfoLog("isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
+    if (!isReaderModeRegistered_) {
+        int ret = RegReaderModeEvtWithIntvl(element, discTech, interval);
+        if (ret != KITS::ERR_NONE) {
+            ErrorLog("reg event failed");
+            return ret;
+        }
+        isReaderModeRegistered_ = true;
+    }
+    napi_ref handlerRef = nullptr;
+    napi_create_reference(env, handler, 1, &handlerRef);
     RegObj regObj(env, handlerRef, element, discTech);
     g_readerModeRegInfo = regObj;
     if (env == regObj.regEnv) {
@@ -648,7 +678,15 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         }
         InfoLog("interval = %{public}d", interval);
     }
-    int ret = ReaderModeEvtRegister::GetInstance().Register(env, argv, dataVec, interval);
+    int ret = KITS::ERR_NONE;
+    if (argc == ARGV_NUM_4 && type.compare(TYPE_READER_MODE) == 0) {
+        ret = ReaderModeEvtRegister::GetInstance.Register(env, type, element, dataVec, argv[ARGV_INDEX_3]);
+    } else if (argc == ARGV_NUM_5 && type.compare(TYPE_READER_MODE_WITH_INTVL) == 0) {
+        ret = ReaderModeEvtRegister::GetInstance().RegisterWithIntvl(
+            env, element, dataVec, argv[ARGV_INDEX_3], interval);
+    } else {
+        ret == KITS::ERR_NFC_PARAMETERS;
+    }
     CheckResultAndThrow(env, ret, "On");
     return CreateUndefined(env);
 }
