@@ -287,10 +287,6 @@ static void CleanUp(void* data)
         return;
     }
     RegObj* regObj = static_cast<RegObj*>(data);
-    if (regObj->m_regEnv == nullptr || regObj->m_regHanderRef == nullptr) {
-        return;
-    }
-    napi_delete_reference(regObj->m_regEnv, regObj->m_regHanderRef);
     regObj->m_regEnv = nullptr;
     regObj->m_regHanderRef = nullptr;
 }
