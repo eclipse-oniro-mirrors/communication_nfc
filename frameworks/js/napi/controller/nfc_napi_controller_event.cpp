@@ -304,7 +304,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     napi_create_reference(env, handler, 1, &handlerRef);
     RegObj regObj(env, handlerRef);
     auto iter = g_eventRegisterInfo.find(type);
-    if (iter == g_eventRegisterInfo.end()) {
+    if (iter == g_eventRegisterInfo.end() || g_eventRegisterInfo[type].size() == 0) {
         g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
         napi_add_env_cleanup_hook(env, CleanUp, (void*)&g_eventRegisterInfo[type]);
         return;
