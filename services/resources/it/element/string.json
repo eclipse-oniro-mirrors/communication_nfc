@@ -11,54 +11,54 @@
             "name":"DefaultTitle",
             "value":"Tag NFC rilevato",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"Alcune app potrebbero disporre di propri controlli NFC da abilitare manualmente.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"Lingnan Pass",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"Connetti alla rete",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"Scheda dei trasporti di Shenzhen",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"Seleziona l'app per utilizzare la carta",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"Connetti",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%s rilevato. Balance: %.2f RMB",
+            "value":"%s. Saldo: %.2f RMB",
             "attr":{
                 "priority":"translate"
             }
@@ -67,84 +67,84 @@
             "name":"NoHapSupportedNtfButtonName",
             "value":"Vai in AppGallery",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"Notifica NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"GX T-Union Card",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"Tocca per i dettagli",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"Nessuna app supportata disponibile. Ottieni app da AppGallery.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"Vuoi associare a \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"Tessera dei trasporti di Shanghai",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"Tessera dei trasporti trovata",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"Vuoi connetterti alla rete \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"Richiesta di associazione NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"Sono disponibili molteplici app. Apri quella che desideri utilizzare.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"Scheda dei trasporti di Pechino",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -158,7 +158,7 @@
             "name":"NfcBtButtonName",
             "value":"Associa",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

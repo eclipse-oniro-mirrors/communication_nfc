@@ -11,105 +11,105 @@
             "name":"DefaultTitle",
             "value":"NFC etiketi bulundu",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"Bazı uygulamalarda manuel olarak etkinleştirilmesi gereken özel NFC kontrolleri bulunabilir.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
-            "value":"Lingnan Ulaşım Kartı",
+            "value":"Lingnan Pass",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"Ağa bağlanma",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"Shenzhen Toplu Taşıma Kartı",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"Kartı kullanmak için uygulamayı seçin",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"Bağlan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%s keşfedildi. Bakiye: %.2f RMB",
+            "value":"%s. Bakiye: %.2f RMB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"AppGallery'ye git",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"NFC bildirimi",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"GX T-Union Kartı",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"Ayrıntılar için dokunun",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
-            "value":"Desteklenen uygulama yok. AppGallery'den uygulama alın.",
+            "value":"Desteklenen uygulama yok. AppGallery'den uygulama a\u200blın.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"\"%s\" ile eşleştirilsin mi?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
-            "value":"Şanghay Toplu Taşıma Kartı",
+            "value":"Şanhay Toplu Taşıma Kartı",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -123,28 +123,28 @@
             "name":"NfcWifiNtfText",
             "value":"\"%s\" ağına bağlanılsın mı?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"NFC eşleştirme talebi",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"Birden fazla uygulama mevcut. Kullanmak istediğinizi seçin.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"Pekin Toplu Taşıma Kartı",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -158,7 +158,7 @@
             "name":"NfcBtButtonName",
             "value":"Eşleştir",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

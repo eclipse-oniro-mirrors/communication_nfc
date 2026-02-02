@@ -11,7 +11,7 @@
             "name":"DefaultTitle",
             "value":"Đã phát hiện thẻ NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -58,9 +58,9 @@
         },
         {
             "name":"TransportCardText",
-            "value":"Đã phát hiện %s. Số dư: %.2f RMB",
+            "value":"%s. Số dư: %.2f RMB",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

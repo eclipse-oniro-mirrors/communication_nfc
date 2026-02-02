@@ -9,142 +9,142 @@
         },
         {
             "name":"DefaultTitle",
-            "value":"Etiqueta NFC encontrada",
+            "value":"Tag NFC encontrada",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"Algumas aplicações poderão ter os seus próprios controlos de NFC que requerem ativação manual.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"Passe Lingnan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"Ligar à rede",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"Cartão de transporte de Shenzhen",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"Selecionar a aplicação para utilizar o cartão",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"Ligar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%s encontrado. Saldo: %.2f RMB",
+            "value":"%s. Saldo: %.2f RMB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"Aceder à AppGallery",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"Notificação do NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"Cartão GX T-Union",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"Toque aqui para obter mais detalhes",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"Sem aplicações suportadas disponíveis. Obtenha aplicações da AppGallery.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
-            "value":"Emparelhar com \"%s\"?",
+            "value":"Emparelhar com %s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"Cartão de transporte de Xangai",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"Cartão de transporte encontrado",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"Ligar à rede \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
-            "value":"pedido de emparelhamento NFC",
+            "value":"Pedido de emparelhamento NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"Várias aplicações disponíveis. Abra a que pretende utilizar.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"Cartão de transporte de Pequim",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -158,7 +158,7 @@
             "name":"NfcBtButtonName",
             "value":"Emparelhar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

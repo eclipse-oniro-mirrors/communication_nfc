@@ -11,140 +11,140 @@
             "name":"DefaultTitle",
             "value":"Tag NFC ditemui",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
             "value":"Sesetengah aplikasi mungkin mempunyai kawalan NFC sendiri yang perlu didayakan secara manual.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"Pas Lingnan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
             "value":"Bersambung ke rangkaian",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"Kad Pengangkutan Shenzhen",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
-            "value":"Pilih aplikasi yang menggunakan kad",
+            "value":"Pilih aplikasi untuk menggunakan kad",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
             "value":"Sambung",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%s ditemui. Baki: %.2f RMB",
+            "value":"%s. Baki: %.2f RMB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfButtonName",
             "value":"Pergi ke AppGallery",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"Pemberitahuan NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"Kad GX T-Union",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"Ketik untuk butiran",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
-            "value":"Tiada aplikasi disokong tersedia. Dapatkan aplikasi daripada AppGallery.",
+            "value":"Tiada aplikasi disokong tersedia. Dapatkan aplikasi dari\u200bpada AppGallery.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"Pasangkan dengan \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
             "value":"Kad Pengangkutan Shanghai",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"Kad pengangkutan ditemukan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"Bersambung ke rangkaian \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
             "value":"Permintaan berpasangan NFC",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"Berbilang aplikasi tersedia. Buka aplikasi yang ingin anda gunakan.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"Kad Pengangkutan Beijing",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -156,9 +156,9 @@
         },
         {
             "name":"NfcBtButtonName",
-            "value":"Jadikan pasangan",
+            "value":"Pasangkan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
