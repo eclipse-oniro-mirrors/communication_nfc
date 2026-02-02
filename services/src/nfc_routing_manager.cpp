@@ -53,8 +53,12 @@ void NfcRoutingManager::HandleCommitRouting()
         WarnLog("HandleCommitRouting: NOT Handle CommitRouting in state off or turning off.");
         return;
     }
-    std::shared_ptr<NfcPollingParams> currPollingParams =
-        nfcServicePtr->GetNfcPollingManager().lock()->GetCurrentParameters();
+    auto pollingManager = nfcServicePtr->GetNfcPollingManager().lock();
+    if (pollingManager == nullptr) {
+        ErrorLog("HandleCommitRouting: pollingManager is nullptr.");
+        return;
+    }
+    std::shared_ptr<NfcPollingParams> currPollingParams = pollingManager->GetCurrentParameters();
     if (currPollingParams == nullptr) {
         ErrorLog("HandleCommitRouting: currPollingParams is nullptr.");
         return;

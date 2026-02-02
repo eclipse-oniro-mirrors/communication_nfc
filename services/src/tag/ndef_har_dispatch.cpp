@@ -180,8 +180,9 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     if (uri.size() > 0) {
         want.SetUri(uri);
     }
-    if (!nciNfccProxy_.expired()) {
-        nciNfccProxy_.lock()->UpdateWantExtInfoByVendor(want, uri);
+    auto nciNfccProxyPtr = nciNfccProxy_.lock();
+    if (nciNfccProxyPtr != nullptr) {
+        nciNfccProxyPtr->UpdateWantExtInfoByVendor(want, uri);
     }
 #ifdef NFC_HANDLE_SCREEN_LOCK
     auto screenLockIface = ScreenLock::ScreenLockManager::GetInstance();
@@ -215,8 +216,8 @@ bool NdefHarDispatch::DispatchBundleAbility(const std::string &harPackage,
     }
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::NDEF_HAR_DISPATCH);
-    if (!nciNfccProxy_.expired()) {
-        nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::TAG_DISPATCH_HAR_PACKAGE, harPackageString);
+    if (nciNfccProxyPtr != nullptr) {
+        nciNfccProxyPtr->NotifyMessageToVendor(KITS::TAG_DISPATCH_HAR_PACKAGE, harPackageString);
     }
     return true;
 }

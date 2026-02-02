@@ -71,13 +71,14 @@ int BasicTagSession::Close()
 {
     isConnected_ = false;
     OHOS::sptr<ITagSession> tagSession = GetTagSessionProxy();
-    if (tagSession == nullptr || tagSession->AsObject() == nullptr || tagInfo_.expired()) {
+    auto tagInfoPtr = tagInfo_.lock();
+    if (tagSession == nullptr || tagSession->AsObject() == nullptr || tagInfoPtr == nullptr) {
         ErrorLog("Close, ERR_TAG_STATE_UNBIND");
         return ErrorCode::ERR_TAG_STATE_UNBIND;
     }
 
     // do reconnect to reset the tag's state.
-    tagInfo_.lock()->SetConnectedTagTech(KITS::TagTechnology::NFC_INVALID_TECH);
+    tagInfoPtr->SetConnectedTagTech(KITS::TagTechnology::NFC_INVALID_TECH);
 
     ErrCode statusCode = tagSession->Reconnect(GetTagRfDiscId());
     if (statusCode == ERR_NONE) {

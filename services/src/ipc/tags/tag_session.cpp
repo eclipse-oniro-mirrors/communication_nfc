@@ -817,11 +817,12 @@ int TagSession::UnregForegroundDispatchInner(const ElementName &element, bool is
     }
     InfoLog("UnregForegroundDispatchInner: bundleName = %{public}s, abilityName = %{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (nfcPollingManager_.expired()) {
+    auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+    if (nfcPollingManagerPtr == nullptr) {
         ErrorLog("UnregForegroundDispatch, expired");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
-    if (nfcPollingManager_.lock()->DisableForegroundDispatch(element)) {
+    if (nfcPollingManagerPtr->DisableForegroundDispatch(element)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -956,12 +957,13 @@ int TagSession::UnregReaderModeInner(const ElementName &element, bool isAppUnreg
     }
     InfoLog("UnregReaderModeInner: bundleName = %{public}s, abilityName = %{public}s",
         element.GetBundleName().c_str(), element.GetAbilityName().c_str());
-    if (nfcPollingManager_.expired()) {
+    auto nfcPollingManagerPtr = nfcPollingManager_.lock();
+    if (nfcPollingManagerPtr == nullptr) {
         ErrorLog("UnregReaderMode, expired");
         return KITS::ERR_TAG_STATE_UNBIND;
     }
     SetFieldCheckInterval(0);
-    if (nfcPollingManager_.lock()->DisableReaderMode(element)) {
+    if (nfcPollingManagerPtr->DisableReaderMode(element)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;

@@ -56,6 +56,7 @@ sptr<IRemoteObject> NfcSaClient::LoadNfcSa(int32_t systemAbilityId)
     }
     auto object = samgr->CheckSystemAbility(systemAbilityId);
     if (object != nullptr) {
+        std::unique_lock<std::mutex> lock(locatorMutex_);
         InfoLog("NfcSaClient::%{public}s CheckSystemAbility systemAbilityId [%{public}d] SUCCESS",
             __func__, systemAbilityId);
         remoteObject_ = object;

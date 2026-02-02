@@ -50,14 +50,14 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
         eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
         return CreateUndefined(env);
     }
-    std::weak_ptr<TagInfo> tagInfo = nfcTag->GetTagInfo();
-    if (tagInfo.expired()) {
+    auto tagInfo = nfcTag->GetTagInfo().lock();
+    if (tagInfo == nullptr) {
         eventReport.ReportSdkEvent(RESULT_FAIL, ERR_TAG_PARAMETERS);
         return CreateUndefined(env);
     }
     eventReport.ReportSdkEvent(RESULT_SUCCESS, ERR_NONE);
-    std::string uid = tagInfo.lock()->GetTagUid();
-    std::vector<int> techList = tagInfo.lock()->GetTagTechList();
+    std::string uid = tagInfo->GetTagUid();
+    std::vector<int> techList = tagInfo->GetTagTechList();
 
     // build tagInfo Js Object, with menber uid and technology only.
     napi_value tagInfoObj = nullptr;
