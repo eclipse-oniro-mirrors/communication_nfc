@@ -62,11 +62,13 @@ std::weak_ptr<TagHost> TagNativeImpl::GetTag(uint32_t tagDiscId)
  */
 void TagNativeImpl::OnTagDiscovered(uint32_t tagDiscId, std::shared_ptr<TagHost> tagHost)
 {
-    if (tagListener_.expired()) {
+    auto tagListenerPtr = tagListener_.lock();
+    if (tagListenerPtr == nullptr) {
+        ErrorLog("tagListener nullptr");
         return;
     }
     tagHostMap_.insert(make_pair(tagDiscId, tagHost));
-    tagListener_.lock()->OnTagDiscovered(tagDiscId);
+    tagListenerPtr->OnTagDiscovered(tagDiscId);
 }
 
 /**
@@ -75,11 +77,13 @@ void TagNativeImpl::OnTagDiscovered(uint32_t tagDiscId, std::shared_ptr<TagHost>
  */
 void TagNativeImpl::OnTagLost(uint32_t tagDiscId)
 {
-    if (tagListener_.expired()) {
+    auto tagListenerPtr = tagListener_.lock();
+    if (tagListenerPtr == nullptr) {
+        ErrorLog("tagListener nullptr");
         return;
     }
     tagHostMap_.erase(tagDiscId);
-    tagListener_.lock()->OnTagLost(tagDiscId);
+    tagListenerPtr->OnTagLost(tagDiscId);
 }
 
 /**

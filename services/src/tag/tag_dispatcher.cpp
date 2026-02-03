@@ -210,7 +210,7 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
     bool isIsoDep = false;
     int fieldOnCheckInterval = GetFieldOnCheckInterval(isIsoDep, tagDiscId);
     InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
-    nciTagProxy_.lock()->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
+    nciTagProxyPtr->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
     tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
     auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
     if (pollingMgr->IsReaderModeEnabled()) {

@@ -522,7 +522,8 @@ void NfccNciAdapter::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
 {
     lastRfFieldTime = 0;
     isRfFieldOn_ = false;
-    if (cardEmulationListener_.expired()) {
+    auto cardEmulationListenerPtr = cardEmulationListener_.lock();
+    if (cardEmulationListenerPtr == nullptr) {
         ErrorLog("DoNfaDmRfFieldEvt: cardEmulationListener_ is null");
         return;
     }
@@ -531,10 +532,10 @@ void NfccNciAdapter::DoNfaDmRfFieldEvt(tNFA_DM_CBACK_DATA* eventData)
         // notify field on/off event to nfc service.
         if (eventData->rf_field.rf_field_status == NFA_DM_RF_FIELD_ON) {
             isRfFieldOn_ = true;
-            cardEmulationListener_.lock()->FieldActivated();
+            cardEmulationListenerPtr->FieldActivated();
         } else {
             isRfFieldOn_ = false;
-            cardEmulationListener_.lock()->FieldDeactivated();
+            cardEmulationListenerPtr->FieldDeactivated();
         }
     }
 }
@@ -1050,30 +1051,33 @@ bool NfccNciAdapter::ComputeRoutingParams(int defaultPaymentType)
 void NfccNciAdapter::OnCardEmulationData(const std::vector<uint8_t> &data)
 {
     DebugLog("NfccNciAdapter::OnCardEmulationData");
-    if (cardEmulationListener_.expired()) {
+    auto cardEmulationListenerPtr = cardEmulationListener_.lock();
+    if (cardEmulationListenerPtr == nullptr) {
         ErrorLog("cardEmulationListener_ is null");
         return;
     }
-    cardEmulationListener_.lock()->OnCardEmulationData(data);
+    cardEmulationListenerPtr->OnCardEmulationData(data);
 }
 
 void NfccNciAdapter::OnCardEmulationActivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationActivated");
-    if (cardEmulationListener_.expired()) {
+    auto cardEmulationListenerPtr = cardEmulationListener_.lock();
+    if (cardEmulationListenerPtr == nullptr) {
         ErrorLog("cardEmulationListener_ is null");
         return;
     }
-    cardEmulationListener_.lock()->OnCardEmulationActivated();
+    cardEmulationListenerPtr->OnCardEmulationActivated();
 }
 void  NfccNciAdapter::OnCardEmulationDeactivated()
 {
     DebugLog("NfccNciAdapter::OnCardEmulationDeactivated");
-    if (cardEmulationListener_.expired()) {
+    auto cardEmulationListenerPtr = cardEmulationListener_.lock();
+    if (cardEmulationListenerPtr == nullptr) {
         ErrorLog("cardEmulationListener_ is null");
         return;
     }
-    cardEmulationListener_.lock()->OnCardEmulationDeactivated();
+    cardEmulationListenerPtr->OnCardEmulationDeactivated();
 }
 }  // namespace NCI
 }  // namespace NFC

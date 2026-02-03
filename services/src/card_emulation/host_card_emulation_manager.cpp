@@ -389,11 +389,12 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
     } else {
         InfoLog("no aid got");
         std::string unknowError = "6F00";
-        if (nciCeProxy_.expired()) {
+        auto nciCeProxyPtr = nciCeProxy_.lock();
+        if (nciCeProxyPtr == nullptr) {
             ErrorLog("HandleDataOnW4Select: nciCeProxy_ is nullptr.");
             return;
         }
-        nciCeProxy_.lock()->SendRawFrame(unknowError);
+        nciCeProxyPtr->SendRawFrame(unknowError);
     }
 }
 
@@ -664,8 +665,14 @@ bool HostCardEmulationManager::SendHostApduData(std::string hexCmdData, bool raw
         }
     }
 
-    return nciCeProxy_.lock()->SendRawFrame(hexCmdData);
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if (nciCeProxyPtr == nullptr) {
+        ErrorLog("SendHostApduData nciCeProxyPtr nullptr");
+        return false;
+    }
+    return nciCeProxyPtr->SendRawFrame(hexCmdData);
 }
+
 bool HostCardEmulationManager::IsCorrespondentService(Security::AccessToken::AccessTokenID callerToken)
 {
     Security::AccessToken::HapTokenInfo hapTokenInfo;
@@ -795,10 +802,11 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
         return false;
     }
     abilityConnection_->SetHceManager(shared_from_this());
-    if (element.GetBundleName().empty() && !nciCeProxy_.expired()) {
+    auto nciCeProxyPtr = nciCeProxy_.lock();
+    if (element.GetBundleName().empty() && nciCeProxyPtr != nullptr) {
         ErrorLog("DispatchAbilitySingleApp element empty");
         std::string aidNotFound = "6A82";
-        nciCeProxy_.lock()->SendRawFrame(aidNotFound);
+        nciCeProxyPtr->SendRawFrame(aidNotFound);
         return false;
     }
 

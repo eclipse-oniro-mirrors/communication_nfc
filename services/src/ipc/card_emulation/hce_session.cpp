@@ -77,7 +77,8 @@ ErrCode HceSession::RegHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std
         ErrorLog("input callback nullptr.");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
@@ -93,7 +94,7 @@ ErrCode HceSession::RegHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std
     std::lock_guard<std::mutex> guard(mutex_);
     deathRecipient_ = dr;
     hceCmdCallback_ = cb;
-    if (ceService_.lock()->RegHceCmdCallback(cb, type, IPCSkeleton::GetCallingTokenID())) {
+    if (ceServicePtr->RegHceCmdCallback(cb, type, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_NFC_PARAMETERS;
@@ -109,7 +110,8 @@ ErrCode HceSession::UnregHceCmdCallback(const sptr<IHceCmdCallback>& cb, const s
         ErrorLog("input callback nullptr.");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.expired()) {
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
         ErrorLog("ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
@@ -119,7 +121,7 @@ ErrCode HceSession::UnregHceCmdCallback(const sptr<IHceCmdCallback>& cb, const s
         ErrorLog("Failed to remove death recipient");
         return KITS::ERR_NONE;
     }
-    if (ceService_.lock()->UnRegHceCmdCallback(type, IPCSkeleton::GetCallingTokenID())) {
+    if (ceServicePtr->UnRegHceCmdCallback(type, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
@@ -210,11 +212,12 @@ ErrCode HceSession::StartHce(const ElementName& element, const std::vector<std::
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    if (ceService_.expired()) {
-        ErrorLog("StartHce ceService_ is nullptr");
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
+        ErrorLog("ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->StartHce(element, aids)) {
+    if (ceServicePtr->StartHce(element, aids)) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;
@@ -243,11 +246,12 @@ ErrCode HceSession::StopHce(const ElementName& element)
         return KITS::ERR_HCE_PARAMETERS;
     }
 
-    if (ceService_.expired()) {
-        ErrorLog("StopHce ceService_ is nullptr");
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
+        ErrorLog("ceService_ is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ceService_.lock()->StopHce(element, IPCSkeleton::GetCallingTokenID())) {
+    if (ceServicePtr->StopHce(element, IPCSkeleton::GetCallingTokenID())) {
         return KITS::ERR_NONE;
     }
     return KITS::ERR_HCE_PARAMETERS;

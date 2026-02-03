@@ -185,12 +185,13 @@ bool NfcPollingManager::EnableForegroundDispatch(const AppExecFwk::ElementName &
             std::lock_guard<std::mutex> lock(mutex_);
             foregroundData_->isEnabled_ = true;
             foregroundData_->isVendorApp_ = isVendorApp;
-            foregroundData_->techMask_ = nciTagProxy_.lock()->GetTechMaskFromTechList(discTech);
+            foregroundData_->techMask_ = nciTagProxyPtr->GetTechMaskFromTechList(discTech);
             foregroundData_->element_ = element;
             foregroundData_->callback_ = callback;
         }
-        if (!nciNfccProxy_.expired()) {
-            nciNfccProxy_.lock()->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, element.GetBundleName());
+        auto nciNfccProxyPtr = nciNfccProxy_.lock();
+        if (nciNfccProxyPtr != nullptr) {
+            nciNfccProxyPtr->NotifyMessageToVendor(KITS::FOREGROUND_APP_KEY, element.GetBundleName());
         }
     }
     return true;
