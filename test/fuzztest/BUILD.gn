@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("../../nfc.gni")
 
 group("fuzztest") {
   testonly = true
@@ -24,7 +25,6 @@ group("fuzztest") {
     "services_test/controller_test/nfccontrollerstub:nfccontrollerstub_fuzztest",
     "services_test/external_deps_test/externaldepsproxy:externaldepsproxy_fuzztest",
     "services_test/hcecmdcallback_test/hcecmdcallbackstub:hcecmdcallbackstub_fuzztest",
-    "services_test/hcesession_test/hcesession:hcesession_fuzztest",
     "services_test/hostcardemulationmanager_test/hostcardemulationmanager:hostcardemulationmanager_fuzztest",
     "services_test/isodepcardhandler_test/isodepcardhandler:isodepcardhandler_fuzztest",
     "services_test/nci_adapter_test/ncitagproxy:ncitagproxy_fuzztest",
@@ -36,7 +36,6 @@ group("fuzztest") {
     "services_test/nfccontrollerimpl_test/nfccontrollerimpl:nfccontrollerimpl_fuzztest",
     "services_test/nfcdatashareimpl_test/nfcdatashareimpl:nfcdatashareimpl_fuzztest",
     "services_test/nfcpollingmanager_test/nfcpollingmanager:nfcpollingmanager_fuzztest",
-    "services_test/oncardemulationnotifycbstub_test/oncardemulationnotifycbstub:oncardemulationnotifycbstub_fuzztest",
     "services_test/settingdatashareimpl_test/settingdatashareimpl:settingdatashareimpl_fuzztest",
     "services_test/tagabilitydispatcher_test/tagabilitydispatcher:tagabilitydispatcher_fuzztest",
     "services_test/tagdispatcher_test/tagdispatcher:tagdispatcher_fuzztest",
@@ -55,4 +54,16 @@ group("fuzztest") {
     "tags_test/taginfo:taginfo_fuzztest",
     "tags_test/tagsessions_test:tagsessions_fuzztest",
   ]
+
+  if (nfc_service_feature_vendor_applications_enabled) {
+    deps += [
+      "services_test/oncardemulationnotifycbstub_test/oncardemulationnotifycbstub:oncardemulationnotifycbstub_fuzztest",
+    ]
+  }
+
+  if (nfc_sim_feature) {
+    deps += [
+      "services_test/hcesession_test/hcesession:hcesession_fuzztest",
+    ]
+  }
 }

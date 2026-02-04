@@ -21,8 +21,7 @@ config("nci_native_default_config") {
   defines = [ "DEBUG" ]
 
   cflags_cc = [
-    "-DNXP_EXTNS=TRUE",
-    "-DTMS_NFC"
+    "-DNXP_EXTNS=TRUE"
   ]
 
   include_dirs = [
@@ -32,6 +31,10 @@ config("nci_native_default_config") {
 
   if (defined(global_parts_info) &&
     defined(global_parts_info.soc_p7885_libnfc_nci)) {
+    cflags_cc += [
+      "-DTMS_NFC"
+    ]
+
     include_dirs += [
       "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/gki/common/",
       "//device/soc/unisoc/p7885/third_kit/libnfc-nci/SN100x/src/gki/ulinux/",
