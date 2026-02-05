@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace NFC {
-class NfcServiceImpl final : public INfcService {
+class NfcServiceImpl : public INfcService {
 private:
     std::weak_ptr<TAG::TagDispatcher> GetTagDispatcher() override;
 

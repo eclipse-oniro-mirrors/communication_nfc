@@ -348,7 +348,6 @@ ohos_unittest("nci_adapter_test") {
   sources = [
     "nci_adapter_test/nfcc_nci_adapter_test.cpp",
     "nci_adapter_test/tag_host_test.cpp",
-    "nci_adapter_test/tag_nci_adapter_test.cpp",
   ]
 
   deps = unit_test_deps

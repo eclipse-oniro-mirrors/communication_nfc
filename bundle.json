@@ -85,6 +85,8 @@
                 "bluetooth",
                 "image_framework",
                 "runtime_core",
+                "json",
+                "jsoncpp",
                 "libnfc_nci"
             ],
             "third_party": [

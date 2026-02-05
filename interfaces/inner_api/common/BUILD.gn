@@ -30,6 +30,12 @@ config("nfc_inner_kits_public_config") {
     defines += [ "VENDOR_APPLICATIONS_ENABLED" ]
   }
   include_dirs = [ "$NFC_DIR/interfaces/inner_api/common" ]
+
+  include_dirs += [
+    "//foundation/ability/ability_base/interfaces/kits/native/want/include/",
+    "//foundation/ability/ability_base/interfaces/kits/native/uri/include/",
+    "//foundation/ability/ability_base/interfaces/inner_api/base/include/",
+  ]
 }
 
 ohos_shared_library("nfc_inner_kits_common") {
@@ -60,6 +66,8 @@ ohos_shared_library("nfc_inner_kits_common") {
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
+    "ability_base:base",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
@@ -67,6 +75,12 @@ ohos_shared_library("nfc_inner_kits_common") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "jsoncpp:jsoncpp",
+  ]
+
+  public_external_deps = [
+    "json:nlohmann_json_static",
+    "jsoncpp:jsoncpp",
   ]
 
   part_name = "nfc"
