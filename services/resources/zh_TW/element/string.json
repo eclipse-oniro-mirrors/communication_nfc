@@ -11,7 +11,7 @@
             "name":"DefaultTitle",
             "value":"發現 NFC 卡片，輕觸啟動應用程式",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

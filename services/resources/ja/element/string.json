@@ -4,7 +4,7 @@
             "name":"DefaultTitle",
             "value":"NFCタグが発見されました",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -30,9 +30,9 @@
         },
         {
             "name":"TransportCardText",
-            "value":"%sが検出されました。残高：%.2f RMB",
+            "value":"%s。残高：%.2f RMB",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {

@@ -11,54 +11,54 @@
             "name":"DefaultTitle",
             "value":"NFC တက်ဂ်ကို တွေ့ရှိထားပါသည်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"DefaultText",
-            "value":"အချို့အက်ပ်များတွင် အဆင့်လိုက် ဖွင့်ပေးရန် လိုအပ်သည့် ၎င်းတို့၏ ကိုယ်ပိုင် NFC ထိန်းချုပ်ရေးနည်းလမ်းများ ရှိနိုင်ပါသည်။",
+            "value":"အချို့အက်ပ်များတွင် အဆင့်လိုက် ဖွင့်ပေးရန် လိုအပ်သည့် ၎င်းတို့၏ ကိုယ်ပိုင် NFC ထိန်းချုပ်ရေးနည်းလမ်းများ ရှိနိုင်ပါ\u200bသည်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"LingNanTong",
             "value":"Lingnan Pass",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfTitle",
-            "value":"ကွန်ရက်ကို ဆက်သွယ်ရန်",
+            "value":"ကွန်ရက်ကို ချိတ်ဆက်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShenZhenTong",
             "value":"Shenzhen Transportation Card",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedTitle",
             "value":"ကတ် သုံးရန် အက်ပ်ကို ရွေးချယ်ပါ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiButtonName",
-            "value":"ချိတ်ဆက်မည်",
+            "value":"ချိတ်ဆက်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardText",
-            "value":"%s ကို ရှာတွေ့ထားပါသည်။ လက်ကျန်ငွေ- %.2f RMB",
+            "value":"%s။ လက်ကျန်- %.2f RMB",
             "attr":{
                 "priority":"translate"
             }
@@ -67,84 +67,84 @@
             "name":"NoHapSupportedNtfButtonName",
             "value":"AppGallery သို့ သွားရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfTitle",
             "value":"NFC အသိပေးချက်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"GuiMinHuLianHuTongKa",
             "value":"GX T-Union Card",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ActionButtonName",
             "value":"အသေးစိတ် အချက်အလက်များအတွက် နှိပ်ပါ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NoHapSupportedNtfText",
             "value":"ပံ့ပိုးမှုရှိသော အက်ပ်များ မရရှိနိုင်ပါ။ အက်ပ်များကို AppGallery မှ ရယူပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfText",
             "value":"\"%s\" နှင့် ချိတ်ဆက်မည်လား။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ShangHaiJiaoTongKa",
-            "value":"Shanghai ယာဉ်စီးကတ်",
+            "value":"Shanghai Transportation Card",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"TransportCardTitle",
             "value":"ယာဉ်စီးကတ် ရှာတွေ့ထားပါသည်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcWifiNtfText",
             "value":"\"%s\" ကွန်ရက်နှင့် ချိတ်ဆက်မည်လား။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcBtNtfTitle",
-            "value":"NFC တွဲခြင်းတောင်းခံမှု",
+            "value":"NFC ချိတ်ရန် တောင်းဆိုမှု",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"NfcHceAidConflictedText",
             "value":"အက်ပ်များစွာ ရရှိနိုင်ပါသည်။ သင် သုံးလိုသည့် တစ်ခုကို ဖွင့်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"BeiJingYiKaTong",
             "value":"Beijing Transportation Card",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -156,9 +156,9 @@
         },
         {
             "name":"NfcBtButtonName",
-            "value":"အတွဲ",
+            "value":"ချိတ်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
