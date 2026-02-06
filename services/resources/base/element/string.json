@@ -39,7 +39,7 @@
             "name":"DefaultTitle",
             "value":"NFC tag discovered",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -58,9 +58,9 @@
         },
         {
             "name":"TransportCardText",
-            "value":"%s discovered. Balance: %.2f RMB",
+            "value":"%s. Balance: %.2f RMB",
             "attr":{
-                "priority":"LT"
+                "priority":"translate"
             }
         },
         {
