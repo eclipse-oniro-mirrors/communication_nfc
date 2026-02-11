@@ -163,7 +163,12 @@ std::string NfcSdkCommon::StringToHexString(const std::string &src)
     std::vector<unsigned char> bytes;
     StringToAsciiBytes(src, bytes);
     uint32_t len = src.length();
-    std::string result = BytesVecToHexString(&bytes[0], len);
+    std::string result = "";
+    if (bytes.empty()) {
+        ErrorLog("StringToHexString ToAsciiByte error");
+        return result;
+    }
+    result = BytesVecToHexString(&bytes[0], len);
     return result;
 }
 
