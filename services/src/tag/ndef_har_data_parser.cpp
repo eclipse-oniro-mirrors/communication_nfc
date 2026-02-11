@@ -311,7 +311,7 @@ uint16_t NdefHarDataParser::DispatchText(const std::shared_ptr<KITS::TagInfo> &t
             return DISPATCH_UNKNOWN;
         }
         auto tagProxy = nciTagProxy_.lock();
-        if (tagProxy && (mimeType == TYPE_RTP_MIME_TEXT_PLAIN || mimeType == TYPE_RTP_MIME_TEXT_VCARD)) {
+        if (tagProxy && mimeType == TYPE_RTP_MIME_TEXT_PLAIN) {
             std::string notePadBundleName = tagProxy->GetVendorInfo(VendorInfoType::HAP_NAME_NOTEPAD);
             if (ExternalDepsProxy::GetInstance().IsBundleInstalled(notePadBundleName)) {
                 ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_TEXT_NOTIFICATION_ID, "", 0);

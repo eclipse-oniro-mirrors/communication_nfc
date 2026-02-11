@@ -168,6 +168,11 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     }
     long tagFoundTime = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
     ndefCbRes_ = false;
+    isIsoDep_ = false;
+    if (static_cast<int>(nciTagProxyPtr->GetConnectedTech(tagDiscId)) ==
+        static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
+        isIsoDep_ = true;
+    }
     std::string ndefMsg = nciTagProxyPtr->FindNdefTech(tagDiscId);
     long readFinishTime = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
@@ -207,8 +212,7 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
         }
     }
     lastNdefMsg_ = ndefMsg;
-    bool isIsoDep = false;
-    int fieldOnCheckInterval = GetFieldOnCheckInterval(isIsoDep, tagDiscId);
+    int fieldOnCheckInterval = GetFieldOnCheckInterval();
     InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
     nciTagProxyPtr->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
     tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
@@ -227,22 +231,18 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
         return dispatchResult;
     }
     isNtfPublished = true;
-    return PublishTagNotification(tagDiscId, isIsoDep);
+    return PublishTagNotification(tagDiscId, isIsoDep_);
 }
 
-int TagDispatcher::GetFieldOnCheckInterval(bool &isIsoDep, uint32_t tagDiscId)
+int TagDispatcher::GetFieldOnCheckInterval()
 {
-    int fieldOnCheckInterval = DEFAULT_FIELD_ON_CHECK_DURATION;
-    auto nciTagProxyPtr = nciTagProxy_.lock();
-    if (nciTagProxyPtr && static_cast<int>(nciTagProxyPtr->GetConnectedTech(tagDiscId)) ==
-        static_cast<int>(TagTechnology::NFC_ISODEP_TECH)) {
-        fieldOnCheckInterval = DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
-        isIsoDep = true;
-    }
     if (fieldOnCheckInterval_ != 0) {
-        fieldOnCheckInterval = fieldOnCheckInterval_;
+        return fieldOnCheckInterval_;
+    } else if (isIsoDep_) {
+        return DEFAULT_ISO_DEP_FIELD_ON_CHECK_DURATION;
+    } else {
+        return DEFAULT_FIELD_ON_CHECK_DURATION;
     }
-    return fieldOnCheckInterval;
 }
 
 std::string TagDispatcher::ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage)
