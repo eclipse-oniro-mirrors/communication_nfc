@@ -333,8 +333,6 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
     auto context = static_cast<NdefContext<std::shared_ptr<NdefMessage>, NapiNdefTag> *>(data);
     if (status == napi_ok && context->resolved && context->errorCode == ErrorCode::ERR_NONE) {
         // the return is NdefMessage
-        NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
-        napiNdefMessage->ndefMessage = context->value;
         napi_value callbackValue = nullptr;
         napi_value constructor = nullptr;
 
@@ -344,6 +342,8 @@ static void ReadNdefCallback(napi_env env, napi_status status, void *data)
             return;
         }
         napi_new_instance(env, constructor, 0, nullptr, &callbackValue);
+        NapiNdefMessage *napiNdefMessage = new NapiNdefMessage();
+        napiNdefMessage->ndefMessage = context->value;
         status = napi_wrap(
             env, callbackValue, napiNdefMessage,
             [](napi_env env, void *data, void *hint) {
