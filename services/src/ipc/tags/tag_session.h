@@ -58,7 +58,7 @@ public:
     std::vector<uint32_t> techs_ = {};
     sptr<KITS::IReaderModeCallback> cb_ = nullptr;
     int interval_ = 0;
-    long regTime_ = KITS::NfcSdkCommon::GetCurrentTime();
+    long regTime_ = static_cast<long>(KITS::NfcSdkCommon::GetCurrentTime());
 
     explicit ReaderData(bool isEnable, ElementName element, const std::vector<uint32_t> &techs,
         sptr<KITS::IReaderModeCallback> cb, int interval)

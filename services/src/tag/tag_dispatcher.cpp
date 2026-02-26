@@ -216,6 +216,9 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
     InfoLog("fieldOnCheckInterval = %{public}d", fieldOnCheckInterval);
     nciTagProxyPtr->StartFieldOnChecking(tagDiscId, fieldOnCheckInterval);
     tagInfo = GetTagInfoParcelableFromTag(tagDiscId);
+    if (tagInfo == nullptr) {
+        ErrorLog("GetTagInfoParcelableFromTag tagInfo is nullptr");
+    }
     auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
     if (pollingMgr != nullptr && pollingMgr->IsReaderModeEnabled()) {
         pollingMgr->SendTagToReaderApp(tagInfo);
