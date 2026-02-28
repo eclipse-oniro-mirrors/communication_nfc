@@ -331,8 +331,8 @@ std::shared_ptr<KITS::TagInfo> TagDispatcher::GetTagInfoFromTag(uint32_t tagDisc
 KITS::TagInfoParcelable* TagDispatcher::GetTagInfoParcelableFromTag(uint32_t tagDiscId)
 {
     auto nciTagProxyPtr = nciTagProxy_.lock();
-    if (nciTagProxyPtr == nullptr) {
-        ErrorLog("nciTagProxy is nullptr");
+    if (nciTagProxyPtr == nullptr || nfcService_ == nullptr) {
+        ErrorLog("nciTagProxy or nfcService is nullptr");
         return nullptr;
     }
     std::vector<int> techList = nciTagProxyPtr->GetTechList(tagDiscId);
