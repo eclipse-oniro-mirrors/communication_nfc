@@ -49,7 +49,7 @@ private:
     KITS::TagInfoParcelable* GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     uint16_t HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<KITS::NdefMessage> ndefMessage,
         KITS::TagInfoParcelable* tagInfo, uint32_t tagDiscId, bool &isNtfPublished);
-    int GetFieldOnCheckInterval(bool &isIsoDep, uint32_t tagDiscId);
+    int GetFieldOnCheckInterval();
     void DispatchTag(uint32_t rfDiscId);
     uint16_t HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);
     void HandleOnNdefMsgDiscovered(const std::string &tagUid, const std::string &ndef,
@@ -79,6 +79,7 @@ private:
 
     std::shared_ptr<KITS::TagInfo> tagInfo_ {};
     bool ndefCbRes_ = false;
+    bool isIsoDep_ = false;
     int fieldOnCheckInterval_ = 0;
 };
 }  // namespace TAG
