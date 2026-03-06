@@ -50,6 +50,7 @@ public:
     ErrCode NotifyEventStatus(int32_t eventType, int32_t arg1, const std::string& arg2) override;
 
     void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
+    ErrCode VendorRefreshRoutes() override;
 
 private:
     std::weak_ptr<NfcService> nfcService_ = {};

@@ -76,6 +76,8 @@ public:
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback() const;
     void GetVendorHceAppsByAid(const std::string &aid, std::vector<HceAppAidInfo> &hceApps);
+    bool IsHceAppFromVendor(const ElementName &elementName);
+    bool IsHaveOtherAidInVendor();
 #endif
     void GetHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo>& hceApps);
     bool IsBundleInstalled(const std::string &bundleName);
@@ -107,7 +109,6 @@ private:
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps);
     void GetPaymentAbilityInfosFromVendor(std::vector<AbilityInfo> &paymentAbilityInfos);
-    bool IsHceAppFromVendor(const ElementName &elementName);
     sptr<IQueryAppInfoCallback> queryApplicationByVendor_ {};
     sptr<IOnCardEmulationNotifyCb> onCardEmulationNotify_ {};
 #endif

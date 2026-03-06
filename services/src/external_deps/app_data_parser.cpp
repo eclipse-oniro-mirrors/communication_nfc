@@ -337,7 +337,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     std::vector<AidInfo> customDataAidList;
     AidInfo customDataAid;
     for (auto& data : abilityInfo.metadata) {
-        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OHTER_AID.compare(data.name) == 0)) {
+        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OTHER_AID.compare(data.name) == 0)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -345,7 +345,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
         }
     }
     for (auto& data : abilityInfo.metaData.customizeData) {
-        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OHTER_AID.compare(data.name) == 0)) {
+        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OTHER_AID.compare(data.name) == 0)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -612,19 +612,17 @@ void AppDataParser::GetHceAppsFromVendor(std::vector<HceAppAidInfo> &hceApps)
         for (auto appAidInfoWant : vendorHceAppAndAidList) {
             std::shared_ptr<HceAppAidInfo> appAidInfo = std::make_shared<HceAppAidInfo>();
             appAidInfo->element = appAidInfoWant.GetElement();
-            const std::string KEY_OTHER_AID = "other-aid";
-            const std::string KEY_PAYMENT_AID = "payment-aid";
-            std::vector<std::string> otherAidList = appAidInfoWant.GetStringArrayParam(KEY_OTHER_AID);
-            std::vector<std::string> paymentAidList = appAidInfoWant.GetStringArrayParam(KEY_PAYMENT_AID);
+            std::vector<std::string> otherAidList = appAidInfoWant.GetStringArrayParam(KITS::KEY_OTHER_AID);
+            std::vector<std::string> paymentAidList = appAidInfoWant.GetStringArrayParam(KITS::KEY_PAYMENT_AID);
             for (std::string otherAid : otherAidList) {
                 std::shared_ptr<AidInfo> aidInfo = std::make_shared<AidInfo>();
-                aidInfo->name = KEY_OTHER_AID;
+                aidInfo->name = KITS::KEY_OTHER_AID;
                 aidInfo->value = otherAid;
                 appAidInfo->customDataAid.push_back(*aidInfo);
             }
             for (std::string paymentAid : paymentAidList) {
                 std::shared_ptr<AidInfo> aidInfo = std::make_shared<AidInfo>();
-                aidInfo->name = KEY_PAYMENT_AID;
+                aidInfo->name = KITS::KEY_PAYMENT_AID;
                 aidInfo->value = paymentAid;
                 appAidInfo->customDataAid.push_back(*aidInfo);
             }
@@ -704,6 +702,30 @@ void AppDataParser::GetVendorHceAppsByAid(const std::string &aid, std::vector<Hc
             }
         }
     }
+}
+
+bool AppDataParser::IsHaveOtherAidInVendor()
+{
+    if (queryApplicationByVendor_ == nullptr) {
+        WarnLog("AppDataParser::IsHaveOtherAidInVendor queryApplicationByVendor_ is nullptr.");
+        return false;
+    }
+    std::vector<int> techList {};
+    std::vector<AppExecFwk::ElementName> elementNameList {};
+    std::vector<AAFwk::Want> vendorHceAppAndAidList {};
+    queryApplicationByVendor_->OnQueryAppInfo(KEY_HCE_APP, techList, vendorHceAppAndAidList, elementNameList);
+    if (vendorHceAppAndAidList.empty()) {
+        DebugLog("AppDataParser::IsHaveOtherAidInVendor HCE app is empty.");
+        return false;
+    }
+    for (auto appAidInfoWant : vendorHceAppAndAidList) {
+        std::vector<std::string> otherAidList = appAidInfoWant.GetStringArrayParam(KITS::KEY_OTHER_AID);
+        if (!otherAidList.empty()) {
+            return true;
+        }
+    }
+    InfoLog("AppDataParser::IsHaveOtherAidInVendor 'other' aid is empty.");
+    return false;
 }
 #endif
 

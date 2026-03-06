@@ -396,6 +396,18 @@ HWTEST_F(NfcControllerImplTest, RestartNfc, TestSize.Level1)
     ASSERT_TRUE(restart > 0);
 }
 
+/**
+ * @tc.name: VendorRefreshRoutes
+ * @tc.desc: Test VendorRefreshRoutes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, VendorRefreshRoutes, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    ErrCode restart = nfcControllerImpl->VendorRefreshRoutes();
+    ASSERT_TRUE(restart == 0);
+}
 }
 }
 }

@@ -65,7 +65,7 @@ static napi_value CreateEnumCardType(napi_env env, napi_value exports)
     napi_value payment = nullptr;
     napi_value other = nullptr;
     napi_create_string_utf8(env, KITS::TYPE_PAYMENT.c_str(), KITS::TYPE_PAYMENT.length(), &payment);
-    napi_create_string_utf8(env, KITS::TYPE_OHTER.c_str(), KITS::TYPE_OHTER.length(), &other);
+    napi_create_string_utf8(env, KITS::TYPE_OTHER.c_str(), KITS::TYPE_OTHER.length(), &other);
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("PAYMENT", payment),
         DECLARE_NAPI_STATIC_PROPERTY("OTHER", other),

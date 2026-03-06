@@ -91,13 +91,13 @@ const std::string NFC_EXTRA_STATE = "ohos.nfc.extra.ADAPTER_STATE";
 static const std::string TYPE_PAYMENT = "payment";
 
 /** Other type of card emulation */
-static const std::string TYPE_OHTER = "other";
+static const std::string TYPE_OTHER = "other";
 
 /** Payment type of card emulation metadata name */
 const std::string KEY_PAYMENT_AID = "payment-aid";
 
 /** Other type of card emulation metadata name */
-const std::string KEY_OHTER_AID = "other-aid";
+const std::string KEY_OTHER_AID = "other-aid";
 
 /** secureElement of metadata name */
 const std::string KEY_SECURE_ELEMENT = "secureElement";

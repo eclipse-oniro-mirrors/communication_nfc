@@ -291,5 +291,18 @@ void NfcControllerImpl::RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remot
         ErrorLog("on remote died");
     }
 }
+
+ErrCode NfcControllerImpl::VendorRefreshRoutes()
+{
+#ifdef VENDOR_APPLICATIONS_ENABLED
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return nfcServicePtr->VendorRefreshRoutes();
+#endif
+    return KITS::ERR_NONE;
+}
 }  // namespace NFC
 }  // namespace OHOS

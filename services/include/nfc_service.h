@@ -56,6 +56,7 @@ public:
     void FieldDeactivated() override;
 #ifdef VENDOR_APPLICATIONS_ENABLED
     void OnVendorEvent(int eventType, int arg1, std::string arg2);
+    int VendorRefreshRoutes();
 #endif
     void OnCardEmulationData(const std::vector<uint8_t>& data) override;
     void OnCardEmulationActivated() override;
