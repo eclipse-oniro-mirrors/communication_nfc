@@ -792,7 +792,6 @@ void BtConnectionManager::ShowBtConnectionToast(int type)
     if (type == PAIRING_WITH_DEVICE && g_btData != nullptr) {
         btToastValue.append(g_btData->name_);
     }
-    InfoLog("NotifyMessageToVendor btToastValue: %{public}s", btToastValue.c_str());
     nfcServicePtr->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, btToastValue);
 }
 
