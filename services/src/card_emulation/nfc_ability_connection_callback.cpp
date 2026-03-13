@@ -31,12 +31,17 @@ void NfcAbilityConnectionCallback::OnAbilityConnectDone(const AppExecFwk::Elemen
                                                         const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     InfoLog("service connected: %{public}s, result code %{public}d", element.GetURI().c_str(), resultCode);
-    serviceConnected_ = true;
-    connectedElement_.SetBundleName(element.GetBundleName());
-    connectedElement_.SetAbilityName(element.GetAbilityName());
-    connectedElement_.SetDeviceID(element.GetDeviceID());
-    connectedElement_.SetModuleName(element.GetModuleName());
-    auto hceManagerPtr = hceManager_.lock();
+    std::shared_ptr<HostCardEmulationManager> hceManagerPtr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        serviceConnected_ = true;
+        connectedElement_.SetBundleName(element.GetBundleName());
+        connectedElement_.SetAbilityName(element.GetAbilityName());
+        connectedElement_.SetDeviceID(element.GetDeviceID());
+        connectedElement_.SetModuleName(element.GetModuleName());
+        hceManagerPtr = hceManager_.lock();
+    }
+
     if (hceManagerPtr == nullptr) {
         ErrorLog("hce manager is expired");
         return;
@@ -47,6 +52,7 @@ void NfcAbilityConnectionCallback::OnAbilityConnectDone(const AppExecFwk::Elemen
 void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     InfoLog("service disconnected done: %{public}s, result code %{public}d", element.GetURI().c_str(), resultCode);
+    std::lock_guard<std::mutex> lock(mutex_);
     serviceConnected_ = false;
     connectedElement_.SetBundleName("");
     connectedElement_.SetAbilityName("");
@@ -55,14 +61,17 @@ void NfcAbilityConnectionCallback::OnAbilityDisconnectDone(const AppExecFwk::Ele
 }
 bool NfcAbilityConnectionCallback::ServiceConnected()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return serviceConnected_;
 }
 void NfcAbilityConnectionCallback::SetHceManager(std::weak_ptr<HostCardEmulationManager> hceManager)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     hceManager_ = hceManager;
 }
 AppExecFwk::ElementName NfcAbilityConnectionCallback::GetConnectedElement()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return connectedElement_;
 }
 } // namespace NFC

@@ -40,6 +40,7 @@ private:
     bool serviceConnected_;
     std::weak_ptr<HostCardEmulationManager> hceManager_{};
     AppExecFwk::ElementName connectedElement_;
+    std::mutex mutex_ {};
 };
 } // namespace NFC
 } // namespace OHOS
