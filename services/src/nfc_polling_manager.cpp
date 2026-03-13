@@ -18,6 +18,7 @@
 #include "nfc_service.h"
 #include "nfc_watch_dog.h"
 #include "external_deps_proxy.h"
+#include "nfc_sdk_common.h"
 #include "ability_manager_client.h"
 
 namespace OHOS {
@@ -238,7 +239,7 @@ bool NfcPollingManager::IsForegroundEnabled()
     if (!foregroundData_->isEnabled_) {
         return false;
     }
-    if (foregroundData_->isVendorApp_) {
+    if (foregroundData_->isVendorApp_ && IsVendorInForeground()) {
         InfoLog("vendor app, skip foreground check");
         return true;
     }
@@ -348,7 +349,7 @@ bool NfcPollingManager::IsReaderModeEnabled()
     if (!readerModeData_->isEnabled_) {
         return false;
     }
-    if (readerModeData_->isVendorApp_) {
+    if (readerModeData_->isVendorApp_ && IsVendorInForeground()) {
         InfoLog("vendor app, skip foreground check");
         return true;
     }
@@ -412,6 +413,19 @@ bool NfcPollingManager::CheckForegroundAbility(const std::string &readerBundle, 
         }
     }
     WarnLog("%{public}s/%{public}s not foreground", readerBundle.c_str(), readerAbility.c_str());
+    return false;
+}
+
+bool NfcPollingManager::IsVendorInForeground()
+{
+    if (!nciTagProxy_.expired()) {
+        auto nciTagProxyPtr = nciTagProxy_.lock();
+        if (nciTagProxyPtr) {
+            std::string appGalleryBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_ANCO);
+            bool isVendor = CheckForegroundApp(appGalleryBundleName);
+            return isVendor;
+        }
+    }
     return false;
 }
 } // namespace NFC

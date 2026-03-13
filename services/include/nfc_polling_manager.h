@@ -85,6 +85,7 @@ public:
 
 private:
     bool CheckForegroundApp(const std::string &readerBundle);
+    bool IsVendorInForeground();
 
     int screenState_ = 0;
     std::shared_ptr<NfcPollingManager::ForegroundRegistryData> foregroundData_ {};

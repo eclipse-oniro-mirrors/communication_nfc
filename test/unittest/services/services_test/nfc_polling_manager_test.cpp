@@ -530,6 +530,20 @@ HWTEST_F(NfcPollingManagerTest, CheckForegroundAbility001, TestSize.Level1)
     bool ret = nfcPollingManager.lock()->CheckForegroundAbility(readerBundle, readerAbility);
     ASSERT_TRUE(!ret);
 }
+
+/**
+ * @tc.name: IsVendorInForeground001
+ * @tc.desc: Test NfcPollingManager IsVendorInForeground.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPollingManagerTest, IsVendorInForeground001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    service->Initialize();
+    std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
+    bool ret = nfcPollingManager.lock()->IsVendorInForeground();
+    ASSERT_TRUE(!ret);
+}
 }
 }
 }
