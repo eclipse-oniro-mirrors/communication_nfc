@@ -226,40 +226,6 @@ napi_value UndefinedNapiValue(const napi_env &env)
     return result;
 }
 
-std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
-{
-    bool isTypedArray = false;
-    napi_status status = napi_is_typedarray(env, jsValue, &isTypedArray);
-    if (status != napi_ok || !isTypedArray) {
-        ErrorLog("%{public}s called, napi_is_typedarray error", __func__);
-        return {};
-    }
-
-    napi_typedarray_type type;
-    size_t length = 0;
-    napi_value buffer = nullptr;
-    size_t offset = 0;
-    NAPI_CALL_BASE(env, napi_get_typedarray_info(env, jsValue, &type, &length, nullptr, &buffer, &offset), {});
-    if (type != napi_uint8_array) {
-        ErrorLog("%{public}s called, napi_uint8_array is null", __func__);
-        return {};
-    }
-    std::string *data = nullptr;
-    size_t total = 0;
-    NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total), {});
-    if (data == nullptr) {
-        ErrorLog("data is nullptr");
-        return {};
-    }
-    length = std::min<size_t>(length, total - offset);
-    std::vector<std::string> result(sizeof(std::string) + length);
-    int retCode = memcpy_s(result.data(), result.size(), &data[offset], length);
-    if (retCode != 0) {
-        return {};
-    }
-    return result;
-}
-
 napi_value CreateErrorMessage(napi_env env, const std::string &msg, int32_t errorCode)
 {
     napi_value result = nullptr;
@@ -277,17 +243,6 @@ napi_value CreateUndefined(napi_env env)
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
-}
-
-std::string GetNapiStringValue(
-    napi_env env, napi_value napiValue, const std::string &name, const std::string &defValue)
-{
-    napi_value value = GetNamedProperty(env, napiValue, name);
-    if (value != nullptr) {
-        return GetStringFromValue(env, value);
-    } else {
-        return defValue;
-    }
 }
 
 std::string GetStringFromValue(napi_env env, napi_value value)
@@ -327,20 +282,6 @@ int32_t GetNapiInt32Value(napi_env env, napi_value napiValue, const std::string 
     return defValue;
 }
 
-std::string UnwrapStringFromJS(napi_env env, napi_value param)
-{
-    constexpr size_t maxTextLength = 1024;
-    char msgChars[maxTextLength] = {0};
-    size_t msgLength = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, param, msgChars, maxTextLength, &msgLength), "");
-    DebugLog("NapiUtil GetStringFromValue msgLength = %{public}zu", msgLength);
-    if (msgLength > 0) {
-        return std::string(msgChars, 0, msgLength);
-    } else {
-        return "";
-    }
-}
-
 void JsStringToBytesVector(napi_env env, napi_value &src, std::vector<unsigned char> &values)
 {
     napi_valuetype valueType = napi_undefined;
@@ -352,25 +293,6 @@ void JsStringToBytesVector(napi_env env, napi_value &src, std::vector<unsigned c
     std::string data;
     ParseString(env, data, src);
     NfcSdkCommon::HexStringToBytes(data, values);
-}
-
-void ConvertStringVectorToJS(napi_env env, napi_value &result, std::vector<std::string>& stringVector)
-{
-    DebugLog("ConvertStringVectorToJS called");
-    size_t idx = 0;
-
-    if (stringVector.empty()) {
-        WarnLog("ConvertStringVectorToJS stringVector empty");
-        napi_create_array_with_length(env, 0, &result);
-        return;
-    }
-    DebugLog("ConvertStringVectorToJS size is %{public}zu", stringVector.size());
-    for (auto& str : stringVector) {
-        napi_value obj = nullptr;
-        napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &obj);
-        napi_set_element(env, result, idx, obj);
-        idx++;
-    }
 }
 
 void BytesVectorToJS(napi_env env, napi_value &result, std::vector<unsigned char>& src)
