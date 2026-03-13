@@ -423,10 +423,12 @@ bool NfcPollingManager::IsVendorInForeground()
         if (nciTagProxyPtr) {
             std::string appGalleryBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_ANCO);
             bool isVendor = CheckForegroundApp(appGalleryBundleName);
-            return isVendor;
+            if (!isVendor) {
+                return false;
+            }
         }
     }
-    return false;
+    return true;
 }
 } // namespace NFC
 } // namespace OHOS
