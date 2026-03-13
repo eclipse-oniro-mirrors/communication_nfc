@@ -178,7 +178,6 @@ void WifiConnectionManager::ShowWifiConnectionToast(int type)
     if (type == CONNECTING_WITH_WIFI && config_ != nullptr) {
         wifiToastValue.append(config_->ssid);
     }
-    InfoLog("NotifyMessageToVendor wifiToastValue: %{public}s", wifiToastValue.c_str());
     nfcServicePtr->NotifyMessageToVendor(KITS::TOAST_TYPE_KEY, wifiToastValue);
 }
 
