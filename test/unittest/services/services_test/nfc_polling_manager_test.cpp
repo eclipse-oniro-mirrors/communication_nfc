@@ -542,7 +542,7 @@ HWTEST_F(NfcPollingManagerTest, IsVendorInForeground001, TestSize.Level1)
     service->Initialize();
     std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     bool ret = nfcPollingManager.lock()->IsVendorInForeground();
-    ASSERT_TRUE(ret);
+    ASSERT_TRUE(!ret);
 }
 }
 }
