@@ -322,7 +322,7 @@ ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string 
     return static_cast<ErrorCode>(controllerProxy->NotifyEventStatus(eventType, arg1, arg2));
 }
 
-int NfcController::VendorRefreshRoutes()
+ErrorCode NfcController::VendorRefreshRoutes()
 {
     std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();
@@ -331,9 +331,7 @@ int NfcController::VendorRefreshRoutes()
         ErrorLog("nfc controller proxy nullptr.");
         return ErrorCode::ERR_NFC_STATE_UNBIND;
     }
-    ErrCode errCode = controllerProxy->VendorRefreshRoutes();
-    InfoLog("errCode = %{public}d", errCode);
-    return static_cast<int>(errCode);
+    return static_cast<ErrorCode>(controllerProxy->VendorRefreshRoutes());
 }
 #endif // VENDOR_APPLICATIONS_ENABLED
 

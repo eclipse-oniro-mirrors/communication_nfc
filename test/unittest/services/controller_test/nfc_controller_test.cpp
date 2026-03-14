@@ -314,7 +314,7 @@ HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
 HWTEST_F(NfcControllerTest, VendorRefreshRoutes001, TestSize.Level1)
 {
     NfcController ctrl = NfcController::GetInstance();
-    int statusCode = ctrl.VendorRefreshRoutes();
+    ErrorCode errorCode = ctrl.VendorRefreshRoutes();
     ASSERT_TRUE(statusCode == ERR_NONE);
 }
 }
