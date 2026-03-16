@@ -305,6 +305,18 @@ HWTEST_F(NfcControllerTest, GetHceServiceIface001, TestSize.Level1)
     ErrorCode errorCode = ctrl.RegNdefMsgCb(nullptr);
     ASSERT_TRUE(errorCode == ERR_NONE);
 }
+
+/**
+ * @tc.name: VendorRefreshRoutes001
+ * @tc.desc: Test NfcController VendorRefreshRoutes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, VendorRefreshRoutes001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ErrorCode errorCode = ctrl.VendorRefreshRoutes();
+    ASSERT_TRUE(errorCode == ERR_NONE);
+}
 }
 }
 }

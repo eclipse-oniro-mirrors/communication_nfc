@@ -49,6 +49,8 @@ public:
     void RegCardEmulationNotifyCb(sptr<IOnCardEmulationNotifyCb> callback);
     sptr<IOnCardEmulationNotifyCb> GetNotifyCardEmulationCallback();
     void GetVendorHceAppsByAid(const std::string &aid, std::vector<AppDataParser::HceAppAidInfo> &hceApps);
+    bool IsHceAppFromVendor(const ElementName &elementName);
+    bool IsHaveOtherAidInVendor();
 #endif
 
     KITS::ErrorCode NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value);

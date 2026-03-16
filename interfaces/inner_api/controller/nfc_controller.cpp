@@ -321,6 +321,18 @@ ErrorCode NfcController::NotifyEventStatus(int eventType, int arg1, std::string 
     }
     return static_cast<ErrorCode>(controllerProxy->NotifyEventStatus(eventType, arg1, arg2));
 }
+
+ErrorCode NfcController::VendorRefreshRoutes()
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    InitNfcRemoteSA();
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return static_cast<ErrorCode>(controllerProxy->VendorRefreshRoutes());
+}
 #endif // VENDOR_APPLICATIONS_ENABLED
 
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)

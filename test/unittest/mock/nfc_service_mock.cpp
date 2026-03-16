@@ -155,5 +155,10 @@ std::weak_ptr<TAG::TagDispatcher> NfcService::GetTagDispatcher()
 void NfcService::NotifyMessageToVendor(int key, const std::string &value)
 {
 }
+
+int VendorRefreshRoutes()
+{
+    return 0;
+}
 }  // namespace NFC
 }  // namespace OHOS

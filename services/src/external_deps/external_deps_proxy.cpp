@@ -68,6 +68,16 @@ void ExternalDepsProxy::GetVendorHceAppsByAid(const std::string &aid,
 {
     AppDataParser::GetInstance().GetVendorHceAppsByAid(aid, hceApps);
 }
+
+bool ExternalDepsProxy::IsHceAppFromVendor(const ElementName &elementName)
+{
+    return AppDataParser::GetInstance().IsHceAppFromVendor(elementName);
+}
+ 
+bool ExternalDepsProxy::IsHaveOtherAidInVendor()
+{
+    return AppDataParser::GetInstance().IsHaveOtherAidInVendor();
+}
 #endif
 
 KITS::ErrorCode ExternalDepsProxy::NfcDataGetValue(Uri &uri, const std::string &column, int32_t &value)

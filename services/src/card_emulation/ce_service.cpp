@@ -190,7 +190,7 @@ void CeService::BuildAidEntries(std::map<std::string, AidEntry> &aidEntries)
         for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
             // add payment aid of default payment app and foreground app
             // add other aid of all apps
-            bool shouldAdd = KITS::KEY_OHTER_AID == aidInfo.name || isForeground || isDefaultPayment;
+            bool shouldAdd = KITS::KEY_OTHER_AID == aidInfo.name || isForeground || isDefaultPayment;
             if (shouldAdd) {
                 AidEntry aidEntry;
                 aidEntry.aid = aidInfo.value;

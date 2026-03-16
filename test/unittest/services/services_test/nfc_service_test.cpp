@@ -428,6 +428,19 @@ HWTEST_F(NfcServiceTest, NotifyMessageToVendor, TestSize.Level1)
     nfcService->NotifyMessageToVendor(KITS::NOTIFY_TAG_DISCONNECT, "");
     ASSERT_TRUE(nfcService != nullptr);
 }
+
+/**
+ * @tc.name: VendorRefreshRoutes001
+ * @tc.desc: Test NfcServiceTest VendorRefreshRoutes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, VendorRefreshRoutes001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
+    int ret = nfcService->VendorRefreshRoutes();
+    ASSERT_TRUE(ret == ERR_NONE);
+}
 }
 }
 }

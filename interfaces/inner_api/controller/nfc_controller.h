@@ -108,6 +108,7 @@ public:
 
     ErrorCode RegCardEmulationNotifyCb(OnCardEmulationNotifyCb callback);
     ErrorCode NotifyEventStatus(int eventType, int arg1 = 0, std::string arg2 = "");
+    ErrorCode VendorRefreshRoutes();
 #endif
 
 private:

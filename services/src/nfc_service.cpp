@@ -191,6 +191,22 @@ void NfcService::OnVendorEvent(int eventType, int arg1, std::string arg2)
     InfoLog("NfcService::OnVendorEvent");
     eventHandler_->SendEvent(static_cast<uint32_t>(NfcCommonEvent::MSG_VENDOR_EVENT), eventType, 0);
 }
+
+int NfcService::VendorRefreshRoutes()
+{
+    InfoLog("NfcService::VendorRefreshRoutes");
+    if (ceService_ == nullptr) {
+        ErrorLog("ceService_ is nullptr");
+        return KITS::ERR_HCE_PARAMETERS;
+    }
+    if (ExternalDepsProxy::GetInstance().IsHceAppFromVendor(ceService_->defaultPaymentElement_) ||
+        ExternalDepsProxy::GetInstance().IsHaveOtherAidInVendor()) {
+        ceService_->ConfigRoutingAndCommit();
+    } else {
+        InfoLog("NfcService::default payment bundle name is not vendor hce app or not have 'other' aid, not handle");
+    }
+    return KITS::ERR_NONE;
+}
 #endif
 
 void NfcService::OnCardEmulationData(const std::vector<uint8_t> &data)
