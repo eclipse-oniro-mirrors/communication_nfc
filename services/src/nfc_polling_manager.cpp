@@ -421,7 +421,7 @@ bool NfcPollingManager::IsVendorInForeground()
     if (!nciTagProxy_.expired()) {
         auto nciTagProxyPtr = nciTagProxy_.lock();
         if (nciTagProxyPtr) {
-            std::string appGalleryBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_ANCO);
+            std::string appGalleryBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_VENDOR);
             bool isVendor = CheckForegroundApp(appGalleryBundleName);
             if (!isVendor) {
                 return false;
