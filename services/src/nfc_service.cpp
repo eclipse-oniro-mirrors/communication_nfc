@@ -195,13 +195,14 @@ void NfcService::OnVendorEvent(int eventType, int arg1, std::string arg2)
 int NfcService::VendorRefreshRoutes()
 {
     InfoLog("NfcService::VendorRefreshRoutes");
-    if (ceService_ == nullptr) {
-        ErrorLog("ceService_ is nullptr");
+    auto ceServicePtr = ceService_.lock();
+    if (ceServicePtr == nullptr) {
+        ErrorLog("ceServicePtr is nullptr");
         return KITS::ERR_HCE_PARAMETERS;
     }
-    if (ExternalDepsProxy::GetInstance().IsHceAppFromVendor(ceService_->defaultPaymentElement_) ||
+    if (ExternalDepsProxy::GetInstance().IsHceAppFromVendor(ceServicePtr->defaultPaymentElement_) ||
         ExternalDepsProxy::GetInstance().IsHaveOtherAidInVendor()) {
-        ceService_->ConfigRoutingAndCommit();
+        ceServicePtr->ConfigRoutingAndCommit();
     } else {
         InfoLog("NfcService::default payment bundle name is not anco hce app or not have 'other' aid, not handle");
     }
