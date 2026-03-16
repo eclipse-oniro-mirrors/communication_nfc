@@ -204,7 +204,7 @@ int NfcService::VendorRefreshRoutes()
         ExternalDepsProxy::GetInstance().IsHaveOtherAidInVendor()) {
         ceServicePtr->ConfigRoutingAndCommit();
     } else {
-        InfoLog("NfcService::default payment bundle name is not anco hce app or not have 'other' aid, not handle");
+        InfoLog("NfcService::default payment bundle name is not vendor hce app or not have 'other' aid, not handle");
     }
     return KITS::ERR_NONE;
 }
