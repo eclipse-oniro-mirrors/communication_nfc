@@ -418,17 +418,12 @@ bool NfcPollingManager::CheckForegroundAbility(const std::string &readerBundle, 
 
 bool NfcPollingManager::IsVendorInForeground()
 {
-    if (!nciTagProxy_.expired()) {
-        auto nciTagProxyPtr = nciTagProxy_.lock();
-        if (nciTagProxyPtr) {
-            std::string appGalleryBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_VENDOR);
-            bool isVendor = CheckForegroundApp(appGalleryBundleName);
-            if (!isVendor) {
-                return false;
-            }
-        }
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr) {
+        std::string vendor_hap_bundle_name = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_VENDOR);
+        return CheckForegroundApp(vendor_hap_bundle_name);
     }
-    return true;
+    return false;
 }
 } // namespace NFC
 } // namespace OHOS
