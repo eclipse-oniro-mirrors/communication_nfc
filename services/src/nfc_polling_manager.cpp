@@ -420,8 +420,8 @@ bool NfcPollingManager::IsVendorInForeground()
 {
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr) {
-        std::string vendor_hap_bundle_name = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_VENDOR);
-        return CheckForegroundApp(vendor_hap_bundle_name);
+        std::string vendorHapBundleName = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::HAP_NAME_VENDOR);
+        return CheckForegroundApp(vendorHapBundleName);
     }
     return false;
 }
