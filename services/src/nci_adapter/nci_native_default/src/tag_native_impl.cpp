@@ -119,6 +119,9 @@ uint16_t TagNativeImpl::GetTechMaskFromTechList(const std::vector<uint32_t> &dis
             case static_cast<int32_t>(KITS::TagTechnology::NFC_V_TECH):
                 techMask |= NFA_TECHNOLOGY_MASK_V;
                 break;
+            case static_cast<int32_t>(KITS::TagTechnology::NFC_SKIP_NDEF_CHECK_TECH):
+                techMask |= KITS::SKIP_NDEF_CHECK_TECH_MASK;
+                break;
             default:
                 break;
         }

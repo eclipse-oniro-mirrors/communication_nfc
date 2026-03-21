@@ -61,6 +61,7 @@ private:
         std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult);
     std::string ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndefMessage);
     void StartVibratorOnce(bool isNtfPublished = false);
+    bool IsSkipNdefCheck();
 
 private:
     std::shared_ptr<NfcService> nfcService_ {};

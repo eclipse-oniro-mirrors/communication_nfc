@@ -64,7 +64,7 @@ std::shared_ptr<NfcPollingParams> NfcPollingManager::GetCurrentParameters()
     return currPollingParams_;
 }
 
-std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters(int screenState)
+std::shared_ptr<NfcPollingParams> NfcPollingManager::GetPollingParameters()
 {
     // Recompute polling parameters based on screen state
     std::shared_ptr<NfcPollingParams> params = std::make_shared<NfcPollingParams>();
@@ -96,7 +96,7 @@ void NfcPollingManager::StartPollingLoop(bool force)
     NfcWatchDog pollingWatchDog("StartPollingLoop", WAIT_MS_SET_ROUTE, nciNfccProxy_);
     pollingWatchDog.Run();
     // Compute new polling parameters
-    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters(screenState_);
+    std::shared_ptr<NfcPollingParams> newParams = GetPollingParameters();
     InfoLog("newParams: %{public}s", newParams->ToString().c_str());
     InfoLog("currParams: %{public}s", currPollingParams_->ToString().c_str());
     auto nciNfccProxyPtr = nciNfccProxy_.lock();
