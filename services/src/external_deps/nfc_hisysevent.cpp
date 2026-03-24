@@ -149,8 +149,7 @@ void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute
 void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
 {
     NfcFailedParams failedParams;
-    failedParams.mainErrorCode = APP_BEHAVIOR;
-    failedParams.subErrorCode = behaviorCode;
+    BuildFailedParams(failedParams, APP_BEHAVIOR, behaviorCode);
     failedParams.appPackageName = appName;
     WriteNfcFailedHiSysEvent(&failedParams);
 }
@@ -158,8 +157,7 @@ void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const 
 void NfcHisysEvent::WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode)
 {
     NfcFailedParams failedParams;
-    failedParams.mainErrorCode = HCE_CMD_CB;
-    failedParams.subErrorCode = subErrorCode;
+    BuildFailedParams(failedParams, HCE_CMD_CB, subErrorCode);
     failedParams.appPackageName = appName;
     WriteNfcFailedHiSysEvent(&failedParams);
 }
