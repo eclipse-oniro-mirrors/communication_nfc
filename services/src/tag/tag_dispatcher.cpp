@@ -260,6 +260,9 @@ std::string TagDispatcher::ParseNdefInfo(std::shared_ptr<KITS::NdefMessage> ndef
         return ndefInfo;
     }
     for (uint16_t i = 0; i < recordNum; i++) {
+        if (records[i] == nullptr) {
+            continue;
+        }
         std::string tagType = NfcSdkCommon::HexStringToAsciiString(records[i]->tagRtdType_);
         std::string payload = NfcSdkCommon::HexStringToAsciiString(records[i]->payload_);
         // control the length of ndefInfo

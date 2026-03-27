@@ -491,7 +491,9 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
 
         // all chunks parsed end, add a new NdefRecord.
         std::shared_ptr<NdefRecord> record = CreateNdefRecord(layout.tnf, id, payload, tagRtdType);
-        recordList.push_back(record);
+        if (record != nullptr) {
+            recordList.push_back(record);
+        }
 
         // isMbMeIgnored is true, means that single record need tobe parsed.
         if (isMbMeIgnored) {
