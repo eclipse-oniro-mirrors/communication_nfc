@@ -18,10 +18,45 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "securec.h"
+#include <map>
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+constexpr const char* KEY_CODE = "code";
+constexpr const char* KEY_DATA = "data";
+
+static const std::map<int, std::string> ERR_MSG_MAP = {
+    { BUSI_ERR_NOT_SYSTEM_APP,
+        "Not system application." },
+    { ErrorCode::ERR_TAG_BASE,
+        "Tag service base error." },
+    { ErrorCode::ERR_TAG_STATE_IO_FAILED,
+        "I/O operation failed. Failed to communicate with the NFC tag." },
+    { ErrorCode::ERR_TAG_PARAMETERS,
+        "Invalid parameter. The inner parameter is invalid, out of range or null." },
+    { ErrorCode::ERR_TAG_STATE_NFC_CLOSED,
+        "NFC is not enabled. Please enable NFC before performing this operation." },
+    { ErrorCode::ERR_TAG_STATE_LOST,
+        "Tag lost. The tag is not in RF field, or the connection is lost." },
+    { ErrorCode::ERR_TAG_STATE_DISCONNECTED,
+        "Tag disconnected. The tag is not connected. Please connect to the tag first." },
+    { ErrorCode::ERR_TAG_STATE_UNBIND,
+        "Service not available. The tag service is not available or has been disconnected." },
+    { ErrorCode::ERR_TAG_APP_NOT_FOREGROUND,
+        "Application not in foreground. The application must be in the foreground to register for tag events." },
+    { ErrorCode::ERR_TAG_APP_NOT_REGISTERED,
+        "The application has not registered for this event. Please register first before unregistering." },
+    { ErrorCode::ERR_CE_BASE,
+        "Card emulation service base error." },
+    { ErrorCode::ERR_HCE_PARAMETERS,
+        "Invalid parameter. The inner parameter is invalid, out of range or null." },
+    { ErrorCode::ERR_HCE_STATE_IO_FAILED,
+        "I/O operation failed. Failed to send or receive APDU." },
+    { ErrorCode::ERR_HCE_STATE_UNBIND,
+        "Service not available. The card emulation service is not available or has been disconnected." },
+};
+
 bool ParseString(napi_env env, std::string &param, napi_value args)
 {
     napi_valuetype valuetype;
@@ -623,6 +658,15 @@ int BuildOutputErrorCodeHce(int errCode)
     return BUSI_ERR_HCE_STATE_INVALID;
 }
 
+static std::string GetErrMsg(int errCode)
+{
+    auto it = ERR_MSG_MAP.find(errCode);
+    if (it != ERR_MSG_MAP.end()) {
+        return it->second;
+    }
+    return "Unknown error message";
+}
+
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
     std::string paramName, std::string expertedType)
 {
@@ -643,18 +687,8 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         } else {
             return "Parameter error. The parameter number is invalid.";
         }
-    } else if (errCode == BUSI_ERR_TAG_STATE_INVALID) {
-        return "The tag running state is abnormal in the service.";
-    } else if (errCode == BUSI_ERR_ELEMENT_STATE_INVALID) {
-        return "The element state is invalid.";
-    } else if (errCode == BUSI_ERR_REGISTER_STATE_INVALID) {
-        return "The off() API can be called only when the on() has been called.";
-    } else if (errCode == BUSI_ERR_HCE_STATE_INVALID) {
-        return "Card emulation running state is abnormal in service.";
-    } else if (errCode == BUSI_ERR_NOT_SYSTEM_APP) {
-        return "Not system application.";
     }
-    return "Unknown error message";
+    return GetErrMsg(errCode);
 }
 
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage)
@@ -665,7 +699,8 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
     napi_create_string_utf8(env, errMessage.c_str(), NAPI_AUTO_LENGTH, &message);
     napi_value businessError = nullptr;
     napi_create_error(env, nullptr, message, &businessError);
-    napi_set_named_property(env, businessError, KEY_CODE.c_str(), code);
+    napi_set_named_property(env, businessError, KEY_CODE, code);
+    napi_set_named_property(env, businessError, KEY_DATA, message);
     return businessError;
 }
 
@@ -764,11 +799,11 @@ bool CheckTagStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
         return false;
     } else if (statusCode == ERR_TAG_STATE_IO_FAILED) {
         napi_throw(env, GenerateBusinessError(env, ERR_TAG_STATE_IO_FAILED,
-            BuildErrorMessage(BUSI_ERR_IO_OPERATION_INVALID, funcName, "", "", "")));
+            BuildErrorMessage(ERR_TAG_STATE_IO_FAILED, funcName, "", "", "")));
         return false;
     } else if (statusCode >= ErrorCode::ERR_TAG_PARAMETERS && statusCode < ErrorCode::ERR_CE_BASE) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+            BuildErrorMessage(statusCode, "", "", "", "")));
         return false;
     }
     return true;
@@ -792,7 +827,7 @@ bool CheckHceStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
     }
 
     napi_throw(env, GenerateBusinessError(env, BUSI_ERR_HCE_STATE_INVALID,
-                                          BuildErrorMessage(BUSI_ERR_HCE_STATE_INVALID, "", "", "", "")));
+                                          BuildErrorMessage(statusCode, "", "", "", "")));
     return false;
 }
 

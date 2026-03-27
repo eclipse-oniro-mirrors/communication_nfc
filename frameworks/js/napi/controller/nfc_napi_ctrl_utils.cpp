@@ -18,16 +18,41 @@
 #include "loghelper.h"
 #include "nfc_sdk_common.h"
 #include "securec.h"
+#include <map>
 
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+constexpr const char* KEY_CODE = "code";
+constexpr const char* KEY_DATA = "data";
+
+static const std::map<int, std::string> ERR_MSG_MAP = {
+    { ErrorCode::ERR_NFC_BASE,
+        "NFC service base error." },
+    { ErrorCode::ERR_NFC_PARAMETERS,
+        "Invalid parameter. The inner parameter is invalid or null." },
+    { ErrorCode::ERR_NFC_STATE_UNBIND,
+        "Service not available. The NFC service is not running or has been disconnected." },
+    { ErrorCode::ERR_NFC_STATE_INVALID,
+        "Service error. The NFC service state is abnormal." },
+    { ErrorCode::ERR_NFC_EDM_DISALLOWED,
+        "Operation not allowed. NFC is disabled by the enterprise device management policy." },
+};
 
 napi_value CreateUndefined(napi_env env)
 {
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &result));
     return result;
+}
+
+static std::string GetErrorMsg(int errCode)
+{
+    auto it = ERR_MSG_MAP.find(errCode);
+    if (it != ERR_MSG_MAP.end()) {
+        return it->second;
+    }
+    return "Unknown error message";
 }
 
 std::string BuildErrorMessage(int errCode, std::string funcName, std::string forbiddenPerm,
@@ -50,10 +75,8 @@ std::string BuildErrorMessage(int errCode, std::string funcName, std::string for
         } else {
             return "Parameter error. The parameter number is invalid.";
         }
-    } else if (errCode == BUSI_ERR_NFC_STATE_INVALID) {
-        return "The NFC state is abnormal in the service.";
     }
-    return "Unknown error message";
+    return GetErrorMsg(errCode);
 }
 
 napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::string &errMessage)
@@ -64,7 +87,8 @@ napi_value GenerateBusinessError(const napi_env &env, int errCode, const std::st
     napi_create_string_utf8(env, errMessage.c_str(), NAPI_AUTO_LENGTH, &message);
     napi_value businessError = nullptr;
     napi_create_error(env, nullptr, message, &businessError);
-    napi_set_named_property(env, businessError, KEY_CODE.c_str(), code);
+    napi_set_named_property(env, businessError, KEY_CODE, code);
+    napi_set_named_property(env, businessError, KEY_DATA, message);
     return businessError;
 }
 
@@ -76,7 +100,7 @@ bool CheckNfcStatusCodeAndThrow(const napi_env &env, int statusCode, const std::
         return false;
     } else if (statusCode >= ErrorCode::ERR_NFC_BASE && statusCode < ErrorCode::ERR_TAG_BASE) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_NFC_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_NFC_STATE_INVALID, "", "", "", "")));
+            BuildErrorMessage(statusCode, "", "", "", "")));
         return false;
     }
     return true;

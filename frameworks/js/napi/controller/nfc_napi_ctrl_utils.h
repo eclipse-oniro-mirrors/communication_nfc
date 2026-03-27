@@ -28,7 +28,6 @@ const static int BUSI_ERR_PARAM = 401; // The parameter check failed.
 const static int BUSI_ERR_CAPABILITY = 801; // Capability not supported.
 const static int BUSI_ERR_NFC_STATE_INVALID = 3100101; // nfc state is abnormal.
 
-const std::string KEY_CODE = "code";
 const std::string NFC_PERM_DESC = "ohos.permission.MANAGE_SECURE_SETTINGS";
 
 napi_value CreateUndefined(napi_env env);
