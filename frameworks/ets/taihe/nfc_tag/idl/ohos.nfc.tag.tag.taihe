@@ -117,6 +117,6 @@ function offReaderMode(elementName: @sts_type("ElementName") Opaque,
   callback: Optional<(err: @sts_type("BusinessError<void>") Opaque, tagInfo: TagInfo) => void>): void;
 
 function onReaderModeWithInterval(elementName: @sts_type("ElementName") Opaque, discTech: Array<u32>,
-  callback: (tagInfo: TagInfo) => void>, interval: i32): void;
+  callback: (tagInfo: TagInfo) => void, interval: i32): void;
 function offReaderModeWithInterval(elementName: @sts_type("ElementName") Opaque,
-  callback: (tagInfo: TagInfo) => void>): void;
+  callback: (tagInfo: TagInfo) => void): void;

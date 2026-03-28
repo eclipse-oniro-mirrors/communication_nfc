@@ -64,7 +64,7 @@ public:
     void Register(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
         ::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback);
     void Unregister(AppExecFwk::ElementName &element);
-    
+
     void ReaderModeWithIntvl(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
         ::taihe::callback_view<void(::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback, int32_t interval);
 
