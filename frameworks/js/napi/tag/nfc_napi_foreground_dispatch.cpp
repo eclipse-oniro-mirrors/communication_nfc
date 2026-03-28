@@ -424,16 +424,16 @@ bool CheckResultAndThrow(napi_env &env, int result, std::string funcName)
     ErrorLog("CheckResultAndThrow, result = %{public}d", result);
     if (result == ERR_TAG_APP_NOT_FOREGROUND) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_ELEMENT_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_ELEMENT_STATE_INVALID, "", "", "", "")));
+            BuildErrorMessage(ERR_TAG_APP_NOT_FOREGROUND, "", "", "", "")));
     } else if (result == ERR_NO_PERMISSION) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_PERM,
             BuildErrorMessage(BUSI_ERR_PERM, funcName, TAG_PERM_DESC, "", "")));
     } else if (result == ERR_TAG_APP_NOT_REGISTERED) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_REGISTER_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_REGISTER_STATE_INVALID, "", "", "", "")));
+            BuildErrorMessage(ERR_TAG_APP_NOT_REGISTERED, "", "", "", "")));
     } else if (result == ERR_TAG_STATE_NFC_CLOSED) {
         napi_throw(env, GenerateBusinessError(env, BUSI_ERR_TAG_STATE_INVALID,
-            BuildErrorMessage(BUSI_ERR_TAG_STATE_INVALID, "", "", "", "")));
+            BuildErrorMessage(ERR_TAG_STATE_NFC_CLOSED, "", "", "", "")));
     }
     return false;
 }
