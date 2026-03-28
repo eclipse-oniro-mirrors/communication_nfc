@@ -16,6 +16,7 @@
 #include "nfc_cardEmulation_ffi.h"
 
 #include <cstring>
+#include <mutex>
 
 #include "ability_info.h"
 #include "cardEmulation.h"
@@ -50,6 +51,7 @@ public:
 sptr<CjHceCmdListenerEvent> cjHceCmdListenerEvent =
     sptr<CjHceCmdListenerEvent>(new CjHceCmdListenerEvent());
 static bool g_isEventRegistered = false;
+static std::mutex g_hceMutex;
 
 std::vector<std::string> CharPtrToVector(char** charPtr, int32_t size)
 {
@@ -99,13 +101,16 @@ int32_t FfiNfcCardEmulationstart(char* cBundleName, char* cAbilityName, char* cM
 
 int32_t FfiNfcCardEmulationOn(int8_t eventType, int64_t id)
 {
-    if (!g_isEventRegistered) {
-        HceService hceService = HceService::GetInstance();
-        ErrorCode ret = hceService.RegHceCmdCallback(cjHceCmdListenerEvent, KITS::EVENT_HCE_CMD);
-        if (ret != KITS::ERR_NONE) {
-            return ret;
+    {
+        std::lock_guard<std::mutex> lock(g_hceMutex);
+        if (!g_isEventRegistered) {
+            HceService hceService = HceService::GetInstance();
+            ErrorCode ret = hceService.RegHceCmdCallback(cjHceCmdListenerEvent, KITS::EVENT_HCE_CMD);
+            if (ret != KITS::ERR_NONE) {
+                return ret;
+            }
+            g_isEventRegistered = true;
         }
-        g_isEventRegistered = true;
     }
     auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
@@ -128,7 +133,10 @@ int32_t FfiNfcCardEmulationstop(char* cBundleName, char* cAbilityName, char* cMo
     if (ret != KITS::ERR_NONE) {
         return ret;
     }
-    g_isEventRegistered = false;
+    {
+        std::lock_guard<std::mutex> lock(g_hceMutex);
+        g_isEventRegistered = false;
+    }
     auto controller = CjNfcCardEmulationController::GetInstance();
     if (controller == nullptr) {
         return ERR_NO_MEMORY;
