@@ -1763,6 +1763,34 @@ void offReaderMode(uintptr_t elementName, optional_view<
     TagRmEventRegister::GetInstance().Unregister(element);
 }
 
+void onReaderModeWithInterval(uintptr_t elementName, array_view<uint32_t> discTech,
+    callback_view<void(::tag::TagInfo const& tagInfo)> callback, int32_t interval)
+{
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+
+    if (discTech.size() > MAX_ARRAY_LEN) {
+        ErrorLog("discTech size exceed.");
+        return;
+    }
+    std::vector<uint32_t> dataVec = {};
+    for (uint16_t i = 0; i < discTech.size(); i++) {
+        dataVec.push_back(discTech[i]);
+    }
+    TagRmEventRegister::GetInstance().ReaderModeWithIntvl(element, dataVec, callback, interval);
+}
+
+void offReaderModeWithInterval(uintptr_t elementName, callback_view<void(::tag::TagInfo const& tagInfo)> callback)
+{
+    InfoLog("enter");
+
+    ElementName element;
+    CommonFunAni::ParseElementName(get_env(), reinterpret_cast<ani_object>(elementName), element);
+    TagRmEventRegister::GetInstance().Unregister(element);
+}
+
 ::tag::NdefRecord makeUriRecord(::taihe::string_view uri)
 {
     InfoLog("enter");
@@ -1881,6 +1909,8 @@ TH_EXPORT_CPP_API_registerForegroundDispatch(registerForegroundDispatch);
 TH_EXPORT_CPP_API_unregisterForegroundDispatch(unregisterForegroundDispatch);
 TH_EXPORT_CPP_API_onReaderMode(onReaderMode);
 TH_EXPORT_CPP_API_offReaderMode(offReaderMode);
+TH_EXPORT_CPP_API_onReaderModeWithInterval(onReaderModeWithInterval);
+TH_EXPORT_CPP_API_offReaderModeWithInterval(offReaderModeWithInterval);
 TH_EXPORT_CPP_API_makeUriRecord(makeUriRecord);
 TH_EXPORT_CPP_API_makeTextRecord(makeTextRecord);
 TH_EXPORT_CPP_API_makeApplicationRecord(makeApplicationRecord);

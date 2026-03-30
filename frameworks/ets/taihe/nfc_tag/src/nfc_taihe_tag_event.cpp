@@ -30,6 +30,8 @@ sptr<NfcFgListenerEvent> g_fgListenerEvent = sptr<NfcFgListenerEvent>(new NfcFgL
 static std::shared_ptr<::taihe::callback_view<void(uintptr_t err, ::ohos::nfc::tag::tag::TagInfo const& tagInfo)>>
     g_tagRmCallback = nullptr;
 sptr<NfcRmListenerEvent> g_rmListenerEvent = sptr<NfcRmListenerEvent>(new NfcRmListenerEvent());
+static std::shared_ptr<::taihe::callback_view<void(::ohos::nfc::tag::tag::TagInfo const& tagInfo)>>
+    g_tagRmWithIntervalCallback = nullptr;
 
 void NfcFgListenerEvent::OnTagDiscovered(KITS::TagInfoParcelable* tagInfo)
 {
@@ -109,6 +111,19 @@ void TagRmEventRegister::Unregister(AppExecFwk::ElementName &element)
     }
     std::lock_guard<std::mutex> lock(g_callbackMutex);
     g_tagRmCallback = nullptr;
+}
+
+void TagRmEventRegister::ReaderModeWithIntvl(AppExecFwk::ElementName &element, std::vector<uint32_t> &discTech,
+    ::taihe::callback_view<void(::ohos::nfc::tag::tag::TagInfo const& tagInfo)> callback, int32_t interval)
+{
+    std::lock_guard<std::mutex> lock(g_callbackMutex);
+    int ret = KITS::TagForeground::GetInstance().RegReaderModeWithIntvl(element, discTech, g_rmListenerEvent, interval);
+    if (ret != KITS::ERR_NONE) {
+        ErrorLog("Register failed!");
+        return;
+    }
+    g_tagRmWithIntervalCallback = std::make_shared<
+        ::taihe::callback_view<void(::ohos::nfc::tag::tag::TagInfo const& tagInfo)>>(callback);
 }
 }  // namespace KITS
 }  // namespace NFC
