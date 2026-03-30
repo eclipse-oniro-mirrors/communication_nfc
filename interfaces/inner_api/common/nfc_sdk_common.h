@@ -151,6 +151,9 @@ const int SDK_VERSION_18 = 18;
 const int SDK_VERSION_UNKNOWN = 0;
 const int BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
 
+/** type const of readermode skip ndef check */
+const uint16_t SKIP_NDEF_CHECK_TECH_MASK = 0x80;
+
 #ifdef VENDOR_APPLICATIONS_ENABLED
 const int VENDOR_APP_INIT_DONE = 1;
 const int VENDOR_APP_CHANGE = 2;
@@ -177,6 +180,7 @@ enum class TagTechnology {
     NFC_MIFARE_CLASSIC_TECH = 8,
     NFC_MIFARE_ULTRALIGHT_TECH = 9,
     NFC_BARCODE = 10,
+    NFC_SKIP_NDEF_CHECK_TECH = 11,
 };
 
 enum EmNfcForumType {

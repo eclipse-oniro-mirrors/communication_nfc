@@ -213,11 +213,10 @@ HWTEST_F(NfcPollingManagerTest, GetForegroundData001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, GetPollingParameters001, TestSize.Level1)
 {
-    int screenState = 0;
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
     std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
-    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters(screenState);
+    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters();
     ASSERT_TRUE(nfcPollingParams != nullptr);
 }
 
@@ -233,7 +232,7 @@ HWTEST_F(NfcPollingManagerTest, HandleScreenChanged001, TestSize.Level1)
     service->Initialize();
     std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     nfcPollingManager.lock()->HandleScreenChanged(screenState);
-    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters(screenState);
+    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters();
     ASSERT_TRUE(nfcPollingParams != nullptr);
 }
 
@@ -244,13 +243,12 @@ HWTEST_F(NfcPollingManagerTest, HandleScreenChanged001, TestSize.Level1)
  */
 HWTEST_F(NfcPollingManagerTest, HandlePackageUpdated001, TestSize.Level1)
 {
-    int screenState = 1;
     std::shared_ptr<EventFwk::CommonEventData> data = std::make_shared<EventFwk::CommonEventData>();
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     service->Initialize();
     std::weak_ptr<NFC::NfcPollingManager> nfcPollingManager = service->GetNfcPollingManager();
     nfcPollingManager.lock()->HandlePackageUpdated(data);
-    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters(screenState);
+    std::shared_ptr<NfcPollingParams> nfcPollingParams = nfcPollingManager.lock()->GetPollingParameters();
     ASSERT_TRUE(nfcPollingParams != nullptr);
 }
 

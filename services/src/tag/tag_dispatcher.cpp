@@ -203,7 +203,8 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
         ErrorLog("nfcService_ or nciTagProxy_ is nullptr");
         return DISPATCH_UNKNOWN;
     }
-    if (ndefMessage == nullptr) {
+    bool isSkipNdefCheck = IsSkipNdefCheck();
+    if (ndefMessage == nullptr && !isSkipNdefCheck) {
         if (!nciTagProxyPtr->Reconnect(tagDiscId)) {
             nciTagProxyPtr->Disconnect(tagDiscId);
             ErrorLog("HandleTagFound bad connection, tag disconnected");
@@ -235,6 +236,23 @@ uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<
     }
     isNtfPublished = true;
     return PublishTagNotification(tagDiscId, isIsoDep_);
+}
+
+bool TagDispatcher::IsSkipNdefCheck()
+{
+    if (nfcService_ == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return false;
+    }
+    auto pollingMgr = nfcService_->GetNfcPollingManager().lock();
+    if (pollingMgr != nullptr) {
+        std::shared_ptr<NfcPollingParams> newParams = pollingMgr->GetPollingParameters();
+        if (newParams != nullptr) {
+            InfoLog("IsSkipNdefCheck techmask = %{public}d", newParams->GetTechMask());
+            return (newParams->GetTechMask() & SKIP_NDEF_CHECK_TECH_MASK) != 0;
+        }
+    }
+    return false;
 }
 
 int TagDispatcher::GetFieldOnCheckInterval()

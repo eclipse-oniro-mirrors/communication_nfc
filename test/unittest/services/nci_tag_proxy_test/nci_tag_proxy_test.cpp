@@ -1162,7 +1162,8 @@ HWTEST_F(NciTagProxyTest, GetTechMaskFromTechList004, TestSize.Level1)
         {0},
         {0, 1},
         {0, 1, 2},
-        {1, 2, 3, 4}
+        {1, 2, 3, 4},
+        {1, 2, 4, 5, 11}
     };
     for (const auto& techList : techLists) {
         nciTagProxy->GetTechMaskFromTechList(techList);
