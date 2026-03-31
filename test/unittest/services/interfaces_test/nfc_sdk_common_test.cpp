@@ -110,6 +110,17 @@ HWTEST_F(NfcSdkCommonTest, GetConfigFromJson003, TestSize.Level1)
     common->GetConfigFromJson(key, value);
     ASSERT_TRUE(common != nullptr);
 }
+
+/**
+ * @tc.name: IsNfcEdmForceEnable001
+ * @tc.desc: Test NfcSdkCommonTest IsNfcEdmForceEnable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcSdkCommonTest, IsNfcEdmForceEnable001, TestSize.Level1)
+{
+    common->IsNfcEdmForceEnable();
+    ASSERT_TRUE(common != nullptr);
+}
 } // namespace TEST
 } // namespace NFC
 } // namespace OHOS

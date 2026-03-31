@@ -162,8 +162,9 @@ int NfcController::GetNfcState()
 {
     int state = NfcState::STATE_OFF;
     std::lock_guard<std::mutex> guard(mutex_);
-    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
-        WarnLog("Nfc SA not started yet.");
+    bool isNfcSaAvailable = NfcSaClient::GetInstance().CheckNfcSystemAbility();
+    if (!isNfcSaAvailable && !NfcSdkCommon::IsNfcEdmForceEnable()) {
+        WarnLog("Nfc SA not started yet and NFC EDM is not enabled.");
         return state;
     }
     InitNfcRemoteSA();
