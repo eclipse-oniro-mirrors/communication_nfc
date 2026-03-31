@@ -183,6 +183,7 @@ HWTEST_F(NfcControllerImplTest, TurnOff004, TestSize.Level1)
     ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", true);
     nfcControllerImpl->TurnOff();
     NfcParamUtil::SetNfcParamStr("persist.edm.force_enable_nfc", "false");
+    ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", false);
     ASSERT_TRUE(nfcControllerImpl != nullptr);
 }
 
