@@ -121,7 +121,7 @@ ErrCode NfcControllerImpl::TurnOff()
         return KITS::ERR_NFC_PARAMETERS;
     }
     ErrCode ret = nfcServicePtr->ExecuteTask(KITS::TASK_TURN_OFF);
-    // After the NFC is disabled, the value of nfc_edm_force_enable_temp_disable must be changed to false.
+    // After the NFC is disabled, nfc_edm_force_enable_temp_disable must be changed to false.
     ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", false);
     return ret;
 }
