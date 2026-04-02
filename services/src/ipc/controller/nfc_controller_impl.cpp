@@ -107,8 +107,6 @@ ErrCode NfcControllerImpl::TurnOff()
     bool isNfcEdmForceEnable = KITS::NfcSdkCommon::IsNfcEdmForceEnable();
     bool isNfcEdmTempDisable = ExternalDepsProxy::GetInstance()
         .NfcDataGetBool("nfc_edm_force_enable_temp_disable");
-    DebugLog("Nfc TurnOff edmForceEnable=%{public}d, edmNfcTempDisable=%{public}d",
-        isNfcEdmForceEnable, isNfcEdmTempDisable);
     if (isNfcEdmForceEnable && !isNfcEdmTempDisable) {
         ErrorLog("NFC is forcibly enabled by the edm parameter and cannot be disabled.");
         return KITS::ERR_NFC_EDM_FORCE_ENABLE;
