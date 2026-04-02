@@ -162,8 +162,8 @@ int NfcController::GetNfcState()
 {
     int state = NfcState::STATE_OFF;
     std::lock_guard<std::mutex> guard(mutex_);
-    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {	 
-         WarnLog("Nfc SA not started yet.");
+    if (!NfcSaClient::GetInstance().CheckNfcSystemAbility()) {
+        WarnLog("Nfc SA not started yet.");
         return state;
     }
     InitNfcRemoteSA();
