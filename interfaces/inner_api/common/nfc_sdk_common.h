@@ -50,6 +50,7 @@ enum ErrorCode : const int {
     ERR_NFC_STATE_UNBIND,
     ERR_NFC_STATE_INVALID,
     ERR_NFC_EDM_DISALLOWED,
+    ERR_NFC_EDM_FORCE_ENABLE,
 
     // error for tag I/O operations
     ERR_TAG_BASE = 3100200,
@@ -241,6 +242,7 @@ public:
     static bool SecureStringToInt(const std::string &str, int32_t &value, int base);
     static int GetSdkVersion(void);
     static bool GetConfigFromJson(const std::string &key, std::string &value);
+    static bool IsNfcEdmForceEnable();
 };
 }  // namespace KITS
 }  // namespace NFC

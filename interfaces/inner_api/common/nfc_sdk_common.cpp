@@ -22,7 +22,7 @@
 #include "iservice_registry.h"
 #include "cJSON.h"
 #include "file_ex.h"
-
+#include "parameter.h"
 #include "loghelper.h"
 
 namespace OHOS {
@@ -334,6 +334,25 @@ bool NfcSdkCommon::GetConfigFromJson(const std::string &key, std::string &value)
     value = cJSON_GetStringValue(cJsonObject);
     cJSON_Delete(json);
     return true;
+}
+
+bool NfcSdkCommon::IsNfcEdmForceEnable()
+{
+    const char* nfcEdmKey = "persist.edm.force_enable_nfc";
+    const uint32_t paramTrueLen = 4; // "true" 4 bytes
+    const uint32_t paramFalseLen = 5; // "false" 5 bytes
+    char result[paramFalseLen + 1] = {0};
+    // Returns the number of bytes of the system parameter if the operation is successful.
+    int len = GetParameter(nfcEdmKey, "false", result, paramFalseLen + 1);
+    if (len != paramFalseLen && len != paramTrueLen) {
+        ErrorLog("GetParameter edm len is invalid.");
+        return false;
+    }
+    if (strncmp(result, "true", paramTrueLen) == 0) {
+        WarnLog("edm force enable nfc param is true.");
+        return true;
+    }
+    return false;
 }
 }  // namespace KITS
 }  // namespace NFC

@@ -20,6 +20,8 @@
 #include "nfc_controller_impl.h"
 #include "nfc_service.h"
 #include "loghelper.h"
+#include "nfc_param_util.h"
+#include "external_deps_proxy.h"
 
 namespace OHOS {
 namespace NFC {
@@ -150,6 +152,39 @@ HWTEST_F(NfcControllerImplTest, TurnOff002, TestSize.Level1)
     std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
     ErrCode turnOff = nfcControllerImpl->TurnOff();
     ASSERT_TRUE(turnOff == KITS::ERR_NFC_STATE_INVALID);
+}
+
+/**
+ * @tc.name: TurnOff003
+ * @tc.desc: Test NfcControllerImplTest TurnOff.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, TurnOff003, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    NfcParamUtil::SetNfcParamStr("persist.edm.force_enable_nfc", "true");
+    ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", false);
+    ErrCode turnOff = nfcControllerImpl->TurnOff();
+    NfcParamUtil::SetNfcParamStr("persist.edm.force_enable_nfc", "false");
+    ASSERT_TRUE(turnOff == KITS::ERR_NFC_EDM_FORCE_ENABLE);
+}
+
+/**
+ * @tc.name: TurnOff004
+ * @tc.desc: Test NfcControllerImplTest TurnOff.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerImplTest, TurnOff004, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    std::shared_ptr<NfcControllerImpl> nfcControllerImpl = std::make_shared<NfcControllerImpl>(nfcService);
+    NfcParamUtil::SetNfcParamStr("persist.edm.force_enable_nfc", "true");
+    ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", true);
+    nfcControllerImpl->TurnOff();
+    NfcParamUtil::SetNfcParamStr("persist.edm.force_enable_nfc", "false");
+    ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", false);
+    ASSERT_TRUE(nfcControllerImpl != nullptr);
 }
 
 /**

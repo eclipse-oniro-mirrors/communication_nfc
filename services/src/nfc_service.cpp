@@ -462,7 +462,8 @@ void NfcService::DoRestart()
 bool NfcService::ShouldTurnOnNfc()
 {
     int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
-    if ((nfcStateFromParam == KITS::STATE_ON) && (nfcState_ != KITS::STATE_ON)) {
+    bool isNfcEdmForceEnable = KITS::NfcSdkCommon::IsNfcEdmForceEnable();
+    if ((nfcStateFromParam == KITS::STATE_ON || isNfcEdmForceEnable) && (nfcState_ != KITS::STATE_ON)) {
         return true;
     }
     std::string isNfcDefaultOn = NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME);

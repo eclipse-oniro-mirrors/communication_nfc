@@ -103,6 +103,15 @@ ErrCode NfcControllerImpl::TurnOff()
         ErrorLog("TurnOff no permission");
         return KITS::ERR_NO_PERMISSION;
     }
+
+    bool isNfcEdmForceEnable = KITS::NfcSdkCommon::IsNfcEdmForceEnable();
+    bool isNfcEdmTempDisable = ExternalDepsProxy::GetInstance()
+        .NfcDataGetBool("nfc_edm_force_enable_temp_disable");
+    if (isNfcEdmForceEnable && !isNfcEdmTempDisable) {
+        ErrorLog("NFC is forcibly enabled by the edm parameter and cannot be disabled.");
+        return KITS::ERR_NFC_EDM_FORCE_ENABLE;
+    }
+
     std::string appPackageName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     ExternalDepsProxy::GetInstance().WriteAppBehaviorHiSysEvent(SubErrorCode::TURN_OFF_NFC, appPackageName);
 
@@ -111,7 +120,10 @@ ErrCode NfcControllerImpl::TurnOff()
         ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    return nfcServicePtr->ExecuteTask(KITS::TASK_TURN_OFF);
+    ErrCode ret = nfcServicePtr->ExecuteTask(KITS::TASK_TURN_OFF);
+    // After the NFC is disabled, nfc_edm_force_enable_temp_disable must be changed to false.
+    ExternalDepsProxy::GetInstance().NfcDataSetBool("nfc_edm_force_enable_temp_disable", false);
+    return ret;
 }
 
 ErrCode NfcControllerImpl::RestartNfc()
