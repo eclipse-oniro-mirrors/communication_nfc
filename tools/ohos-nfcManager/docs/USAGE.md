@@ -1,0 +1,132 @@
+# ohos-nfcManager Usage Guide
+
+## Overview
+
+`ohos-nfcManager` is a command-line tool for querying and controlling device NFC function status.
+
+## Syntax
+
+```
+ohos-nfcManager <action>
+```
+
+## Actions
+
+### get-state
+
+Get current NFC state.
+
+```
+ohos-nfcManager get-state
+```
+
+**Output:**
+```json
+{"success":true,"data":{"state":"on","code":3}}
+```
+
+### turn-on
+
+Turn on NFC function.
+
+```
+ohos-nfcManager turn-on
+```
+
+**Output:**
+```json
+{"success":true,"data":{"status":"turning_on","message":"NFC is turning on"}}
+```
+
+### turn-off
+
+Turn off NFC function.
+
+```
+ohos-nfcManager turn-off
+```
+
+**Output:**
+```json
+{"success":true,"data":{"status":"turning_off","message":"NFC is turning off"}}
+```
+
+### restart
+
+Restart NFC function.
+
+```
+ohos-nfcManager restart
+```
+
+**Output:**
+```json
+{"success":true,"data":{"status":"restarting","message":"NFC is restarting"}}
+```
+
+### is-available
+
+Check if the device supports NFC.
+
+```
+ohos-nfcManager is-available
+```
+
+**Output:**
+```json
+{"success":true,"data":{"available":true}}
+```
+
+### is-open
+
+Check if NFC is currently open.
+
+```
+ohos-nfcManager is-open
+```
+
+**Output:**
+```json
+{"success":true,"data":{"is_open":true}}
+```
+
+## Error Handling
+
+All commands return JSON with error information on failure:
+
+```json
+{"success":false,"error":{"code":"E_NFC_SA_UNAVAILABLE","message":"NFC service unavailable"},"suggestion":"Check if NFC service is running"}
+```
+
+### Common Error Codes
+
+| Code | Description |
+|------|-------------|
+| E_NFC_SA_UNAVAILABLE | NFC service unavailable |
+| E_NFC_OPERATION_FAILED | NFC operation failed |
+| E_INVALID_ACTION | Invalid action parameter |
+| E_TIMEOUT | Operation timeout (15 seconds) |
+
+## Help
+
+```
+ohos-nfcManager --help
+```
+
+or
+
+```
+ohos-nfcManager -h
+```
+
+or
+
+```
+ohos-nfcManager help
+```
+
+## Notes
+
+- NFC service must be running
+- 15 second timeout protection for all operations
+- All operations are idempotent
