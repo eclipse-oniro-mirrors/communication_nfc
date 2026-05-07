@@ -135,7 +135,15 @@ void NapiEvent::EventNotify(AsyncEventData *asyncEvent, const std::string& type)
     }
 
     uint32_t refCount = INVALID_REF_COUNT;
-    napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
+    napi_status res = napi_reference_ref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
+    if (res != napi_ok || refCount <= 1) {
+        ErrorLog("call back is invalid, res: %{public}d, refCount: %{public}d!", res, refCount);
+        delete asyncEvent;
+        delete work;
+        asyncEvent = nullptr;
+        work = nullptr;
+        return;
+    }
     work->data = asyncEvent;
     uv_after_work_cb tmp_after_work_cb = after_work_cb;
     int ret = uv_queue_work_internal(
