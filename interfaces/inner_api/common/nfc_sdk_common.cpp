@@ -15,6 +15,7 @@
 #include "nfc_sdk_common.h"
 
 #include <algorithm>
+#include <mutex>
 #include <sstream>
 #include <securec.h>
 #include <sys/time.h>
@@ -22,6 +23,7 @@
 #include "iservice_registry.h"
 #include "cJSON.h"
 #include "file_ex.h"
+#include "param_wrapper.h"
 #include "parameter.h"
 #include "loghelper.h"
 
@@ -353,6 +355,28 @@ bool NfcSdkCommon::IsNfcEdmForceEnable()
         return true;
     }
     return false;
+}
+
+bool NfcSdkCommon::IsDeviceSupportNfc()
+{
+    static constexpr const char* NFC_NOT_SUPPORT_KEY = "const.nfc.not_support";
+    static constexpr const char* PARAM_TRUE = "true";
+    static constexpr const char* PARAM_FALSE = "false";
+    static std::mutex paramMutex;
+    std::lock_guard<std::mutex> lock(paramMutex);
+    static std::string nfcNotSupported = "";
+    if (!nfcNotSupported.empty()) {
+        if (nfcNotSupported == PARAM_TRUE) {
+            WarnLog("nfc not supported");
+        }
+        return nfcNotSupported != PARAM_TRUE;
+    }
+    int32_t res = OHOS::system::GetStringParameter(NFC_NOT_SUPPORT_KEY, nfcNotSupported, PARAM_FALSE);
+    InfoLog("res=%{public}d, nfcNotSupported=%{public}s", res, nfcNotSupported.c_str());
+    if (res != 0) {
+        nfcNotSupported = "";
+    }
+    return nfcNotSupported != PARAM_TRUE;
 }
 }  // namespace KITS
 }  // namespace NFC

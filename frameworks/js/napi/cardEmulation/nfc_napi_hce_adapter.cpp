@@ -17,7 +17,6 @@
 #include "loghelper.h"
 #include "hce_service.h"
 #include "nfc_controller.h"
-#include "nfc_api_control.h"
 #include <uv.h>
 #include "iservice_registry.h"
 #include <thread>
@@ -111,7 +110,7 @@ napi_value NfcNapiHceAdapter::Init(napi_env env, napi_value exports)
 napi_value NfcNapiHceAdapter::Constructor(napi_env env, napi_callback_info info)
 {
     DebugLog("NfcNapiHceAdapter Constructor");
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     napi_status status;
@@ -142,7 +141,7 @@ void NfcNapiHceAdapter::Destructor(napi_env env, void* nativeObject, void* hint)
 napi_value NfcNapiHceAdapter::OnHceCmd(napi_env env, napi_callback_info info)
 {
     // js method on("hce",callback)
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     size_t requireArgc = ARGV_NUM_2;
@@ -172,7 +171,7 @@ napi_value NfcNapiHceAdapter::OnHceCmd(napi_env env, napi_callback_info info)
 napi_value NfcNapiHceAdapter::OffHceCmd(napi_env env, napi_callback_info info)
 {
     // js method off("hce",callback)
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     size_t requireArgc = ARGV_NUM_2;
@@ -528,7 +527,7 @@ static void TransmitCallback(napi_env env, napi_status status, void* data)
 
 napi_value NfcNapiHceAdapter::Transmit(napi_env env, napi_callback_info info)
 {
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     // JS API define1: Transmit(data: number[]): Promise<number[]>
@@ -572,7 +571,7 @@ napi_value NfcNapiHceAdapter::Transmit(napi_env env, napi_callback_info info)
 
 napi_value NfcNapiHceAdapter::StopHce(napi_env env, napi_callback_info cbinfo)
 {
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     size_t argc = ARGV_NUM_1;
@@ -597,7 +596,7 @@ napi_value NfcNapiHceAdapter::StartHCEDeprecated(napi_env env, napi_callback_inf
 }
 napi_value NfcNapiHceAdapter::StartHCE(napi_env env, napi_callback_info cbinfo)
 {
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
     size_t argc = ARGV_NUM_2;

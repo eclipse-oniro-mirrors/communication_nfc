@@ -243,6 +243,7 @@ public:
     static int GetSdkVersion(void);
     static bool GetConfigFromJson(const std::string &key, std::string &value);
     static bool IsNfcEdmForceEnable();
+    static bool IsDeviceSupportNfc();
 };
 }  // namespace KITS
 }  // namespace NFC

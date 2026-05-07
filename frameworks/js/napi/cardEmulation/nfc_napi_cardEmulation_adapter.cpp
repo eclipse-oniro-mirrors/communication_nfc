@@ -20,7 +20,7 @@
 #include "ability_info.h"
 #include "nfc_napi_common_utils.h"
 #include "element_name.h"
-#include "nfc_api_control.h"
+#include "nfc_controller.h"
 
 namespace OHOS {
 namespace NFC {
@@ -30,7 +30,7 @@ using AppExecFwk::ElementName;
 napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
 {
     napi_value result;
-    if (IsNfcNotSupported()) { // force not support controled by const.nfc.not_support
+    if (!NfcController::GetInstance().IsNfcAvailable()) { // force not support controled by const.nfc.not_support
         napi_get_boolean(env, false, &result);
         return result;
     }
@@ -52,7 +52,7 @@ napi_value IsSupported(napi_env env, napi_callback_info cbinfo)
 napi_value HasHceCapability(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }
@@ -64,7 +64,7 @@ napi_value HasHceCapability(napi_env env, napi_callback_info info)
 napi_value IsDefaultService(napi_env env, napi_callback_info cbinfo)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }
@@ -140,7 +140,7 @@ napi_value GetPaymentServices(napi_env env, napi_callback_info info)
 {
     DebugLog("GetPaymentServices ability start.");
     napi_value result;
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }

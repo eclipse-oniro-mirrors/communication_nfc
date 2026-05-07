@@ -19,10 +19,10 @@
 #include "ndef_tag.h"
 #include "nfc_napi_foreground_dispatch.h"
 #include "nfc_sdk_common.h"
+#include "nfc_controller.h"
 #include "mifare_classic_tag.h"
 #include "mifare_ultralight_tag.h"
 #include "barcode_tag.h"
-#include "nfc_api_control.h"
 #include "nfc_napi_common_utils.h"
 
 namespace OHOS {
@@ -697,7 +697,7 @@ napi_value RegisterBarcodeTagJSClass(napi_env env, napi_value exports)
 
 napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref)
 {
-    if (ref == nullptr || IsNfcNotSupported()) {
+    if (ref == nullptr || !NfcController::GetInstance().IsNfcAvailable()) {
         ErrorLog("GetSpecificTagObj error ref or not support nfc");
         return CreateUndefined(env);
     }
@@ -914,7 +914,7 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 
 napi_value GetTagInfo(napi_env env, napi_callback_info info)
 {
-    if (IsNfcNotSupported()) {
+    if (!NfcController::GetInstance().IsNfcAvailable()) {
         ThrowCapabilityError(env);
         return CreateUndefined(env);
     }

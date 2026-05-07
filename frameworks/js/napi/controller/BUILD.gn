@@ -35,7 +35,6 @@ ohos_shared_library("controller") {
 
   sources = [
     "$NFC_DIR/frameworks/js/napi/common/nfc_ha_event_report.cpp",
-    "$NFC_DIR/frameworks/js/napi/common/nfc_api_control.cpp",
     "nfc_napi_controller.cpp",
     "nfc_napi_controller_adapter.cpp",
     "nfc_napi_controller_event.cpp",

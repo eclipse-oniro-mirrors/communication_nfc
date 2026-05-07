@@ -60,6 +60,12 @@ bool isNfcOpen()
     return isOpen;
 }
 
+bool isNfcSupported()
+{
+    InfoLog("isNfcSupported, enter");
+    return OHOS::NFC::KITS::NfcController::GetInstance().IsNfcAvailable();
+}
+
 NfcState getNfcState()
 {
     InfoLog("getNfcState, enter");
@@ -75,6 +81,7 @@ TH_EXPORT_CPP_API_offNfcStateChange(offNfcStateChange);
 TH_EXPORT_CPP_API_enableNfc(enableNfc);
 TH_EXPORT_CPP_API_disableNfc(disableNfc);
 TH_EXPORT_CPP_API_isNfcOpen(isNfcOpen);
+TH_EXPORT_CPP_API_isNfcSupported(isNfcSupported);
 TH_EXPORT_CPP_API_getNfcState(getNfcState);
 // NOLINTEND
  
