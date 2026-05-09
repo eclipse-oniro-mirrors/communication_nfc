@@ -24,7 +24,6 @@ CePaymentServicesParcelable::CePaymentServicesParcelable()
 }
 CePaymentServicesParcelable::~CePaymentServicesParcelable()
 {
-    paymentAbilityInfos.clear();
 }
 bool CePaymentServicesParcelable::Marshalling(Parcel &parcel) const
 {

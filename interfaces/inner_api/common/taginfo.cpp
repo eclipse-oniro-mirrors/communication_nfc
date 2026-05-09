@@ -54,7 +54,7 @@ bool TagInfo::IsTechSupported(KITS::TagTechnology tech)
 
 std::vector<int> TagInfo::GetTagTechList() const
 {
-    return std::move(tagTechList_);
+    return tagTechList_;
 }
 
 std::string TagInfo::GetStringTech(int tech)

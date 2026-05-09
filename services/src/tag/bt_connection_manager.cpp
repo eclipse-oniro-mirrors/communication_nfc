@@ -395,7 +395,7 @@ bool BtConnectionManager::DecideInitNextAction()
 bool BtConnectionManager::GetProfileList()
 {
     std::vector<uint32_t> profileList = Bluetooth::BluetoothHost::GetDefaultHost().GetProfileList();
-    if (profileList.size() == 0 && profileList.size() > PROFILE_MAX_SIZE) {
+    if (profileList.size() == 0 || profileList.size() > PROFILE_MAX_SIZE) {
         ErrorLog("profile list size error");
         return false;
     }
