@@ -24,9 +24,6 @@ CePaymentServicesParcelable::CePaymentServicesParcelable()
 }
 CePaymentServicesParcelable::~CePaymentServicesParcelable()
 {
-    for (auto& ability : paymentAbilityInfos) {
-        delete ability;
-    }
     paymentAbilityInfos.clear();
 }
 bool CePaymentServicesParcelable::Marshalling(Parcel &parcel) const
