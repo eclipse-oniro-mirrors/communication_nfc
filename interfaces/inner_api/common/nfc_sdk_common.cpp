@@ -50,6 +50,10 @@ bool NfcSdkCommon::IsLittleEndian()
 std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t length)
 {
     std::string result = "";
+    if (src == nullptr) {
+        ErrorLog("BytesVecToHexString, src is nullptr");
+        return result;
+    }
     if (length <= 0 || length > MAX_BYTES_LEN) {
         ErrorLog("BytesVecToHexString, length: %{public}u error", length);
         return result;

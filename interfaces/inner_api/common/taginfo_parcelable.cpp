@@ -64,7 +64,7 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
 
     int32_t extraLen = 0;
     parcel.ReadInt32(extraLen);
-    if (extraLen >= static_cast<int32_t>(MAX_TECH_LIST_NUM) || tagTechList.size() > MAX_TECH_LIST_SIZE) {
+    if (extraLen > static_cast<int32_t>(MAX_TECH_LIST_NUM) || tagTechList.size() > MAX_TECH_LIST_SIZE) {
         return nullptr;
     }
     std::vector<AppExecFwk::PacMap> tagTechExtrasData;
@@ -74,9 +74,9 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
             ErrorLog("fail to unmarshall pacMap");
             return nullptr;
         }
-        tagTechExtrasData.push_back(*(pacMap));
-        delete pacMap;
-        pacMap = nullptr;
+        std::unique_ptr<AppExecFwk::PacMap> parMapPtr(pacMap);
+        tagTechExtrasData.push_back(*parMapPtr);
+        parMapPtr.release();
     }
     std::string tagUid;
     parcel.ReadString(tagUid);
