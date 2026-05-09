@@ -24,7 +24,6 @@ CePaymentServicesParcelable::CePaymentServicesParcelable()
 }
 CePaymentServicesParcelable::~CePaymentServicesParcelable()
 {
-    ErrorLog("mytest ~CePaymentServicesParcelable");
     for (auto& ability : paymentAbilityInfos) {
         delete ability;
     }
