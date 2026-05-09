@@ -33,5 +33,6 @@ function enableNfc(): void;
 function disableNfc(): void;
 
 function isNfcOpen(): bool;
+function isNfcSupported(): bool;
 function getNfcState(): NfcState;
 

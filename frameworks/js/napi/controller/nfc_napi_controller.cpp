@@ -69,6 +69,7 @@ static napi_value InitJs(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disableNfc", DisableNfc),
         DECLARE_NAPI_FUNCTION("getNfcState", GetNfcState),
         DECLARE_NAPI_FUNCTION("isNfcAvailable", IsNfcAvailable),
+        DECLARE_NAPI_FUNCTION("isNfcSupported", IsNfcAvailable),
         DECLARE_NAPI_FUNCTION("isNfcOpen", IsNfcOpen),
         DECLARE_NAPI_FUNCTION("on", On),
         DECLARE_NAPI_FUNCTION("off", Off),

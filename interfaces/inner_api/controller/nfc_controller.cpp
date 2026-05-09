@@ -180,7 +180,7 @@ int NfcController::GetNfcState()
 // check whether NFC is supported
 bool NfcController::IsNfcAvailable()
 {
-    return true;
+    return NfcSdkCommon::IsDeviceSupportNfc();
 }
 
 // check whether NFC is enabled

@@ -17,7 +17,6 @@
 #include <vector>
 #include "loghelper.h"
 #include "nfc_controller.h"
-#include "nfc_api_control.h"
 #include "nfc_sdk_common.h"
 #include "nfc_napi_ctrl_utils.h"
 #include "nfc_ha_event_report.h"
@@ -28,12 +27,12 @@ namespace KITS {
 napi_value OpenNfc(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }
     NfcHaEventReport eventReport(SDK_NAME, "OpenNfc");
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOn();
     if (status == ERR_NONE) {
         eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
@@ -46,12 +45,12 @@ napi_value OpenNfc(napi_env env, napi_callback_info info)
 
 napi_value EnableNfc(napi_env env, napi_callback_info info)
 {
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         ThrowCapabilityError(env);
         return CreateUndefined(env);
     }
     NfcHaEventReport eventReport(SDK_NAME, "EnableNfc");
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOn();
     if (status == ERR_NONE) {
         eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
@@ -65,12 +64,12 @@ napi_value EnableNfc(napi_env env, napi_callback_info info)
 napi_value CloseNfc(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }
     NfcHaEventReport eventReport(SDK_NAME, "CloseNfc");
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOff();
     if (status == ERR_NONE) {
         eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
@@ -83,12 +82,12 @@ napi_value CloseNfc(napi_env env, napi_callback_info info)
 
 napi_value DisableNfc(napi_env env, napi_callback_info info)
 {
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         ThrowCapabilityError(env);
         return CreateUndefined(env);
     }
     NfcHaEventReport eventReport(SDK_NAME, "DisableNfc");
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     int status = nfcCtrl.TurnOff();
     if (status == ERR_NONE) {
         eventReport.ReportSdkEvent(RESULT_SUCCESS, status);
@@ -102,11 +101,11 @@ napi_value DisableNfc(napi_env env, napi_callback_info info)
 napi_value GetNfcState(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         napi_create_int32(env, static_cast<int32_t>(NfcState::STATE_OFF), &result);
         return result;
     }
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     napi_create_int32(env, nfcCtrl.GetNfcState(), &result);
     return result;
 }
@@ -114,23 +113,18 @@ napi_value GetNfcState(napi_env env, napi_callback_info info)
 napi_value IsNfcAvailable(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
-        napi_get_boolean(env, false, &result);
-        return result;
-    }
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
-    napi_get_boolean(env, nfcCtrl.IsNfcAvailable(), &result);
+    napi_get_boolean(env, OHOS::NFC::KITS::NfcController::GetInstance().IsNfcAvailable(), &result);
     return result;
 }
 
 napi_value IsNfcOpen(napi_env env, napi_callback_info info)
 {
     napi_value result;
-    if (IsNfcNotSupported()) {
+    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
+    if (!nfcCtrl.IsNfcAvailable()) {
         napi_get_boolean(env, false, &result);
         return result;
     }
-    NfcController nfcCtrl = OHOS::NFC::KITS::NfcController::GetInstance();
     bool isOpen = false;
     int statusCode = nfcCtrl.IsNfcOpen(isOpen);
     if (statusCode != KITS::ERR_NONE) {
