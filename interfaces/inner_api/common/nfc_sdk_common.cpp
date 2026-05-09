@@ -128,8 +128,9 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
 uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
 {
     uint32_t value = 0;
-    if () {
-        ErrorLog("StringToInt: length is abnormal")
+    if (src.length() < SHIFT_TIME) {
+        ErrorLog("StringToInt: src length is abnormal");
+        return value;
     }
     if (bLittleEndian) {
         for (size_t i = SHIFT_TIME; i > 0; i--) {
