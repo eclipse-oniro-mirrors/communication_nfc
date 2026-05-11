@@ -74,9 +74,9 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
             ErrorLog("fail to unmarshall pacMap");
             return nullptr;
         }
-        std::unique_ptr<AppExecFwk::PacMap> parMapPtr(pacMap);
-        tagTechExtrasData.push_back(*parMapPtr);
-        parMapPtr.release();
+        std::unique_ptr<AppExecFwk::PacMap> pacMapPtr(pacMap);
+        tagTechExtrasData.push_back(*pacMapPtr);
+        pacMapPtr.release();
     }
     std::string tagUid;
     parcel.ReadString(tagUid);
