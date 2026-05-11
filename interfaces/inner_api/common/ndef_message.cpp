@@ -450,7 +450,8 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
     while (!isMessageEnd) {
         RecordLayout layout;
         if (parsedDataIndex >= NfcSdkCommon::GetHexStrBytesLen(data)) {
-            ErrorLog("ParseRecoed, index exceed data length.");
+            ErrorLog("ParseRecord, index exceed data length.");
+            return recordList;
         }
         ParseRecordLayoutHead(layout, NfcSdkCommon::GetByteFromHexStr(data, parsedDataIndex++));
         isMessageEnd = layout.me;
