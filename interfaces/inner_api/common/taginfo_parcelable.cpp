@@ -76,7 +76,6 @@ TagInfoParcelable *TagInfoParcelable::Unmarshalling(Parcel &parcel)
         }
         std::unique_ptr<AppExecFwk::PacMap> pacMapPtr(pacMap);
         tagTechExtrasData.push_back(*pacMapPtr);
-        pacMapPtr.release();
     }
     std::string tagUid;
     parcel.ReadString(tagUid);
