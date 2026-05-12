@@ -22,6 +22,9 @@
 #include <unistd.h>
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 using namespace OHOS::NFC::KITS;
 
@@ -34,9 +37,7 @@ constexpr char CLI_NAME[] = "ohos-nfcManager";
 constexpr char ACTION_GET_STATE[] = "get-state";
 constexpr char ACTION_TURN_ON[] = "turn-on";
 constexpr char ACTION_TURN_OFF[] = "turn-off";
-constexpr char ACTION_RESTART[] = "restart";
 constexpr char ACTION_IS_AVAILABLE[] = "is-available";
-constexpr char ACTION_IS_OPEN[] = "is-open";
 
 // Error codes
 constexpr char ERR_SA_UNAVAILABLE[] = "E_NFC_SA_UNAVAILABLE";
@@ -66,17 +67,27 @@ void CancelTimeout()
     alarm(0);
 }
 
-// Output single-line JSON to stdout
 void OutputSuccess(const std::string &dataJson)
 {
-    printf("{\"success\":true,\"data\":%s}\n", dataJson.c_str());
+    json result = {
+        {"type", "result"},
+        {"status", "success"},
+        {"data", json::parse(dataJson)}
+    };
+    printf("%s\n", result.dump().c_str());
     fflush(stdout);
 }
 
 void OutputError(const char *code, const char *message, const char *suggestion)
 {
-    printf("{\"success\":false,\"error\":{\"code\":\"%s\",\"message\":\"%s\"},\"suggestion\":\"%s\"}\n",
-           code, message, suggestion);
+    json result = {
+        {"type", "result"},
+        {"status", "failed"},
+        {"errCode", code},
+        {"errMsg", message},
+        {"suggestion", suggestion}
+    };
+    printf("%s\n", result.dump().c_str());
     fflush(stdout);
 }
 
@@ -153,45 +164,11 @@ int HandleTurnOff()
     }
 }
 
-int HandleRestart()
-{
-    int result = NfcController::GetInstance().RestartNfc();
-    if (result == ErrorCode::ERR_NONE) {
-        OutputSuccess("{\"status\":\"restarting\",\"message\":\"NFC is restarting\"}");
-        return 0;
-    } else if (result == ErrorCode::ERR_NFC_STATE_UNBIND) {
-        LogError("NFC SA unavailable, result=%d", result);
-        OutputError(ERR_SA_UNAVAILABLE, "NFC service unavailable",
-                    "Check if NFC service is running");
-        return 1;
-    } else {
-        LogError("RestartNfc failed with result=%d", result);
-        OutputError(ERR_OPERATION_FAILED, "Failed to restart NFC",
-                    "Use 'ohos-nfcManager get-state' to check current state");
-        return 1;
-    }
-}
-
 int HandleIsAvailable()
 {
     bool available = NfcController::GetInstance().IsNfcAvailable();
     OutputSuccess("{\"available\":" + std::string(available ? "true" : "false") + "}");
     return 0;
-}
-
-int HandleIsOpen()
-{
-    bool isOpen = false;
-    int result = NfcController::GetInstance().IsNfcOpen(isOpen);
-    if (result == ErrorCode::ERR_NONE) {
-        OutputSuccess("{\"is_open\":" + std::string(isOpen ? "true" : "false") + "}");
-        return 0;
-    } else {
-        LogError("IsNfcOpen failed with result=%d", result);
-        OutputError(ERR_OPERATION_FAILED, "Failed to get NFC open state",
-                    "Use 'ohos-nfcManager get-state' to check current state");
-        return 1;
-    }
 }
 
 void PrintUsage()
@@ -201,9 +178,7 @@ void PrintUsage()
     fprintf(stderr, "  %-15s  Get NFC state (off/turning_on/on/turning_off)\n", ACTION_GET_STATE);
     fprintf(stderr, "  %-15s  Turn on NFC\n", ACTION_TURN_ON);
     fprintf(stderr, "  %-15s  Turn off NFC\n", ACTION_TURN_OFF);
-    fprintf(stderr, "  %-15s  Restart NFC\n", ACTION_RESTART);
     fprintf(stderr, "  %-15s  Check if NFC is available on this device\n", ACTION_IS_AVAILABLE);
-    fprintf(stderr, "  %-15s  Check if NFC is currently open\n", ACTION_IS_OPEN);
     fprintf(stderr, "\nOutput format: Single-line JSON to stdout\n");
     fprintf(stderr, "  Success: {\"success\":true,\"data\":{...}}\n");
     fprintf(stderr, "  Failure: {\"success\":false,\"error\":{...},\"suggestion\":\"...\"}\n");
@@ -221,9 +196,7 @@ static const ActionEntry ACTION_TABLE[] = {
     {ACTION_GET_STATE, HandleGetState},
     {ACTION_TURN_ON, HandleTurnOn},
     {ACTION_TURN_OFF, HandleTurnOff},
-    {ACTION_RESTART, HandleRestart},
     {ACTION_IS_AVAILABLE, HandleIsAvailable},
-    {ACTION_IS_OPEN, HandleIsOpen},
 };
 
 constexpr int ACTION_TABLE_SIZE = sizeof(ACTION_TABLE) / sizeof(ACTION_TABLE[0]);
@@ -268,7 +241,7 @@ int main(int argc, char **argv)
     // Unknown action
     LogError("Unknown action: %s", action);
     OutputError(ERR_INVALID_ACTION, "Unknown action type",
-                "Supported actions: get-state, turn-on, turn-off, restart, is-available, is-open");
+                "Supported actions: get-state, turn-on, turn-off, is-available");
     CancelTimeout();
     return 1;
 }

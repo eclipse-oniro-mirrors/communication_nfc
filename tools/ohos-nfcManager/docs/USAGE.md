@@ -51,19 +51,6 @@ ohos-nfcManager turn-off
 {"success":true,"data":{"status":"turning_off","message":"NFC is turning off"}}
 ```
 
-### restart
-
-Restart NFC function.
-
-```
-ohos-nfcManager restart
-```
-
-**Output:**
-```json
-{"success":true,"data":{"status":"restarting","message":"NFC is restarting"}}
-```
-
 ### is-available
 
 Check if the device supports NFC.
@@ -75,19 +62,6 @@ ohos-nfcManager is-available
 **Output:**
 ```json
 {"success":true,"data":{"available":true}}
-```
-
-### is-open
-
-Check if NFC is currently open.
-
-```
-ohos-nfcManager is-open
-```
-
-**Output:**
-```json
-{"success":true,"data":{"is_open":true}}
 ```
 
 ## Error Handling
