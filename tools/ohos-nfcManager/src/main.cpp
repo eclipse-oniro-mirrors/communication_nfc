@@ -67,12 +67,12 @@ void CancelTimeout()
     alarm(0);
 }
 
-void OutputSuccess(const std::string &dataJson)
+void OutputSuccess(const std::string &data)
 {
     json result = {
         {"type", "result"},
         {"status", "success"},
-        {"data", json::parse(dataJson)}
+        {"data", data}
     };
     printf("%s\n", result.dump().c_str());
     fflush(stdout);
