@@ -91,7 +91,6 @@ KITS::ErrorCode ForegroundCallbackStub::RegForegroundDispatch(const sptr<KITS::I
     std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("RegForegroundCallback:callback is nullptr!");
-        callback_ = callback;
         return KITS::ERR_NFC_PARAMETERS;
     }
     callback_ = callback;

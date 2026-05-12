@@ -195,7 +195,7 @@ KITS::ErrorCode NfcControllerImpl::UnRegisterAllCallBack(Security::AccessToken::
 
 ErrCode NfcControllerImpl::GetTagServiceIface(sptr<IRemoteObject>& funcResult)
 {
-    funcResult == nullptr;
+    funcResult = nullptr;
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::TAG_PERM)) {
         ErrorLog("GetTagServiceIface no permission");
         return KITS::ERR_NO_PERMISSION;

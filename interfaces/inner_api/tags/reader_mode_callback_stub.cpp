@@ -91,7 +91,6 @@ KITS::ErrorCode ReaderModeCallbackStub::RegReaderMode(const sptr<KITS::IReaderMo
     std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("ReaderModeCallbackStub RegReaderMode:callback is nullptr!");
-        callback_ = callback;
         return KITS::ERR_NFC_PARAMETERS;
     }
     callback_ = callback;

@@ -463,7 +463,7 @@ std::vector<std::string> NdefHarDataParser::ExtractHarPackages(const std::vector
 {
     InfoLog("enter");
     std::vector<std::string> harPackages;
-    if (records.size() <= 0) {
+    if (records.size() == 0) {
         ErrorLog("records is empty");
         return harPackages;
     }

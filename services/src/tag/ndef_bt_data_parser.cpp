@@ -70,6 +70,10 @@ NdefBtDataParser::NdefBtDataParser()
 std::string NdefBtDataParser::FormatBtMacAddr(const std::string& orgBtMac)
 {
     std::string result = "";
+    if (orgBtMac.length() < MAC_ADDR_SIZE * HEX_BYTE_LEN) {
+        ErrorLog("orgBtMac is invalid length");
+        return result;
+    }
     for (uint32_t i = MAC_ADDR_SIZE - 1; i > 0; i--) {
         result += orgBtMac.substr(i * HEX_BYTE_LEN, HEX_BYTE_LEN);
         result += MAC_SEPARATOR;

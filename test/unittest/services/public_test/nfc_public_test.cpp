@@ -181,6 +181,19 @@ HWTEST_F(NfcPublicTest, StringToInt002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: StringToInt003
+ * @tc.desc: Test NfcPublic StringToInt.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcPublicTest, StringToInt003, TestSize.Level1)
+{
+    bool bLittleEndian = false;
+    std::string str = "12";
+    uint32_t srcToInt = NfcSdkCommon::StringToInt(str, bLittleEndian);
+    ASSERT_TRUE(srcToInt == 0);
+}
+
+/**
  * @tc.name: IntToHexString001
  * @tc.desc: Test NfcPublic IntToHexString.
  * @tc.type: FUNC

@@ -42,7 +42,6 @@ KITS::ErrorCode HceCmdCallbackStub::RegHceCmdCallback(const sptr<IHceCmdCallback
     std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback == nullptr) {
         ErrorLog("HceCmdCallbackStub:callBack is nullptr!");
-        callback_ = callback;
         return KITS::ERR_NFC_PARAMETERS;
     }
     callback_ = callback;

@@ -50,6 +50,10 @@ bool NfcSdkCommon::IsLittleEndian()
 std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t length)
 {
     std::string result = "";
+    if (src == nullptr) {
+        ErrorLog("BytesVecToHexString, src is nullptr");
+        return result;
+    }
     if (length <= 0 || length > MAX_BYTES_LEN) {
         ErrorLog("BytesVecToHexString, length: %{public}u error", length);
         return result;
@@ -124,6 +128,10 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
 uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
 {
     uint32_t value = 0;
+    if (src.length() < SHIFT_TIME) {
+        ErrorLog("StringToInt: src length is abnormal");
+        return value;
+    }
     if (bLittleEndian) {
         for (size_t i = SHIFT_TIME; i > 0; i--) {
             value += static_cast<uint32_t>((src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE));
