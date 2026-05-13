@@ -78,7 +78,7 @@ inline bool IsNfcEdmDisallowed()
 
 ErrCode NfcControllerImpl::TurnOn()
 {
-    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM) ||
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM) &&
         !ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_CLI_PERM)) {
         ErrorLog("TurnOn no permission");
         return KITS::ERR_NO_PERMISSION;
@@ -100,7 +100,7 @@ ErrCode NfcControllerImpl::TurnOn()
 
 ErrCode NfcControllerImpl::TurnOff()
 {
-    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM) ||
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM) &&
         !ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_CLI_PERM)) {
         ErrorLog("TurnOff no permission");
         return KITS::ERR_NO_PERMISSION;
@@ -130,8 +130,7 @@ ErrCode NfcControllerImpl::TurnOff()
 
 ErrCode NfcControllerImpl::RestartNfc()
 {
-    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM) ||
-        !ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_CLI_PERM)) {
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         ErrorLog("TurnOff no permission");
         return KITS::ERR_NO_PERMISSION;
     }
