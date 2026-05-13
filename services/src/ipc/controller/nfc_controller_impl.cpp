@@ -142,7 +142,7 @@ ErrCode NfcControllerImpl::RestartNfc()
         ErrorLog("nfcService_ is nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
     }
- 
+
     return nfcServicePtr->ExecuteTask(KITS::TASK_RESTART);
 }
 
