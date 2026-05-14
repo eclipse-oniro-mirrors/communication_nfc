@@ -542,10 +542,10 @@ std::vector<ElementName> AppDataParser::GetDispatchTagAppsByTech(std::vector<int
             }
 
             std::vector<std::string> vectorTech = (*iter).tech;
-            for (size_t i = 0; i < vectorTech.size(); i++) {
+            for (size_t j = 0; j < vectorTech.size(); j++) {
                 DebugLog("GetDispatchTagAppsByTech, cmp tech %{public}s vs %{public}s",
-                    discStrTech.c_str(), vectorTech[i].c_str());
-                if (discStrTech.compare(vectorTech[i]) == 0) {
+                    discStrTech.c_str(), vectorTech[j].c_str());
+                if (discStrTech.compare(vectorTech[j]) == 0) {
                     elements.push_back((*iter).element);
                     break;
                 }

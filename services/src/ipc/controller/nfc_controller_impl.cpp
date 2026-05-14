@@ -161,6 +161,7 @@ ErrCode NfcControllerImpl::RegisterNfcStatusCallBack(const sptr<INfcControllerCa
     sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
     if (!cb->AsObject()->AddDeathRecipient(dr)) {
         ErrorLog("Failed to add death recipient");
+        dr = nullptr;
         return KITS::ERR_NFC_PARAMETERS;
     }
 

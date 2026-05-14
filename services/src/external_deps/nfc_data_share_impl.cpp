@@ -72,7 +72,7 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
         return KITS::ERR_NFC_DATABASE_RW;
     }
     rows->Close();
-    value = atoi(valueStr.c_str());
+    value = std::stoi(valueStr.c_str());
     InfoLog("GetValue success, value = %{public}d.", value);
     return KITS::ERR_NONE;
 }

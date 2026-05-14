@@ -20,7 +20,7 @@ namespace NFC {
 namespace KITS {
 StartHceInfoParcelable::StartHceInfoParcelable(const std::vector<std::string> &aids, const ElementName &element)
 {
-    aids_ = std::move(aids);
+    aids_ = aids;
     aidsCount_ = aids.size();
     element_.SetBundleName(element.GetBundleName());
     element_.SetAbilityName(element.GetAbilityName());
@@ -78,7 +78,7 @@ bool StartHceInfoParcelable::Marshalling(Parcel &parcel) const
 }
 void StartHceInfoParcelable::SetAids(const std::vector<std::string> &aids)
 {
-    aids_ = std::move(aids);
+    aids_ = aids;
     aidsCount_ = aids.size();
 }
 void StartHceInfoParcelable::SetElement(const ElementName &element)
