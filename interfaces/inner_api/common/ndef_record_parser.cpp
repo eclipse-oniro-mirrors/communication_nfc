@@ -63,7 +63,6 @@ std::string NdefRecordParser::CheckForHar(const std::shared_ptr<NdefRecord> &rec
 /* support parse and launch for other platform app type */
 bool NdefRecordParser::IsOtherPlatformAppType(const std::string &appType)
 {
-    const std::string OTHER_PLATFORM_APP_RECORD_TYPE = "android.com:pkg";
     if (appType.compare(NfcSdkCommon::StringToHexString(OTHER_PLATFORM_APP_RECORD_TYPE)) == 0) {
         return true;
     }
@@ -78,7 +77,7 @@ std::string NdefRecordParser::GetNdefRecordMimeType(const std::shared_ptr<NdefRe
     switch (record->tnf_) {
         case NdefMessage::TNF_WELL_KNOWN:
             if (record->tagRtdType_.compare(
-                    NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_TEXT))) == 0) {
+                NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_TEXT))) == 0) {
                 mimeTypeStr = TEXT_PLAIN;
             }
             break;
@@ -119,8 +118,7 @@ std::string NdefRecordParser::GetUriPayload(const std::shared_ptr<NdefRecord> &r
         case NdefMessage::TNF_WELL_KNOWN:
             InfoLog("tagRtdType: %{public}s", NfcSdkCommon::CodeMiddlePart(record->tagRtdType_).c_str());
             if ((record->tagRtdType_.compare(NfcSdkCommon::StringToHexString(
-                     NdefMessage::GetTagRtdType(NdefMessage::RTD_SMART_POSTER))) == 0) &&
-                !isSmartPoster) {
+                NdefMessage::GetTagRtdType(NdefMessage::RTD_SMART_POSTER))) == 0) && !isSmartPoster) {
                 std::shared_ptr<NdefMessage> nestMessage = NdefMessage::GetNdefMessage(record->payload_);
                 InfoLog("payload: %{public}s", NfcSdkCommon::CodeMiddlePart(record->payload_).c_str());
                 if (nestMessage == nullptr) {
@@ -133,7 +131,7 @@ std::string NdefRecordParser::GetUriPayload(const std::shared_ptr<NdefRecord> &r
                     return uri;
                 }
             } else if ((record->tagRtdType_.compare(
-                            NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_URI))) == 0)) {
+                NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_URI))) == 0)) {
                 uri = record->payload_;
                 InfoLog("uri: %{public}s", NfcSdkCommon::CodeMiddlePart(uri).c_str());
                 if (uri.size() <= 2) {  // 2 is uri identifier length

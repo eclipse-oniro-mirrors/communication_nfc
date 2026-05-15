@@ -182,7 +182,6 @@ enum class TagTechnology {
     NFC_MIFARE_ULTRALIGHT_TECH = 9,
     NFC_BARCODE = 10,
     NFC_SKIP_NDEF_CHECK_TECH = 11,
-    NFC_AIRTOUCH_TECH = 12,
 };
 
 enum EmNfcForumType {
