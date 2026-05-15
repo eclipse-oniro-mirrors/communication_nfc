@@ -51,6 +51,9 @@ public:
     static constexpr const auto NFCF_SC = "SystemCode";
     static constexpr const auto NFCF_PMM = "Pmm";
 
+    static constexpr const auto MIME_TYPE = "mimeType";
+    static constexpr const auto URI = "uri";
+
 public:
     TagInfo(std::vector<int> tagTechList,
         std::vector<AppExecFwk::PacMap> tagTechExtrasData,

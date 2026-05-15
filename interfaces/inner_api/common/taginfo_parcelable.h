@@ -36,6 +36,8 @@ public:
     std::vector<int> GetTechList();
     int GetDiscId();
     std::vector<AppExecFwk::PacMap> GetTechExtrasDataList();
+    void SetTechList(std::vector<int> &tagTechList);
+    void SetTechExtrasDataList(std::vector<AppExecFwk::PacMap> &tagTechExtrasData);
 
 private:
     int tagRfDiscId_;
