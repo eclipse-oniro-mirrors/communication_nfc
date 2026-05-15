@@ -128,17 +128,17 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
 uint32_t NfcSdkCommon::StringToInt(std::string src, bool bLittleEndian)
 {
     uint32_t value = 0;
-    if (src.length() < SHIFT_TIME) {
+    if (src.length() < shiftTime) {
         ErrorLog("StringToInt: src length is abnormal");
         return value;
     }
     if (bLittleEndian) {
-        for (size_t i = SHIFT_TIME; i > 0; i--) {
-            value += static_cast<uint32_t>((src.at(SHIFT_TIME - i)) << (i * SHIFT_SIZE - SHIFT_SIZE));
+        for (size_t i = shiftTime; i > 0; i--) {
+            value += static_cast<uint32_t>((src.at(shiftTime - i)) << (i * shiftSize - shiftSize));
         }
     } else {
-        for (size_t i = 0; i < SHIFT_TIME; i++) {
-            value += static_cast<uint32_t>((src.at(i)) << (i * SHIFT_SIZE));
+        for (size_t i = 0; i < shiftTime; i++) {
+            value += static_cast<uint32_t>((src.at(i)) << (i * shiftSize));
         }
     }
     return value;
