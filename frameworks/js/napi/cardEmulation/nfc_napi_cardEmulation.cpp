@@ -101,7 +101,7 @@ static napi_module cardEmulationModule = {
     .nm_filename = NULL,
     .nm_register_func = InitJs,
     .nm_modname = "nfc.cardEmulation",
-    .nm_priv = ((void *)0),
+    .nm_priv = nullptr,
     .reserved = { 0 }
 };
 

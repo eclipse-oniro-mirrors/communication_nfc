@@ -89,7 +89,7 @@ public:
 private:
     void BuildAidEntries(std::map<std::string, AidEntry> &aidEntries);
     void ClearAidEntriesCache();
-    bool IsDynamicAid(const std::string &aid);
+    bool IsDynamicAid(const std::string &targetAid);
     bool IsPaymentAid(const std::string &aid, const AppDataParser::HceAppAidInfo &hceApp);
     void SetHceInfo(const ElementName &element, const std::vector<std::string> &aids);
     void ClearHceInfo();

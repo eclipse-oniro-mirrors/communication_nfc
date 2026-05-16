@@ -86,7 +86,7 @@ static napi_module nfcControllerModule = {
     .nm_filename = NULL,
     .nm_register_func = InitJs,
     .nm_modname = "nfc.controller",
-    .nm_priv = ((void *)0),
+    .nm_priv = nullptr,
     .reserved = { 0 }
 };
 

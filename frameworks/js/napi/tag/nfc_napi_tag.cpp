@@ -419,7 +419,7 @@ napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo)
         env, thisVar, nfcTag,
         [](napi_env env, void *data, void *hint) {
             if (data) {
-                T *nfcTag = (T *)data;
+                T *nfcTag = static_cast<T *>(data);
                 delete nfcTag;
             }
         },
@@ -1014,7 +1014,7 @@ static napi_module nfcTagModule = {
     .nm_filename = nullptr,
     .nm_register_func = InitJs,
     .nm_modname = "nfc.tag",
-    .nm_priv = ((void *)0),
+    .nm_priv = nullptr,
     .reserved = {0},
 };
 
