@@ -26,7 +26,8 @@ namespace KITS {
 const int MIME_MAX_LENGTH = 128;
 
 const std::string TEXT_PLAIN = "text/plain";
-const std::string OTHER_PLATFORM_APP_RECORD_TYPE = "android.com:pkg";
+// Hex representation of android.com:pkg
+const std::string OTHER_PLATFORM_APP_RECORD_TYPE = "616E64726F69642E636F6D3A706B67";
 
 class NdefRecordParser final {
 public:

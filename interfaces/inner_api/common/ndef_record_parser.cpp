@@ -63,7 +63,7 @@ std::string NdefRecordParser::CheckForHar(const std::shared_ptr<NdefRecord> &rec
 /* support parse and launch for other platform app type */
 bool NdefRecordParser::IsOtherPlatformAppType(const std::string &appType)
 {
-    if (appType.compare(NfcSdkCommon::StringToHexString(OTHER_PLATFORM_APP_RECORD_TYPE)) == 0) {
+    if (appType.compare(OTHER_PLATFORM_APP_RECORD_TYPE) == 0) {
         return true;
     }
     InfoLog("exit");
