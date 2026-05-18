@@ -221,8 +221,8 @@ enum VendorInfoType : uint16_t {
 
 class NfcSdkCommon final {
 public:
-    static constexpr int SHIFT_SIZE = 8;
-    static constexpr int SHIFT_TIME = 4;
+    static constexpr int shiftSize = 8;
+    static constexpr int shiftTime = 4;
 
 public:
     static bool IsLittleEndian();
