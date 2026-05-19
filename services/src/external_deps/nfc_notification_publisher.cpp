@@ -157,7 +157,8 @@ void NfcNotificationPublisher::StartVibrate(bool isNfcNotDisturb, int notificati
     if (isNfcNotDisturb && (NFC_NTF_ID_WHITELIST.find(notificationId) == NFC_NTF_ID_WHITELIST.end())) {
         return;
     }
-    InfoLog("Start vibrator once.");
+    InfoLog("NFC Start vibrator once.");
+    OHOS::Sensors::SetUsage(USAGE_PHYSICAL_FEEDBACK, true);
     OHOS::Sensors::StartVibratorOnce(NFC_NTF_VIBRATE_TIME);
 }
 
