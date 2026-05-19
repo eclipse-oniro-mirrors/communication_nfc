@@ -97,7 +97,7 @@ std::vector<int> TagInfoParcelable::GetTechList()
     return tagTechList_;
 }
 
-void TagInfoParcelable::SetTechList(std::vector<int> &tagTechList)
+void TagInfoParcelable::SetTechList(std::vector<int> tagTechList)
 {
     tagTechList_ = std::move(tagTechList);
 }
@@ -112,7 +112,7 @@ std::vector<AppExecFwk::PacMap> TagInfoParcelable::GetTechExtrasDataList()
     return tagTechExtrasData_;
 }
 
-void TagInfoParcelable::SetTechExtrasDataList(std::vector<AppExecFwk::PacMap> &tagTechExtrasData)
+void TagInfoParcelable::SetTechExtrasDataList(std::vector<AppExecFwk::PacMap> tagTechExtrasData)
 {
     tagTechExtrasData_ = std::move(tagTechExtrasData);
 }
