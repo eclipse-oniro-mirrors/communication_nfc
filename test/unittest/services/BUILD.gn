@@ -270,6 +270,7 @@ ohos_unittest("tags_test") {
     "tags_test/tag_foreground_test.cpp",
     "tags_test/tag_info_test.cpp",
     "tags_test/taginfo_parcelable_test.cpp",
+    "tags_test/ndef_record_parser_test.cpp",
   ]
 
   configs = [ ":nfc_service_unit_test_config" ]
