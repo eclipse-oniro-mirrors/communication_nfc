@@ -182,7 +182,6 @@ enum class TagTechnology {
     NFC_MIFARE_ULTRALIGHT_TECH = 9,
     NFC_BARCODE = 10,
     NFC_SKIP_NDEF_CHECK_TECH = 11,
-    NFC_MIMETYPE_URI_TECH = 12,
 };
 
 enum EmNfcForumType {
@@ -221,8 +220,8 @@ enum VendorInfoType : uint16_t {
 
 class NfcSdkCommon final {
 public:
-    static constexpr int shiftSize = 8;
-    static constexpr int shiftTime = 4;
+    static constexpr int SHIFT_SIZE = 8;
+    static constexpr int SHIFT_TIME = 4;
 
 public:
     static bool IsLittleEndian();
