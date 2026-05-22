@@ -117,7 +117,7 @@ static void AfterWorkCb(uv_work_t *work, int status)
     napi_value resArgs[ARGV_INDEX_2];
     uint8_t paramNum = ARGV_INDEX_2;
     if (g_readerModeType == TYPE_READER_MODE_WITH_INTVL) {
-        resArgs[ARGV_INDEX_1] = asyncData->packResult();
+        resArgs[ARGV_INDEX_0] = asyncData->packResult();
         paramNum = ARGV_INDEX_1;
     } else {
         napi_get_undefined(asyncData->env, &resArgs[ARGV_INDEX_0]);
