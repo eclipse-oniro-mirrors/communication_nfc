@@ -622,7 +622,13 @@ bool NfcService::IsNfcEnabled()
 void NfcService::HandleShutdown()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    InfoLog("device is shutting down, nfcState_ = %{public}d", nfcState_);
+    int nfcStateFromParam = ExternalDepsProxy::GetInstance().GetNfcStateFromParam();
+    InfoLog("device is shutting down, nfcState_ = %{public}d, nfcStateFromParam = %{public}d",
+        nfcState_, nfcStateFromParam);
+    ExternalDepsProxy::GetInstance().WriteShutDownNfcStateHiSysEvent(nfcState_, nfcStateFromParam);
+    if (nfcState_ == KITS::STATE_TURNING_ON || nfcState_ == KITS::STATE_ON || nfcStateFromParam == KITS::STATE_ON) {
+        ExternalDepsProxy::GetInstance().UpdateNfcState(KITS::STATE_ON);
+    }
     nciNfccProxy_->Shutdown();
 }
 

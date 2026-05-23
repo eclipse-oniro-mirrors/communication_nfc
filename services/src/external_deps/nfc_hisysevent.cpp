@@ -146,6 +146,14 @@ void NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute
                "NEW_DEFAULT_ROUTE", newRoute);
 }
 
+void NfcHisysEvent::WriteShutDownNfcStateHiSysEvent(int nfcState, int nfcStateFromParam)
+{
+    InfoLog("WriteShutDownNfcStateHiSysEvent, nfcState = %{public}d, nfcStateFromParam = %{public}d",
+        nfcState, nfcStateFromParam);
+    WriteEvent("DEVICE_SHUT_DOWN", HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        "NFC_STATE", nfcState, "NFC_STATE_FROM_PARAM", nfcStateFromParam);
+}
+
 void NfcHisysEvent::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
 {
     NfcFailedParams failedParams;
