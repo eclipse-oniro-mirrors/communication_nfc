@@ -68,7 +68,7 @@
         },
         "required": ["status"]
       },
-      "requirePermissions": []
+      "requirePermissions": ["ohos.permission.cli.MANAGE_NFC_SWITCH"]
     },
     "turn-off": {
       "description": "Disable device NFC function",
@@ -92,7 +92,7 @@
         },
         "required": ["status"]
       },
-      "requirePermissions": []
+      "requirePermissions": ["ohos.permission.cli.MANAGE_NFC_SWITCH"]
     },
     "is-available": {
       "description": "Check if current device supports NFC function",
