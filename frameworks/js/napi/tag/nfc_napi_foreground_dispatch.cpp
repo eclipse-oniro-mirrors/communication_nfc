@@ -30,6 +30,7 @@ constexpr uint32_t INVALID_REF_COUNT = 0xFF;
 static std::mutex g_mutex {};
 static RegObj g_foregroundRegInfo;
 static RegObj g_readerModeRegInfo;
+static std::string g_readerModeType = "";
 bool ForegroundEventRegister::isEvtRegistered_ = false;
 bool ReaderModeEvtRegister::isReaderModeRegistered_ = false;
 constexpr const char* TYPE_FOREGROUND = "foreground";
@@ -114,12 +115,18 @@ static void AfterWorkCb(uv_work_t *work, int status)
 
     // build result arg for async callback in an array {error, tagInfo}
     napi_value resArgs[ARGV_INDEX_2];
-    napi_get_undefined(asyncData->env, &resArgs[ARGV_INDEX_0]);
-    resArgs[ARGV_INDEX_1] = asyncData->packResult();
+    uint8_t paramNum = ARGV_INDEX_2;
+    if (g_readerModeType == TYPE_READER_MODE_WITH_INTVL) {
+        resArgs[ARGV_INDEX_0] = asyncData->packResult();
+        paramNum = ARGV_INDEX_1;
+    } else {
+        napi_get_undefined(asyncData->env, &resArgs[ARGV_INDEX_0]);
+        resArgs[ARGV_INDEX_1] = asyncData->packResult();
+    }
     napi_value returnVal;
     napi_get_undefined(asyncData->env, &returnVal);
-    if (napi_call_function(asyncData->env, nullptr, callback, ARGV_INDEX_2, resArgs, &returnVal) != napi_ok) {
-        DebugLog("AfterWorkCb: Report event to Js failed");
+    if (napi_call_function(asyncData->env, nullptr, callback, paramNum, resArgs, &returnVal) != napi_ok) {
+        ErrorLog("AfterWorkCb: Report event to Js failed");
     }
     ReleaseAfterWorkCb(work, asyncData, scope,  refCount);
 }
@@ -574,6 +581,7 @@ int ReaderModeEvtRegister::Register(const napi_env &env, std::string &type, Elem
             return ret;
         }
         isReaderModeRegistered_ = true;
+        g_readerModeType = TYPE_READER_MODE;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
@@ -602,6 +610,7 @@ int ReaderModeEvtRegister::RegisterWithIntvl(const napi_env &env, ElementName &e
             return ret;
         }
         isReaderModeRegistered_ = true;
+        g_readerModeType = TYPE_READER_MODE_WITH_INTVL;
     }
     napi_ref handlerRef = nullptr;
     napi_create_reference(env, handler, 1, &handlerRef);
