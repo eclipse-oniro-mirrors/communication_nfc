@@ -35,6 +35,7 @@ static { loadLibraryWithPermissionCheck("nfc_fwk_taihe_tag.z", "@ohos.nfc.tag");
 @!sts_inject("const MIFARE_CLASSIC: int = 8")
 @!sts_inject("const MIFARE_ULTRALIGHT: int = 9")
 @!sts_inject("const NFC_BARCODE: int = 10")
+@!sts_inject("const SKIP_NDEF: int = 11")
 
 @!sts_inject("const RTD_TEXT: int[] = [ 0x54 ]")
 @!sts_inject("const RTD_URI: int[] = [ 0x55 ]")
