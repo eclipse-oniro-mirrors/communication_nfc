@@ -106,7 +106,7 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
 #endif
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
-    uint16_t dispatchRes = DispatchByAppLinkMode(tagInfo);
+    dispatchRes = DispatchByAppLinkMode(tagInfo);
     if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("DispatchByAppLinkMode succ");
         return dispatchRes;
