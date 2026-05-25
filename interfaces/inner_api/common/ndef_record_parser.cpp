@@ -72,6 +72,10 @@ bool NdefRecordParser::IsOtherPlatformAppType(const std::string &appType)
 
 std::string NdefRecordParser::GetNdefRecordMimeType(const std::shared_ptr<NdefRecord> &record)
 {
+    if (record == nullptr) {
+        ErrorLog("record is nullptr");
+        return "";
+    }
     std::string mimeTypeStr = "";
     InfoLog("record.tnf_: %{public}d", record->tnf_);
     switch (record->tnf_) {
