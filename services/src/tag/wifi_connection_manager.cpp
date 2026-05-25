@@ -23,6 +23,7 @@
 #include "nfc_service.h"
 #include "wifi_errcode.h"
 #include "wifi_msg.h"
+#include "wifi_scan.h"
 
 namespace OHOS {
 namespace NFC {
