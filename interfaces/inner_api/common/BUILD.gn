@@ -50,6 +50,7 @@ ohos_shared_library("nfc_inner_kits_common") {
     "start_hce_info_parcelable.cpp",
     "taginfo.cpp",
     "taginfo_parcelable.cpp",
+    "ndef_record_parser.cpp",
   ]
 
   configs = [ ":nfc_inner_kits_config" ]

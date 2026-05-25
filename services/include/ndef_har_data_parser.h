@@ -83,8 +83,6 @@ public:
 private:
     NdefHarDataParser();
     ~NdefHarDataParser() {}
-    std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record);
-    std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster);
     uint16_t DispatchByHarBundleName(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     bool ParseHarPackage(std::vector<std::string> harPackages, const std::shared_ptr<KITS::TagInfo> &tagInfo,
@@ -92,9 +90,6 @@ private:
     bool DispatchAllHarPackage(const std::vector<std::string> &harPackages,
         const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri);
     void ParseMimeTypeAndStr(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    std::vector<std::string> ExtractHarPackages(const std::vector<std::shared_ptr<NdefRecord>> &records);
-    std::string CheckForHar(const std::shared_ptr<NdefRecord> &record);
-    bool IsOtherPlatformAppType(const std::string &appType);
     bool StartsWith(const std::string &str, const std::string &prefix);
     void ParseRecordsProperty(const std::vector<std::shared_ptr<NdefRecord>> &records);
     uint16_t DispatchByAppLinkMode(const std::shared_ptr<KITS::TagInfo> &tagInfo);
