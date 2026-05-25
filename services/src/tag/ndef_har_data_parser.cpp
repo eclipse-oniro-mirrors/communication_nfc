@@ -95,6 +95,15 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
     const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo)
 {
     ParseMimeTypeAndStr(records);
+    uint16_t dispatchRes = DISPATCH_UNKNOWN;
+#ifdef IS_WATCH
+    // handle OpenHarmony Application bundle name
+    dispatchRes = DispatchByHarBundleName(records, tagInfo);
+    if (dispatchRes != DISPATCH_UNKNOWN) {
+        InfoLog("DispatchByHarBundleName succ");
+        return dispatchRes;
+    }
+#endif
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
     uint16_t dispatchRes = DispatchByAppLinkMode(tagInfo);
