@@ -93,6 +93,7 @@ public:
                                   MainErrorCode mainErrorCode,
                                   SubErrorCode subErrorCode);
     static void WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newRoute);
+    static void WriteShutDownNfcStateHiSysEvent(int nfcState, int nfcStateFromParam);
     static void WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName);
     static void WriteNfcHceCmdCbHiSysEvent(const std::string &appName, SubErrorCode subErrorCode);
 };

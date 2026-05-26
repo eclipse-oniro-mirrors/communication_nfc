@@ -217,6 +217,11 @@ void ExternalDepsProxy::WriteDefaultRouteChangeHiSysEvent(int oldRoute, int newR
     NfcHisysEvent::WriteDefaultRouteChangeHiSysEvent(oldRoute, newRoute);
 }
 
+void ExternalDepsProxy::WriteShutDownNfcStateHiSysEvent(int nfcState, int nfcStateFromParam)
+{
+    NfcHisysEvent::WriteShutDownNfcStateHiSysEvent(nfcState, nfcStateFromParam);
+}
+
 void ExternalDepsProxy::WriteAppBehaviorHiSysEvent(SubErrorCode behaviorCode, const std::string &appName)
 {
     NfcHisysEvent::WriteAppBehaviorHiSysEvent(behaviorCode, appName);
