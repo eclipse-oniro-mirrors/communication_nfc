@@ -18,9 +18,6 @@
 #include "setting_data_share_impl.h"
 namespace OHOS {
 namespace NFC {
-
-const int32_t MAX_URI_LENGTH = 128;
-const int32_t MAX_ARRAY_LEN = 4096;
 OHOS::NFC::SettingDataShareImpl::SettingDataShareImpl()
 {
     Initialize();
@@ -105,10 +102,6 @@ bool SettingDataShareImpl::ParseElementURI(const std::string& uri, ElementName& 
 
     std::vector<std::string> uriVec;
     Split(uri, "/", uriVec);
-    if (uriVec.size() > MAX_ARRAY_LEN) {
-        InfoLog("The length of uriVec is out of MAX_ARRAY_LEN.uriVec.size is: %{public}lu", uriVec.size());
-        return false;
-    }
     uriVec.resize(memberNum);
 
     int index = 0;
