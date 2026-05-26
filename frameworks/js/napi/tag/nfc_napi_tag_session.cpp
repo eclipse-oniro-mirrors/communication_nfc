@@ -70,7 +70,7 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
     BytesVectorToJS(env, uidValue, uidBytes);
     napi_create_array_with_length(env, techList.size(), &techValue);
     if (techList.size() > MAX_ARRAY_LEN) {
-        ErrorLog("The techList.size is out of MAX_AID_LENGTH.techList.size is: %{public}lu", techList.size());
+        ErrorLog("The techList.size is out of MAX_ARRAY_LEN.techList.size is: %{public}lu", techList.size());
         return CreateUndefined(env);
     }
     for (uint32_t i = 0; i < techList.size(); i++) {
@@ -312,7 +312,7 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
     std::vector<unsigned char> dataBytes = {};
     NAPI_CALL(env, napi_get_array_length(env, params[ARGV_INDEX_0], &arrayLength));
     if (arrayLength > MAX_ARRAY_LEN) {
-        ErrorLog("The arrayLength is out of MAX_AID_LENGTH.arrayLength is: %{public}u", arrayLength);
+        ErrorLog("The arrayLength is out of MAX_ARRAY_LEN.arrayLength is: %{public}u", arrayLength);
         return CreateUndefined(env);
     }
     for (uint32_t i = 0; i < arrayLength; ++i) {

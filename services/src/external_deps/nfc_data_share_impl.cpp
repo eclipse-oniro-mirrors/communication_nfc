@@ -16,6 +16,7 @@
 #include "loghelper.h"
 #include "iremote_broker.h"
 #include "iremote_stub.h"
+#include <charconv>
 
 namespace OHOS {
 namespace NFC {
@@ -72,9 +73,14 @@ KITS::ErrorCode NfcDataShareImpl::GetValue(Uri &uri, const std::string &column, 
         return KITS::ERR_NFC_DATABASE_RW;
     }
     rows->Close();
-    value = std::stoi(valueStr.c_str());
-    InfoLog("GetValue success, value = %{public}d.", value);
-    return KITS::ERR_NONE;
+    auto getValue = std::from_chars(valueStr.data(), valueStr.data() + valueStr.size(), value, 10);
+    if (getValue.ec == std::errc()) {
+        InfoLog("GetValue success, value = %{public}d.", value);
+        return KITS::ERR_NONE;
+    } else {
+        ErrorLog("%{public}s: can't get value.", __func__);
+        return KITS::ERR_NFC_DATABASE_RW;
+    }
 }
 
 KITS::ErrorCode NfcDataShareImpl::SetValue(Uri &uri, const std::string &column, int &value)

@@ -31,7 +31,7 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 const std::string APP_REMOVED = "app_removed";
 const std::string APP_ADDED = "app_added";
-const int MAX_AID_LENGTH = 128;
+const size_t MAX_AID_LENGTH = 128;
 std::mutex g_defaultPaymentAppInitMutex = {};
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)

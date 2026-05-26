@@ -105,11 +105,11 @@ bool SettingDataShareImpl::ParseElementURI(const std::string& uri, ElementName& 
 
     std::vector<std::string> uriVec;
     Split(uri, "/", uriVec);
-    uriVec.resize(memberNum);
     if (uriVec.size() > MAX_ARRAY_LEN) {
         InfoLog("The length of uriVec is out of MAX_ARRAY_LEN.uriVec.size is: %{public}lu", uriVec.size());
         return false;
     }
+    uriVec.resize(memberNum);
 
     int index = 0;
     value.SetBundleName(uriVec[index++]);
