@@ -23,6 +23,7 @@
 #include "nfc_service.h"
 #include "wifi_errcode.h"
 #include "wifi_msg.h"
+#include "wifi_scan.h"
 
 namespace OHOS {
 namespace NFC {
@@ -269,6 +270,13 @@ void WifiConnectionManager::TryConnectWifi(std::shared_ptr<WifiData> data)
     config_ = data->config_;
     InfoLog("TryConnectWifi: Publish notification ssid: %{private}s", config_->ssid.c_str());
     ExternalDepsProxy::GetInstance().PublishNfcNotification(NFC_WIFI_NOTIFICATION_ID, config_->ssid, 0);
+    Wifi::WifiScanParams params;
+    params.ssid = config_->ssid;
+    params.band = Wifi::SCAN_BAND_BOTH_WITH_DFS;
+    std::shared_ptr<Wifi::WifiScan> wifiScanPtr = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
+    if (wifiScanPtr != nullptr) {
+        wifiScanPtr->AdvanceScan(params);
+    }
 }
 
 __attribute__((no_sanitize("cfi"))) bool WifiConnectionManager::HandleConnectWifi()
