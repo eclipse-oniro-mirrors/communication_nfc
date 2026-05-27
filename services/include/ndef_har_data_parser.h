@@ -99,6 +99,7 @@ private:
     uint16_t DispatchValidNdef(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
     void ClearNdefDispatchParam();
+    bool IsWatch();
 
     std::shared_ptr<NdefHarDispatch> ndefHarDispatch_ {nullptr};
     std::weak_ptr<NCI::INciTagInterface> nciTagProxy_ {};

@@ -96,14 +96,14 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
 {
     ParseMimeTypeAndStr(records);
     uint16_t dispatchRes = DISPATCH_UNKNOWN;
-#ifdef IS_WATCH
-    // handle OpenHarmony Application bundle name
-    dispatchRes = DispatchByHarBundleName(records, tagInfo);
-    if (dispatchRes != DISPATCH_UNKNOWN) {
-        InfoLog("DispatchByHarBundleName succ");
-        return dispatchRes;
+    if (IsWatch()) {
+        // handle OpenHarmony Application bundle name
+        dispatchRes = DispatchByHarBundleName(records, tagInfo);
+        if (dispatchRes != DISPATCH_UNKNOWN) {
+            InfoLog("DispatchByHarBundleName succ");
+            return dispatchRes;
+        }
     }
-#endif
     ParseRecordsProperty(records);
     // handle uri start with HTTP or other type
     dispatchRes = DispatchByAppLinkMode(tagInfo);
@@ -397,6 +397,18 @@ void NdefHarDataParser::ParseMimeTypeAndStr(const std::vector<std::shared_ptr<Nd
         InfoLog("mimeType[%{public}d]=%{public}d, mimeTypeStr=%{public}s", i, static_cast<short>(mimeType),
             mimeTypeStr.c_str());
     }
+}
+
+bool NdefHarDataParser::IsWatch()
+{
+    auto nciTagProxyPtr = nciTagProxy_.lock();
+    if (nciTagProxyPtr) {
+        std::string isWatch = nciTagProxyPtr->GetVendorInfo(KITS::VendorInfoType::IS_SUPPORT_WATCH);
+        if (!isWatch.empty() && isWatch == "true") {
+            return true;
+        }
+    }
+    return false;
 }
 } // namespace TAG
 } // namespace NFC
