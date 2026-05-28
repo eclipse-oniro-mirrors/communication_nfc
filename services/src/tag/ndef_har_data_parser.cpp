@@ -96,7 +96,7 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
 {
     ParseMimeTypeAndStr(records);
     uint16_t dispatchRes = DISPATCH_UNKNOWN;
-#ifdef IS_WATCH
+#ifdef NFC_HANDLE_SCREEN_LOCK
     // handle OpenHarmony Application bundle name
     dispatchRes = DispatchByHarBundleName(records, tagInfo);
     if (dispatchRes != DISPATCH_UNKNOWN) {
