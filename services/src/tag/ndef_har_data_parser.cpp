@@ -102,7 +102,6 @@ uint16_t NdefHarDataParser::DispatchValidNdef(
     if (dispatchRes != DISPATCH_UNKNOWN) {
         InfoLog("DispatchByHarBundleName succ");
         return dispatchRes;
- 
     }
 #endif
     ParseRecordsProperty(records);
