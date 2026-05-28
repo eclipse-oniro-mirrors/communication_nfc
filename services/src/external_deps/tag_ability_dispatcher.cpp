@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,8 @@ void TagAbilityDispatcher::StartVibratorOnce(bool isNtfPublished)
         InfoLog("don't vibrate.");
         return;
     }
-    InfoLog("Start vibrator once.");
+    InfoLog("Nfc Start vibrator once.");
+    OHOS::Sensors::SetUsage(USAGE_PHYSICAL_FEEDBACK, true);
     OHOS::Sensors::StartVibratorOnce(DEFAULT_MOTOR_VIBRATOR_ONCE);
 }
 
