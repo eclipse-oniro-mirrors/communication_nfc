@@ -656,6 +656,7 @@ int ReaderModeEvtRegister::Unregister(const napi_env &env, std::string &type, El
     DeleteRegisteredObj(env, g_readerModeRegInfo, handler);
     if (!g_readerModeRegInfo.IsEmpty()) {
         g_readerModeRegInfo.Clear();
+        g_readerModeType = "";
         isReaderModeRegistered_ = false;
     }
     InfoLog("ReaderModeEvtRegister::Unregister, isReaderModeRegistered = %{public}d", isReaderModeRegistered_);
