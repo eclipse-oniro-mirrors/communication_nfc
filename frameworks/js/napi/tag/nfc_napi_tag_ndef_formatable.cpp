@@ -111,6 +111,7 @@ napi_value NapiNdefFormatableTag::Format(napi_env env, napi_callback_info info)
 
     napi_status status2 = napi_unwrap(env, params[ARGV_INDEX_0], reinterpret_cast<void **>(&context->msg));
     if (!CheckUnwrapStatusAndThrow(env, status2, BUSI_ERR_TAG_STATE_INVALID)) {
+        delete context;
         return CreateUndefined(env);
     }
     if (paramsCount == ARGV_NUM_2) {

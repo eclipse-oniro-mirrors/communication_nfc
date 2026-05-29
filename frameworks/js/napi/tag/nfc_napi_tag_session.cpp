@@ -69,6 +69,10 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
     NfcSdkCommon::HexStringToBytes(uid, uidBytes);
     BytesVectorToJS(env, uidValue, uidBytes);
     napi_create_array_with_length(env, techList.size(), &techValue);
+    if (techList.size() > MAX_ARRAY_LEN) {
+        ErrorLog("The techList.size is out of MAX_ARRAY_LEN.techList.size is: %{public}lu", techList.size());
+        return CreateUndefined(env);
+    }
     for (uint32_t i = 0; i < techList.size(); i++) {
         napi_value tech;
         napi_create_uint32(env, techList[i], &tech);
@@ -307,6 +311,10 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
     uint32_t arrayLength = 0;
     std::vector<unsigned char> dataBytes = {};
     NAPI_CALL(env, napi_get_array_length(env, params[ARGV_INDEX_0], &arrayLength));
+    if (arrayLength > MAX_ARRAY_LEN) {
+        ErrorLog("The arrayLength is out of MAX_ARRAY_LEN.arrayLength is: %{public}u", arrayLength);
+        return CreateUndefined(env);
+    }
     for (uint32_t i = 0; i < arrayLength; ++i) {
         NAPI_CALL(env, napi_get_element(env, params[ARGV_INDEX_0], i, &hexCmdDataValue));
         NAPI_CALL(env, napi_get_value_int32(env, hexCmdDataValue, &hexCmdData));

@@ -88,6 +88,7 @@ ErrCode HceSession::RegHceCmdCallback(const sptr<IHceCmdCallback>& cb, const std
     sptr<IRemoteObject::DeathRecipient> dr(recipient.release());
     if (!cb->AsObject()->AddDeathRecipient(dr)) {
         ErrorLog("Failed to add death recipient");
+        dr = nullptr;
         return KITS::ERR_HCE_PARAMETERS;
     }
 

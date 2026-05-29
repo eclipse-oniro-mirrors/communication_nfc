@@ -47,6 +47,7 @@ const uint32_t INDEX_P1 = 2;
 const uint32_t INDEX_3 = 3;
 const uint32_t INDEX_AID_LEN = 4;
 const int32_t USERID = 100;
+const int MAX_AID_LENGTH = 128;
 using OHOS::AppExecFwk::ElementName;
 HostCardEmulationManager::HostCardEmulationManager(std::weak_ptr<NfcService> nfcService,
                                                    std::weak_ptr<NCI::INciCeInterface> nciCeProxy,
@@ -376,7 +377,7 @@ void HostCardEmulationManager::HandleDataOnW4Select(const std::string& aid, Elem
             return;
         } else {
             InfoLog("HandleDataOnW4Select: try to connect service.");
-            queueHceData_ = std::move(data);
+            queueHceData_ = data;
             DispatchAbilitySingleApp(aidElement);
             return;
         }
@@ -560,7 +561,8 @@ std::string HostCardEmulationManager::ParseSelectAid(const std::vector<uint8_t>&
         }
 
         uint8_t aidLength = data[INDEX_AID_LEN];
-        if ((aidLength == 0) || (data.size() < SELECT_APDU_HDR_LENGTH + aidLength)) {
+        if ((aidLength == 0) || (data.size() < SELECT_APDU_HDR_LENGTH + aidLength) ||
+            (aidLength > MAX_AID_LENGTH)) {
             InfoLog("invalid data. Data size less than hdr length plus aid declared length.");
             return "";
         }

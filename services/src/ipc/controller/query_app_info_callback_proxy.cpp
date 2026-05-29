@@ -55,7 +55,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         }
         int elementNameListLen = reply.ReadInt32();
         InfoLog("QueryAppInfoCallbackProxy::OnQueryAppInfo recv %{public}d app need to add", elementNameListLen);
-        if (elementNameListLen > MAX_HAP_LIST_LEN) {
+        if (elementNameListLen > MAX_HAP_LIST_LEN || elementNameListLen < 0) {
             return false;
         }
         for (int i = 0; i < elementNameListLen; i++) {
@@ -79,7 +79,7 @@ bool QueryAppInfoCallbackProxy::OnQueryAppInfo(std::string type, std::vector<int
         }
         int appLen = reply.ReadInt32();
         InfoLog("QueryAppInfoCallbackProxy::OnQueryAppInfo recv %{public}d app need to add", appLen);
-        if (appLen > MAX_HAP_LIST_LEN) {
+        if (appLen > MAX_HAP_LIST_LEN || appLen < 0) {
             return false;
         }
         for (int i = 0; i < appLen; i++) {

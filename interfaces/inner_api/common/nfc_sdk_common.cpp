@@ -31,6 +31,8 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 
+const int32_t MAX_INDEX_LEN = 1024;
+
 bool NfcSdkCommon::IsLittleEndian()
 {
     const char LAST_DATA_BYTE = 0x78;
@@ -54,7 +56,7 @@ std::string NfcSdkCommon::BytesVecToHexString(const unsigned char* src, uint32_t
         ErrorLog("BytesVecToHexString, src is nullptr");
         return result;
     }
-    if (length <= 0 || length > MAX_BYTES_LEN) {
+    if (length == 0 || length > MAX_BYTES_LEN) {
         ErrorLog("BytesVecToHexString, length: %{public}u error", length);
         return result;
     }
@@ -114,6 +116,10 @@ unsigned char NfcSdkCommon::GetByteFromHexStr(const std::string src, uint32_t in
     // 2 charactors consist of one byte.
     if (src.empty() || (src.length() < index * HEX_BYTE_LEN + HEX_BYTE_LEN)) {
         ErrorLog("GetByteFromHexStr, src length error.");
+        return 0;
+    }
+    if (index > MAX_INDEX_LEN) {
+        ErrorLog("GetByteFromHexStr, index error, index is: %{public}u", index);
         return 0;
     }
     std::string strByte = src.substr(index * HEX_BYTE_LEN, HEX_BYTE_LEN);
@@ -342,6 +348,11 @@ bool NfcSdkCommon::GetConfigFromJson(const std::string &key, std::string &value)
         return false;
     }
     value = cJSON_GetStringValue(cJsonObject);
+    if (value == "") {
+        ErrorLog("cJsonObject is nullptr.");
+        cJSON_Delete(json);
+        return false;
+    }
     cJSON_Delete(json);
     return true;
 }

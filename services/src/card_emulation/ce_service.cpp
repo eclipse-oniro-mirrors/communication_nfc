@@ -31,6 +31,7 @@ static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
 const std::string APP_REMOVED = "app_removed";
 const std::string APP_ADDED = "app_added";
+const size_t MAX_AID_LENGTH = 128;
 std::mutex g_defaultPaymentAppInitMutex = {};
 
 CeService::CeService(std::weak_ptr<NfcService> nfcService, std::weak_ptr<NCI::INciCeInterface> nciCeProxy)
@@ -407,6 +408,10 @@ void CeService::SearchElementByAid(const std::string &aid, ElementName &aidEleme
 {
     if (aid.empty()) {
         InfoLog("aid is empty");
+        return;
+    }
+    if (aid.size() > MAX_AID_LENGTH) {
+        InfoLog("The length of aid is out of MAX_AID_LENGTH.aid.size is: %{public}lu", aid.size());
         return;
     }
     // find dynamic aid
