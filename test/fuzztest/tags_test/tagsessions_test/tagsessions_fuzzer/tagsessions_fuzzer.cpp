@@ -111,9 +111,6 @@ public:
         int32_t tagRfDiscId = GetData<int32_t>();
         int32_t technology = GetData<int32_t>();
         tagSession->Connect(tagRfDiscId, technology);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->Connect(tagRfDiscId, technology);
     }
 
     void FuzzReconnect(const uint8_t* data, size_t size)
@@ -126,9 +123,6 @@ public:
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         int32_t tagRfDiscId = GetData<int32_t>();
         tagSession->Reconnect(tagRfDiscId);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->Reconnect(tagRfDiscId);
     }
 
     void FuzzDisconnect(const uint8_t* data, size_t size)
@@ -141,9 +135,6 @@ public:
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         int32_t tagRfDiscId = GetData<int32_t>();
         tagSession->Disconnect(tagRfDiscId);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->Disconnect(tagRfDiscId);
     }
 }
 

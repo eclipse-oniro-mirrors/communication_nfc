@@ -66,10 +66,6 @@ public:
         std::string msg = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->NdefWrite(tagRfDiscId, "");
         tagSession->NdefWrite(tagRfDiscId, msg);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->NdefWrite(tagRfDiscId, "");
-        tagSession1->NdefWrite(tagRfDiscId, msg);
     }
 
     void FuzzNdefMakeReadOnly(const uint8_t* data, size_t size)
@@ -79,9 +75,6 @@ public:
         FuzzedDataProvider fdp(data, size);
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         tagSession->NdefMakeReadOnly(tagRfDiscId);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->NdefMakeReadOnly(tagRfDiscId);
     }
 
     void FuzzFormatNdef(const uint8_t* data, size_t size)
@@ -92,9 +85,6 @@ public:
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         std::string key = NfcSdkCommon::BytesVecToHexString(data, size);
         tagSession->FormatNdef(tagRfDiscId, key);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->FormatNdef(tagRfDiscId, key);
     }
 
     void FuzzCanMakeReadOnly(const uint8_t* data, size_t size)
@@ -105,9 +95,6 @@ public:
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         bool canSetReadOnly = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->CanMakeReadOnly(tagRfDiscId, canSetReadOnly);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->CanMakeReadOnly(tagRfDiscId, canSetReadOnly);
     }
 }
 

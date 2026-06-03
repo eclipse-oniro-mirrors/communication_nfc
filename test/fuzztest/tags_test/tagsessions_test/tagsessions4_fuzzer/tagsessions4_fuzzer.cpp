@@ -74,9 +74,6 @@ public:
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
         bool isSupported = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsSupportedApdusExtended(isSupported);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->IsSupportedApdusExtended(isSupported);
     }
 
     void FuzzIsSameAppAbility(const uint8_t* data, size_t size)

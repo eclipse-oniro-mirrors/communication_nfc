@@ -11,17 +11,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../../../nfc.gni")
+import("../../../nfcfuzz.gni")
 
-group("tagsessions_fuzztest") {
+ohos_fuzztest("TagSessions7FuzzTest") {
+  module_out_path = fuzz_module_out_path
+
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/tags_test/tagsessions_test/tagsessions7_fuzzer"
+
+  include_dirs = fuzz_include_dirs
+
+  cflags = fuzz_cflags
+
+  sources = [ "tagsessions7_fuzzer.cpp" ]
+
+  deps = fuzz_deps
+
+  defines = [
+    "private=public",
+    "DTFUZZ_TEST",
+  ]
+
+  external_deps = fuzz_external_deps
+}
+
+group("fuzztest") {
   testonly = true
-  deps = [
-    "tagsessions_fuzzer:fuzztest",
-    "tagsessions2_fuzzer:fuzztest",
-    "tagsessions3_fuzzer:fuzztest",
-    "tagsessions4_fuzzer:fuzztest",
-    "tagsessions5_fuzzer:fuzztest",
-    "tagsessions6_fuzzer:fuzztest",
-    "tagsessions7_fuzzer:fuzztest",
+  deps = []
+  deps += [
+    # deps file
+    ":TagSessions7FuzzTest",
   ]
 }

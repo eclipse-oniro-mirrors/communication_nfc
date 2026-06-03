@@ -20,5 +20,6 @@ group("tagsession_fuzztest") {
     "tagsession2_fuzzer:fuzztest",
     "tagsession3_fuzzer:fuzztest",
     "tagsession4_fuzzer:fuzztest",
+    "tagsession5_fuzzer:fuzztest",
   ]
 }

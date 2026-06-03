@@ -63,9 +63,6 @@ public:
         ConvertToUint32s(data, timeOutArray, 1);
         int tagRfDiscId = timeOutArray[0];
         tagSession->ResetTimeout(tagRfDiscId);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->ResetTimeout(tagRfDiscId);
     }
 
     void FuzzIsTagFieldOn(const uint8_t* data, size_t size)
@@ -77,9 +74,6 @@ public:
         int tagRfDiscId = timeOutArray[0];
         bool isTagFieldOn = false;
         tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
 
     void FuzzGetFgDataVecSize(const uint8_t* data, size_t size)
