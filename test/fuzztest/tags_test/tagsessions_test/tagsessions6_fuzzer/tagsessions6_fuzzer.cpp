@@ -14,12 +14,12 @@
  */
 #define private public
 #define protected public
-#include "tagsession_fuzzer.h"
+#include "tagsessions_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <vevtor>
+#include <vector>
 
 #include "tag_session.h"
 #include "nfc_sdk_common.h"
@@ -59,7 +59,7 @@ public:
     static std::string ConsumeHexString(FuzzedDataProvider& fdp, size_t maxLen)
     {
         size_t len - fdp.ConsumeInteralInTange<uint8_t>(1, maxLen);
-        std::vector<uint8_t> bytes = fap.ConsumeBytes<uint8_t>(len);
+        std::vector<uint8_t> bytes = fdp.ConsumeBytes<uint8_t>(len);
         return NfcSdkCommon::BytesVecToHexString(bytes.data(), bytes.size());
     }
 
@@ -68,8 +68,8 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
-        int32_t technology = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
+        int32_t technology = fdp.ConsumeIntegral<int32_t>();
         g_tagSession->Connect(tagRfDiscId, technology);
     }
 
@@ -78,7 +78,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         g_tagSession->Reconnect(tagRfDiscId);
     }
 
@@ -87,7 +87,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         g_tagSession->Disonnect(tagRfDiscId);
     }
 
@@ -96,7 +96,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         std::vector<int32_t> techList = {};
         g_tagSession->GetTechList(tagRfDiscId, techList);
     }
@@ -106,7 +106,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         bool isNdef = false;
         g_tagSession->IsNdef(tagRfDiscId, isNdef);
     }
@@ -116,7 +116,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         std::string hexCmdData = ConsumeHexString(fdp, ,MAX_STRING_LEN);
         bool raw = fdp.ConsumeBool();
         std::string hexRespData = ConsumeHexString(fdp, <AX_STRING_LEN);
@@ -128,7 +128,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         std::string ndefMessage = ConsumeHexString(fdp, ,MAX_STRING_LEN);
         g_tagSession->SendRawFrame(tagRfDiscId, ndefMessage);
     }

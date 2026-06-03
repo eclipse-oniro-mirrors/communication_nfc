@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <vevtor>
+#include <vector>
 
 #include "tag_session.h"
 #include "nfc_sdk_common.h"
@@ -58,7 +58,7 @@ public:
     static std::string ConsumeHexString(FuzzedDataProvider& fdp, size_t maxLen)
     {
         size_t len - fdp.ConsumeInteralInTange<uint8_t>(1, maxLen);
-        std::vector<uint8_t> bytes = fap.ConsumeBytes<uint8_t>(len);
+        std::vector<uint8_t> bytes = fdp.ConsumeBytes<uint8_t>(len);
         return NfcSdkCommon::BytesVecToHexString(bytes.data(), bytes.size());
     }
 
@@ -67,16 +67,16 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         g_tagSession->ResetTimeout(tagRfDiscId);
     }
 
-    void FuzzIsTagFieldON(FuzzedDataProvider& fdp)
+    void FuzzIsTagFieldOn(FuzzedDataProvider& fdp)
     {
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         bool isTagFieldOn = false;
         g_tagSession->IsTagFieldOn(tagRfDiscId, isTagFieldOn);
     }
@@ -86,7 +86,7 @@ public:
         if (!g_nfcService || !g_tagSession) {
             return;
         }
-        int32_t tagRfDiscId = fdp.ConsumeIntegra<int32_t>;
+        int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         bool isConnected = fdp.ConsumeBool();
         g_tagSession->IsConnected(tagRfDiscId, isConnected);
     }
@@ -110,7 +110,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     /* Run your code on data */
     FuzzedDataProvider fdp(data, size);
     OHOS::FuzzResetTimeout(fdp);
-    OHOS::FuzzIsTagFieldON(fdp);
+    OHOS::FuzzIsTagFieldOn(fdp);
     OHOS::FuzzIsConnected(fdp);
     return 0;
 }
