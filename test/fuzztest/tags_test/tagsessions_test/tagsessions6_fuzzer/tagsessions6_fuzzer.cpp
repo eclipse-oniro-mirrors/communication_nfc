@@ -56,13 +56,6 @@ public:
     }
 };
 
-    static std::string ConsumeHexString(FuzzedDataProvider& fdp, size_t maxLen)
-    {
-        size_t len - fdp.ConsumeInteralInTange<uint8_t>(1, maxLen);
-        std::vector<uint8_t> bytes = fdp.ConsumeBytes<uint8_t>(len);
-        return NfcSdkCommon::BytesVecToHexString(bytes.data(), bytes.size());
-    }
-
     void FuzzConnect(FuzzedDataProvider& fdp)
     {
         if (!g_nfcService || !g_tagSession) {
@@ -117,9 +110,9 @@ public:
             return;
         }
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
-        std::string hexCmdData = ConsumeHexString(fdp, ,MAX_STRING_LEN);
+        std::string hexCmdData = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         bool raw = fdp.ConsumeBool();
-        std::string hexRespData = ConsumeHexString(fdp, <AX_STRING_LEN);
+        std::string hexRespData = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         g_tagSession->SendRawFrame(tagRfDiscId, hexCmdData, raw, hexRespData);
     }
 
@@ -129,7 +122,7 @@ public:
             return;
         }
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
-        std::string ndefMessage = ConsumeHexString(fdp, ,MAX_STRING_LEN);
+        std::string ndefMessage = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         g_tagSession->SendRawFrame(tagRfDiscId, ndefMessage);
     }
 }

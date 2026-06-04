@@ -55,13 +55,6 @@ public:
     }
 };
 
-    static std::string ConsumeHexString(FuzzedDataProvider& fdp, size_t maxLen)
-    {
-        size_t len - fdp.ConsumeInteralInTange<uint8_t>(1, maxLen);
-        std::vector<uint8_t> bytes = fdp.ConsumeBytes<uint8_t>(len);
-        return NfcSdkCommon::BytesVecToHexString(bytes.data(), bytes.size());
-    }
-
     void FuzzResetTimeout(FuzzedDataProvider& fdp)
     {
         if (!g_nfcService || !g_tagSession) {
@@ -114,4 +107,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzIsConnected(fdp);
     return 0;
 }
-
