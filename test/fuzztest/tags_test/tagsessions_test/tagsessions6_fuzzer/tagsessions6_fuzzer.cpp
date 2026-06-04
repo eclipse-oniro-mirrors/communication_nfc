@@ -81,7 +81,7 @@ public:
             return;
         }
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
-        g_tagSession->Disonnect(tagRfDiscId);
+        g_tagSession->Disconnect(tagRfDiscId);
     }
 
     void FuzzGetTechList(FuzzedDataProvider& fdp)
@@ -123,7 +123,7 @@ public:
         }
         int32_t tagRfDiscId = fdp.ConsumeIntegral<int32_t>();
         std::string ndefMessage = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
-        g_tagSession->SendRawFrame(tagRfDiscId, ndefMessage);
+        g_tagSession->NdefRead(tagRfDiscId, ndefMessage);
     }
 }
 
