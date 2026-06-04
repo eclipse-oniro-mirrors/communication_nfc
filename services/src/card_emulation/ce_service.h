@@ -103,7 +103,6 @@ private:
     bool InitDefaultPaymentApp();
 
     uint64_t lastFieldOnTime_ = 0;
-    uint64_t lastFieldOffTime_ = 0;
     bool initDefaultPaymentAppDone_ = false;
 
     std::weak_ptr<NfcService> nfcService_{};
