@@ -401,6 +401,7 @@ HWTEST_F(CeServiceTest, HandleFieldDeactivated002, TestSize.Level1)
     std::string type = "";
     Security::AccessToken::AccessTokenID callerToken = 0;
     ceService->HandleFieldDeactivated();
+    ceService->HandleFieldDeactivated();
     bool regHceCmdCallback = ceService->RegHceCmdCallback(callback, type, callerToken);
     ASSERT_TRUE(regHceCmdCallback == false);
 }
