@@ -89,7 +89,6 @@ namespace OHOS {
     void FuzzGetPaymentServices(const uint8_t* data, size_t size)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        service->Initialize();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         CePaymentServicesParcelable parcelable;
         hceSession->GetPaymentServices(parcelable);
