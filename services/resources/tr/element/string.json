@@ -116,7 +116,7 @@
             "name":"TransportCardTitle",
             "value":"Ulaşım kartı bulundu",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

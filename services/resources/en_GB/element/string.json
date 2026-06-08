@@ -116,7 +116,7 @@
             "name":"TransportCardTitle",
             "value":"Transport card found",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
