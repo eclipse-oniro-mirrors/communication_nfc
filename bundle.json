@@ -84,7 +84,8 @@
                 "i18n",
                 "bluetooth",
                 "image_framework",
-                "runtime_core"
+                "runtime_core",
+                "taihe_ffi_gen"
             ]
         },
         "build": {
