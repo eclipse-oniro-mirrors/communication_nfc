@@ -33,9 +33,9 @@ public:
     static std::vector<std::string> ExtractHarPackages(const std::vector<std::shared_ptr<NdefRecord>> &records);
     static std::string GetNdefRecordMimeType(const std::shared_ptr<NdefRecord> &record);
     static std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record);
+    static std::string CheckForHar(const std::shared_ptr<NdefRecord> &record);
     
 private:
-    static std::string CheckForHar(const std::shared_ptr<NdefRecord> &record);
     static bool IsOtherPlatformAppType(const std::string &appType);
     static std::string GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster);
 };
