@@ -54,9 +54,7 @@ NfcController::GetInstance() ---> NfcService (SA)
 | `get-state` | `NfcController::GetNfcState()` | Get current NFC state |
 | `turn-on` | `NfcController::TurnOn()` | Turn on NFC |
 | `turn-off` | `NfcController::TurnOff()` | Turn off NFC |
-| `restart` | `NfcController::RestartNfc()` | Restart NFC |
 | `is-available` | `NfcController::IsNfcAvailable()` | Check if device supports NFC |
-| `is-open` | `NfcController::IsNfcOpen(bool&)` | Check if NFC is enabled |
 
 ## Unencapsulated Interfaces
 
@@ -80,43 +78,31 @@ ohos-nfcManager <action>
 #### Get NFC State
 ```bash
 ohos-nfcManager get-state
-# Output: {"success":true,"data":{"state":"on","code":3}}
+# Output: {"type":"result","status":"success","data":{"state":"on","code":3}}
 ```
 
 #### Turn On NFC
 ```bash
 ohos-nfcManager turn-on
-# Output: {"success":true,"data":{"status":"turning_on","message":"NFC is turning on"}}
+# Output: {"type":"result","status":"success","data":{"status":"turning_on","message":"NFC is turning on"}}
 ```
 
 #### Turn Off NFC
 ```bash
 ohos-nfcManager turn-off
-# Output: {"success":true,"data":{"status":"turning_off","message":"NFC is turning off"}}
-```
-
-#### Restart NFC
-```bash
-ohos-nfcManager restart
-# Output: {"success":true,"data":{"status":"restarting","message":"NFC is restarting"}}
+# Output: {"type":"result","status":"success","data":{"status":"turning_off","message":"NFC is turning off"}}
 ```
 
 #### Check Device NFC Support
 ```bash
 ohos-nfcManager is-available
-# Output: {"success":true,"data":{"available":true}}
-```
-
-#### Check NFC Open State
-```bash
-ohos-nfcManager is-open
-# Output: {"success":true,"data":{"is_open":true}}
+# Output: {"type":"result","status":"success","data":{"available":true}}
 ```
 
 #### Error Response Example
 ```bash
 ohos-nfcManager turn-on
-# Output: {"success":false,"error":{"code":"E_NFC_SA_UNAVAILABLE","message":"NFC service unavailable"},"suggestion":"Check if NFC service is running, use 'ohos-nfcManager is-available' to verify"}
+# Output: {"type":"result","status":"failed","errCode":"ERR_NFC_SA_UNAVAILABLE","errMsg":"NFC service unavailable","suggestion":"Check if NFC service is running, use 'ohos-nfcManager is-available' to verify"}
 ```
 
 #### Help
@@ -132,12 +118,12 @@ ohos-nfcManager help
 
 ### Success Response
 ```json
-{"success":true,"data":{...}}
+{"type":"result","status":"success","data":{...}}
 ```
 
 ### Error Response
 ```json
-{"success":false,"error":{"code":"<error_code>","message":"<error_message>"},"suggestion":"<suggestion>"}
+{"type":"result","status":"failed","errCode":"<error_code>","errMsg":"<error_message>","suggestion":"<suggestion>"}
 ```
 
 ## Error Codes

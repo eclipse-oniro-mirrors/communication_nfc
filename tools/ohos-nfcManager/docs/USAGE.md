@@ -22,7 +22,7 @@ ohos-nfcManager get-state
 
 **Output:**
 ```json
-{"success":true,"data":{"state":"on","code":3}}
+{"type":"result","status":"success","data":{"state":"on","code":3}}
 ```
 
 ### turn-on
@@ -35,7 +35,7 @@ ohos-nfcManager turn-on
 
 **Output:**
 ```json
-{"success":true,"data":{"status":"turning_on","message":"NFC is turning on"}}
+{"type":"result","status":"success","data":{"status":"turning_on","message":"NFC is turning on"}}
 ```
 
 ### turn-off
@@ -48,20 +48,7 @@ ohos-nfcManager turn-off
 
 **Output:**
 ```json
-{"success":true,"data":{"status":"turning_off","message":"NFC is turning off"}}
-```
-
-### restart
-
-Restart NFC function.
-
-```
-ohos-nfcManager restart
-```
-
-**Output:**
-```json
-{"success":true,"data":{"status":"restarting","message":"NFC is restarting"}}
+{"type":"result","status":"success","data":{"status":"turning_off","message":"NFC is turning off"}}
 ```
 
 ### is-available
@@ -74,20 +61,7 @@ ohos-nfcManager is-available
 
 **Output:**
 ```json
-{"success":true,"data":{"available":true}}
-```
-
-### is-open
-
-Check if NFC is currently open.
-
-```
-ohos-nfcManager is-open
-```
-
-**Output:**
-```json
-{"success":true,"data":{"is_open":true}}
+{"type":"result","status":"success","data":{"available":true}}
 ```
 
 ## Error Handling
@@ -95,7 +69,7 @@ ohos-nfcManager is-open
 All commands return JSON with error information on failure:
 
 ```json
-{"success":false,"error":{"code":"E_NFC_SA_UNAVAILABLE","message":"NFC service unavailable"},"suggestion":"Check if NFC service is running"}
+{"type":"result","status":"failed","errCode":"E_NFC_SA_UNAVAILABLE","errMsg":"NFC service unavailable","suggestion":"Check if NFC service is running"}
 ```
 
 ### Common Error Codes

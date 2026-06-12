@@ -21,6 +21,9 @@ namespace NFC {
 // the app need request the permission for open/close nfc operations.
 const std::string SYS_PERM = "ohos.permission.MANAGE_SECURE_SETTINGS";
 
+// the cli need request the permission for open/close nfc operations.
+const std::string SYS_CLI_PERM = "ohos.permission.cli.MANAGE_NFC_SWITCH";
+
 // the app need request the permission for tag operations.
 const std::string TAG_PERM = "ohos.permission.NFC_TAG";
 
