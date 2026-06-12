@@ -29,7 +29,7 @@ std::vector<std::string> NdefRecordParser::ExtractHarPackages(const std::vector<
 {
     InfoLog("enter");
     std::vector<std::string> harPackages;
-    if (records.size() <= 0) {
+    if (records.size() == 0) {
         ErrorLog("records is empty");
         return harPackages;
     }
@@ -112,6 +112,7 @@ std::string NdefRecordParser::GetUriPayload(const std::shared_ptr<NdefRecord> &r
 /* get uri data */
 std::string NdefRecordParser::GetUriPayload(const std::shared_ptr<NdefRecord> &record, bool isSmartPoster)
 {
+    InfoLog("enter");
     if (record == nullptr) {
         ErrorLog("record is nullptr");
         return "";
