@@ -163,7 +163,7 @@
         },
         {
             "name":"NfcFoundBusinessCard",
-            "value":"Kartenname erkannt. Kontakte öffnen?",
+            "value":"Visitenkarte erkannt. Kontakte öffnen?",
             "attr":{
                 "priority":"translate"
             }

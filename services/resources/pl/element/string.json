@@ -142,9 +142,9 @@
         },
         {
             "name":"BeiJingYiKaTong",
-            "value":"kartę miejską Beijing Transportation",
+            "value":"Karta miejska Beijing Transportation",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
