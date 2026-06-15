@@ -19,16 +19,16 @@
 namespace OHOS {
 namespace NFC {
 // the app need request the permission for open/close nfc operations.
-const std::string SYS_PERM = "ohos.permission.MANAGE_SECURE_SETTINGS";
+constexpr const char* SYS_PERM = "ohos.permission.MANAGE_SECURE_SETTINGS";
 
 // the cli need request the permission for open/close nfc operations.
-const std::string SYS_CLI_PERM = "ohos.permission.cli.MANAGE_NFC_SWITCH";
+constexpr const char* SYS_CLI_PERM = "ohos.permission.cli.MANAGE_NFC_SWITCH";
 
 // the app need request the permission for tag operations.
-const std::string TAG_PERM = "ohos.permission.NFC_TAG";
+constexpr const char* TAG_PERM = "ohos.permission.NFC_TAG";
 
 // the app need request the permission for card emulation operations.
-const std::string CARD_EMU_PERM = "ohos.permission.NFC_CARD_EMULATION";
+constexpr const char* CARD_EMU_PERM = "ohos.permission.NFC_CARD_EMULATION";
 
 class NfcPermissionChecker {
 public:

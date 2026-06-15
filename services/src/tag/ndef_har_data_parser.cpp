@@ -28,6 +28,14 @@ namespace TAG {
 
 using namespace OHOS::NFC::KITS;
 
+constexpr const char* HTTP_PREFIX = "http";
+constexpr const char* TEL_PREFIX = "tel";
+constexpr const char* SMS_PREFIX = "sms";
+constexpr const char* SMSTO_PREFIX = "smsto";
+constexpr const char* MAIL_PREFIX = "mailto";
+constexpr const char* TEXT_PLAIN = "text/plain";
+constexpr const char* TEXT_VCARD = "text/vcard";
+
 std::map<RecordsType, MainErrorCode> g_unsupportTypeAndSysEvent = {
     {TYPE_RTP_SCHEME_TEL, MainErrorCode::NDEF_TEL_EVENT},
     {TYPE_RTP_SCHEME_SMS, MainErrorCode::NDEF_SMS_EVENT},

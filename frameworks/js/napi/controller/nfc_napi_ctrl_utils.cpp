@@ -26,6 +26,8 @@ namespace KITS {
 constexpr const char* KEY_CODE = "code";
 constexpr const char* KEY_DATA = "data";
 
+constexpr const char* NFC_PERM_DESC = "ohos.permission.MANAGE_SECURE_SETTINGS";
+
 static const std::map<int, std::string> ERR_MSG_MAP = {
     { ErrorCode::ERR_NFC_BASE,
         "NFC service base error." },

@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-const std::string EVENT_NFC_STATE_CHANGE = "nfcStateChange";
+constexpr const char* EVENT_NFC_STATE_CHANGE = "nfcStateChange";
 
 static std::set<std::string> g_supportEventList = {
     EVENT_NFC_STATE_CHANGE,

@@ -23,6 +23,17 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
+constexpr const char* KEY_CARD_INFO = "cardInfo";
+constexpr const char* KEY_APDU_NAME = "name";
+constexpr const char* KEY_APDU_AID = "aid";
+constexpr const char* KEY_APDU_CHECK_APDUS = "checkApdus";
+constexpr const char* KEY_APDU_BALANCE_APDUS = "balanceApdus";
+constexpr const char* KEY_APDU_RSP_CONTAINS = "rspContains";
+
+constexpr const char* NFC_CARD_APDU_JSON_FILEPATH = "system/etc/nfc/resources/base/profile/nfc_card_apdu.json";
+constexpr const char* APDU_RSP_OK = "9000";
+constexpr const char* APDU_RSP_PREFIX = "9F0C";
+
 IsodepCardHandler::IsodepCardHandler(std::weak_ptr<NCI::INciTagInterface> nciTagProxy)
     : nciTagProxy_(nciTagProxy)
 {
@@ -49,7 +60,7 @@ void IsodepCardHandler::InitTransportCardInfo()
 
 static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCardInfo *cardInfoList, int index)
 {
-    cJSON *checkApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_CHECK_APDUS.c_str());
+    cJSON *checkApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_CHECK_APDUS);
     if (checkApdus == nullptr || !cJSON_IsArray(checkApdus)) {
         ErrorLog("json param not array, or has no field \"checkApdus\", index = %{public}d", index);
         return false;
@@ -72,7 +83,7 @@ static bool GetCheckApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCard
 
 static bool GetBalanceApduFromJson(cJSON *json, cJSON *cardInfoEach, TransportCardInfo *cardInfoList, int index)
 {
-    cJSON *balanceApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_BALANCE_APDUS.c_str());
+    cJSON *balanceApdus = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_BALANCE_APDUS);
     if (balanceApdus == nullptr || !cJSON_IsArray(balanceApdus)) {
         WarnLog("json param not array, or has no field \"balanceApdus\", index = %{public}d", index);
     } else {
@@ -103,14 +114,14 @@ static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo,
             ErrorLog("index exceeds");
             return false;
         }
-        cJSON *name = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_NAME.c_str());
+        cJSON *name = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_NAME);
         if (name == nullptr || !cJSON_IsString(name)) {
             ErrorLog("json param not string, or has no field \"name\", index = %{public}d", index);
             return false;
         }
         cardInfoList[index].name = name->valuestring;
 
-        cJSON *aid = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_AID.c_str());
+        cJSON *aid = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_AID);
         if (aid == nullptr || !cJSON_IsString(aid)) {
             WarnLog("json param not string, or has no field \"aid\", index = %{public}d", index);
         } else {
@@ -127,7 +138,7 @@ static bool GetEachCardInfoFromJson(cJSON *json, cJSON *cardInfo,
             return false;
         }
 
-        cJSON *rspContains = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_RSP_CONTAINS.c_str());
+        cJSON *rspContains = cJSON_GetObjectItemCaseSensitive(cardInfoEach, KEY_APDU_RSP_CONTAINS);
         if (rspContains == nullptr || !cJSON_IsString(rspContains)) {
             WarnLog("json param not string, or has no fild \"rspContain\", index = %{public}d", index);
         } else {
@@ -151,7 +162,7 @@ bool IsodepCardHandler::DoJsonRead()
         return false;
     }
 
-    cJSON *cardInfo = cJSON_GetObjectItemCaseSensitive(json, KEY_CARD_INFO.c_str());
+    cJSON *cardInfo = cJSON_GetObjectItemCaseSensitive(json, KEY_CARD_INFO);
     if (cardInfo == nullptr || cJSON_GetArraySize(cardInfo) != MAX_CARD_INFO_VEC_LEN) {
         ErrorLog("fail to parse cardinfo");
         cJSON_Delete(json);

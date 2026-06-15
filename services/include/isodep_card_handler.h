@@ -40,14 +40,6 @@ static const int APDU_RSP_BALANCE_BYTES_LEN = 4;
 static const int MAX_APDU_ARRAY_SIZE = 2;
 static const int MAX_CARD_INFO_VEC_LEN = 7;
 
-static const std::string KEY_CARD_INFO_LEN = "cardInfoLength";
-static const std::string KEY_CARD_INFO = "cardInfo";
-static const std::string KEY_APDU_NAME = "name";
-static const std::string KEY_APDU_AID = "aid";
-static const std::string KEY_APDU_CHECK_APDUS = "checkApdus";
-static const std::string KEY_APDU_BALANCE_APDUS = "balanceApdus";
-static const std::string KEY_APDU_RSP_CONTAINS = "rspContains";
-
 class IsodepCardHandler {
 public:
     explicit IsodepCardHandler(std::weak_ptr<NCI::INciTagInterface> nciTagProxy);
@@ -80,10 +72,6 @@ private:
     static const int THREE_BYTES_SHIFT = 24;
     static const int TWO_BYTES_SHIFT = 16;
     static const int ONE_BYTES_SHIFT = 8;
-
-    const std::string NFC_CARD_APDU_JSON_FILEPATH = "system/etc/nfc/resources/base/profile/nfc_card_apdu.json";
-    const std::string APDU_RSP_OK = "9000";
-    const std::string APDU_RSP_PREFIX = "9F0C";
 };
 }  // namespace TAG
 }  // namespace NFC

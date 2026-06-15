@@ -29,8 +29,8 @@ const int DEACTIVATE_TIMEOUT = 6000;
 static const int DEFAULT_HOST_ROUTE_DEST = 0x00;
 static const int PWR_STA_SWTCH_ON_SCRN_UNLCK = 0x01;
 static const int DEFAULT_PWR_STA_HOST = PWR_STA_SWTCH_ON_SCRN_UNLCK;
-const std::string APP_REMOVED = "app_removed";
-const std::string APP_ADDED = "app_added";
+constexpr const char* APP_REMOVED = "app_removed";
+constexpr const char* APP_ADDED = "app_added";
 const size_t MAX_AID_LENGTH = 128;
 std::mutex g_defaultPaymentAppInitMutex = {};
 

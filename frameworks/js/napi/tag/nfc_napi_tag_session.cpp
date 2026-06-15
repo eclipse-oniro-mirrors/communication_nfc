@@ -21,8 +21,8 @@ namespace OHOS {
 namespace NFC {
 namespace KITS {
 static const int32_t DEFAULT_REF_COUNT = 1;
-const std::string VAR_UID = "uid";
-const std::string VAR_TECH = "technology";
+constexpr const char* VAR_UID = "uid";
+constexpr const char* VAR_TECH = "technology";
 const int32_t MAX_ARRAY_LEN = 4096;
 
 std::shared_ptr<BasicTagSession> NapiNfcTagSession::GetTag(napi_env env, napi_callback_info info,
@@ -78,8 +78,8 @@ napi_value NapiNfcTagSession::GetTagInfo(napi_env env, napi_callback_info info)
         napi_create_uint32(env, techList[i], &tech);
         napi_set_element(env, techValue, i, tech);
     }
-    napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), uidValue);
-    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), techValue);
+    napi_set_named_property(env, tagInfoObj, VAR_UID, uidValue);
+    napi_set_named_property(env, tagInfoObj, VAR_TECH, techValue);
     return tagInfoObj;
 }
 
@@ -301,7 +301,7 @@ napi_value NapiNfcTagSession::SendData(napi_env env, napi_callback_info info)
     auto context = std::make_unique<NfcTagSessionContext<std::string, NapiNfcTagSession>>().release();
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_generic_failure);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT));
         return CreateUndefined(env);
     }
 

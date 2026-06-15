@@ -29,14 +29,9 @@ inline constexpr uint32_t HEX_BYTE_LEN = 2;
 inline constexpr uint32_t HEX_VALUE = 16;
 inline constexpr uint32_t HALF_BYTE_BITS = 4;
 inline constexpr uint32_t NFC_MANAGER_SYS_ABILITY_ID = 1140;
-inline const std::string NFC_MANAGER_SYS_ABILITY_NAME = "nfc_service";
-inline const std::string NFC_SERVICE_CONFIG_PATH = "/system/etc/nfc/nfc_service_config.json";
-inline const std::string SDK_NAME = "ConnectivityKit";
-inline const std::string KEY_REPORT_APPID = "report_appId";
 
-inline const std::set<std::string> NFC_SERVICE_CONFIG_KEY_SET = {
-    KEY_REPORT_APPID,
-};
+constexpr const char* SDK_NAME = "ConnectivityKit";
+constexpr const char* KEY_REPORT_APPID = "report_appId";
 
 enum ErrorCode : int {
     ERR_NONE = 0,
@@ -85,59 +80,55 @@ enum NfcTask { TASK_TURN_ON = 101, TASK_TURN_OFF, TASK_INITIALIZE, TASK_RESTART 
 enum FeatureType { HCE = 0, UICC = 1, ESE = 2 };
 
 /** NFC state changed for common event notification */
-inline const std::string COMMON_EVENT_NFC_ACTION_STATE_CHANGED = "usual.event.nfc.action.ADAPTER_STATE_CHANGED";
-inline const std::string NFC_EXTRA_STATE = "ohos.nfc.extra.ADAPTER_STATE";
+constexpr const char* COMMON_EVENT_NFC_ACTION_STATE_CHANGED = "usual.event.nfc.action.ADAPTER_STATE_CHANGED";
+constexpr const char* NFC_EXTRA_STATE = "ohos.nfc.extra.ADAPTER_STATE";
 
 /** Payment type of card emulation */
-inline const std::string TYPE_PAYMENT = "payment";
+constexpr const char* TYPE_PAYMENT = "payment";
 
 /** Other type of card emulation */
-inline const std::string TYPE_OTHER = "other";
+constexpr const char* TYPE_OTHER = "other";
 
 /** Payment type of card emulation metadata name */
-inline const std::string KEY_PAYMENT_AID = "payment-aid";
+constexpr const char* KEY_PAYMENT_AID = "payment-aid";
 
 /** Other type of card emulation metadata name */
-inline const std::string KEY_OTHER_AID = "other-aid";
+constexpr const char* KEY_OTHER_AID = "other-aid";
 
 /** secureElement of metadata name */
-inline const std::string KEY_SECURE_ELEMENT = "secureElement";
+constexpr const char* KEY_SECURE_ELEMENT = "secureElement";
 
 /** SIM type of secureElement metadata value */
-inline const std::string SIM_TYPE_SECURE_ELEMENT = "SIM";
+constexpr const char* SIM_TYPE_SECURE_ELEMENT = "SIM";
 
 /** Action for tag application declared */
-inline const std::string ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
+constexpr const char* ACTION_TAG_FOUND = "ohos.nfc.tag.action.TAG_FOUND";
 
 /** Action for HCE application declared */
-inline const std::string ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
+constexpr const char* ACTION_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.HOST_APDU_SERVICE";
 
 /** Action for off host*/
-inline const std::string ACTION_OFF_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.OFF_HOST_APDU_SERVICE";
+constexpr const char* ACTION_OFF_HOST_APDU_SERVICE = "ohos.nfc.cardemulation.action.OFF_HOST_APDU_SERVICE";
 
 /** Database key for nfc state. */
-inline const std::string NFC_DATA_URI_ID =
-    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=data_key_nfc_state";
-inline const std::string NFC_DATA_ABILITY_PREFIX = "datashare://";
-inline const std::string NFC_DATA_URI = NFC_DATA_ABILITY_PREFIX + NFC_DATA_URI_ID;
-inline const std::string DATA_SHARE_KEY_STATE = "data_key_nfc_state";
-inline const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
-inline const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
+constexpr const char* NFC_DATA_URI =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=data_key_nfc_state";
+constexpr const char* NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
+constexpr const char* NFC_DATA_COLUMN_VALUE = "VALUE";
 
 /** Database key for payment default app. */
-inline const std::string NFC_PAYMENT_DEFAULT_APP =
-    "/com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=nfc_payment_default_app";
-inline const std::string NFC_DATA_URI_PAYMENT_DEFAULT_APP = NFC_DATA_ABILITY_PREFIX + NFC_PAYMENT_DEFAULT_APP;
-inline const std::string DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP = "nfc_payment_default_app";
+constexpr const char* NFC_DATA_URI_PAYMENT_DEFAULT_APP =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=nfc_payment_default_app";
+constexpr const char* DATA_SHARE_KEY_NFC_PAYMENT_DEFAULT_APP = "nfc_payment_default_app";
 
 /** NFC field on/off common event */
-inline const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
-inline const std::string COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
+constexpr const char* COMMON_EVENT_NFC_ACTION_RF_FIELD_ON_DETECTED = "usual.event.nfc.action.RF_FIELD_ON_DETECTED";
+constexpr const char* COMMON_EVENT_NFC_ACTION_RF_FIELD_OFF_DETECTED = "usual.event.nfc.action.RF_FIELD_OFF_DETECTED";
 
 inline const int DATA_SHARE_INVALID_VALUE = -1;
 
 /** type const of hce napi on */
-inline const std::string EVENT_HCE_CMD = "hceCmd";
+constexpr const char* EVENT_HCE_CMD = "hceCmd";
 
 /** type const of max apdu length */
 inline constexpr uint32_t MAX_APDU_DATA_BYTE = 1024 * 5;

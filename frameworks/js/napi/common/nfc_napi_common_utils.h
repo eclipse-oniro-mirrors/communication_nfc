@@ -42,9 +42,9 @@ const static uint32_t MAX_NUM_TECH_LIST = 12;
 
 const static int BUSI_ERR_HCE_STATE_INVALID = 3100301; // nfc hce state invalid.
 
-const std::string TAG_PERM_DESC = "ohos.permission.NFC_TAG";
-const std::string CARD_EMULATION_PERM_DESC = "ohos.permission.NFC_CARD_EMULATION";
-const std::string ERR_INIT_CONTEXT = "Initialize context failed.";
+constexpr const char* TAG_PERM_DESC = "ohos.permission.NFC_TAG";
+constexpr const char* CARD_EMULATION_PERM_DESC = "ohos.permission.NFC_CARD_EMULATION";
+constexpr const char* ERR_INIT_CONTEXT = "Initialize context failed.";
 
 enum JS_CALLBACK_ARGV : size_t {
     CALLBACK_ARGV_INDEX_0 = 0,

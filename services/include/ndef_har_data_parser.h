@@ -60,13 +60,6 @@ enum DispatchResult : const uint16_t {
     NDEF_VCARD_EVENT     = 305,
 };
 
-const std::string HTTP_PREFIX = "http";
-const std::string TEL_PREFIX = "tel";
-const std::string SMS_PREFIX = "sms";
-const std::string SMSTO_PREFIX = "smsto";
-const std::string MAIL_PREFIX = "mailto";
-const std::string TEXT_PLAIN = "text/plain";
-const std::string TEXT_VCARD = "text/vcard";
 const int MIME_MAX_LENGTH = 128;
 const int URI_MAX_LENGTH = 2048;
 const int RECORD_LIST_MAX_SIZE = 20;
