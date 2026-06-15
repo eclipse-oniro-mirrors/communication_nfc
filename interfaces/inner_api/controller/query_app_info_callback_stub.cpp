@@ -36,6 +36,7 @@ QueryAppInfoCallbackStub& QueryAppInfoCallbackStub::GetInstance()
 bool QueryAppInfoCallbackStub::OnQueryAppInfo(std::string type, std::vector<int> techList,
     std::vector<AAFwk::Want> &hceAppList, std::vector<AppExecFwk::ElementName> &elementNameList)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (type.compare(KEY_TAG_APP) == 0) {
         if (queryTagAppByTechCallback_) {
             InfoLog("OnQueryAppInfo:call tag callback_");
@@ -119,7 +120,6 @@ KITS::ErrorCode QueryAppInfoCallbackStub::RegisterQueryHceAppCallback(const Quer
 
 int QueryAppInfoCallbackStub::RemoteQueryAppInfo(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     std::string type = data.ReadString();
     std::vector<AppExecFwk::ElementName> elementNameList;
     std::vector<AAFwk::Want> hceAppList;

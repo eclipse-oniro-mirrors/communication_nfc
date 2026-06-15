@@ -76,11 +76,11 @@ int OnCardEmulationNotifyCbStub::OnRemoteRequest(
 
 KITS::ErrorCode OnCardEmulationNotifyCbStub::RegisterCallback(const OnCardEmulationNotifyCb callback)
 {
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (callback_ != nullptr) {
         InfoLog("RegisterCallback::callback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;
     }
-    std::unique_lock<std::shared_mutex> guard(mutex_);
     if (callback == nullptr) {
         InfoLog("RegisterCallback::callback is nullptr!");
         return KITS::ERR_NFC_PARAMETERS;
