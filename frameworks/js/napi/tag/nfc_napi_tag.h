@@ -57,12 +57,12 @@ napi_value GetNdefFormatableTag(napi_env env, napi_callback_info info);
 napi_value GetBarcodeTag(napi_env env, napi_callback_info info);
 napi_value JS_Constructor(napi_env env, napi_callback_info cbinfo);
 
-const std::string VAR_UID = "uid";
-const std::string VAR_TECH = "technology";
-const std::string VAR_EXTRA = "extrasData";
-const std::string VAR_RF_ID = "tagRfDiscId";
-const std::string VAR_SERVICE = "remoteTagService";
-const std::string VAR_PROFILES = "supportedProfiles";
+constexpr const char* VAR_UID = "uid";
+constexpr const char* VAR_TECH = "technology";
+constexpr const char* VAR_EXTRA = "extrasData";
+constexpr const char* VAR_RF_ID = "tagRfDiscId";
+constexpr const char* VAR_SERVICE = "remoteTagService";
+constexpr const char* VAR_PROFILES = "supportedProfiles";
 } // namespace KITS
 } // namespace NFC
 } // namespace OHOS

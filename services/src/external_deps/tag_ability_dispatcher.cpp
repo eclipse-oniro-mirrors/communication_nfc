@@ -28,7 +28,7 @@ namespace TAG {
 using OHOS::NFC::KITS::TagTechnology;
 using OHOS::AppExecFwk::ElementName;
 
-const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+constexpr const char* PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
 
 TagAbilityDispatcher::TagAbilityDispatcher()
 {

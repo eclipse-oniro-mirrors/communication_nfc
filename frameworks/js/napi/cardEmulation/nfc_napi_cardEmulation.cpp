@@ -19,11 +19,13 @@
 #include "nfc_sdk_common.h"
 #include "nfc_napi_hce_adapter.h"
 
+#include <cstring>
+
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-const std::string FEATURE_TYPE = "FeatureType";
-const std::string CARD_TYPE = "CardType";
+constexpr const char* FEATURE_TYPE = "FeatureType";
+constexpr const char* CARD_TYPE = "CardType";
 
 /*
  * Module initialization function
@@ -54,9 +56,9 @@ static napi_value CreateEnumFeatureType(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("ESE", ese),
     };
     napi_value result = nullptr;
-    napi_define_class(env, FEATURE_TYPE.c_str(), NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
+    napi_define_class(env, FEATURE_TYPE, NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
         sizeof(desc) / sizeof(*desc), desc, &result);
-    napi_set_named_property(env, exports, FEATURE_TYPE.c_str(), result);
+    napi_set_named_property(env, exports, FEATURE_TYPE, result);
     return exports;
 }
 
@@ -64,16 +66,16 @@ static napi_value CreateEnumCardType(napi_env env, napi_value exports)
 {
     napi_value payment = nullptr;
     napi_value other = nullptr;
-    napi_create_string_utf8(env, KITS::TYPE_PAYMENT.c_str(), KITS::TYPE_PAYMENT.length(), &payment);
-    napi_create_string_utf8(env, KITS::TYPE_OTHER.c_str(), KITS::TYPE_OTHER.length(), &other);
+    napi_create_string_utf8(env, KITS::TYPE_PAYMENT, strlen(KITS::TYPE_PAYMENT), &payment);
+    napi_create_string_utf8(env, KITS::TYPE_OTHER, strlen(KITS::TYPE_OTHER), &other);
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_STATIC_PROPERTY("PAYMENT", payment),
         DECLARE_NAPI_STATIC_PROPERTY("OTHER", other),
     };
     napi_value result = nullptr;
-    napi_define_class(env, CARD_TYPE.c_str(), NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
+    napi_define_class(env, CARD_TYPE, NAPI_AUTO_LENGTH, CreateEnumConstructor, nullptr,
         sizeof(desc) / sizeof(desc[0]), desc, &result);
-    napi_set_named_property(env, exports, CARD_TYPE.c_str(), result);
+    napi_set_named_property(env, exports, CARD_TYPE, result);
     return exports;
 }
 
@@ -101,7 +103,7 @@ static napi_module cardEmulationModule = {
     .nm_filename = NULL,
     .nm_register_func = InitJs,
     .nm_modname = "nfc.cardEmulation",
-    .nm_priv = ((void *)0),
+    .nm_priv = nullptr,
     .reserved = { 0 }
 };
 

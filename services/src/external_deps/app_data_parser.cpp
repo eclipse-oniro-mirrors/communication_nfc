@@ -177,7 +177,7 @@ void AppDataParser::QueryAbilityInfos(const std::string action, std::vector<Abil
 
 bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string action, int32_t appIndex)
 {
-    if (action.compare(KITS::ACTION_TAG_FOUND) != 0 && action.compare(KITS::ACTION_HOST_APDU_SERVICE) != 0 &&
+    if (action != KITS::ACTION_TAG_FOUND && action != KITS::ACTION_HOST_APDU_SERVICE &&
         action != KITS::ACTION_OFF_HOST_APDU_SERVICE) {
         DebugLog("UpdateAppListInfo, ignore action = %{public}s", action.c_str());
         return false;
@@ -198,13 +198,11 @@ bool AppDataParser::UpdateAppListInfo(ElementName &element, const std::string ac
         }
         ElementName hapElement(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
                 abilityInfo.moduleName);
-        if (action.compare(KITS::ACTION_TAG_FOUND) == 0) {
+        if (action == KITS::ACTION_TAG_FOUND) {
             UpdateTagAppList(abilityInfo, hapElement);
-        }
-        if (action.compare(KITS::ACTION_HOST_APDU_SERVICE) == 0) {
+        } else if (action == KITS::ACTION_HOST_APDU_SERVICE) {
             UpdateHceAppList(abilityInfo, hapElement, appIndex);
-        }
-        if (action.compare(KITS::ACTION_OFF_HOST_APDU_SERVICE) == 0) {
+        } else if (action == KITS::ACTION_OFF_HOST_APDU_SERVICE) {
             UpdateOffHostAppList(abilityInfo, hapElement);
         }
     }
@@ -217,19 +215,19 @@ bool AppDataParser::InitAppListByAction(const std::string action)
     std::vector<AbilityInfo> abilityInfos;
     std::vector<ExtensionAbilityInfo> extensionAbilityInfos;
     QueryAbilityInfos(action, abilityInfos, extensionAbilityInfos);
-    if (KITS::ACTION_TAG_FOUND.compare(action) == 0) {
+    if (action == KITS::ACTION_TAG_FOUND) {
         for (auto& tagAbilityInfo : abilityInfos) {
             ElementName element(tagAbilityInfo.deviceId, tagAbilityInfo.bundleName, tagAbilityInfo.name,
                 tagAbilityInfo.moduleName);
             UpdateTagAppList(tagAbilityInfo, element);
         }
-    } else if (KITS::ACTION_HOST_APDU_SERVICE.compare(action) == 0) {
+    } else if (action == KITS::ACTION_HOST_APDU_SERVICE) {
         for (auto& hceAbilityInfo : abilityInfos) {
             ElementName element(hceAbilityInfo.deviceId, hceAbilityInfo.bundleName, hceAbilityInfo.name,
                 hceAbilityInfo.moduleName);
             UpdateHceAppList(hceAbilityInfo, element);
         }
-    } else if (KITS::ACTION_OFF_HOST_APDU_SERVICE.compare(action) == 0) {
+    } else if (action == KITS::ACTION_OFF_HOST_APDU_SERVICE) {
         for (auto& offHostAbilityInfo : abilityInfos) {
             ElementName element(offHostAbilityInfo.deviceId, offHostAbilityInfo.bundleName, offHostAbilityInfo.name,
                 offHostAbilityInfo.moduleName);
@@ -337,7 +335,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
     std::vector<AidInfo> customDataAidList;
     AidInfo customDataAid;
     for (auto& data : abilityInfo.metadata) {
-        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OTHER_AID.compare(data.name) == 0)) {
+        if ((data.name == KITS::KEY_PAYMENT_AID) || (data.name == KITS::KEY_OTHER_AID)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -345,7 +343,7 @@ void AppDataParser::UpdateHceAppList(AbilityInfo &abilityInfo, ElementName &elem
         }
     }
     for (auto& data : abilityInfo.metaData.customizeData) {
-        if ((KITS::KEY_PAYMENT_AID.compare(data.name) == 0) || (KITS::KEY_OTHER_AID.compare(data.name) == 0)) {
+        if ((data.name == KITS::KEY_PAYMENT_AID) || (data.name == KITS::KEY_OTHER_AID)) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -378,7 +376,7 @@ void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &
     std::vector<AidInfo> customDataAidList;
     AidInfo customDataAid;
     for (auto &data : abilityInfo.metadata) {
-        if (KITS::KEY_PAYMENT_AID.compare(data.name) == 0) {
+        if (data.name == KITS::KEY_PAYMENT_AID) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -386,7 +384,7 @@ void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &
         }
     }
     for (auto &data : abilityInfo.metaData.customizeData) {
-        if (KITS::KEY_PAYMENT_AID.compare(data.name) == 0) {
+        if (data.name == KITS::KEY_PAYMENT_AID) {
             customDataAid.name = data.name;
             customDataAid.value = data.value;
             customDataAidList.emplace_back(customDataAid);
@@ -407,7 +405,7 @@ void AppDataParser::UpdateOffHostAppList(AbilityInfo &abilityInfo, ElementName &
     offHostAppAidInfo.customDataAid = customDataAidList;
     offHostAppAidInfo.offhostSe = "";
     for (auto &data : abilityInfo.metadata) {
-        if (KITS::KEY_SECURE_ELEMENT.compare(data.name) == 0) {
+        if (data.name == KITS::KEY_SECURE_ELEMENT) {
             offHostAppAidInfo.offhostSe = data.value;
             InfoLog("UpdateOffhostAppSe from metadata, secureElement %{public}s", data.value.c_str());
         }
@@ -798,7 +796,7 @@ bool AppDataParser::IsOffhostAndSecureElementIsSIM(const ElementName &elementNam
         InfoLog("bundleName: %{public}s abilityName: %{public}s",
             elementName.GetBundleName().c_str(),
             elementName.GetAbilityName().c_str());
-        if (KITS::SIM_TYPE_SECURE_ELEMENT.compare(appAidInfo.offhostSe) == 0) {
+        if (appAidInfo.offhostSe == KITS::SIM_TYPE_SECURE_ELEMENT) {
             InfoLog("is offhost app and secureElement is SIM");
             return true;
         }

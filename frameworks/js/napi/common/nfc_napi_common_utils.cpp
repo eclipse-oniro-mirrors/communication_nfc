@@ -454,7 +454,7 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
     std::unique_ptr<BaseContext> context(baseContext);
     if (context == nullptr) {
         std::string errorCode = std::to_string(napi_invalid_arg);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT));
     }
     napi_value result = nullptr;
     if (context != nullptr && context->callbackRef == nullptr) {
@@ -474,7 +474,7 @@ napi_value HandleAsyncWork(napi_env env, BaseContext *baseContext, const std::st
         DebugLog("NapiUtil HandleAsyncWork napi_queue_async_work ok");
     } else {
         std::string errorCode = std::to_string(queueWorkStatus);
-        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT.c_str()));
+        NAPI_CALL(env, napi_throw_error(env, errorCode.c_str(), ERR_INIT_CONTEXT));
     }
     DebugLog("NfcUtil HandleAsyncWork end");
     return result;

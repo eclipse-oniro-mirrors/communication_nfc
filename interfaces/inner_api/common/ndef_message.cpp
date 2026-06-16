@@ -94,10 +94,11 @@ std::shared_ptr<NdefRecord> NdefMessage::MakeUriRecord(const std::string& uriStr
 
     std::string payload = "00";
     std::string uri = uriString;
-    for (size_t i = 1; i < g_uriPrefix.size() - 1; i++) {
-        if (!uriString.compare(0, g_uriPrefix[i].size(), g_uriPrefix[i])) {
+    std::array<std::string, MAX_URI_CODE_NUM> uriPrefix = GetUriPrefixes();
+    for (size_t i = 1; i <= uriPrefix.size() - 1; i++) {
+        if (!uriString.compare(0, uriPrefix[i].size(), uriPrefix[i])) {
             payload = NfcSdkCommon::UnsignedCharToHexString(i & 0xFF);
-            uri = uriString.substr(g_uriPrefix[i].size());
+            uri = uriString.substr(uriPrefix[i].size());
             break;
         }
     }
@@ -505,6 +506,50 @@ std::vector<std::shared_ptr<NdefRecord>> NdefMessage::ParseRecord(const std::str
         }
     }
     return recordList;
+}
+
+std::array<std::string, MAX_URI_CODE_NUM> NdefMessage::GetUriPrefixes()
+{
+    // URI charactor code defined by NFC Forum
+    static std::array<std::string, MAX_URI_CODE_NUM> uriPrefixes = {
+        "",                            // NFC Forum define value: 0x00
+        "http://www.",                 // NFC Forum define value: 0x01
+        "https://www.",                // NFC Forum define value: 0x02
+        "http://",                     // NFC Forum define value: 0x03
+        "https://",                    // NFC Forum define value: 0x04
+        "tel:",                        // NFC Forum define value: 0x05
+        "mailto:",                     // NFC Forum define value: 0x06
+        "ftp://anonymous:anonymous@",  // NFC Forum define value: 0x07
+        "ftp://ftp.",                  // NFC Forum define value: 0x08
+        "ftps://",                     // NFC Forum define value: 0x09
+        "sftp://",                     // NFC Forum define value: 0x0A
+        "smb://",                      // NFC Forum define value: 0x0B
+        "nfs://",                      // NFC Forum define value: 0x0C
+        "ftp://",                      // NFC Forum define value: 0x0D
+        "dav://",                      // NFC Forum define value: 0x0E
+        "news:",                       // NFC Forum define value: 0x0F
+        "telnet://",                   // NFC Forum define value: 0x10
+        "imap:",                       // NFC Forum define value: 0x11
+        "rtsp://",                     // NFC Forum define value: 0x12
+        "urn:",                        // NFC Forum define value: 0x13
+        "pop:",                        // NFC Forum define value: 0x14
+        "sip:",                        // NFC Forum define value: 0x15
+        "sips:",                       // NFC Forum define value: 0x16
+        "tftp:",                       // NFC Forum define value: 0x17
+        "btspp://",                    // NFC Forum define value: 0x18
+        "btl2cap://",                  // NFC Forum define value: 0x19
+        "btgoep://",                   // NFC Forum define value: 0x1A
+        "tcpobex://",                  // NFC Forum define value: 0x1B
+        "irdaobex://",                 // NFC Forum define value: 0x1C
+        "file://",                     // NFC Forum define value: 0x1D
+        "urn:epc:id:",                 // NFC Forum define value: 0x1E
+        "urn:epc:tag:",                // NFC Forum define value: 0x1F
+        "urn:epc:pat:",                // NFC Forum define value: 0x20
+        "urn:epc:raw:",                // NFC Forum define value: 0x21
+        "urn:epc:",                    // NFC Forum define value: 0x22
+        "urn:nfc:",                    // NFC Forum define value: 0x23
+    };
+    return uriPrefixes;
 }
 }  // namespace KITS
 }  // namespace NFC

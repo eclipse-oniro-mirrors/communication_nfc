@@ -21,8 +21,8 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
-const std::string NFC_DATA_COLUMN_VALUE = "VALUE";
+constexpr const char* NFC_DATA_COLUMN_KEYWORD = "KEYWORD";
+constexpr const char* NFC_DATA_COLUMN_VALUE = "VALUE";
 
 class NfcDataShareImpl : public DelayedSingleton<NfcDataShareImpl> {
 public:

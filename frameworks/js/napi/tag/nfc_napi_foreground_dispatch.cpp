@@ -261,7 +261,7 @@ static void SetTagExtraData(const napi_env &env, napi_value &tagInfoObj, TagInfo
         }
         napi_set_element(env, extrasData, i, eachElement);
     }
-    napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
+    napi_set_named_property(env, tagInfoObj, VAR_EXTRA, extrasData);
 }
 
 napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInfo)
@@ -286,9 +286,9 @@ napi_value NapiEvent::CreateResult(const napi_env &env, TagInfoParcelable tagInf
         napi_set_element(env, techValue, i, tech);
     }
     napi_create_uint32(env, rfId, &rfIdValue);
-    napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), uidValue);
-    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), techValue);
-    napi_set_named_property(env, tagInfoObj, VAR_RF_ID.c_str(), rfIdValue);
+    napi_set_named_property(env, tagInfoObj, VAR_UID, uidValue);
+    napi_set_named_property(env, tagInfoObj, VAR_TECH, techValue);
+    napi_set_named_property(env, tagInfoObj, VAR_RF_ID, rfIdValue);
 
     // set extras data from taginfo parcelable to taginfo js object
     SetTagExtraData(env, tagInfoObj, tagInfo);
@@ -679,10 +679,14 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
         ErrorLog("On: arg num error: %{public}zu", argc);
         return CreateUndefined(env);
     }
+    std::string type = "";
+    ElementName element;
     std::vector<uint32_t> dataVec;
     int interval = 0;
     if (!CheckStringAndThrow(env, argv[ARGV_INDEX_0], "type", "String") ||
+        !ParseString(env, type, argv[ARGV_INDEX_0]) ||
         !CheckObjectAndThrow(env, argv[ARGV_INDEX_1], "elementName", "ElementName") ||
+        !ParseElementName(env, element, argv[ARGV_INDEX_1]) ||
         !ParseDiscTechVector(env, dataVec, argv[ARGV_INDEX_2]) ||
         !CheckFunctionAndThrow(env, argv[ARGV_INDEX_3], "callback", "AsyncCallback<TagInfo>")) {
         ErrorLog("On: parse args failed");

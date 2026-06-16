@@ -40,6 +40,13 @@ thread_local napi_ref ndefFormatableConsRef_;
 thread_local napi_ref barcodeTagConsRef_;
 const int INIT_REF = 1;
 
+// RTD types definitions, see NFC Record Type Definition (RTD) Specification.
+const static std::array<std::string, NdefMessage::EmRtdType::RTD_RESERVED> HEX_RTD_TYPE = {
+    "",                  // RTD_UNKNOWN
+    "54",                // 0x54, RTD_TEXT
+    "55",                // 0x55, RTD_URI
+};
+
 static napi_value EnumConstructor(napi_env env, napi_callback_info info)
 {
     napi_value thisArg = nullptr;
@@ -773,7 +780,7 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
     napi_value propValue = nullptr;
     propValue = nullptr;
     bool isArray = false;
-    napi_get_named_property(env, parameters, VAR_TECH.c_str(), &propValue);
+    napi_get_named_property(env, parameters, VAR_TECH, &propValue);
     if (propValue == nullptr || napi_is_array(env, propValue, &isArray) != napi_ok || !isArray) {
         ErrorLog("BuildTagFromWantParams for technology error");
         return;
@@ -782,7 +789,7 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
     uint32_t length = 0;
     napi_get_array_length(env, propValue, &length);
     napi_value technologies = propValue;
-    napi_set_named_property(env, tagInfoObj, VAR_TECH.c_str(), technologies);
+    napi_set_named_property(env, tagInfoObj, VAR_TECH, technologies);
     DebugLog("BuildTagFromWantParams for technology length %{public}d", length);
 
     // parse extras data for each technology
@@ -868,7 +875,7 @@ void BuildTagTechAndExtraData(napi_env env, napi_value &parameters, napi_value &
         }
         napi_set_element(env, extrasData, i, eachElement);
     }
-    napi_set_named_property(env, tagInfoObj, VAR_EXTRA.c_str(), extrasData);
+    napi_set_named_property(env, tagInfoObj, VAR_EXTRA, extrasData);
 }
 
 napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
@@ -879,13 +886,13 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 
     napi_value propValue = nullptr;
     napi_valuetype valueType = napi_undefined;
-    napi_get_named_property(env, parameters, VAR_UID.c_str(), &propValue);
+    napi_get_named_property(env, parameters, VAR_UID, &propValue);
     napi_typeof(env, propValue, &valueType);
     if (propValue != nullptr && valueType == napi_string) {
         std::vector<unsigned char> bytes;
         JsStringToBytesVector(env, propValue, bytes);
         BytesVectorToJS(env, propValue, bytes);
-        napi_set_named_property(env, tagInfoObj, VAR_UID.c_str(), propValue);
+        napi_set_named_property(env, tagInfoObj, VAR_UID, propValue);
         DebugLog("BuildTagFromWantParams for uid");
     }
 
@@ -893,19 +900,19 @@ napi_value BuildTagFromWantParams(napi_env env, napi_value &parameters)
 
     propValue = nullptr;
     valueType = napi_undefined;
-    napi_get_named_property(env, parameters, VAR_RF_ID.c_str(), &propValue);
+    napi_get_named_property(env, parameters, VAR_RF_ID, &propValue);
     napi_typeof(env, propValue, &valueType);
     if (propValue != nullptr && valueType == napi_number) {
-        napi_set_named_property(env, tagInfoObj, VAR_RF_ID.c_str(), propValue);
+        napi_set_named_property(env, tagInfoObj, VAR_RF_ID, propValue);
         DebugLog("BuildTagFromWantParams for tagRfDiscId");
     }
 
     propValue = nullptr;
     valueType = napi_undefined;
-    napi_get_named_property(env, parameters, VAR_SERVICE.c_str(), &propValue);
+    napi_get_named_property(env, parameters, VAR_SERVICE, &propValue);
     napi_typeof(env, propValue, &valueType);
     if (propValue != nullptr && valueType == napi_object) {
-        napi_set_named_property(env, tagInfoObj, VAR_SERVICE.c_str(), propValue);
+        napi_set_named_property(env, tagInfoObj, VAR_SERVICE, propValue);
         DebugLog("BuildTagFromWantParams for remoteTagService");
     }
     DebugLog("BuildTagFromWantParams end");

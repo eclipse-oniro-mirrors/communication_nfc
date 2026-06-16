@@ -23,8 +23,8 @@
 namespace OHOS {
 namespace NFC {
 
-const std::string KEY_TAG_APP = "tag";
-const std::string KEY_HCE_APP = "hce";
+constexpr const char* KEY_TAG_APP = "tag";
+constexpr const char* KEY_HCE_APP = "hce";
 using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::vector<int>);
 using QueryHceAppByVendor = std::vector<AAFwk::Want> (*)();
 class IQueryAppInfoCallback : public IRemoteBroker {

@@ -30,6 +30,10 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
+constexpr const char* NFC_SERVICE_CONFIG_PATH = "/system/etc/nfc/nfc_service_config.json";
+static const std::set<std::string> NFC_SERVICE_CONFIG_KEY_SET = {
+    KEY_REPORT_APPID,
+};
 
 bool NfcSdkCommon::IsLittleEndian()
 {

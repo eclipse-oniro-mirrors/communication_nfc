@@ -43,46 +43,7 @@ struct RecordLayout {
     uint16_t idLength;
 };
 
-// URI charactor code defined by NFC Forum
 static const size_t MAX_URI_CODE_NUM = 0x24;
-static std::array<std::string, MAX_URI_CODE_NUM> g_uriPrefix = {
-    "",                            // NFC Forum define value: 0x00
-    "http://www.",                 // NFC Forum define value: 0x01
-    "https://www.",                // NFC Forum define value: 0x02
-    "http://",                     // NFC Forum define value: 0x03
-    "https://",                    // NFC Forum define value: 0x04
-    "tel:",                        // NFC Forum define value: 0x05
-    "mailto:",                     // NFC Forum define value: 0x06
-    "ftp://anonymous:anonymous@",  // NFC Forum define value: 0x07
-    "ftp://ftp.",                  // NFC Forum define value: 0x08
-    "ftps://",                     // NFC Forum define value: 0x09
-    "sftp://",                     // NFC Forum define value: 0x0A
-    "smb://",                      // NFC Forum define value: 0x0B
-    "nfs://",                      // NFC Forum define value: 0x0C
-    "ftp://",                      // NFC Forum define value: 0x0D
-    "dav://",                      // NFC Forum define value: 0x0E
-    "news:",                       // NFC Forum define value: 0x0F
-    "telnet://",                   // NFC Forum define value: 0x10
-    "imap:",                       // NFC Forum define value: 0x11
-    "rtsp://",                     // NFC Forum define value: 0x12
-    "urn:",                        // NFC Forum define value: 0x13
-    "pop:",                        // NFC Forum define value: 0x14
-    "sip:",                        // NFC Forum define value: 0x15
-    "sips:",                       // NFC Forum define value: 0x16
-    "tftp:",                       // NFC Forum define value: 0x17
-    "btspp://",                    // NFC Forum define value: 0x18
-    "btl2cap://",                  // NFC Forum define value: 0x19
-    "btgoep://",                   // NFC Forum define value: 0x1A
-    "tcpobex://",                  // NFC Forum define value: 0x1B
-    "irdaobex://",                 // NFC Forum define value: 0x1C
-    "file://",                     // NFC Forum define value: 0x1D
-    "urn:epc:id:",                 // NFC Forum define value: 0x1E
-    "urn:epc:tag:",                // NFC Forum define value: 0x1F
-    "urn:epc:pat:",                // NFC Forum define value: 0x20
-    "urn:epc:raw:",                // NFC Forum define value: 0x21
-    "urn:epc:",                    // NFC Forum define value: 0x22
-    "urn:nfc:",                    // NFC Forum define value: 0x23
-};
 
 class NdefMessage final {
 public:
@@ -204,6 +165,12 @@ public:
      * @return void
      */
     static void NdefRecordToString(std::weak_ptr<NdefRecord> record, std::string& buffer, bool bIsMB, bool bIsME);
+
+    /**
+     * @Description get ndef uri prefixes.
+     */
+    static std::array<std::string, MAX_URI_CODE_NUM> GetUriPrefixes();
+
     /**
      * @Description Get all records of a ndef message.
      * @param void
@@ -234,13 +201,6 @@ private:
 
 private:
     std::vector<std::shared_ptr<NdefRecord>> ndefRecordList_ {};
-};
-
-// RTD types definitions, see NFC Record Type Definition (RTD) Specification.
-const static std::array<std::string, NdefMessage::EmRtdType::RTD_RESERVED> HEX_RTD_TYPE = {
-    "",                  // RTD_UNKNOWN
-    "54",                // 0x54, RTD_TEXT
-    "55",                // 0x55, RTD_URI
 };
 
 }  // namespace KITS

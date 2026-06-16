@@ -37,7 +37,7 @@
 
 namespace OHOS {
 namespace NFC {
-const std::string EVENT_DATA_SHARE_READY = "usual.event.DATA_SHARE_READY";
+constexpr const char* EVENT_DATA_SHARE_READY = "usual.event.DATA_SHARE_READY";
 
 class NfcEventHandler::ScreenChangedReceiver : public EventFwk::CommonEventSubscriber {
 public:

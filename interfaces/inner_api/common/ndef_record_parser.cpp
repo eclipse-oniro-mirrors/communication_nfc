@@ -148,10 +148,11 @@ std::string NdefRecordParser::GetUriPayload(const std::shared_ptr<NdefRecord> &r
                     ErrorLog("SecureStringToInt error");
                     return "";
                 }
-                if (num < 0 || num >= static_cast<int>(g_uriPrefix.size())) {
+                std::array<std::string, MAX_URI_CODE_NUM> uriPrefixes = NdefMessage::GetUriPrefixes();
+                if (num < 0 || num >= static_cast<int>(uriPrefixes.size())) {
                     return "";
                 }
-                std::string uriPrefix = g_uriPrefix[num];
+                std::string uriPrefix = uriPrefixes[num];
                 InfoLog("uriPrefix = %{public}s", uriPrefix.c_str());
                 // 2 is uri identifier length
                 return uriPrefix + NfcSdkCommon::HexArrayToStringWithoutChecking(uri.substr(2));
