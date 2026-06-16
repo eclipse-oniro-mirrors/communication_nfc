@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace NFC {
+
 constexpr const char* KEY_TAG_APP = "tag";
 constexpr const char* KEY_HCE_APP = "hce";
 using QueryApplicationByVendor = std::vector<AppExecFwk::ElementName> (*)(std::vector<int>);
