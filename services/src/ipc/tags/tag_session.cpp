@@ -719,6 +719,19 @@ ErrCode TagSession::RegForegroundDispatch(
         return KITS::ERR_TAG_PARAMETERS;
     }
 
+    std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            ErrorLog("caller bundle name mismatch");
+            return KITS::ERR_NONE;
+        }
+#else
+        ErrorLog("caller bundle name mismatch");
+        return KITS::ERR_NONE;
+#endif
+    }
+
     std::lock_guard<std::mutex> guard(mutex_);
     foregroundCallback_ = cb;
     bool isVendorApp = false;
@@ -970,6 +983,19 @@ ErrCode TagSession::RegReaderMode(
         return KITS::ERR_NFC_PARAMETERS;
     }
 
+    std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            ErrorLog("caller bundle name mismatch");
+            return KITS::ERR_NONE;
+        }
+#else
+        ErrorLog("caller bundle name mismatch");
+        return KITS::ERR_NONE;
+#endif
+    }
+
     std::lock_guard<std::mutex> guard(mutex_);
     readerModeCallback_ = cb;
     bool isVendorApp = false;
@@ -1029,6 +1055,19 @@ ErrCode TagSession::RegReaderModeWithIntvl(const ElementName& element, const std
     if (cb == nullptr || cb->AsObject() == nullptr) {
         ErrorLog("callback nullptr.");
         return KITS::ERR_NFC_PARAMETERS;
+    }
+
+    std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
+    if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
+#ifdef VENDOR_APPLICATIONS_ENABLED
+        if (!IsVendorProcess()) {
+            ErrorLog("caller bundle name mismatch");
+            return KITS::ERR_NONE;
+        }
+#else
+        ErrorLog("caller bundle name mismatch");
+        return KITS::ERR_NONE;
+#endif
     }
 
     std::lock_guard<std::mutex> guard(mutex_);

@@ -29,6 +29,8 @@
 #include "nfc_service_tdd.h"
 #include "nfc_permission_checker.h"
 #include "tag_session.h"
+#include "foreground_callback_stub.h"
+#include "reader_mode_callback_stub.h"
 #include <iostream>
 
 namespace OHOS {
@@ -971,6 +973,62 @@ HWTEST_F(TagSessionTest, GetRegTime002, TestSize.Level1)
     ElementName element1("", "test", "abilityName", "");
     long result = tagSession->GetRegTime(element1);
     ASSERT_TRUE(result == 0);
+}
+
+/**
+ * @tc.name: RegForegroundDispatch_CallerBunderMismatch
+ * @tc.desc: Test TagSession RegForegroundDispatch rejects when caller bundleName mismatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegForegroundDispatch_CallerBunderMismatch, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    AppExecFwk::ElementName element;
+    element.bundleName_ = "com.testTag.app";
+    element.abilityName_ = "EntryAbility";
+    std::vector<uint32_t> discTech = {1, 2};
+    sptr<KITS::IForegroundCallback> callback = new TAG::ForegroundCallbackStub();
+    ErrCode result = tagSession->RegForegroundDispatch(element, discTech, callback);
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+/**
+ * @tc.name: RegReaderMode_CallerBunderMismatch
+ * @tc.desc: Test TagSession RegReaderMode rejects when caller bundleName mismatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegReaderMode_CallerBunderMismatch, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    AppExecFwk::ElementName element;
+    element.bundleName_ = "com.testTag.app";
+    element.abilityName_ = "EntryAbility";
+    std::vector<uint32_t> discTech = {1, 2};
+    sptr<KITS::IReaderModeCallback> callback = new TAG::ReaderModeCallbackStub();
+    ErrCode result = tagSession->RegReaderMode(element, discTech, callback);
+    ASSERT_TRUE(result == KITS::ERR_NONE);
+}
+/**
+ * @tc.name: RegReaderModeInnerWithIntvl_CallerBunderMismatch
+ * @tc.desc: Test TagSession RegReaderModeInnerWithIntvl rejects when caller bundleName mismatch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagSessionTest, RegReaderModeInnerWithIntvl_CallerBunderMismatch, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
+
+    AppExecFwk::ElementName element;
+    element.bundleName_ = "com.testTag.app";
+    element.abilityName_ = "EntryAbility";
+    std::vector<uint32_t> discTech = {1, 2};
+    sptr<KITS::IReaderModeCallback> callback = new TAG::ReaderModeCallbackStub();
+    int interval = 500;
+    ErrCode result = tagSession->RegReaderModeWithIntvl(element, discTech, callback, interval);
+    ASSERT_TRUE(result == KITS::ERR_NONE);
 }
 }
 }
