@@ -314,7 +314,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end() || g_eventRegisterInfo[type].size() == 0) {
         g_eventRegisterInfo[type] = std::vector<RegObj> {regObj};
-        napi_add_env_cleanup_hook(env, CleanUp, (void*)&g_eventRegisterInfo[type]);
+        napi_add_env_cleanup_hook(env, CleanUp, static_cast<void*>(&g_eventRegisterInfo[type]));
         return;
     }
     bool hasSameObj = false;
@@ -424,7 +424,7 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         InfoLog("All callback is unsubscribe for event: %{public}s", type.c_str());
         DeleteAllRegisterObj(env, iter->second);
     }
-    napi_remove_env_cleanup_hook(env, CleanUp, (void*)&iter);
+    napi_remove_env_cleanup_hook(env, CleanUp, static_cast<void*>(&iter));
     if (iter->second.empty()) {
         g_eventRegisterInfo.erase(iter);
         if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {
