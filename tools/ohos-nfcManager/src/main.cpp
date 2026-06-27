@@ -13,13 +13,11 @@
  * limitations under the License.
  */
 
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <csignal>
-#include <cstdarg>
+#include <functional>
+#include <iostream>
 #include <string>
-#include <unistd.h>
+#include <vector>
 #include "nfc_controller.h"
 #include "nfc_sdk_common.h"
 #include "nlohmann/json.hpp"
@@ -29,7 +27,6 @@ using json = nlohmann::json;
 using namespace OHOS::NFC::KITS;
 
 namespace {
-constexpr int CLI_TIMEOUT_SECONDS = 15;
 constexpr int MIN_NUM_INPUT_PARAMETERS = 2;
 constexpr char CLI_NAME[] = "ohos-nfcManager";
 
@@ -43,29 +40,6 @@ constexpr char ACTION_IS_AVAILABLE[] = "is-available";
 constexpr char ERR_SA_UNAVAILABLE[] = "E_NFC_SA_UNAVAILABLE";
 constexpr char ERR_OPERATION_FAILED[] = "E_NFC_OPERATION_FAILED";
 constexpr char ERR_INVALID_ACTION[] = "E_INVALID_ACTION";
-constexpr char ERR_TIMEOUT[] = "E_TIMEOUT";
-
-bool g_timeoutTriggered = false;
-
-void TimeoutHandler(int sig)
-{
-    g_timeoutTriggered = true;
-}
-
-void SetupTimeout()
-{
-    struct sigaction sa;
-    sa.sa_handler = TimeoutHandler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGALRM, &sa, nullptr);
-    alarm(CLI_TIMEOUT_SECONDS);
-}
-
-void CancelTimeout()
-{
-    alarm(0);
-}
 
 void OutputSuccess(const std::string &data)
 {
@@ -74,12 +48,15 @@ void OutputSuccess(const std::string &data)
         {"status", "success"},
         {"data", data}
     };
-    printf("%s\n", result.dump().c_str());
-    fflush(stdout);
+    std::cout << result.dump() << std::endl;
 }
 
-void OutputError(const char *code, const char *message, const char *suggestion)
+void OutputError(const std::string &code, const std::string &message, const std::string &suggestion,
+                 const std::string &logMsg = {})
 {
+    if (!logMsg.empty()) {
+        std::cout << "[ERROR][" << CLI_NAME << "] " << logMsg << "\n";
+    }
     json result = {
         {"type", "result"},
         {"status", "failed"},
@@ -87,19 +64,7 @@ void OutputError(const char *code, const char *message, const char *suggestion)
         {"errMsg", message},
         {"suggestion", suggestion}
     };
-    printf("%s\n", result.dump().c_str());
-    fflush(stdout);
-}
-
-// Log to stderr (not stdout!)
-void LogError(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    fprintf(stderr, "[ERROR][%s] ", CLI_NAME);
-    vfprintf(stderr, fmt, args);
-    fprintf(stderr, "\n");
-    va_end(args);
+    std::cout << result.dump() << std::endl;
 }
 
 std::string NfcStateToString(int state)
@@ -133,14 +98,14 @@ int HandleTurnOn()
         OutputSuccess("{\"status\":\"turning_on\",\"message\":\"NFC is turning on\"}");
         return 0;
     } else if (result == ErrorCode::ERR_NFC_STATE_UNBIND) {
-        LogError("NFC SA unavailable, result=%d", result);
         OutputError(ERR_SA_UNAVAILABLE, "NFC service unavailable",
-                    "Check if NFC service is running, use 'ohos-nfcManager is-available' to verify");
+                    "Check if NFC service is running, use 'ohos-nfcManager is-available' to verify",
+                    "NFC SA unavailable, result=" + std::to_string(result));
         return 1;
     } else {
-        LogError("TurnOn failed with result=%d", result);
         OutputError(ERR_OPERATION_FAILED, "Failed to turn on NFC",
-                    "Check if device supports NFC, use 'ohos-nfcManager get-state' to check current state");
+                    "Check if device supports NFC, use 'ohos-nfcManager get-state' to check current state",
+                    "TurnOn failed with result=" + std::to_string(result));
         return 1;
     }
 }
@@ -152,14 +117,14 @@ int HandleTurnOff()
         OutputSuccess("{\"status\":\"turning_off\",\"message\":\"NFC is turning off\"}");
         return 0;
     } else if (result == ErrorCode::ERR_NFC_STATE_UNBIND) {
-        LogError("NFC SA unavailable, result=%d", result);
         OutputError(ERR_SA_UNAVAILABLE, "NFC service unavailable",
-                    "Check if NFC service is running");
+                    "Check if NFC service is running",
+                    "NFC SA unavailable, result=" + std::to_string(result));
         return 1;
     } else {
-        LogError("TurnOff failed with result=%d", result);
         OutputError(ERR_OPERATION_FAILED, "Failed to turn off NFC",
-                    "Use 'ohos-nfcManager get-state' to check current state");
+                    "Use 'ohos-nfcManager get-state' to check current state",
+                    "TurnOff failed with result=" + std::to_string(result));
         return 1;
     }
 }
@@ -173,75 +138,53 @@ int HandleIsAvailable()
 
 void PrintUsage()
 {
-    fprintf(stderr, "Usage: %s <action>\n", CLI_NAME);
-    fprintf(stderr, "\nActions:\n");
-    fprintf(stderr, "  %-15s  Get NFC state (off/turning_on/on/turning_off)\n", ACTION_GET_STATE);
-    fprintf(stderr, "  %-15s  Turn on NFC\n", ACTION_TURN_ON);
-    fprintf(stderr, "  %-15s  Turn off NFC\n", ACTION_TURN_OFF);
-    fprintf(stderr, "  %-15s  Check if NFC is available on this device\n", ACTION_IS_AVAILABLE);
-    fprintf(stderr, "\nOutput format: Single-line JSON to stdout\n");
-    fprintf(stderr, "  Success: {\"success\":true,\"data\":{...}}\n");
-    fprintf(stderr, "  Failure: {\"success\":false,\"error\":{...},\"suggestion\":\"...\"}\n");
+    std::cout << "Usage: " << CLI_NAME << " <action>\n";
+    std::cout << "\nActions:\n";
+    std::cout << "  " << ACTION_GET_STATE << "  Get NFC state (off/turning_on/on/turning_off)\n";
+    std::cout << "  " << ACTION_TURN_ON << "  Turn on NFC\n";
+    std::cout << "  " << ACTION_TURN_OFF << "  Turn off NFC\n";
+    std::cout << "  " << ACTION_IS_AVAILABLE << "  Check if NFC is available on this device\n";
+    std::cout << "\nOutput format: Single-line JSON to stdout\n";
+    std::cout << "  Success: {\"success\":true,\"data\":{...}}\n";
+    std::cout << "  Failure: {\"success\":false,\"error\":{...},\"suggestion\":\"...\"}\n";
 }
 
-typedef int (*ActionHandler)();
+using ActionHandler = std::function<int()>;
 
 struct ActionEntry {
-    const char *action;
+    const std::string action;
     ActionHandler handler;
 };
 
-// Static action dispatch table
-static const ActionEntry ACTION_TABLE[] = {
+const std::vector<ActionEntry> ACTION_TABLE = {
     {ACTION_GET_STATE, HandleGetState},
     {ACTION_TURN_ON, HandleTurnOn},
     {ACTION_TURN_OFF, HandleTurnOff},
     {ACTION_IS_AVAILABLE, HandleIsAvailable},
 };
-
-constexpr int ACTION_TABLE_SIZE = sizeof(ACTION_TABLE) / sizeof(ACTION_TABLE[0]);
-
 } // anonymous namespace
 
 int main(int argc, char **argv)
 {
-    // Setup timeout protection
-    SetupTimeout();
-
-    // Check arguments
-    if (argc < MIN_NUM_INPUT_PARAMETERS || strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0 ||
-        strcmp(argv[1], "help") == 0) {
+    if (argc < MIN_NUM_INPUT_PARAMETERS || std::strcmp(argv[1], "-h") == 0 ||
+        std::strcmp(argv[1], "--help") == 0 || std::strcmp(argv[1], "help") == 0) {
         PrintUsage();
         OutputError(ERR_INVALID_ACTION,
             "Missing or invalid action parameter",
             "Use action to specify operation, e.g. 'ohos-nfcManager get-state'");
-        CancelTimeout();
         return 1;
     }
 
-    const char *action = argv[1];
+    const std::string action = argv[1];
 
-    // Dispatch to handler
-    for (int i = 0; i < ACTION_TABLE_SIZE; ++i) {
-        if (strcmp(action, ACTION_TABLE[i].action) == 0) {
-            int ret = ACTION_TABLE[i].handler();
-
-            // Check for timeout
-            if (g_timeoutTriggered) {
-                OutputError(ERR_TIMEOUT, "Operation timeout",
-                            "NFC operation did not complete within 15 seconds, check NFC service or hardware");
-                return 1;
-            }
-
-            CancelTimeout();
-            return ret;
+    for (const auto &entry : ACTION_TABLE) {
+        if (action == entry.action) {
+            return entry.handler();
         }
     }
 
-    // Unknown action
-    LogError("Unknown action: %s", action);
     OutputError(ERR_INVALID_ACTION, "Unknown action type",
-                "Supported actions: get-state, turn-on, turn-off, is-available");
-    CancelTimeout();
+                "Supported actions: get-state, turn-on, turn-off, is-available",
+                "Unknown action: " + action);
     return 1;
 }
