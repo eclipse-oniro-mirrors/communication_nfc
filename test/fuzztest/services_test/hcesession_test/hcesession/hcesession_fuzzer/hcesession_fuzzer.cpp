@@ -86,7 +86,6 @@ namespace OHOS {
         g_baseFuzzPos = 0;
 
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        service->Initialize();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         uint32_t code = GetData<uint32_t>();
         hceSession->CallbackEnter(code);
@@ -99,7 +98,6 @@ namespace OHOS {
         g_baseFuzzPos = 0;
 
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        service->Initialize();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         uint32_t code = GetData<int32_t>();
         int32_t result = GetData<int32_t>();

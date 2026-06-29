@@ -102,8 +102,6 @@ namespace OHOS {
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         std::vector<AbilityInfo> paymentAbilityInfos;
         hceSession->AppendSimBundle(paymentAbilityInfos);
-        std::shared_ptr<HceSession> hceSession1 = std::make_shared<HceSession>(nullptr);
-        hceSession1->AppendSimBundle(paymentAbilityInfos);
     }
 }
 

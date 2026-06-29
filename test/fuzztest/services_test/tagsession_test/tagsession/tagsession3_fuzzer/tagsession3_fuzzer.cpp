@@ -75,9 +75,6 @@ public:
         int tagRfDiscId = fdp.ConsumeIntegral<int>();
         bool isConnected = data[0] % INT_TO_BOOL_DIVISOR;
         tagSession->IsConnected(tagRfDiscId, isConnected);
-        service->Initialize();
-        sptr<NFC::TAG::TagSession> tagSession1 = new NFC::TAG::TagSession(service);
-        tagSession1->IsConnected(tagRfDiscId, isConnected);
     }
 
     void FuzzSetTimeout(const uint8_t* data, size_t size)
