@@ -142,7 +142,8 @@ namespace OHOS {
         uint32_t rfDiscId = GetData<uint32_t>();
         uint8_t cardIndex = GetData<uint8_t>();
         std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-        isodepCardHandler->MatchCity(rfDiscId, cardIndex);
+        std::string rspApdu = "";
+        isodepCardHandler->MatchCity(rfDiscId, cardIndex, rspApdu);
     }
 }
 
