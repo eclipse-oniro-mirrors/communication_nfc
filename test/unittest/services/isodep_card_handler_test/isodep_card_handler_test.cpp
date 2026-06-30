@@ -138,7 +138,8 @@ HWTEST_F(IsodepCardHandlerTest, MatchCity, TestSize.Level1)
 {
     std::shared_ptr<NCI::INciTagInterface> nciTagProxy = nullptr;
     std::shared_ptr<IsodepCardHandler> isodepCardHandler = std::make_shared<IsodepCardHandler>(nciTagProxy);
-    isodepCardHandler->MatchCity(0, 0);
+    std::string rspApdu = "";
+    isodepCardHandler->MatchCity(0, 0, rspApdu);
     ASSERT_TRUE(isodepCardHandler != nullptr);
 }
 

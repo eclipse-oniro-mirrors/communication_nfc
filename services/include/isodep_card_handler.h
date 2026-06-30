@@ -53,7 +53,7 @@ public:
     void GetCardName(uint8_t cardIndex, std::string &cardName);
 
 private:
-    bool MatchCity(uint32_t rfDiscId, uint8_t cardIndex);
+    bool MatchCity(uint32_t rfDiscId, uint8_t cardIndex, std::string &rspApdu);
     bool CheckApduResponse(const std::string &response, uint8_t cardIndex);
     bool CheckApduResponse(const std::string &response);
     void GetBalanceValue(const std::string &balanceStr, int &balanceValue);

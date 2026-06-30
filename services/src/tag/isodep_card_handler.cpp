@@ -192,25 +192,30 @@ bool IsodepCardHandler::IsSupportedTransportCard(uint32_t rfDiscId, uint8_t &car
     }
     nciTagProxyPtr->Connect(rfDiscId, static_cast<int>(KITS::TagTechnology::NFC_ISODEP_TECH));
     for (uint8_t index = 0; index < cardInfoVec_.size(); ++index) {
-        if (MatchCity(rfDiscId, index)) {
+        std::string rspApdu = "";
+        if (MatchCity(rfDiscId, index, rspApdu)) {
             InfoLog("card match \"%{public}s\"", cardInfoVec_[index].name.c_str());
             cardIndex = index;
             return true;
+        }
+        if (rspApdu.empty()) {
+            WarnLog("rspApdu is empty, not continue match.");
+            return false;
         }
     }
     InfoLog("no matching city, ignore.");
     return false;
 }
 
-bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex)
+bool IsodepCardHandler::MatchCity(uint32_t rfDiscId, uint8_t cardIndex, std::string &rspApdu)
 {
     if (static_cast<size_t>(cardIndex) >= cardInfoVec_.size()) {
         ErrorLog("invalid input cardIndex[%{public}u]", cardIndex);
+        rspApdu = "INVAILD";
         return false;
     }
     InfoLog("trying to match card type = \"%{public}s\"", cardInfoVec_[cardIndex].name.c_str());
     std::string checkCmdApdu = "";
-    std::string rspApdu = "";
     for (uint8_t i = 0; i < cardInfoVec_[cardIndex].checkApdus.size(); ++i) {
         checkCmdApdu = cardInfoVec_[cardIndex].checkApdus[i];
         auto nciTagProxyPtr = nciTagProxy_.lock();
