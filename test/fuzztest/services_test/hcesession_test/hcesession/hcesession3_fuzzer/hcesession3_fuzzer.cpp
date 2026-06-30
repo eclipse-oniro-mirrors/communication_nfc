@@ -17,6 +17,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <vector>
 
 #include "hce_session.h"
 #include "nfc_sdk_common.h"
@@ -32,6 +34,10 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
+    constexpr const size_t MAX_STRING_LEN = 256;
+
+    std::shared_ptr<NFC::NfcService> g_nfcService = nullptr;
+    std::shared_ptr<HCE::HceSession> g_hceSession = nullptr;
 
     class HceCmdListener : public IHceCmdCallback {
     public:
@@ -51,58 +57,57 @@ namespace OHOS {
         }
     };
 
-    void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
+    void FuzzUnRegAllCallback(FuzzedDataProvider& fdp)
     {
-        for (uint16_t i = 0 ; i < outParaLen ; i++) {
-            // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
-            outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
+        if (!g_nfcService || !g_hceSession) {
+            return;
         }
-    }
-
-    void FuzzUnRegAllCallback(const uint8_t* data, size_t size)
-    {
-        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        std::shared_ptr<HceSession> hceSession1 = std::make_shared<HceSession>(nullptr);
-        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        FuzzedDataProvider fdp(data, size);
         Security::AccessToken::AccessTokenID callerToken = fdp.ConsumeIntegral<uint64_t>();
-        hceSession->UnRegAllCallback(callerToken);
+        g_hceSession->UnRegAllCallback(callerToken);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
-        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-        hceSession->ceService_ = ceService;
-        hceSession->UnRegAllCallback(callerToken);
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
+        g_hceSession->ceService_ = ceService;
+        g_hceSession->UnRegAllCallback(callerToken);
     }
 
-    void FuzzHandleWhenRemoteDie(const uint8_t* data, size_t size)
+    void FuzzHandleWhenRemoteDie(FuzzedDataProvider& fdp)
     {
-        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        FuzzedDataProvider fdp(data, size);
+        if (!g_nfcService || !g_hceSession) {
+            return;
+        }
         Security::AccessToken::AccessTokenID callerToken = fdp.ConsumeIntegral<uint64_t>();
-        hceSession->HandleWhenRemoteDie(callerToken);
+        g_hceSession->HandleWhenRemoteDie(callerToken);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
-        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
-        hceSession->ceService_ = ceService;
-        hceSession->HandleWhenRemoteDie(callerToken);
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
+        g_hceSession->ceService_ = ceService;
+        g_hceSession->HandleWhenRemoteDie(callerToken);
     }
 
-    void FuzzGetPaymentServices(const uint8_t* data, size_t size)
+    void FuzzGetPaymentServices(FuzzedDataProvider& fdp)
     {
-        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        service->Initialize();
-        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        if (!g_nfcService || !g_hceSession) {
+            return;
+        }
         CePaymentServicesParcelable parcelable;
-        hceSession->GetPaymentServices(parcelable);
+        g_hceSession->GetPaymentServices(parcelable);
     }
 
-    void FuzzAppendSimBundle(const uint8_t* data, size_t size)
+    void FuzzAppendSimBundle(FuzzedDataProvider& fdp)
     {
-        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
-        service->Initialize();
-        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
+        if (!g_nfcService || !g_hceSession) {
+            return;
+        }
         std::vector<AbilityInfo> paymentAbilityInfos;
-        hceSession->AppendSimBundle(paymentAbilityInfos);
+        g_hceSession->AppendSimBundle(paymentAbilityInfos);
     }
+}
+
+extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv)
+{
+    OHOS::g_nfcService = std::make_shared<OHOS::NFC::NfcService>();
+    OHOS::g_nfcService->Initialize();
+    OHOS::g_hceSession = std::make_shared<OHOS::HCE::HceSession>(OHOS::g_nfcService);
+    return 0;
 }
 
 /* Fuzzer entry point */
@@ -113,9 +118,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzUnRegAllCallback(data, size);
-    OHOS::FuzzHandleWhenRemoteDie(data, size);
-    OHOS::FuzzGetPaymentServices(data, size);
-    OHOS::FuzzAppendSimBundle(data, size);
+    FuzzedDataProvider fdp(data, size);
+    OHOS::FuzzUnRegAllCallback(fdp);
+    OHOS::FuzzHandleWhenRemoteDie(fdp);
+    OHOS::FuzzGetPaymentServices(fdp);
+    OHOS::FuzzAppendSimBundle(fdp);
     return 0;
 }
