@@ -49,7 +49,7 @@ class NfcStateEventRegister {
 public:
     static NfcStateEventRegister& GetInstance();
 
-    void Register(taihe::callback_view<void(ohos::nfc::controller::nfcController::NfcState)> callback);
+    void Register(taihe::callback<void(ohos::nfc::controller::nfcController::NfcState)> callback);
     void Unregister();
 
 private:
