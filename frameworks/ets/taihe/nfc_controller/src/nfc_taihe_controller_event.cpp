@@ -29,15 +29,20 @@ constexpr const char* EVENT_NFC_STATE_CHANGE = "nfcStateChange";
 constexpr uint32_t WAIT_ON_REMOTE_DIED_MS = 20;
 static std::mutex g_callbackMutex {};
 static std::shared_ptr<
-    taihe::callback_view<void(ohos::nfc::controller::nfcController::NfcState)>> g_stateCallback = nullptr;
+    taihe::callback<void(ohos::nfc::controller::nfcController::NfcState)>> g_stateCallback = nullptr;
 sptr<NfcStateListenerEvent> g_nfcStateListenerEvent = sptr<NfcStateListenerEvent>(new NfcStateListenerEvent());
 
 void NfcStateListenerEvent::OnNfcStateChanged(int nfcState)
 {
     InfoLog("OnNotify rcvd nfcRfState: %{public}d", nfcState);
-    std::lock_guard<std::mutex> lock(g_callbackMutex);
-    if (g_stateCallback) {
-        (*g_stateCallback)(ohos::nfc::controller::nfcController::NfcState::from_value(nfcState));
+    std::shared_ptr<taihe::callback<void(ohos::nfc::controller::nfcController::NfcState)>> callback = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_callbackMutex);
+        callback = g_stateCallback;
+    }
+    
+    if (callback) {
+        (*callback)(ohos::nfc::controller::nfcController::NfcState::from_value(nfcState));
     }
 }
 
@@ -66,7 +71,7 @@ void NfcStateEventRegister::Register(
         return;
     }
     g_stateCallback =
-        std::make_shared<taihe::callback_view<void(ohos::nfc::controller::nfcController::NfcState)>>(callback);
+        std::make_shared<taihe::callback<void(ohos::nfc::controller::nfcController::NfcState)>>(callback);
 }
 
 void NfcStateEventRegister::Unregister()
