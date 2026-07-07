@@ -450,10 +450,6 @@ void TagDispatcher::HandleTextId()
 
 uint16_t TagDispatcher::PublishTagNotification(uint32_t tagDiscId, bool isIsoDep)
 {
-#ifdef NFC_TAG_NOTIFY_DISABLED
-    InfoLog("The watch will not notify that a tag has been detected.");
-    return DISPATCH_UNKNOWN;
-#endif
     NfcNotificationId notificationId = NFC_TAG_DEFAULT_NOTIFICATION_ID;
     std::string cardName = "";
     uint8_t cardIndex = INVALID_CARD_INDEX;
