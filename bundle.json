@@ -48,7 +48,7 @@
             "nfc_sim_feature",
             "nfc_vibrator_disabled",
             "nfc_handle_screen_lock",
-            "nfc_tag_notify_disabled"
+            "nfc_notification_disabled"
         ],
         "adapted_system_type": [
             "standard"

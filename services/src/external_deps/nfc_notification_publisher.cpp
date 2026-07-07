@@ -61,7 +61,7 @@ static void NfcNotificationCallback(int notificationId)
 
 void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
-#ifdef NFC_TAG_NOTIFY_DISABLED
+#ifdef NFC_NOTIFICATION_DISABLED
     InfoLog("The device will not notify that a tag has been detected.");
     return;
 #endif
