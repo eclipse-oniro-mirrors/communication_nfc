@@ -46,4 +46,8 @@ declare_args() {
   if (defined(global_parts_info.nfc_handle_screen_lock)) {
     nfc_handle_screen_lock = true
   }
+  nfc_notification_disabled = false
+  if (defined(global_parts_info.nfc_notification_disabled)) {
+    nfc_notification_disabled = true
+  }
 }

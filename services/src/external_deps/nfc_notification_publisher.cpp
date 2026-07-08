@@ -61,6 +61,10 @@ static void NfcNotificationCallback(int notificationId)
 
 void NfcNotificationPublisher::PublishNfcNotification(int notificationId, const std::string &name, int balance)
 {
+#ifdef NFC_NOTIFICATION_DISABLED
+    InfoLog("The device will not notify that a tag has been detected.");
+    return;
+#endif
     bool isNfcNotDisturb = IsNfcNtfDisabled();
     StartVibrate(isNfcNotDisturb, notificationId);
     if (nfcNtfInf_.publishNotification == nullptr) {
