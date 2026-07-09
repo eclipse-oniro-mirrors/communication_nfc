@@ -24,7 +24,7 @@ option_stub_hooks on;
 
 interface OHOS.NFC.INfcController {
     [ipccode 101] int GetState();
-    [ipccode 102] void TurnOn();
+    [ipccode 102, customMsgOption flags=MessageOption::TF_IMAGE] void TurnOn();
     [ipccode 103] void TurnOff();
     [ipccode 105] void RegisterNfcStatusCallBack([in] INfcControllerCallback cb, [in] String type);
     [ipccode 106] void UnregisterNfcStatusCallBack([in] String type);
