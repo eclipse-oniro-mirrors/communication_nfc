@@ -44,7 +44,7 @@
         },
         {
             "name":"ActionButtonName",
-            "value":"Pulsa para ver los detalles",
+            "value":"Toca para ver los detalles",
             "attr":{
                 "priority":"LT"
             }
