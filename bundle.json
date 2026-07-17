@@ -86,7 +86,9 @@
                 "bluetooth",
                 "image_framework",
                 "runtime_core",
-                "taihe_ffi_gen"
+                "taihe_ffi_gen",
+                "node",
+                "libuv"
             ]
         },
         "build": {
