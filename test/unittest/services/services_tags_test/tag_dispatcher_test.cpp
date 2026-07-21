@@ -28,6 +28,7 @@
 #include "tag_dispatcher.h"
 #include "tag_session.h"
 #include "tag_ability_dispatcher.h"
+#include "ndef_har_data_parser.h"
 
 namespace OHOS {
 namespace NFC {
@@ -376,6 +377,19 @@ HWTEST_F(TagDispatcherTest, ParseNdefInfo001, TestSize.Level1)
     std::shared_ptr<KITS::NdefMessage> ndefMessage = KITS::NdefMessage::GetNdefMessage(ndefMsg);
     std::string ndefInfo = tagDispatcher->ParseNdefInfo(ndefMessage);
     ASSERT_TRUE(ndefInfo == "");
+}
+
+/**
+ * @tc.name: IsAllowedVibrator
+ * @tc.desc: Test TagSession IsAllowedVibrator.
+ * @tc.type: FUNC
+ */
+HWTEST_F(TagDispatcherTest, IsAllowedVibrator, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+    std::shared_ptr<NFC::TAG::TagDispatcher> tagDispatcher = std::make_shared<NFC::TAG::TagDispatcher>(service);
+    bool isAllowed = tagDispatcher->IsAllowedVibrator(TAG::DISPATCH_FOREGROUND);
+    ASSERT_TRUE(isAllowed);
 }
 }
 }
