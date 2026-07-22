@@ -188,11 +188,24 @@ void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
     NdefHarDataParser::GetInstance().ClearRecord0Uri();
 
 #ifndef NFC_VIBRATOR_DISABLED
-    StartVibratorOnce(isNtfPublished);
+    if (IsAllowedVibrator(dispatchResult)) {
+        StartVibratorOnce(isNtfPublished);
+    }
 #endif
     // Record types of read tags.
     std::vector<int> techList = nciTagProxyPtr->GetTechList(tagDiscId);
     ExternalDepsProxy::GetInstance().WriteTagFoundHiSysEvent(techList);
+}
+
+bool TagDispatcher::IsAllowedVibrator(uint16_t dispatchResult)
+{
+    if (dispatchResult == DISPATCH_UNKNOWN) {
+        bool isNfcNtfDisabled = NfcNotificationPublisher::GetInstance().IsNfcNtfDisabled();
+        if (isNfcNtfDisabled) {
+            return false;
+        }
+    }
+    return true;
 }
 
 uint16_t TagDispatcher::HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<KITS::NdefMessage> ndefMessage,
