@@ -47,6 +47,10 @@ config("nfc_config") {
     defines += [ "NFC_HANDLE_SCREEN_LOCK" ]
   }
 
+  if(nfc_notification_disabled) {
+    defines += [ "NFC_NOTIFICATION_DISABLED" ]
+  }
+
   if (is_asan || use_clang_coverage) {
     defines += [ "DTFUZZ_TEST" ]
   }
