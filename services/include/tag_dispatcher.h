@@ -49,6 +49,7 @@ private:
     KITS::TagInfoParcelable* GetTagInfoParcelableFromTag(uint32_t rfDiscId);
     uint16_t HandleTagDispatch(std::string &ndefMsg, std::shared_ptr<KITS::NdefMessage> ndefMessage,
         KITS::TagInfoParcelable* tagInfo, uint32_t tagDiscId, bool &isNtfPublished);
+    bool IsAllowedVibrator(uint16_t dispatchResult);
     int GetFieldOnCheckInterval();
     void DispatchTag(uint32_t rfDiscId);
     uint16_t HandleNdefDispatch(uint32_t tagDiscId, std::string &msg);

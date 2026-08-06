@@ -53,6 +53,7 @@ public:
     void PublishNfcNotification(int notificationId, const std::string &name, int balance);
     void RegNotificationCallback(std::weak_ptr<NfcService> nfcService);
     void OnNotificationButtonClicked(int notificationId);
+    bool IsNfcNtfDisabled();
 
 private:
     NfcNotificationPublisher();
@@ -63,7 +64,6 @@ private:
     void UnloadNfcNtfLib();
     void InitNfcNtfLib();
 
-    bool IsNfcNtfDisabled();
     void StartVibrate(bool isNfcNotDisturb, int notificationId);
 
     const static int NOTIFICATION_WAIT_TIME_US = 150 * 1000;
