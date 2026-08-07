@@ -80,6 +80,9 @@ bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)
         } else if ((NfcParamUtil::GetNfcParamStr(NFC_DEFAULT_ON_PARAM_NAME) == "true") &&
             (NfcParamUtil::GetNfcParamStr(IS_FIRST_TIME_ENABLE_PARAM_NAME) == "true")) {
             nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
+        } else if (nfcService_->eventHandler_ && !nfcService_->eventHandler_->IsScreenLocked()) {
+            InfoLog("NfcSaManager::enter BOOT_COMPLETED meets USER_UNLOCKED case");
+            nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
         }
         bool ret = Publish(nfcService_->nfcControllerImpl_);
         if (ret) {
