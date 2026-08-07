@@ -83,7 +83,7 @@ bool NfcSaManager::Init(const SystemAbilityOnDemandReason &startReason)
         } else if (nfcService_->eventHandler_ && !nfcService_->eventHandler_->IsScreenLocked()) {
             HILOG_COMM_INFO("NfcSaManager::enter BOOT_COMPLETED meets USER_UNLOCKED case");
             nfcService_->ExecuteTask(KITS::TASK_INITIALIZE);
-        } 
+        }
         bool ret = Publish(nfcService_->nfcControllerImpl_);
         if (ret) {
             InfoLog("NfcSaManager::Init Add System Ability SUCCESS!");
