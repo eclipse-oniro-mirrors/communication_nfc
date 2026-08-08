@@ -234,7 +234,7 @@ std::string NciTagImplDefault::GetVendorInfo(uint16_t type)
 }
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-bool NciTagImplDefault::IsVendorProcess()
+bool NciTagImplDefault::IsVendorProcess(const std::string &appBundleName)
 {
     return false;
 }

@@ -102,7 +102,8 @@ public:
     {
         std::shared_ptr<NFC::NfcService> service = std::make_shared<NFC::NfcService>();
         sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-        tagSession->IsVendorProcess();
+        std::string bundleName = std::string(reinterpret_cast<const char*>(data), size);
+        tagSession->IsVendorProcess(bundleName);
     }
 
     void FuzzIsForegroundApp(const uint8_t* data, size_t size)

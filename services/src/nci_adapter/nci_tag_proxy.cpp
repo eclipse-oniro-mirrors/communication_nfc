@@ -376,10 +376,10 @@ std::string NciTagProxy::GetVendorInfo(uint16_t type)
  * @brief Check current ipc thread come from vendor process or not.
  * @return Is Vendor Process.
  */
-bool NciTagProxy::IsVendorProcess()
+bool NciTagProxy::IsVendorProcess(const std::string &appBundleName)
 {
     if (nciTagInterface_) {
-        return nciTagInterface_->IsVendorProcess();
+        return nciTagInterface_->IsVendorProcess(appBundleName);
     }
     return false;
 }

@@ -696,11 +696,11 @@ bool TagSession::IsSameDiscoveryPara(const std::vector<uint32_t> &discoveryPara,
 }
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-bool TagSession::IsVendorProcess()
+bool TagSession::IsVendorProcess(const std::string &appBundleName)
 {
     auto tag = nciTagProxy_.lock();
     if (tag) {
-        return tag->IsVendorProcess();
+        return tag->IsVendorProcess(appBundleName);
     }
     ErrorLog("IsVendorProcess: tag proxy null");
     return false;
@@ -722,7 +722,7 @@ ErrCode TagSession::RegForegroundDispatch(
     std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!IsVendorProcess(element.GetBundleName())) {
             ErrorLog("caller bundle name mismatch");
             return KITS::ERR_NONE;
         }
@@ -737,7 +737,7 @@ ErrCode TagSession::RegForegroundDispatch(
     bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!IsVendorProcess(element.GetBundleName())) {
             ErrorLog("not foreground app.");
             return KITS::ERR_NONE;
         } else {
@@ -986,7 +986,7 @@ ErrCode TagSession::RegReaderMode(
     std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!element.GetBundleName())) {
             ErrorLog("caller bundle name mismatch");
             return KITS::ERR_NONE;
         }
@@ -1001,7 +1001,7 @@ ErrCode TagSession::RegReaderMode(
     bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!IsVendorProcess(element.GetBundleName())) {
             ErrorLog("not foreground app.");
             return KITS::ERR_TAG_APP_NOT_FOREGROUND;
         } else {
@@ -1060,7 +1060,7 @@ ErrCode TagSession::RegReaderModeWithIntvl(const ElementName& element, const std
     std::string callerBundleName = ExternalDepsProxy::GetInstance().GetBundleNameByUid(IPCSkeleton::GetCallingUid());
     if (callerBundleName.empty() || callerBundleName != element.GetBundleName()) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!IsVendorProcess(element.GetBundleName())) {
             ErrorLog("caller bundle name mismatch");
             return KITS::ERR_NONE;
         }
@@ -1075,7 +1075,7 @@ ErrCode TagSession::RegReaderModeWithIntvl(const ElementName& element, const std
     bool isVendorApp = false;
     if (!g_appStateObserver->IsForegroundApp(element.GetBundleName())) {
 #ifdef VENDOR_APPLICATIONS_ENABLED
-        if (!IsVendorProcess()) {
+        if (!IsVendorProcess(element.GetBundleName())) {
             ErrorLog("not foreground app.");
             return KITS::ERR_TAG_APP_NOT_FOREGROUND;
         } else {

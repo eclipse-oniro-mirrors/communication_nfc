@@ -227,7 +227,7 @@ public:
      * @brief Check current ipc thread come from vendor process or not.
      * @return Is Vendor Process.
      */
-    virtual bool IsVendorProcess() = 0;
+    virtual bool IsVendorProcess(const std::string &appBundleName) = 0;
 #endif
 };
 }  // namespace NCI

@@ -218,7 +218,7 @@ public:
      * @brief Check current ipc thread come from vendor process or not.
      * @return Is Vendor Process.
      */
-    bool IsVendorProcess() override;
+    bool IsVendorProcess(const std::string &appBundleName) override;
 #endif
 private:
     std::shared_ptr<INciTagInterface> nciTagInterface_;
