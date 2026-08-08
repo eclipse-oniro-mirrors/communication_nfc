@@ -1264,7 +1264,7 @@ HWTEST_F(NciTagProxyTest, GetVendorInfo003, TestSize.Level1)
 HWTEST_F(NciTagProxyTest, IsVendorProcess001, TestSize.Level1)
 {
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
-    bool result = nciTagProxy->IsVendorProcess();
+    bool result = nciTagProxy->IsVendorProcess("");
     ASSERT_TRUE(!result);
 }
 
@@ -1277,7 +1277,8 @@ HWTEST_F(NciTagProxyTest, IsVendorProcess002, TestSize.Level1)
 {
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     nciTagProxy->nciTagInterface_ = nullptr;
-    bool result = nciTagProxy->IsVendorProcess();
+    std::string testBundleName = "com.hmos.test";
+    bool result = nciTagProxy->IsVendorProcess(testBundleName);
     ASSERT_TRUE(!result);
 }
 #endif

@@ -263,7 +263,7 @@ private:
     void SetFieldCheckInterval(int interval);
 
 #ifdef VENDOR_APPLICATIONS_ENABLED
-    bool IsVendorProcess();
+    bool IsVendorProcess(const std::string &appBundleName);
 #endif
 
     std::weak_ptr<NFC::NfcService> nfcService_ {};
