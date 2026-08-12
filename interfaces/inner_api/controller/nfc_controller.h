@@ -88,7 +88,10 @@ public:
      * @return The status code for unregister operation.
      */
     ErrorCode UnregListener(const std::string& type);
-
+    /**
+    * @brief Clean up death recipient
+    */
+    void CleanUpDeathRecipient();
     /**
      * @brief Get the Tag Service Iface object
      *
