@@ -919,7 +919,7 @@ HWTEST_F(TagSessionTest, IsVendorProcess001, TestSize.Level1)
 {
     std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
     sptr<NFC::TAG::TagSession> tagSession = new NFC::TAG::TagSession(service);
-    bool ret = tagSession->""IsVendorProcess("test");
+    bool ret = tagSession->IsVendorProcess("test");
     ASSERT_TRUE(!ret);
 }
 

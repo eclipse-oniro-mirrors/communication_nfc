@@ -41,7 +41,7 @@ ohos_shared_library("nfc_notification") {
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:wantagent_innerkits",
-    "cJSON:cjson_static",
+    "cJSON:cjson",
     "c_utils:utils",
     "distributed_notification_service:ans_innerkits",
     "hilog:libhilog",
