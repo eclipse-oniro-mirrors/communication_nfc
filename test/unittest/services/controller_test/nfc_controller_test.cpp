@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define private public
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -316,6 +317,27 @@ HWTEST_F(NfcControllerTest, VendorRefreshRoutes001, TestSize.Level1)
     NfcController ctrl = NfcController::GetInstance();
     ErrorCode errorCode = ctrl.VendorRefreshRoutes();
     ASSERT_TRUE(errorCode == ERR_NONE);
+}
+
+/**
+* @tc.name: CleanUpDeathRecipient001
+* @tc.desc: Test NfcController CleanUpDeathRecipient.
+* @tc.type: FUNC
+*/
+HWTEST_F(NfcControllerTest, CleanUpDeathRecipient001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    ctrl.remote_ = nullptr;
+    ctrl.CleanUpDeathRecipient();
+
+    ctrl.InitNfcRemoteSA();
+    ctrl.CleanUpDeathRecipient();
+
+    ctrl.InitNfcRemoteSA();
+    ctrl.deathRecipient_ = nullptr;
+    ctrl.CleanUpDeathRecipient();
+    ASSERT_TRUE(ctrl.deathRecipient_ == nullptr);
+}
 }
 }
 }

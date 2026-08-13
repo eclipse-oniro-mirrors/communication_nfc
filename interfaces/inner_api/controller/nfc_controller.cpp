@@ -348,6 +348,24 @@ OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
     controllerProxy->GetHceServiceIface(remoteObj);
     return remoteObj;
 }
+
+__attribute__ ((destructor)) void NfcController::CleanUpDeathRecipient()
+{
+    InfoLog("cleaning up");
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (remote_ == nullptr) {
+        InfoLog("remote nullptr");
+        return;
+    }
+    if (deathRecipient_ == nullptr) {
+        InfoLog("deathRecipient nullptr");
+        return;
+    }
+    remote_->RemoveDeathRecipient(deathRecipient_);
+    deathRecipient_ = nullptr;
+    remote_ = nullptr;
+    initialized_ = false;
+}
 }  // namespace KITS
 }  // namespace NFC
 }  // namespace OHOS
