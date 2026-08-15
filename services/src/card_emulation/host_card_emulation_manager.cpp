@@ -819,11 +819,12 @@ bool HostCardEmulationManager::DispatchAbilitySingleApp(ElementName& element)
     AAFwk::Want want;
     want.SetElement(element);
 
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
         ErrorLog("DispatchAbilitySingleApp AbilityManagerClient is null");
         return false;
     }
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, abilityConnection_);
+    ErrCode err = abilityManagerClient->StartAbilityByCall(want, abilityConnection_);
     InfoLog("DispatchAbilitySingleApp call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
         hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;
@@ -858,11 +859,12 @@ bool HostCardEmulationManager::DispatchAbilitySingleAppForFaModel(ElementName& e
     AAFwk::Want want;
     want.SetElement(element);
 
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
         ErrorLog("DispatchAbilitySingleAppForFaModel AbilityManagerClient is null");
         return false;
     }
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    ErrCode err = abilityManagerClient->StartAbility(want);
     InfoLog("DispatchAbilitySingleAppForFaModel call StartAbility end. ret = %{public}d", err);
     if (err == ERR_NONE) {
         hceState_ = HostCardEmulationManager::WAIT_FOR_SERVICE;

@@ -160,12 +160,13 @@ void TagAbilityDispatcher::DispatchAbilityMultiApp(const std::shared_ptr<KITS::T
     }
     want.SetParam(AAFwk::Want::PARAM_ABILITY_URITYPES, techArray);
 
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
         ErrorLog("DispatchAbilityMultiApp AbilityManagerClient is null");
         return;
     }
 
-    AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    abilityManagerClient->StartAbility(want);
     InfoLog("DispatchAbilityMultiApp call StartAbility end.");
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::UNKNOWN_TAG_DISPATCH);
@@ -184,11 +185,12 @@ void TagAbilityDispatcher::DispatchAppGallery(OHOS::sptr<IRemoteObject> tagServi
 
 void TagAbilityDispatcher::DispatchAbilitySingleApp(AAFwk::Want& want)
 {
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
         ErrorLog("DispatchAbilitySingleApp AbilityManagerClient is null");
         return;
     }
-    AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    abilityManagerClient->StartAbility(want);
     InfoLog("DispatchAbilitySingleApp call StartAbility end.");
     ExternalDepsProxy::GetInstance().WriteDispatchToAppHiSysEvent(want.GetElement().GetBundleName(),
         SubErrorCode::UNKNOWN_TAG_DISPATCH);
@@ -219,11 +221,12 @@ bool TagAbilityDispatcher::StartNotepadAbility(const std::string &notepadBundleN
         InfoLog("GetLaunchWantForBundle fail. ret = %{public}d", errCode);
         return false;
     }
-    if (AAFwk::AbilityManagerClient::GetInstance() == nullptr) {
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
         ErrorLog("AbilityManagerClient is null");
         return false;
     }
-    errCode = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    errCode = abilityManagerClient->StartAbility(want);
     if (errCode) {
         ErrorLog("StartAbility fail. ret = %{public}d", errCode);
         return false;
