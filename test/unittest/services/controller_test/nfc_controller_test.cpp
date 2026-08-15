@@ -341,4 +341,3 @@ HWTEST_F(NfcControllerTest, CleanUpDeathRecipient001, TestSize.Level1)
 }
 }
 }
-}
