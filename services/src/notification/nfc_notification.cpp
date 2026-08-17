@@ -553,7 +553,7 @@ NfcNotification::NfcNotification()
     InfoLog("NfcNotification constructor enter.");
     std::lock_guard<std::mutex> lock(mutex_);
     // only need to subscribe notification once
-    int result = Notification::NotificationHelper::SubscribeNotification(*g_notificationSubscriber);
+    int result = Notification::NotificationHelper::SubscribeNotificationSelf(*g_notificationSubscriber);
     if (result != ERR_OK) {
         ErrorLog("fail to subscribe notification");
     }
