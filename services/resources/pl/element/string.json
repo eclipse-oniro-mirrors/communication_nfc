@@ -37,7 +37,7 @@
         },
         {
             "name":"ShenZhenTong",
-            "value":"kartę miejską Shenzhen Transportation",
+            "value":"karta transportowa Shenzhen Transportation",
             "attr":{
                 "priority":"LT"
             }
@@ -107,7 +107,7 @@
         },
         {
             "name":"ShangHaiJiaoTongKa",
-            "value":"kartę miejską Shanghai Transportation",
+            "value":"karta transportowa Shanghai Transportation",
             "attr":{
                 "priority":"LT"
             }
@@ -142,7 +142,7 @@
         },
         {
             "name":"BeiJingYiKaTong",
-            "value":"Karta miejska Beijing Transportation",
+            "value":"Pekińską kartę transportową",
             "attr":{
                 "priority":"LT"
             }
