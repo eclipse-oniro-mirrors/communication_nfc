@@ -50,6 +50,8 @@ ohos_shared_library("cj_nfc_cardemulation_ffi") {
     "nfc_cardEmulation_ffi.cpp",
   ]
 
+  version_script = "libcj_nfc_cardemulation_ffi.map"
+
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "communication"
   part_name = "nfc"
