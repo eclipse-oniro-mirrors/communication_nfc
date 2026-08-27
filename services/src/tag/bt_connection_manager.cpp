@@ -770,6 +770,7 @@ void BtConnectionManager::OnBtNtfClicked()
 void BtConnectionManager::OnBtEnabled()
 {
     DebugLog("OnBtEnabled");
+    std::unique_lock<std::shared_mutex> guard(mutex_);
     RemoveMsgFromEvtHandler(NfcCommonEvent::MSG_BT_ENABLE_TIMEOUT);
     if (g_state == STATE_WAITING_FOR_BT_ENABLE) {
         g_state = STATE_INIT;
