@@ -180,21 +180,16 @@ napi_value NfcNapiHceAdapter::OffHceCmd(napi_env env, napi_callback_info info)
     napi_value argv[ARGV_NUM_2] = {0};
     napi_value thisVar = 0;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
-    NAPI_ASSERT(env, argc >= requireArgc, "requires at least 1 parameter");
+    NAPI_ASSERT(env, argc == requireArgc || argc == requireArgcWithCb, "requires 1 or 2 parameters");
 
     napi_valuetype eventName = napi_undefined;
     napi_typeof(env, argv[ARGV_NUM_0], &eventName);
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
 
-    if (argc >= requireArgcWithCb) {
+    if (argc == requireArgcWithCb) {
         napi_valuetype handler = napi_undefined;
         napi_typeof(env, argv[ARGV_NUM_1], &handler);
-        if (handler == napi_null || handler == napi_undefined) {
-            argc -= 1;
-            DebugLog("argv[1] is null or undefined, handle as no argv[1] input");
-        } else {
-            NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
-        }
+        NAPI_ASSERT(env, handler == napi_function, "type mismatch for parameter 2");
     }
 
     char type[TYPE_MAX_LEN] = {0};
