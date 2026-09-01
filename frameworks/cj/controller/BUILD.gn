@@ -54,6 +54,8 @@ ohos_shared_library("cj_nfc_controller_ffi") {
     "cj_nfc_controller_event.cpp"
   ]
 
+  version_script = "libcj_nfc_controller_ffi.map"
+
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "communication"
   part_name = "nfc"
