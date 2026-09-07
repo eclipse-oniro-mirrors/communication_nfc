@@ -174,7 +174,7 @@ napi_value NfcNapiHceAdapter::OffHceCmd(napi_env env, napi_callback_info info)
     if (!NfcController::GetInstance().IsNfcAvailable()) {
         return CreateUndefined(env);
     }
-    size_t requireArgc = ARGV_NUM_1;
+    size_t requireArgc = ARGV_NUM_2;
     size_t argc = ARGV_NUM_2;
     napi_value argv[ARGV_NUM_2] = {0};
     napi_value thisVar = 0;
