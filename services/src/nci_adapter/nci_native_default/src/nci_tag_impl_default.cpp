@@ -223,7 +223,8 @@ uint16_t NciTagImplDefault::GetTechMaskFromTechList(const std::vector<uint32_t> 
     return TagNativeImpl::GetInstance().GetTechMaskFromTechList(discTech);
 }
 
-bool NciTagImplDefault::VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri)
+bool NciTagImplDefault::VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri,
+    std::string &vendorPackage)
 {
     return false;
 }

@@ -21,6 +21,7 @@
 #include "loghelper.h"
 #include "nfc_hisysevent.h"
 #include "external_deps_proxy.h"
+#include "ability_manager_client.h"
 
 namespace OHOS {
 namespace NFC {
@@ -181,20 +182,83 @@ uint16_t NdefHarDataParser::DispatchByHarBundleName(
             ErrorLog("uri too long");
             uri = "";
         }
-        if (ParseHarPackage(harPackages, tagInfo, mimeTypeStr, uri)) {
+        std::string vendorPackage = "";
+        if (ParseHarPackage(harPackages, tagInfo, mimeTypeStr, uri, vendorPackage)) {
             InfoLog("matched ndef OpenHarmony bundle name");
             recordUriInfo_ = uri;
             return DISPATCH_BUNDLENAME;
         }
         /* Handle uninstalled applications */
         WriteNfcFailedHiSysEvent(MainErrorCode::NDEF_APP_NOT_INSTALL);
+        if (StartMarketByBundlename(records, vendorPackage)) {
+            InfoLog("dispatch by market");
+            return DISPATCH_MARKET;
+        }
         harPackages.clear();
     }
     return DISPATCH_UNKNOWN;
 }
 
+std::string NdefHarDataParser::FindFirstOhosBundleName(const std::vector<std::shared_ptr<NdefRecord>> &records)
+{
+    std::string bundleName = "";
+    if (records.empty()) {
+        return bundleName;
+    }
+    std::string ohosAppType = NfcSdkCommon::StringToHexString(NdefMessage::GetTagRtdType(NdefMessage::RTD_OHOS_APP));
+    for (const auto &record : records) {
+        if (record == nullptr || record->tagRtdType_.empty()) {
+            continue;
+        }
+        if (record->tagRtdType_.compare(ohosAppType) == 0) {
+            bundleName = record->payload_;
+            if (!bundleName.empty()) {
+                break;
+            }
+        }
+    }
+    return bundleName;
+}
+
+bool NdefHarDataParser::StartMarketByBundlename(const std::vector<std::shared_ptr<NdefRecord>> &records,
+    const std::string &vendorPackage)
+{
+    std::string bundleName = vendorPackage;
+    if (bundleName.empty()) {
+        bundleName = NfcSdkCommon::HexStringToAsciiString(FindFirstOhosBundleName(records));
+    }
+    if (bundleName.empty()) {
+        WarnLog("bundleName is empty");
+        return false;
+    }
+    InfoLog("bundleName = %{public}s, vendorPackage = %{public}s", bundleName.c_str(), vendorPackage.c_str());
+    auto tagProxy = nciTagProxy_.lock();
+    if (!tagProxy) {
+        ErrorLog("tagProxy is empty");
+        return false;
+    }
+    std::string galleryLink = tagProxy->GetVendorInfo(VendorInfoType::APP_GALLERY_LINK);
+    std::string link = galleryLink + bundleName;
+    AAFwk::Want want;
+    want.SetUri(link);
+    want.SetAction("ohos.want.action.appdetail");
+    auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManagerClient == nullptr) {
+        ErrorLog("AbilityManagerClient is null");
+        return false;
+    }
+    int32_t resultCode = abilityManagerClient->StartAbility(want);
+    if (resultCode) {
+        ErrorLog("failed, resultCode = %{public}d", resultCode);
+        return false;
+    }
+    InfoLog("startMarketBy %{public}s succ", bundleName.c_str());
+    return true;
+}
+
 bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
-    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri)
+    const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri,
+    std::string &vendorPackage)
 {
     if (DispatchAllHarPackage(harPackages, tagInfo, mimeType, uri)) {
         return true;
@@ -203,7 +267,7 @@ bool NdefHarDataParser::ParseHarPackage(std::vector<std::string> harPackages,
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr == nullptr) {
         ErrorLog("nciTagProxy_ is nullptr");
-    } else if (!nciTagProxyPtr->VendorParseHarPackage(harPackages, uri)) {
+    } else if (!nciTagProxyPtr->VendorParseHarPackage(harPackages, uri, vendorPackage)) {
         return false;
     }
     /* Pull up vendor parsed harPackage */
