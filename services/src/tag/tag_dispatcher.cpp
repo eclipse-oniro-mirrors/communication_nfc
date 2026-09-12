@@ -24,6 +24,7 @@
 #include "ndef_message.h"
 #include "nfc_hisysevent.h"
 #include "nfc_sdk_common.h"
+#include "res_sched_client.h"
 #include "tag_ability_dispatcher.h"
 
 #ifdef NDEF_WIFI_ENABLED
@@ -161,6 +162,10 @@ void TagDispatcher::HandleOnNdefMsgDiscovered(const std::string &tagUid, const s
 
 void TagDispatcher::HandleTagFound(uint32_t tagDiscId)
 {
+    std::unordered_map<std::string, std::string> mapPayload;
+    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+        ResourceSchedule::ResType::RES_TYPE_REPORT_NFC_SIGNAL, 0, mapPayload);
+
     auto nciTagProxyPtr = nciTagProxy_.lock();
     if (nciTagProxyPtr == nullptr) {
         ErrorLog("nciTagProxy_ is nullptr");
@@ -311,6 +316,10 @@ void TagDispatcher::SendTagInfoToVendor(long tagFoundStartTime, long readFinishT
     std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult)
 {
     std::string ndefInfo = ParseNdefInfo(ndefMessage);
+    std::unordered_map<std::string, std::string> mapload;
+    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+        ResourceSchedule::ResType::RES_TYPE_REPORT_NFC_SIGNAL, 1, mapPayload);
+
     if (nfcService_ == nullptr) {
         ErrorLog("nfcService is nullptr");
         return;

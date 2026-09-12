@@ -29,7 +29,8 @@ config("nfc_config") {
 
   if (nfc_sim_feature) {
     defines += [ "NFC_SIM_FEATURE" ]
-  }
+  }dor_applications_enabled) {
+  nfc_service_source += [
 
   if (nfc_service_feature_ndef_wifi_enabled) {
     defines += [ "NDEF_WIFI_ENABLED" ]
@@ -96,7 +97,8 @@ nfc_service_source = [
   "src/ipc/controller/nfc_controller_death_recipient.cpp",
   "src/ipc/controller/nfc_controller_impl.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
-  "src/ipc/tags/reader_mode_callback_proxy.cpp",
+  "src/ipc/tags/reader_moddor_applications_enabled) {
+  nfc_service_source += [e_callback_proxy.cpp",
   "src/ipc/tags/tag_session.cpp",
   "src/nci_adapter/nci_ce_proxy.cpp",
   "src/nci_adapter/nci_native_selector.cpp",
@@ -154,6 +156,7 @@ nfc_service_external_deps = [
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
   "screenlock_mgr:screenlock_client",
+  "resource_schedule_service:ressched_client"
 ]
 
 if (nfc_service_feature_ndef_wifi_enabled) {
