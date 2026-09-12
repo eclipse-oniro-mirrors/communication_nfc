@@ -96,8 +96,7 @@ nfc_service_source = [
   "src/ipc/controller/nfc_controller_death_recipient.cpp",
   "src/ipc/controller/nfc_controller_impl.cpp",
   "src/ipc/tags/foreground_callback_proxy.cpp",
-  "src/ipc/tags/reader_moddor_applications_enabled) {
-  nfc_service_source += [e_callback_proxy.cpp",
+  "src/ipc/tags/reader_mode_callback_proxy.cpp",
   "src/ipc/tags/tag_session.cpp",
   "src/nci_adapter/nci_ce_proxy.cpp",
   "src/nci_adapter/nci_native_selector.cpp",
