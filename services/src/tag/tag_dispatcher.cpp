@@ -316,7 +316,7 @@ void TagDispatcher::SendTagInfoToVendor(long tagFoundStartTime, long readFinishT
     std::shared_ptr<KITS::NdefMessage> ndefMessage, uint16_t dispatchResult)
 {
     std::string ndefInfo = ParseNdefInfo(ndefMessage);
-    std::unordered_map<std::string, std::string> mapload;
+    std::unordered_map<std::string, std::string> mapPayload;
     mapPayload["ndefInfo"] = ndefInfo;
     OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(
         ResourceSchedule::ResType::RES_TYPE_REPORT_NFC_SIGNAL, 1, mapPayload);
