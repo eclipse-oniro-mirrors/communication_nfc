@@ -1181,7 +1181,8 @@ HWTEST_F(NciTagProxyTest, VendorParseHarPackage001, TestSize.Level1)
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     std::vector<std::string> harPackages;
     std::string uri = "test_uri";
-    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri);
+    std::string vendorPackage;
+    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri, vendorPackage);
     ASSERT_FALSE(result);
 }
 
@@ -1196,7 +1197,8 @@ HWTEST_F(NciTagProxyTest, VendorParseHarPackage002, TestSize.Level1)
     nciTagProxy->nciTagInterface_ = nullptr;
     std::vector<std::string> harPackages;
     std::string uri = "test_uri";
-    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri);
+    std::string vendorPackage;
+    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri, vendorPackage);
     ASSERT_FALSE(result);
 }
 
@@ -1210,7 +1212,8 @@ HWTEST_F(NciTagProxyTest, VendorParseHarPackage003, TestSize.Level1)
     std::shared_ptr<NciTagProxy> nciTagProxy = std::make_shared<NciTagProxy>();
     std::vector<std::string> harPackages;
     std::string uri = "";
-    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri);
+    std::string vendorPackage;
+    bool result = nciTagProxy->VendorParseHarPackage(harPackages, uri, vendorPackage);
     ASSERT_FALSE(result);
 }
 

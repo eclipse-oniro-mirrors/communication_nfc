@@ -53,6 +53,7 @@ enum DispatchResult : const uint16_t {
     DISPATCH_UNKNOWN_TAG = 9,
     DISPATCH_BUNDLENAME  = 10,
     DISPATCH_APP_LINK    = 11,
+    DISPATCH_MARKET      = 12,
     NDEF_TEL_EVENT       = 301, // copy g_unsupportTypeAndSysEvent MainErrorCode
     NDEF_SMS_EVENT       = 302,
     NDEF_MAIL_EVENT      = 303,
@@ -78,8 +79,11 @@ private:
     ~NdefHarDataParser() {}
     uint16_t DispatchByHarBundleName(
         const std::vector<std::shared_ptr<NdefRecord>> &records, const std::shared_ptr<KITS::TagInfo> &tagInfo);
+    bool StartMarketByBundlename(const std::vector<std::shared_ptr<NdefRecord>> &records,
+        const std::string &vendorPackage);
+    std::string FindFirstOhosBundleName(const std::vector<std::shared_ptr<NdefRecord>> &records);
     bool ParseHarPackage(std::vector<std::string> harPackages, const std::shared_ptr<KITS::TagInfo> &tagInfo,
-        const std::string &mimeType, const std::string &uri);
+        const std::string &mimeType, const std::string &uri, std::string &vendorPackage);
     bool DispatchAllHarPackage(const std::vector<std::string> &harPackages,
         const std::shared_ptr<KITS::TagInfo> &tagInfo, const std::string &mimeType, const std::string &uri);
     void ParseMimeTypeAndStr(const std::vector<std::shared_ptr<NdefRecord>> &records);

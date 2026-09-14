@@ -350,10 +350,11 @@ uint16_t NciTagProxy::GetTechMaskFromTechList(const std::vector<uint32_t> &discT
  * @brief Try parse harPackage in vendor.
  * @return True if vendor parsed harPackage, otherwise false.
  */
-bool NciTagProxy::VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri)
+bool NciTagProxy::VendorParseHarPackage(std::vector<std::string> &harPackages, const std::string &uri,
+    std::string &vendorPackage)
 {
     if (nciTagInterface_) {
-        return nciTagInterface_->VendorParseHarPackage(harPackages, uri);
+        return nciTagInterface_->VendorParseHarPackage(harPackages, uri, vendorPackage);
     }
     return false;
 }

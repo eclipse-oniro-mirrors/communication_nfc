@@ -207,6 +207,7 @@ enum VendorInfoType : uint16_t {
     HAP_NAME_GALLERY = 1,
     HAP_NAME_BROWSER = 2,
     HAP_NAME_VENDOR = 3,
+    APP_GALLERY_LINK = 4,
 };
 
 class NfcSdkCommon final {
