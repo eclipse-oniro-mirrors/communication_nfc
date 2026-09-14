@@ -88,7 +88,8 @@
                 "runtime_core",
                 "taihe_ffi_gen",
                 "node",
-                "libuv"
+                "libuv",
+                "resource_schedule_service"
             ]
         },
         "build": {
