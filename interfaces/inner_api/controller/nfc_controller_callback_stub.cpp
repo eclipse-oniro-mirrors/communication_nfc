@@ -74,6 +74,7 @@ int NfcControllerCallBackStub::OnRemoteRequest(
 KITS::ErrorCode NfcControllerCallBackStub::RegisterCallBack(const sptr<INfcControllerCallback> &callBack)
 {
     DebugLog("NfcControllerCallBackStub RegisterCallBack");
+    std::unique_lock<std::shared_mutex> guard(callbackMutex);
     if (callback_ != nullptr) {
         ErrorLog("NfcControllerCallBackStub:Callback_ has registered!");
         return KITS::ERR_NFC_PARAMETERS;

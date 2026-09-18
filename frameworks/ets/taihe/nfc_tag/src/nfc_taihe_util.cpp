@@ -40,6 +40,10 @@ std::string NfcTaiheUtil::TaiheArrayToHexString(const array_view<int32_t> &data)
         }
         dataBytes.push_back(static_cast<uint8_t>(data[i]));
     }
+    if (dataBytes.empty()) {
+        ErrorLog("dataBytes is empty");
+        return "";
+    }
     return NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
 }
 
