@@ -332,6 +332,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
             bool isEqual = false;
             if (napi_strict_equals(miter.m_regEnv, handlerTemp, handler, &isEqual) != napi_ok) {
                 ErrorLog("napi_strict_equals failed");
+                return;
             }
             if (isEqual) {
                 WarnLog("handler function is same");
