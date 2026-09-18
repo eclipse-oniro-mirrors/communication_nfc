@@ -368,6 +368,7 @@ void EventRegister::DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& 
             }
             if (napi_strict_equals(iter->m_regEnv, handlerTemp, handler, &isEqual) != napi_ok) {
                 ErrorLog("napi_strict_equals failed");
+                return;
             }
             DebugLog("Delete register isEqual = %{public}d", isEqual);
             if (isEqual) {
