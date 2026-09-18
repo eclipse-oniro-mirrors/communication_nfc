@@ -310,7 +310,7 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     RegisterNfcStateChangedEvents(type);
     napi_ref handlerRef = nullptr;
     if (napi_create_reference(env, handler, 1, &handlerRef) != napi_ok) {
-        Errorlog("napi_create_reference failed");
+        ErrorLog("napi_create_reference failed");
         return;
     }
     RegObj regObj(env, handlerRef);
