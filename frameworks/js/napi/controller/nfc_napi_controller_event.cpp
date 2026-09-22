@@ -309,7 +309,10 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
     std::unique_lock<std::shared_mutex> guard(g_regInfoMutex);
     RegisterNfcStateChangedEvents(type);
     napi_ref handlerRef = nullptr;
-    napi_create_reference(env, handler, 1, &handlerRef);
+    if (napi_create_reference(env, handler, 1, &handlerRef) != napi_ok) {
+        ErrorLog("napi_create_reference failed");
+        return;
+    }
     RegObj regObj(env, handlerRef);
     auto iter = g_eventRegisterInfo.find(type);
     if (iter == g_eventRegisterInfo.end() || g_eventRegisterInfo[type].size() == 0) {
@@ -327,7 +330,10 @@ void EventRegister::Register(const napi_env& env, const std::string& type, napi_
                 return;
             }
             bool isEqual = false;
-            napi_strict_equals(miter.m_regEnv, handlerTemp, handler, &isEqual);
+            if (napi_strict_equals(miter.m_regEnv, handlerTemp, handler, &isEqual) != napi_ok) {
+                ErrorLog("napi_strict_equals failed");
+                return;
+            }
             if (isEqual) {
                 WarnLog("handler function is same");
                 hasSameObj = true;
@@ -360,7 +366,10 @@ void EventRegister::DeleteRegisterObj(const napi_env& env, std::vector<RegObj>& 
             if (handler == nullptr) {
                 DebugLog("handler is null");
             }
-            napi_strict_equals(iter->m_regEnv, handlerTemp, handler, &isEqual);
+            if (napi_strict_equals(iter->m_regEnv, handlerTemp, handler, &isEqual) != napi_ok) {
+                ErrorLog("napi_strict_equals failed");
+                return;
+            }
             DebugLog("Delete register isEqual = %{public}d", isEqual);
             if (isEqual) {
                 uint32_t refCount = INVALID_REF_COUNT;
@@ -424,7 +433,7 @@ void EventRegister::Unregister(const napi_env& env, const std::string& type, nap
         InfoLog("All callback is unsubscribe for event: %{public}s", type.c_str());
         DeleteAllRegisterObj(env, iter->second);
     }
-    napi_remove_env_cleanup_hook(env, CleanUp, static_cast<void*>(&iter));
+    napi_remove_env_cleanup_hook(env, CleanUp, static_cast<void*>(&iter->second));
     if (iter->second.empty()) {
         g_eventRegisterInfo.erase(iter);
         if (UnRegisterNfcEvents(type) != KITS::ERR_NONE) {

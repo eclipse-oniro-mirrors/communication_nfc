@@ -721,7 +721,9 @@ napi_value GetSpecificTagObj(napi_env env, napi_callback_info info, napi_ref ref
         ErrorLog("napi_get_reference_value ret %{public}d", status);
         return result;
     }
-    napi_new_instance(env, constructor, argc, argv, &result);
+    if (napi_new_instance(env, constructor, argc, argv, &result) != napi_ok) {
+        ErrorLog("napi_new_instance failed");
+    }
     return result;
 }
 

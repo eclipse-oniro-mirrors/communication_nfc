@@ -470,6 +470,7 @@ void NapiEvent::EventNotify(AsyncEventData* asyncEvent, const std::string& type)
     int ret = uv_queue_work_internal(loop, work, [](uv_work_t* work) {}, tmp_after_work_cb, type.c_str());
     if (ret != 0) {
         ErrorLog("uv_queue_work failed!");
+        napi_reference_unref(asyncEvent->env, asyncEvent->callbackRef, &refCount);
         delete asyncEvent;
         delete work;
     }
