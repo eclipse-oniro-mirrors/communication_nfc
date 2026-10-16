@@ -113,7 +113,7 @@ public:
     ErrorCode NotifyEventStatus(int eventType, int arg1 = 0, std::string arg2 = "");
     ErrorCode VendorRefreshRoutes();
 #endif
-    ErrCode GetHceOtherAid(std::string &otherAid);
+    ErrorCode GetHceOtherAid(std::string &otherAid);
 
 private:
     class NfcServiceDeathRecipient : public IRemoteObject::DeathRecipient {

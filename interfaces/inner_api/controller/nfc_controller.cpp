@@ -335,7 +335,7 @@ ErrorCode NfcController::VendorRefreshRoutes()
 }
 #endif // VENDOR_APPLICATIONS_ENABLED
 
-ErrCode NfcController::GetHceOtherAid(std::string &otherAid)
+ErrorCode NfcController::GetHceOtherAid(std::string &otherAid)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     InitNfcRemoteSA();

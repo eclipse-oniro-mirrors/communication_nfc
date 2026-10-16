@@ -446,7 +446,7 @@ HWTEST_F(NfcControllerImplTest, VendorRefreshRoutes, TestSize.Level1)
 
 /**
  * @tc.name: GetHceOtherAid001
- * @tc.desc: Test VendorRefreshRoutes.
+ * @tc.desc: Test NfcControllerImplTest GetHceOtherAid.
  * @tc.type: FUNC
  */
 HWTEST_F(NfcControllerImplTest, GetHceOtherAid001, TestSize.Level1)

@@ -320,7 +320,7 @@ ErrCode NfcControllerImpl::VendorRefreshRoutes()
     return KITS::ERR_NONE;
 }
 
-ErrCode NfcControllerImpl::GetHceOtherAid(std::string& otherAid)
+ErrCode NfcControllerImpl::GetHceOtherAid(std::string &otherAid)
 {
     if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
         ErrorLog("GetHceOtherAid no permission");

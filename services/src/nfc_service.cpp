@@ -218,18 +218,18 @@ int NfcService::GetHceOtherAid(std::string &otherAid)
     std::vector<AppDataParser::HceAppAidInfo> hceApps;
     ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
     bool isExceedMaxLen = false;
-    for (const AppDataParser::HceAppAidInfo &appAidInfo hceApps) {
+    for (const AppDataParser::HceAppAidInfo &appAidInfo : hceApps) {
         std::set<std::string> deduplicatedAid;
         std::string bundleName = appAidInfo.element.GetBundleName();
-        for (const AppDataParser::AidInfo &aidinfo : appAidInfo.customDataAid) {
-            if ((aidInfo.name == KITS::KIT_OTHER_AID) && !aidInfo.value.empty() &&
+        for (const AppDataParser::AidInfo &aidInfo : appAidInfo.customDataAid) {
+            if ((aidInfo.name == KITS::KEY_OTHER_AID) && !aidInfo.value.empty() &&
                 deduplicatedAid.insert(aidInfo.value).second) {
-                    otherAid.append(aidInfo.value);
-                    otherAid.append("|");
-                    otherAid.append(bundleName);
-                    otherAid.append(";");
-                    matchedAidCount++;
-                    isExceedMaxLen = (otherAid.size() >= maxOtherAidLen);
+                otherAid.append(aidInfo.value);
+                otherAid.append("|");
+                otherAid.append(bundleName);
+                otherAid.append(";");
+                matchedAidCount++;
+                isExceedMaxLen = (otherAid.size() >= maxOtherAidLen);
             }
             if (isExceedMaxLen) {
                 InfoLog("Other aid size exceed max len");
