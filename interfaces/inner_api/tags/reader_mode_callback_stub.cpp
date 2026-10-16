@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-ReaderModeCallbackStub *g_readerModeCallbackStub = nullptr;
+static sptr<ReaderModeCallbackStub> g_readerModeCallbackStub = nullptr;
 
 ReaderModeCallbackStub::ReaderModeCallbackStub() : callback_(nullptr), mRemoteDied(false)
 {
@@ -31,14 +31,10 @@ ReaderModeCallbackStub::ReaderModeCallbackStub() : callback_(nullptr), mRemoteDi
 
 ReaderModeCallbackStub::~ReaderModeCallbackStub()
 {
-    if (g_readerModeCallbackStub != nullptr) {
-        DebugLog("g_readerModeCallbackStub != nullptr");
-        g_readerModeCallbackStub = nullptr;
-    }
     InfoLog("~ReaderModeCallbackStub");
 }
 
-ReaderModeCallbackStub* ReaderModeCallbackStub::GetInstance()
+sptr<ReaderModeCallbackStub>& ReaderModeCallbackStub::GetInstance()
 {
     if (g_readerModeCallbackStub == nullptr) {
         DebugLog("new ReaderModeCallbackStub");

@@ -67,9 +67,10 @@ int TagForeground::RegForeground(AppExecFwk::ElementName &element,
         return ErrorCode::ERR_NO_PERMISSION;
     }
 
-    TAG::ForegroundCallbackStub::GetInstance()->RegForegroundDispatch(callback);
+    sptr<TAG::ForegroundCallbackStub>& foregroundCallbackStub = TAG::ForegroundCallbackStub::GetInstance();
+    foregroundCallbackStub->RegForegroundDispatch(callback);
     return static_cast<int>(
-        tagSession->RegForegroundDispatch(element, discTech, TAG::ForegroundCallbackStub::GetInstance()));
+        tagSession->RegForegroundDispatch(element, discTech, foregroundCallbackStub));
 }
 
 int TagForeground::UnregForeground(AppExecFwk::ElementName &element)
@@ -105,8 +106,9 @@ int TagForeground::RegReaderMode(AppExecFwk::ElementName &element,
         return ErrorCode::ERR_NO_PERMISSION;
     }
 
-    TAG::ReaderModeCallbackStub::GetInstance()->RegReaderMode(callback);
-    return static_cast<int>(tagSession->RegReaderMode(element, discTech, TAG::ReaderModeCallbackStub::GetInstance()));
+    sptr<TAG::ReaderModeCallbackStub>& readerModeCallbackStub = TAG::ReaderModeCallbackStub::GetInstance();
+    readerModeCallbackStub->RegReaderMode(callback);
+    return static_cast<int>(tagSession->RegReaderMode(element, discTech, readerModeCallbackStub));
 }
 
 int TagForeground::RegReaderModeWithIntvl(AppExecFwk::ElementName &element,
