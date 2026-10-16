@@ -441,6 +441,20 @@ HWTEST_F(NfcServiceTest, VendorRefreshRoutes001, TestSize.Level1)
     int ret = nfcService->VendorRefreshRoutes();
     ASSERT_TRUE(ret == ERR_NONE);
 }
+
+/**
+ * @tc.name: GetHceOtherAid001
+ * @tc.desc: Test NfcServiceTest GetHceOtherAid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetHceOtherAid001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->Initialize();
+    std::string otherAid;
+    int ret = nfcService->GetHceOtherAid(otherAid);
+    ASSERT_TRUE(ret == ERR_NONE);
+}
 }
 }
 }

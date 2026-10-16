@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "nfc_service.h"
+#include <set>
 #include <unistd.h>
 #include "app_data_parser.h"
 #include "infc_controller_callback.h"
@@ -208,6 +209,44 @@ int NfcService::VendorRefreshRoutes()
     return KITS::ERR_NONE;
 }
 #endif
+
+int NfcService::GetHceOtherAid(std::string &otherAid)
+{
+    otherAid.clear();
+    constexpr uint32_t maxOtherAidLen = 3000;
+    uint32_t matchedAidCount = 0;
+    std::vector<AppDataParser::HceAppAidInfo> hceApps;
+    ExternalDepsProxy::GetInstance().GetHceApps(hceApps);
+    bool isExceedMaxLen = false;
+    for (const AppDataParser::HceAppAidInfo &appAidInfo hceApps) {
+        std::set<std::string> deduplicatedAid;
+        std::string bundleName = appAidInfo.element.GetBundleName();
+        for (const AppDataParser::AidInfo &aidinfo : appAidInfo.customDataAid) {
+            if ((aidInfo.name == KITS::KIT_OTHER_AID) && !aidInfo.value.empty() &&
+                deduplicatedAid.insert(aidInfo.value).second) {
+                    otherAid.append(aidInfo.value);
+                    otherAid.append("|");
+                    otherAid.append(bundleName);
+                    otherAid.append(";");
+                    matchedAidCount++;
+                    isExceedMaxLen = (otherAid.size() >= maxOtherAidLen);
+            }
+            if (isExceedMaxLen) {
+                InfoLog("Other aid size exceed max len");
+                break;
+            }
+        }
+        if (isExceedMaxLen) {
+            break;
+        }
+    }
+    if (!otherAid.empty()) {
+        // remove the last ';'
+        otherAid.pop_back();
+    }
+    InfoLog("matchedAidCount: %{public}u", matchedAidCount);
+    return KITS::ERR_NONE;
+}
 
 void NfcService::OnCardEmulationData(const std::vector<uint8_t> &data)
 {

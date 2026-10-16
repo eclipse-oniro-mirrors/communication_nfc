@@ -69,6 +69,14 @@ unit_test_external_deps = [
 ]
 
 ohos_unittest("controller_test") {
+  sanitize = {
+    cfi = true
+    boundary_sanitize = true
+    integer_overflow = true
+    cfi_cross_dso = true
+    debug = false
+    ubsan = true
+  }
   module_out_path = unit_module_out_path
 
   sources = [
