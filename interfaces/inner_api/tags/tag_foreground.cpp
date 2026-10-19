@@ -129,9 +129,10 @@ int TagForeground::RegReaderModeWithIntvl(AppExecFwk::ElementName &element,
         return ErrorCode::ERR_NO_PERMISSION;
     }
 
-    TAG::ReaderModeCallbackStub::GetInstance()->RegReaderMode(callback);
+    sptr<TAG::ReaderModeCallbackStub>& readerModeCallbackStub = TAG::ReaderModeCallbackStub::GetInstance();
+    readerModeCallbackStub->RegReaderMode(callback);
     return static_cast<int>(tagSession->RegReaderModeWithIntvl(
-        element, discTech, TAG::ReaderModeCallbackStub::GetInstance(), interval));
+        element, discTech, readerModeCallbackStub, interval));
 }
 
 int TagForeground::UnregReaderMode(AppExecFwk::ElementName &element)

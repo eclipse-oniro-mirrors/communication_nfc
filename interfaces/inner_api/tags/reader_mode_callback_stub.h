@@ -30,7 +30,7 @@ class ReaderModeCallbackStub : public IRemoteStub<KITS::IReaderModeCallback> {
 public:
     ReaderModeCallbackStub();
     virtual ~ReaderModeCallbackStub();
-    static <ReaderModeCallbackStub>& GetInstance();
+    static sptr<ReaderModeCallbackStub>& GetInstance();
     KITS::ErrorCode RegReaderMode(const sptr<KITS::IReaderModeCallback> &callback);
 
     int OnRemoteRequest(
