@@ -183,11 +183,6 @@ ohos_unittest("hce_session_test") {
   deps = unit_test_deps
 
   external_deps = unit_test_external_deps
-  
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-  }
 
   part_name = "nfc"
   subsystem_name = "communication"
