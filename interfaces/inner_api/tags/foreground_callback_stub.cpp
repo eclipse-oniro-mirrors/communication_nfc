@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace NFC {
 namespace TAG {
-ForegroundCallbackStub *g_foregroundCallbackStub = nullptr;
+static sptr<ForegroundCallbackStub> g_foregroundCallbackStub = nullptr;
 
 ForegroundCallbackStub::ForegroundCallbackStub() : callback_(nullptr), mRemoteDied(false)
 {
@@ -31,14 +31,10 @@ ForegroundCallbackStub::ForegroundCallbackStub() : callback_(nullptr), mRemoteDi
 
 ForegroundCallbackStub::~ForegroundCallbackStub()
 {
-    if (g_foregroundCallbackStub != nullptr) {
-        DebugLog("g_foregroundCallbackStub != nullptr");
-        g_foregroundCallbackStub = nullptr;
-    }
     InfoLog("~ForegroundCallbackStub");
 }
 
-ForegroundCallbackStub* ForegroundCallbackStub::GetInstance()
+sptr<ForegroundCallbackStub>& ForegroundCallbackStub::GetInstance()
 {
     if (g_foregroundCallbackStub == nullptr) {
         DebugLog("new ForegroundCallbackStub");

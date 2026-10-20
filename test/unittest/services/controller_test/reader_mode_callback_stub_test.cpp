@@ -146,7 +146,7 @@ HWTEST_F(ReaderModeCallbackStubTest, RegReaderMode001, TestSize.Level1)
 HWTEST_F(ReaderModeCallbackStubTest, RegReaderMode002, TestSize.Level1)
 {
     sptr<KITS::IReaderModeCallback> callback = nullptr;
-    ReaderModeCallbackStub* readerModeCallbackStub = ReaderModeCallbackStub::GetInstance();
+    const sptr<ReaderModeCallbackStub>& readerModeCallbackStub = ReaderModeCallbackStub::GetInstance();
     KITS::ErrorCode errorCode = readerModeCallbackStub->RegReaderMode(callback);
     ASSERT_TRUE(errorCode == KITS::ERR_NFC_PARAMETERS);
 }

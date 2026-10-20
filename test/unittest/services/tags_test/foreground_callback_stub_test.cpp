@@ -89,7 +89,7 @@ HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch002, TestSize.Level1)
 HWTEST_F(ForegroundCallbackStubTest, RegForegroundDispatch003, TestSize.Level1)
 {
     const sptr<KITS::IForegroundCallback> callback;
-    ForegroundCallbackStub* foregroundCallbackStub = ForegroundCallbackStub::GetInstance();
+    const sptr<ForegroundCallbackStub>& foregroundCallbackStub = ForegroundCallbackStub::GetInstance();
     KITS::ErrorCode result = foregroundCallbackStub->RegForegroundDispatch(callback);
     ASSERT_TRUE(result == KITS::ERR_NFC_PARAMETERS);
 }
