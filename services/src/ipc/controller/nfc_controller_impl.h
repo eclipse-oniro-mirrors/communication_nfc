@@ -52,6 +52,7 @@ public:
     void RemoveNfcDeathRecipient(const wptr<IRemoteObject> &remote);
     ErrCode VendorRefreshRoutes() override;
 
+    ErrCode GetHceOtherAid(std::string &otherAid) override;
 private:
     std::weak_ptr<NfcService> nfcService_ = {};
     std::mutex mutex_ {};

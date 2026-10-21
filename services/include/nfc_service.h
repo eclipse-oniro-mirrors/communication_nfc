@@ -58,6 +58,7 @@ public:
     void OnVendorEvent(int eventType, int arg1, std::string arg2);
     int VendorRefreshRoutes();
 #endif
+    int GetHceOtherAid(std::string &otherAid);
     void OnCardEmulationData(const std::vector<uint8_t>& data) override;
     void OnCardEmulationActivated() override;
     void OnCardEmulationDeactivated() override;

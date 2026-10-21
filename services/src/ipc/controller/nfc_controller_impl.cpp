@@ -319,5 +319,19 @@ ErrCode NfcControllerImpl::VendorRefreshRoutes()
 #endif
     return KITS::ERR_NONE;
 }
+
+ErrCode NfcControllerImpl::GetHceOtherAid(std::string &otherAid)
+{
+    if (!ExternalDepsProxy::GetInstance().IsGranted(OHOS::NFC::SYS_PERM)) {
+        ErrorLog("GetHceOtherAid no permission");
+        return KITS::ERR_NO_PERMISSION;
+    }
+    auto nfcServicePtr = nfcService_.lock();
+    if (nfcServicePtr == nullptr) {
+        ErrorLog("nfcService_ is nullptr");
+        return KITS::ERR_NFC_PARAMETERS;
+    }
+    return nfcServicePtr->GetHceOtherAid(otherAid);
+}
 }  // namespace NFC
 }  // namespace OHOS

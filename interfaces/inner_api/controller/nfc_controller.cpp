@@ -335,6 +335,18 @@ ErrorCode NfcController::VendorRefreshRoutes()
 }
 #endif // VENDOR_APPLICATIONS_ENABLED
 
+ErrorCode NfcController::GetHceOtherAid(std::string &otherAid)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    InitNfcRemoteSA();
+    sptr<INfcController> controllerProxy = iface_cast<INfcController>(remote_);
+    if (controllerProxy == nullptr || controllerProxy->AsObject() == nullptr) {
+        ErrorLog("nfc controller proxy nullptr.");
+        return ErrorCode::ERR_NFC_STATE_UNBIND;
+    }
+    return static_cast<ErrorCode>(controllerProxy->GetHceOtherAid(otherAid));
+}
+
 OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
 {
     std::lock_guard<std::mutex> guard(mutex_);

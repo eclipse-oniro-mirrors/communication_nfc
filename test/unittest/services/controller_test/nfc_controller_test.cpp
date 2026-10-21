@@ -320,6 +320,19 @@ HWTEST_F(NfcControllerTest, VendorRefreshRoutes001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetHceOtherAid001
+ * @tc.desc: Test NfcController GetHceOtherAid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcControllerTest, GetHceOtherAid001, TestSize.Level1)
+{
+    NfcController ctrl = NfcController::GetInstance();
+    std::string otherAid;
+    ErrorCode errorCode = ctrl.GetHceOtherAid(otherAid);
+    ASSERT_TRUE(errorCode == ERR_NONE || errorCode == ERR_NFC_STATE_UNBIND);
+}
+
+/**
 * @tc.name: CleanUpDeathRecipient001
 * @tc.desc: Test NfcController CleanUpDeathRecipient.
 * @tc.type: FUNC
