@@ -361,7 +361,7 @@ OHOS::sptr<IRemoteObject> NfcController::GetHceServiceIface(int32_t &res)
     return remoteObj;
 }
 
-__attribute__ ((destructor)) void NfcController::CleanUpDeathRecipient()
+void NfcController::CleanUpDeathRecipient()
 {
     InfoLog("cleaning up");
     std::lock_guard<std::mutex> guard(mutex_);
