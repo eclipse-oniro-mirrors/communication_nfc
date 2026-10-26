@@ -17,6 +17,13 @@ import("//build/ohos_var.gni")
 import("../../../nfc.gni")
 
 idl_gen_interface("nfc_controller_interface") {
+  cflags_cc = [ "-mbranch-protection=pac-ret+b-key" ]
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
   sources = [ "idl/INfcController.idl" ]
   configs = [ ":nfc_inner_kits_public_config" ]
 
