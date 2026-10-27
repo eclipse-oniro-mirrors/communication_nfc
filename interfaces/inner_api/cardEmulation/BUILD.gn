@@ -17,15 +17,6 @@ import("//build/ohos_var.gni")
 import("../../../nfc.gni")
 
 idl_gen_interface("nfc_hce_interface") {
-  # 注：idl_gen_interface模板（idl.gni）不转发branch_protector_ret，只转发cflags/cflags_cc
-  # (branch_protector_ret = "pac_ret"在cxx.gni文件中即等价于-mbranch-protection=pac-ret+b-key)
-  cflags_cc = [ "-mbranch-protection=pac-ret+b-key" ]
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    cfi_vcall_icall_only = true
-    debug = false
-  }
   sources = [ "idl/IHceSession.idl" ]
   configs = [ ":nfc_inner_kits_public_config" ]
 
@@ -38,6 +29,14 @@ idl_gen_interface("nfc_hce_interface") {
   log_tag = "Nfc_Hce_Session"
   part_name = "nfc"
   subsystem_name = "communication"
+
+  cflags_cc = [ "-mbranch-protection=pac-ret+b-key" ]
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
 }
 
 config("nfc_inner_kits_config") {
