@@ -17,6 +17,8 @@ import("//build/ohos_var.gni")
 import("../../../nfc.gni")
 
 idl_gen_interface("nfc_controller_interface") {
+  # 注：idl_gen_interface模板（idl.gni）不转发branch_protector_ret，只转发cflags/cflags_cc
+  # (branch_protector_ret = "pac_ret"在cxx.gni文件中即等价于-mbranch-protection=pac-ret+b-key)
   cflags_cc = [ "-mbranch-protection=pac-ret+b-key" ]
   sanitize = {
     cfi = true
