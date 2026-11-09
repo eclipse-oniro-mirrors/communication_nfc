@@ -17,6 +17,7 @@ import("//build/ohos_var.gni")
 import("../../../nfc.gni")
 
 idl_gen_interface("nfc_controller_interface") {
+  branch_protector_ret = "pac_ret"
 
   sources = [ "idl/INfcController.idl" ]
   configs = [ ":nfc_inner_kits_public_config" ]
@@ -27,13 +28,6 @@ idl_gen_interface("nfc_controller_interface") {
   part_name = "nfc"
   subsystem_name = "communication"
 
-  cflags_cc = [ "-mbranch-protection=pac-ret+b-key" ]
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    cfi_vcall_icall_only = true
-    debug = false
-  }
 }
 
 config("nfc_inner_kits_config") {
