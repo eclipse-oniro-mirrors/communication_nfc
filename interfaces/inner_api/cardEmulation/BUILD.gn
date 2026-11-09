@@ -18,7 +18,7 @@ import("../../../nfc.gni")
 
 idl_gen_interface("nfc_hce_interface") {
   branch_protector_ret = "pac_ret"
-  
+
   sources = [ "idl/IHceSession.idl" ]
   configs = [ ":nfc_inner_kits_public_config" ]
 
@@ -31,7 +31,6 @@ idl_gen_interface("nfc_hce_interface") {
   log_tag = "Nfc_Hce_Session"
   part_name = "nfc"
   subsystem_name = "communication"
-
 }
 
 config("nfc_inner_kits_config") {

@@ -27,7 +27,6 @@ idl_gen_interface("nfc_controller_interface") {
   log_tag = "Nfc_Controller"
   part_name = "nfc"
   subsystem_name = "communication"
-
 }
 
 config("nfc_inner_kits_config") {
