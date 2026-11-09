@@ -34,9 +34,6 @@ namespace OHOS {
     constexpr const auto FUZZER_THRESHOLD = 4;
     constexpr const size_t MAX_STRING_LEN = 256;
 
-    std::shared_ptr<NFC::NfcService> g_nfcService = nullptr;
-    std::shared_ptr<HCE::HceSession> g_hceSession = nullptr;
-
     class HceCmdListener : public IHceCmdCallback {
     public:
         HceCmdListener() {}
@@ -57,59 +54,47 @@ namespace OHOS {
 
     void FuzzRegHceCmdCallbackByToken(FuzzedDataProvider& fdp)
     {
-        if (!g_nfcService || !g_hceSession) {
-            return;
-        }
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
         std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
-        g_hceSession->RegHceCmdCallback(callback, type);
+        hceSession->RegHceCmdCallback(callback, type);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
-        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
-        g_hceSession->ceService_ = ceService;
-        g_hceSession->RegHceCmdCallback(callback, type);
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->RegHceCmdCallback(callback, type);
     }
 
     void FuzzRegHceCmdCallbackByToken2(FuzzedDataProvider& fdp)
     {
-        if (!g_nfcService || !g_hceSession) {
-            return;
-        }
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
         std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
-        g_hceSession->RegHceCmdCallback(callback, type);
+        hceSession->RegHceCmdCallback(callback, type);
     }
 
     void FuzzUnRegHceCmdCallback(FuzzedDataProvider& fdp)
     {
-        if (!g_nfcService || !g_hceSession) {
-            return;
-        }
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
         std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
-        g_hceSession->UnregHceCmdCallback(callback, type);
+        hceSession->UnregHceCmdCallback(callback, type);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
-        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
-        g_hceSession->ceService_ = ceService;
-        g_hceSession->UnregHceCmdCallback(callback, type);
+        std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
+        hceSession->ceService_ = ceService;
+        hceSession->UnregHceCmdCallback(callback, type);
     }
 
     void FuzzUnRegHceCmdCallback2(FuzzedDataProvider& fdp)
     {
-        if (!g_nfcService || !g_hceSession) {
-            return;
-        }
+        std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
+        std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
         std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
-        g_hceSession->UnregHceCmdCallback(callback, type);
+        hceSession->UnregHceCmdCallback(callback, type);
     }
-}
-
-extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv)
-{
-    OHOS::g_nfcService = std::make_shared<OHOS::NFC::NfcService>();
-    OHOS::g_nfcService->Initialize();
-    OHOS::g_hceSession = std::make_shared<OHOS::HCE::HceSession>(OHOS::g_nfcService);
-    return 0;
 }
 
 /* Fuzzer entry point */
