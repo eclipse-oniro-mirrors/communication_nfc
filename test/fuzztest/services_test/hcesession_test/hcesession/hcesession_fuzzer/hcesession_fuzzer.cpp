@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #define private public
-#include "HceSession_fuzzer.h"
+#include "hcesession_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>

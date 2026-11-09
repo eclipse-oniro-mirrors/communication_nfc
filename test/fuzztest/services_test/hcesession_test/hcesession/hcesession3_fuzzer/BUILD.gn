@@ -19,13 +19,13 @@ import("../../../../nfcfuzz.gni")
 ohos_fuzztest("HceSession3FuzzTest") {
   module_out_path = fuzz_module_out_path
 
-  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/hcesession_test/hcesession/HceSession3_fuzzer"
+  fuzz_config_file = "$NFC_DIR/test/fuzztest/services_test/hcesession_test/hcesession/hcesession3_fuzzer"
 
   include_dirs = fuzz_include_dirs
 
   cflags = fuzz_cflags
 
-  sources = [ "HceSession3_fuzzer.cpp" ]
+  sources = [ "hcesession3_fuzzer.cpp" ]
 
   deps = fuzz_deps
 

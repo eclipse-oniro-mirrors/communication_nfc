@@ -22,6 +22,6 @@
 #include <cstdlib>
 #include <fcntl.h>
 
-#define FUZZ_PROJECT_NAME "HceSession3_fuzzer"
+#define FUZZ_PROJECT_NAME "hcesession3_fuzzer"
 
 #endif  // HCESESSION3_FUZZER_H
