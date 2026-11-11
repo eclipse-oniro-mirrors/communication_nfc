@@ -34,6 +34,7 @@ public:
     void FactoryReset() override;
     void Shutdown() override;
     void NotifyMessageToVendor(int key, const std::string& value) override;
+    bool QueryVendorConfig(int key, std::string &value) override;
 };
 }  // namespace NCI
 }  // namespace NFC

@@ -693,7 +693,23 @@ void NfcService::SetupUnloadNfcSaTimer(bool shouldRestartTimer)
         NfcTimer::GetInstance()->UnRegister(unloadStaSaTimerId);
         unloadStaSaTimerId = 0;
     }
-    NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, TIMEOUT_UNLOAD_NFC_SA);
+    uint32_t timeout = GetUnloadNfcSaTimeout();
+    InfoLog("unload nfc sa timeout = %{public}u ms", timeout);
+    NfcTimer::GetInstance()->Register(timeoutCallback, unloadStaSaTimerId, timeout);
+}
+
+uint32_t NfcService::GetUnloadNfcSaTimeout()
+{
+    std::string configValue;
+    if (nciNfccProxy_ != nullptr &&
+        nciNfccProxy_->QueryVendorConfig(KITS::VENDOR_TIMEOUT_MS_UNLOAD_NFC_SA, configValue)) {
+        int32_t value = 0;
+        if (KITS::NfcSdkCommon::SecureStringToInt(configValue, value, KITS::DECIMAL_NOTATION) && value > 0) {
+            return static_cast<uint32_t>(value);
+        }
+        ErrorLog("invaid unload sa timeout config [%{public}s]", configValue.c_str());
+    }
+    return TIMEOUT_UNLOAD_NFC_SA;
 }
 
 void NfcService::CancelUnloadNfcSaTimer()

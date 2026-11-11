@@ -21,6 +21,7 @@
 #include "loghelper.h"
 #include "nfc_param_util.h"
 #include "nfc_service.h"
+#include "nfc_timer.h"
 
 namespace OHOS {
 namespace NFC {
@@ -454,6 +455,18 @@ HWTEST_F(NfcServiceTest, GetHceOtherAid001, TestSize.Level1)
     std::string otherAid;
     int ret = nfcService->GetHceOtherAid(otherAid);
     ASSERT_TRUE(ret == ERR_NONE);
+}
+
+/**
+ * @tc.name: GetUnloadNfcSaTimeout001
+ * @tc.desc: Test NfcServiceTest GetUnloadNfcSaTimeout without vendor config returns default.
+ * @tc.type: FUNC
+ */
+HWTEST_F(NfcServiceTest, GetUnloadNfcSaTimeout001, TestSize.Level1)
+{
+    std::shared_ptr<NfcService> nfcService = std::make_shared<NfcService>();
+    nfcService->nciNfccProxy_ = nullptr;
+    ASSERT_EQ(nfcService->GetUnloadNfcSaTimeout(), TIMEOUT_UNLOAD_NFC_SA);
 }
 }
 }

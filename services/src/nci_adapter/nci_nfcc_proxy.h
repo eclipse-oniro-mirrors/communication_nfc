@@ -86,6 +86,14 @@ public:
      * @brief Send want to vendor update
     */
     void UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::string& uri) override;
+
+    /**
+     * @brief Query a vendor config value by key
+     * @param key config key id, see KITS:VendorConfigKey definitions.
+     * @param value output value in string form.
+     * @return true if the key is supported and value is valid, otherwise false. 
+     */
+    bool QueryVendorConfig(int key, std::string &value) override;
 private:
     std::shared_ptr<INciNfccInterface> nfccInterface_;
 };

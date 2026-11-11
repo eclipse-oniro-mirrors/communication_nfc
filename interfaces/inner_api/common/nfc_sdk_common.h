@@ -202,6 +202,11 @@ enum NotifyVendorEvent : int {
     REG_READERMODE_TIME = 1170,
 };
 
+// Config keys for INciNfccInterface::QueryVendorConfig.
+enum VendorConfig : int {
+    VENDOR_TIMEOUT_MS_UNLOAD_NFC_SA = 1,
+};
+
 enum VendorInfoType : uint16_t {
     HAP_NAME_NOTEPAD = 0,
     HAP_NAME_GALLERY = 1,
