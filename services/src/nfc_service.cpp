@@ -707,7 +707,7 @@ uint32_t NfcService::GetUnloadNfcSaTimeout()
         if (KITS::NfcSdkCommon::SecureStringToInt(configValue, value, KITS::DECIMAL_NOTATION) && value > 0) {
             return static_cast<uint32_t>(value);
         }
-        ErrorLog("invaid unload sa timeout config [%{public}s]", configValue.c_str());
+        ErrorLog("invalid unload sa timeout config [%{public}s]", configValue.c_str());
     }
     return TIMEOUT_UNLOAD_NFC_SA;
 }

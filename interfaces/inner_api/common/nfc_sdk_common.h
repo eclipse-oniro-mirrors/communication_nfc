@@ -203,7 +203,7 @@ enum NotifyVendorEvent : int {
 };
 
 // Config keys for INciNfccInterface::QueryVendorConfig.
-enum VendorConfig : int {
+enum VendorConfigKey : int {
     VENDOR_TIMEOUT_MS_UNLOAD_NFC_SA = 1,
 };
 

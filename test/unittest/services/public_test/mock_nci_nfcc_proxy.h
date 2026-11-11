@@ -81,7 +81,7 @@ public:
     bool QueryVendorConfig(int key, std::string &value) override
     {
         return false;
-    }
+    };
 };
 }
 }

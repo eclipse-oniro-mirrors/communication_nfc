@@ -453,15 +453,15 @@ HWTEST_F(NciNfccProxyTest, UpdateWantExtInfoByVendor003, TestSize.Level1)
 
 /**
  * @tc.name: QueryVendorConfig001
- * @tc.desc Test NciNfccproxyTest QueryVendorConfig with null nfccInterface_.
+ * @tc.desc: Test NciNfccProxyTest QueryVendorConfig with null nfccInterface_.
  * @tc.type: FUNC
  */
-HWTEST_F(NciNfccProxyTest, UpdateWantExtInfoByVendor003, TestSize.Level1)
+HWTEST_F(NciNfccProxyTest, QueryVendorConfig001, TestSize.Level1)
 {
     std::shared_ptr<NciNfccProxy> nciNfccProxy = std::make_shared<NciNfccProxy>();
     nciNfccProxy->nfccInterface_ = nullptr;
     std::string value = "default";
-    ASSERT_FALSE(nciNfccProxy->QueryVendorConfig(KTS::VENDOR_TIMEOUT_MS_UNLOAD_NFC_SA, value));
+    ASSERT_FALSE(nciNfccProxy->QueryVendorConfig(KITS::VENDOR_TIMEOUT_MS_UNLOAD_NFC_SA, value));
     ASSERT_EQ(value, "default");
 }
 }
