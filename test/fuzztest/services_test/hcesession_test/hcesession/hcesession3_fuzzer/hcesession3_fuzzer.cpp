@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #define private public
-#include "hcesession_fuzzer.h"
+#include "hcesession3_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -62,7 +62,8 @@ namespace OHOS {
         if (!g_nfcService || !g_hceSession) {
             return;
         }
-        Security::AccessToken::AccessTokenID callerToken = fdp.ConsumeIntegral<uint64_t>();
+        Security::AccessToken::AccessTokenID callerToken =
+            fdp.ConsumeIntegral<Security::AccessToken::AccessTokenID>();
         g_hceSession->UnRegAllCallback(callerToken);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
@@ -75,7 +76,8 @@ namespace OHOS {
         if (!g_nfcService || !g_hceSession) {
             return;
         }
-        Security::AccessToken::AccessTokenID callerToken = fdp.ConsumeIntegral<uint64_t>();
+        Security::AccessToken::AccessTokenID callerToken =
+            fdp.ConsumeIntegral<Security::AccessToken::AccessTokenID>();
         g_hceSession->HandleWhenRemoteDie(callerToken);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(g_nfcService, nciCeProxy);
@@ -88,6 +90,9 @@ namespace OHOS {
         if (!g_nfcService || !g_hceSession) {
             return;
         }
+        if (!fdp.ConsumeBool()) {
+            return;
+        }
         CePaymentServicesParcelable parcelable;
         g_hceSession->GetPaymentServices(parcelable);
     }
@@ -95,6 +100,9 @@ namespace OHOS {
     void FuzzAppendSimBundle(FuzzedDataProvider& fdp)
     {
         if (!g_nfcService || !g_hceSession) {
+            return;
+        }
+        if (!fdp.ConsumeBool()) {
             return;
         }
         std::vector<AbilityInfo> paymentAbilityInfos;
@@ -119,6 +127,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     /* Run your code on data */
     FuzzedDataProvider fdp(data, size);
+    fdp.ConsumeIntegral<uint8_t>();
     OHOS::FuzzUnRegAllCallback(fdp);
     OHOS::FuzzHandleWhenRemoteDie(fdp);
     OHOS::FuzzGetPaymentServices(fdp);

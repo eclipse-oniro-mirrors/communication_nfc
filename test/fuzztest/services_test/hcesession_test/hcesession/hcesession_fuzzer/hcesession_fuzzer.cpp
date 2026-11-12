@@ -17,13 +17,14 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include "hce_session.h"
 #include "nfc_sdk_common.h"
 #include "hce_cmd_callback_stub.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
-#include <securec.h>
 #include <fuzzer/FuzzedDataProvider.h>
 
 namespace OHOS {
@@ -32,11 +33,7 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
-    constexpr const auto INT_TO_BOOL_DIVISOR = 2;
-
-    const uint8_t *g_baseFuzzData = nullptr;
-    size_t g_baseFuzzSize = 0;
-    size_t g_baseFuzzPos = 0;
+    constexpr const size_t MAX_STRING_LEN = 256;
 
     class HceCmdListener : public IHceCmdCallback {
     public:
@@ -56,61 +53,30 @@ namespace OHOS {
         }
     };
 
-    void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
+    void FuzzCallbackEnter(FuzzedDataProvider& fdp)
     {
-        for (uint16_t i = 0 ; i < outParaLen ; i++) {
-            // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
-            outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
-        }
-    }
-
-    template <class T> T GetData()
-    {
-        T object{};
-        size_t objectSize = sizeof(object);
-        if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
-            return object;
-        }
-        errno_t ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
-        if (ret != EOK) {
-            return {};
-        }
-        g_baseFuzzPos += objectSize;
-        return object;
-    }
-
-    void FuzzCallbackEnter(const uint8_t* data, size_t size)
-    {
-        g_baseFuzzData = data;
-        g_baseFuzzSize = size;
-        g_baseFuzzPos = 0;
-
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        uint32_t code = GetData<uint32_t>();
+        uint32_t code = fdp.ConsumeIntegral<uint32_t>();
         hceSession->CallbackEnter(code);
     }
 
-    void FuzzCallbackExit(const uint8_t* data, size_t size)
+    void FuzzCallbackExit(FuzzedDataProvider& fdp)
     {
-        g_baseFuzzData = data;
-        g_baseFuzzSize = size;
-        g_baseFuzzPos = 0;
-
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
-        uint32_t code = GetData<int32_t>();
-        int32_t result = GetData<int32_t>();
+        uint32_t code = fdp.ConsumeIntegral<uint32_t>();
+        int32_t result = fdp.ConsumeIntegral<int32_t>();
         hceSession->CallbackExit(code, result);
     }
 
-    void FuzzIsDefaultService(const uint8_t* data, size_t size)
+    void FuzzIsDefaultService(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         ElementName element;
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
-        bool isDefaultService = data[0] % INT_TO_BOOL_DIVISOR;
+        std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
+        bool isDefaultService = fdp.ConsumeBool();
         hceSession->IsDefaultService(element, type, isDefaultService);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
@@ -118,21 +84,22 @@ namespace OHOS {
         hceSession->IsDefaultService(element, type, isDefaultService);
     }
 
-    void FuzzStartHce(const uint8_t* data, size_t size)
+    void FuzzStartHce(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         ElementName element;
         std::vector<std::string> aids;
-        aids.push_back(NfcSdkCommon::BytesVecToHexString(data, size));
+        aids.push_back(fdp.ConsumeRandomLengthString(MAX_STRING_LEN));
         hceSession->StartHce(element, aids);
     }
 
-    void FuzzStopHce(const uint8_t* data, size_t size)
+    void FuzzStopHce(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         ElementName element;
+        fdp.ConsumeIntegral<uint8_t>();
         hceSession->StopHce(element);
     }
 }
@@ -145,10 +112,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzCallbackEnter(data, size);
-    OHOS::FuzzCallbackExit(data, size);
-    OHOS::FuzzIsDefaultService(data, size);
-    OHOS::FuzzStartHce(data, size);
-    OHOS::FuzzStopHce(data, size);
+    FuzzedDataProvider fdp(data, size);
+    fdp.ConsumeIntegral<uint8_t>();
+    OHOS::FuzzCallbackEnter(fdp);
+    OHOS::FuzzCallbackExit(fdp);
+    OHOS::FuzzIsDefaultService(fdp);
+    OHOS::FuzzStartHce(fdp);
+    OHOS::FuzzStopHce(fdp);
     return 0;
 }

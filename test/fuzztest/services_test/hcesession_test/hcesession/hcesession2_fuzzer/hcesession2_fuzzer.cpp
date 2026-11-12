@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 #define private public
-#include "hcesession_fuzzer.h"
+#include "hcesession2_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include "hce_session.h"
 #include "nfc_sdk_common.h"
 #include "hce_cmd_callback_stub.h"
 #include "nfc_service_ipc_interface_code.h"
 #include "loghelper.h"
-#include <securec.h>
 #include <fuzzer/FuzzedDataProvider.h>
 
 namespace OHOS {
@@ -32,6 +32,7 @@ namespace OHOS {
     using namespace OHOS::NFC::KITS;
 
     constexpr const auto FUZZER_THRESHOLD = 4;
+    constexpr const size_t MAX_STRING_LEN = 256;
 
     class HceCmdListener : public IHceCmdCallback {
     public:
@@ -51,20 +52,12 @@ namespace OHOS {
         }
     };
 
-    void ConvertToUint32s(const uint8_t* ptr, uint32_t* outPara, uint16_t outParaLen)
-    {
-        for (uint16_t i = 0 ; i < outParaLen ; i++) {
-            // 4 uint8s compose 1 uint32 , 8 16 24 is bit operation, 2 3 4 are array subscripts.
-            outPara[i] = (ptr[i * 4] << 24) | (ptr[(i * 4) + 1 ] << 16) | (ptr[(i * 4) + 2] << 8) | (ptr[(i * 4) + 3]);
-        }
-    }
-
-    void FuzzRegHceCmdCallbackByToken(const uint8_t* data, size_t size)
+    void FuzzRegHceCmdCallbackByToken(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         hceSession->RegHceCmdCallback(callback, type);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
@@ -72,21 +65,21 @@ namespace OHOS {
         hceSession->RegHceCmdCallback(callback, type);
     }
 
-    void FuzzRegHceCmdCallbackByToken2(const uint8_t* data, size_t size)
+    void FuzzRegHceCmdCallbackByToken2(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         hceSession->RegHceCmdCallback(callback, type);
     }
 
-    void FuzzUnRegHceCmdCallback(const uint8_t* data, size_t size)
+    void FuzzUnRegHceCmdCallback(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = nullptr;
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         hceSession->UnregHceCmdCallback(callback, type);
         std::weak_ptr<NCI::INciCeInterface> nciCeProxy;
         std::shared_ptr<CeService> ceService = std::make_shared<CeService>(service, nciCeProxy);
@@ -94,12 +87,12 @@ namespace OHOS {
         hceSession->UnregHceCmdCallback(callback, type);
     }
 
-    void FuzzUnRegHceCmdCallback2(const uint8_t* data, size_t size)
+    void FuzzUnRegHceCmdCallback2(FuzzedDataProvider& fdp)
     {
         std::shared_ptr<NfcService> service = std::make_shared<NfcService>();
         std::shared_ptr<HceSession> hceSession = std::make_shared<HceSession>(service);
         sptr<KITS::IHceCmdCallback> callback = sptr<HCE::HceCmdCallbackStub>(new HCE::HceCmdCallbackStub);
-        std::string type = NfcSdkCommon::BytesVecToHexString(data, size);
+        std::string type = fdp.ConsumeRandomLengthString(MAX_STRING_LEN);
         hceSession->UnregHceCmdCallback(callback, type);
     }
 }
@@ -112,9 +105,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     }
 
     /* Run your code on data */
-    OHOS::FuzzRegHceCmdCallbackByToken(data, size);
-    OHOS::FuzzRegHceCmdCallbackByToken2(data, size);
-    OHOS::FuzzUnRegHceCmdCallback(data, size);
-    OHOS::FuzzUnRegHceCmdCallback2(data, size);
+    FuzzedDataProvider fdp(data, size);
+    fdp.ConsumeIntegral<uint8_t>();
+    OHOS::FuzzRegHceCmdCallbackByToken(fdp);
+    OHOS::FuzzRegHceCmdCallbackByToken2(fdp);
+    OHOS::FuzzUnRegHceCmdCallback(fdp);
+    OHOS::FuzzUnRegHceCmdCallback2(fdp);
     return 0;
 }

@@ -12,9 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef HCESESSION_FUZZER_H
-#define HCESESSION_FUZZER_H
+#ifndef HCESESSION3_FUZZER_H
+#define HCESESSION3_FUZZER_H
+
+#include <cstdint>
+#include <unistd.h>
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
+#include <fcntl.h>
 
 #define FUZZ_PROJECT_NAME "hcesession3_fuzzer"
 
-#endif  // HCESESSION_FUZZER_H
+#endif  // HCESESSION3_FUZZER_H
