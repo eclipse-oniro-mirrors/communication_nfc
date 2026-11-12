@@ -97,6 +97,10 @@ class HceServiceImpl {
         for (uint16_t i = 0; i < data.size(); i++) {
             dataBytes.push_back(data[i]);
         }
+        if (dataBytes.empty()) {
+            ErrorLog("transmit data is empty.");
+            return;
+        }
         std::string hexCmdData = KITS::NfcSdkCommon::BytesVecToHexString(&dataBytes[0], dataBytes.size());
 
         std::string hexRspData;
