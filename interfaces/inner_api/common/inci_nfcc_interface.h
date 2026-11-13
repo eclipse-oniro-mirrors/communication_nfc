@@ -87,6 +87,14 @@ public:
      * @brief Send want to vendor update
     */
     virtual void UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::string& uri) = 0;
+
+    /**
+     * @brief Query a vendor config value by key.
+     * @param key config key id, see KITS::VendorConfigKey definitions.
+     * @param value output value in string form.
+     * @return true if the key is supported and value is valid, otherwise false.
+     */
+    virtual bool QueryVendorConfig(int key, std::string &value) = 0;
 };
 }  // namespace NCI
 }  // namespace NFC

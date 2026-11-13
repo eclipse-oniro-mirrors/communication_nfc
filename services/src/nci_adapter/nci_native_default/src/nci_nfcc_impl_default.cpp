@@ -68,6 +68,13 @@ void NciNfccImplDefault::Shutdown()
 void NciNfccImplDefault::NotifyMessageToVendor(int key, const std::string& value)
 {
 }
+
+bool NciNfccImplDefault::QueryVendorConfig(int key, std::string &value)
+{
+    (void)key;
+    (void)value;
+    return false;
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

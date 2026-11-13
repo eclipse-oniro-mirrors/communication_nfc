@@ -142,6 +142,17 @@ void NciNfccProxy::UpdateWantExtInfoByVendor(AAFwk::Want& want, const std::strin
         return nfccInterface_->UpdateWantExtInfoByVendor(want, uri);
     }
 }
+
+/**
+ * @brief Query a vendor config value by key.
+ */
+bool NciNfccProxy::QueryVendorConfig(int key, std::string &value)
+{
+    if (nfccInterface_) {
+        return nfccInterface_->QueryVendorConfig(key, value);
+    }
+    return false;
+}
 }  // namespace NCI
 }  // namespace NFC
 }  // namespace OHOS

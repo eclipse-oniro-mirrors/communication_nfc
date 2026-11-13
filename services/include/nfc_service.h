@@ -101,6 +101,7 @@ private:
     void HandleShutdown();
     void SetupUnloadNfcSaTimer(bool shouldRestartTimer);
     void CancelUnloadNfcSaTimer();
+    uint32_t GetUnloadNfcSaTimeout();
 
     bool IsMaxSwitchRetryTime();
     bool ShouldTurnOnNfc();
