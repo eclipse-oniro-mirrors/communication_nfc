@@ -21,20 +21,13 @@
 namespace OHOS {
 namespace NFC {
 namespace KITS {
-std::mutex CjNfcCardEmulationController::controllerMutex_;
-std::shared_ptr<CjNfcCardEmulationController> CjNfcCardEmulationController::controller_ { nullptr };
 const int8_t HCE_CMD = 0; // defined by cangjie enum NfcEventType
 
 std::shared_ptr<CjNfcCardEmulationController> CjNfcCardEmulationController::GetInstance()
 {
-    if (controller_ == nullptr) {
-        std::lock_guard<std::mutex> lock(controllerMutex_);
-        if (controller_ == nullptr) {
-            auto controller = std::make_shared<CjNfcCardEmulationController>();
-            controller_ = controller;
-        }
-    }
-    return controller_;
+    static std::shared_ptr<CjNfcCardEmulationController> instance =
+        std::make_shared<CjNfcCardEmulationController>();
+    return instance;
 }
 
 int32_t CjNfcCardEmulationController::Subscribe(int8_t type, int64_t id)

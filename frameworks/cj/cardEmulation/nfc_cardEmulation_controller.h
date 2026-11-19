@@ -40,8 +40,6 @@ private:
     void InitHceCmd(int64_t id);
     std::recursive_mutex mutex_;
     std::function<void(const uint8_t* head, int64_t size)> hceCmd_;
-    static std::mutex controllerMutex_;
-    static std::shared_ptr<CjNfcCardEmulationController> controller_;
 };
 
 } // namespace KITS
